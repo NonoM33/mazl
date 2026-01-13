@@ -5,7 +5,6 @@ const email1 = document.getElementById('email');
 const email2 = document.getElementById('email-2');
 const message1 = document.getElementById('form-message');
 const message2 = document.getElementById('form-message-2');
-const countEl = document.getElementById('count');
 const toast = document.getElementById('toast');
 
 // Check URL params for confirmation status
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (params.get('confirmed') === 'true') {
     showToast('Email confirmé ! Tu es sur la liste.', 'success');
-    // Clean URL
     window.history.replaceState({}, '', '/');
   }
   
@@ -25,45 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.history.replaceState({}, '', '/');
   }
-  
-  // Load count
-  loadCount();
 });
-
-// Load waitlist count
-async function loadCount() {
-  try {
-    const res = await fetch('/api/count');
-    const data = await res.json();
-    animateCount(data.total || 0);
-  } catch (e) {
-    console.error('Failed to load count:', e);
-  }
-}
-
-// Animate count number
-function animateCount(target) {
-  const duration = 1500;
-  const start = 0;
-  const startTime = performance.now();
-  
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = Math.floor(start + (target - start) * eased);
-    
-    countEl.textContent = current;
-    
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    }
-  }
-  
-  requestAnimationFrame(update);
-}
 
 // Handle form submission
 async function handleSubmit(e, emailInput, messageEl) {
@@ -95,9 +55,6 @@ async function handleSubmit(e, emailInput, messageEl) {
       messageEl.className = 'form-message success';
       emailInput.value = '';
       showToast('Bienvenue sur la waitlist !', 'success');
-      // Increment count optimistically
-      const current = parseInt(countEl.textContent) || 0;
-      countEl.textContent = current + 1;
     } else {
       messageEl.textContent = data.error || 'Une erreur est survenue';
       messageEl.className = 'form-message error';
