@@ -35,8 +35,11 @@ app.get("/verify", async (c) => {
 });
 
 app.get("/admin", async (c) => {
-  const password = c.req.query("password") || "";
-  return c.redirect(`/admin.html?password=${encodeURIComponent(password)}`);
+  return new Response(Bun.file("./public/admin-login.html"));
+});
+
+app.get("/admin/dashboard", async (c) => {
+  return new Response(Bun.file("./public/admin.html"));
 });
 
 // Static files

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MZL — Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo" style="text-decoration:none;">MZL</a>
+  </nav>
+
+  <main class="container" style="padding-top:120px;padding-bottom:80px;">
+    <div class="auth-card">
+      <div class="verify-header">
+        <h1>Administration</h1>
+        <p>Connecte-toi pour accéder aux vérifications.</p>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <label class="upload-label" for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" />
+        <button class="btn btn-primary" type="submit">Se connecter</button>
+        <div id="login-error" class="upload-msg error" style="display:none;"></div>
+      </form>
+
+      <div class="muted" style="margin-top:14px; font-size:13px;">
+        Astuce: si tu as déjà une session, tu seras redirigé automatiquement.
+      </div>
+    </div>
+  </main>
+
+  <script src="/admin-login.js"></script>
+</body>
+</html>

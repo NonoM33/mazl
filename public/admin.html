@@ -15,12 +15,14 @@
   </nav>
 
   <main class="container" style="padding-top:120px;padding-bottom:80px;">
-    <div class="muted" style="margin-bottom:12px;">Astuce: ouvre <code>/admin?password=...</code></div>
     <div class="verify-card">
       <div class="verify-header">
         <h1>Admin — Vérifications</h1>
         <p>Liste des dossiers en attente (MVP).</p>
-        <div class="muted" id="admin-toggle" style="margin-top:10px;"></div>
+        <div class="admin-topbar">
+          <div class="muted" id="admin-toggle"></div>
+          <button class="btn" id="admin-logout" type="button">Déconnexion</button>
+        </div>
       </div>
 
       <div id="admin-error" class="verify-status error" style="display:none;"></div>
