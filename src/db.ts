@@ -108,7 +108,7 @@ export async function listPendingSubmissions() {
            d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
-    WHERE w.verification_status IN ('submitted')
+    WHERE w.verification_status IN ('submitted', 'pending')
     ORDER BY w.documents_submitted_at DESC NULLS LAST, w.created_at DESC
   `;
 
