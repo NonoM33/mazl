@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MZL - Trouve ton mazal, à ta façon</title>
-  <meta name="description" content="L'application de rencontre juive moderne, sécurisée et intelligente. Rejoins la waitlist.">
+  <title>MZL - L'app de rencontre juive qui change tout</title>
+  <meta name="description" content="Trouve l'amour au sein de ta communauté. MZL, l'app de rencontre juive moderne, sécurisée et intelligente.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -15,185 +15,256 @@
   <section class="hero">
     <nav class="nav">
       <div class="logo">MZL</div>
+      <div class="nav-cta">
+        <a href="#waitlist" class="nav-btn">Rejoindre</a>
+      </div>
     </nav>
-    
-    <div class="hero-content">
-      <h1>Trouve ton <span class="highlight">mazal</span>, à ta façon.</h1>
-      <p class="subtitle">L'application de rencontre juive moderne, sécurisée et intelligente.</p>
-      
-      <form id="waitlist-form" class="form">
-        <div class="input-group">
-          <input 
-            type="email" 
-            id="email" 
-            placeholder="ton@email.com" 
-            required
-            autocomplete="email"
-          >
-          <button type="submit" id="submit-btn">
-            <span class="btn-text">Rejoindre la waitlist</span>
-            <span class="btn-loader" style="display: none;">
-              <svg class="spinner" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
-              </svg>
-            </span>
-          </button>
+
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="badge">Bientôt disponible</div>
+        <h1>L'amour n'attend pas.<br><span class="gradient-text">Ton mazal non plus.</span></h1>
+        <p class="subtitle">Rejoins des milliers de célibataires juifs qui cherchent une relation sérieuse. Matching intelligent, sécurité maximale, liberté totale.</p>
+        
+        <form id="waitlist-form" class="form">
+          <div class="input-group">
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="Entre ton email" 
+              required
+              autocomplete="email"
+            >
+            <button type="submit" id="submit-btn">
+              <span class="btn-text">Je m'inscris</span>
+              <span class="btn-loader" style="display: none;">
+                <svg class="spinner" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          <p class="form-message" id="form-message"></p>
+        </form>
+
+        <div class="social-proof">
+          <div class="avatars">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face" alt="">
+          </div>
+          <span><strong id="count">0</strong> personnes déjà inscrites</span>
         </div>
-        <p class="form-message" id="form-message"></p>
-      </form>
-      
-      <div class="social-proof">
-        <span class="count-wrapper">
-          <span id="count">0</span> personnes sur la waitlist
-        </span>
+      </div>
+
+      <div class="hero-visual">
+        <div class="phone-main">
+          <div class="phone-notch"></div>
+          <div class="match-card">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop&crop=face" alt="Profile">
+            <div class="match-overlay">
+              <div class="match-info">
+                <h3>Sarah, 27</h3>
+                <p>Tel Aviv • Traditionnelle</p>
+                <div class="match-tags">
+                  <span>Famille</span>
+                  <span>Voyages</span>
+                  <span>Shabbat</span>
+                </div>
+              </div>
+              <div class="match-score">94% compatible</div>
+            </div>
+            <div class="match-actions">
+              <button class="action-btn pass">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+              <button class="action-btn like">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="floating-hearts">
+          <span class="heart h1">❤️</span>
+          <span class="heart h2">💕</span>
+          <span class="heart h3">✨</span>
+        </div>
       </div>
     </div>
-    
-    <div class="hero-visual">
-      <div class="phone-mockup">
-        <div class="phone-screen">
-          <div class="app-header">
-            <span class="app-logo">MZL</span>
-          </div>
-          <div class="profile-card">
-            <div class="profile-avatar"></div>
-            <div class="profile-info">
-              <div class="profile-name"></div>
-              <div class="profile-details"></div>
-            </div>
-            <div class="compatibility">
-              <span class="compat-score">92%</span>
-              <span class="compat-label">compatible</span>
-            </div>
-          </div>
-          <div class="profile-card card-2">
-            <div class="profile-avatar"></div>
-            <div class="profile-info">
-              <div class="profile-name"></div>
-              <div class="profile-details"></div>
-            </div>
-          </div>
-        </div>
+
+    <div class="scroll-indicator">
+      <span>Découvrir</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="container">
+      <div class="stat-item">
+        <span class="stat-number">89%</span>
+        <span class="stat-label">cherchent une relation sérieuse</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <span class="stat-label">profils vérifiés manuellement</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">3x</span>
+        <span class="stat-label">plus de matchs pertinents</span>
       </div>
     </div>
   </section>
 
-  <!-- Problem/Solution Section -->
-  <section class="problem-solution">
+  <!-- Why Section -->
+  <section class="why-section">
     <div class="container">
       <div class="section-header">
-        <h2>Pourquoi <span class="highlight">MZL</span> ?</h2>
+        <h2>Pourquoi MZL va<br><span class="gradient-text">changer ta vie</span></h2>
+        <p>On a créé l'app qu'on aurait voulu avoir.</p>
       </div>
-      
-      <div class="comparison">
-        <div class="problem-side">
-          <h3>Le problème</h3>
-          <ul class="problem-list">
-            <li>
-              <span class="icon">✗</span>
-              <span>Apps généralistes = matchs inadaptés</span>
-            </li>
-            <li>
-              <span class="icon">✗</span>
-              <span>Apps juives existantes rigides ou dépassées</span>
-            </li>
-            <li>
-              <span class="icon">✗</span>
-              <span>Aucune prise en compte de ta pratique réelle</span>
-            </li>
-            <li>
-              <span class="icon">✗</span>
-              <span>Crainte des mauvaises intentions</span>
-            </li>
-          </ul>
-        </div>
-        
-        <div class="solution-side">
-          <h3>Notre solution</h3>
-          <ul class="solution-list">
-            <li>
-              <span class="icon">✓</span>
-              <span>Matching intelligent basé sur tes valeurs</span>
-            </li>
-            <li>
-              <span class="icon">✓</span>
-              <span>Interface moderne et intuitive</span>
-            </li>
-            <li>
-              <span class="icon">✓</span>
-              <span>Ton niveau de pratique, tes concessions</span>
-            </li>
-            <li>
-              <span class="icon">✓</span>
-              <span>Sécurité maximale avec validation humaine</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Features Section -->
-  <section class="features">
-    <div class="container">
-      <div class="section-header">
-        <h2>Ce qui nous rend <span class="highlight">uniques</span></h2>
-      </div>
-      
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-            </svg>
+      <div class="why-grid">
+        <div class="why-card main-card">
+          <div class="why-image">
+            <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&h=400&fit=crop" alt="Couple heureux">
           </div>
-          <h3>Matching Mazal</h3>
-          <p>Un algorithme qui comprend ta pratique, tes projets de vie et tes concessions pour des matchs vraiment compatibles.</p>
+          <div class="why-content">
+            <div class="why-icon">💝</div>
+            <h3>Matching intelligent</h3>
+            <p>Notre algorithme comprend ta pratique, tes valeurs et tes projets de vie. Fini les matchs qui ne mènent nulle part.</p>
+          </div>
         </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <path d="M9 12l2 2 4-4"/>
-            </svg>
-          </div>
+
+        <div class="why-card">
+          <div class="why-icon">🛡️</div>
           <h3>Sécurité maximale</h3>
-          <p>Vérification d'identité obligatoire et validation humaine de chaque profil. Tolérance zéro antisémitisme.</p>
+          <p>Chaque profil est vérifié manuellement. Tolérance zéro pour l'antisémitisme et les faux profils.</p>
         </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-              <line x1="9" y1="9" x2="9.01" y2="9"/>
-              <line x1="15" y1="9" x2="15.01" y2="9"/>
-            </svg>
-          </div>
-          <h3>Liberté totale</h3>
-          <p>Pas de cases rigides. Tu définis ta pratique et tes valeurs, on te propose des profils qui te correspondent vraiment.</p>
+
+        <div class="why-card">
+          <div class="why-icon">✡️</div>
+          <h3>Ta pratique, ton choix</h3>
+          <p>Du plus traditionnel au plus libéral, tout le monde a sa place. Sans jugement.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">💬</div>
+          <h3>Conversations authentiques</h3>
+          <p>Des icebreakers intelligents pour démarrer des conversations qui comptent vraiment.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="cta">
+  <!-- How it works -->
+  <section class="how-section">
     <div class="container">
-      <h2>Prêt à trouver ton <span class="highlight">mazal</span> ?</h2>
-      <p>Rejoins la waitlist et sois parmi les premiers à découvrir MZL.</p>
-      <form id="waitlist-form-2" class="form form-inline">
-        <input 
-          type="email" 
-          id="email-2" 
-          placeholder="ton@email.com" 
-          required
-          autocomplete="email"
-        >
-        <button type="submit">Rejoindre</button>
-      </form>
-      <p class="form-message" id="form-message-2"></p>
+      <div class="section-header center">
+        <h2>Simple comme <span class="gradient-text">Shalom</span></h2>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-icon">📝</div>
+          <h3>Crée ton profil</h3>
+          <p>En 2 minutes. Parle de toi, ta pratique, tes projets.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-icon">✅</div>
+          <h3>On te vérifie</h3>
+          <p>Validation humaine pour garantir un espace safe.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-icon">💕</div>
+          <h3>Match & Connect</h3>
+          <p>Découvre des profils compatibles et commence à discuter.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-header center">
+        <h2>Ils ont trouvé<br><span class="gradient-text">leur mazal</span></h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card featured">
+          <div class="testimonial-image">
+            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&h=400&fit=crop" alt="Couple">
+          </div>
+          <div class="testimonial-content">
+            <div class="quote">"On s'est rencontrés sur MZL il y a 8 mois. Aujourd'hui on emménage ensemble. L'algo avait vu juste : 96% de compatibilité !"</div>
+            <div class="testimonial-author">
+              <strong>David & Léa</strong>
+              <span>Paris • Ensemble depuis 8 mois</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+          <div class="quote">"Enfin une app où je me sens comprise. Les matchs sont hyper pertinents."</div>
+          <div class="testimonial-author">
+            <strong>Rachel, 29</strong>
+            <span>Lyon</span>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+          <div class="quote">"La vérification des profils change tout. Je me sens en sécurité."</div>
+          <div class="testimonial-author">
+            <strong>Jonathan, 31</strong>
+            <span>Marseille</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta" id="waitlist">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Prêt(e) à rencontrer<br><span class="gradient-text">ton mazal ?</span></h2>
+        <p>Rejoins la waitlist et sois parmi les premiers à découvrir MZL.</p>
+        
+        <form id="waitlist-form-2" class="form">
+          <div class="input-group light">
+            <input 
+              type="email" 
+              id="email-2" 
+              placeholder="ton@email.com" 
+              required
+              autocomplete="email"
+            >
+            <button type="submit">Je m'inscris</button>
+          </div>
+          <p class="form-message" id="form-message-2"></p>
+        </form>
+
+        <div class="cta-features">
+          <span>✓ Gratuit</span>
+          <span>✓ Accès prioritaire</span>
+          <span>✓ Pas de spam</span>
+        </div>
+      </div>
+
+      <div class="cta-visual">
+        <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=500&h=600&fit=crop" alt="Couple heureux">
+      </div>
     </div>
   </section>
 
@@ -203,7 +274,7 @@
       <div class="footer-content">
         <div class="footer-brand">
           <span class="logo">MZL</span>
-          <p>Trouve ton mazal, à ta façon.</p>
+          <p>L'amour au sein de ta communauté.</p>
         </div>
         <div class="footer-links">
           <p>© 2026 MZL. Tous droits réservés.</p>
@@ -212,7 +283,7 @@
     </div>
   </footer>
 
-  <!-- Toast notification -->
+  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
   <script src="/script.js"></script>
