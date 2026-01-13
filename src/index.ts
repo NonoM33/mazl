@@ -17,8 +17,9 @@ import {
   setWaitlistVerificationStatus,
   rejectAllDocumentsForWaitlist,
   approveAllDocumentsForWaitlist,
+  requestReuploadAndRotateToken,
 } from "./db";
-import { sendVerificationRequestEmail } from "./email";
+import { sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 
 const app = new Hono();
 
@@ -248,9 +249,28 @@ app.post("/api/admin/profiles/:id/request-reupload", async (c) => {
 
   const waitlistId = Number.parseInt(c.req.param("id"), 10);
   const body = await c.req.json().catch(() => ({}));
+  const notes = (body?.notes || "").toString();
 
-  await rejectAllDocumentsForWaitlist(waitlistId, body?.notes || "reupload requested");
-  await setWaitlistVerificationStatus(waitlistId, "pending");
+  await rejectAllDocumentsForWaitlist(waitlistId, notes || "reupload requested");
+
+  // Rotate token so previous links become invalid
+  const rotated = await requestReuploadAndRotateToken(waitlistId);
+
+  // Send email with reason (best-effort)
+  try {
+    const forwardedProto = c.req.header("x-forwarded-proto") || "https";
+    const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
+    const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+
+    await sendReuploadRequestedEmail({
+      to: rotated.email,
+      verificationToken: rotated.verificationToken,
+      reason: notes,
+      baseUrl: requestOrigin,
+    });
+  } catch (err) {
+    console.error("Reupload email failed:", err);
+  }
 
   return c.json({ success: true });
 });

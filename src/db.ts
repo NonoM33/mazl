@@ -50,6 +50,26 @@ function generateVerificationToken() {
   return crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
 }
 
+export async function requestReuploadAndRotateToken(waitlistId: number) {
+  const verificationToken = generateVerificationToken();
+
+  const result = await sql`
+    UPDATE waitlist
+    SET verification_status = 'pending',
+        verification_token = ${verificationToken},
+        verification_requested_at = NOW(),
+        documents_submitted_at = NULL,
+        verified_at = NULL
+    WHERE id = ${waitlistId}
+    RETURNING email, verification_token
+  `;
+
+  const row = result[0];
+  if (!row) throw new Error("Waitlist not found");
+
+  return { email: row.email as string, verificationToken: row.verification_token as string };
+}
+
 export async function upsertWaitlistAndGetVerification(email: string) {
   const verificationToken = generateVerificationToken();
 
