@@ -1,0 +1,21 @@
+{
+  "name": "mazl",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "start": "bun src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "hono": "^4.11.4",
+    "postgres": "^3.4.8",
+    "resend": "^6.7.0"
+  }
+}

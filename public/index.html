@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MZL - Trouve ton mazal, à ta façon</title>
+  <meta name="description" content="L'application de rencontre juive moderne, sécurisée et intelligente. Rejoins la waitlist.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <nav class="nav">
+      <div class="logo">MZL</div>
+    </nav>
+    
+    <div class="hero-content">
+      <h1>Trouve ton <span class="highlight">mazal</span>, à ta façon.</h1>
+      <p class="subtitle">L'application de rencontre juive moderne, sécurisée et intelligente.</p>
+      
+      <form id="waitlist-form" class="form">
+        <div class="input-group">
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="ton@email.com" 
+            required
+            autocomplete="email"
+          >
+          <button type="submit" id="submit-btn">
+            <span class="btn-text">Rejoindre la waitlist</span>
+            <span class="btn-loader" style="display: none;">
+              <svg class="spinner" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+        <p class="form-message" id="form-message"></p>
+      </form>
+      
+      <div class="social-proof">
+        <span class="count-wrapper">
+          <span id="count">0</span> personnes sur la waitlist
+        </span>
+      </div>
+    </div>
+    
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="app-header">
+            <span class="app-logo">MZL</span>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar"></div>
+            <div class="profile-info">
+              <div class="profile-name"></div>
+              <div class="profile-details"></div>
+            </div>
+            <div class="compatibility">
+              <span class="compat-score">92%</span>
+              <span class="compat-label">compatible</span>
+            </div>
+          </div>
+          <div class="profile-card card-2">
+            <div class="profile-avatar"></div>
+            <div class="profile-info">
+              <div class="profile-name"></div>
+              <div class="profile-details"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem/Solution Section -->
+  <section class="problem-solution">
+    <div class="container">
+      <div class="section-header">
+        <h2>Pourquoi <span class="highlight">MZL</span> ?</h2>
+      </div>
+      
+      <div class="comparison">
+        <div class="problem-side">
+          <h3>Le problème</h3>
+          <ul class="problem-list">
+            <li>
+              <span class="icon">✗</span>
+              <span>Apps généralistes = matchs inadaptés</span>
+            </li>
+            <li>
+              <span class="icon">✗</span>
+              <span>Apps juives existantes rigides ou dépassées</span>
+            </li>
+            <li>
+              <span class="icon">✗</span>
+              <span>Aucune prise en compte de ta pratique réelle</span>
+            </li>
+            <li>
+              <span class="icon">✗</span>
+              <span>Crainte des mauvaises intentions</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="solution-side">
+          <h3>Notre solution</h3>
+          <ul class="solution-list">
+            <li>
+              <span class="icon">✓</span>
+              <span>Matching intelligent basé sur tes valeurs</span>
+            </li>
+            <li>
+              <span class="icon">✓</span>
+              <span>Interface moderne et intuitive</span>
+            </li>
+            <li>
+              <span class="icon">✓</span>
+              <span>Ton niveau de pratique, tes concessions</span>
+            </li>
+            <li>
+              <span class="icon">✓</span>
+              <span>Sécurité maximale avec validation humaine</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Ce qui nous rend <span class="highlight">uniques</span></h2>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+          </div>
+          <h3>Matching Mazal</h3>
+          <p>Un algorithme qui comprend ta pratique, tes projets de vie et tes concessions pour des matchs vraiment compatibles.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Sécurité maximale</h3>
+          <p>Vérification d'identité obligatoire et validation humaine de chaque profil. Tolérance zéro antisémitisme.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <h3>Liberté totale</h3>
+          <p>Pas de cases rigides. Tu définis ta pratique et tes valeurs, on te propose des profils qui te correspondent vraiment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h2>Prêt à trouver ton <span class="highlight">mazal</span> ?</h2>
+      <p>Rejoins la waitlist et sois parmi les premiers à découvrir MZL.</p>
+      <form id="waitlist-form-2" class="form form-inline">
+        <input 
+          type="email" 
+          id="email-2" 
+          placeholder="ton@email.com" 
+          required
+          autocomplete="email"
+        >
+        <button type="submit">Rejoindre</button>
+      </form>
+      <p class="form-message" id="form-message-2"></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo">MZL</span>
+          <p>Trouve ton mazal, à ta façon.</p>
+        </div>
+        <div class="footer-links">
+          <p>© 2026 MZL. Tous droits réservés.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
