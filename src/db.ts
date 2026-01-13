@@ -18,17 +18,17 @@ export async function initDb() {
   console.log("Database initialized");
 }
 
-export async function addToWaitlist(email: string, token: string) {
+export async function addToWaitlist(email: string) {
   try {
     const result = await sql`
-      INSERT INTO waitlist (email, token)
-      VALUES (${email}, ${token})
+      INSERT INTO waitlist (email, token, status, confirmed_at)
+      VALUES (${email}, ${crypto.randomUUID()}, 'confirmed', NOW())
       RETURNING id, email
     `;
     return { success: true, data: result[0] };
   } catch (error: any) {
     if (error.code === "23505") {
-      return { success: false, error: "Email déjà inscrit" };
+      return { success: false, error: "Tu es déjà inscrit(e) !" };
     }
     throw error;
   }
@@ -53,7 +53,7 @@ export async function getConfirmedCount() {
 
 export async function getTotalCount() {
   const result = await sql`
-    SELECT COUNT(*) as count FROM waitlist
+    SELECT COUNT(*) as count FROM waitlist WHERE status = 'confirmed'
   `;
   return parseInt(result[0].count);
 }

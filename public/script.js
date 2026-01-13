@@ -94,16 +94,14 @@ async function handleSubmit(e, emailInput, messageEl) {
       messageEl.textContent = data.message;
       messageEl.className = 'form-message success';
       emailInput.value = '';
-      showToast('Check tes emails pour confirmer !', 'success');
+      showToast('Bienvenue sur la waitlist !', 'success');
       // Increment count optimistically
       const current = parseInt(countEl.textContent) || 0;
       countEl.textContent = current + 1;
     } else {
       messageEl.textContent = data.error || 'Une erreur est survenue';
       messageEl.className = 'form-message error';
-      if (data.error === 'Email déjà inscrit') {
-        showToast('Tu es déjà inscrit !', 'error');
-      }
+      showToast(data.error || 'Erreur', 'error');
     }
   } catch (err) {
     messageEl.textContent = 'Erreur de connexion. Réessaie.';

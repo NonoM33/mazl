@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
-import { initDb, addToWaitlist, confirmEmail, getConfirmedCount, getTotalCount } from "./db";
-import { sendConfirmationEmail } from "./email";
+import { initDb, addToWaitlist, getTotalCount } from "./db";
 
 const app = new Hono();
 
@@ -23,25 +22,15 @@ app.post("/api/subscribe", async (c) => {
       return c.json({ success: false, error: "Email invalide" }, 400);
     }
 
-    // Generate token
-    const token = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
-
-    // Add to database
-    const result = await addToWaitlist(email, token);
+    // Add directly to database (no double opt-in)
+    const result = await addToWaitlist(email);
     if (!result.success) {
       return c.json({ success: false, error: result.error }, 409);
     }
 
-    // Send confirmation email
-    const emailResult = await sendConfirmationEmail(email, token);
-    if (!emailResult.success) {
-      console.error("Failed to send email:", emailResult.error);
-      // Still return success - email is saved
-    }
-
     return c.json({ 
       success: true, 
-      message: "Check tes emails pour confirmer ton inscription !" 
+      message: "Bienvenue sur la waitlist MZL !" 
     });
   } catch (error: any) {
     console.error("Subscribe error:", error);
@@ -49,27 +38,10 @@ app.post("/api/subscribe", async (c) => {
   }
 });
 
-app.get("/api/confirm", async (c) => {
-  const token = c.req.query("token");
-
-  if (!token) {
-    return c.redirect("/?error=token_missing");
-  }
-
-  const result = await confirmEmail(token);
-
-  if (result) {
-    return c.redirect("/?confirmed=true");
-  } else {
-    return c.redirect("/?error=invalid_token");
-  }
-});
-
 app.get("/api/count", async (c) => {
   try {
-    const confirmed = await getConfirmedCount();
     const total = await getTotalCount();
-    return c.json({ confirmed, total });
+    return c.json({ confirmed: total, total });
   } catch (error) {
     return c.json({ confirmed: 0, total: 0 });
   }
