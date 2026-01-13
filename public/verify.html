@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MZL — Vérifie ton profil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo" style="text-decoration:none;">MZL</a>
+  </nav>
+
+  <main class="container" style="padding-top:120px;padding-bottom:80px;">
+    <div class="verify-card">
+      <div class="verify-header">
+        <h1>Vérifie ton profil</h1>
+        <p>Envoie tes documents pour accéder en priorité à l’app.</p>
+      </div>
+
+      <div id="verify-status" class="verify-status"></div>
+
+      <section class="verify-section">
+        <h2>Étape 1 (obligatoire)</h2>
+        <p class="muted">Selfie + pièce d’identité (CNI / passeport)</p>
+
+        <div class="verify-grid">
+          <div class="upload-card">
+            <label class="upload-label">Selfie avec ta pièce d’identité</label>
+            <input type="file" id="file-selfie" accept="image/*,.pdf" />
+            <button class="btn" id="btn-selfie">Uploader</button>
+            <div class="upload-msg" id="msg-selfie"></div>
+          </div>
+
+          <div class="upload-card">
+            <label class="upload-label">CNI / Passeport (recto)</label>
+            <input type="file" id="file-id" accept="image/*,.pdf" />
+            <button class="btn" id="btn-id">Uploader</button>
+            <div class="upload-msg" id="msg-id"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="verify-section">
+        <h2>Étape 2 (optionnelle)</h2>
+        <p class="muted">Document communautaire pour le badge “Vérifié+” (ex: ketouba, certificat, carte synagogue…)</p>
+
+        <div class="upload-card" style="max-width:520px;">
+          <label class="upload-label">Document (optionnel)</label>
+          <input type="file" id="file-community" accept="image/*,.pdf" />
+          <button class="btn" id="btn-community">Uploader</button>
+          <div class="upload-msg" id="msg-community"></div>
+        </div>
+      </section>
+
+      <div class="verify-footer">
+        <button class="btn btn-primary" id="btn-submit">Envoyer pour validation</button>
+        <div class="upload-msg" id="msg-submit"></div>
+        <p class="muted" style="margin-top:12px;">Formats acceptés: JPG, PNG, WEBP, PDF — 10MB max.</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="/verify.js"></script>
+</body>
+</html>

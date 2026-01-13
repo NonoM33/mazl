@@ -13,6 +13,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Uploads stored locally (Coolify volume recommended)
+RUN mkdir -p /app/uploads
+VOLUME ["/app/uploads"]
+
 ENV NODE_ENV=production
 ENV PORT=3000
 

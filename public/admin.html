@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MZL — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="logo" style="text-decoration:none;">MZL</a>
+  </nav>
+
+  <main class="container" style="padding-top:120px;padding-bottom:80px;">
+    <div class="verify-card">
+      <div class="verify-header">
+        <h1>Admin — Vérifications</h1>
+        <p>Liste des dossiers en attente (MVP).</p>
+      </div>
+
+      <div id="admin-error" class="verify-status error" style="display:none;"></div>
+
+      <div id="admin-list" class="admin-list"></div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="/admin.js"></script>
+</body>
+</html>
