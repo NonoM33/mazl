@@ -13,10 +13,12 @@ const FROM_EMAIL = process.env.FROM_EMAIL || "hello@mazl.app";
 export async function sendVerificationRequestEmail(params: {
   to: string;
   verificationToken: string;
+  baseUrl?: string;
 }) {
   if (!resendApiKey) return { success: false, error: "missing_resend_api_key" };
 
-  const verifyUrl = `${APP_URL}/verify.html?token=${params.verificationToken}`;
+  const baseUrl = (params.baseUrl || APP_URL || "https://mazl.app").replace(/\/$/, "");
+  const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
 
   const { data, error } = await resend.emails.send({
     from: `MZL <${FROM_EMAIL}>`,

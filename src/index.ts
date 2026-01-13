@@ -13,6 +13,10 @@ import {
   markVerificationSubmitted,
   setDocumentReview,
   upsertWaitlistAndGetVerification,
+  getLatestDocumentsByType,
+  setWaitlistVerificationStatus,
+  rejectAllDocumentsForWaitlist,
+  approveAllDocumentsForWaitlist,
 } from "./db";
 import { sendVerificationRequestEmail } from "./email";
 
@@ -22,6 +26,17 @@ const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 
 // CORS
 app.use("/api/*", cors());
+
+// Pretty routes (must be before static)
+app.get("/verify", async (c) => {
+  const token = c.req.query("token") || "";
+  return c.redirect(`/verify.html?token=${encodeURIComponent(token)}`);
+});
+
+app.get("/admin", async (c) => {
+  const password = c.req.query("password") || "";
+  return c.redirect(`/admin.html?password=${encodeURIComponent(password)}`);
+});
 
 // Static files
 app.use("/*", serveStatic({ root: "./public" }));
@@ -76,7 +91,15 @@ app.post("/api/subscribe", async (c) => {
 
     // Send verification request email (best-effort)
     try {
-      await sendVerificationRequestEmail({ to: email, verificationToken: waitlist.verificationToken });
+      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
+      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
+      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+
+      await sendVerificationRequestEmail({
+        to: email,
+        verificationToken: waitlist.verificationToken,
+        baseUrl: requestOrigin,
+      });
     } catch (err) {
       console.error("Email send failed:", err);
     }
@@ -107,7 +130,17 @@ app.get("/api/verify", async (c) => {
   const waitlist = await findWaitlistByVerificationToken(token);
   if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
 
-  return c.json({ success: true, email: waitlist.email, verificationStatus: waitlist.verification_status });
+  const latest = await getLatestDocumentsByType(waitlist.id);
+  const required = ["selfie_id", "id_card_front", "id_card_back"];
+  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+
+  return c.json({
+    success: true,
+    email: waitlist.email,
+    verificationStatus: waitlist.verification_status,
+    requiredReady: missing.length === 0,
+    missing,
+  });
 });
 
 app.post("/api/verify/upload", async (c) => {
@@ -156,6 +189,16 @@ app.post("/api/verify/submit", async (c) => {
   const waitlist = await findWaitlistByVerificationToken(token);
   if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
 
+  const latest = await getLatestDocumentsByType(waitlist.id);
+  const required = ["selfie_id", "id_card_front", "id_card_back"];
+  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+  if (missing.length > 0) {
+    return c.json(
+      { success: false, error: `Documents manquants: ${missing.join(", ")}`, missing },
+      400,
+    );
+  }
+
   await markVerificationSubmitted(waitlist.id);
   return c.json({ success: true });
 });
@@ -175,6 +218,40 @@ app.post("/api/admin/documents/:id/approve", async (c) => {
 
   const documentId = Number.parseInt(c.req.param("id"), 10);
   await setDocumentReview({ documentId, status: "approved" });
+  return c.json({ success: true });
+});
+
+app.post("/api/admin/profiles/:id/approve", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  const waitlistId = Number.parseInt(c.req.param("id"), 10);
+  const latest = await getLatestDocumentsByType(waitlistId);
+  const required = ["selfie_id", "id_card_front", "id_card_back"];
+  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+
+  if (missing.length > 0) {
+    return c.json({ success: false, error: `Docs manquants: ${missing.join(", ")}` }, 400);
+  }
+
+  await approveAllDocumentsForWaitlist(waitlistId);
+
+  const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status !== "rejected");
+  await setWaitlistVerificationStatus(waitlistId, hasCommunity ? "verified_plus" : "verified");
+
+  return c.json({ success: true });
+});
+
+app.post("/api/admin/profiles/:id/request-reupload", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  const waitlistId = Number.parseInt(c.req.param("id"), 10);
+  const body = await c.req.json().catch(() => ({}));
+
+  await rejectAllDocumentsForWaitlist(waitlistId, body?.notes || "reupload requested");
+  await setWaitlistVerificationStatus(waitlistId, "pending");
+
   return c.json({ success: true });
 });
 

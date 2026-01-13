@@ -27,19 +27,29 @@
         <h2>Étape 1 (obligatoire)</h2>
         <p class="muted">Selfie + pièce d’identité (CNI / passeport)</p>
 
-        <div class="verify-grid">
+          <div class="verify-grid">
           <div class="upload-card">
             <label class="upload-label">Selfie avec ta pièce d’identité</label>
             <input type="file" id="file-selfie" accept="image/*,.pdf" />
             <button class="btn" id="btn-selfie">Uploader</button>
+            <div class="upload-preview" id="preview-selfie"></div>
             <div class="upload-msg" id="msg-selfie"></div>
           </div>
 
           <div class="upload-card">
             <label class="upload-label">CNI / Passeport (recto)</label>
-            <input type="file" id="file-id" accept="image/*,.pdf" />
-            <button class="btn" id="btn-id">Uploader</button>
-            <div class="upload-msg" id="msg-id"></div>
+            <input type="file" id="file-id-front" accept="image/*,.pdf" />
+            <button class="btn" id="btn-id-front">Uploader</button>
+            <div class="upload-preview" id="preview-id-front"></div>
+            <div class="upload-msg" id="msg-id-front"></div>
+          </div>
+
+          <div class="upload-card">
+            <label class="upload-label">CNI / Passeport (verso)</label>
+            <input type="file" id="file-id-back" accept="image/*,.pdf" />
+            <button class="btn" id="btn-id-back">Uploader</button>
+            <div class="upload-preview" id="preview-id-back"></div>
+            <div class="upload-msg" id="msg-id-back"></div>
           </div>
         </div>
       </section>
@@ -52,12 +62,13 @@
           <label class="upload-label">Document (optionnel)</label>
           <input type="file" id="file-community" accept="image/*,.pdf" />
           <button class="btn" id="btn-community">Uploader</button>
+          <div class="upload-preview" id="preview-community"></div>
           <div class="upload-msg" id="msg-community"></div>
         </div>
       </section>
 
       <div class="verify-footer">
-        <button class="btn btn-primary" id="btn-submit">Envoyer pour validation</button>
+        <button class="btn btn-primary" id="btn-submit" disabled>Envoyer pour validation</button>
         <div class="upload-msg" id="msg-submit"></div>
         <p class="muted" style="margin-top:12px;">Formats acceptés: JPG, PNG, WEBP, PDF — 10MB max.</p>
       </div>

@@ -13,6 +13,24 @@ function qs(name) {
 }
 
 const password = qs('password');
+const showRejected = qs('showRejected') === '1';
+
+const toggleEl = document.getElementById('admin-toggle');
+if (toggleEl) {
+  const base = new URL(window.location.href);
+  if (!password) {
+    toggleEl.textContent = 'Ajoute ?password=... dans l’URL.';
+  } else {
+    base.searchParams.set('password', password);
+    if (showRejected) {
+      base.searchParams.delete('showRejected');
+      toggleEl.innerHTML = `Mode: <strong>historique ON</strong> — <a href="${base.toString()}">Masquer les refusés</a>`;
+    } else {
+      base.searchParams.set('showRejected', '1');
+      toggleEl.innerHTML = `Mode: <strong>historique OFF</strong> — <a href="${base.toString()}">Afficher les refusés</a>`;
+    }
+  }
+}
 
 function api(path, options) {
   const url = new URL(path, window.location.origin);
@@ -32,25 +50,70 @@ function render(items) {
     const card = document.createElement('div');
     card.className = 'admin-card';
 
-    const docs = (item.documents || []).map((d) => {
-      const fileUrl = new URL(`/api/admin/documents/${d.id}/file`, window.location.origin);
-      if (password) fileUrl.searchParams.set('password', password);
-      return `<a class="doc-link" href="${fileUrl.toString()}" target="_blank">${d.type}</a>`;
-    }).join(' ');
+    const docs = (item.documents || [])
+      .filter((d) => showRejected || d.status !== 'rejected')
+      .map((d) => {
+        const fileUrl = new URL(`/api/admin/documents/${d.id}/file`, window.location.origin);
+        if (password) fileUrl.searchParams.set('password', password);
+
+        const isImage = (d.mimeType || '').startsWith('image/');
+        const thumb = isImage
+          ? `<img class="doc-thumb" src="${fileUrl.toString()}" alt="${d.type}" />`
+          : `<a class="doc-link" href="${fileUrl.toString()}" target="_blank">Ouvrir ${d.type}</a>`;
+
+        return `<div class="doc-item ${d.status}">
+          <div class="doc-label">${d.type} <span class="doc-status">(${d.status})</span></div>
+          ${thumb}
+        </div>`;
+      })
+      .join('');
 
     card.innerHTML = `
       <div class="admin-row">
         <div>
           <div class="admin-email">${item.email}</div>
           <div class="muted">status: ${item.verificationStatus}</div>
-          <div class="admin-docs">${docs || '<span class="muted">aucun doc</span>'}</div>
         </div>
         <div class="admin-actions">
-          <button class="btn" data-action="refresh">Rafraîchir</button>
+          <button class="btn btn-primary" data-action="approve">Valider profil</button>
+          <button class="btn" data-action="reupload">Demander re-upload</button>
         </div>
       </div>
+      <div class="admin-docs-grid">${docs || '<span class="muted">aucun doc</span>'}</div>
     `;
 
+    // Profile actions
+    const approveBtn = card.querySelector('[data-action="approve"]');
+    const reuploadBtn = card.querySelector('[data-action="reupload"]');
+
+    approveBtn.addEventListener('click', async () => {
+      const res = await api(`/api/admin/profiles/${item.waitlistId}/approve`, { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Erreur', 'error');
+        return;
+      }
+      showToast('Profil validé', 'success');
+      load();
+    });
+
+    reuploadBtn.addEventListener('click', async () => {
+      const notes = prompt('Motif / instruction pour re-upload (optionnel)') || '';
+      const res = await api(`/api/admin/profiles/${item.waitlistId}/request-reupload`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Erreur', 'error');
+        return;
+      }
+      showToast('Re-upload demandé', 'success');
+      load();
+    });
+
+    // Per-document actions
     const actions = document.createElement('div');
     actions.className = 'admin-actions-row';
 

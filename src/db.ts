@@ -105,10 +105,10 @@ export async function createDocument(params: {
 export async function listPendingSubmissions() {
   const rows = await sql`
     SELECT w.id as waitlist_id, w.email, w.verification_status, w.documents_submitted_at,
-           d.id as document_id, d.type, d.filename, d.status as document_status, d.created_at
+           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
-    WHERE w.verification_status IN ('submitted', 'pending')
+    WHERE w.verification_status IN ('submitted')
     ORDER BY w.documents_submitted_at DESC NULLS LAST, w.created_at DESC
   `;
 
@@ -129,6 +129,7 @@ export async function listPendingSubmissions() {
         id: row.document_id,
         type: row.type,
         filename: row.filename,
+        mimeType: row.mime_type,
         status: row.document_status,
         createdAt: row.created_at,
       });
@@ -153,6 +154,63 @@ export async function getDocumentById(documentId: number) {
   return result.length
     ? (result[0] as { id: number; waitlist_id: number; filename: string; mime_type: string | null })
     : null;
+}
+
+export async function getLatestDocumentsByType(waitlistId: number) {
+  const rows = await sql`
+    SELECT DISTINCT ON (type)
+      id, type, filename, mime_type, status, created_at
+    FROM documents
+    WHERE waitlist_id = ${waitlistId}
+    ORDER BY type, created_at DESC
+  `;
+
+  const map: Record<
+    string,
+    { id: number; type: string; filename: string; mimeType: string | null; status: string }
+  > = {};
+
+  for (const row of rows as any[]) {
+    map[row.type] = {
+      id: row.id,
+      type: row.type,
+      filename: row.filename,
+      mimeType: row.mime_type ?? null,
+      status: row.status,
+    };
+  }
+
+  return map;
+}
+
+export async function approveAllDocumentsForWaitlist(waitlistId: number) {
+  await sql`
+    UPDATE documents
+    SET status = 'approved', reviewed_at = NOW(), reviewer_notes = NULL
+    WHERE waitlist_id = ${waitlistId} AND status != 'rejected'
+  `;
+}
+
+export async function rejectAllDocumentsForWaitlist(waitlistId: number, notes?: string) {
+  await sql`
+    UPDATE documents
+    SET status = 'rejected', reviewed_at = NOW(), reviewer_notes = ${notes ?? null}
+    WHERE waitlist_id = ${waitlistId}
+  `;
+}
+
+export async function setWaitlistVerificationStatus(waitlistId: number, status: string) {
+  const verifiedAt = status === 'verified' || status === 'verified_plus' ? sql`NOW()` : sql`NULL`;
+  const submittedAt = status === 'submitted' ? sql`NOW()` : sql`documents_submitted_at`;
+  const resetSubmitted = status === 'pending' ? sql`NULL` : submittedAt;
+
+  await sql`
+    UPDATE waitlist
+    SET verification_status = ${status},
+        verified_at = ${verifiedAt},
+        documents_submitted_at = ${resetSubmitted}
+    WHERE id = ${waitlistId}
+  `;
 }
 
 

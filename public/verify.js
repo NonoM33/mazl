@@ -13,11 +13,17 @@ function qs(name) {
 const token = qs('token');
 const statusEl = document.getElementById('verify-status');
 
+function setSubmitEnabled(enabled) {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = !enabled;
+}
+
 async function loadStatus() {
   if (!token) {
     statusEl.textContent = 'Lien invalide (token manquant).';
     statusEl.className = 'verify-status error';
-    return;
+    setSubmitEnabled(false);
+    return null;
   }
 
   const res = await fetch(`/api/verify?token=${encodeURIComponent(token)}`);
@@ -25,16 +31,57 @@ async function loadStatus() {
   if (!data.success) {
     statusEl.textContent = data.error || 'Lien invalide.';
     statusEl.className = 'verify-status error';
-    return;
+    setSubmitEnabled(false);
+    return null;
   }
 
   statusEl.textContent = `Email: ${data.email}`;
   statusEl.className = 'verify-status success';
+
+  const missing = Array.isArray(data.missing) ? data.missing : [];
+  uploadState.selfie_id = !missing.includes('selfie_id');
+  uploadState.id_card_front = !missing.includes('id_card_front');
+  uploadState.id_card_back = !missing.includes('id_card_back');
+
+  return data;
 }
 
-async function upload(type, fileInput, msgEl) {
+function renderPreview(file, previewEl) {
+  previewEl.innerHTML = '';
+  if (!file) return;
+
+  const isImage = file.type.startsWith('image/');
+  if (isImage) {
+    const img = document.createElement('img');
+    img.className = 'upload-thumb';
+    img.src = URL.createObjectURL(file);
+    img.onload = () => URL.revokeObjectURL(img.src);
+    previewEl.appendChild(img);
+    return;
+  }
+
+  const p = document.createElement('div');
+  p.className = 'muted';
+  p.textContent = `Fichier: ${file.name}`;
+  previewEl.appendChild(p);
+}
+
+const uploadState = {
+  selfie_id: false,
+  id_card_front: false,
+  id_card_back: false,
+  community_doc: false,
+};
+
+function updateSubmitButton() {
+  const ready = uploadState.selfie_id && uploadState.id_card_front && uploadState.id_card_back;
+  setSubmitEnabled(ready);
+}
+
+async function upload(type, fileInput, msgEl, previewEl) {
   msgEl.textContent = '';
   const file = fileInput.files?.[0];
+  renderPreview(file, previewEl);
   if (!file) {
     msgEl.textContent = 'Choisis un fichier.';
     msgEl.className = 'upload-msg error';
@@ -63,6 +110,8 @@ async function upload(type, fileInput, msgEl) {
 
   msgEl.textContent = 'OK ✅';
   msgEl.className = 'upload-msg success';
+  uploadState[type] = true;
+  updateSubmitButton();
   showToast('Document uploadé', 'success');
 }
 
@@ -87,20 +136,48 @@ async function submitAll() {
 }
 
 document.getElementById('btn-selfie').addEventListener('click', () => {
-  upload('selfie_id', document.getElementById('file-selfie'), document.getElementById('msg-selfie'));
+  upload(
+    'selfie_id',
+    document.getElementById('file-selfie'),
+    document.getElementById('msg-selfie'),
+    document.getElementById('preview-selfie'),
+  );
 });
 
-document.getElementById('btn-id').addEventListener('click', () => {
-  upload('id_card', document.getElementById('file-id'), document.getElementById('msg-id'));
+document.getElementById('btn-id-front').addEventListener('click', () => {
+  upload(
+    'id_card_front',
+    document.getElementById('file-id-front'),
+    document.getElementById('msg-id-front'),
+    document.getElementById('preview-id-front'),
+  );
+});
+
+document.getElementById('btn-id-back').addEventListener('click', () => {
+  upload(
+    'id_card_back',
+    document.getElementById('file-id-back'),
+    document.getElementById('msg-id-back'),
+    document.getElementById('preview-id-back'),
+  );
 });
 
 document.getElementById('btn-community').addEventListener('click', () => {
-  upload('community_doc', document.getElementById('file-community'), document.getElementById('msg-community'));
+  upload(
+    'community_doc',
+    document.getElementById('file-community'),
+    document.getElementById('msg-community'),
+    document.getElementById('preview-community'),
+  );
 });
 
 document.getElementById('btn-submit').addEventListener('click', submitAll);
 
-loadStatus().catch((e) => {
-  console.error(e);
-  showToast('Erreur de chargement', 'error');
-});
+loadStatus()
+  .then(() => {
+    updateSubmitButton();
+  })
+  .catch((e) => {
+    console.error(e);
+    showToast('Erreur de chargement', 'error');
+  });
