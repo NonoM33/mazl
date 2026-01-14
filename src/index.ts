@@ -47,6 +47,11 @@ app.get("/admin/dashboard", async (c) => {
   return new Response(Bun.file("./public/admin.html"));
 });
 
+// Block direct access to uploads directory
+app.use("/uploads/*", async (c) => {
+  return c.json({ error: "Forbidden" }, 403);
+});
+
 // Static files
 app.use("/*", serveStatic({ root: "./public" }));
 
