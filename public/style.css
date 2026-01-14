@@ -760,10 +760,30 @@ body {
   align-items: center;
 }
 
+.footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .footer-brand .logo {
   font-size: 28px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
   display: block;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--gradient);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: 0 10px 30px rgba(108, 92, 231, 0.35);
 }
 
 .footer-brand p {

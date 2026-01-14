@@ -25,23 +25,21 @@ export async function sendVerificationRequestEmail(params: {
   const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
 
   const { data, error } = await resend.emails.send({
-    from: `MZL <${FROM_EMAIL}>`,
+    from: `MAZL <${FROM_EMAIL}>`,
     to: params.to,
-    subject: "Bienvenue sur MZL — Vérifie ton profil",
+    subject: "Bienvenue sur MAZL — Vérifie ton profil",
     html: `
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MZL — Vérification</title>
+    <title>MAZL — Vérification</title>
   </head>
   <body style="margin:0;background:#f6f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
     <div style="max-width:560px;margin:0 auto;padding:28px 16px;">
       <div style="background:#ffffff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:28px;">
-        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">
-          MZL
-        </div>
+        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">\n          MAZL\n        </div>
         <h1 style="margin:12px 0 8px;font-size:22px;color:#2D3436;">Bienvenue sur la waitlist</h1>
         <p style="margin:0 0 18px;color:#636E72;line-height:1.6;">
           Pour accéder en priorité à l’app, on te demande une vérification rapide.
@@ -63,7 +61,7 @@ export async function sendVerificationRequestEmail(params: {
           Si tu n’es pas à l’origine de cette demande, ignore cet email.
         </p>
       </div>
-      <p style="margin:14px 0 0;color:#B2BEC3;font-size:12px;text-align:center;">© 2026 MZL</p>
+      <p style="margin:14px 0 0;color:#B2BEC3;font-size:12px;text-align:center;">© 2026 MAZL</p>
     </div>
   </body>
 </html>
@@ -105,21 +103,21 @@ export async function sendReuploadRequestedEmail(params: {
     : ``;
 
   const { data, error } = await resend.emails.send({
-    from: `MZL <${FROM_EMAIL}>`,
+    from: `MAZL <${FROM_EMAIL}>`,
     to: params.to,
-    subject: "MZL — Documents à renvoyer",
+    subject: "MAZL — Documents à renvoyer",
     html: `
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MZL — Re-upload</title>
+    <title>MAZL — Re-upload</title>
   </head>
   <body style="margin:0;background:#f6f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
     <div style="max-width:560px;margin:0 auto;padding:28px 16px;">
       <div style="background:#ffffff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:28px;">
-        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">MZL</div>
+        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">MAZL</div>
         <h1 style="margin:12px 0 8px;font-size:22px;color:#2D3436;">Documents à renvoyer</h1>
         <p style="margin:0 0 14px;color:#636E72;line-height:1.6;">
           On a besoin que tu renvoies tes documents de vérification.
@@ -137,7 +135,7 @@ export async function sendReuploadRequestedEmail(params: {
           Renvoyer mes documents
         </a>
 
-        <p style="margin:18px 0 0;color:#B2BEC3;font-size:12px;line-height:1.5;">© 2026 MZL</p>
+        <p style="margin:18px 0 0;color:#B2BEC3;font-size:12px;line-height:1.5;">© 2026 MAZL</p>
       </div>
     </div>
   </body>
@@ -185,30 +183,30 @@ export async function sendProfileApprovedEmail(params: { to: string; baseUrl?: s
       : "✅ Profil vérifié";
 
   const { data, error } = await resend.emails.send({
-    from: `MZL <${FROM_EMAIL}>`,
+    from: `MAZL <${FROM_EMAIL}>`,
     to: params.to,
-    subject: "MZL — Profil vérifié ✅",
+    subject: "MAZL — Profil vérifié ✅",
     html: `
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MZL — Profil vérifié</title>
+    <title>MAZL — Profil vérifié</title>
   </head>
   <body style="margin:0;background:#f6f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
     <div style="max-width:560px;margin:0 auto;padding:28px 16px;">
       <div style="background:#ffffff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:28px;">
-        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">MZL</div>
+        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">MAZL</div>
         <h1 style="margin:12px 0 8px;font-size:22px;color:#2D3436;">Félicitations 🎉</h1>
         <p style="margin:0 0 14px;color:#636E72;line-height:1.6;">Ton profil est validé par notre équipe.</p>
         <div style="margin-top:12px;background:#F0FDF4;border:1px solid rgba(0,184,148,.35);border-radius:14px;padding:12px 14px;color:#065f46;font-weight:800;">${badge}</div>
 
         <p style="margin:16px 0 0;color:#636E72;line-height:1.6;">On te tient au courant dès l’ouverture de l’app. Merci d’être parmi les premiers 🙏</p>
 
-        <a href="${baseUrl}" style="margin-top:16px;display:inline-block;background:linear-gradient(135deg,#6C5CE7,#FD79A8);color:white;text-decoration:none;padding:14px 18px;border-radius:999px;font-weight:700;">Retourner sur MZL</a>
+        <a href="${baseUrl}" style="margin-top:16px;display:inline-block;background:linear-gradient(135deg,#6C5CE7,#FD79A8);color:white;text-decoration:none;padding:14px 18px;border-radius:999px;font-weight:700;">Retourner sur MAZL</a>
 
-        <p style="margin:18px 0 0;color:#B2BEC3;font-size:12px;line-height:1.5;">© 2026 MZL</p>
+        <p style="margin:18px 0 0;color:#B2BEC3;font-size:12px;line-height:1.5;">© 2026 MAZL</p>
       </div>
     </div>
   </body>
