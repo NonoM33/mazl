@@ -1338,6 +1338,53 @@ body {
   .modern-upload-card.full-width { flex-direction: column; text-align: center; }
 }
 
+/* Modern Utilities */
+.shadow-sm { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.border-radius-24 { border-radius: 24px; }
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.gap-md { gap: 16px; }
+
+/* Dashboard refinements */
+.admin-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+  box-shadow: 0 10px 40px rgba(108, 92, 231, 0.08);
+}
+
+/* Modal refinements */
+.modal-card textarea {
+  width: 100%;
+  margin-top: 8px;
+  resize: vertical;
+}
+
+/* Verify form refinements */
+.modern-upload-card.success {
+  border-color: #00B894;
+  background: rgba(0, 184, 148, 0.02);
+}
+
+.upload-msg.progress { color: var(--primary); font-weight: 600; }
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.upload-msg.progress {
+  animation: pulse 1.5s infinite;
+}
+
 /* Toast */
 .toast {
   position: fixed;
