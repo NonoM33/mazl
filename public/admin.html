@@ -3,44 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAZL — Admin</title>
+  <title>MAZL — Dashboard Admin</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
+<body class="bg-light">
   <nav class="nav">
-    <a href="/" class="logo" style="text-decoration:none;">MAZL</a>
+    <a href="/" class="logo">MAZL</a>
+    <div class="nav-right">
+      <button class="btn btn-sm" id="admin-logout">Déconnexion</button>
+    </div>
   </nav>
 
-  <main class="container" style="padding-top:120px;padding-bottom:80px;">
-    <div class="verify-card">
-      <div class="verify-header">
-        <h1>Admin — Vérifications</h1>
-        <p>Liste des dossiers en attente (MVP).</p>
+  <main class="container py-xl">
+    <div class="admin-header mb-lg">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1>Tableau de bord</h1>
+          <p class="muted">Gestion des vérifications et de la waitlist.</p>
+        </div>
         <div class="admin-topbar">
           <div class="muted" id="admin-toggle"></div>
-          <button class="btn" id="admin-logout" type="button">Déconnexion</button>
         </div>
       </div>
+    </div>
 
-      <div id="admin-error" class="verify-status error" style="display:none;"></div>
- 
-      <div id="admin-list" class="admin-list"></div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="pending">À valider</button>
+      <button class="tab-btn" data-tab="verified">Profils validés</button>
+    </div>
 
-      <div id="modal" class="modal hidden" aria-hidden="true">
-        <div class="modal-backdrop" data-modal-close></div>
-        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <h2 id="modal-title">Refuser des documents</h2>
-          <p class="muted" id="modal-subtitle"></p>
-          <label class="upload-label" for="modal-reason">Motif (obligatoire)</label>
-          <textarea id="modal-reason" class="auth-input" rows="4" placeholder="Ex: photo floue, document incomplet…"></textarea>
-          <div class="modal-actions">
-            <button class="btn" type="button" data-modal-close>Annuler</button>
-            <button class="btn btn-primary" type="button" id="modal-confirm">Envoyer</button>
-          </div>
+    <div id="admin-error" class="status-banner mb-md" style="display:none;"></div>
+
+    <div id="admin-list" class="admin-list">
+      <!-- Cards will be injected here -->
+    </div>
+
+    <!-- Modale de refus -->
+    <div id="modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-modal-close></div>
+      <div class="modal-card">
+        <h2>Refuser des documents</h2>
+        <p class="muted mb-md" id="modal-subtitle"></p>
+        <label class="upload-label" for="modal-reason">Motif à envoyer à l'utilisateur (obligatoire)</label>
+        <textarea id="modal-reason" class="auth-input" rows="4" placeholder="Ex: Ta photo est trop sombre, merci de recommencer..."></textarea>
+        <div class="modal-actions">
+          <button class="btn" data-modal-close>Annuler</button>
+          <button class="btn btn-primary" id="modal-confirm">Envoyer l'email de refus</button>
         </div>
       </div>
     </div>

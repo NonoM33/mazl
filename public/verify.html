@@ -7,71 +7,117 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
+<body class="bg-light">
   <nav class="nav">
-    <a href="/" class="logo" style="text-decoration:none;">MAZL</a>
+    <a href="/" class="logo">MAZL</a>
   </nav>
 
-  <main class="container" style="padding-top:120px;padding-bottom:80px;">
-    <div class="verify-card">
-      <div class="verify-header">
-        <h1>Vérifie ton profil</h1>
-        <p>Envoie tes documents pour accéder en priorité à l’app.</p>
+  <main class="container py-xl">
+    <div class="stepper-form">
+      <div class="verify-header text-center mb-lg">
+        <div class="brand-mark mx-auto mb-sm">MAZL</div>
+        <h1>Finalise ton inscription</h1>
+        <p class="subtitle">Vérifie ton identité pour rejoindre la communauté en toute sécurité.</p>
       </div>
 
-      <div id="verify-status" class="verify-status"></div>
+      <div id="verify-status" class="status-banner mb-md"></div>
 
-      <section class="verify-section">
-        <h2>Étape 1 (obligatoire)</h2>
-        <p class="muted">Selfie + pièce d’identité (CNI / passeport)</p>
+      <!-- Step 0: OS Choice -->
+      <section class="verify-step active" id="step-os">
+        <h2 class="step-title">Sur quel appareil es-tu ?</h2>
+        <div class="os-grid">
+          <label class="os-card">
+            <input type="radio" name="os" value="ios" class="os-radio" />
+            <div class="os-content">
+              <span class="os-icon">🍎</span>
+              <span class="os-label">iPhone (iOS)</span>
+            </div>
+          </label>
+          <label class="os-card">
+            <input type="radio" name="os" value="android" class="os-radio" />
+            <div class="os-content">
+              <span class="os-icon">🤖</span>
+              <span class="os-label">Android</span>
+            </div>
+          </label>
+        </div>
+      </section>
 
-          <div class="verify-grid">
-          <div class="upload-card">
-            <label class="upload-label">Selfie avec ta pièce d’identité</label>
-            <input type="file" id="file-selfie" accept="image/*,.pdf" />
-            <button class="btn" id="btn-selfie">Uploader</button>
+      <!-- Step 1: Mandatory Docs -->
+      <section class="verify-step mt-lg" id="step-docs">
+        <h2 class="step-title">Étape 1 : Identité (obligatoire)</h2>
+        <p class="step-desc">Prends des photos claires de tes documents.</p>
+
+        <div class="verify-modern-grid">
+          <!-- Selfie -->
+          <div class="modern-upload-card" id="card-selfie">
+            <div class="upload-icon">📸</div>
+            <h3>Selfie avec ta pièce</h3>
+            <p>Ta main doit tenir ton document à côté de ton visage.</p>
+            <input type="file" id="file-selfie" accept="image/*" class="hidden-input" />
             <div class="upload-preview" id="preview-selfie"></div>
+            <button class="btn btn-upload" onclick="document.getElementById('file-selfie').click()">
+              <span class="btn-icon">📁</span> Choisir la photo
+            </button>
             <div class="upload-msg" id="msg-selfie"></div>
           </div>
 
-          <div class="upload-card">
-            <label class="upload-label">CNI / Passeport (recto)</label>
-            <input type="file" id="file-id-front" accept="image/*,.pdf" />
-            <button class="btn" id="btn-id-front">Uploader</button>
+          <!-- ID Front -->
+          <div class="modern-upload-card" id="card-id-front">
+            <div class="upload-icon">🪪</div>
+            <h3>Recto de ta pièce</h3>
+            <p>Photo de face de ta CNI ou Passeport.</p>
+            <input type="file" id="file-id-front" accept="image/*,.pdf" class="hidden-input" />
             <div class="upload-preview" id="preview-id-front"></div>
+            <button class="btn btn-upload" onclick="document.getElementById('file-id-front').click()">
+              <span class="btn-icon">📁</span> Choisir le recto
+            </button>
             <div class="upload-msg" id="msg-id-front"></div>
           </div>
 
-          <div class="upload-card">
-            <label class="upload-label">CNI / Passeport (verso)</label>
-            <input type="file" id="file-id-back" accept="image/*,.pdf" />
-            <button class="btn" id="btn-id-back">Uploader</button>
+          <!-- ID Back -->
+          <div class="modern-upload-card" id="card-id-back">
+            <div class="upload-icon">🔙</div>
+            <h3>Verso de ta pièce</h3>
+            <p>Le dos de ton document d'identité.</p>
+            <input type="file" id="file-id-back" accept="image/*,.pdf" class="hidden-input" />
             <div class="upload-preview" id="preview-id-back"></div>
+            <button class="btn btn-upload" onclick="document.getElementById('file-id-back').click()">
+              <span class="btn-icon">📁</span> Choisir le verso
+            </button>
             <div class="upload-msg" id="msg-id-back"></div>
           </div>
         </div>
       </section>
 
-      <section class="verify-section">
-        <h2>Étape 2 (optionnelle)</h2>
-        <p class="muted">Document communautaire pour le badge “Vérifié+” (ex: ketouba, certificat, carte synagogue…)</p>
+      <!-- Step 2: Optional Doc -->
+      <section class="verify-step mt-lg" id="step-optional">
+        <h2 class="step-title">Étape 2 : Badge Vérifié+ (optionnel)</h2>
+        <p class="step-desc">Ketouba, certificat de judéité, lettre de rabbin, etc.</p>
 
-        <div class="upload-card" style="max-width:520px;">
-          <label class="upload-label">Document (optionnel)</label>
-          <input type="file" id="file-community" accept="image/*,.pdf" />
-          <button class="btn" id="btn-community">Uploader</button>
+        <div class="modern-upload-card full-width" id="card-community">
+          <div class="upload-icon">✡️</div>
+          <h3>Document communautaire</h3>
+          <input type="file" id="file-community" accept="image/*,.pdf" class="hidden-input" />
           <div class="upload-preview" id="preview-community"></div>
+          <button class="btn btn-upload" onclick="document.getElementById('file-community').click()">
+            <span class="btn-icon">📁</span> Ajouter un document
+          </button>
           <div class="upload-msg" id="msg-community"></div>
         </div>
       </section>
 
-      <div class="verify-footer">
-        <button class="btn btn-primary" id="btn-submit" disabled>Envoyer pour validation</button>
-        <div class="upload-msg" id="msg-submit"></div>
-        <p class="muted" style="margin-top:12px;">Formats acceptés: JPG, PNG, WEBP, PDF — 10MB max.</p>
+      <div class="verify-footer mt-xl">
+        <button class="btn btn-primary btn-lg w-full" id="btn-submit" disabled>
+          <span class="btn-text">Envoyer pour validation</span>
+          <span class="btn-loader" style="display: none;">
+            <svg class="spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
+          </span>
+        </button>
+        <p class="muted text-center mt-md">En envoyant, tu acceptes nos conditions de traitement de tes données.</p>
       </div>
     </div>
   </main>

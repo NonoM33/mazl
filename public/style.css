@@ -1104,6 +1104,240 @@ body {
   .admin-docs-grid { grid-template-columns: 1fr; }
 }
 
+/* Utilities */
+.text-center { text-align: center; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mb-sm { margin-bottom: 8px; }
+.mb-md { margin-bottom: 16px; }
+.mb-lg { margin-bottom: 24px; }
+.mb-xl { margin-bottom: 48px; }
+.mt-md { margin-top: 16px; }
+.mt-lg { margin-top: 24px; }
+.mt-xl { margin-top: 48px; }
+.py-xl { padding-top: 64px; padding-bottom: 64px; }
+.w-full { width: 100%; }
+.bg-light { background-color: var(--bg-alt); }
+
+/* Stepper Form */
+.stepper-form {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: var(--shadow);
+}
+
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.step-desc {
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+/* OS Grid */
+.os-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.os-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.os-radio {
+  position: absolute;
+  opacity: 0;
+}
+
+.os-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 20px;
+  border: 2px solid var(--bg-alt);
+  background: var(--bg-alt);
+  transition: all 0.3s ease;
+}
+
+.os-radio:checked + .os-content {
+  border-color: var(--primary);
+  background: white;
+  box-shadow: var(--shadow);
+  transform: translateY(-4px);
+}
+
+.os-icon {
+  font-size: 32px;
+}
+
+.os-label {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* Modern Upload Cards */
+.verify-modern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.modern-upload-card {
+  background: var(--bg-alt);
+  border: 2px dashed rgba(0,0,0,0.08);
+  border-radius: 24px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.modern-upload-card:hover {
+  border-color: var(--primary);
+  background: rgba(108, 92, 231, 0.02);
+}
+
+.modern-upload-card.full-width {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.modern-upload-card h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.modern-upload-card p {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.btn-upload {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 10px 16px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-thumb-modern {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.doc-pill {
+  background: var(--primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Status Banner */
+.status-banner .alert {
+  padding: 16px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.alert.success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.alert.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Admin Modern */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: var(--bg-alt);
+  padding: 6px;
+  border-radius: 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-os-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #eee;
+  margin-left: 8px;
+}
+
+.admin-os-badge.ios { background: #f5f5f7; color: #1d1d1f; }
+.admin-os-badge.android { background: #e8f5e9; color: #2e7d32; }
+
+@media (max-width: 768px) {
+  .verify-modern-grid { grid-template-columns: 1fr; }
+  .stepper-form { padding: 24px; }
+  .modern-upload-card.full-width { flex-direction: column; text-align: center; }
+}
+
 /* Toast */
 .toast {
   position: fixed;

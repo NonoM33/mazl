@@ -18,9 +18,11 @@ import {
   upsertWaitlistAndGetVerification,
   getLatestDocumentsByType,
   setWaitlistVerificationStatus,
+  setWaitlistOS,
   rejectAllDocumentsForWaitlist,
   approveAllDocumentsForWaitlist,
   requestReuploadAndRotateToken,
+  listVerifiedProfiles,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 
@@ -145,6 +147,7 @@ app.get("/api/verify", async (c) => {
     success: true,
     email: waitlist.email,
     verificationStatus: waitlist.verification_status,
+    os: (waitlist as any).os,
     requiredReady: missing.length === 0,
     missing,
   });
@@ -196,6 +199,11 @@ app.post("/api/verify/submit", async (c) => {
   const waitlist = await findWaitlistByVerificationToken(token);
   if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
 
+  const { os } = await c.req.json().catch(() => ({}));
+  if (os && ["ios", "android"].includes(os)) {
+    await setWaitlistOS(waitlist.id, os);
+  }
+
   const latest = await getLatestDocumentsByType(waitlist.id);
   const required = ["selfie_id", "id_card_front", "id_card_back"];
   const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
@@ -216,6 +224,14 @@ app.get("/api/admin/pending", async (c) => {
   if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
   const items = await listPendingSubmissions();
+  return c.json({ success: true, items });
+});
+
+app.get("/api/admin/verified", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  const items = await listVerifiedProfiles();
   return c.json({ success: true, items });
 });
 

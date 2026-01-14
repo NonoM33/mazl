@@ -17,7 +17,8 @@ export async function initDb() {
       verification_status VARCHAR(20) DEFAULT 'pending',
       verification_requested_at TIMESTAMP,
       documents_submitted_at TIMESTAMP,
-      verified_at TIMESTAMP
+      verified_at TIMESTAMP,
+      os VARCHAR(20)
     )
   `;
 
@@ -27,6 +28,7 @@ export async function initDb() {
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verification_requested_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS documents_submitted_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP`;
+  await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS os VARCHAR(20)`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS documents (
@@ -122,9 +124,47 @@ export async function createDocument(params: {
   return row.id as number;
 }
 
+export async function listVerifiedProfiles() {
+  const rows = await sql`
+    SELECT w.id as waitlist_id, w.email, w.verification_status, w.verified_at, w.os,
+           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
+    FROM waitlist w
+    LEFT JOIN documents d ON d.waitlist_id = w.id
+    WHERE w.verification_status IN ('verified', 'verified_plus')
+    ORDER BY w.verified_at DESC NULLS LAST, w.created_at DESC
+  `;
+
+  const grouped = new Map<number, any>();
+  for (const row of rows) {
+    const id = row.waitlist_id as number;
+    if (!grouped.has(id)) {
+      grouped.set(id, {
+        waitlistId: id,
+        email: row.email,
+        verificationStatus: row.verification_status,
+        verifiedAt: row.verified_at,
+        os: row.os,
+        documents: [],
+      });
+    }
+    if (row.document_id) {
+      grouped.get(id).documents.push({
+        id: row.document_id,
+        type: row.type,
+        filename: row.filename,
+        mimeType: row.mime_type,
+        status: row.document_status,
+        createdAt: row.created_at,
+      });
+    }
+  }
+
+  return Array.from(grouped.values());
+}
+
 export async function listPendingSubmissions() {
   const rows = await sql`
-    SELECT w.id as waitlist_id, w.email, w.verification_status, w.documents_submitted_at,
+    SELECT w.id as waitlist_id, w.email, w.verification_status, w.documents_submitted_at, w.os,
            d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
@@ -141,6 +181,7 @@ export async function listPendingSubmissions() {
         email: row.email,
         verificationStatus: row.verification_status,
         submittedAt: row.documents_submitted_at,
+        os: row.os,
         documents: [],
       });
     }
@@ -251,6 +292,12 @@ export async function rejectAllDocumentsForWaitlist(waitlistId: number, notes?: 
     UPDATE documents
     SET status = 'rejected', reviewed_at = NOW(), reviewer_notes = ${notes ?? null}
     WHERE waitlist_id = ${waitlistId}
+  `;
+}
+
+export async function setWaitlistOS(waitlistId: number, os: string) {
+  await sql`
+    UPDATE waitlist SET os = ${os} WHERE id = ${waitlistId}
   `;
 }
 
