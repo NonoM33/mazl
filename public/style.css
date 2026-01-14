@@ -144,9 +144,51 @@ body {
 .subtitle {
   font-size: 1.2rem;
   color: var(--text-light);
-  margin-bottom: 40px;
-  max-width: 480px;
+  margin-bottom: 18px;
+  max-width: 520px;
   line-height: 1.7;
+}
+
+.hero-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.bullet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(108, 92, 231, 0.08);
+  border: 1px solid rgba(108, 92, 231, 0.16);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--primary);
+}
+
+.store-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  margin-bottom: 18px;
+}
+
+.store-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--dark);
 }
 
 /* Form */
