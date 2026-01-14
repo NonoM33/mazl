@@ -39,7 +39,9 @@ export async function sendVerificationRequestEmail(params: {
   <body style="margin:0;background:#f6f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
     <div style="max-width:560px;margin:0 auto;padding:28px 16px;">
       <div style="background:#ffffff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:28px;">
-        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">\n          MAZL\n        </div>
+        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">
+          MAZL
+        </div>
         <h1 style="margin:12px 0 8px;font-size:22px;color:#2D3436;">Bienvenue sur la waitlist</h1>
         <p style="margin:0 0 18px;color:#636E72;line-height:1.6;">
           Pour accéder en priorité à l’app, on te demande une vérification rapide.

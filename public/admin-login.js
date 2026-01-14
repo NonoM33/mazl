@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'mzl_admin_password';
+const STORAGE_KEY = 'mazl_admin_password';
 
 function redirectToDashboard() {
   window.location.href = '/admin/dashboard';

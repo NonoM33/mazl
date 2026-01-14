@@ -774,14 +774,17 @@ body {
 }
 
 .brand-mark {
-  width: 36px;
+  padding: 0 12px;
   height: 36px;
   border-radius: 12px;
   background: var(--gradient);
   color: white;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   box-shadow: 0 10px 30px rgba(108, 92, 231, 0.35);
 }

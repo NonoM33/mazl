@@ -12,7 +12,7 @@ function qs(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
 
-const STORAGE_KEY = 'mzl_admin_password';
+const STORAGE_KEY = 'mazl_admin_password';
 
 // Backward compatibility: if password in query, store it then clean URL.
 const passwordFromQuery = qs('password');
