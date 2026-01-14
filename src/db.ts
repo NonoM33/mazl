@@ -167,6 +167,41 @@ export async function setDocumentReview(params: { documentId: number; status: 'a
   `;
 }
 
+export async function setDocumentsReviewBulk(params: {
+  waitlistId: number;
+  documentIds: number[];
+  status: 'approved' | 'rejected';
+  notes?: string;
+}) {
+  if (!params.documentIds.length) return;
+
+  await sql`
+    UPDATE documents
+    SET status = ${params.status}, reviewed_at = NOW(), reviewer_notes = ${params.notes ?? null}
+    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
+  `;
+}
+
+export async function getDocumentTypesByIds(params: { waitlistId: number; documentIds: number[] }) {
+  if (!params.documentIds.length) return [] as string[];
+
+  const rows = await sql`
+    SELECT id, type
+    FROM documents
+    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
+  `;
+
+  return (rows as any[]).map((r) => r.type as string);
+}
+
+export async function getWaitlistEmailById(waitlistId: number) {
+  const rows = await sql`
+    SELECT email FROM waitlist WHERE id = ${waitlistId}
+  `;
+  const row = rows[0];
+  return row ? (row.email as string) : null;
+}
+
 export async function getDocumentById(documentId: number) {
   const result = await sql`
     SELECT id, waitlist_id, filename, mime_type FROM documents WHERE id = ${documentId}

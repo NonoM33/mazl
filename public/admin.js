@@ -61,6 +61,39 @@ function api(path, options = {}) {
   });
 }
 
+const modalEl = document.getElementById('modal');
+const modalReasonEl = document.getElementById('modal-reason');
+const modalConfirmEl = document.getElementById('modal-confirm');
+const modalSubtitleEl = document.getElementById('modal-subtitle');
+
+function openModal({ title, subtitle, onConfirm }) {
+  modalEl.querySelector('#modal-title').textContent = title;
+  modalSubtitleEl.textContent = subtitle || '';
+  modalReasonEl.value = '';
+  modalEl.classList.remove('hidden');
+  modalEl.setAttribute('aria-hidden', 'false');
+
+  const close = () => {
+    modalEl.classList.add('hidden');
+    modalEl.setAttribute('aria-hidden', 'true');
+    modalConfirmEl.onclick = null;
+  };
+
+  modalEl.querySelectorAll('[data-modal-close]').forEach((el) => {
+    el.onclick = close;
+  });
+
+  modalConfirmEl.onclick = async () => {
+    const reason = (modalReasonEl.value || '').trim();
+    if (!reason) {
+      showToast('Motif requis', 'error');
+      return;
+    }
+    await onConfirm(reason);
+    close();
+  };
+}
+
 function render(items) {
   listEl.innerHTML = '';
 
@@ -85,7 +118,8 @@ function render(items) {
           ? `<img class="doc-thumb" src="${fileUrl.toString()}" alt="${d.type}" />`
           : `<a class="doc-link" href="${fileUrl.toString()}" target="_blank">Ouvrir ${d.type}</a>`;
 
-        return `<div class="doc-item ${d.status}">
+        return `<div class="doc-item ${d.status}" data-doc-id="${d.id}" data-doc-type="${d.type}">
+          <input class="doc-check" type="checkbox" />
           <div class="doc-label">${d.type} <span class="doc-status">(${d.status})</span></div>
           ${preview}
         </div>`;
@@ -98,82 +132,107 @@ function render(items) {
           <div class="admin-email">${item.email}</div>
           <div class="muted">status: ${item.verificationStatus}</div>
         </div>
-        <div class="admin-actions">
-          <button class="btn btn-primary" data-action="approve">Valider profil</button>
-          <button class="btn" data-action="reupload">Demander re-upload</button>
+        <div class="admin-actions-inline">
+          <button class="btn" data-action="approve-selected">Approuver docs</button>
+          <button class="btn" data-action="reject-selected">Refuser docs</button>
+          <button class="btn btn-primary" data-action="approve-profile">Valider profil</button>
         </div>
       </div>
       <div class="admin-docs-grid">${docs || '<span class="muted">aucun doc</span>'}</div>
     `;
 
-    // Profile actions
-    const approveBtn = card.querySelector('[data-action="approve"]');
-    const reuploadBtn = card.querySelector('[data-action="reupload"]');
+    const docsGrid = card.querySelector('.admin-docs-grid');
 
-    approveBtn.addEventListener('click', async () => {
-      const res = await api(`/api/admin/profiles/${item.waitlistId}/approve`, { method: 'POST' });
-      const data = await res.json();
-      if (!data.success) {
-        showToast(data.error || 'Erreur', 'error');
-        return;
+    const getSelectedDocumentIds = () => {
+      const selected = [];
+      for (const el of docsGrid.querySelectorAll('.doc-item')) {
+        const cb = el.querySelector('.doc-check');
+        if (cb && cb.checked) {
+          selected.push(parseInt(el.dataset.docId, 10));
+        }
       }
-      showToast('Profil validé', 'success');
-      load();
+      return selected;
+    };
+
+    // Toggle selected style
+    docsGrid.addEventListener('change', (e) => {
+      const target = e.target;
+      if (target && target.classList && target.classList.contains('doc-check')) {
+        const itemEl = target.closest('.doc-item');
+        if (itemEl) {
+          itemEl.classList.toggle('selected', target.checked);
+        }
+      }
     });
 
-    reuploadBtn.addEventListener('click', async () => {
-      const notes = prompt('Motif / instruction pour re-upload (obligatoire)') || '';
-      if (!notes.trim()) {
-        showToast('Motif requis', 'error');
+    const approveSelectedBtn = card.querySelector('[data-action="approve-selected"]');
+    const rejectSelectedBtn = card.querySelector('[data-action="reject-selected"]');
+    const approveProfileBtn = card.querySelector('[data-action="approve-profile"]');
+
+    approveSelectedBtn.addEventListener('click', async () => {
+      const selected = getSelectedDocumentIds();
+      if (!selected.length) {
+        showToast('Sélectionne au moins 1 document', 'error');
         return;
       }
-      const res = await api(`/api/admin/profiles/${item.waitlistId}/request-reupload`, {
+
+      const res = await api(`/api/admin/profiles/${item.waitlistId}/review`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ approveDocumentIds: selected }),
       });
       const data = await res.json();
       if (!data.success) {
         showToast(data.error || 'Erreur', 'error');
         return;
       }
-      showToast('Re-upload demandé', 'success');
+      showToast('Documents approuvés', 'success');
       load();
     });
 
-    // Per-document actions
-    const actions = document.createElement('div');
-    actions.className = 'admin-actions-row';
+    rejectSelectedBtn.addEventListener('click', async () => {
+      const selected = getSelectedDocumentIds();
+      if (!selected.length) {
+        showToast('Sélectionne au moins 1 document', 'error');
+        return;
+      }
 
-    for (const d of item.documents || []) {
-      const approve = document.createElement('button');
-      approve.className = 'btn btn-primary';
-      approve.textContent = `Approuver ${d.type}`;
-      approve.addEventListener('click', async () => {
-        await api(`/api/admin/documents/${d.id}/approve`, { method: 'POST' });
-        showToast('Approuvé', 'success');
-        load();
+      openModal({
+        title: 'Refuser des documents',
+        subtitle: 'Un email sera envoyé pour demander un re-upload.',
+        onConfirm: async (reason) => {
+          const res = await api(`/api/admin/profiles/${item.waitlistId}/review`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rejectDocumentIds: selected, reason }),
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.error || 'Erreur', 'error');
+            return;
+          }
+          showToast('Re-upload demandé (email envoyé)', 'success');
+          load();
+        },
       });
+    });
 
-      const reject = document.createElement('button');
-      reject.className = 'btn';
-      reject.textContent = `Rejeter ${d.type}`;
-      reject.addEventListener('click', async () => {
-        const notes = prompt('Motif (optionnel)') || '';
-        await api(`/api/admin/documents/${d.id}/reject`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes }),
-        });
-        showToast('Rejeté', 'error');
-        load();
+    approveProfileBtn.addEventListener('click', async () => {
+      const selected = getSelectedDocumentIds();
+      const res = await api(`/api/admin/profiles/${item.waitlistId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approveDocumentIds: selected, approveProfile: true }),
       });
+      const data = await res.json();
+      if (!data.success) {
+        showToast(data.error || 'Erreur', 'error');
+        return;
+      }
+      showToast('Profil validé (email envoyé)', 'success');
+      load();
+    });
 
-      actions.appendChild(approve);
-      actions.appendChild(reject);
-    }
-
-    card.appendChild(actions);
     listEl.appendChild(card);
   }
 }

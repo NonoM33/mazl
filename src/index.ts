@@ -12,6 +12,9 @@ import {
   listPendingSubmissions,
   markVerificationSubmitted,
   setDocumentReview,
+  setDocumentsReviewBulk,
+  getDocumentTypesByIds,
+  getWaitlistEmailById,
   upsertWaitlistAndGetVerification,
   getLatestDocumentsByType,
   setWaitlistVerificationStatus,
@@ -19,7 +22,7 @@ import {
   approveAllDocumentsForWaitlist,
   requestReuploadAndRotateToken,
 } from "./db";
-import { sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
+import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 
 const app = new Hono();
 
@@ -240,8 +243,22 @@ app.post("/api/admin/profiles/:id/approve", async (c) => {
 
   await approveAllDocumentsForWaitlist(waitlistId);
 
-  const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status !== "rejected");
-  await setWaitlistVerificationStatus(waitlistId, hasCommunity ? "verified_plus" : "verified");
+  const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status === "approved");
+  const level = hasCommunity ? "verified_plus" : "verified";
+  await setWaitlistVerificationStatus(waitlistId, level);
+
+  // Email (best-effort)
+  try {
+    const forwardedProto = c.req.header("x-forwarded-proto") || "https";
+    const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
+    const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+    const email = await getWaitlistEmailById(waitlistId);
+    if (email) {
+      await sendProfileApprovedEmail({ to: email, baseUrl: requestOrigin, level });
+    }
+  } catch (err) {
+    console.error("Approved email failed:", err);
+  }
 
   return c.json({ success: true });
 });
@@ -269,10 +286,94 @@ app.post("/api/admin/profiles/:id/request-reupload", async (c) => {
       to: rotated.email,
       verificationToken: rotated.verificationToken,
       reason: notes,
+      rejectedTypes: ["selfie_id", "id_card_front", "id_card_back"],
       baseUrl: requestOrigin,
     });
   } catch (err) {
     console.error("Reupload email failed:", err);
+  }
+
+  return c.json({ success: true });
+});
+
+app.post("/api/admin/profiles/:id/review", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  const waitlistId = Number.parseInt(c.req.param("id"), 10);
+  const body = await c.req.json().catch(() => ({}));
+
+  const approveDocumentIds = Array.isArray(body?.approveDocumentIds)
+    ? body.approveDocumentIds.map((n: any) => Number.parseInt(String(n), 10)).filter((n: number) => Number.isFinite(n))
+    : [];
+
+  const rejectDocumentIds = Array.isArray(body?.rejectDocumentIds)
+    ? body.rejectDocumentIds.map((n: any) => Number.parseInt(String(n), 10)).filter((n: number) => Number.isFinite(n))
+    : [];
+
+  const approveProfile = Boolean(body?.approveProfile);
+  const reason = (body?.reason || body?.notes || "").toString().trim();
+
+  if (rejectDocumentIds.length > 0 && !reason) {
+    return c.json({ success: false, error: "Motif requis" }, 400);
+  }
+
+  // Apply doc reviews
+  await setDocumentsReviewBulk({ waitlistId, documentIds: approveDocumentIds, status: "approved" });
+  await setDocumentsReviewBulk({ waitlistId, documentIds: rejectDocumentIds, status: "rejected", notes: reason });
+
+  // If any rejected => reset to pending + rotate token + email
+  if (rejectDocumentIds.length > 0) {
+    const rejectedTypes = await getDocumentTypesByIds({ waitlistId, documentIds: rejectDocumentIds });
+    const rotated = await requestReuploadAndRotateToken(waitlistId);
+
+    try {
+      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
+      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
+      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+
+      await sendReuploadRequestedEmail({
+        to: rotated.email,
+        verificationToken: rotated.verificationToken,
+        reason,
+        rejectedTypes,
+        baseUrl: requestOrigin,
+      });
+    } catch (err) {
+      console.error("Reupload email failed:", err);
+    }
+
+    return c.json({ success: true, status: "pending" });
+  }
+
+  // Optional: validate profile
+  if (approveProfile) {
+    const latest = await getLatestDocumentsByType(waitlistId);
+    const required = ["selfie_id", "id_card_front", "id_card_back"];
+    const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+    if (missing.length > 0) {
+      return c.json({ success: false, error: `Docs manquants: ${missing.join(", ")}` }, 400);
+    }
+
+    await approveAllDocumentsForWaitlist(waitlistId);
+
+    const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status === "approved");
+    const level = hasCommunity ? "verified_plus" : "verified";
+    await setWaitlistVerificationStatus(waitlistId, level);
+
+    try {
+      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
+      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
+      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+      const email = await getWaitlistEmailById(waitlistId);
+      if (email) {
+        await sendProfileApprovedEmail({ to: email, baseUrl: requestOrigin, level });
+      }
+    } catch (err) {
+      console.error("Approved email failed:", err);
+    }
+
+    return c.json({ success: true, status: "verified" });
   }
 
   return c.json({ success: true });

@@ -26,8 +26,22 @@
       </div>
 
       <div id="admin-error" class="verify-status error" style="display:none;"></div>
-
+ 
       <div id="admin-list" class="admin-list"></div>
+
+      <div id="modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <h2 id="modal-title">Refuser des documents</h2>
+          <p class="muted" id="modal-subtitle"></p>
+          <label class="upload-label" for="modal-reason">Motif (obligatoire)</label>
+          <textarea id="modal-reason" class="auth-input" rows="4" placeholder="Ex: photo floue, document incomplet…"></textarea>
+          <div class="modal-actions">
+            <button class="btn" type="button" data-modal-close>Annuler</button>
+            <button class="btn btn-primary" type="button" id="modal-confirm">Envoyer</button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
