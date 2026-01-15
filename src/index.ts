@@ -23,8 +23,13 @@ import {
   approveAllDocumentsForWaitlist,
   requestReuploadAndRotateToken,
   listVerifiedProfiles,
+  upsertUser,
+  findUserById,
+  getUserProfile,
+  upsertProfile,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
+import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
 
 const app = new Hono();
 
@@ -428,6 +433,198 @@ app.get("/api/admin/documents/:id/file", async (c) => {
       "cache-control": "no-store",
     },
   });
+});
+
+// ============ AUTH ENDPOINTS ============
+
+// Google OAuth - Verify ID token from mobile app
+app.post("/api/auth/google", async (c) => {
+  try {
+    const { idToken, accessToken } = await c.req.json();
+
+    if (!idToken) {
+      return c.json({ success: false, error: "ID token required" }, 400);
+    }
+
+    // Verify the Google ID token
+    const googleUser = await verifyGoogleIdToken(idToken);
+    if (!googleUser) {
+      return c.json({ success: false, error: "Invalid Google token" }, 401);
+    }
+
+    // Create or update user in database
+    const { user, isNew } = await upsertUser({
+      email: googleUser.email,
+      name: googleUser.name,
+      picture: googleUser.picture,
+      provider: "google",
+      providerId: googleUser.sub,
+    });
+
+    // Generate JWT token
+    const token = generateJWT({
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      picture: user.picture ?? undefined,
+      provider: "google",
+      providerId: googleUser.sub,
+    });
+
+    // Get user profile if exists
+    const profile = await getUserProfile(user.id);
+
+    return c.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        provider: user.provider,
+        isNew,
+        hasProfile: !!profile?.is_complete,
+      },
+    });
+  } catch (error: any) {
+    console.error("Google auth error:", error);
+    return c.json({ success: false, error: "Authentication failed" }, 500);
+  }
+});
+
+// Apple OAuth - Verify identity token from mobile app
+app.post("/api/auth/apple", async (c) => {
+  try {
+    const { identityToken, authorizationCode, email, fullName } = await c.req.json();
+
+    if (!identityToken) {
+      return c.json({ success: false, error: "Identity token required" }, 400);
+    }
+
+    // Verify the Apple identity token
+    const appleUser = await verifyAppleIdToken(identityToken);
+    if (!appleUser) {
+      return c.json({ success: false, error: "Invalid Apple token" }, 401);
+    }
+
+    // Apple only sends email on first sign-in, use provided email or token email
+    const userEmail = appleUser.email || email || `${appleUser.sub}@privaterelay.appleid.com`;
+
+    // Create or update user in database
+    const { user, isNew } = await upsertUser({
+      email: userEmail,
+      name: fullName,
+      provider: "apple",
+      providerId: appleUser.sub,
+    });
+
+    // Generate JWT token
+    const token = generateJWT({
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      provider: "apple",
+      providerId: appleUser.sub,
+    });
+
+    // Get user profile if exists
+    const profile = await getUserProfile(user.id);
+
+    return c.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        provider: user.provider,
+        isNew,
+        hasProfile: !!profile?.is_complete,
+      },
+    });
+  } catch (error: any) {
+    console.error("Apple auth error:", error);
+    return c.json({ success: false, error: "Authentication failed" }, 500);
+  }
+});
+
+// Get current user
+app.get("/api/auth/me", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const user = await findUserById(parseInt(payload.sub));
+    if (!user) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
+
+    const profile = await getUserProfile(user.id);
+
+    return c.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        provider: user.provider,
+        hasProfile: !!profile?.is_complete,
+      },
+      profile,
+    });
+  } catch (error: any) {
+    console.error("Get user error:", error);
+    return c.json({ success: false, error: "Failed to get user" }, 500);
+  }
+});
+
+// Update user profile
+app.put("/api/profile", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const body = await c.req.json();
+
+    const profile = await upsertProfile(userId, {
+      displayName: body.displayName,
+      birthdate: body.birthdate,
+      gender: body.gender,
+      bio: body.bio,
+      location: body.location,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      denomination: body.denomination,
+      kashrutLevel: body.kashrutLevel,
+      shabbatObservance: body.shabbatObservance,
+      lookingFor: body.lookingFor,
+      ageMin: body.ageMin,
+      ageMax: body.ageMax,
+      distanceMax: body.distanceMax,
+    });
+
+    return c.json({ success: true, profile });
+  } catch (error: any) {
+    console.error("Update profile error:", error);
+    return c.json({ success: false, error: "Failed to update profile" }, 500);
+  }
 });
 
 // Health check

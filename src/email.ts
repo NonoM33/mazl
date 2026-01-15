@@ -5,7 +5,7 @@ if (!resendApiKey) {
   console.warn("RESEND_API_KEY is not set; emails will not be sent.");
 }
 
-const resend = new Resend(resendApiKey);
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const APP_URL = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
 const FROM_EMAIL = process.env.FROM_EMAIL || "hello@mazl.app";
@@ -19,7 +19,7 @@ export async function sendVerificationRequestEmail(params: {
   verificationToken: string;
   baseUrl?: string;
 }) {
-  if (!resendApiKey) return { success: false, error: "missing_resend_api_key" };
+  if (!resend) return { success: false, error: "missing_resend_api_key" };
 
   const baseUrl = resolveBaseUrl(params.baseUrl);
   const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
@@ -81,7 +81,7 @@ export async function sendReuploadRequestedEmail(params: {
   rejectedTypes?: string[];
   baseUrl?: string;
 }) {
-  if (!resendApiKey) return { success: false, error: "missing_resend_api_key" };
+  if (!resend) return { success: false, error: "missing_resend_api_key" };
 
   const baseUrl = resolveBaseUrl(params.baseUrl);
   const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
@@ -174,7 +174,7 @@ function escapeHtml(input: string) {
 }
 
 export async function sendProfileApprovedEmail(params: { to: string; baseUrl?: string; level?: "verified" | "verified_plus" }) {
-  if (!resendApiKey) return { success: false, error: "missing_resend_api_key" };
+  if (!resend) return { success: false, error: "missing_resend_api_key" };
 
   const baseUrl = resolveBaseUrl(params.baseUrl);
   const level = params.level || "verified";

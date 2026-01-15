@@ -45,6 +45,48 @@ export async function initDb() {
     )
   `;
 
+  // Users table for OAuth authentication
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      name VARCHAR(255),
+      picture TEXT,
+      provider VARCHAR(20) NOT NULL,
+      provider_id VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      last_login_at TIMESTAMP DEFAULT NOW(),
+      is_active BOOLEAN DEFAULT true,
+      UNIQUE(provider, provider_id)
+    )
+  `;
+
+  // User profiles table for dating app
+  await sql`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+      display_name VARCHAR(100),
+      birthdate DATE,
+      gender VARCHAR(20),
+      bio TEXT,
+      location VARCHAR(255),
+      latitude DECIMAL(10, 8),
+      longitude DECIMAL(11, 8),
+      denomination VARCHAR(50),
+      kashrut_level VARCHAR(50),
+      shabbat_observance VARCHAR(50),
+      looking_for VARCHAR(50),
+      age_min INTEGER DEFAULT 18,
+      age_max INTEGER DEFAULT 99,
+      distance_max INTEGER DEFAULT 100,
+      is_complete BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   console.log("Database initialized");
 }
 
@@ -340,4 +382,152 @@ export async function getTotalCount() {
   `;
   const row = result[0];
   return row ? parseInt(row.count) : 0;
+}
+
+// ============ USER AUTH FUNCTIONS ============
+
+export interface User {
+  id: number;
+  email: string;
+  name: string | null;
+  picture: string | null;
+  provider: "google" | "apple";
+  provider_id: string;
+  created_at: Date;
+  is_active: boolean;
+}
+
+export async function findUserByProviderId(provider: string, providerId: string): Promise<User | null> {
+  const result = await sql`
+    SELECT * FROM users WHERE provider = ${provider} AND provider_id = ${providerId}
+  `;
+  return result.length ? (result[0] as User) : null;
+}
+
+export async function findUserByEmail(email: string): Promise<User | null> {
+  const result = await sql`
+    SELECT * FROM users WHERE email = ${email}
+  `;
+  return result.length ? (result[0] as User) : null;
+}
+
+export async function findUserById(id: number): Promise<User | null> {
+  const result = await sql`
+    SELECT * FROM users WHERE id = ${id}
+  `;
+  return result.length ? (result[0] as User) : null;
+}
+
+export async function createUser(params: {
+  email: string;
+  name?: string;
+  picture?: string;
+  provider: "google" | "apple";
+  providerId: string;
+}): Promise<User> {
+  const result = await sql`
+    INSERT INTO users (email, name, picture, provider, provider_id)
+    VALUES (${params.email}, ${params.name ?? null}, ${params.picture ?? null}, ${params.provider}, ${params.providerId})
+    RETURNING *
+  `;
+  return result[0] as User;
+}
+
+export async function upsertUser(params: {
+  email: string;
+  name?: string;
+  picture?: string;
+  provider: "google" | "apple";
+  providerId: string;
+}): Promise<{ user: User; isNew: boolean }> {
+  // Try to find existing user by provider ID
+  let user = await findUserByProviderId(params.provider, params.providerId);
+
+  if (user) {
+    // Update existing user
+    const result = await sql`
+      UPDATE users
+      SET name = COALESCE(${params.name ?? null}, name),
+          picture = COALESCE(${params.picture ?? null}, picture),
+          last_login_at = NOW(),
+          updated_at = NOW()
+      WHERE id = ${user.id}
+      RETURNING *
+    `;
+    return { user: result[0] as User, isNew: false };
+  }
+
+  // Create new user
+  user = await createUser(params);
+  return { user, isNew: true };
+}
+
+export async function updateUserLastLogin(userId: number): Promise<void> {
+  await sql`
+    UPDATE users SET last_login_at = NOW() WHERE id = ${userId}
+  `;
+}
+
+export async function getUserProfile(userId: number) {
+  const result = await sql`
+    SELECT * FROM profiles WHERE user_id = ${userId}
+  `;
+  return result.length ? result[0] : null;
+}
+
+export async function upsertProfile(userId: number, params: {
+  displayName?: string;
+  birthdate?: string;
+  gender?: string;
+  bio?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  denomination?: string;
+  kashrutLevel?: string;
+  shabbatObservance?: string;
+  lookingFor?: string;
+  ageMin?: number;
+  ageMax?: number;
+  distanceMax?: number;
+}) {
+  const result = await sql`
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    VALUES (
+      ${userId},
+      ${params.displayName ?? null},
+      ${params.birthdate ?? null},
+      ${params.gender ?? null},
+      ${params.bio ?? null},
+      ${params.location ?? null},
+      ${params.latitude ?? null},
+      ${params.longitude ?? null},
+      ${params.denomination ?? null},
+      ${params.kashrutLevel ?? null},
+      ${params.shabbatObservance ?? null},
+      ${params.lookingFor ?? null},
+      ${params.ageMin ?? 18},
+      ${params.ageMax ?? 99},
+      ${params.distanceMax ?? 100}
+    )
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+      display_name = COALESCE(${params.displayName ?? null}, profiles.display_name),
+      birthdate = COALESCE(${params.birthdate ?? null}, profiles.birthdate),
+      gender = COALESCE(${params.gender ?? null}, profiles.gender),
+      bio = COALESCE(${params.bio ?? null}, profiles.bio),
+      location = COALESCE(${params.location ?? null}, profiles.location),
+      latitude = COALESCE(${params.latitude ?? null}, profiles.latitude),
+      longitude = COALESCE(${params.longitude ?? null}, profiles.longitude),
+      denomination = COALESCE(${params.denomination ?? null}, profiles.denomination),
+      kashrut_level = COALESCE(${params.kashrutLevel ?? null}, profiles.kashrut_level),
+      shabbat_observance = COALESCE(${params.shabbatObservance ?? null}, profiles.shabbat_observance),
+      looking_for = COALESCE(${params.lookingFor ?? null}, profiles.looking_for),
+      age_min = COALESCE(${params.ageMin ?? null}, profiles.age_min),
+      age_max = COALESCE(${params.ageMax ?? null}, profiles.age_max),
+      distance_max = COALESCE(${params.distanceMax ?? null}, profiles.distance_max),
+      updated_at = NOW()
+    RETURNING *
+  `;
+  return result[0];
 }
