@@ -27,6 +27,9 @@ import {
   findUserById,
   getUserProfile,
   upsertProfile,
+  getDiscoverProfiles,
+  recordSwipe,
+  getMatches,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
@@ -624,6 +627,90 @@ app.put("/api/profile", async (c) => {
   } catch (error: any) {
     console.error("Update profile error:", error);
     return c.json({ success: false, error: "Failed to update profile" }, 500);
+  }
+});
+
+// ============ DISCOVER & MATCHING ============
+
+// Get profiles for discovery
+app.get("/api/discover", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const limit = parseInt(c.req.query("limit") || "20");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const profiles = await getDiscoverProfiles(userId, limit, offset);
+
+    return c.json({ success: true, profiles });
+  } catch (error: any) {
+    console.error("Discover error:", error);
+    return c.json({ success: false, error: "Failed to get profiles" }, 500);
+  }
+});
+
+// Record swipe action
+app.post("/api/swipes", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const { target_user_id, action } = await c.req.json();
+
+    if (!target_user_id || !action) {
+      return c.json({ success: false, error: "Missing target_user_id or action" }, 400);
+    }
+
+    if (!['like', 'pass', 'super_like'].includes(action)) {
+      return c.json({ success: false, error: "Invalid action" }, 400);
+    }
+
+    const result = await recordSwipe(userId, target_user_id, action);
+
+    return c.json({ success: true, ...result });
+  } catch (error: any) {
+    console.error("Swipe error:", error);
+    return c.json({ success: false, error: "Failed to record swipe" }, 500);
+  }
+});
+
+// Get user's matches
+app.get("/api/matches", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const matches = await getMatches(userId);
+
+    return c.json({ success: true, matches });
+  } catch (error: any) {
+    console.error("Matches error:", error);
+    return c.json({ success: false, error: "Failed to get matches" }, 500);
   }
 });
 

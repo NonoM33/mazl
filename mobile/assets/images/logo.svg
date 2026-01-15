@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#EC4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F472B6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Heart shape with Star of David integrated -->
+  <g fill="none" stroke="url(#logoGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left side of heart curving into star -->
+    <path d="M100 170
+             C60 130, 20 100, 20 70
+             C20 40, 45 20, 75 20
+             C90 20, 100 35, 100 35"/>
+
+    <!-- Right side of heart curving into star -->
+    <path d="M100 170
+             C140 130, 180 100, 180 70
+             C180 40, 155 20, 125 20
+             C110 20, 100 35, 100 35"/>
+
+    <!-- Star of David - Upper triangle -->
+    <path d="M100 45 L65 100 L135 100 Z"/>
+
+    <!-- Star of David - Lower triangle -->
+    <path d="M100 130 L135 75 L65 75 Z"/>
+  </g>
+</svg>

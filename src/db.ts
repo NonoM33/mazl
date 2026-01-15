@@ -82,12 +82,56 @@ export async function initDb() {
       age_max INTEGER DEFAULT 99,
       distance_max INTEGER DEFAULT 100,
       is_complete BOOLEAN DEFAULT false,
+      is_verified BOOLEAN DEFAULT false,
+      verification_level VARCHAR(20) DEFAULT 'none',
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `;
 
+  // Profile photos
+  await sql`
+    CREATE TABLE IF NOT EXISTS profile_photos (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      url TEXT NOT NULL,
+      position INTEGER DEFAULT 0,
+      is_primary BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Swipes table
+  await sql`
+    CREATE TABLE IF NOT EXISTS swipes (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      target_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      action VARCHAR(20) NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(user_id, target_user_id)
+    )
+  `;
+
+  // Matches table
+  await sql`
+    CREATE TABLE IF NOT EXISTS matches (
+      id SERIAL PRIMARY KEY,
+      user1_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      user2_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(user1_id, user2_id)
+    )
+  `;
+
+  // Add new columns if they don't exist
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
+
   console.log("Database initialized");
+
+  // Seed fake profiles if empty
+  await seedFakeProfiles();
 }
 
 function generateVerificationToken() {
@@ -530,4 +574,264 @@ export async function upsertProfile(userId: number, params: {
     RETURNING *
   `;
   return result[0];
+}
+
+// ============ DISCOVER & SWIPES ============
+
+export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
+  // Get profiles that the user hasn't swiped on yet
+  const profiles = await sql`
+    SELECT
+      p.id,
+      p.user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) as age,
+      p.gender,
+      p.bio,
+      p.location,
+      p.denomination,
+      p.kashrut_level,
+      p.shabbat_observance,
+      p.is_verified,
+      p.verification_level,
+      u.picture
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id != ${userId}
+      AND p.is_complete = true
+      AND p.user_id NOT IN (
+        SELECT target_user_id FROM swipes WHERE user_id = ${userId}
+      )
+    ORDER BY p.created_at DESC
+    LIMIT ${limit}
+    OFFSET ${offset}
+  `;
+
+  // Get photos for each profile
+  const userIds = profiles.map((p: any) => p.user_id);
+  const photos = userIds.length > 0 ? await sql`
+    SELECT user_id, url, position FROM profile_photos
+    WHERE user_id IN ${sql(userIds)}
+    ORDER BY position ASC
+  ` : [];
+
+  const photoMap = new Map<number, string[]>();
+  for (const photo of photos as any[]) {
+    if (!photoMap.has(photo.user_id)) {
+      photoMap.set(photo.user_id, []);
+    }
+    photoMap.get(photo.user_id)!.push(photo.url);
+  }
+
+  return profiles.map((p: any) => ({
+    ...p,
+    photos: photoMap.get(p.user_id) || (p.picture ? [p.picture] : []),
+  }));
+}
+
+export async function recordSwipe(userId: number, targetUserId: number, action: string) {
+  // Record the swipe
+  await sql`
+    INSERT INTO swipes (user_id, target_user_id, action)
+    VALUES (${userId}, ${targetUserId}, ${action})
+    ON CONFLICT (user_id, target_user_id)
+    DO UPDATE SET action = ${action}, created_at = NOW()
+  `;
+
+  // Check for match if it's a like or super_like
+  if (action === 'like' || action === 'super_like') {
+    const mutualLike = await sql`
+      SELECT id FROM swipes
+      WHERE user_id = ${targetUserId}
+        AND target_user_id = ${userId}
+        AND action IN ('like', 'super_like')
+    `;
+
+    if (mutualLike.length > 0) {
+      // Create match (order user IDs to prevent duplicates)
+      const [user1, user2] = userId < targetUserId ? [userId, targetUserId] : [targetUserId, userId];
+      await sql`
+        INSERT INTO matches (user1_id, user2_id)
+        VALUES (${user1}, ${user2})
+        ON CONFLICT (user1_id, user2_id) DO NOTHING
+      `;
+      return { match: true, targetUserId };
+    }
+  }
+
+  return { match: false };
+}
+
+export async function getMatches(userId: number) {
+  const matches = await sql`
+    SELECT
+      m.id as match_id,
+      m.created_at as matched_at,
+      CASE
+        WHEN m.user1_id = ${userId} THEN m.user2_id
+        ELSE m.user1_id
+      END as other_user_id
+    FROM matches m
+    WHERE m.user1_id = ${userId} OR m.user2_id = ${userId}
+    ORDER BY m.created_at DESC
+  `;
+
+  if (matches.length === 0) return [];
+
+  const otherUserIds = matches.map((m: any) => m.other_user_id);
+
+  const profiles = await sql`
+    SELECT
+      p.user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) as age,
+      p.location,
+      p.is_verified,
+      u.picture
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id IN ${sql(otherUserIds)}
+  `;
+
+  const profileMap = new Map<number, any>();
+  for (const p of profiles as any[]) {
+    profileMap.set(p.user_id, p);
+  }
+
+  return matches.map((m: any) => ({
+    matchId: m.match_id,
+    matchedAt: m.matched_at,
+    profile: profileMap.get(m.other_user_id),
+  }));
+}
+
+// ============ SEED FAKE PROFILES ============
+
+async function seedFakeProfiles() {
+  // Check if we already have fake profiles
+  const existingCount = await sql`SELECT COUNT(*) as count FROM users WHERE provider = 'seed'`;
+  if (parseInt((existingCount[0] as any).count) > 0) {
+    console.log("Seed profiles already exist, skipping...");
+    return;
+  }
+
+  console.log("Seeding 20 fake profiles...");
+
+  const femaleProfiles = [
+    { name: "Sarah Cohen", age: 25, city: "Paris", bio: "Amoureuse de la vie, de voyages et de bonne cuisine. J'adore les soirées Shabbat en famille.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Rachel Levy", age: 27, city: "Lyon", bio: "Passionnée de musique et de danse. Je cherche quelqu'un avec qui partager des moments de joie.", denomination: "Traditional", kashrut: "Kosher style", shabbat: "Sometimes" },
+    { name: "Leah Benzaquen", age: 24, city: "Marseille", bio: "Étudiante en médecine, j'aime les livres, le cinéma et les longues discussions.", denomination: "Conservative", kashrut: "Kosher at home", shabbat: "Observant" },
+    { name: "Miriam Ohayon", age: 26, city: "Nice", bio: "Designer créative, toujours à la recherche d'aventures. La vie est trop courte pour s'ennuyer!", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Esther Azoulay", age: 28, city: "Bordeaux", bio: "Avocate le jour, chef cuisinière le soir. Je fais le meilleur couscous de la région.", denomination: "Traditional", kashrut: "Kosher style", shabbat: "Sometimes" },
+    { name: "Déborah Sebbag", age: 23, city: "Toulouse", bio: "Jeune entrepreneuse dans la tech. Je code et je cuisine, que demander de plus?", denomination: "Reform", kashrut: "Not strict", shabbat: "Cultural" },
+    { name: "Judith Toledano", age: 29, city: "Strasbourg", bio: "Prof de yoga et passionnée de bien-être. Je cherche une belle âme pour partager ma vie.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Rebecca Mimoun", age: 25, city: "Nantes", bio: "Photographe et voyageuse. Mon appareil photo et moi avons vu le monde entier.", denomination: "Conservative", kashrut: "Kosher at home", shabbat: "Sometimes" },
+    { name: "Hannah Zerbib", age: 27, city: "Montpellier", bio: "Médecin pédiatre, j'adore les enfants. Family first!", denomination: "Traditional", kashrut: "Kosher style", shabbat: "Observant" },
+    { name: "Naomi Abitbol", age: 24, city: "Paris", bio: "Étudiante en droit, passionnée d'art et de culture. Un verre de vin et une bonne conversation, c'est tout ce qu'il me faut.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+  ];
+
+  const maleProfiles = [
+    { name: "David Cohen", age: 28, city: "Paris", bio: "Ingénieur en IA, passionné de Torah et de tech. Je cherche ma ezer kenegdo.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Benjamin Levy", age: 30, city: "Lyon", bio: "Entrepreneur dans le retail. J'aime le sport, les voyages et les repas en famille.", denomination: "Traditional", kashrut: "Kosher style", shabbat: "Sometimes" },
+    { name: "Jonathan Benzaquen", age: 26, city: "Marseille", bio: "Kiné sportif, je m'occupe des athlètes du coin. Sport le matin, étude le soir.", denomination: "Conservative", kashrut: "Kosher at home", shabbat: "Observant" },
+    { name: "Nathan Ohayon", age: 29, city: "Nice", bio: "Chef de projet dans une startup. La côte d'azur, c'est la vie!", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Samuel Azoulay", age: 27, city: "Bordeaux", bio: "Sommelier et amateur de bons vins (casher bien sûr). Je cherche quelqu'un pour partager ma passion.", denomination: "Traditional", kashrut: "Kosher", shabbat: "Sometimes" },
+    { name: "Michael Sebbag", age: 25, city: "Toulouse", bio: "Développeur full-stack et gamer. Nerd assumé mais sociable!", denomination: "Reform", kashrut: "Not strict", shabbat: "Cultural" },
+    { name: "Daniel Toledano", age: 31, city: "Strasbourg", bio: "Dentiste de profession, musicien de passion. Je joue du piano le Shabbat.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+    { name: "Raphaël Mimoun", age: 28, city: "Nantes", bio: "Architecte, je dessine des maisons le jour et des rêves la nuit.", denomination: "Conservative", kashrut: "Kosher at home", shabbat: "Sometimes" },
+    { name: "Élie Zerbib", age: 26, city: "Montpellier", bio: "Comptable et passionné de football. OL pour la vie!", denomination: "Traditional", kashrut: "Kosher style", shabbat: "Observant" },
+    { name: "Yohan Abitbol", age: 29, city: "Paris", bio: "Avocat d'affaires, fan de cinéma et de bons restaurants. Je cherche une partenaire pour la vie.", denomination: "Modern Orthodox", kashrut: "Kosher", shabbat: "Observant" },
+  ];
+
+  // Create users and profiles for women
+  for (let i = 0; i < femaleProfiles.length; i++) {
+    const p = femaleProfiles[i];
+    const birthYear = new Date().getFullYear() - p.age;
+    const birthdate = `${birthYear}-06-15`;
+
+    const userResult = await sql`
+      INSERT INTO users (email, name, picture, provider, provider_id)
+      VALUES (
+        ${`fake.female.${i + 1}@mazl.seed`},
+        ${p.name},
+        ${`https://i.pravatar.cc/400?img=${i + 1}`},
+        'seed',
+        ${`seed-female-${i + 1}`}
+      )
+      RETURNING id
+    `;
+    const userId = (userResult[0] as any).id;
+
+    await sql`
+      INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
+      VALUES (
+        ${userId},
+        ${p.name.split(' ')[0]},
+        ${birthdate},
+        'female',
+        ${p.bio},
+        ${p.city},
+        ${p.denomination},
+        ${p.kashrut},
+        ${p.shabbat},
+        'male',
+        true,
+        true,
+        'verified'
+      )
+    `;
+
+    // Add profile photo
+    await sql`
+      INSERT INTO profile_photos (user_id, url, position, is_primary)
+      VALUES (${userId}, ${`https://i.pravatar.cc/400?img=${i + 1}`}, 0, true)
+    `;
+  }
+
+  // Create users and profiles for men
+  for (let i = 0; i < maleProfiles.length; i++) {
+    const p = maleProfiles[i];
+    const birthYear = new Date().getFullYear() - p.age;
+    const birthdate = `${birthYear}-06-15`;
+
+    const userResult = await sql`
+      INSERT INTO users (email, name, picture, provider, provider_id)
+      VALUES (
+        ${`fake.male.${i + 1}@mazl.seed`},
+        ${p.name},
+        ${`https://i.pravatar.cc/400?img=${i + 50}`},
+        'seed',
+        ${`seed-male-${i + 1}`}
+      )
+      RETURNING id
+    `;
+    const userId = (userResult[0] as any).id;
+
+    await sql`
+      INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
+      VALUES (
+        ${userId},
+        ${p.name.split(' ')[0]},
+        ${birthdate},
+        'male',
+        ${p.bio},
+        ${p.city},
+        ${p.denomination},
+        ${p.kashrut},
+        ${p.shabbat},
+        'female',
+        true,
+        true,
+        'verified'
+      )
+    `;
+
+    // Add profile photo
+    await sql`
+      INSERT INTO profile_photos (user_id, url, position, is_primary)
+      VALUES (${userId}, ${`https://i.pravatar.cc/400?img=${i + 50}`}, 0, true)
+    `;
+  }
+
+  console.log("Seeded 20 fake profiles (10 women, 10 men)");
 }
