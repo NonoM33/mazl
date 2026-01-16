@@ -1732,6 +1732,27 @@ app.post("/api/admin/reset-swipes", async (c) => {
   }
 });
 
+// Reset swipes by email (dev endpoint)
+app.get("/api/dev/reset-swipes/:email", async (c) => {
+  const email = c.req.param("email");
+  if (!email) {
+    return c.json({ success: false, error: "email required" }, 400);
+  }
+
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
+
+    const result = await resetUserSwipes(user.id);
+    return c.json({ success: true, message: `Swipes reset for ${email} (user ${user.id})`, ...result });
+  } catch (error: any) {
+    console.error("Reset swipes error:", error);
+    return c.json({ success: false, error: "Failed to reset swipes" }, 500);
+  }
+});
+
 // Send test message from seed profile (admin)
 app.post("/api/admin/test-message", async (c) => {
   const auth = assertAdmin(c);

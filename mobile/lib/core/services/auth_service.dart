@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'api_service.dart';
+import 'push_notification_service.dart';
 import 'revenuecat_service.dart';
 
 /// User authentication data
@@ -107,6 +108,7 @@ class AuthService {
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final RevenueCatService _revenueCat = RevenueCatService();
+  final PushNotificationService _pushService = PushNotificationService();
 
   static const String _userKey = 'current_user';
   static const String _tokenKey = 'auth_token';
@@ -137,9 +139,10 @@ class AuthService {
         _currentUser = AuthUser.fromJson(jsonDecode(userJson));
         debugPrint('AuthService: Restored user session - ${_currentUser?.email}');
 
-        // Login to RevenueCat with restored user
+        // Login to RevenueCat and OneSignal with restored user
         if (_currentUser != null) {
           await _revenueCat.login(_currentUser!.id);
+          await _pushService.loginUser(int.parse(_currentUser!.id));
         }
       }
       _isInitialized = true;
@@ -203,9 +206,10 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat
+      // Save user and login to RevenueCat + OneSignal
       await _saveUser(user);
       await _revenueCat.login(user.id);
+      await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
 
@@ -287,9 +291,10 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat
+      // Save user and login to RevenueCat + OneSignal
       await _saveUser(user);
       await _revenueCat.login(user.id);
+      await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
 
@@ -313,8 +318,9 @@ class AuthService {
         await _googleSignIn.signOut();
       }
 
-      // Logout from RevenueCat
+      // Logout from RevenueCat and OneSignal
       await _revenueCat.logout();
+      await _pushService.logoutUser();
 
       // Clear stored user data
       await _secureStorage.delete(key: _userKey);

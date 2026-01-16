@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/services/revenuecat_service.dart';
 
 void main() async {
@@ -29,6 +30,9 @@ void main() async {
 
   // Initialize Auth Service
   await AuthService().initialize();
+
+  // Initialize Push Notifications (OneSignal)
+  await PushNotificationService().initialize();
 
   // TODO: Initialize Hive for local storage
   // await Hive.initFlutter();
