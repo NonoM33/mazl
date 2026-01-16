@@ -846,6 +846,7 @@ export async function seedFakeProfiles(force = false) {
         'seed',
         ${`seed-female-${i + 1}`}
       )
+      ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
       RETURNING id
     `;
     const userId = (userResult[0] as any).id;
@@ -867,12 +868,14 @@ export async function seedFakeProfiles(force = false) {
         true,
         'verified'
       )
+      ON CONFLICT (user_id) DO NOTHING
     `;
 
     // Add profile photo
     await sql`
       INSERT INTO profile_photos (user_id, url, position, is_primary)
       VALUES (${userId}, ${`https://i.pravatar.cc/400?img=${i + 1}`}, 0, true)
+      ON CONFLICT DO NOTHING
     `;
   }
 
@@ -891,6 +894,7 @@ export async function seedFakeProfiles(force = false) {
         'seed',
         ${`seed-male-${i + 1}`}
       )
+      ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
       RETURNING id
     `;
     const userId = (userResult[0] as any).id;
@@ -912,12 +916,14 @@ export async function seedFakeProfiles(force = false) {
         true,
         'verified'
       )
+      ON CONFLICT (user_id) DO NOTHING
     `;
 
     // Add profile photo
     await sql`
       INSERT INTO profile_photos (user_id, url, position, is_primary)
       VALUES (${userId}, ${`https://i.pravatar.cc/400?img=${i + 50}`}, 0, true)
+      ON CONFLICT DO NOTHING
     `;
   }
 
