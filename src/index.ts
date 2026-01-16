@@ -1048,6 +1048,17 @@ app.put("/api/conversations/:id/read", async (c) => {
 
     await markMessagesAsRead(conversationId, userId);
 
+    // Broadcast via WebSocket to the other user
+    const conv = conversation as any;
+    const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+    sendToUser(otherUserId, {
+      type: "chat:read",
+      payload: {
+        conversationId,
+        userId,
+      },
+    });
+
     return c.json({ success: true });
   } catch (error: any) {
     console.error("Mark read error:", error);

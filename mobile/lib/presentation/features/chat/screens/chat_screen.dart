@@ -86,6 +86,23 @@ class _ChatScreenState extends State<ChatScreen> {
             if (mounted) setState(() => _isTyping = false);
           });
         }
+      } else if (event is MessagesReadEvent && event.conversationId == _conversationId) {
+        // Mark all my messages as read when the other user reads them
+        if (_currentUserId != null && event.userId != _currentUserId) {
+          setState(() {
+            for (var i = 0; i < _messages.length; i++) {
+              if (_messages[i].senderId == _currentUserId && !_messages[i].isRead) {
+                _messages[i] = Message(
+                  id: _messages[i].id,
+                  senderId: _messages[i].senderId,
+                  content: _messages[i].content,
+                  isRead: true,
+                  createdAt: _messages[i].createdAt,
+                );
+              }
+            }
+          });
+        }
       }
     });
   }
