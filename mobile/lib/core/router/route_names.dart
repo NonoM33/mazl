@@ -23,6 +23,11 @@ abstract class RouteNames {
   static const verification = 'verification';
   static const shabbatMode = 'shabbatMode';
 
+  // Couple mode
+  static const coupleSetup = 'coupleSetup';
+  static const coupleDashboard = 'coupleDashboard';
+  static const jewishCalendar = 'jewishCalendar';
+
   // Other
   static const profileView = 'profileView';
   static const premium = 'premium';
@@ -52,6 +57,11 @@ abstract class RoutePaths {
   static const aiShadchan = '/profile/ai-shadchan';
   static const verification = '/profile/verification';
   static const shabbatMode = '/profile/settings/shabbat';
+
+  // Couple mode
+  static const coupleSetup = '/couple/setup';
+  static const coupleDashboard = '/couple/dashboard';
+  static const jewishCalendar = '/couple/calendar';
 
   // Other
   static const profileView = '/discover/profile/:userId';

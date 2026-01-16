@@ -23,6 +23,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   List<Profile> _profiles = [];
   bool _isLoading = true;
   String? _error;
+  bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
 
   @override
   void initState() {
@@ -151,8 +152,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 return _ProfileCard(
                   profile: profile,
                   swipeProgress: horizontalOffsetPercentage.toDouble(),
-                  onTapProfile: () {
-                    context.push('/discover/profile/${profile.userId}');
+                  onTapProfile: () async {
+                    final result = await context.push<String>('/discover/profile/${profile.userId}');
+                    if (result != null && mounted) {
+                      _handleSwipeFromDetail(result);
+                    }
                   },
                 );
               },
@@ -234,6 +238,24 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
+  void _handleSwipeFromDetail(String action) {
+    // Set flag to prevent duplicate API call (already sent from detail page)
+    _swipeFromDetail = true;
+
+    // Trigger the swipe animation based on the action from profile detail
+    switch (action) {
+      case 'like':
+        _controller.swipe(CardSwiperDirection.right);
+        break;
+      case 'pass':
+        _controller.swipe(CardSwiperDirection.left);
+        break;
+      case 'super_like':
+        _controller.swipe(CardSwiperDirection.top);
+        break;
+    }
+  }
+
   bool _onSwipe(
     int previousIndex,
     int? currentIndex,
@@ -252,6 +274,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       debugPrint('Super liked ${profile.displayName}');
       action = 'super_like';
     } else {
+      return true;
+    }
+
+    // Skip API call if swipe came from detail page (already sent)
+    if (_swipeFromDetail) {
+      _swipeFromDetail = false;
       return true;
     }
 

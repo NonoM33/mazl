@@ -23,6 +23,9 @@ import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
 import '../../presentation/features/premium/screens/premium_screen.dart';
+import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
+import '../../presentation/features/couple/screens/couple_dashboard_screen.dart';
+import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -109,6 +112,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const PremiumScreen(),
           transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Couple Mode Routes
+      GoRoute(
+        path: RoutePaths.coupleSetup,
+        name: RouteNames.coupleSetup,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CoupleModeSetupScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleDashboard,
+        name: RouteNames.coupleDashboard,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CoupleDashboardScreen(),
+          transitionsBuilder: fadeTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.jewishCalendar,
+        name: RouteNames.jewishCalendar,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const JewishCalendarScreen(),
+          transitionsBuilder: slideLeftTransition,
         ),
       ),
 
