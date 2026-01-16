@@ -55,6 +55,7 @@ import {
   getAdminStats,
   getAdminUsers,
   setUserActiveStatus,
+  seedFakeProfiles,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
@@ -1528,6 +1529,20 @@ app.post("/api/admin/test-match", async (c) => {
   } catch (error: any) {
     console.error("Create test match error:", error);
     return c.json({ success: false, error: "Failed to create test match" }, 500);
+  }
+});
+
+// Seed fake profiles (admin)
+app.post("/api/admin/seed-profiles", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    await seedFakeProfiles(true);
+    return c.json({ success: true, message: "Seed profiles created" });
+  } catch (error: any) {
+    console.error("Seed profiles error:", error);
+    return c.json({ success: false, error: "Failed to seed profiles" }, 500);
   }
 });
 

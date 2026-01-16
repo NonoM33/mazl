@@ -795,10 +795,10 @@ export async function getMatches(userId: number) {
 
 // ============ SEED FAKE PROFILES ============
 
-async function seedFakeProfiles() {
+export async function seedFakeProfiles(force = false) {
   // Check if we already have fake profiles
   const existingCount = await sql`SELECT COUNT(*) as count FROM users WHERE provider = 'seed'`;
-  if (parseInt((existingCount[0] as any).count) > 0) {
+  if (!force && parseInt((existingCount[0] as any).count) > 0) {
     console.log("Seed profiles already exist, skipping...");
     return;
   }
