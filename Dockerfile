@@ -4,7 +4,7 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile --production
+RUN bun install --production
 
 # Build stage
 FROM base AS runner
@@ -22,4 +22,8 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["bun", "run", "src/index.ts"]
+# Healthcheck to verify app is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+CMD ["bun", "src/index.ts"]
