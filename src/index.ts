@@ -1600,11 +1600,13 @@ app.post("/api/admin/test-message", async (c) => {
     // Broadcast via WebSocket to the other user
     const messageData = {
       type: "chat:message",
-      conversationId,
-      messageId: msg.id,
-      senderId: seedUserId,
-      content: message,
-      createdAt: msg.created_at,
+      payload: {
+        conversationId,
+        messageId: msg.id,
+        senderId: seedUserId,
+        content: message,
+        createdAt: msg.created_at,
+      },
     };
     sendToUser(otherUserId, messageData);
 
@@ -1716,8 +1718,13 @@ const server = Bun.serve({
             // Send to both users
             const messageData = {
               type: "chat:message",
-              conversationId,
-              message: msg,
+              payload: {
+                conversationId,
+                messageId: (msg as any).id,
+                senderId: userId,
+                content: (msg as any).content,
+                createdAt: (msg as any).created_at,
+              },
             };
             sendToUser(userId, messageData);
             sendToUser(otherUserId, messageData);
@@ -1738,8 +1745,11 @@ const server = Bun.serve({
             const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
             sendToUser(otherUserId, {
               type: "chat:typing",
-              conversationId,
-              userId,
+              payload: {
+                conversationId,
+                userId,
+                isTyping: true,
+              },
             });
             break;
           }
@@ -1760,8 +1770,10 @@ const server = Bun.serve({
             const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
             sendToUser(otherUserId, {
               type: "chat:read",
-              conversationId,
-              userId,
+              payload: {
+                conversationId,
+                userId,
+              },
             });
             break;
           }
