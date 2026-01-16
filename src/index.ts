@@ -1643,6 +1643,3 @@ const server = Bun.serve({
 });
 
 console.log(`Server with WebSocket running on http://localhost:${port}`);
-
-// Export for Bun compatibility
-export default server;
