@@ -26,6 +26,7 @@ import {
   listVerifiedProfiles,
   upsertUser,
   findUserById,
+  findUserByEmail,
   getUserProfile,
   getFullProfile,
   upsertProfile,
