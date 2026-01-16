@@ -350,13 +350,131 @@
 
     /* Responsive */
     @media (max-width: 480px) {
+      body {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
       .login-card {
-        padding: 32px 24px;
+        padding: 28px 20px;
         border-radius: 24px;
+        max-width: 100%;
       }
 
       .logo {
-        font-size: 36px;
+        font-size: 32px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        margin-bottom: 28px;
+      }
+
+      .admin-badge {
+        display: block;
+        margin: 8px auto 0;
+        width: fit-content;
+      }
+
+      .google-btn {
+        padding: 14px 20px;
+        font-size: 15px;
+      }
+
+      .divider {
+        margin: 20px 0;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-label {
+        font-size: 13px;
+      }
+
+      .form-input {
+        padding: 14px 16px;
+        font-size: 15px;
+        border-radius: 12px;
+      }
+
+      .submit-btn {
+        padding: 16px 20px;
+        font-size: 15px;
+        border-radius: 12px;
+      }
+
+      .footer-note {
+        margin-top: 20px;
+      }
+
+      .orb-1 {
+        width: 250px;
+        height: 250px;
+      }
+
+      .orb-2 {
+        width: 200px;
+        height: 200px;
+      }
+
+      .orb-3 {
+        display: none;
+      }
+    }
+
+    @media (max-width: 360px) {
+      body {
+        padding: 12px;
+        padding-top: 24px;
+      }
+
+      .login-card {
+        padding: 24px 16px;
+        border-radius: 20px;
+      }
+
+      .logo {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      .google-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+        gap: 10px;
+      }
+
+      .google-btn svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .form-input {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .submit-btn {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+    }
+
+    /* Ensure card never overflows viewport */
+    @media (max-height: 700px) {
+      body {
+        align-items: flex-start;
+        padding-top: 20px;
+      }
+
+      .login-card {
+        margin-bottom: 20px;
       }
     }
   </style>
