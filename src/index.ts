@@ -1531,6 +1531,62 @@ app.post("/api/admin/test-match", async (c) => {
   }
 });
 
+// Send test message from seed profile (admin)
+app.post("/api/admin/test-message", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+    const { conversationId, message } = body;
+
+    if (!conversationId || !message) {
+      return c.json({ success: false, error: "conversationId and message required" }, 400);
+    }
+
+    // Get the conversation to find the seed user
+    const convResult = await sql`
+      SELECT user1_id, user2_id FROM conversations WHERE id = ${conversationId}
+    `;
+    if (convResult.length === 0) {
+      return c.json({ success: false, error: "Conversation not found" }, 404);
+    }
+
+    const conv = convResult[0] as any;
+
+    // Find which user is the seed profile
+    const seedUserResult = await sql`
+      SELECT id FROM users
+      WHERE (id = ${conv.user1_id} OR id = ${conv.user2_id})
+        AND provider = 'seed'
+      LIMIT 1
+    `;
+
+    if (seedUserResult.length === 0) {
+      return c.json({ success: false, error: "No seed user in this conversation" }, 400);
+    }
+
+    const seedUserId = (seedUserResult[0] as any).id;
+
+    // Create message from seed user
+    const msgResult = await sql`
+      INSERT INTO messages (conversation_id, sender_id, content)
+      VALUES (${conversationId}, ${seedUserId}, ${message})
+      RETURNING *
+    `;
+
+    // Update last_message_at
+    await sql`
+      UPDATE conversations SET last_message_at = NOW() WHERE id = ${conversationId}
+    `;
+
+    return c.json({ success: true, message: msgResult[0] });
+  } catch (error: any) {
+    console.error("Send test message error:", error);
+    return c.json({ success: false, error: "Failed to send test message" }, 500);
+  }
+});
+
 // Health check
 app.get("/api/health", (c) => c.json({ status: "ok" }));
 
