@@ -81,6 +81,12 @@ import {
   getUserActivity,
   deleteUserCompletely,
   setUserVerificationLevel,
+  // Profile Photos
+  getProfilePhotos,
+  addProfilePhoto,
+  deleteProfilePhoto,
+  reorderProfilePhotos,
+  setProfilePhotoPrimary,
   // Module 2: Gestion Events
   addEventPhoto,
   getEventPhotos,
@@ -886,6 +892,223 @@ app.put("/api/profile", async (c) => {
   } catch (error: any) {
     console.error("Update profile error:", error);
     return c.json({ success: false, error: "Failed to update profile" }, 500);
+  }
+});
+
+// ============ PROFILE PHOTOS ============
+
+// Get profile photos
+app.get("/api/profile/photos", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const photos = await getProfilePhotos(userId);
+
+    return c.json({ success: true, photos });
+  } catch (error: any) {
+    console.error("Get photos error:", error);
+    return c.json({ success: false, error: "Failed to get photos" }, 500);
+  }
+});
+
+// Upload profile photo
+app.post("/api/profile/photos", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+
+    // Check if multipart/form-data
+    const contentType = c.req.header("Content-Type") || "";
+
+    if (contentType.includes("multipart/form-data")) {
+      // Handle file upload
+      const formData = await c.req.formData();
+      const file = formData.get("photo") as File;
+
+      if (!file) {
+        return c.json({ success: false, error: "No photo provided" }, 400);
+      }
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        return c.json({ success: false, error: "Invalid file type" }, 400);
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        return c.json({ success: false, error: "File too large (max 10MB)" }, 400);
+      }
+
+      // Create uploads directory if not exists
+      const uploadDir = join(UPLOADS_DIR, "profiles", userId.toString());
+      await mkdir(uploadDir, { recursive: true });
+
+      // Generate unique filename
+      const ext = file.name.split(".").pop() || "jpg";
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const filepath = join(uploadDir, filename);
+
+      // Save file
+      const buffer = await file.arrayBuffer();
+      await Bun.write(filepath, buffer);
+
+      // Generate URL (relative path for serving)
+      const url = `/uploads/profiles/${userId}/${filename}`;
+
+      // Add to database
+      const photo = await addProfilePhoto({
+        userId,
+        url,
+        isPrimary: formData.get("is_primary") === "true",
+      });
+
+      return c.json({ success: true, photo });
+    } else {
+      // Handle JSON with URL (for external URLs like Google profile pictures)
+      const body = await c.req.json();
+      if (!body.url) {
+        return c.json({ success: false, error: "No URL provided" }, 400);
+      }
+
+      const photo = await addProfilePhoto({
+        userId,
+        url: body.url,
+        isPrimary: body.is_primary || false,
+      });
+
+      return c.json({ success: true, photo });
+    }
+  } catch (error: any) {
+    console.error("Upload photo error:", error);
+    return c.json({ success: false, error: "Failed to upload photo" }, 500);
+  }
+});
+
+// Delete profile photo
+app.delete("/api/profile/photos/:photoId", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const photoId = parseInt(c.req.param("photoId"));
+
+    if (isNaN(photoId)) {
+      return c.json({ success: false, error: "Invalid photo ID" }, 400);
+    }
+
+    await deleteProfilePhoto(photoId, userId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete photo error:", error);
+    return c.json({ success: false, error: error.message || "Failed to delete photo" }, 500);
+  }
+});
+
+// Reorder profile photos
+app.put("/api/profile/photos/reorder", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const body = await c.req.json();
+
+    if (!Array.isArray(body.photoIds)) {
+      return c.json({ success: false, error: "photoIds must be an array" }, 400);
+    }
+
+    const photos = await reorderProfilePhotos(userId, body.photoIds);
+
+    return c.json({ success: true, photos });
+  } catch (error: any) {
+    console.error("Reorder photos error:", error);
+    return c.json({ success: false, error: error.message || "Failed to reorder photos" }, 500);
+  }
+});
+
+// Set photo as primary
+app.put("/api/profile/photos/:photoId/primary", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const photoId = parseInt(c.req.param("photoId"));
+
+    if (isNaN(photoId)) {
+      return c.json({ success: false, error: "Invalid photo ID" }, 400);
+    }
+
+    const photos = await setProfilePhotoPrimary(photoId, userId);
+
+    return c.json({ success: true, photos });
+  } catch (error: any) {
+    console.error("Set primary photo error:", error);
+    return c.json({ success: false, error: "Failed to set primary photo" }, 500);
+  }
+});
+
+// Serve profile photos (protected)
+app.get("/uploads/profiles/:userId/:filename", async (c) => {
+  try {
+    const requestedUserId = c.req.param("userId");
+    const filename = c.req.param("filename");
+    const filepath = join(UPLOADS_DIR, "profiles", requestedUserId, filename);
+
+    const file = Bun.file(filepath);
+    if (!await file.exists()) {
+      return c.json({ error: "File not found" }, 404);
+    }
+
+    return new Response(file, {
+      headers: {
+        "Content-Type": file.type || "image/jpeg",
+        "Cache-Control": "public, max-age=31536000",
+      },
+    });
+  } catch (error) {
+    return c.json({ error: "File not found" }, 404);
   }
 });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
 import 'core/services/auth_service.dart';
@@ -9,6 +10,9 @@ import 'core/services/revenuecat_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize locale data for date formatting
+  await initializeDateFormatting('fr_FR', null);
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

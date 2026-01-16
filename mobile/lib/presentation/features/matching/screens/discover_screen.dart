@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../widgets/skeletons.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -16,26 +18,53 @@ class DiscoverScreen extends StatefulWidget {
   State<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen> {
+class _DiscoverScreenState extends State<DiscoverScreen>
+    with AutomaticKeepAliveClientMixin {
   final CardSwiperController _controller = CardSwiperController();
+  final DataPrefetchService _prefetchService = DataPrefetchService();
   final ApiService _apiService = ApiService();
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
+  bool _isInitialLoad = true;
   String? _error;
   bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-    _loadProfiles();
+    _initializeData();
+    // Listen to super likes changes to update badge
+    PremiumGate.onSuperLikesChanged = () {
+      if (mounted) setState(() {});
+    };
   }
 
-  Future<void> _loadProfiles() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  Future<void> _initializeData() async {
+    // Try to use prefetched data first
+    final cachedProfiles = _prefetchService.discoverProfiles;
+    if (cachedProfiles != null && cachedProfiles.isNotEmpty) {
+      setState(() {
+        _profiles = cachedProfiles;
+        _isLoading = false;
+        _isInitialLoad = false;
+      });
+    } else {
+      // Load from API if no cached data
+      await _loadProfiles();
+    }
+  }
+
+  Future<void> _loadProfiles({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     final response = await _apiService.getDiscoverProfiles();
 
@@ -43,11 +72,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       setState(() {
         _profiles = response.data!;
         _isLoading = false;
+        _isInitialLoad = false;
       });
     } else {
       setState(() {
         _error = response.error ?? 'Erreur de chargement';
         _isLoading = false;
+        _isInitialLoad = false;
       });
     }
   }
@@ -55,22 +86,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    PremiumGate.onSuperLikesChanged = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text('MAZL'),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.slidersHorizontal),
-            onPressed: () {
-              // TODO: Show filters
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: _buildBody(),
@@ -80,9 +105,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const ProfileCardSkeleton();
     }
 
     if (_error != null) {
@@ -271,8 +294,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       debugPrint('Passed ${profile.displayName}');
       action = 'pass';
     } else if (direction == CardSwiperDirection.top) {
+      // Check if user has super likes remaining
+      if (PremiumGate.remainingSuperLikes <= 0) {
+        // Block swipe and show premium modal
+        PremiumGate.showFeatureGate(context, PremiumFeature.superLikes);
+        return false; // Cancel the swipe - card returns to position
+      }
       debugPrint('Super liked ${profile.displayName}');
       action = 'super_like';
+      // Decrement super likes counter
+      PremiumGate.useSuperLike();
     } else {
       return true;
     }

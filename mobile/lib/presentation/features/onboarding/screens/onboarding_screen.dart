@@ -23,28 +23,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingPage(
       title: 'Bienvenue sur MAZL',
       description:
-          'L\'application de rencontre pensée pour la communauté juive',
+          'L\'application de rencontre pensee pour la communaute juive',
       icon: LucideIcons.star,
       gradient: [AppColors.primary, AppColors.primaryDark],
     ),
     OnboardingPage(
       title: 'Trouve ton mazal',
       description:
-          'Découvre des profils compatibles avec tes valeurs et ta pratique',
+          'Decouvre des profils compatibles avec tes valeurs et ta pratique',
       icon: LucideIcons.heartHandshake,
       gradient: [AppColors.secondary, AppColors.secondaryDark],
     ),
     OnboardingPage(
+      title: 'Mode Couple',
+      description:
+          'Une fois l\'amour trouve, MAZL t\'accompagne ! Questions quotidiennes, milestones, calendrier juif partage...',
+      icon: LucideIcons.heartHandshake,
+      gradient: [const Color(0xFFFF6B9D), const Color(0xFFFF8E6B)],
+      isCouplePage: true,
+    ),
+    OnboardingPage(
       title: 'Shabbat Mode',
       description:
-          'Profite d\'une pause automatique pendant Shabbat et les fêtes',
+          'Profite d\'une pause automatique pendant Shabbat et les fetes',
       icon: LucideIcons.moonStar,
       gradient: [AppColors.accentGold, AppColors.shabbatBackground],
     ),
     OnboardingPage(
       title: 'AI Shadchan',
       description:
-          'Notre intelligence artificielle t\'aide à trouver la bonne personne',
+          'Notre intelligence artificielle t\'aide a trouver la bonne personne',
       icon: LucideIcons.sparkles,
       gradient: [AppColors.accent, AppColors.primary],
     ),
@@ -54,6 +62,135 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Widget _buildCoupleModePage(OnboardingPage page) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Two hearts icon
+          GlassContainer(
+            width: 100,
+            height: 100,
+            borderRadius: 25,
+            opacity: 0.2,
+            child: const Center(
+              child: Icon(
+                LucideIcons.heartHandshake,
+                size: 48,
+                color: Colors.white,
+              ),
+            ),
+          )
+              .animate()
+              .scale(
+                duration: 600.ms,
+                curve: Curves.elasticOut,
+              )
+              .fadeIn(),
+
+          const SizedBox(height: 24),
+
+          // Title
+          Text(
+            page.title,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(delay: 200.ms).slideY(
+                begin: 0.3,
+                end: 0,
+              ),
+
+          const SizedBox(height: 8),
+
+          // Subtitle - Dual purpose message
+          Text(
+            'Trouve l\'amour ET garde-le !',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withOpacity(0.95),
+            ),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(delay: 300.ms),
+
+          const SizedBox(height: 20),
+
+          // Feature list
+          _buildCoupleFeatureRow(
+            icon: LucideIcons.messageCircle,
+            text: 'Questions quotidiennes',
+            delay: 400,
+          ),
+          const SizedBox(height: 10),
+          _buildCoupleFeatureRow(
+            icon: LucideIcons.trophy,
+            text: 'Milestones de couple',
+            delay: 500,
+          ),
+          const SizedBox(height: 10),
+          _buildCoupleFeatureRow(
+            icon: LucideIcons.calendar,
+            text: 'Calendrier juif partage',
+            delay: 600,
+          ),
+          const SizedBox(height: 10),
+          _buildCoupleFeatureRow(
+            icon: LucideIcons.sparkles,
+            text: 'Activites et suggestions',
+            delay: 700,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoupleFeatureRow({
+    required IconData icon,
+    required String text,
+    required int delay,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 20, color: Colors.white),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Icon(LucideIcons.check, size: 18, color: Colors.white70),
+        ],
+      ),
+    ).animate().fadeIn(delay: Duration(milliseconds: delay)).slideX(
+          begin: 0.2,
+          end: 0,
+        );
   }
 
   @override
@@ -99,6 +236,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     itemBuilder: (context, index) {
                       final page = _pages[index];
+
+                      // Special layout for couple mode page
+                      if (page.isCouplePage) {
+                        return _buildCoupleModePage(page);
+                      }
+
                       return Padding(
                         padding: const EdgeInsets.all(32),
                         child: Column(
@@ -250,11 +393,13 @@ class OnboardingPage {
   final String description;
   final IconData icon;
   final List<Color> gradient;
+  final bool isCouplePage;
 
   OnboardingPage({
     required this.title,
     required this.description,
     required this.icon,
     required this.gradient,
+    this.isCouplePage = false,
   });
 }

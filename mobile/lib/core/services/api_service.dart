@@ -23,6 +23,23 @@ class ApiResponse<T> {
   factory ApiResponse.failure(String error) => ApiResponse(success: false, error: error);
 }
 
+/// Helper functions for safe JSON parsing (handles strings and numbers)
+int? _parseIntSafe(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
+double? _parseDoubleSafe(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 /// Profile model
 class Profile {
   final int id;
@@ -32,6 +49,8 @@ class Profile {
   final String? gender;
   final String? bio;
   final String? location;
+  final double? latitude;
+  final double? longitude;
   final String? denomination;
   final String? kashrut;
   final String? shabbatObservance;
@@ -52,6 +71,8 @@ class Profile {
     this.gender,
     this.bio,
     this.location,
+    this.latitude,
+    this.longitude,
     this.denomination,
     this.kashrut,
     this.shabbatObservance,
@@ -67,23 +88,25 @@ class Profile {
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      id: json['id'] as int? ?? 0,
-      userId: json['user_id'] as int? ?? 0,
+      id: _parseIntSafe(json['id']) ?? 0,
+      userId: _parseIntSafe(json['user_id']) ?? 0,
       displayName: json['display_name'] as String?,
-      age: (json['age'] as num?)?.toInt(),
+      age: _parseIntSafe(json['age']),
       gender: json['gender'] as String?,
       bio: json['bio'] as String?,
       location: json['location'] as String?,
+      latitude: _parseDoubleSafe(json['latitude']),
+      longitude: _parseDoubleSafe(json['longitude']),
       denomination: json['denomination'] as String?,
       kashrut: json['kashrut_level'] as String?,
       shabbatObservance: json['shabbat_observance'] as String?,
       photos: (json['photos'] as List<dynamic>?)?.cast<String>() ?? [],
       isVerified: json['is_verified'] == true,
       verificationLevel: json['verification_level'] as String?,
-      distance: (json['distance'] as num?)?.toDouble(),
-      ageMin: json['age_min'] as int?,
-      ageMax: json['age_max'] as int?,
-      distanceMax: json['distance_max'] as int?,
+      distance: _parseDoubleSafe(json['distance']),
+      ageMin: _parseIntSafe(json['age_min']),
+      ageMax: _parseIntSafe(json['age_max']),
+      distanceMax: _parseIntSafe(json['distance_max']),
       lookingFor: json['looking_for'] as String?,
     );
   }
@@ -107,11 +130,38 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      id: json['id'] as int,
+      id: _parseIntSafe(json['id']) ?? 0,
       email: json['email'] as String,
       name: json['name'] as String?,
       picture: json['picture'] as String?,
       profile: json['profile'] != null ? Profile.fromJson(json['profile']) : null,
+    );
+  }
+}
+
+/// Profile photo model
+class ProfilePhoto {
+  final int id;
+  final String url;
+  final int position;
+  final bool isPrimary;
+  final DateTime? createdAt;
+
+  ProfilePhoto({
+    required this.id,
+    required this.url,
+    required this.position,
+    this.isPrimary = false,
+    this.createdAt,
+  });
+
+  factory ProfilePhoto.fromJson(Map<String, dynamic> json) {
+    return ProfilePhoto(
+      id: _parseIntSafe(json['id']) ?? 0,
+      url: json['url'] as String,
+      position: _parseIntSafe(json['position']) ?? 0,
+      isPrimary: json['is_primary'] == true,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
     );
   }
 }
@@ -154,6 +204,13 @@ class ApiService {
     return http.put(url, headers: _headers, body: jsonEncode(body));
   }
 
+  /// DELETE request
+  Future<http.Response> _delete(String endpoint) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
+    debugPrint('API DELETE: $url');
+    return http.delete(url, headers: _headers);
+  }
+
   /// Get current user profile
   Future<ApiResponse<UserProfile>> getCurrentUser() async {
     try {
@@ -168,7 +225,11 @@ class ApiService {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      return ApiResponse.success(UserProfile.fromJson(data['user']));
+      // Backend sends user and profile at root level, merge them for UserProfile
+      final userData = data['user'] as Map<String, dynamic>;
+      userData['profile'] = data['profile']; // Add profile to user data
+
+      return ApiResponse.success(UserProfile.fromJson(userData));
     } catch (e) {
       debugPrint('API Error: $e');
       return ApiResponse.failure(e.toString());
@@ -267,6 +328,136 @@ class ApiService {
       return ApiResponse.failure(e.toString());
     }
   }
+
+  // ============ PROFILE PHOTOS ============
+
+  /// Get profile photos
+  Future<ApiResponse<List<ProfilePhoto>>> getProfilePhotos() async {
+    try {
+      final response = await _get('/api/profile/photos');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get photos');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      final photos = (data['photos'] as List)
+          .map((p) => ProfilePhoto.fromJson(p))
+          .toList();
+
+      return ApiResponse.success(photos);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Upload profile photo from file
+  Future<ApiResponse<ProfilePhoto>> uploadProfilePhoto(String filePath, {bool isPrimary = false}) async {
+    try {
+      final token = _authService.currentUser?.jwtToken;
+      final url = Uri.parse('${ApiConfig.baseUrl}/api/profile/photos');
+
+      final request = http.MultipartRequest('POST', url);
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(await http.MultipartFile.fromPath('photo', filePath));
+      request.fields['is_primary'] = isPrimary.toString();
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to upload photo');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(ProfilePhoto.fromJson(data['photo']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Delete profile photo
+  Future<ApiResponse<void>> deleteProfilePhoto(int photoId) async {
+    try {
+      final response = await _delete('/api/profile/photos/$photoId');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to delete photo');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Reorder profile photos
+  Future<ApiResponse<List<ProfilePhoto>>> reorderProfilePhotos(List<int> photoIds) async {
+    try {
+      final response = await _put('/api/profile/photos/reorder', {'photoIds': photoIds});
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to reorder photos');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      final photos = (data['photos'] as List)
+          .map((p) => ProfilePhoto.fromJson(p))
+          .toList();
+
+      return ApiResponse.success(photos);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Set photo as primary
+  Future<ApiResponse<List<ProfilePhoto>>> setPhotoPrimary(int photoId) async {
+    try {
+      final response = await _put('/api/profile/photos/$photoId/primary', {});
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to set primary photo');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      final photos = (data['photos'] as List)
+          .map((p) => ProfilePhoto.fromJson(p))
+          .toList();
+
+      return ApiResponse.success(photos);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ MATCHES ============
 
   /// Get matches
   Future<ApiResponse<List<Map<String, dynamic>>>> getMatches() async {
@@ -472,6 +663,185 @@ class ApiService {
       return ApiResponse.failure(e.toString());
     }
   }
+
+  // ============ COUPLE MODE ============
+
+  /// Send a couple mode request to a user
+  Future<ApiResponse<Map<String, dynamic>>> sendCoupleRequest(int targetUserId) async {
+    try {
+      final response = await _post('/api/couple/request', {
+        'target_user_id': targetUserId,
+      });
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to send couple request');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Respond to a couple request (accept or reject)
+  Future<ApiResponse<Map<String, dynamic>>> respondToCoupleRequest({
+    required int requestId,
+    required bool accept,
+  }) async {
+    try {
+      final response = await _put('/api/couple/request/$requestId', {
+        'action': accept ? 'accept' : 'reject',
+      });
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to respond to couple request');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Cancel a pending couple request
+  Future<ApiResponse<void>> cancelCoupleRequest(int requestId) async {
+    try {
+      final response = await _delete('/api/couple/request/$requestId');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to cancel couple request');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get all couple requests (sent and received)
+  Future<ApiResponse<Map<String, dynamic>>> getCoupleRequests() async {
+    try {
+      final response = await _get('/api/couple/requests');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get couple requests');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Archive all conversations except with partner
+  Future<ApiResponse<void>> archiveAllConversationsExcept(
+    int partnerUserId, {
+    required String message,
+  }) async {
+    try {
+      final response = await _post('/api/couple/archive-conversations', {
+        'partner_user_id': partnerUserId,
+        'message': message,
+      });
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to archive conversations');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Exit couple mode
+  Future<ApiResponse<void>> exitCoupleMode() async {
+    try {
+      final response = await _delete('/api/couple');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to exit couple mode');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get couple data
+  Future<ApiResponse<Map<String, dynamic>>> getCoupleData() async {
+    try {
+      final response = await _get('/api/couple');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get couple data');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Check if a user is already in couple mode
+  Future<ApiResponse<bool>> isUserInCoupleMode(int userId) async {
+    try {
+      final response = await _get('/api/couple/check/$userId');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to check couple mode');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(data['in_couple_mode'] == true);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
 }
 
 // ============ MODELS ============
@@ -496,13 +866,13 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
-      id: json['id'] as int,
-      matchId: json['matchId'] as int? ?? 0,
+      id: _parseIntSafe(json['id']) ?? 0,
+      matchId: _parseIntSafe(json['matchId']) ?? 0,
       lastMessage: json['lastMessage'] as String?,
       lastMessageAt: json['lastMessageAt'] != null
           ? DateTime.parse(json['lastMessageAt'])
           : null,
-      unreadCount: json['unreadCount'] as int? ?? 0,
+      unreadCount: _parseIntSafe(json['unreadCount']) ?? 0,
       otherUser: json['otherUser'] != null
           ? ConversationUser.fromJson(json['otherUser'])
           : null,
@@ -526,7 +896,7 @@ class ConversationUser {
 
   factory ConversationUser.fromJson(Map<String, dynamic> json) {
     return ConversationUser(
-      userId: json['user_id'] as int,
+      userId: _parseIntSafe(json['user_id']) ?? 0,
       displayName: json['display_name'] as String?,
       picture: json['picture'] as String?,
       isVerified: json['is_verified'] == true,
@@ -552,8 +922,8 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'] as int,
-      senderId: json['sender_id'] as int,
+      id: _parseIntSafe(json['id']) ?? 0,
+      senderId: _parseIntSafe(json['sender_id']) ?? 0,
       content: json['content'] as String,
       isRead: json['is_read'] == true,
       createdAt: DateTime.parse(json['created_at']),
@@ -605,21 +975,21 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      id: json['id'] as int,
+      id: _parseIntSafe(json['id']) ?? 0,
       title: json['title'] as String,
       description: json['description'] as String?,
       eventType: json['event_type'] as String?,
       location: json['location'] as String?,
       address: json['address'] as String?,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: _parseDoubleSafe(json['latitude']),
+      longitude: _parseDoubleSafe(json['longitude']),
       date: DateTime.parse(json['date']),
       time: json['time'] as String?,
       endTime: json['end_time'] as String?,
-      price: (json['price'] as num?)?.toDouble() ?? 0,
+      price: _parseDoubleSafe(json['price']) ?? 0,
       currency: json['currency'] as String? ?? 'EUR',
-      maxAttendees: json['max_attendees'] as int?,
-      attendeeCount: json['attendee_count'] as int? ?? 0,
+      maxAttendees: _parseIntSafe(json['max_attendees']),
+      attendeeCount: _parseIntSafe(json['attendee_count']) ?? 0,
       imageUrl: json['image_url'] as String?,
       isPublished: json['is_published'] == true,
       userRsvpStatus: json['user_rsvp_status'] as String?,

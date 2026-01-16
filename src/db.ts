@@ -2154,6 +2154,116 @@ export async function setUserVerificationLevel(userId: number, level: string) {
   `;
 }
 
+// ============ PROFILE PHOTOS ============
+
+// Get profile photos
+export async function getProfilePhotos(userId: number) {
+  const photos = await sql`
+    SELECT id, url, position, is_primary, created_at
+    FROM profile_photos
+    WHERE user_id = ${userId}
+    ORDER BY position ASC
+  `;
+  return photos;
+}
+
+// Add profile photo
+export async function addProfilePhoto(params: {
+  userId: number;
+  url: string;
+  position?: number;
+  isPrimary?: boolean;
+}) {
+  // If this is the first photo or marked as primary, set it as primary
+  const existingPhotos = await getProfilePhotos(params.userId);
+  const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
+  const position = params.position ?? existingPhotos.length;
+
+  // If setting as primary, unset other primaries
+  if (shouldBePrimary) {
+    await sql`
+      UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+    `;
+  }
+
+  const result = await sql`
+    INSERT INTO profile_photos (user_id, url, position, is_primary)
+    VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Delete profile photo
+export async function deleteProfilePhoto(photoId: number, userId: number) {
+  // Get the photo to check if it's primary
+  const photo = await sql`
+    SELECT * FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}
+  `;
+
+  if (photo.length === 0) {
+    throw new Error("Photo not found");
+  }
+
+  await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
+
+  // If deleted photo was primary, set the first remaining as primary
+  if (photo[0].is_primary) {
+    await sql`
+      UPDATE profile_photos
+      SET is_primary = true
+      WHERE user_id = ${userId}
+      AND id = (SELECT id FROM profile_photos WHERE user_id = ${userId} ORDER BY position ASC LIMIT 1)
+    `;
+  }
+
+  // Reorder remaining photos
+  const remaining = await sql`
+    SELECT id FROM profile_photos WHERE user_id = ${userId} ORDER BY position ASC
+  `;
+
+  for (let i = 0; i < remaining.length; i++) {
+    await sql`UPDATE profile_photos SET position = ${i} WHERE id = ${remaining[i].id}`;
+  }
+}
+
+// Reorder profile photos
+export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
+  // Verify all photos belong to user
+  const userPhotos = await sql`
+    SELECT id FROM profile_photos WHERE user_id = ${userId}
+  `;
+
+  const userPhotoIds = new Set(userPhotos.map((p: any) => p.id));
+  for (const id of photoIds) {
+    if (!userPhotoIds.has(id)) {
+      throw new Error("Invalid photo ID");
+    }
+  }
+
+  // Update positions
+  for (let i = 0; i < photoIds.length; i++) {
+    await sql`
+      UPDATE profile_photos
+      SET position = ${i}, is_primary = ${i === 0}
+      WHERE id = ${photoIds[i]} AND user_id = ${userId}
+    `;
+  }
+
+  return await getProfilePhotos(userId);
+}
+
+// Set profile photo as primary
+export async function setProfilePhotoPrimary(photoId: number, userId: number) {
+  // Unset all primaries for this user
+  await sql`UPDATE profile_photos SET is_primary = false WHERE user_id = ${userId}`;
+
+  // Set this one as primary
+  await sql`UPDATE profile_photos SET is_primary = true WHERE id = ${photoId} AND user_id = ${userId}`;
+
+  return await getProfilePhotos(userId);
+}
+
 // ============ MODULE 2: GESTION EVENTS COMPLÈTE ============
 
 // Add event photo

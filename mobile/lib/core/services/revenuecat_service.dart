@@ -7,7 +7,7 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 /// RevenueCat API Configuration
 class RevenueCatConfig {
-  // API Keys - Use your own keys for production
+  // API Keys
   static const String appleApiKey = 'test_EHjYnTRZZKABEGBLfettogPCNoR';
   static const String googleApiKey = 'test_EHjYnTRZZKABEGBLfettogPCNoR';
 

@@ -7,8 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../widgets/skeletons.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -17,7 +19,9 @@ class ConversationsScreen extends StatefulWidget {
   State<ConversationsScreen> createState() => _ConversationsScreenState();
 }
 
-class _ConversationsScreenState extends State<ConversationsScreen> {
+class _ConversationsScreenState extends State<ConversationsScreen>
+    with AutomaticKeepAliveClientMixin {
+  final DataPrefetchService _prefetchService = DataPrefetchService();
   final ApiService _apiService = ApiService();
   final WebSocketService _wsService = WebSocketService();
 
@@ -27,10 +31,27 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   StreamSubscription<ChatEvent>? _wsSubscription;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-    _loadConversations();
+    _initializeData();
     _connectWebSocket();
+  }
+
+  Future<void> _initializeData() async {
+    // Try to use prefetched data first
+    final cachedConversations = _prefetchService.conversations;
+    if (cachedConversations != null && cachedConversations.isNotEmpty) {
+      setState(() {
+        _conversations = cachedConversations;
+        _isLoading = false;
+      });
+    } else {
+      // Load from API if no cached data
+      await _loadConversations();
+    }
   }
 
   @override
@@ -70,11 +91,13 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     });
   }
 
-  Future<void> _loadConversations() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
+  Future<void> _loadConversations({bool isRefresh = false}) async {
+    if (!isRefresh && _conversations.isEmpty) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
 
     final response = await _apiService.getConversations();
 
@@ -83,7 +106,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
         _isLoading = false;
         if (response.success && response.data != null) {
           _conversations = response.data!;
-        } else {
+        } else if (_conversations.isEmpty) {
           _hasError = true;
         }
       });
@@ -109,6 +132,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
@@ -119,7 +143,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const ChatListSkeleton();
     }
 
     if (_hasError) {
@@ -189,7 +213,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: _loadConversations,
+      onRefresh: () => _loadConversations(isRefresh: true),
       child: ListView.builder(
         itemCount: _conversations.length,
         itemBuilder: (context, index) {

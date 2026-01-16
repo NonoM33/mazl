@@ -26,6 +26,7 @@ import '../../presentation/features/premium/screens/premium_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
 import '../../presentation/features/couple/screens/couple_dashboard_screen.dart';
 import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
+import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
 
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -146,6 +147,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           transitionsBuilder: slideLeftTransition,
         ),
       ),
+      GoRoute(
+        path: RoutePaths.mazelTov,
+        name: RouteNames.mazelTov,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: MazelTovScreen(
+              partnerName: extra?['partnerName'] ?? '',
+              partnerPicture: extra?['partnerPicture'],
+              myPicture: extra?['myPicture'],
+            ),
+            transitionsBuilder: fadeTransition,
+          );
+        },
+      ),
 
       // Main Navigation Shell with Bottom Navigation
       StatefulShellRoute.indexedStack(
@@ -189,6 +207,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: RoutePaths.matches,
                 name: RouteNames.matches,
                 builder: (context, state) => const MatchesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'profile/:userId',
+                    name: RouteNames.matchProfile,
+                    parentNavigatorKey: _rootNavigatorKey,
+                    pageBuilder: (context, state) {
+                      final userId = state.pathParameters['userId']!;
+                      return CustomTransitionPage(
+                        key: state.pageKey,
+                        child: ProfileViewScreen(
+                          userId: userId,
+                          isFromMatch: true,
+                        ),
+                        transitionsBuilder: heroTransition,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

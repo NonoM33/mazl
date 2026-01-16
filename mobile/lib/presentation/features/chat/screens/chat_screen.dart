@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -226,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         title: GestureDetector(
           onTap: _otherUser != null
-              ? () => context.push('/discover/profile/${_otherUser!.userId}')
+              ? () => context.push(RoutePaths.matchProfilePath(_otherUser!.userId.toString()))
               : null,
           child: Row(
             children: [

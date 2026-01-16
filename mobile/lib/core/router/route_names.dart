@@ -27,9 +27,11 @@ abstract class RouteNames {
   static const coupleSetup = 'coupleSetup';
   static const coupleDashboard = 'coupleDashboard';
   static const jewishCalendar = 'jewishCalendar';
+  static const mazelTov = 'mazelTov';
 
   // Other
   static const profileView = 'profileView';
+  static const matchProfile = 'matchProfile';
   static const premium = 'premium';
 }
 
@@ -62,8 +64,16 @@ abstract class RoutePaths {
   static const coupleSetup = '/couple/setup';
   static const coupleDashboard = '/couple/dashboard';
   static const jewishCalendar = '/couple/calendar';
+  static const mazelTov = '/couple/mazel-tov';
 
   // Other
   static const profileView = '/discover/profile/:userId';
+  static const matchProfile = '/matches/profile/:userId';
   static const premium = '/premium';
+
+  /// Helper to get match profile path
+  static String matchProfilePath(String userId) => '/matches/profile/$userId';
+
+  /// Helper to get profile view path
+  static String profileViewPath(String userId) => '/discover/profile/$userId';
 }

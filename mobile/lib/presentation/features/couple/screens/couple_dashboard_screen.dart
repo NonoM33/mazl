@@ -113,7 +113,13 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             ),
             leading: IconButton(
               icon: const Icon(LucideIcons.arrowLeft),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  context.go('/profile');
+                }
+              },
             ),
             actions: [
               IconButton(

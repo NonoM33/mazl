@@ -1,6 +1,52 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
+
+/// Couple request status
+enum CoupleRequestStatus {
+  none,
+  pending,    // Request sent, waiting for response
+  received,   // Request received from someone else
+  accepted,
+  rejected,
+}
+
+/// Couple request model
+class CoupleRequest {
+  final int id;
+  final int requesterId;
+  final String requesterName;
+  final String? requesterPicture;
+  final int targetId;
+  final CoupleRequestStatus status;
+  final DateTime createdAt;
+
+  CoupleRequest({
+    required this.id,
+    required this.requesterId,
+    required this.requesterName,
+    this.requesterPicture,
+    required this.targetId,
+    required this.status,
+    required this.createdAt,
+  });
+
+  factory CoupleRequest.fromJson(Map<String, dynamic> json) {
+    return CoupleRequest(
+      id: json['id'] as int,
+      requesterId: json['requester_id'] as int,
+      requesterName: json['requester_name'] as String? ?? 'Utilisateur',
+      requesterPicture: json['requester_picture'] as String?,
+      targetId: json['target_id'] as int,
+      status: CoupleRequestStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () => CoupleRequestStatus.pending,
+      ),
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
+}
 
 /// Relationship status for the user
 enum RelationshipStatus {
@@ -366,5 +412,152 @@ class CoupleService {
         'category': 'Aventure',
       },
     ];
+  }
+
+  // ===== COUPLE REQUEST SYSTEM =====
+
+  CoupleRequest? _pendingRequest;
+  CoupleRequest? _receivedRequest;
+
+  CoupleRequest? get pendingRequest => _pendingRequest;
+  CoupleRequest? get receivedRequest => _receivedRequest;
+
+  /// Check if there's a pending request with a specific user
+  CoupleRequestStatus getRequestStatusWithUser(int userId) {
+    if (_pendingRequest != null && _pendingRequest!.targetId == userId) {
+      return CoupleRequestStatus.pending;
+    }
+    if (_receivedRequest != null && _receivedRequest!.requesterId == userId) {
+      return CoupleRequestStatus.received;
+    }
+    return CoupleRequestStatus.none;
+  }
+
+  /// Send a couple mode request to a match
+  Future<bool> sendCoupleRequest({
+    required int targetUserId,
+    required String targetName,
+    String? targetPicture,
+  }) async {
+    try {
+      // Call API to send request
+      final response = await _apiService.sendCoupleRequest(targetUserId);
+
+      if (response.success) {
+        _pendingRequest = CoupleRequest(
+          id: response.data?['id'] ?? 0,
+          requesterId: 0, // Will be filled by backend
+          requesterName: '',
+          targetId: targetUserId,
+          status: CoupleRequestStatus.pending,
+          createdAt: DateTime.now(),
+        );
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('CoupleService: Error sending couple request: $e');
+      return false;
+    }
+  }
+
+  /// Accept a couple request
+  Future<bool> acceptCoupleRequest(CoupleRequest request) async {
+    try {
+      final response = await _apiService.respondToCoupleRequest(
+        requestId: request.id,
+        accept: true,
+      );
+
+      if (response.success) {
+        // Enable couple mode with the requester
+        await enableCoupleMode(
+          partnerId: request.requesterId,
+          partnerName: request.requesterName,
+          partnerPicture: request.requesterPicture,
+        );
+        _receivedRequest = null;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('CoupleService: Error accepting couple request: $e');
+      return false;
+    }
+  }
+
+  /// Reject a couple request
+  Future<bool> rejectCoupleRequest(CoupleRequest request) async {
+    try {
+      final response = await _apiService.respondToCoupleRequest(
+        requestId: request.id,
+        accept: false,
+      );
+
+      if (response.success) {
+        _receivedRequest = null;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('CoupleService: Error rejecting couple request: $e');
+      return false;
+    }
+  }
+
+  /// Cancel a pending request
+  Future<bool> cancelCoupleRequest() async {
+    if (_pendingRequest == null) return false;
+
+    try {
+      final response = await _apiService.cancelCoupleRequest(_pendingRequest!.id);
+
+      if (response.success) {
+        _pendingRequest = null;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('CoupleService: Error cancelling couple request: $e');
+      return false;
+    }
+  }
+
+  /// Fetch pending requests (sent and received)
+  Future<void> fetchPendingRequests() async {
+    try {
+      final response = await _apiService.getCoupleRequests();
+
+      if (response.success && response.data != null) {
+        final sent = response.data!['sent'] as List<dynamic>?;
+        final received = response.data!['received'] as List<dynamic>?;
+
+        if (sent != null && sent.isNotEmpty) {
+          _pendingRequest = CoupleRequest.fromJson(sent.first);
+        } else {
+          _pendingRequest = null;
+        }
+
+        if (received != null && received.isNotEmpty) {
+          _receivedRequest = CoupleRequest.fromJson(received.first);
+        } else {
+          _receivedRequest = null;
+        }
+      }
+    } catch (e) {
+      debugPrint('CoupleService: Error fetching couple requests: $e');
+    }
+  }
+
+  /// Archive all other conversations when entering couple mode
+  Future<void> archiveOtherConversations() async {
+    try {
+      await _apiService.archiveAllConversationsExcept(
+        _coupleData?.partnerId ?? 0,
+        message: "J'ai trouve l'amour sur Mazl! Je ne suis plus disponible. Bonne chance dans ta recherche!",
+      );
+    } catch (e) {
+      debugPrint('CoupleService: Error archiving conversations: $e');
+    }
   }
 }

@@ -87,6 +87,13 @@ extension PremiumFeatureInfo on PremiumFeature {
 class PremiumGate {
   static final RevenueCatService _revenueCat = RevenueCatService();
 
+  // Track super likes used today (resets on app restart for now)
+  static int _superLikesUsedToday = 0;
+  static DateTime _lastResetDate = DateTime.now();
+
+  // Callback to notify UI of changes
+  static VoidCallback? onSuperLikesChanged;
+
   /// Check if user has premium access
   static bool get isPremium => _revenueCat.isMazlPro;
 
@@ -143,10 +150,29 @@ class PremiumGate {
     return 10; // Default free limit
   }
 
+  /// Reset daily counters if it's a new day
+  static void _checkDailyReset() {
+    final now = DateTime.now();
+    if (now.day != _lastResetDate.day ||
+        now.month != _lastResetDate.month ||
+        now.year != _lastResetDate.year) {
+      _superLikesUsedToday = 0;
+      _lastResetDate = now;
+    }
+  }
+
   /// Get remaining super likes for today
   static int get remainingSuperLikes {
-    if (!isPremium) return 1; // 1 free per day
-    return 5; // 5 for premium
+    _checkDailyReset();
+    final maxSuperLikes = isPremium ? 5 : 1;
+    return (maxSuperLikes - _superLikesUsedToday).clamp(0, maxSuperLikes);
+  }
+
+  /// Use a super like
+  static void useSuperLike() {
+    _checkDailyReset();
+    _superLikesUsedToday++;
+    onSuperLikesChanged?.call();
   }
 
   /// Get remaining boosts

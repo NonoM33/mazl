@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/auth_service.dart';
+import '../../services/couple_service.dart';
 import '../../services/revenuecat_service.dart';
 
 /// RevenueCat Service Provider
@@ -35,4 +36,27 @@ final isMazlProProvider = Provider<bool>((ref) {
 final subscriptionStatusProvider = Provider<String>((ref) {
   final revenueCat = ref.watch(revenueCatServiceProvider);
   return revenueCat.subscriptionStatusText;
+});
+
+/// Couple Service Provider
+final coupleServiceProvider = Provider<CoupleService>((ref) {
+  return CoupleService();
+});
+
+/// Is Couple Mode Enabled Provider
+final isCoupleModeEnabledProvider = Provider<bool>((ref) {
+  final coupleService = ref.watch(coupleServiceProvider);
+  return coupleService.isCoupleModeEnabled;
+});
+
+/// Couple Data Provider
+final coupleDataProvider = Provider<CoupleData?>((ref) {
+  final coupleService = ref.watch(coupleServiceProvider);
+  return coupleService.coupleData;
+});
+
+/// Received Couple Request Provider
+final receivedCoupleRequestProvider = Provider<CoupleRequest?>((ref) {
+  final coupleService = ref.watch(coupleServiceProvider);
+  return coupleService.receivedRequest;
 });

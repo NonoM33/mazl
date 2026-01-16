@@ -70,7 +70,11 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
-      context.go('/couple/dashboard');
+      // Navigate back then push dashboard
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      context.push('/couple/dashboard');
     }
   }
 
@@ -81,7 +85,13 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
         title: const Text('Mode Couple'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              context.go('/profile');
+            }
+          },
         ),
       ),
       body: _isLoading

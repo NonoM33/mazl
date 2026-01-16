@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/couple_service.dart';
+import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../widgets/skeletons.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
@@ -12,23 +18,67 @@ class MatchesScreen extends StatefulWidget {
   State<MatchesScreen> createState() => _MatchesScreenState();
 }
 
-class _MatchesScreenState extends State<MatchesScreen> {
+class _MatchesScreenState extends State<MatchesScreen>
+    with AutomaticKeepAliveClientMixin {
+  final DataPrefetchService _prefetchService = DataPrefetchService();
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> _matches = [];
   bool _isLoading = true;
   String? _error;
+  bool _coupleModeBannerDismissed = false;
+
+  static const String _coupleModeBannerDismissedKey = 'couple_mode_banner_dismissed';
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _loadMatches();
+    _initializeData();
+    _loadBannerDismissedState();
   }
 
-  Future<void> _loadMatches() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  Future<void> _loadBannerDismissedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _coupleModeBannerDismissed = prefs.getBool(_coupleModeBannerDismissedKey) ?? false;
+      });
+    }
+  }
+
+  Future<void> _dismissCoupleBanner() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_coupleModeBannerDismissedKey, true);
+    if (mounted) {
+      setState(() {
+        _coupleModeBannerDismissed = true;
+      });
+    }
+  }
+
+  Future<void> _initializeData() async {
+    // Try to use prefetched data first
+    final cachedMatches = _prefetchService.matches;
+    if (cachedMatches != null && cachedMatches.isNotEmpty) {
+      setState(() {
+        _matches = cachedMatches;
+        _isLoading = false;
+      });
+    } else {
+      // Load from API if no cached data
+      await _loadMatches();
+    }
+  }
+
+  Future<void> _loadMatches({bool isRefresh = false}) async {
+    if (!isRefresh && _matches.isEmpty) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     try {
       final response = await _apiService.getMatches();
@@ -39,13 +89,17 @@ class _MatchesScreenState extends State<MatchesScreen> {
         });
       } else {
         setState(() {
-          _error = response.error ?? 'Erreur inconnue';
+          if (_matches.isEmpty) {
+            _error = response.error ?? 'Erreur inconnue';
+          }
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        if (_matches.isEmpty) {
+          _error = e.toString();
+        }
         _isLoading = false;
       });
     }
@@ -78,6 +132,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mes Matchs'),
@@ -88,8 +143,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return ListView.builder(
+        itemCount: 6,
+        itemBuilder: (context, index) => const ListItemSkeleton(),
       );
     }
 
@@ -153,13 +209,26 @@ class _MatchesScreenState extends State<MatchesScreen> {
       );
     }
 
+    final coupleService = CoupleService();
+    final isCoupleModeEnabled = coupleService.isCoupleModeEnabled;
+    final showBanner = !isCoupleModeEnabled && !_coupleModeBannerDismissed;
+
     return RefreshIndicator(
-      onRefresh: _loadMatches,
+      onRefresh: () => _loadMatches(isRefresh: true),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: _matches.length,
+        itemCount: _matches.length + (showBanner ? 1 : 0),
         itemBuilder: (context, index) {
-          final match = _matches[index];
+          // Show couple mode promotion banner at the top
+          if (showBanner && index == 0) {
+            return _CoupleModePromoBanner(
+              onActivate: () => context.push('/couple/setup'),
+              onDismiss: _dismissCoupleBanner,
+            );
+          }
+
+          final matchIndex = showBanner ? index - 1 : index;
+          final match = _matches[matchIndex];
           final profile = match['profile'] as Map<String, dynamic>?;
 
           if (profile == null) return const SizedBox.shrink();
@@ -173,10 +242,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
             isVerified: profile['is_verified'] == true,
             matchedAt: _formatMatchedAt(match['matchedAt'] as String?),
             onViewProfile: userId != null
-                ? () => context.push('/discover/profile/$userId')
+                ? () => context.push(RoutePaths.matchProfilePath(userId.toString()))
                 : null,
             onChat: () {
-              // Navigate to chat with this user
               final conversationId = match['conversationId'];
               if (conversationId != null) {
                 context.go('/chat/$conversationId');
@@ -184,6 +252,118 @@ class _MatchesScreenState extends State<MatchesScreen> {
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class _CoupleModePromoBanner extends StatelessWidget {
+  const _CoupleModePromoBanner({
+    required this.onActivate,
+    required this.onDismiss,
+  });
+
+  final VoidCallback onActivate;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.secondary.withOpacity(0.15),
+            AppColors.primary.withOpacity(0.15),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+      ),
+      child: Stack(
+        children: [
+          // Close button
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: onDismiss,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  LucideIcons.x,
+                  size: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+          ),
+          // Content
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.secondary],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(LucideIcons.heartHandshake, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ca y est, tu as match ?',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Active le mode couple !',
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24), // Space for close button
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Questions quotidiennes, milestones, calendrier juif partage... Construis ta relation avec Mazl !',
+                style: TextStyle(fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: onActivate,
+                  icon: const Icon(LucideIcons.heart, size: 18),
+                  label: const Text('Activer le mode couple'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
