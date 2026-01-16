@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../chat/screens/chat_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
@@ -175,14 +175,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
               // Navigate to chat with this user
               final conversationId = match['conversationId'];
               if (conversationId != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      conversationId: conversationId.toString(),
-                    ),
-                  ),
-                );
+                context.go('/chat/$conversationId');
               }
             },
           );

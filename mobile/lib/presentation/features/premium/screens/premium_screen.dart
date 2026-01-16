@@ -188,27 +188,67 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
                           children: [
-                            // Crown icon
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: AppColors.premiumGradient,
-                                ),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.accentGold.withOpacity(0.4),
-                                    blurRadius: 30,
-                                    spreadRadius: 5,
+                            // Crown icon with smooth glow
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Outer glow layer
+                                Container(
+                                  width: 140,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        AppColors.accentGold.withOpacity(0.3),
+                                        AppColors.accentGold.withOpacity(0.1),
+                                        AppColors.accentGold.withOpacity(0.0),
+                                      ],
+                                      stops: const [0.3, 0.6, 1.0],
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: const Icon(
-                                LucideIcons.crown,
-                                size: 48,
-                                color: Colors.white,
-                              ),
+                                ),
+                                // Middle glow layer
+                                Container(
+                                  width: 110,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        AppColors.accentGold.withOpacity(0.4),
+                                        AppColors.accentGold.withOpacity(0.1),
+                                        Colors.transparent,
+                                      ],
+                                      stops: const [0.4, 0.7, 1.0],
+                                    ),
+                                  ),
+                                ),
+                                // Main icon container
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: AppColors.premiumGradient,
+                                    ),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.accentGold.withOpacity(0.6),
+                                        blurRadius: 20,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    LucideIcons.crown,
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 24),
 

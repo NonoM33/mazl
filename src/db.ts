@@ -1014,7 +1014,8 @@ export async function getMessages(conversationId: number, limit = 50, offset = 0
     LIMIT ${limit}
     OFFSET ${offset}
   `;
-  return messages.reverse(); // Return in chronological order
+  // Return in DESC order (newest first) for Flutter's reverse ListView
+  return messages;
 }
 
 export async function createMessage(conversationId: number, senderId: number, content: string) {
