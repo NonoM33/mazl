@@ -632,6 +632,23 @@
           Abonnements
         </div>
       </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Marketing</div>
+        <div class="nav-item" data-page="campaigns">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Campagnes
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Modération</div>
+        <div class="nav-item" data-page="reports">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+          Signalements
+          <span class="nav-badge" id="reports-count" style="display:none;">0</span>
+        </div>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -765,10 +782,11 @@
                   <th>Abonnement</th>
                   <th>Vérifié</th>
                   <th>Statut</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="users-tbody">
-                <tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>
+                <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -810,6 +828,108 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- Campaigns Page -->
+      <div class="page" id="page-campaigns">
+        <div class="stats-grid" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </div>
+            <div class="stat-value" id="camp-total">0</div>
+            <div class="stat-label">Campagnes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-value" id="camp-sent">0</div>
+            <div class="stat-label">Envoyées</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+          <button class="btn btn-primary campaign-type-btn active" data-type="all">Toutes</button>
+          <button class="btn btn-secondary campaign-type-btn" data-type="email">Email</button>
+          <button class="btn btn-secondary campaign-type-btn" data-type="push">Push</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table class="table" id="campaigns-table">
+              <thead>
+                <tr>
+                  <th>Campagne</th>
+                  <th>Type</th>
+                  <th>Statut</th>
+                  <th>Envoyés</th>
+                  <th>Ouverts</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="campaigns-tbody">
+                <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Page -->
+      <div class="page" id="page-reports">
+        <div class="stats-grid" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            </div>
+            <div class="stat-value" id="reports-pending">0</div>
+            <div class="stat-label">En attente</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-value" id="reports-handled">0</div>
+            <div class="stat-label">Traités</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+          <button class="btn btn-primary report-status-btn active" data-status="pending">En attente</button>
+          <button class="btn btn-secondary report-status-btn" data-status="handled">Traités</button>
+          <button class="btn btn-secondary report-status-btn" data-status="all">Tous</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table class="table" id="reports-table">
+              <thead>
+                <tr>
+                  <th>Signalé</th>
+                  <th>Par</th>
+                  <th>Raison</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reports-tbody">
+                <tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Detail Page -->
+      <div class="page" id="page-user-detail">
+        <div style="margin-bottom: 24px;">
+          <button class="btn btn-secondary" onclick="switchPage('users')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Retour aux utilisateurs
+          </button>
+        </div>
+        <div id="user-detail-content">
+          <div class="loading"><div class="spinner"></div></div>
         </div>
       </div>
     </div>
@@ -899,6 +1019,104 @@
     </div>
   </div>
 
+  <!-- Campaign Modal -->
+  <div class="modal" id="campaign-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="campaign-modal-title">Nouvelle campagne</h2>
+        <button class="modal-close" data-close-modal>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="campaign-form">
+          <input type="hidden" id="campaign-id">
+          <div class="form-group">
+            <label class="form-label">Type *</label>
+            <select class="form-select" id="campaign-type" required>
+              <option value="email">Email</option>
+              <option value="push">Push Notification</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Titre *</label>
+            <input type="text" class="form-input" id="campaign-title" required placeholder="Titre de la campagne">
+          </div>
+          <div class="form-group" id="campaign-subject-group">
+            <label class="form-label">Sujet email</label>
+            <input type="text" class="form-input" id="campaign-subject" placeholder="Sujet de l'email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contenu *</label>
+            <textarea class="form-textarea" id="campaign-content" rows="6" required placeholder="Contenu du message (HTML pour email)"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+            <button type="button" class="btn btn-secondary" id="campaign-save-draft">Sauvegarder</button>
+            <button type="submit" class="btn btn-primary">Envoyer maintenant</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Ban Modal -->
+  <div class="modal" id="ban-modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Bannir l'utilisateur</h2>
+        <button class="modal-close" data-close-modal>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="ban-form">
+          <input type="hidden" id="ban-user-id">
+          <div class="form-group">
+            <label class="form-label">Raison du ban *</label>
+            <textarea class="form-textarea" id="ban-reason" rows="3" required placeholder="Ex: Comportement inapproprié, spam..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="toggle">
+              <input type="checkbox" id="ban-permanent">
+              <span class="toggle-slider"></span>
+            </label>
+            <span style="margin-left: 12px;">Ban permanent</span>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+            <button type="submit" class="btn btn-danger">Bannir</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal" id="note-modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Ajouter une note</h2>
+        <button class="modal-close" data-close-modal>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="note-form">
+          <input type="hidden" id="note-user-id">
+          <div class="form-group">
+            <label class="form-label">Note *</label>
+            <textarea class="form-textarea" id="note-content" rows="4" required placeholder="Note interne sur cet utilisateur..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
@@ -957,22 +1175,29 @@
       verifications: 'Vérifications',
       events: 'Événements',
       users: 'Utilisateurs',
-      subscriptions: 'Abonnements'
+      subscriptions: 'Abonnements',
+      campaigns: 'Campagnes',
+      reports: 'Signalements',
+      'user-detail': 'Détail utilisateur'
     };
 
     function switchPage(pageId) {
       navItems.forEach(item => item.classList.remove('active'));
-      document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+      const navItem = document.querySelector(`[data-page="${pageId}"]`);
+      if (navItem) navItem.classList.add('active');
 
       pages.forEach(page => page.classList.remove('active'));
       document.getElementById('page-' + pageId).classList.add('active');
 
-      pageTitle.textContent = pageTitles[pageId];
+      pageTitle.textContent = pageTitles[pageId] || pageId;
 
       // Show/hide search and add button
       searchContainer.style.display = ['users'].includes(pageId) ? 'block' : 'none';
-      addBtn.style.display = ['events'].includes(pageId) ? 'flex' : 'none';
-      addBtnText.textContent = pageId === 'events' ? 'Nouvel événement' : 'Ajouter';
+      addBtn.style.display = ['events', 'campaigns'].includes(pageId) ? 'flex' : 'none';
+
+      if (pageId === 'events') addBtnText.textContent = 'Nouvel événement';
+      else if (pageId === 'campaigns') addBtnText.textContent = 'Nouvelle campagne';
+      else addBtnText.textContent = 'Ajouter';
 
       // Load page data
       if (pageId === 'dashboard') loadDashboard();
@@ -980,6 +1205,8 @@
       if (pageId === 'events') loadEvents();
       if (pageId === 'users') loadUsers();
       if (pageId === 'subscriptions') loadSubscriptions();
+      if (pageId === 'campaigns') loadCampaigns();
+      if (pageId === 'reports') loadReports();
     }
 
     navItems.forEach(item => {
@@ -1269,53 +1496,12 @@
       }
     });
 
-    // Load Users
+    // Load Users - search
     let usersSearchTimeout;
     document.getElementById('search-input').addEventListener('input', (e) => {
       clearTimeout(usersSearchTimeout);
       usersSearchTimeout = setTimeout(() => loadUsers(e.target.value), 300);
     });
-
-    async function loadUsers(search = '') {
-      const tbody = document.getElementById('users-tbody');
-      tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>';
-
-      try {
-        const url = '/api/admin/users' + (search ? '?search=' + encodeURIComponent(search) : '');
-        const { users } = await api(url);
-
-        if (users.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Aucun utilisateur</p></div></td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = users.map(u => `
-          <tr>
-            <td>
-              <div class="user-cell">
-                ${u.picture ? `<img class="avatar" src="${u.picture}" alt="">` : `<div class="avatar-placeholder">${(u.display_name || u.name || u.email)[0].toUpperCase()}</div>`}
-                <div class="user-info">
-                  <span class="user-name">${u.display_name || u.name || 'Sans nom'}</span>
-                  <span class="user-email">${u.email}</span>
-                </div>
-              </div>
-            </td>
-            <td>${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
-            <td>${u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('fr-FR') : '-'}</td>
-            <td><span class="badge ${u.subscription_plan ? 'badge-success' : 'badge-secondary'}">${u.subscription_plan || 'Free'}</span></td>
-            <td><span class="badge ${u.is_verified ? 'badge-success' : 'badge-warning'}">${u.is_verified ? 'Oui' : 'Non'}</span></td>
-            <td>
-              <label class="toggle">
-                <input type="checkbox" ${u.is_active ? 'checked' : ''} onchange="toggleUserStatus(${u.id}, this.checked)">
-                <span class="toggle-slider"></span>
-              </label>
-            </td>
-          </tr>
-        `).join('');
-      } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
-      }
-    }
 
     async function toggleUserStatus(userId, isActive) {
       try {
@@ -1366,6 +1552,497 @@
         `).join('');
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+      }
+    }
+
+    // ========== CAMPAIGNS ==========
+    let campaignTypeFilter = 'all';
+
+    document.querySelectorAll('.campaign-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.campaign-type-btn').forEach(b => {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-secondary');
+        });
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-secondary');
+        campaignTypeFilter = btn.dataset.type;
+        loadCampaigns();
+      });
+    });
+
+    async function loadCampaigns() {
+      const tbody = document.getElementById('campaigns-tbody');
+      tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>';
+
+      try {
+        let url = '/api/admin/campaigns';
+        if (campaignTypeFilter !== 'all') url += '?type=' + campaignTypeFilter;
+        const { campaigns } = await api(url);
+
+        document.getElementById('camp-total').textContent = campaigns.length;
+        document.getElementById('camp-sent').textContent = campaigns.filter(c => c.status === 'sent').length;
+
+        if (campaigns.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Aucune campagne</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = campaigns.map(c => `
+          <tr>
+            <td>
+              <div style="font-weight: 500;">${c.title}</div>
+              ${c.subject ? `<div style="font-size: 12px; color: var(--text-muted);">${c.subject}</div>` : ''}
+            </td>
+            <td><span class="badge ${c.type === 'email' ? 'badge-primary' : 'badge-success'}">${c.type}</span></td>
+            <td><span class="badge ${c.status === 'sent' ? 'badge-success' : c.status === 'draft' ? 'badge-warning' : 'badge-secondary'}">${c.status}</span></td>
+            <td>${c.stats_sent || 0}</td>
+            <td>${c.stats_opened || 0}</td>
+            <td>${c.sent_at ? new Date(c.sent_at).toLocaleDateString('fr-FR') : '-'}</td>
+            <td>
+              ${c.status === 'draft' ? `
+                <button class="btn btn-sm btn-primary" onclick="sendCampaign(${c.id})">Envoyer</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCampaign(${c.id})">Suppr.</button>
+              ` : ''}
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+      }
+    }
+
+    async function sendCampaign(id) {
+      if (!confirm('Envoyer cette campagne maintenant?')) return;
+      try {
+        const result = await api('/api/admin/campaigns/' + id + '/send', { method: 'POST' });
+        showToast(`Campagne envoyée à ${result.sent} destinataires!`, 'success');
+        loadCampaigns();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function deleteCampaign(id) {
+      if (!confirm('Supprimer cette campagne?')) return;
+      try {
+        await api('/api/admin/campaigns/' + id, { method: 'DELETE' });
+        showToast('Campagne supprimée', 'success');
+        loadCampaigns();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // Campaign Modal
+    const campaignModal = document.getElementById('campaign-modal');
+    const campaignForm = document.getElementById('campaign-form');
+
+    document.getElementById('campaign-type').addEventListener('change', (e) => {
+      document.getElementById('campaign-subject-group').style.display = e.target.value === 'email' ? 'block' : 'none';
+    });
+
+    addBtn.addEventListener('click', () => {
+      const page = document.querySelector('.page.active').id.replace('page-', '');
+      if (page === 'campaigns') {
+        document.getElementById('campaign-modal-title').textContent = 'Nouvelle campagne';
+        campaignForm.reset();
+        document.getElementById('campaign-id').value = '';
+        campaignModal.classList.add('active');
+      }
+    });
+
+    document.getElementById('campaign-save-draft').addEventListener('click', async () => {
+      const data = {
+        type: document.getElementById('campaign-type').value,
+        title: document.getElementById('campaign-title').value,
+        subject: document.getElementById('campaign-subject').value || null,
+        content: document.getElementById('campaign-content').value
+      };
+      if (!data.title || !data.content) {
+        showToast('Titre et contenu requis', 'error');
+        return;
+      }
+      try {
+        await api('/api/admin/campaigns', { method: 'POST', body: JSON.stringify(data) });
+        showToast('Campagne sauvegardée', 'success');
+        campaignModal.classList.remove('active');
+        loadCampaigns();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    campaignForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        type: document.getElementById('campaign-type').value,
+        title: document.getElementById('campaign-title').value,
+        subject: document.getElementById('campaign-subject').value || null,
+        content: document.getElementById('campaign-content').value
+      };
+      try {
+        // Create and send immediately
+        const { campaign } = await api('/api/admin/campaigns', { method: 'POST', body: JSON.stringify(data) });
+        const result = await api('/api/admin/campaigns/' + campaign.id + '/send', { method: 'POST' });
+        showToast(`Campagne envoyée à ${result.sent} destinataires!`, 'success');
+        campaignModal.classList.remove('active');
+        loadCampaigns();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    // ========== REPORTS / MODERATION ==========
+    let reportStatusFilter = 'pending';
+
+    document.querySelectorAll('.report-status-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.report-status-btn').forEach(b => {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-secondary');
+        });
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-secondary');
+        reportStatusFilter = btn.dataset.status;
+        loadReports();
+      });
+    });
+
+    async function loadReports() {
+      const tbody = document.getElementById('reports-tbody');
+      tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>';
+
+      try {
+        // Get stats
+        const { stats } = await api('/api/admin/reports/stats');
+        document.getElementById('reports-pending').textContent = stats.pending || 0;
+        document.getElementById('reports-handled').textContent = stats.handled || 0;
+
+        const badge = document.getElementById('reports-count');
+        if (stats.pending > 0) {
+          badge.textContent = stats.pending;
+          badge.style.display = 'inline';
+        } else {
+          badge.style.display = 'none';
+        }
+
+        // Get reports
+        let url = '/api/admin/reports';
+        if (reportStatusFilter !== 'all') url += '?status=' + reportStatusFilter;
+        const { reports } = await api(url);
+
+        if (reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Aucun signalement</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reports.map(r => `
+          <tr>
+            <td>
+              <div class="user-cell">
+                <div class="avatar-placeholder">${(r.reported_display_name || r.reported_name || r.reported_email)[0].toUpperCase()}</div>
+                <div class="user-info">
+                  <span class="user-name">${r.reported_display_name || r.reported_name || 'Sans nom'}</span>
+                  <span class="user-email">${r.reported_email}</span>
+                </div>
+              </div>
+            </td>
+            <td style="font-size: 12px; color: var(--text-muted);">${r.reporter_email}</td>
+            <td>${r.reason}</td>
+            <td>${new Date(r.created_at).toLocaleDateString('fr-FR')}</td>
+            <td><span class="badge ${r.status === 'pending' ? 'badge-warning' : r.status === 'handled' ? 'badge-success' : 'badge-secondary'}">${r.status}</span></td>
+            <td>
+              ${r.status === 'pending' ? `
+                <button class="btn btn-sm btn-secondary" onclick="viewUserDetail(${r.reported_user_id})">Voir</button>
+                <button class="btn btn-sm btn-danger" onclick="handleReport(${r.id}, 'ban')">Ban</button>
+                <button class="btn btn-sm btn-secondary" onclick="handleReport(${r.id}, 'dismiss')">Ignorer</button>
+              ` : `<span style="font-size:12px;color:var(--text-muted);">${r.action_taken || ''}</span>`}
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+      }
+    }
+
+    async function handleReport(reportId, action) {
+      const actionText = action === 'ban' ? 'Bannir l\'utilisateur?' : 'Ignorer ce signalement?';
+      if (!confirm(actionText)) return;
+
+      try {
+        await api('/api/admin/reports/' + reportId, {
+          method: 'PUT',
+          body: JSON.stringify({
+            actionTaken: action,
+            status: action === 'dismiss' ? 'dismissed' : 'handled'
+          })
+        });
+        showToast('Signalement traité', 'success');
+        loadReports();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // ========== USER DETAIL ==========
+    let currentUserDetail = null;
+
+    async function viewUserDetail(userId) {
+      switchPage('user-detail');
+      const container = document.getElementById('user-detail-content');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const { user } = await api('/api/admin/users/' + userId);
+        currentUserDetail = user;
+
+        container.innerHTML = `
+          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px;">
+            <!-- Left: Profile Card -->
+            <div class="card">
+              <div class="card-body" style="padding: 24px; text-align: center;">
+                ${user.photos && user.photos[0]
+                  ? `<img src="${user.photos[0]}" style="width: 120px; height: 120px; border-radius: 16px; object-fit: cover; margin-bottom: 16px;">`
+                  : `<div class="avatar-placeholder" style="width: 120px; height: 120px; font-size: 48px; margin: 0 auto 16px; border-radius: 16px;">${(user.display_name || user.name || user.email)[0].toUpperCase()}</div>`
+                }
+                <h2 style="margin: 0 0 4px;">${user.display_name || user.name || 'Sans nom'}</h2>
+                <p style="color: var(--text-muted); margin: 0 0 16px;">${user.email}</p>
+
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                  <span class="badge ${user.is_active ? 'badge-success' : 'badge-danger'}">${user.is_active ? 'Actif' : 'Inactif'}</span>
+                  <span class="badge ${user.is_verified ? 'badge-success' : 'badge-warning'}">${user.verification_level || 'Non vérifié'}</span>
+                  <span class="badge badge-primary">${user.subscription_plan || 'Free'}</span>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left;">
+                  <p style="margin: 8px 0; font-size: 14px;"><strong>Inscription:</strong> ${new Date(user.created_at).toLocaleDateString('fr-FR')}</p>
+                  <p style="margin: 8px 0; font-size: 14px;"><strong>Dernière connexion:</strong> ${user.last_login_at ? new Date(user.last_login_at).toLocaleDateString('fr-FR') : '-'}</p>
+                  ${user.birthdate ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Date de naissance:</strong> ${new Date(user.birthdate).toLocaleDateString('fr-FR')}</p>` : ''}
+                  ${user.location ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Ville:</strong> ${user.location}</p>` : ''}
+                  ${user.gender ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Genre:</strong> ${user.gender}</p>` : ''}
+                </div>
+
+                <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
+                  ${user.is_active
+                    ? `<button class="btn btn-danger" onclick="openBanModal(${user.id})">Bannir</button>`
+                    : `<button class="btn btn-success" onclick="unbanUser(${user.id})">Débannir</button>`
+                  }
+                  <button class="btn btn-secondary" onclick="openNoteModal(${user.id})">Ajouter note</button>
+                  <button class="btn btn-secondary" onclick="deleteUser(${user.id})">Supprimer compte</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Stats & Info -->
+            <div>
+              <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                  <div class="stat-value">${user.total_swipes || 0}</div>
+                  <div class="stat-label">Swipes</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${user.total_matches || 0}</div>
+                  <div class="stat-label">Matchs</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${user.total_messages || 0}</div>
+                  <div class="stat-label">Messages</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${user.total_events || 0}</div>
+                  <div class="stat-label">Events</div>
+                </div>
+              </div>
+
+              ${user.bio ? `
+                <div class="card" style="margin-bottom: 24px;">
+                  <div class="card-header"><h3 class="card-title">Bio</h3></div>
+                  <div class="card-body" style="padding: 16px 24px;">
+                    <p style="white-space: pre-wrap;">${user.bio}</p>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${user.bans && user.bans.length > 0 ? `
+                <div class="card" style="margin-bottom: 24px;">
+                  <div class="card-header"><h3 class="card-title">Historique des bans</h3></div>
+                  <div class="card-body">
+                    <table class="table">
+                      <thead><tr><th>Raison</th><th>Par</th><th>Date</th><th>Statut</th></tr></thead>
+                      <tbody>
+                        ${user.bans.map(b => `
+                          <tr>
+                            <td>${b.reason}</td>
+                            <td>${b.banned_by}</td>
+                            <td>${new Date(b.banned_at).toLocaleDateString('fr-FR')}</td>
+                            <td><span class="badge ${b.unbanned_at ? 'badge-success' : 'badge-danger'}">${b.unbanned_at ? 'Levé' : 'Actif'}</span></td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ` : ''}
+
+              <div class="card">
+                <div class="card-header"><h3 class="card-title">Notes admin</h3></div>
+                <div class="card-body" id="user-notes-list">
+                  ${user.notes && user.notes.length > 0
+                    ? user.notes.map(n => `
+                        <div style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+                          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${n.admin_email} - ${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+                          <div>${n.note}</div>
+                        </div>
+                      `).join('')
+                    : '<div class="empty-state"><p>Aucune note</p></div>'
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        container.innerHTML = '<div class="empty-state"><p>Erreur: ' + e.message + '</p></div>';
+      }
+    }
+
+    // Ban Modal
+    const banModal = document.getElementById('ban-modal');
+    const banForm = document.getElementById('ban-form');
+
+    function openBanModal(userId) {
+      document.getElementById('ban-user-id').value = userId;
+      document.getElementById('ban-reason').value = '';
+      document.getElementById('ban-permanent').checked = false;
+      banModal.classList.add('active');
+    }
+
+    banForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = document.getElementById('ban-user-id').value;
+      const reason = document.getElementById('ban-reason').value;
+      const isPermanent = document.getElementById('ban-permanent').checked;
+
+      try {
+        await api('/api/admin/users/' + userId + '/ban', {
+          method: 'POST',
+          body: JSON.stringify({ reason, isPermanent })
+        });
+        showToast('Utilisateur banni', 'success');
+        banModal.classList.remove('active');
+        viewUserDetail(userId);
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    async function unbanUser(userId) {
+      if (!confirm('Débannir cet utilisateur?')) return;
+      try {
+        await api('/api/admin/users/' + userId + '/unban', { method: 'POST' });
+        showToast('Utilisateur débanni', 'success');
+        viewUserDetail(userId);
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm('ATTENTION: Cette action est irréversible. Supprimer cet utilisateur?')) return;
+      if (!confirm('Vraiment supprimer définitivement?')) return;
+      try {
+        await api('/api/admin/users/' + userId, { method: 'DELETE' });
+        showToast('Utilisateur supprimé', 'success');
+        switchPage('users');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // Note Modal
+    const noteModal = document.getElementById('note-modal');
+    const noteForm = document.getElementById('note-form');
+
+    function openNoteModal(userId) {
+      document.getElementById('note-user-id').value = userId;
+      document.getElementById('note-content').value = '';
+      noteModal.classList.add('active');
+    }
+
+    noteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = document.getElementById('note-user-id').value;
+      const note = document.getElementById('note-content').value;
+
+      try {
+        await api('/api/admin/users/' + userId + '/notes', {
+          method: 'POST',
+          body: JSON.stringify({ note })
+        });
+        showToast('Note ajoutée', 'success');
+        noteModal.classList.remove('active');
+        viewUserDetail(userId);
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    // Close modals
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+      });
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    });
+
+    // Update users table to have view button
+    async function loadUsers(search = '') {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>';
+
+      try {
+        const url = '/api/admin/users' + (search ? '?search=' + encodeURIComponent(search) : '');
+        const { users } = await api(url);
+
+        if (users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Aucun utilisateur</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = users.map(u => `
+          <tr style="cursor: pointer;" onclick="viewUserDetail(${u.id})">
+            <td>
+              <div class="user-cell">
+                ${u.picture ? `<img class="avatar" src="${u.picture}" alt="">` : `<div class="avatar-placeholder">${(u.display_name || u.name || u.email)[0].toUpperCase()}</div>`}
+                <div class="user-info">
+                  <span class="user-name">${u.display_name || u.name || 'Sans nom'}</span>
+                  <span class="user-email">${u.email}</span>
+                </div>
+              </div>
+            </td>
+            <td>${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
+            <td>${u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('fr-FR') : '-'}</td>
+            <td><span class="badge ${u.subscription_plan ? 'badge-success' : 'badge-secondary'}">${u.subscription_plan || 'Free'}</span></td>
+            <td><span class="badge ${u.is_verified ? 'badge-success' : 'badge-warning'}">${u.is_verified ? 'Oui' : 'Non'}</span></td>
+            <td>
+              <label class="toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" ${u.is_active ? 'checked' : ''} onchange="toggleUserStatus(${u.id}, this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <button class="btn btn-sm btn-secondary" onclick="viewUserDetail(${u.id})">Voir</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
       }
     }
 

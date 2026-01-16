@@ -246,6 +246,160 @@ export async function initDb() {
     )
   `;
 
+  // ============ ADMIN BACK-OFFICE TABLES ============
+
+  // User bans
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_bans (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      reason TEXT NOT NULL,
+      banned_by VARCHAR(255),
+      banned_at TIMESTAMP DEFAULT NOW(),
+      expires_at TIMESTAMP,
+      is_permanent BOOLEAN DEFAULT false,
+      unbanned_at TIMESTAMP,
+      unbanned_by VARCHAR(255)
+    )
+  `;
+
+  // Admin notes on users
+  await sql`
+    CREATE TABLE IF NOT EXISTS admin_notes (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      admin_email VARCHAR(255) NOT NULL,
+      note TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // User reports (signalements)
+  await sql`
+    CREATE TABLE IF NOT EXISTS reports (
+      id SERIAL PRIMARY KEY,
+      reporter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      reported_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      reason VARCHAR(100) NOT NULL,
+      details TEXT,
+      status VARCHAR(20) DEFAULT 'pending',
+      handled_by VARCHAR(255),
+      handled_at TIMESTAMP,
+      action_taken VARCHAR(100),
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Campaigns (email/push)
+  await sql`
+    CREATE TABLE IF NOT EXISTS campaigns (
+      id SERIAL PRIMARY KEY,
+      type VARCHAR(20) NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      subject VARCHAR(255),
+      content TEXT NOT NULL,
+      segment_id INTEGER,
+      status VARCHAR(20) DEFAULT 'draft',
+      scheduled_at TIMESTAMP,
+      sent_at TIMESTAMP,
+      created_by VARCHAR(255),
+      stats_sent INTEGER DEFAULT 0,
+      stats_opened INTEGER DEFAULT 0,
+      stats_clicked INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Campaign recipients tracking
+  await sql`
+    CREATE TABLE IF NOT EXISTS campaign_recipients (
+      id SERIAL PRIMARY KEY,
+      campaign_id INTEGER REFERENCES campaigns(id) ON DELETE CASCADE,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      email VARCHAR(255),
+      sent_at TIMESTAMP,
+      opened_at TIMESTAMP,
+      clicked_at TIMESTAMP,
+      unsubscribed_at TIMESTAMP
+    )
+  `;
+
+  // User segments for targeting
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_segments (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      filters JSONB NOT NULL DEFAULT '{}',
+      user_count INTEGER DEFAULT 0,
+      created_by VARCHAR(255),
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Event photos (multiple per event)
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_photos (
+      id SERIAL PRIMARY KEY,
+      event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+      url TEXT NOT NULL,
+      position INTEGER DEFAULT 0,
+      is_cover BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Event check-ins
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_checkins (
+      id SERIAL PRIMARY KEY,
+      event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      checked_in_at TIMESTAMP DEFAULT NOW(),
+      checked_in_by VARCHAR(255),
+      UNIQUE(event_id, user_id)
+    )
+  `;
+
+  // Photo moderation queue
+  await sql`
+    CREATE TABLE IF NOT EXISTS photo_moderation (
+      id SERIAL PRIMARY KEY,
+      photo_id INTEGER,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      photo_url TEXT NOT NULL,
+      status VARCHAR(20) DEFAULT 'pending',
+      reviewed_by VARCHAR(255),
+      reviewed_at TIMESTAMP,
+      rejection_reason TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Moderation logs (admin actions)
+  await sql`
+    CREATE TABLE IF NOT EXISTS moderation_logs (
+      id SERIAL PRIMARY KEY,
+      admin_email VARCHAR(255) NOT NULL,
+      action VARCHAR(100) NOT NULL,
+      target_type VARCHAR(50) NOT NULL,
+      target_id INTEGER,
+      details JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Email unsubscribes
+  await sql`
+    CREATE TABLE IF NOT EXISTS email_unsubscribes (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      unsubscribed_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   console.log("Database initialized");
 
   // Seed fake profiles if empty
@@ -1781,4 +1935,799 @@ export async function resetAllSwipes() {
     RETURNING id
   `;
   return { deleted: result.length };
+}
+
+// ============ MODULE 1: GESTION MEMBRES COMPLÈTE ============
+
+// Get user detail for admin
+export async function getAdminUserDetail(userId: number) {
+  const result = await sql`
+    SELECT
+      u.id,
+      u.email,
+      u.name,
+      u.picture,
+      u.provider,
+      u.created_at,
+      u.last_login_at,
+      u.is_active,
+      p.display_name,
+      p.birthdate,
+      p.gender,
+      p.bio,
+      p.location,
+      p.denomination,
+      p.kashrut_level,
+      p.shabbat_observance,
+      p.looking_for,
+      p.is_verified,
+      p.verification_level,
+      s.plan_type as subscription_plan,
+      s.status as subscription_status,
+      s.expires_at as subscription_expires,
+      (SELECT COUNT(*) FROM swipes WHERE user_id = u.id) as total_swipes,
+      (SELECT COUNT(*) FROM matches WHERE user1_id = u.id OR user2_id = u.id) as total_matches,
+      (SELECT COUNT(*) FROM messages WHERE sender_id = u.id) as total_messages,
+      (SELECT COUNT(*) FROM event_rsvps WHERE user_id = u.id) as total_events
+    FROM users u
+    LEFT JOIN profiles p ON p.user_id = u.id
+    LEFT JOIN subscriptions s ON s.user_id = u.id
+    WHERE u.id = ${userId}
+  `;
+
+  if (result.length === 0) return null;
+
+  const user = result[0] as any;
+
+  // Get profile photos
+  const photos = await sql`
+    SELECT url, position FROM profile_photos
+    WHERE user_id = ${userId}
+    ORDER BY position ASC
+  `;
+
+  // Get active bans
+  const bans = await sql`
+    SELECT * FROM user_bans
+    WHERE user_id = ${userId}
+    ORDER BY banned_at DESC
+  `;
+
+  // Get admin notes
+  const notes = await sql`
+    SELECT * FROM admin_notes
+    WHERE user_id = ${userId}
+    ORDER BY created_at DESC
+    LIMIT 20
+  `;
+
+  return {
+    ...user,
+    photos: photos.map((p: any) => p.url),
+    bans,
+    notes,
+  };
+}
+
+// Ban user
+export async function banUser(params: {
+  userId: number;
+  reason: string;
+  bannedBy: string;
+  expiresAt?: Date;
+  isPermanent?: boolean;
+}) {
+  // Deactivate user
+  await sql`UPDATE users SET is_active = false WHERE id = ${params.userId}`;
+
+  // Create ban record
+  const result = await sql`
+    INSERT INTO user_bans (user_id, reason, banned_by, expires_at, is_permanent)
+    VALUES (${params.userId}, ${params.reason}, ${params.bannedBy}, ${params.expiresAt ?? null}, ${params.isPermanent ?? false})
+    RETURNING *
+  `;
+
+  // Log action
+  await logModerationAction({
+    adminEmail: params.bannedBy,
+    action: 'ban_user',
+    targetType: 'user',
+    targetId: params.userId,
+    details: { reason: params.reason, isPermanent: params.isPermanent },
+  });
+
+  return result[0];
+}
+
+// Unban user
+export async function unbanUser(userId: number, unbannedBy: string) {
+  // Reactivate user
+  await sql`UPDATE users SET is_active = true WHERE id = ${userId}`;
+
+  // Update ban record
+  await sql`
+    UPDATE user_bans
+    SET unbanned_at = NOW(), unbanned_by = ${unbannedBy}
+    WHERE user_id = ${userId} AND unbanned_at IS NULL
+  `;
+
+  // Log action
+  await logModerationAction({
+    adminEmail: unbannedBy,
+    action: 'unban_user',
+    targetType: 'user',
+    targetId: userId,
+  });
+}
+
+// Add admin note
+export async function addAdminNote(params: {
+  userId: number;
+  adminEmail: string;
+  note: string;
+}) {
+  const result = await sql`
+    INSERT INTO admin_notes (user_id, admin_email, note)
+    VALUES (${params.userId}, ${params.adminEmail}, ${params.note})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get user activity history
+export async function getUserActivity(userId: number, limit = 50) {
+  // Get recent swipes
+  const swipes = await sql`
+    SELECT 'swipe' as type, s.action, s.created_at, p.display_name as target_name
+    FROM swipes s
+    LEFT JOIN profiles p ON p.user_id = s.target_user_id
+    WHERE s.user_id = ${userId}
+    ORDER BY s.created_at DESC
+    LIMIT ${limit}
+  `;
+
+  // Get recent matches
+  const matches = await sql`
+    SELECT 'match' as type, m.created_at,
+      CASE WHEN m.user1_id = ${userId} THEN p2.display_name ELSE p1.display_name END as partner_name
+    FROM matches m
+    LEFT JOIN profiles p1 ON p1.user_id = m.user1_id
+    LEFT JOIN profiles p2 ON p2.user_id = m.user2_id
+    WHERE m.user1_id = ${userId} OR m.user2_id = ${userId}
+    ORDER BY m.created_at DESC
+    LIMIT ${limit}
+  `;
+
+  // Get recent messages (count per conversation)
+  const messages = await sql`
+    SELECT 'message' as type, c.id as conversation_id, COUNT(m.id) as count, MAX(m.created_at) as created_at
+    FROM messages m
+    JOIN conversations c ON c.id = m.conversation_id
+    WHERE m.sender_id = ${userId}
+    GROUP BY c.id
+    ORDER BY MAX(m.created_at) DESC
+    LIMIT ${limit}
+  `;
+
+  // Get event RSVPs
+  const rsvps = await sql`
+    SELECT 'event_rsvp' as type, r.created_at, e.title as event_title, r.status
+    FROM event_rsvps r
+    JOIN events e ON e.id = r.event_id
+    WHERE r.user_id = ${userId}
+    ORDER BY r.created_at DESC
+    LIMIT ${limit}
+  `;
+
+  return { swipes, matches, messages, rsvps };
+}
+
+// Delete user completely
+export async function deleteUserCompletely(userId: number, adminEmail: string) {
+  // Log before deletion
+  await logModerationAction({
+    adminEmail,
+    action: 'delete_user',
+    targetType: 'user',
+    targetId: userId,
+  });
+
+  // Delete in order (respecting foreign keys)
+  await sql`DELETE FROM admin_notes WHERE user_id = ${userId}`;
+  await sql`DELETE FROM user_bans WHERE user_id = ${userId}`;
+  await sql`DELETE FROM profile_photos WHERE user_id = ${userId}`;
+  await sql`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
+  await sql`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
+  await sql`DELETE FROM subscriptions WHERE user_id = ${userId}`;
+  await sql`DELETE FROM profiles WHERE user_id = ${userId}`;
+  await sql`DELETE FROM users WHERE id = ${userId}`;
+
+  return { deleted: true };
+}
+
+// Update user verification level
+export async function setUserVerificationLevel(userId: number, level: string) {
+  await sql`
+    UPDATE profiles
+    SET verification_level = ${level}, is_verified = ${level !== 'none'}
+    WHERE user_id = ${userId}
+  `;
+}
+
+// ============ MODULE 2: GESTION EVENTS COMPLÈTE ============
+
+// Add event photo
+export async function addEventPhoto(params: {
+  eventId: number;
+  url: string;
+  position?: number;
+  isCover?: boolean;
+}) {
+  const result = await sql`
+    INSERT INTO event_photos (event_id, url, position, is_cover)
+    VALUES (${params.eventId}, ${params.url}, ${params.position ?? 0}, ${params.isCover ?? false})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get event photos
+export async function getEventPhotos(eventId: number) {
+  const photos = await sql`
+    SELECT * FROM event_photos
+    WHERE event_id = ${eventId}
+    ORDER BY position ASC
+  `;
+  return photos;
+}
+
+// Delete event photo
+export async function deleteEventPhoto(photoId: number) {
+  await sql`DELETE FROM event_photos WHERE id = ${photoId}`;
+}
+
+// Check in attendee
+export async function checkInAttendee(params: {
+  eventId: number;
+  userId: number;
+  checkedInBy: string;
+}) {
+  const result = await sql`
+    INSERT INTO event_checkins (event_id, user_id, checked_in_by)
+    VALUES (${params.eventId}, ${params.userId}, ${params.checkedInBy})
+    ON CONFLICT (event_id, user_id) DO UPDATE SET
+      checked_in_at = NOW(),
+      checked_in_by = ${params.checkedInBy}
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get event with full details (admin)
+export async function getEventFullDetails(eventId: number) {
+  const event = await getEventById(eventId);
+  if (!event) return null;
+
+  const photos = await getEventPhotos(eventId);
+  const attendees = await sql`
+    SELECT
+      r.id as rsvp_id,
+      r.status,
+      r.paid,
+      r.created_at as rsvp_at,
+      u.id as user_id,
+      u.email,
+      u.name,
+      u.picture,
+      p.display_name,
+      ec.checked_in_at
+    FROM event_rsvps r
+    JOIN users u ON u.id = r.user_id
+    LEFT JOIN profiles p ON p.user_id = u.id
+    LEFT JOIN event_checkins ec ON ec.event_id = r.event_id AND ec.user_id = r.user_id
+    WHERE r.event_id = ${eventId}
+    ORDER BY r.created_at ASC
+  `;
+
+  const checkedInCount = attendees.filter((a: any) => a.checked_in_at).length;
+
+  return {
+    ...event,
+    photos,
+    attendees,
+    checkedInCount,
+  };
+}
+
+// Export event attendees as CSV data
+export async function exportEventAttendees(eventId: number) {
+  const attendees = await sql`
+    SELECT
+      u.email,
+      u.name,
+      p.display_name,
+      r.status,
+      r.paid,
+      r.created_at as rsvp_at,
+      ec.checked_in_at
+    FROM event_rsvps r
+    JOIN users u ON u.id = r.user_id
+    LEFT JOIN profiles p ON p.user_id = u.id
+    LEFT JOIN event_checkins ec ON ec.event_id = r.event_id AND ec.user_id = r.user_id
+    WHERE r.event_id = ${eventId}
+    ORDER BY r.created_at ASC
+  `;
+
+  return attendees;
+}
+
+// Duplicate event
+export async function duplicateEvent(eventId: number) {
+  const event = await getEventById(eventId);
+  if (!event) return null;
+
+  const e = event as any;
+  const newEvent = await createEvent({
+    title: `${e.title} (copie)`,
+    description: e.description,
+    eventType: e.event_type,
+    location: e.location,
+    address: e.address,
+    latitude: e.latitude,
+    longitude: e.longitude,
+    date: e.date,
+    time: e.time,
+    endTime: e.end_time,
+    price: e.price,
+    currency: e.currency,
+    maxAttendees: e.max_attendees,
+    imageUrl: e.image_url,
+    isPublished: false,
+  });
+
+  // Copy photos
+  const photos = await getEventPhotos(eventId);
+  for (const photo of photos as any[]) {
+    await addEventPhoto({
+      eventId: (newEvent as any).id,
+      url: photo.url,
+      position: photo.position,
+      isCover: photo.is_cover,
+    });
+  }
+
+  return newEvent;
+}
+
+// ============ MODULE 3: CAMPAGNES EMAIL/PUSH ============
+
+// Create campaign
+export async function createCampaign(params: {
+  type: 'email' | 'push';
+  title: string;
+  subject?: string;
+  content: string;
+  segmentId?: number;
+  scheduledAt?: Date;
+  createdBy: string;
+}) {
+  const result = await sql`
+    INSERT INTO campaigns (type, title, subject, content, segment_id, scheduled_at, created_by)
+    VALUES (${params.type}, ${params.title}, ${params.subject ?? null}, ${params.content}, ${params.segmentId ?? null}, ${params.scheduledAt ?? null}, ${params.createdBy})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Update campaign
+export async function updateCampaign(campaignId: number, params: Partial<{
+  title: string;
+  subject: string;
+  content: string;
+  segmentId: number;
+  scheduledAt: Date;
+  status: string;
+}>) {
+  const result = await sql`
+    UPDATE campaigns SET
+      title = COALESCE(${params.title ?? null}, title),
+      subject = COALESCE(${params.subject ?? null}, subject),
+      content = COALESCE(${params.content ?? null}, content),
+      segment_id = COALESCE(${params.segmentId ?? null}, segment_id),
+      scheduled_at = COALESCE(${params.scheduledAt ?? null}, scheduled_at),
+      status = COALESCE(${params.status ?? null}, status),
+      updated_at = NOW()
+    WHERE id = ${campaignId}
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get campaigns
+export async function getCampaigns(filters?: {
+  status?: string;
+  type?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 50;
+  const offset = filters?.offset ?? 0;
+
+  let campaigns;
+  if (filters?.status && filters?.type) {
+    campaigns = await sql`
+      SELECT * FROM campaigns
+      WHERE status = ${filters.status} AND type = ${filters.type}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  } else if (filters?.status) {
+    campaigns = await sql`
+      SELECT * FROM campaigns
+      WHERE status = ${filters.status}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  } else if (filters?.type) {
+    campaigns = await sql`
+      SELECT * FROM campaigns
+      WHERE type = ${filters.type}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  } else {
+    campaigns = await sql`
+      SELECT * FROM campaigns
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  return campaigns;
+}
+
+// Get campaign by ID
+export async function getCampaignById(campaignId: number) {
+  const result = await sql`SELECT * FROM campaigns WHERE id = ${campaignId}`;
+  return result.length ? result[0] : null;
+}
+
+// Delete campaign
+export async function deleteCampaign(campaignId: number) {
+  await sql`DELETE FROM campaign_recipients WHERE campaign_id = ${campaignId}`;
+  await sql`DELETE FROM campaigns WHERE id = ${campaignId}`;
+}
+
+// Get users for campaign (based on segment)
+export async function getCampaignRecipients(segmentId?: number) {
+  if (!segmentId) {
+    // All active users
+    return await sql`
+      SELECT u.id, u.email, u.name, p.display_name
+      FROM users u
+      LEFT JOIN profiles p ON p.user_id = u.id
+      WHERE u.is_active = true
+        AND u.provider != 'seed'
+        AND u.email NOT IN (SELECT email FROM email_unsubscribes)
+      ORDER BY u.created_at DESC
+    `;
+  }
+
+  // Get segment filters
+  const segment = await sql`SELECT * FROM user_segments WHERE id = ${segmentId}`;
+  if (segment.length === 0) return [];
+
+  const filters = (segment[0] as any).filters;
+
+  // Build dynamic query based on filters
+  // For now, return all users - filters can be applied in JS
+  return await sql`
+    SELECT u.id, u.email, u.name, p.display_name, p.location, p.gender,
+           DATE_PART('year', AGE(p.birthdate)) as age
+    FROM users u
+    LEFT JOIN profiles p ON p.user_id = u.id
+    WHERE u.is_active = true
+      AND u.provider != 'seed'
+      AND u.email NOT IN (SELECT email FROM email_unsubscribes)
+    ORDER BY u.created_at DESC
+  `;
+}
+
+// Send campaign (mark as sent and create recipients)
+export async function sendCampaign(campaignId: number) {
+  const campaign = await getCampaignById(campaignId);
+  if (!campaign) throw new Error('Campaign not found');
+
+  const recipients = await getCampaignRecipients((campaign as any).segment_id);
+
+  // Create recipient records
+  for (const r of recipients as any[]) {
+    await sql`
+      INSERT INTO campaign_recipients (campaign_id, user_id, email, sent_at)
+      VALUES (${campaignId}, ${r.id}, ${r.email}, NOW())
+      ON CONFLICT DO NOTHING
+    `;
+  }
+
+  // Update campaign status
+  await sql`
+    UPDATE campaigns
+    SET status = 'sent', sent_at = NOW(), stats_sent = ${recipients.length}
+    WHERE id = ${campaignId}
+  `;
+
+  return { sent: recipients.length, recipients };
+}
+
+// Track campaign open
+export async function trackCampaignOpen(campaignId: number, userId: number) {
+  await sql`
+    UPDATE campaign_recipients
+    SET opened_at = COALESCE(opened_at, NOW())
+    WHERE campaign_id = ${campaignId} AND user_id = ${userId}
+  `;
+
+  await sql`
+    UPDATE campaigns
+    SET stats_opened = stats_opened + 1
+    WHERE id = ${campaignId}
+  `;
+}
+
+// Track campaign click
+export async function trackCampaignClick(campaignId: number, userId: number) {
+  await sql`
+    UPDATE campaign_recipients
+    SET clicked_at = COALESCE(clicked_at, NOW())
+    WHERE campaign_id = ${campaignId} AND user_id = ${userId}
+  `;
+
+  await sql`
+    UPDATE campaigns
+    SET stats_clicked = stats_clicked + 1
+    WHERE id = ${campaignId}
+  `;
+}
+
+// Create segment
+export async function createSegment(params: {
+  name: string;
+  description?: string;
+  filters: object;
+  createdBy: string;
+}) {
+  const result = await sql`
+    INSERT INTO user_segments (name, description, filters, created_by)
+    VALUES (${params.name}, ${params.description ?? null}, ${JSON.stringify(params.filters)}, ${params.createdBy})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get segments
+export async function getSegments() {
+  return await sql`SELECT * FROM user_segments ORDER BY created_at DESC`;
+}
+
+// Unsubscribe email
+export async function unsubscribeEmail(email: string) {
+  await sql`
+    INSERT INTO email_unsubscribes (email)
+    VALUES (${email})
+    ON CONFLICT (email) DO NOTHING
+  `;
+}
+
+// ============ MODULE 4: MODÉRATION & SIGNALEMENTS ============
+
+// Create report
+export async function createReport(params: {
+  reporterId: number;
+  reportedUserId: number;
+  reason: string;
+  details?: string;
+}) {
+  const result = await sql`
+    INSERT INTO reports (reporter_id, reported_user_id, reason, details)
+    VALUES (${params.reporterId}, ${params.reportedUserId}, ${params.reason}, ${params.details ?? null})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get reports
+export async function getReports(filters?: {
+  status?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 50;
+  const offset = filters?.offset ?? 0;
+
+  if (filters?.status) {
+    return await sql`
+      SELECT r.*,
+        reporter.email as reporter_email,
+        reporter.name as reporter_name,
+        reported.email as reported_email,
+        reported.name as reported_name,
+        p.display_name as reported_display_name
+      FROM reports r
+      LEFT JOIN users reporter ON reporter.id = r.reporter_id
+      LEFT JOIN users reported ON reported.id = r.reported_user_id
+      LEFT JOIN profiles p ON p.user_id = r.reported_user_id
+      WHERE r.status = ${filters.status}
+      ORDER BY r.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  return await sql`
+    SELECT r.*,
+      reporter.email as reporter_email,
+      reporter.name as reporter_name,
+      reported.email as reported_email,
+      reported.name as reported_name,
+      p.display_name as reported_display_name
+    FROM reports r
+    LEFT JOIN users reporter ON reporter.id = r.reporter_id
+    LEFT JOIN users reported ON reported.id = r.reported_user_id
+    LEFT JOIN profiles p ON p.user_id = r.reported_user_id
+    ORDER BY r.created_at DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+}
+
+// Handle report
+export async function handleReport(params: {
+  reportId: number;
+  handledBy: string;
+  actionTaken: string;
+  status?: string;
+}) {
+  const result = await sql`
+    UPDATE reports
+    SET status = ${params.status ?? 'handled'},
+        handled_by = ${params.handledBy},
+        handled_at = NOW(),
+        action_taken = ${params.actionTaken}
+    WHERE id = ${params.reportId}
+    RETURNING *
+  `;
+
+  // Log action
+  await logModerationAction({
+    adminEmail: params.handledBy,
+    action: 'handle_report',
+    targetType: 'report',
+    targetId: params.reportId,
+    details: { actionTaken: params.actionTaken },
+  });
+
+  return result[0];
+}
+
+// Add photo to moderation queue
+export async function addPhotoToModeration(params: {
+  photoId?: number;
+  userId: number;
+  photoUrl: string;
+}) {
+  const result = await sql`
+    INSERT INTO photo_moderation (photo_id, user_id, photo_url)
+    VALUES (${params.photoId ?? null}, ${params.userId}, ${params.photoUrl})
+    RETURNING *
+  `;
+  return result[0];
+}
+
+// Get pending photos for moderation
+export async function getPendingPhotos(limit = 50) {
+  return await sql`
+    SELECT pm.*,
+      u.email,
+      u.name,
+      p.display_name
+    FROM photo_moderation pm
+    JOIN users u ON u.id = pm.user_id
+    LEFT JOIN profiles p ON p.user_id = pm.user_id
+    WHERE pm.status = 'pending'
+    ORDER BY pm.created_at ASC
+    LIMIT ${limit}
+  `;
+}
+
+// Approve photo
+export async function approvePhoto(photoId: number, reviewedBy: string) {
+  await sql`
+    UPDATE photo_moderation
+    SET status = 'approved', reviewed_by = ${reviewedBy}, reviewed_at = NOW()
+    WHERE id = ${photoId}
+  `;
+
+  await logModerationAction({
+    adminEmail: reviewedBy,
+    action: 'approve_photo',
+    targetType: 'photo',
+    targetId: photoId,
+  });
+}
+
+// Reject photo
+export async function rejectPhoto(photoId: number, reviewedBy: string, reason: string) {
+  await sql`
+    UPDATE photo_moderation
+    SET status = 'rejected', reviewed_by = ${reviewedBy}, reviewed_at = NOW(), rejection_reason = ${reason}
+    WHERE id = ${photoId}
+  `;
+
+  await logModerationAction({
+    adminEmail: reviewedBy,
+    action: 'reject_photo',
+    targetType: 'photo',
+    targetId: photoId,
+    details: { reason },
+  });
+}
+
+// Log moderation action
+export async function logModerationAction(params: {
+  adminEmail: string;
+  action: string;
+  targetType: string;
+  targetId?: number;
+  details?: object;
+}) {
+  await sql`
+    INSERT INTO moderation_logs (admin_email, action, target_type, target_id, details)
+    VALUES (${params.adminEmail}, ${params.action}, ${params.targetType}, ${params.targetId ?? null}, ${params.details ? JSON.stringify(params.details) : null})
+  `;
+}
+
+// Get moderation logs
+export async function getModerationLogs(filters?: {
+  adminEmail?: string;
+  targetType?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 100;
+  const offset = filters?.offset ?? 0;
+
+  if (filters?.adminEmail) {
+    return await sql`
+      SELECT * FROM moderation_logs
+      WHERE admin_email = ${filters.adminEmail}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  if (filters?.targetType) {
+    return await sql`
+      SELECT * FROM moderation_logs
+      WHERE target_type = ${filters.targetType}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  return await sql`
+    SELECT * FROM moderation_logs
+    ORDER BY created_at DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+}
+
+// Get report counts for dashboard
+export async function getReportStats() {
+  const result = await sql`
+    SELECT
+      COUNT(*) FILTER (WHERE status = 'pending') as pending,
+      COUNT(*) FILTER (WHERE status = 'handled') as handled,
+      COUNT(*) FILTER (WHERE status = 'dismissed') as dismissed,
+      COUNT(*) as total
+    FROM reports
+  `;
+  return result[0];
 }

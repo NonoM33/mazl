@@ -72,9 +72,45 @@ import {
   // Admin utilities
   resetUserSwipes,
   resetAllSwipes,
+  // Module 1: Gestion Membres
+  getAdminUserDetail,
+  banUser,
+  unbanUser,
+  addAdminNote,
+  getUserActivity,
+  deleteUserCompletely,
+  setUserVerificationLevel,
+  // Module 2: Gestion Events
+  addEventPhoto,
+  getEventPhotos,
+  deleteEventPhoto,
+  checkInAttendee,
+  getEventFullDetails,
+  exportEventAttendees,
+  duplicateEvent,
+  // Module 3: Campagnes
+  createCampaign,
+  updateCampaign as updateCampaignDb,
+  getCampaigns,
+  getCampaignById,
+  deleteCampaign,
+  sendCampaign,
+  createSegment,
+  getSegments,
+  unsubscribeEmail,
+  // Module 4: Modération
+  createReport,
+  getReports,
+  handleReport,
+  getPendingPhotos,
+  approvePhoto,
+  rejectPhoto,
+  getModerationLogs,
+  getReportStats,
 } from "./db";
-import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
+import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail, sendCampaignEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
+import { sendPushToUsers, sendPushToAll } from "./onesignal";
 
 const app = new Hono();
 
@@ -1778,7 +1814,7 @@ app.post("/api/couple", async (c) => {
     const payload = verifyJWT(token);
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
-    const userId = payload.id;
+    const userId = parseInt(payload.sub);
     const body = await c.req.json();
     const { partnerId, relationshipStatus, startedAt } = body;
 
@@ -1809,7 +1845,7 @@ app.get("/api/couple", async (c) => {
     const payload = verifyJWT(token);
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
-    const couple = await getCouple(payload.id);
+    const couple = await getCouple(parseInt(payload.sub));
 
     if (!couple) {
       return c.json({ success: true, couple: null });
@@ -1913,7 +1949,7 @@ app.post("/api/couple/:coupleId/question/:questionId/answer", async (c) => {
     const questionId = parseInt(c.req.param("questionId"));
     const { answer } = await c.req.json();
 
-    await answerDailyQuestion(coupleId, questionId, payload.id, answer);
+    await answerDailyQuestion(coupleId, questionId, parseInt(payload.sub), answer);
 
     return c.json({ success: true });
   } catch (error: any) {
@@ -1957,6 +1993,727 @@ app.get("/api/couple/:coupleId/milestones", async (c) => {
   } catch (error: any) {
     console.error("Get milestones error:", error);
     return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ MODULE 1: GESTION MEMBRES COMPLÈTE ============
+
+// Get user detail (admin)
+app.get("/api/admin/users/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const user = await getAdminUserDetail(userId);
+
+    if (!user) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
+
+    return c.json({ success: true, user });
+  } catch (error: any) {
+    console.error("Get user detail error:", error);
+    return c.json({ success: false, error: "Failed to get user" }, 500);
+  }
+});
+
+// Ban user (admin)
+app.post("/api/admin/users/:id/ban", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    if (!body.reason) {
+      return c.json({ success: false, error: "Reason required" }, 400);
+    }
+
+    const ban = await banUser({
+      userId,
+      reason: body.reason,
+      bannedBy: (auth as any).email || "admin",
+      expiresAt: body.expiresAt ? new Date(body.expiresAt) : undefined,
+      isPermanent: body.isPermanent ?? false,
+    });
+
+    return c.json({ success: true, ban });
+  } catch (error: any) {
+    console.error("Ban user error:", error);
+    return c.json({ success: false, error: "Failed to ban user" }, 500);
+  }
+});
+
+// Unban user (admin)
+app.post("/api/admin/users/:id/unban", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    await unbanUser(userId, (auth as any).email || "admin");
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Unban user error:", error);
+    return c.json({ success: false, error: "Failed to unban user" }, 500);
+  }
+});
+
+// Add note to user (admin)
+app.post("/api/admin/users/:id/notes", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const { note } = await c.req.json();
+
+    if (!note) {
+      return c.json({ success: false, error: "Note required" }, 400);
+    }
+
+    const result = await addAdminNote({
+      userId,
+      adminEmail: (auth as any).email || "admin",
+      note,
+    });
+
+    return c.json({ success: true, note: result });
+  } catch (error: any) {
+    console.error("Add note error:", error);
+    return c.json({ success: false, error: "Failed to add note" }, 500);
+  }
+});
+
+// Get user activity (admin)
+app.get("/api/admin/users/:id/activity", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const activity = await getUserActivity(userId);
+    return c.json({ success: true, activity });
+  } catch (error: any) {
+    console.error("Get activity error:", error);
+    return c.json({ success: false, error: "Failed to get activity" }, 500);
+  }
+});
+
+// Delete user (admin)
+app.delete("/api/admin/users/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    await deleteUserCompletely(userId, (auth as any).email || "admin");
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete user error:", error);
+    return c.json({ success: false, error: "Failed to delete user" }, 500);
+  }
+});
+
+// Update user verification (admin)
+app.put("/api/admin/users/:id/verification", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const { level } = await c.req.json();
+
+    if (!level) {
+      return c.json({ success: false, error: "Level required" }, 400);
+    }
+
+    await setUserVerificationLevel(userId, level);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Set verification error:", error);
+    return c.json({ success: false, error: "Failed to set verification" }, 500);
+  }
+});
+
+// ============ MODULE 2: GESTION EVENTS COMPLÈTE ============
+
+// Get event full details (admin)
+app.get("/api/admin/events/:id/details", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const event = await getEventFullDetails(eventId);
+
+    if (!event) {
+      return c.json({ success: false, error: "Event not found" }, 404);
+    }
+
+    return c.json({ success: true, event });
+  } catch (error: any) {
+    console.error("Get event details error:", error);
+    return c.json({ success: false, error: "Failed to get event" }, 500);
+  }
+});
+
+// Upload event photo (admin)
+app.post("/api/admin/events/:id/photos", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    if (!body.url) {
+      return c.json({ success: false, error: "URL required" }, 400);
+    }
+
+    const photo = await addEventPhoto({
+      eventId,
+      url: body.url,
+      position: body.position,
+      isCover: body.isCover,
+    });
+
+    return c.json({ success: true, photo });
+  } catch (error: any) {
+    console.error("Add photo error:", error);
+    return c.json({ success: false, error: "Failed to add photo" }, 500);
+  }
+});
+
+// Delete event photo (admin)
+app.delete("/api/admin/events/:id/photos/:photoId", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const photoId = parseInt(c.req.param("photoId"));
+    await deleteEventPhoto(photoId);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete photo error:", error);
+    return c.json({ success: false, error: "Failed to delete photo" }, 500);
+  }
+});
+
+// Check-in attendee (admin)
+app.post("/api/admin/events/:id/checkin", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const { userId } = await c.req.json();
+
+    if (!userId) {
+      return c.json({ success: false, error: "User ID required" }, 400);
+    }
+
+    const checkin = await checkInAttendee({
+      eventId,
+      userId,
+      checkedInBy: (auth as any).email || "admin",
+    });
+
+    return c.json({ success: true, checkin });
+  } catch (error: any) {
+    console.error("Check-in error:", error);
+    return c.json({ success: false, error: "Failed to check in" }, 500);
+  }
+});
+
+// Export attendees CSV (admin)
+app.get("/api/admin/events/:id/export", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const attendees = await exportEventAttendees(eventId);
+
+    // Generate CSV
+    const headers = ["email", "name", "display_name", "status", "paid", "rsvp_at", "checked_in_at"];
+    const csv = [
+      headers.join(","),
+      ...(attendees as any[]).map((a) =>
+        headers.map((h) => `"${(a[h] ?? "").toString().replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
+
+    return new Response(csv, {
+      headers: {
+        "Content-Type": "text/csv",
+        "Content-Disposition": `attachment; filename="event-${eventId}-attendees.csv"`,
+      },
+    });
+  } catch (error: any) {
+    console.error("Export error:", error);
+    return c.json({ success: false, error: "Failed to export" }, 500);
+  }
+});
+
+// Duplicate event (admin)
+app.post("/api/admin/events/:id/duplicate", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const newEvent = await duplicateEvent(eventId);
+
+    if (!newEvent) {
+      return c.json({ success: false, error: "Event not found" }, 404);
+    }
+
+    return c.json({ success: true, event: newEvent });
+  } catch (error: any) {
+    console.error("Duplicate error:", error);
+    return c.json({ success: false, error: "Failed to duplicate" }, 500);
+  }
+});
+
+// ============ MODULE 3: CAMPAGNES EMAIL/PUSH ============
+
+// Get campaigns (admin)
+app.get("/api/admin/campaigns", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const status = c.req.query("status");
+    const type = c.req.query("type");
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const campaigns = await getCampaigns({
+      status: status || undefined,
+      type: type || undefined,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, campaigns });
+  } catch (error: any) {
+    console.error("Get campaigns error:", error);
+    return c.json({ success: false, error: "Failed to get campaigns" }, 500);
+  }
+});
+
+// Get campaign by ID (admin)
+app.get("/api/admin/campaigns/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const campaignId = parseInt(c.req.param("id"));
+    const campaign = await getCampaignById(campaignId);
+
+    if (!campaign) {
+      return c.json({ success: false, error: "Campaign not found" }, 404);
+    }
+
+    return c.json({ success: true, campaign });
+  } catch (error: any) {
+    console.error("Get campaign error:", error);
+    return c.json({ success: false, error: "Failed to get campaign" }, 500);
+  }
+});
+
+// Create campaign (admin)
+app.post("/api/admin/campaigns", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+
+    if (!body.type || !body.title || !body.content) {
+      return c.json({ success: false, error: "Type, title and content required" }, 400);
+    }
+
+    const campaign = await createCampaign({
+      type: body.type,
+      title: body.title,
+      subject: body.subject,
+      content: body.content,
+      segmentId: body.segmentId,
+      scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : undefined,
+      createdBy: (auth as any).email || "admin",
+    });
+
+    return c.json({ success: true, campaign });
+  } catch (error: any) {
+    console.error("Create campaign error:", error);
+    return c.json({ success: false, error: "Failed to create campaign" }, 500);
+  }
+});
+
+// Update campaign (admin)
+app.put("/api/admin/campaigns/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const campaignId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    const campaign = await updateCampaignDb(campaignId, {
+      title: body.title,
+      subject: body.subject,
+      content: body.content,
+      segmentId: body.segmentId,
+      scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : undefined,
+      status: body.status,
+    });
+
+    return c.json({ success: true, campaign });
+  } catch (error: any) {
+    console.error("Update campaign error:", error);
+    return c.json({ success: false, error: "Failed to update campaign" }, 500);
+  }
+});
+
+// Delete campaign (admin)
+app.delete("/api/admin/campaigns/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const campaignId = parseInt(c.req.param("id"));
+    await deleteCampaign(campaignId);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete campaign error:", error);
+    return c.json({ success: false, error: "Failed to delete campaign" }, 500);
+  }
+});
+
+// Send campaign (admin)
+app.post("/api/admin/campaigns/:id/send", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const campaignId = parseInt(c.req.param("id"));
+    const campaign = await getCampaignById(campaignId);
+
+    if (!campaign) {
+      return c.json({ success: false, error: "Campaign not found" }, 404);
+    }
+
+    const camp = campaign as any;
+
+    // Mark campaign as sending and get recipients
+    const result = await sendCampaign(campaignId);
+    const recipients = result.recipients as any[];
+
+    let sentCount = 0;
+    let errorCount = 0;
+
+    if (camp.type === "email") {
+      // Send emails via Resend
+      for (const recipient of recipients) {
+        try {
+          await sendCampaignEmail({
+            to: recipient.email,
+            subject: camp.subject || camp.title,
+            content: camp.content,
+            campaignId,
+            userId: recipient.id,
+          });
+          sentCount++;
+        } catch (err) {
+          console.error(`Failed to send email to ${recipient.email}:`, err);
+          errorCount++;
+        }
+      }
+    } else if (camp.type === "push") {
+      // Send push via OneSignal
+      const userIds = recipients.map((r) => r.id);
+
+      if (userIds.length > 0) {
+        const pushResult = await sendPushToUsers(userIds, camp.title, camp.content, {
+          campaignId,
+        });
+
+        if (pushResult.success) {
+          sentCount = pushResult.recipients || userIds.length;
+        } else {
+          errorCount = userIds.length;
+          console.error("Push notification failed:", pushResult.error);
+        }
+      }
+    }
+
+    return c.json({
+      success: true,
+      sent: sentCount,
+      errors: errorCount,
+      total: recipients.length,
+    });
+  } catch (error: any) {
+    console.error("Send campaign error:", error);
+    return c.json({ success: false, error: "Failed to send campaign" }, 500);
+  }
+});
+
+// Get segments (admin)
+app.get("/api/admin/segments", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const segments = await getSegments();
+    return c.json({ success: true, segments });
+  } catch (error: any) {
+    console.error("Get segments error:", error);
+    return c.json({ success: false, error: "Failed to get segments" }, 500);
+  }
+});
+
+// Create segment (admin)
+app.post("/api/admin/segments", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+
+    if (!body.name || !body.filters) {
+      return c.json({ success: false, error: "Name and filters required" }, 400);
+    }
+
+    const segment = await createSegment({
+      name: body.name,
+      description: body.description,
+      filters: body.filters,
+      createdBy: (auth as any).email || "admin",
+    });
+
+    return c.json({ success: true, segment });
+  } catch (error: any) {
+    console.error("Create segment error:", error);
+    return c.json({ success: false, error: "Failed to create segment" }, 500);
+  }
+});
+
+// Track email open (pixel tracking)
+app.get("/api/track/open", async (c) => {
+  const campaignId = parseInt(c.req.query("c") || "0");
+  const userId = parseInt(c.req.query("u") || "0");
+
+  if (campaignId && userId) {
+    try {
+      const { trackCampaignOpen } = await import("./db");
+      await trackCampaignOpen(campaignId, userId);
+    } catch (e) {
+      // Ignore tracking errors
+    }
+  }
+
+  // Return 1x1 transparent GIF
+  const gif = Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64");
+  return new Response(gif, {
+    headers: {
+      "Content-Type": "image/gif",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },
+  });
+});
+
+// Unsubscribe endpoint (public)
+app.get("/api/unsubscribe", async (c) => {
+  const email = c.req.query("email");
+  if (!email) {
+    return c.html("<h1>Email manquant</h1>");
+  }
+
+  await unsubscribeEmail(email);
+  return c.html(`
+    <html>
+      <head><title>Désinscription</title></head>
+      <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+        <h1>✅ Désinscrit</h1>
+        <p>Vous avez été désinscrit de nos emails marketing.</p>
+      </body>
+    </html>
+  `);
+});
+
+// ============ MODULE 4: MODÉRATION & SIGNALEMENTS ============
+
+// Report user (from mobile app)
+app.post("/api/report", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const { reportedUserId, reason, details } = await c.req.json();
+
+    if (!reportedUserId || !reason) {
+      return c.json({ success: false, error: "Reported user ID and reason required" }, 400);
+    }
+
+    const report = await createReport({
+      reporterId: parseInt(payload.sub),
+      reportedUserId,
+      reason,
+      details,
+    });
+
+    return c.json({ success: true, report });
+  } catch (error: any) {
+    console.error("Report error:", error);
+    return c.json({ success: false, error: "Failed to create report" }, 500);
+  }
+});
+
+// Get reports (admin)
+app.get("/api/admin/reports", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const status = c.req.query("status");
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const reports = await getReports({
+      status: status || undefined,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, reports });
+  } catch (error: any) {
+    console.error("Get reports error:", error);
+    return c.json({ success: false, error: "Failed to get reports" }, 500);
+  }
+});
+
+// Get report stats (admin)
+app.get("/api/admin/reports/stats", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const stats = await getReportStats();
+    return c.json({ success: true, stats });
+  } catch (error: any) {
+    console.error("Get report stats error:", error);
+    return c.json({ success: false, error: "Failed to get stats" }, 500);
+  }
+});
+
+// Handle report (admin)
+app.put("/api/admin/reports/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const reportId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    if (!body.actionTaken) {
+      return c.json({ success: false, error: "Action taken required" }, 400);
+    }
+
+    const report = await handleReport({
+      reportId,
+      handledBy: (auth as any).email || "admin",
+      actionTaken: body.actionTaken,
+      status: body.status,
+    });
+
+    return c.json({ success: true, report });
+  } catch (error: any) {
+    console.error("Handle report error:", error);
+    return c.json({ success: false, error: "Failed to handle report" }, 500);
+  }
+});
+
+// Get pending photos (admin)
+app.get("/api/admin/photos/pending", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const limit = parseInt(c.req.query("limit") || "50");
+    const photos = await getPendingPhotos(limit);
+    return c.json({ success: true, photos });
+  } catch (error: any) {
+    console.error("Get pending photos error:", error);
+    return c.json({ success: false, error: "Failed to get photos" }, 500);
+  }
+});
+
+// Approve photo (admin)
+app.put("/api/admin/photos/:id/approve", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const photoId = parseInt(c.req.param("id"));
+    await approvePhoto(photoId, (auth as any).email || "admin");
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Approve photo error:", error);
+    return c.json({ success: false, error: "Failed to approve photo" }, 500);
+  }
+});
+
+// Reject photo (admin)
+app.put("/api/admin/photos/:id/reject", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const photoId = parseInt(c.req.param("id"));
+    const { reason } = await c.req.json();
+
+    if (!reason) {
+      return c.json({ success: false, error: "Reason required" }, 400);
+    }
+
+    await rejectPhoto(photoId, (auth as any).email || "admin", reason);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Reject photo error:", error);
+    return c.json({ success: false, error: "Failed to reject photo" }, 500);
+  }
+});
+
+// Get moderation logs (admin)
+app.get("/api/admin/moderation/logs", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const adminEmail = c.req.query("admin");
+    const targetType = c.req.query("type");
+    const limit = parseInt(c.req.query("limit") || "100");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const logs = await getModerationLogs({
+      adminEmail: adminEmail || undefined,
+      targetType: targetType || undefined,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, logs });
+  } catch (error: any) {
+    console.error("Get moderation logs error:", error);
+    return c.json({ success: false, error: "Failed to get logs" }, 500);
   }
 });
 

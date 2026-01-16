@@ -219,3 +219,59 @@ export async function sendProfileApprovedEmail(params: { to: string; baseUrl?: s
   if (error) return { success: false, error: error.message };
   return { success: true, data };
 }
+
+// Campaign email
+export async function sendCampaignEmail(params: {
+  to: string;
+  subject: string;
+  content: string;
+  campaignId?: number;
+  userId?: number;
+  baseUrl?: string;
+}) {
+  if (!resend) return { success: false, error: "missing_resend_api_key" };
+
+  const baseUrl = resolveBaseUrl(params.baseUrl);
+  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(params.to)}`;
+  const trackingPixel = params.campaignId && params.userId
+    ? `<img src="${baseUrl}/api/track/open?c=${params.campaignId}&u=${params.userId}" width="1" height="1" style="display:none;" />`
+    : "";
+
+  const { data, error } = await resend.emails.send({
+    from: `MAZL <${FROM_EMAIL}>`,
+    to: params.to,
+    subject: params.subject,
+    html: `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>${escapeHtml(params.subject)}</title>
+  </head>
+  <body style="margin:0;background:#f6f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;padding:28px 16px;">
+      <div style="background:#ffffff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:28px;">
+        <div style="font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,#6C5CE7,#FD79A8);-webkit-background-clip:text;background-clip:text;color:transparent;">MAZL</div>
+
+        <div style="margin:20px 0;color:#2D3436;line-height:1.7;">
+          ${params.content}
+        </div>
+
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;">
+          <p style="margin:0;color:#B2BEC3;font-size:12px;line-height:1.5;text-align:center;">
+            © 2026 MAZL<br/>
+            <a href="${unsubscribeUrl}" style="color:#B2BEC3;">Se désinscrire</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    ${trackingPixel}
+  </body>
+</html>
+    `.trim(),
+  });
+
+  if (error) return { success: false, error: error.message };
+  return { success: true, data };
+}
