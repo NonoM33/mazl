@@ -997,6 +997,22 @@ app.post("/api/conversations/:id/messages", async (c) => {
 
     const message = await createMessage(conversationId, userId, content.trim());
 
+    // Broadcast via WebSocket to both users
+    const conv = conversation as any;
+    const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+    const messageData = {
+      type: "chat:message",
+      payload: {
+        conversationId,
+        messageId: (message as any).id,
+        senderId: userId,
+        content: (message as any).content,
+        createdAt: (message as any).created_at,
+      },
+    };
+    sendToUser(userId, messageData);
+    sendToUser(otherUserId, messageData);
+
     return c.json({ success: true, message });
   } catch (error: any) {
     console.error("Send message error:", error);
