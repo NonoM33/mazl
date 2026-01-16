@@ -752,11 +752,13 @@ export async function getMatches(userId: number) {
     SELECT
       m.id as match_id,
       m.created_at as matched_at,
+      c.id as conversation_id,
       CASE
         WHEN m.user1_id = ${userId} THEN m.user2_id
         ELSE m.user1_id
       END as other_user_id
     FROM matches m
+    LEFT JOIN conversations c ON c.match_id = m.id
     WHERE m.user1_id = ${userId} OR m.user2_id = ${userId}
     ORDER BY m.created_at DESC
   `;
@@ -786,6 +788,7 @@ export async function getMatches(userId: number) {
   return matches.map((m: any) => ({
     matchId: m.match_id,
     matchedAt: m.matched_at,
+    conversationId: m.conversation_id,
     profile: profileMap.get(m.other_user_id),
   }));
 }

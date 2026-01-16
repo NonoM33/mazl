@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  sql,
   createDocument,
   findWaitlistByVerificationToken,
   getDocumentById,
@@ -1463,6 +1464,70 @@ app.get("/api/admin/subscriptions", async (c) => {
   } catch (error: any) {
     console.error("Admin subscriptions error:", error);
     return c.json({ success: false, error: "Failed to get subscriptions" }, 500);
+  }
+});
+
+// Create test match (admin)
+app.post("/api/admin/test-match", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+    const { userEmail, seedProfileIndex = 0 } = body;
+
+    // Find user by email
+    const userResult = await sql`SELECT id FROM users WHERE email = ${userEmail}`;
+    if (userResult.length === 0) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
+    const userId = (userResult[0] as any).id;
+
+    // Find a seed profile to match with
+    const seedResult = await sql`
+      SELECT id FROM users WHERE provider = 'seed'
+      ORDER BY id
+      LIMIT 1 OFFSET ${seedProfileIndex}
+    `;
+    if (seedResult.length === 0) {
+      return c.json({ success: false, error: "No seed profiles available" }, 404);
+    }
+    const seedUserId = (seedResult[0] as any).id;
+
+    // Check if match already exists
+    const existingMatch = await sql`
+      SELECT id FROM matches
+      WHERE (user1_id = ${userId} AND user2_id = ${seedUserId})
+         OR (user1_id = ${seedUserId} AND user2_id = ${userId})
+    `;
+    if (existingMatch.length > 0) {
+      return c.json({ success: true, message: "Match already exists", matchId: (existingMatch[0] as any).id });
+    }
+
+    // Create the match
+    const matchResult = await sql`
+      INSERT INTO matches (user1_id, user2_id)
+      VALUES (${userId}, ${seedUserId})
+      RETURNING id
+    `;
+    const matchId = (matchResult[0] as any).id;
+
+    // Also create a conversation for this match
+    const convResult = await sql`
+      INSERT INTO conversations (match_id, user1_id, user2_id)
+      VALUES (${matchId}, ${userId}, ${seedUserId})
+      RETURNING id
+    `;
+
+    return c.json({
+      success: true,
+      matchId,
+      conversationId: convResult.length > 0 ? (convResult[0] as any).id : null,
+      message: "Test match created"
+    });
+  } catch (error: any) {
+    console.error("Create test match error:", error);
+    return c.json({ success: false, error: "Failed to create test match" }, 500);
   }
 });
 
