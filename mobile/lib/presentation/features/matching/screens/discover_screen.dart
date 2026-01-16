@@ -5,6 +5,7 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -160,12 +161,17 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Undo
+              // Undo (Premium)
               _ActionButton(
                 icon: LucideIcons.rotateCcw,
                 color: AppColors.warning,
                 size: 50,
-                onPressed: () => _controller.undo(),
+                isPremium: !PremiumGate.isPremium,
+                onPressed: () async {
+                  if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
+                    _controller.undo();
+                  }
+                },
               ),
 
               // Pass
@@ -181,7 +187,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 icon: LucideIcons.star,
                 color: AppColors.superLikeBlue,
                 size: 50,
-                onPressed: () => _controller.swipe(CardSwiperDirection.top),
+                badge: PremiumGate.remainingSuperLikes.toString(),
+                onPressed: () async {
+                  if (PremiumGate.remainingSuperLikes > 0 ||
+                      await PremiumGate.showFeatureGate(context, PremiumFeature.superLikes)) {
+                    _controller.swipe(CardSwiperDirection.top);
+                  }
+                },
               ),
 
               // Like
@@ -192,13 +204,22 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 onPressed: () => _controller.swipe(CardSwiperDirection.right),
               ),
 
-              // Boost (premium)
+              // Boost (Premium)
               _ActionButton(
                 icon: LucideIcons.zap,
                 color: AppColors.accentGold,
                 size: 50,
-                onPressed: () {
-                  // TODO: Show premium dialog
+                isPremium: !PremiumGate.isPremium,
+                onPressed: () async {
+                  if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
+                    // TODO: Activate boost
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
+                        backgroundColor: AppColors.accentGold,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -508,36 +529,84 @@ class _ActionButton extends StatelessWidget {
     required this.color,
     required this.size,
     required this.onPressed,
+    this.isPremium = false,
+    this.badge,
   });
 
   final IconData icon;
   final Color color;
   final double size;
   final VoidCallback onPressed;
+  final bool isPremium;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onPressed,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: size * 0.5,
-        ),
+            child: Icon(
+              icon,
+              color: color,
+              size: size * 0.5,
+            ),
+          ),
+          // Premium lock badge
+          if (isPremium)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: AppColors.accentGold,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  LucideIcons.crown,
+                  size: 12,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          // Count badge
+          if (badge != null && !isPremium)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  badge!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

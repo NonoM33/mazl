@@ -22,6 +22,7 @@ import '../../presentation/features/settings/screens/settings_screen.dart';
 import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
+import '../../presentation/features/premium/screens/premium_screen.dart';
 
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -97,6 +98,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.profileSetup,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ProfileSetupScreen(),
+      ),
+
+      // Premium Screen
+      GoRoute(
+        path: RoutePaths.premium,
+        name: RouteNames.premium,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PremiumScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
       ),
 
       // Main Navigation Shell with Bottom Navigation

@@ -25,6 +25,7 @@ abstract class RouteNames {
 
   // Other
   static const profileView = 'profileView';
+  static const premium = 'premium';
 }
 
 /// Route paths for the application
@@ -54,4 +55,5 @@ abstract class RoutePaths {
 
   // Other
   static const profileView = '/discover/profile/:userId';
+  static const premium = '/premium';
 }

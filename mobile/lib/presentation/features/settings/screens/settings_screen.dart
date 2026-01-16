@@ -38,20 +38,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleShowPaywall() async {
-    setState(() => _isLoading = true);
-    try {
-      await RevenueCatService().showPaywall();
-      setState(() {});
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    final result = await context.push<bool>(RoutePaths.premium);
+    if (result == true && mounted) {
+      setState(() {}); // Refresh UI
     }
   }
 
@@ -428,7 +417,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: _isLoading ? null : _handleShowPaywall,
+                        onPressed: _handleShowPaywall,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.accentGold,
