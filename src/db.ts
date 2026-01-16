@@ -205,6 +205,47 @@ export async function initDb() {
     )
   `;
 
+  // Couples table for couple mode
+  await sql`
+    CREATE TABLE IF NOT EXISTS couples (
+      id SERIAL PRIMARY KEY,
+      user1_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      user2_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      status VARCHAR(20) DEFAULT 'active',
+      relationship_status VARCHAR(20) DEFAULT 'dating',
+      started_at DATE,
+      met_on_mazl_at DATE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(user1_id, user2_id)
+    )
+  `;
+
+  // Couple daily questions
+  await sql`
+    CREATE TABLE IF NOT EXISTS couple_questions (
+      id SERIAL PRIMARY KEY,
+      couple_id INTEGER REFERENCES couples(id) ON DELETE CASCADE,
+      question TEXT NOT NULL,
+      category VARCHAR(50),
+      user1_answer TEXT,
+      user2_answer TEXT,
+      asked_at DATE DEFAULT CURRENT_DATE,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Couple milestones
+  await sql`
+    CREATE TABLE IF NOT EXISTS couple_milestones (
+      id SERIAL PRIMARY KEY,
+      couple_id INTEGER REFERENCES couples(id) ON DELETE CASCADE,
+      milestone_type VARCHAR(50) NOT NULL,
+      achieved_at TIMESTAMP DEFAULT NOW(),
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   console.log("Database initialized");
 
   // Seed fake profiles if empty
@@ -1530,4 +1571,214 @@ export async function setUserActiveStatus(userId: number, isActive: boolean) {
     UPDATE users SET is_active = ${isActive}, updated_at = NOW()
     WHERE id = ${userId}
   `;
+}
+
+// ============ COUPLE MODE ============
+
+export async function createCouple(
+  userId: number,
+  partnerId: number,
+  relationshipStatus: string = 'dating',
+  startedAt?: Date
+) {
+  // Order user IDs to prevent duplicates
+  const [user1, user2] = userId < partnerId ? [userId, partnerId] : [partnerId, userId];
+
+  const result = await sql`
+    INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at)
+    VALUES (${user1}, ${user2}, ${relationshipStatus}, ${startedAt || new Date()}, ${new Date()})
+    ON CONFLICT (user1_id, user2_id) DO UPDATE SET
+      status = 'active',
+      relationship_status = ${relationshipStatus},
+      updated_at = NOW()
+    RETURNING *
+  `;
+
+  return result[0];
+}
+
+export async function getCouple(userId: number) {
+  const result = await sql`
+    SELECT
+      c.*,
+      CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END as partner_id,
+      CASE WHEN c.user1_id = ${userId} THEN p2.display_name ELSE p1.display_name END as partner_name,
+      CASE WHEN c.user1_id = ${userId} THEN u2.picture ELSE u1.picture END as partner_picture
+    FROM couples c
+    LEFT JOIN profiles p1 ON p1.user_id = c.user1_id
+    LEFT JOIN profiles p2 ON p2.user_id = c.user2_id
+    LEFT JOIN users u1 ON u1.id = c.user1_id
+    LEFT JOIN users u2 ON u2.id = c.user2_id
+    WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
+      AND c.status = 'active'
+  `;
+
+  return result.length ? result[0] : null;
+}
+
+export async function updateCoupleStatus(coupleId: number, status: string) {
+  await sql`
+    UPDATE couples SET status = ${status}, updated_at = NOW()
+    WHERE id = ${coupleId}
+  `;
+}
+
+export async function updateRelationshipStatus(coupleId: number, relationshipStatus: string) {
+  await sql`
+    UPDATE couples SET relationship_status = ${relationshipStatus}, updated_at = NOW()
+    WHERE id = ${coupleId}
+  `;
+}
+
+export async function deleteCouple(coupleId: number) {
+  await sql`
+    UPDATE couples SET status = 'ended', updated_at = NOW()
+    WHERE id = ${coupleId}
+  `;
+}
+
+// Daily questions for couples
+const DAILY_QUESTIONS = [
+  { question: "Quel est ton moment prefere de la semaine ensemble ?", category: "Connection" },
+  { question: "Si on pouvait voyager n'importe ou, ou irais-tu ?", category: "Reves" },
+  { question: "Qu'est-ce qui t'a fait sourire aujourd'hui ?", category: "Quotidien" },
+  { question: "Comment aimerais-tu celebrer notre prochain Shabbat ?", category: "Judaisme" },
+  { question: "Quel trait de caractere admires-tu le plus chez moi ?", category: "Appreciation" },
+  { question: "Qu'est-ce qui te manque le plus quand on n'est pas ensemble ?", category: "Connection" },
+  { question: "Si tu pouvais apprendre une nouvelle competence, ce serait quoi ?", category: "Reves" },
+  { question: "Quel est ton souvenir prefere de notre relation ?", category: "Souvenirs" },
+  { question: "Comment te sens-tu aujourd'hui sur une echelle de 1 a 10 ?", category: "Bien-etre" },
+  { question: "Quelle est la chose la plus importante dans un couple selon toi ?", category: "Valeurs" },
+];
+
+export async function getDailyQuestion(coupleId: number) {
+  // Check if there's already a question for today
+  const existing = await sql`
+    SELECT * FROM couple_questions
+    WHERE couple_id = ${coupleId}
+      AND asked_at = CURRENT_DATE
+  `;
+
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  // Pick a random question
+  const randomIndex = Math.floor(Math.random() * DAILY_QUESTIONS.length);
+  const questionData = DAILY_QUESTIONS[randomIndex];
+
+  // Create new question for today
+  const result = await sql`
+    INSERT INTO couple_questions (couple_id, question, category, asked_at)
+    VALUES (${coupleId}, ${questionData.question}, ${questionData.category}, CURRENT_DATE)
+    RETURNING *
+  `;
+
+  return result[0];
+}
+
+export async function answerDailyQuestion(
+  coupleId: number,
+  questionId: number,
+  userId: number,
+  answer: string
+) {
+  // Determine if this is user1 or user2
+  const couple = await sql`
+    SELECT user1_id, user2_id FROM couples WHERE id = ${coupleId}
+  `;
+
+  if (couple.length === 0) throw new Error("Couple not found");
+
+  const isUser1 = (couple[0] as any).user1_id === userId;
+  const column = isUser1 ? 'user1_answer' : 'user2_answer';
+
+  if (isUser1) {
+    await sql`
+      UPDATE couple_questions
+      SET user1_answer = ${answer}
+      WHERE id = ${questionId}
+    `;
+  } else {
+    await sql`
+      UPDATE couple_questions
+      SET user2_answer = ${answer}
+      WHERE id = ${questionId}
+    `;
+  }
+}
+
+export async function getCoupleQuestionHistory(coupleId: number, limit = 30) {
+  const questions = await sql`
+    SELECT * FROM couple_questions
+    WHERE couple_id = ${coupleId}
+    ORDER BY asked_at DESC
+    LIMIT ${limit}
+  `;
+  return questions;
+}
+
+// Milestones
+export async function recordMilestone(coupleId: number, milestoneType: string) {
+  // Check if milestone already exists
+  const existing = await sql`
+    SELECT id FROM couple_milestones
+    WHERE couple_id = ${coupleId} AND milestone_type = ${milestoneType}
+  `;
+
+  if (existing.length > 0) return existing[0];
+
+  const result = await sql`
+    INSERT INTO couple_milestones (couple_id, milestone_type)
+    VALUES (${coupleId}, ${milestoneType})
+    RETURNING *
+  `;
+
+  return result[0];
+}
+
+export async function getCoupleMilestones(coupleId: number) {
+  const milestones = await sql`
+    SELECT * FROM couple_milestones
+    WHERE couple_id = ${coupleId}
+    ORDER BY achieved_at DESC
+  `;
+  return milestones;
+}
+
+// Check and record automatic milestones
+export async function checkAndRecordMilestones(coupleId: number, daysTogether: number) {
+  const milestonesToCheck = [
+    { days: 7, type: 'first_week' },
+    { days: 30, type: 'first_month' },
+    { days: 90, type: 'three_months' },
+    { days: 180, type: 'six_months' },
+    { days: 365, type: 'first_year' },
+  ];
+
+  for (const m of milestonesToCheck) {
+    if (daysTogether >= m.days) {
+      await recordMilestone(coupleId, m.type);
+    }
+  }
+}
+
+// ============ ADMIN UTILITIES ============
+
+// Reset all swipes for a user (admin only)
+export async function resetUserSwipes(userId: number) {
+  const result = await sql`
+    DELETE FROM swipes WHERE user_id = ${userId}
+    RETURNING id
+  `;
+  return { deleted: result.length };
+}
+
+// Reset swipes for all users (admin only)
+export async function resetAllSwipes() {
+  const result = await sql`
+    DELETE FROM swipes
+    RETURNING id
+  `;
+  return { deleted: result.length };
 }

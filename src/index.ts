@@ -57,6 +57,21 @@ import {
   getAdminUsers,
   setUserActiveStatus,
   seedFakeProfiles,
+  // Couple Mode
+  createCouple,
+  getCouple,
+  updateCoupleStatus,
+  updateRelationshipStatus,
+  deleteCouple,
+  getDailyQuestion,
+  answerDailyQuestion,
+  getCoupleQuestionHistory,
+  recordMilestone,
+  getCoupleMilestones,
+  checkAndRecordMilestones,
+  // Admin utilities
+  resetUserSwipes,
+  resetAllSwipes,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
@@ -1604,6 +1619,32 @@ app.post("/api/admin/seed-profiles", async (c) => {
   }
 });
 
+// Reset swipes for a user (admin)
+app.post("/api/admin/reset-swipes", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+    const { userId, all } = body;
+
+    if (all === true) {
+      const result = await resetAllSwipes();
+      return c.json({ success: true, message: `All swipes reset`, ...result });
+    }
+
+    if (!userId) {
+      return c.json({ success: false, error: "userId required" }, 400);
+    }
+
+    const result = await resetUserSwipes(userId);
+    return c.json({ success: true, message: `Swipes reset for user ${userId}`, ...result });
+  } catch (error: any) {
+    console.error("Reset swipes error:", error);
+    return c.json({ success: false, error: "Failed to reset swipes" }, 500);
+  }
+});
+
 // Send test message from seed profile (admin)
 app.post("/api/admin/test-message", async (c) => {
   const auth = assertAdmin(c);
@@ -1672,6 +1713,199 @@ app.post("/api/admin/test-message", async (c) => {
   } catch (error: any) {
     console.error("Send test message error:", error);
     return c.json({ success: false, error: "Failed to send test message" }, 500);
+  }
+});
+
+// ============ COUPLE MODE ENDPOINTS ============
+
+// Create or activate couple mode
+app.post("/api/couple", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = payload.id;
+    const body = await c.req.json();
+    const { partnerId, relationshipStatus, startedAt } = body;
+
+    if (!partnerId) {
+      return c.json({ success: false, error: "Partner ID required" }, 400);
+    }
+
+    const couple = await createCouple(
+      userId,
+      partnerId,
+      relationshipStatus || 'dating',
+      startedAt ? new Date(startedAt) : undefined
+    );
+
+    return c.json({ success: true, couple });
+  } catch (error: any) {
+    console.error("Create couple error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get current user's couple
+app.get("/api/couple", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const couple = await getCouple(payload.id);
+
+    if (!couple) {
+      return c.json({ success: true, couple: null });
+    }
+
+    // Calculate days together
+    const startedAt = (couple as any).started_at;
+    const daysTogether = startedAt
+      ? Math.floor((Date.now() - new Date(startedAt).getTime()) / (1000 * 60 * 60 * 24))
+      : 0;
+
+    // Check and record milestones
+    await checkAndRecordMilestones((couple as any).id, daysTogether);
+
+    // Get milestones
+    const milestones = await getCoupleMilestones((couple as any).id);
+
+    return c.json({
+      success: true,
+      couple: {
+        ...(couple as any),
+        daysTogether,
+        milestones,
+      },
+    });
+  } catch (error: any) {
+    console.error("Get couple error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Update relationship status
+app.patch("/api/couple/:coupleId/status", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    const { relationshipStatus } = await c.req.json();
+
+    await updateRelationshipStatus(coupleId, relationshipStatus);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Update couple status error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// End couple mode (soft delete)
+app.delete("/api/couple/:coupleId", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    await deleteCouple(coupleId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete couple error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get daily question
+app.get("/api/couple/:coupleId/question", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    const question = await getDailyQuestion(coupleId);
+
+    return c.json({ success: true, question });
+  } catch (error: any) {
+    console.error("Get daily question error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Answer daily question
+app.post("/api/couple/:coupleId/question/:questionId/answer", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    const questionId = parseInt(c.req.param("questionId"));
+    const { answer } = await c.req.json();
+
+    await answerDailyQuestion(coupleId, questionId, payload.id, answer);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Answer question error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get question history
+app.get("/api/couple/:coupleId/questions", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    const questions = await getCoupleQuestionHistory(coupleId);
+
+    return c.json({ success: true, questions });
+  } catch (error: any) {
+    console.error("Get questions error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get milestones
+app.get("/api/couple/:coupleId/milestones", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const coupleId = parseInt(c.req.param("coupleId"));
+    const milestones = await getCoupleMilestones(coupleId);
+
+    return c.json({ success: true, milestones });
+  } catch (error: any) {
+    console.error("Get milestones error:", error);
+    return c.json({ success: false, error: error.message }, 500);
   }
 });
 
