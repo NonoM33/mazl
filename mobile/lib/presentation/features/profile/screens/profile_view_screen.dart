@@ -90,7 +90,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       // Viewing another user's profile
       userName = _otherProfile!.displayName ?? 'Utilisateur';
       userAge = _otherProfile!.age?.toString() ?? '';
-      userLocation = _otherProfile!.location ?? 'Non défini';
+      userLocation = _otherProfile!.location ?? 'Non defini';
       userPicture = _otherProfile!.photos.isNotEmpty ? _otherProfile!.photos.first : null;
       userBio = _otherProfile!.bio ?? 'Aucune description';
       isVerified = _otherProfile!.isVerified;
@@ -103,7 +103,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       final profile = _userProfile?.profile;
       userName = profile?.displayName ?? _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
       userAge = profile?.age?.toString() ?? '';
-      userLocation = profile?.location ?? 'Non défini';
+      userLocation = profile?.location ?? 'Non defini';
       userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
       userBio = profile?.bio ?? 'Aucune description';
       isVerified = profile?.isVerified ?? false;
@@ -113,139 +113,33 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       photos = profile?.photos ?? [];
     }
 
+    // Determine if user has uploaded photos (not just SSO picture)
+    final hasUploadedPhotos = photos.isNotEmpty;
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : CustomScrollView(
               slivers: [
-                // Profile header
-                SliverAppBar(
-                  expandedHeight: 400,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Profile image
-                        if (userPicture != null)
-                          CachedNetworkImage(
-                            imageUrl: userPicture,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [AppColors.primary, AppColors.secondary],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: const Center(
-                                child: CircularProgressIndicator(color: Colors.white),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => _buildPlaceholder(),
-                          )
-                        else
-                          _buildPlaceholder(),
-                        // Gradient overlay
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 150,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.7),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Profile info
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          right: 16,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    userAge.isNotEmpty ? '$userName, $userAge' : userName,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (isVerified) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.success,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Row(
-                                        children: [
-                                          Icon(
-                                            LucideIcons.badgeCheck,
-                                            color: Colors.white,
-                                            size: 14,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            'Vérifié',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(LucideIcons.mapPin, color: Colors.white70, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    userLocation,
-                                    style: const TextStyle(color: Colors.white70),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                // Profile header - different layout based on photo availability
+                if (hasUploadedPhotos)
+                  _buildFullScreenHeader(
+                    photos: photos,
+                    userName: userName,
+                    userAge: userAge,
+                    userLocation: userLocation,
+                    isVerified: isVerified,
+                    isOwnProfile: isOwnProfile,
+                  )
+                else
+                  _buildCircleAvatarHeader(
+                    userPicture: userPicture,
+                    userName: userName,
+                    userAge: userAge,
+                    userLocation: userLocation,
+                    isVerified: isVerified,
+                    isOwnProfile: isOwnProfile,
                   ),
-                  actions: isOwnProfile
-                      ? [
-                          IconButton(
-                            icon: const Icon(LucideIcons.settings),
-                            onPressed: () => context.go(RoutePaths.settings),
-                          ),
-                          IconButton(
-                            icon: const Icon(LucideIcons.pencil),
-                            onPressed: () => context.go(RoutePaths.editProfile),
-                          ),
-                        ]
-                      : null,
-                ),
 
                 // Profile content
                 SliverToBoxAdapter(
@@ -256,7 +150,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       children: [
                         // Bio
                         const Text(
-                          'À propos',
+                          'A propos',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -290,14 +184,14 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                           ListTile(
                             leading: const Icon(LucideIcons.sparkles, color: AppColors.accent),
                             title: const Text('AI Shadchan'),
-                            subtitle: const Text('Voir les suggestions personnalisées'),
+                            subtitle: const Text('Voir les suggestions personnalisees'),
                             trailing: const Icon(LucideIcons.chevronRight),
                             onTap: () => context.go(RoutePaths.aiShadchan),
                           ),
                           ListTile(
                             leading: const Icon(LucideIcons.shieldCheck, color: AppColors.success),
-                            title: const Text('Vérification'),
-                            subtitle: const Text('Vérifier mon profil'),
+                            title: const Text('Verification'),
+                            subtitle: const Text('Verifier mon profil'),
                             trailing: const Icon(LucideIcons.chevronRight),
                             onTap: () => context.go(RoutePaths.verification),
                           ),
@@ -310,6 +204,248 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildFullScreenHeader({
+    required List<String> photos,
+    required String userName,
+    required String userAge,
+    required String userLocation,
+    required bool isVerified,
+    required bool isOwnProfile,
+  }) {
+    return SliverAppBar(
+      expandedHeight: 400,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: photos.first,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+              ),
+              errorWidget: (context, url, error) => _buildPlaceholder(),
+            ),
+            // Gradient overlay
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+            // Profile info
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        userAge.isNotEmpty ? '$userName, $userAge' : userName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (isVerified) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                LucideIcons.badgeCheck,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Verifie',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(LucideIcons.mapPin, color: Colors.white70, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        userLocation,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: isOwnProfile
+          ? [
+              IconButton(
+                icon: const Icon(LucideIcons.settings),
+                onPressed: () => context.go(RoutePaths.settings),
+              ),
+              IconButton(
+                icon: const Icon(LucideIcons.pencil),
+                onPressed: () => context.go(RoutePaths.editProfile),
+              ),
+            ]
+          : null,
+    );
+  }
+
+  Widget _buildCircleAvatarHeader({
+    required String? userPicture,
+    required String userName,
+    required String userAge,
+    required String userLocation,
+    required bool isVerified,
+    required bool isOwnProfile,
+  }) {
+    return SliverAppBar(
+      expandedHeight: 280,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                // Circle avatar
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundImage: userPicture != null
+                        ? CachedNetworkImageProvider(userPicture)
+                        : null,
+                    child: userPicture == null
+                        ? Icon(
+                            LucideIcons.user,
+                            size: 60,
+                            color: Colors.white.withOpacity(0.8),
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Name and age
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      userAge.isNotEmpty ? '$userName, $userAge' : userName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (isVerified) ...[
+                      const SizedBox(width: 8),
+                      const Icon(
+                        LucideIcons.badgeCheck,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // Location
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(LucideIcons.mapPin, color: Colors.white70, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      userLocation,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: isOwnProfile
+          ? [
+              IconButton(
+                icon: const Icon(LucideIcons.settings),
+                onPressed: () => context.go(RoutePaths.settings),
+              ),
+              IconButton(
+                icon: const Icon(LucideIcons.pencil),
+                onPressed: () => context.go(RoutePaths.editProfile),
+              ),
+            ]
+          : null,
     );
   }
 

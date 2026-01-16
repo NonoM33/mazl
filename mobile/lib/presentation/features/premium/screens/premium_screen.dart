@@ -84,7 +84,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     final months = _getMonthsFromPackage(package);
     if (months <= 1) return '';
     final perMonth = price / months;
-    return '${perMonth.toStringAsFixed(2)}€/mois';
+    return '${perMonth.toStringAsFixed(2)}/mois';
   }
 
   int _getMonthsFromPackage(Package package) {
@@ -142,11 +142,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              Color(0xFF1A1A2E),
-              Color(0xFF16213E),
+              AppColors.primary,
+              AppColors.secondary,
             ],
           ),
         ),
@@ -188,21 +188,23 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
                           children: [
+                            const SizedBox(height: 20),
+
                             // Crown icon with smooth glow
                             Stack(
                               alignment: Alignment.center,
                               children: [
                                 // Outer glow layer
                                 Container(
-                                  width: 140,
-                                  height: 140,
+                                  width: 160,
+                                  height: 160,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppColors.accentGold.withOpacity(0.3),
-                                        AppColors.accentGold.withOpacity(0.1),
-                                        AppColors.accentGold.withOpacity(0.0),
+                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withOpacity(0.0),
                                       ],
                                       stops: const [0.3, 0.6, 1.0],
                                     ),
@@ -210,14 +212,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 ),
                                 // Middle glow layer
                                 Container(
-                                  width: 110,
-                                  height: 110,
+                                  width: 120,
+                                  height: 120,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppColors.accentGold.withOpacity(0.4),
-                                        AppColors.accentGold.withOpacity(0.1),
+                                        Colors.white.withOpacity(0.4),
+                                        Colors.white.withOpacity(0.1),
                                         Colors.transparent,
                                       ],
                                       stops: const [0.4, 0.7, 1.0],
@@ -228,17 +230,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(24),
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: AppColors.premiumGradient,
-                                    ),
+                                    color: Colors.white.withOpacity(0.2),
                                     shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.4),
+                                      width: 2,
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.accentGold.withOpacity(0.6),
-                                        blurRadius: 20,
-                                        spreadRadius: 2,
+                                        color: Colors.white.withOpacity(0.3),
+                                        blurRadius: 30,
+                                        spreadRadius: 5,
                                       ),
                                     ],
                                   ),
@@ -257,50 +259,67 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               'Mazl Pro',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 32,
+                                fontSize: 36,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Trouve ton mazal plus vite',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withOpacity(0.8),
                                 fontSize: 16,
                               ),
                             ),
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 40),
 
-                            // Features
-                            _FeatureItem(
-                              icon: LucideIcons.heart,
-                              title: 'Likes illimités',
-                              subtitle: 'Swipe autant que tu veux',
-                            ),
-                            _FeatureItem(
-                              icon: LucideIcons.eye,
-                              title: 'Voir qui t\'aime',
-                              subtitle: 'Découvre tes admirateurs',
-                            ),
-                            _FeatureItem(
-                              icon: LucideIcons.star,
-                              title: '5 Super Likes/jour',
-                              subtitle: 'Fais-toi remarquer',
-                            ),
-                            _FeatureItem(
-                              icon: LucideIcons.zap,
-                              title: '1 Boost/semaine',
-                              subtitle: 'Sois vu en premier',
-                            ),
-                            _FeatureItem(
-                              icon: LucideIcons.undo2,
-                              title: 'Rewind illimité',
-                              subtitle: 'Annule tes swipes',
-                            ),
-                            _FeatureItem(
-                              icon: LucideIcons.checkCheck,
-                              title: 'Confirmations de lecture',
-                              subtitle: 'Sache quand tes messages sont lus',
+                            // Features in a glassmorphic card
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  _FeatureItem(
+                                    icon: LucideIcons.heart,
+                                    title: 'Likes illimites',
+                                    subtitle: 'Swipe autant que tu veux',
+                                  ),
+                                  _FeatureItem(
+                                    icon: LucideIcons.eye,
+                                    title: 'Voir qui t\'aime',
+                                    subtitle: 'Decouvre tes admirateurs',
+                                  ),
+                                  _FeatureItem(
+                                    icon: LucideIcons.star,
+                                    title: '5 Super Likes/jour',
+                                    subtitle: 'Fais-toi remarquer',
+                                  ),
+                                  _FeatureItem(
+                                    icon: LucideIcons.zap,
+                                    title: '1 Boost/semaine',
+                                    subtitle: 'Sois vu en premier',
+                                  ),
+                                  _FeatureItem(
+                                    icon: LucideIcons.undo2,
+                                    title: 'Rewind illimite',
+                                    subtitle: 'Annule tes swipes',
+                                  ),
+                                  _FeatureItem(
+                                    icon: LucideIcons.checkCheck,
+                                    title: 'Confirmations de lecture',
+                                    subtitle: 'Sache quand tes messages sont lus',
+                                    isLast: true,
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 32),
 
@@ -315,8 +334,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ),
 
               // Purchase button
-              Padding(
+              Container(
                 padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      AppColors.primary.withOpacity(0.5),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
                 child: Column(
                   children: [
                     SizedBox(
@@ -325,20 +354,20 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       child: ElevatedButton(
                         onPressed: _isPurchasing ? null : _handlePurchase,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accentGold,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
                           elevation: 8,
-                          shadowColor: AppColors.accentGold.withOpacity(0.5),
+                          shadowColor: Colors.black.withOpacity(0.3),
                         ),
                         child: _isPurchasing
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 24,
                                 height: 24,
                                 child: CircularProgressIndicator(
-                                  color: Colors.white,
+                                  color: AppColors.primary,
                                   strokeWidth: 2,
                                 ),
                               )
@@ -355,9 +384,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Annule à tout moment',
+                      'Annule a tout moment',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -391,13 +420,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.accentGold.withOpacity(0.2)
-                : Colors.white.withOpacity(0.05),
+                ? Colors.white.withOpacity(0.25)
+                : Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected
-                  ? AppColors.accentGold
-                  : Colors.white.withOpacity(0.1),
+                  ? Colors.white
+                  : Colors.white.withOpacity(0.2),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -411,8 +440,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.accentGold
-                        : Colors.white.withOpacity(0.3),
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.5),
                     width: 2,
                   ),
                 ),
@@ -423,7 +452,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           height: 12,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppColors.accentGold,
+                            color: Colors.white,
                           ),
                         ),
                       )
@@ -454,13 +483,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.accentGold,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
+                            child: Text(
                               'POPULAIRE',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.primary,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -473,7 +502,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       Text(
                         _formatPricePerMonth(package),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: Colors.white.withOpacity(0.7),
                           fontSize: 12,
                         ),
                       ),
@@ -500,13 +529,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.2),
+                        color: AppColors.success.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         '-$savings%',
                         style: const TextStyle(
-                          color: AppColors.success,
+                          color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -527,27 +556,29 @@ class _FeatureItem extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.isLast = false,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: AppColors.accentGold,
+              color: Colors.white,
               size: 20,
             ),
           ),
@@ -566,7 +597,7 @@ class _FeatureItem extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withOpacity(0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -575,7 +606,7 @@ class _FeatureItem extends StatelessWidget {
           ),
           Icon(
             LucideIcons.check,
-            color: AppColors.success,
+            color: Colors.white.withOpacity(0.8),
             size: 20,
           ),
         ],

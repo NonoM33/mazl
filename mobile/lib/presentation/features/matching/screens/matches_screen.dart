@@ -219,16 +219,14 @@ class _MatchCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: onChat,
+        onTap: onViewProfile,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // Avatar - tap to view profile
-              GestureDetector(
-                onTap: onViewProfile,
-                child: CircleAvatar(
+              // Avatar
+              CircleAvatar(
                   radius: 32,
                   backgroundColor: AppColors.primary.withOpacity(0.2),
                   backgroundImage: picture != null
@@ -244,7 +242,6 @@ class _MatchCard extends StatelessWidget {
                           ),
                         )
                       : null,
-                ),
               ),
               const SizedBox(width: 16),
               // Info
