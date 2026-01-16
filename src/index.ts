@@ -1582,6 +1582,7 @@ app.post("/api/admin/test-message", async (c) => {
     }
 
     const seedUserId = (seedUserResult[0] as any).id;
+    const otherUserId = conv.user1_id === seedUserId ? conv.user2_id : conv.user1_id;
 
     // Create message from seed user
     const msgResult = await sql`
@@ -1589,13 +1590,25 @@ app.post("/api/admin/test-message", async (c) => {
       VALUES (${conversationId}, ${seedUserId}, ${message})
       RETURNING *
     `;
+    const msg = msgResult[0] as any;
 
     // Update last_message_at
     await sql`
       UPDATE conversations SET last_message_at = NOW() WHERE id = ${conversationId}
     `;
 
-    return c.json({ success: true, message: msgResult[0] });
+    // Broadcast via WebSocket to the other user
+    const messageData = {
+      type: "chat:message",
+      conversationId,
+      messageId: msg.id,
+      senderId: seedUserId,
+      content: message,
+      createdAt: msg.created_at,
+    };
+    sendToUser(otherUserId, messageData);
+
+    return c.json({ success: true, message: msg });
   } catch (error: any) {
     console.error("Send test message error:", error);
     return c.json({ success: false, error: "Failed to send test message" }, 500);
