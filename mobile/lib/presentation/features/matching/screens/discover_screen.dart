@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
@@ -146,9 +147,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               onUndo: _onUndo,
               cardBuilder: (context, index, horizontalOffsetPercentage,
                   verticalOffsetPercentage) {
+                final profile = _profiles[index];
                 return _ProfileCard(
-                  profile: _profiles[index],
+                  profile: profile,
                   swipeProgress: horizontalOffsetPercentage.toDouble(),
+                  onTapProfile: () {
+                    context.push('/discover/profile/${profile.userId}');
+                  },
                 );
               },
             ),
@@ -301,10 +306,12 @@ class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
     required this.profile,
     required this.swipeProgress,
+    this.onTapProfile,
   });
 
   final Profile profile;
   final double swipeProgress;
+  final VoidCallback? onTapProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -456,6 +463,27 @@ class _ProfileCard extends StatelessWidget {
                     ),
                   ],
                 ],
+              ),
+            ),
+
+            // Info button to view profile details
+            Positioned(
+              top: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: onTapProfile,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    LucideIcons.info,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
               ),
             ),
 

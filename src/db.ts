@@ -596,6 +596,48 @@ export async function getUserProfile(userId: number) {
   return result.length ? result[0] : null;
 }
 
+export async function getFullProfile(userId: number) {
+  // Get profile with user info
+  const result = await sql`
+    SELECT
+      p.id,
+      p.user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) as age,
+      p.gender,
+      p.bio,
+      p.location,
+      p.denomination,
+      p.kashrut_level,
+      p.shabbat_observance,
+      p.looking_for,
+      p.is_verified,
+      p.verification_level,
+      u.picture,
+      u.name,
+      u.email
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id = ${userId}
+  `;
+
+  if (result.length === 0) return null;
+
+  const profile = result[0] as any;
+
+  // Get photos
+  const photos = await sql`
+    SELECT url, position FROM profile_photos
+    WHERE user_id = ${userId}
+    ORDER BY position ASC
+  `;
+
+  return {
+    ...profile,
+    photos: photos.length > 0 ? photos.map((p: any) => p.url) : (profile.picture ? [profile.picture] : []),
+  };
+}
+
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;

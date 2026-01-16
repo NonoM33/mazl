@@ -27,6 +27,7 @@ import {
   upsertUser,
   findUserById,
   getUserProfile,
+  getFullProfile,
   upsertProfile,
   getDiscoverProfiles,
   recordSwipe,
@@ -782,6 +783,36 @@ app.put("/api/profile", async (c) => {
   } catch (error: any) {
     console.error("Update profile error:", error);
     return c.json({ success: false, error: "Failed to update profile" }, 500);
+  }
+});
+
+// Get user profile by ID (for viewing other users)
+app.get("/api/profile/:userId", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const targetUserId = parseInt(c.req.param("userId"));
+    if (isNaN(targetUserId)) {
+      return c.json({ success: false, error: "Invalid user ID" }, 400);
+    }
+
+    const profile = await getFullProfile(targetUserId);
+    if (!profile) {
+      return c.json({ success: false, error: "Profile not found" }, 404);
+    }
+
+    return c.json({ success: true, profile });
+  } catch (error: any) {
+    console.error("Get profile error:", error);
+    return c.json({ success: false, error: "Failed to get profile" }, 500);
   }
 });
 

@@ -224,55 +224,60 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: Row(
-          children: [
-            if (_otherUser?.picture != null)
-              CircleAvatar(
-                radius: 18,
-                backgroundImage: CachedNetworkImageProvider(_otherUser!.picture!),
-              )
-            else
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primary,
-                child: Text(
-                  (_otherUser?.displayName?.isNotEmpty == true)
-                      ? _otherUser!.displayName![0].toUpperCase()
-                      : '?',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+        title: GestureDetector(
+          onTap: _otherUser != null
+              ? () => context.push('/discover/profile/${_otherUser!.userId}')
+              : null,
+          child: Row(
+            children: [
+              if (_otherUser?.picture != null)
+                CircleAvatar(
+                  radius: 18,
+                  backgroundImage: CachedNetworkImageProvider(_otherUser!.picture!),
+                )
+              else
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primary,
+                  child: Text(
+                    (_otherUser?.displayName?.isNotEmpty == true)
+                        ? _otherUser!.displayName![0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _otherUser?.displayName ?? 'Chargement...',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  if (_isTyping)
+                    Text(
+                      'écrit...',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.primary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    )
+                  else
+                    Text(
+                      'En ligne',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.success,
+                      ),
+                    ),
+                ],
               ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _otherUser?.displayName ?? 'Chargement...',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                if (_isTyping)
-                  Text(
-                    'écrit...',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  )
-                else
-                  Text(
-                    'En ligne',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.success,
-                    ),
-                  ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(

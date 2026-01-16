@@ -175,6 +175,27 @@ class ApiService {
     }
   }
 
+  /// Get profile by user ID
+  Future<ApiResponse<Profile>> getProfileById(int userId) async {
+    try {
+      final response = await _get('/api/profile/$userId');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get profile');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(Profile.fromJson(data['profile']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
   /// Get profiles for discovery
   Future<ApiResponse<List<Profile>>> getDiscoverProfiles({
     int limit = 20,

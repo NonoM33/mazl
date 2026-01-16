@@ -164,6 +164,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
 
           if (profile == null) return const SizedBox.shrink();
 
+          final userId = profile['user_id'] as int?;
           return _MatchCard(
             name: profile['display_name'] as String? ?? 'Inconnu',
             age: profile['age']?.toString(),
@@ -171,6 +172,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
             picture: profile['picture'] as String?,
             isVerified: profile['is_verified'] == true,
             matchedAt: _formatMatchedAt(match['matchedAt'] as String?),
+            onViewProfile: userId != null
+                ? () => context.push('/discover/profile/$userId')
+                : null,
             onChat: () {
               // Navigate to chat with this user
               final conversationId = match['conversationId'];
@@ -193,6 +197,7 @@ class _MatchCard extends StatelessWidget {
     this.picture,
     this.isVerified = false,
     required this.matchedAt,
+    this.onViewProfile,
     required this.onChat,
   });
 
@@ -202,6 +207,7 @@ class _MatchCard extends StatelessWidget {
   final String? picture;
   final bool isVerified;
   final String matchedAt;
+  final VoidCallback? onViewProfile;
   final VoidCallback onChat;
 
   @override
@@ -219,23 +225,26 @@ class _MatchCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // Avatar
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.primary.withOpacity(0.2),
-                backgroundImage: picture != null
-                    ? CachedNetworkImageProvider(picture!)
-                    : null,
-                child: picture == null
-                    ? Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    : null,
+              // Avatar - tap to view profile
+              GestureDetector(
+                onTap: onViewProfile,
+                child: CircleAvatar(
+                  radius: 32,
+                  backgroundColor: AppColors.primary.withOpacity(0.2),
+                  backgroundImage: picture != null
+                      ? CachedNetworkImageProvider(picture!)
+                      : null,
+                  child: picture == null
+                      ? Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : '?',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
+                ),
               ),
               const SizedBox(width: 16),
               // Info

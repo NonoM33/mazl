@@ -25,24 +25,45 @@ class ProfileViewScreen extends ConsumerStatefulWidget {
 
 class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   UserProfile? _userProfile;
+  Profile? _otherProfile;
   bool _isLoading = true;
   final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    _loadProfile();
   }
 
-  Future<void> _loadUserProfile() async {
-    final response = await _apiService.getCurrentUser();
-    if (response.success && response.data != null && mounted) {
-      setState(() {
-        _userProfile = response.data;
-        _isLoading = false;
-      });
-    } else if (mounted) {
-      setState(() => _isLoading = false);
+  Future<void> _loadProfile() async {
+    if (widget.isOwnProfile || widget.userId == null) {
+      // Load current user's profile
+      final response = await _apiService.getCurrentUser();
+      if (response.success && response.data != null && mounted) {
+        setState(() {
+          _userProfile = response.data;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    } else {
+      // Load another user's profile
+      final userId = int.tryParse(widget.userId!);
+      if (userId == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final response = await _apiService.getProfileById(userId);
+      if (response.success && response.data != null && mounted) {
+        setState(() {
+          _otherProfile = response.data;
+          _isLoading = false;
+        });
+      } else if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -50,17 +71,47 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   Widget build(BuildContext context) {
     final currentUser = ref.watch(currentUserProvider);
 
-    // Use profile data from API if available
-    final profile = _userProfile?.profile;
-    final userName = profile?.displayName ?? _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
-    final userAge = profile?.age?.toString() ?? '';
-    final userLocation = profile?.location ?? 'Non défini';
-    final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
-    final userBio = profile?.bio ?? 'Aucune description';
-    final isVerified = profile?.isVerified ?? false;
-    final denomination = profile?.denomination;
-    final kashrut = profile?.kashrut;
-    final shabbatObservance = profile?.shabbatObservance;
+    // Determine if viewing own profile or other user's profile
+    final isOwnProfile = widget.isOwnProfile || _otherProfile == null;
+
+    // Use profile data from API
+    String userName;
+    String userAge;
+    String userLocation;
+    String? userPicture;
+    String userBio;
+    bool isVerified;
+    String? denomination;
+    String? kashrut;
+    String? shabbatObservance;
+    List<String> photos;
+
+    if (_otherProfile != null) {
+      // Viewing another user's profile
+      userName = _otherProfile!.displayName ?? 'Utilisateur';
+      userAge = _otherProfile!.age?.toString() ?? '';
+      userLocation = _otherProfile!.location ?? 'Non défini';
+      userPicture = _otherProfile!.photos.isNotEmpty ? _otherProfile!.photos.first : null;
+      userBio = _otherProfile!.bio ?? 'Aucune description';
+      isVerified = _otherProfile!.isVerified;
+      denomination = _otherProfile!.denomination;
+      kashrut = _otherProfile!.kashrut;
+      shabbatObservance = _otherProfile!.shabbatObservance;
+      photos = _otherProfile!.photos;
+    } else {
+      // Viewing own profile
+      final profile = _userProfile?.profile;
+      userName = profile?.displayName ?? _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
+      userAge = profile?.age?.toString() ?? '';
+      userLocation = profile?.location ?? 'Non défini';
+      userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
+      userBio = profile?.bio ?? 'Aucune description';
+      isVerified = profile?.isVerified ?? false;
+      denomination = profile?.denomination;
+      kashrut = profile?.kashrut;
+      shabbatObservance = profile?.shabbatObservance;
+      photos = profile?.photos ?? [];
+    }
 
     return Scaffold(
       body: _isLoading
@@ -182,7 +233,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       ],
                     ),
                   ),
-                  actions: widget.isOwnProfile
+                  actions: isOwnProfile
                       ? [
                           IconButton(
                             icon: const Icon(LucideIcons.settings),
@@ -232,7 +283,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         if (shabbatObservance != null)
                           _InfoChip(icon: LucideIcons.moonStar, label: shabbatObservance),
 
-                        if (widget.isOwnProfile) ...[
+                        if (isOwnProfile) ...[
                           const SizedBox(height: 32),
 
                           // Quick actions for own profile
