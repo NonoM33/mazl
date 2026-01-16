@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -77,7 +78,7 @@ class VideoCallScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 child: const Center(
                   child: Icon(
-                    Icons.videocam,
+                    LucideIcons.video,
                     color: Colors.white54,
                     size: 32,
                   ),
@@ -112,22 +113,22 @@ class VideoCallScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _CallButton(
-                  icon: Icons.cameraswitch,
+                  icon: LucideIcons.switchCamera,
                   label: 'Flip',
                   onPressed: () {},
                 ),
                 _CallButton(
-                  icon: Icons.videocam_off,
+                  icon: LucideIcons.videoOff,
                   label: 'Caméra',
                   onPressed: () {},
                 ),
                 _CallButton(
-                  icon: Icons.mic_off,
+                  icon: LucideIcons.micOff,
                   label: 'Micro',
                   onPressed: () {},
                 ),
                 _CallButton(
-                  icon: Icons.call_end,
+                  icon: LucideIcons.phoneOff,
                   label: 'Fin',
                   color: AppColors.error,
                   onPressed: () => context.pop(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -23,28 +24,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: 'Bienvenue sur MAZL',
       description:
           'L\'application de rencontre pensée pour la communauté juive',
-      icon: '✡',
+      icon: LucideIcons.star,
       gradient: [AppColors.primary, AppColors.primaryDark],
     ),
     OnboardingPage(
       title: 'Trouve ton mazal',
       description:
           'Découvre des profils compatibles avec tes valeurs et ta pratique',
-      icon: '💑',
+      icon: LucideIcons.heartHandshake,
       gradient: [AppColors.secondary, AppColors.secondaryDark],
     ),
     OnboardingPage(
       title: 'Shabbat Mode',
       description:
           'Profite d\'une pause automatique pendant Shabbat et les fêtes',
-      icon: '🕯️',
+      icon: LucideIcons.moonStar,
       gradient: [AppColors.accentGold, AppColors.shabbatBackground],
     ),
     OnboardingPage(
       title: 'AI Shadchan',
       description:
           'Notre intelligence artificielle t\'aide à trouver la bonne personne',
-      icon: '🤖',
+      icon: LucideIcons.sparkles,
       gradient: [AppColors.accent, AppColors.primary],
     ),
   ];
@@ -123,9 +124,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 borderRadius: 30,
                                 opacity: 0.2,
                                 child: Center(
-                                  child: Text(
+                                  child: Icon(
                                     page.icon,
-                                    style: const TextStyle(fontSize: 50),
+                                    size: 56,
+                                    color: Colors.white,
                                   ),
                                 ),
                               )
@@ -246,7 +248,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage {
   final String title;
   final String description;
-  final String icon;
+  final IconData icon;
   final List<Color> gradient;
 
   OnboardingPage({

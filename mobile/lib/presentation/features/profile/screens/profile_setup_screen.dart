@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -29,7 +30,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         title: Text('Étape ${_currentStep + 1}/$_totalSteps'),
         leading: _currentStep > 0
             ? IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(LucideIcons.arrowLeft),
                 onPressed: _previousStep,
               )
             : null,
@@ -131,7 +132,7 @@ class _BasicInfoStep extends StatelessWidget {
           decoration: const InputDecoration(
             labelText: 'Date de naissance',
             hintText: 'JJ/MM/AAAA',
-            suffixIcon: Icon(Icons.calendar_today),
+            suffixIcon: Icon(LucideIcons.calendar),
           ),
           readOnly: true,
           onTap: () {
@@ -158,7 +159,7 @@ class _BasicInfoStep extends StatelessWidget {
           decoration: const InputDecoration(
             labelText: 'Ville',
             hintText: 'Où habites-tu ?',
-            prefixIcon: Icon(Icons.location_on),
+            prefixIcon: Icon(LucideIcons.mapPin),
           ),
         ),
       ],
@@ -211,7 +212,7 @@ class _PhotosStep extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.add_photo_alternate,
+                      LucideIcons.imagePlus,
                       color: index == 0 ? AppColors.primary : Colors.grey,
                       size: 32,
                     ),
@@ -241,7 +242,7 @@ class _PhotosStep extends StatelessWidget {
           ),
           child: const Row(
             children: [
-              Icon(Icons.lightbulb, color: AppColors.info),
+              Icon(LucideIcons.lightbulb, color: AppColors.info),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -425,7 +426,7 @@ class _PreferencesStep extends StatelessWidget {
           ),
           child: const Row(
             children: [
-              Icon(Icons.auto_awesome, color: Colors.white),
+              Icon(LucideIcons.sparkles, color: Colors.white),
               SizedBox(width: 12),
               Expanded(
                 child: Text(

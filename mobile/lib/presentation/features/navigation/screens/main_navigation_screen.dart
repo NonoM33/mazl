@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -33,37 +34,37 @@ class MainNavigationScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _NavBarItem(
-                  icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore,
+                  icon: LucideIcons.compass,
+                  activeIcon: LucideIcons.compass,
                   label: 'Découvrir',
                   isSelected: navigationShell.currentIndex == 0,
                   onTap: () => _onTap(context, 0),
                 ),
                 _NavBarItem(
-                  icon: Icons.favorite_outline,
-                  activeIcon: Icons.favorite,
+                  icon: LucideIcons.heart,
+                  activeIcon: LucideIcons.heart,
                   label: 'Matchs',
                   isSelected: navigationShell.currentIndex == 1,
                   onTap: () => _onTap(context, 1),
                 ),
                 _NavBarItem(
-                  icon: Icons.chat_bubble_outline,
-                  activeIcon: Icons.chat_bubble,
+                  icon: LucideIcons.messageCircle,
+                  activeIcon: LucideIcons.messageCircle,
                   label: 'Chat',
                   isSelected: navigationShell.currentIndex == 2,
                   onTap: () => _onTap(context, 2),
                   badge: 3, // TODO: Get from state
                 ),
                 _NavBarItem(
-                  icon: Icons.event_outlined,
-                  activeIcon: Icons.event,
+                  icon: LucideIcons.calendar,
+                  activeIcon: LucideIcons.calendar,
                   label: 'Events',
                   isSelected: navigationShell.currentIndex == 3,
                   onTap: () => _onTap(context, 3),
                 ),
                 _NavBarItem(
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
+                  icon: LucideIcons.user,
+                  activeIcon: LucideIcons.user,
                   label: 'Profil',
                   isSelected: navigationShell.currentIndex == 4,
                   onTap: () => _onTap(context, 4),

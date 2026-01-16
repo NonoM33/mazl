@@ -1568,27 +1568,379 @@ body {
     border-radius: 20px;
     padding: 16px;
   }
-  
+
   .input-group input {
     padding: 12px 16px;
     text-align: center;
   }
-  
+
   .input-group button {
     width: 100%;
     padding: 14px 24px;
   }
-  
+
   .avatars img {
     width: 36px;
     height: 36px;
   }
-  
+
   .stat-number {
     font-size: 2.5rem;
   }
-  
+
   .scroll-indicator {
     display: none;
+  }
+}
+
+/* ================================================
+   NEW LANDING PAGE SECTIONS - Conversion Optimized
+   ================================================ */
+
+/* Badge New (Hero) */
+.badge-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--primary);
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+/* Store Badges */
+.store-badge {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.store-badge:hover {
+  transform: translateY(-2px);
+}
+
+.store-badge svg {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+
+.store-badges.large .store-badge svg {
+  height: 52px;
+}
+
+/* Live Counter */
+.live-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(0, 184, 148, 0.08);
+  border: 1px solid rgba(0, 184, 148, 0.2);
+  border-radius: 50px;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 16px;
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  background: #00B894;
+  border-radius: 50%;
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(0, 184, 148, 0); }
+}
+
+.live-counter strong {
+  color: #00B894;
+  font-weight: 700;
+}
+
+/* Hero Bullets */
+.hero-bullets .bullet svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Trust Section */
+.trust-section {
+  padding: 32px 24px;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.trust-item svg {
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Comparison Section */
+.comparison-section {
+  padding: 100px 24px;
+  background: var(--bg-alt);
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin-top: 48px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.comparison-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 20px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.comparison-table th:first-child,
+.comparison-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.comparison-table thead th {
+  background: var(--bg-alt);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.comparison-table thead th.highlight {
+  background: var(--gradient);
+  color: white;
+  font-size: 18px;
+}
+
+.comparison-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table td.highlight {
+  background: rgba(108, 92, 231, 0.04);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.comparison-table .check {
+  color: #00B894;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.comparison-table .cross {
+  color: #FF6B6B;
+  font-weight: 700;
+}
+
+/* FAQ Section */
+.faq-section {
+  padding: 100px 24px;
+  background: white;
+}
+
+.faq-grid {
+  max-width: 800px;
+  margin: 48px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faq-item {
+  background: var(--bg-alt);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--dark);
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.faq-item[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.faq-item p {
+  padding: 0 24px 20px;
+  color: var(--text-light);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* Sticky CTA Mobile */
+.sticky-cta {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 12px 16px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.sticky-cta .btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.sticky-cta .btn-primary svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .sticky-cta {
+    display: block;
+  }
+
+  body {
+    padding-bottom: 80px;
+  }
+
+  .trust-badges {
+    gap: 24px;
+  }
+
+  .trust-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .comparison-section {
+    padding: 60px 16px;
+  }
+
+  .faq-section {
+    padding: 60px 16px;
+  }
+
+  .faq-item summary {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+
+  .faq-item p {
+    padding: 0 20px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Footer Links */
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: white;
+}
+
+.footer-copy p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
   }
 }

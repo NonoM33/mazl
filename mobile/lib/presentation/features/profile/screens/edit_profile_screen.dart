@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -12,7 +13,7 @@ class EditProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Modifier le profil'),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(LucideIcons.x),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -168,7 +169,7 @@ class _PhotoSlot extends StatelessWidget {
                 children: [
                   const Center(
                     child: Icon(
-                      Icons.person,
+                      LucideIcons.user,
                       color: Colors.white54,
                       size: 40,
                     ),
@@ -182,7 +183,7 @@ class _PhotoSlot extends StatelessWidget {
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         icon: const Icon(
-                          Icons.close,
+                          LucideIcons.x,
                           size: 16,
                           color: Colors.white,
                         ),
@@ -218,7 +219,7 @@ class _PhotoSlot extends StatelessWidget {
               )
             : const Center(
                 child: Icon(
-                  Icons.add_photo_alternate,
+                  LucideIcons.imagePlus,
                   color: Colors.grey,
                   size: 32,
                 ),
@@ -252,7 +253,7 @@ class _EditField extends StatelessWidget {
         value,
         style: const TextStyle(fontSize: 16),
       ),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(LucideIcons.chevronRight),
       onTap: () {
         // TODO: Open editor
       },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
@@ -14,7 +15,7 @@ class AISuggestionsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('AI Shadchan'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -75,7 +76,7 @@ class AISuggestionsScreen extends StatelessWidget {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.auto_awesome, size: 14, color: AppColors.accent),
+                    Icon(LucideIcons.sparkles, size: 14, color: AppColors.accent),
                     SizedBox(width: 4),
                     Text(
                       '3 nouvelles',
@@ -142,7 +143,7 @@ class AISuggestionsScreen extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.lightbulb, color: AppColors.warning),
+                      Icon(LucideIcons.lightbulb, color: AppColors.warning),
                       SizedBox(width: 8),
                       Text(
                         'Comment ça marche ?',
@@ -226,7 +227,7 @@ class _SuggestionCard extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                          const Icon(LucideIcons.mapPin, size: 14, color: Colors.grey),
                           const SizedBox(width: 4),
                           Text(
                             city,
@@ -252,7 +253,7 @@ class _SuggestionCard extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.auto_awesome, size: 16, color: AppColors.success),
+                      Icon(LucideIcons.sparkles, size: 16, color: AppColors.success),
                       SizedBox(width: 8),
                       Text(
                         'Pourquoi cette suggestion ?',
@@ -269,7 +270,7 @@ class _SuggestionCard extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
-                            const Icon(Icons.check, size: 14, color: AppColors.success),
+                            const Icon(LucideIcons.check, size: 14, color: AppColors.success),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(

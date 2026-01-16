@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
+  <style>
+    .auth-form .form-group {
+      margin-bottom: 16px;
+    }
+    .auth-form .form-group:last-of-type {
+      margin-bottom: 24px;
+    }
+  </style>
 </head>
 <body>
   <nav class="nav">
@@ -19,18 +27,26 @@
     <div class="auth-card">
       <div class="verify-header">
         <h1>Administration</h1>
-        <p>Connecte-toi pour accéder aux vérifications.</p>
+        <p>Connecte-toi pour accéder au back-office.</p>
       </div>
 
       <form id="login-form" class="auth-form">
-        <label class="upload-label" for="password">Mot de passe</label>
-        <input id="password" name="password" type="password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" />
-        <button class="btn btn-primary" type="submit">Se connecter</button>
+        <div class="form-group">
+          <label class="upload-label" for="email">Email</label>
+          <input id="email" name="email" type="email" class="auth-input" placeholder="admin@mazl.app" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="upload-label" for="password">Mot de passe</label>
+          <input id="password" name="password" type="password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+
+        <button class="btn btn-primary" type="submit" id="btn-submit">Se connecter</button>
         <div id="login-error" class="upload-msg error" style="display:none;"></div>
       </form>
 
       <div class="muted" style="margin-top:14px; font-size:13px;">
-        Astuce: si tu as déjà une session, tu seras redirigé automatiquement.
+        Accès réservé aux administrateurs MAZL.
       </div>
     </div>
   </main>

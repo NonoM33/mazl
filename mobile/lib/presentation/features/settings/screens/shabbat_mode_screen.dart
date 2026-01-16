@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -21,7 +22,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
       appBar: AppBar(
         title: const Text('Mode Shabbat'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -99,12 +100,12 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     ),
                     const SizedBox(height: 12),
                     _InfoRow(
-                      icon: Icons.wb_sunny,
+                      icon: LucideIcons.sun,
                       label: 'Allumage des bougies',
                       value: 'Vendredi 17:45',
                     ),
                     _InfoRow(
-                      icon: Icons.nightlight_round,
+                      icon: LucideIcons.moon,
                       label: 'Sortie de Shabbat',
                       value: 'Samedi 18:52',
                     ),
@@ -112,7 +113,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     Row(
                       children: [
                         Icon(
-                          Icons.location_on,
+                          LucideIcons.mapPin,
                           size: 16,
                           color: Theme.of(context)
                               .colorScheme
@@ -198,7 +199,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.info, color: AppColors.info),
+                      Icon(LucideIcons.info, color: AppColors.info),
                       SizedBox(width: 8),
                       Text(
                         'Comment ça marche ?',

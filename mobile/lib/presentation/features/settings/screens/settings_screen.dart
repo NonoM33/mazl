@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
@@ -169,7 +170,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Parametres'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -189,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ? CachedNetworkImageProvider(userPicture)
                           : null,
                       child: userPicture == null
-                          ? Icon(Icons.person, size: 40, color: AppColors.primary)
+                          ? Icon(LucideIcons.user, size: 40, color: AppColors.primary)
                           : null,
                     ),
                     const SizedBox(width: 16),
@@ -222,18 +223,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Account section
               _SectionHeader(title: 'Compte'),
               _SettingTile(
-                icon: Icons.person,
+                icon: LucideIcons.userCircle,
                 title: 'Informations personnelles',
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.email,
+                icon: LucideIcons.mail,
                 title: 'Email',
                 subtitle: userEmail,
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.phone,
+                icon: LucideIcons.phone,
                 title: 'Telephone',
                 subtitle: 'Non verifie',
                 onTap: () {},
@@ -242,19 +243,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Discovery section
               _SectionHeader(title: 'Decouverte'),
               _SettingTile(
-                icon: Icons.location_on,
+                icon: LucideIcons.mapPin,
                 title: 'Localisation',
                 subtitle: userLocation,
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.explore,
+                icon: LucideIcons.radar,
                 title: 'Distance maximale',
                 subtitle: '$distanceMax km',
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.people,
+                icon: LucideIcons.users,
                 title: 'Tranche d\'age',
                 subtitle: '$ageMin - $ageMax ans',
                 onTap: () {},
@@ -263,14 +264,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Jewish settings
               _SectionHeader(title: 'Parametres juifs'),
               _SettingTile(
-                icon: Icons.nights_stay,
+                icon: LucideIcons.moonStar,
                 iconColor: AppColors.accentGold,
                 title: 'Mode Shabbat',
                 subtitle: 'Active - Pause automatique',
                 onTap: () => context.go(RoutePaths.shabbatMode),
               ),
               _SettingTile(
-                icon: Icons.event,
+                icon: LucideIcons.calendarHeart,
                 title: 'Alertes fetes',
                 subtitle: 'Notifications avant les fetes',
                 trailing: Switch(
@@ -284,7 +285,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Notifications
               _SectionHeader(title: 'Notifications'),
               _SettingTile(
-                icon: Icons.favorite,
+                icon: LucideIcons.heartHandshake,
                 title: 'Nouveaux matchs',
                 trailing: Switch(
                   value: true,
@@ -294,7 +295,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.chat,
+                icon: LucideIcons.messageCircle,
                 title: 'Messages',
                 trailing: Switch(
                   value: true,
@@ -304,7 +305,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.star,
+                icon: LucideIcons.star,
                 title: 'Super Likes',
                 trailing: Switch(
                   value: true,
@@ -332,7 +333,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.workspace_premium, color: Colors.white),
+                          const Icon(LucideIcons.crown, color: Colors.white),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -403,7 +404,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.workspace_premium, color: Colors.white),
+                      const Icon(LucideIcons.crown, color: Colors.white),
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Column(
@@ -440,7 +441,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ],
               _SettingTile(
-                icon: Icons.refresh,
+                icon: LucideIcons.refreshCw,
                 title: 'Restaurer les achats',
                 onTap: _handleRestorePurchases,
               ),
@@ -448,22 +449,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // About
               _SectionHeader(title: 'A propos'),
               _SettingTile(
-                icon: Icons.help,
+                icon: LucideIcons.helpCircle,
                 title: 'Aide & Support',
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.description,
+                icon: LucideIcons.fileText,
                 title: 'Conditions d\'utilisation',
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.privacy_tip,
+                icon: LucideIcons.shield,
                 title: 'Politique de confidentialite',
                 onTap: () {},
               ),
               _SettingTile(
-                icon: Icons.info,
+                icon: LucideIcons.info,
                 title: 'Version',
                 subtitle: '1.0.0',
                 onTap: () {},
@@ -559,7 +560,7 @@ class _SettingTile extends StatelessWidget {
       leading: Icon(icon, color: iconColor ?? AppColors.primary),
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ?? const Icon(Icons.chevron_right),
+      trailing: trailing ?? const Icon(LucideIcons.chevronRight),
       onTap: onTap,
     );
   }

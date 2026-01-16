@@ -30,6 +30,30 @@ import {
   getDiscoverProfiles,
   recordSwipe,
   getMatches,
+  // Chat
+  getConversations,
+  getConversationById,
+  getMessages,
+  createMessage,
+  markMessagesAsRead,
+  // Events
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  getEvents,
+  getEventById,
+  createRsvp,
+  deleteRsvp,
+  getEventAttendees,
+  getUserRsvp,
+  // Subscriptions
+  syncSubscription,
+  getSubscription,
+  getAllSubscriptions,
+  // Admin
+  getAdminStats,
+  getAdminUsers,
+  setUserActiveStatus,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
@@ -67,7 +91,93 @@ function getAdminPassword(c: any) {
   return c.req.query("password") || c.req.header("x-admin-password") || "";
 }
 
+// Admin JWT secret (use a different secret than user JWT)
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || "admin-secret-key";
+
+// Generate admin JWT token
+function generateAdminJWT(email: string): string {
+  const header = { alg: "HS256", typ: "JWT" };
+  const payload = {
+    email,
+    role: "admin",
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 86400 * 7, // 7 days
+  };
+
+  const base64Header = btoa(JSON.stringify(header)).replace(/=/g, "");
+  const base64Payload = btoa(JSON.stringify(payload)).replace(/=/g, "");
+  const data = `${base64Header}.${base64Payload}`;
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(ADMIN_JWT_SECRET);
+  const messageData = encoder.encode(data);
+
+  // Simple HMAC-SHA256 using Web Crypto (sync version for Bun)
+  const crypto = require("crypto");
+  const hmac = crypto.createHmac("sha256", ADMIN_JWT_SECRET);
+  hmac.update(data);
+  const signature = hmac.digest("base64url");
+
+  return `${data}.${signature}`;
+}
+
+// Verify admin JWT token
+function verifyAdminJWT(token: string): { valid: boolean; email?: string; error?: string } {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return { valid: false, error: "Invalid token format" };
+
+    const [header, payload, signature] = parts;
+    const data = `${header}.${payload}`;
+
+    // Verify signature
+    const crypto = require("crypto");
+    const hmac = crypto.createHmac("sha256", ADMIN_JWT_SECRET);
+    hmac.update(data);
+    const expectedSig = hmac.digest("base64url");
+
+    if (signature !== expectedSig) return { valid: false, error: "Invalid signature" };
+
+    // Decode payload
+    const decodedPayload = JSON.parse(atob(payload));
+
+    // Check expiration
+    if (decodedPayload.exp && decodedPayload.exp < Math.floor(Date.now() / 1000)) {
+      return { valid: false, error: "Token expired" };
+    }
+
+    // Check role
+    if (decodedPayload.role !== "admin") {
+      return { valid: false, error: "Not an admin token" };
+    }
+
+    return { valid: true, email: decodedPayload.email };
+  } catch (e) {
+    return { valid: false, error: "Token verification failed" };
+  }
+}
+
 function assertAdmin(c: any) {
+  // First try JWT token from Authorization header
+  const authHeader = c.req.header("Authorization") || "";
+  if (authHeader.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    const result = verifyAdminJWT(token);
+    if (result.valid) {
+      return { ok: true, email: result.email };
+    }
+  }
+
+  // Try JWT token from query parameter (for file downloads)
+  const tokenParam = c.req.query("token");
+  if (tokenParam) {
+    const result = verifyAdminJWT(tokenParam);
+    if (result.valid) {
+      return { ok: true, email: result.email };
+    }
+  }
+
+  // Fallback to old password method (for backward compatibility)
   const required = process.env.ADMIN_PASSWORD;
   if (!required) return { ok: false, error: "ADMIN_PASSWORD not set" };
   if (getAdminPassword(c) !== required) return { ok: false, error: "Unauthorized" };
@@ -229,6 +339,49 @@ app.post("/api/verify/submit", async (c) => {
 
   await markVerificationSubmitted(waitlist.id);
   return c.json({ success: true });
+});
+
+// Admin Authentication
+app.post("/api/admin/login", async (c) => {
+  try {
+    const { email, password } = await c.req.json();
+
+    // Get admin credentials from environment
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      console.error("ADMIN_EMAIL or ADMIN_PASSWORD not configured");
+      return c.json({ success: false, error: "Configuration serveur manquante" }, 500);
+    }
+
+    // Validate credentials
+    if (email !== adminEmail || password !== adminPassword) {
+      return c.json({ success: false, error: "Email ou mot de passe incorrect" }, 401);
+    }
+
+    // Generate JWT token
+    const token = generateAdminJWT(email);
+
+    return c.json({
+      success: true,
+      token,
+      email,
+    });
+  } catch (e) {
+    console.error("Admin login error:", e);
+    return c.json({ success: false, error: "Erreur serveur" }, 500);
+  }
+});
+
+app.get("/api/admin/verify", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  return c.json({
+    success: true,
+    email: (auth as any).email,
+  });
 });
 
 // Admin
@@ -714,6 +867,605 @@ app.get("/api/matches", async (c) => {
   }
 });
 
+// ============ CHAT ENDPOINTS ============
+
+// Get user's conversations
+app.get("/api/conversations", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const conversations = await getConversations(userId);
+
+    return c.json({ success: true, conversations });
+  } catch (error: any) {
+    console.error("Conversations error:", error);
+    return c.json({ success: false, error: "Failed to get conversations" }, 500);
+  }
+});
+
+// Get conversation details
+app.get("/api/conversations/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const conversationId = parseInt(c.req.param("id"));
+
+    const conversation = await getConversationById(conversationId);
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404);
+    }
+
+    // Check user is part of conversation
+    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
+      return c.json({ success: false, error: "Access denied" }, 403);
+    }
+
+    return c.json({ success: true, conversation });
+  } catch (error: any) {
+    console.error("Conversation error:", error);
+    return c.json({ success: false, error: "Failed to get conversation" }, 500);
+  }
+});
+
+// Get messages for a conversation
+app.get("/api/conversations/:id/messages", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const conversationId = parseInt(c.req.param("id"));
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const conversation = await getConversationById(conversationId);
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404);
+    }
+
+    // Check user is part of conversation
+    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
+      return c.json({ success: false, error: "Access denied" }, 403);
+    }
+
+    const messages = await getMessages(conversationId, limit, offset);
+
+    return c.json({ success: true, messages });
+  } catch (error: any) {
+    console.error("Messages error:", error);
+    return c.json({ success: false, error: "Failed to get messages" }, 500);
+  }
+});
+
+// Send a message
+app.post("/api/conversations/:id/messages", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const conversationId = parseInt(c.req.param("id"));
+    const { content } = await c.req.json();
+
+    if (!content || typeof content !== "string" || content.trim().length === 0) {
+      return c.json({ success: false, error: "Message content required" }, 400);
+    }
+
+    const conversation = await getConversationById(conversationId);
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404);
+    }
+
+    // Check user is part of conversation
+    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
+      return c.json({ success: false, error: "Access denied" }, 403);
+    }
+
+    const message = await createMessage(conversationId, userId, content.trim());
+
+    return c.json({ success: true, message });
+  } catch (error: any) {
+    console.error("Send message error:", error);
+    return c.json({ success: false, error: "Failed to send message" }, 500);
+  }
+});
+
+// Mark messages as read
+app.put("/api/conversations/:id/read", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const conversationId = parseInt(c.req.param("id"));
+
+    const conversation = await getConversationById(conversationId);
+    if (!conversation) {
+      return c.json({ success: false, error: "Conversation not found" }, 404);
+    }
+
+    // Check user is part of conversation
+    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
+      return c.json({ success: false, error: "Access denied" }, 403);
+    }
+
+    await markMessagesAsRead(conversationId, userId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Mark read error:", error);
+    return c.json({ success: false, error: "Failed to mark as read" }, 500);
+  }
+});
+
+// ============ EVENTS ENDPOINTS ============
+
+// Get public events
+app.get("/api/events", async (c) => {
+  try {
+    const type = c.req.query("type");
+    const fromDate = c.req.query("from") || new Date().toISOString().split("T")[0];
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const events = await getEvents({
+      type: type || undefined,
+      fromDate,
+      publishedOnly: true,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, events });
+  } catch (error: any) {
+    console.error("Events error:", error);
+    return c.json({ success: false, error: "Failed to get events" }, 500);
+  }
+});
+
+// Get event by ID
+app.get("/api/events/:id", async (c) => {
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const event = await getEventById(eventId);
+
+    if (!event) {
+      return c.json({ success: false, error: "Event not found" }, 404);
+    }
+
+    // Check if user is logged in to get RSVP status
+    let userRsvp = null;
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (token) {
+      const payload = verifyJWT(token);
+      if (payload) {
+        const userId = parseInt(payload.sub);
+        userRsvp = await getUserRsvp(eventId, userId);
+      }
+    }
+
+    return c.json({ success: true, event, userRsvp });
+  } catch (error: any) {
+    console.error("Event error:", error);
+    return c.json({ success: false, error: "Failed to get event" }, 500);
+  }
+});
+
+// RSVP to event
+app.post("/api/events/:id/rsvp", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const eventId = parseInt(c.req.param("id"));
+    const { status } = await c.req.json().catch(() => ({ status: "going" }));
+
+    const event = await getEventById(eventId);
+    if (!event) {
+      return c.json({ success: false, error: "Event not found" }, 404);
+    }
+
+    // Check max attendees
+    if ((event as any).max_attendees && (event as any).attendee_count >= (event as any).max_attendees) {
+      return c.json({ success: false, error: "Event is full" }, 400);
+    }
+
+    const rsvp = await createRsvp(eventId, userId, status || "going");
+
+    return c.json({ success: true, rsvp });
+  } catch (error: any) {
+    console.error("RSVP error:", error);
+    return c.json({ success: false, error: "Failed to RSVP" }, 500);
+  }
+});
+
+// Cancel RSVP
+app.delete("/api/events/:id/rsvp", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const eventId = parseInt(c.req.param("id"));
+
+    await deleteRsvp(eventId, userId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Cancel RSVP error:", error);
+    return c.json({ success: false, error: "Failed to cancel RSVP" }, 500);
+  }
+});
+
+// ============ ADMIN EVENTS ENDPOINTS ============
+
+// Get all events (admin)
+app.get("/api/admin/events", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const events = await getEvents({
+      publishedOnly: false,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, events });
+  } catch (error: any) {
+    console.error("Admin events error:", error);
+    return c.json({ success: false, error: "Failed to get events" }, 500);
+  }
+});
+
+// Create event (admin)
+app.post("/api/admin/events", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const body = await c.req.json();
+
+    if (!body.title || !body.date) {
+      return c.json({ success: false, error: "Title and date required" }, 400);
+    }
+
+    const event = await createEvent({
+      title: body.title,
+      description: body.description,
+      eventType: body.eventType,
+      location: body.location,
+      address: body.address,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      date: body.date,
+      time: body.time,
+      endTime: body.endTime,
+      price: body.price,
+      currency: body.currency,
+      maxAttendees: body.maxAttendees,
+      imageUrl: body.imageUrl,
+      isPublished: body.isPublished ?? false,
+    });
+
+    return c.json({ success: true, event });
+  } catch (error: any) {
+    console.error("Create event error:", error);
+    return c.json({ success: false, error: "Failed to create event" }, 500);
+  }
+});
+
+// Update event (admin)
+app.put("/api/admin/events/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    const event = await updateEvent(eventId, {
+      title: body.title,
+      description: body.description,
+      eventType: body.eventType,
+      location: body.location,
+      address: body.address,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      date: body.date,
+      time: body.time,
+      endTime: body.endTime,
+      price: body.price,
+      currency: body.currency,
+      maxAttendees: body.maxAttendees,
+      imageUrl: body.imageUrl,
+      isPublished: body.isPublished,
+    });
+
+    return c.json({ success: true, event });
+  } catch (error: any) {
+    console.error("Update event error:", error);
+    return c.json({ success: false, error: "Failed to update event" }, 500);
+  }
+});
+
+// Delete event (admin)
+app.delete("/api/admin/events/:id", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    await deleteEvent(eventId);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete event error:", error);
+    return c.json({ success: false, error: "Failed to delete event" }, 500);
+  }
+});
+
+// Get event attendees (admin)
+app.get("/api/admin/events/:id/attendees", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const eventId = parseInt(c.req.param("id"));
+    const attendees = await getEventAttendees(eventId);
+    return c.json({ success: true, attendees });
+  } catch (error: any) {
+    console.error("Event attendees error:", error);
+    return c.json({ success: false, error: "Failed to get attendees" }, 500);
+  }
+});
+
+// ============ ADMIN USERS ENDPOINTS ============
+
+// Get admin stats
+app.get("/api/admin/stats", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const stats = await getAdminStats();
+    return c.json({ success: true, stats });
+  } catch (error: any) {
+    console.error("Admin stats error:", error);
+    return c.json({ success: false, error: "Failed to get stats" }, 500);
+  }
+});
+
+// Get users (admin)
+app.get("/api/admin/users", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const search = c.req.query("search");
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const users = await getAdminUsers({
+      search: search || undefined,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, users });
+  } catch (error: any) {
+    console.error("Admin users error:", error);
+    return c.json({ success: false, error: "Failed to get users" }, 500);
+  }
+});
+
+// Update user status (admin)
+app.put("/api/admin/users/:id/status", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const userId = parseInt(c.req.param("id"));
+    const { isActive } = await c.req.json();
+
+    if (typeof isActive !== "boolean") {
+      return c.json({ success: false, error: "isActive boolean required" }, 400);
+    }
+
+    await setUserActiveStatus(userId, isActive);
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Update user status error:", error);
+    return c.json({ success: false, error: "Failed to update user status" }, 500);
+  }
+});
+
+// ============ SUBSCRIPTIONS ENDPOINTS ============
+
+// Get user subscription
+app.get("/api/subscription", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const subscription = await getSubscription(userId);
+
+    return c.json({ success: true, subscription });
+  } catch (error: any) {
+    console.error("Subscription error:", error);
+    return c.json({ success: false, error: "Failed to get subscription" }, 500);
+  }
+});
+
+// Sync subscription (from mobile app)
+app.post("/api/subscription/sync", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const body = await c.req.json();
+
+    const subscription = await syncSubscription(userId, {
+      planType: body.planType,
+      status: body.status,
+      revenuecatId: body.revenuecatId,
+      startsAt: body.startsAt,
+      expiresAt: body.expiresAt,
+    });
+
+    return c.json({ success: true, subscription });
+  } catch (error: any) {
+    console.error("Sync subscription error:", error);
+    return c.json({ success: false, error: "Failed to sync subscription" }, 500);
+  }
+});
+
+// RevenueCat webhook
+app.post("/api/subscriptions/webhook", async (c) => {
+  try {
+    const body = await c.req.json();
+
+    // RevenueCat sends events with app_user_id
+    const appUserId = body?.event?.app_user_id;
+    if (!appUserId) {
+      return c.json({ success: false, error: "No user ID" }, 400);
+    }
+
+    // Parse user ID (assuming format is "user_123")
+    const userId = parseInt(appUserId.replace("user_", ""));
+    if (isNaN(userId)) {
+      return c.json({ success: false, error: "Invalid user ID format" }, 400);
+    }
+
+    const event = body?.event;
+    const productId = event?.product_id || "";
+    const expiresAt = event?.expiration_at_ms
+      ? new Date(event.expiration_at_ms).toISOString()
+      : null;
+
+    // Determine plan type from product ID
+    let planType = "unknown";
+    if (productId.includes("monthly")) planType = "monthly";
+    else if (productId.includes("yearly") || productId.includes("annual")) planType = "yearly";
+    else if (productId.includes("lifetime")) planType = "lifetime";
+
+    // Determine status from event type
+    let status = "active";
+    if (event?.type === "CANCELLATION" || event?.type === "EXPIRATION") {
+      status = "cancelled";
+    } else if (event?.type === "BILLING_ISSUE") {
+      status = "billing_issue";
+    }
+
+    await syncSubscription(userId, {
+      planType,
+      status,
+      revenuecatId: event?.id,
+      expiresAt: expiresAt || undefined,
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Webhook error:", error);
+    return c.json({ success: false, error: "Webhook processing failed" }, 500);
+  }
+});
+
+// Get all subscriptions (admin)
+app.get("/api/admin/subscriptions", async (c) => {
+  const auth = assertAdmin(c);
+  if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
+
+  try {
+    const status = c.req.query("status");
+    const limit = parseInt(c.req.query("limit") || "100");
+    const offset = parseInt(c.req.query("offset") || "0");
+
+    const subscriptions = await getAllSubscriptions({
+      status: status || undefined,
+      limit,
+      offset,
+    });
+
+    return c.json({ success: true, subscriptions });
+  } catch (error: any) {
+    console.error("Admin subscriptions error:", error);
+    return c.json({ success: false, error: "Failed to get subscriptions" }, 500);
+  }
+});
+
 // Health check
 app.get("/api/health", (c) => c.json({ status: "ok" }));
 
@@ -726,7 +1478,171 @@ await initDb();
 
 console.log(`Server running on http://localhost:${port}`);
 
-export default {
+// ============ WEBSOCKET FOR REAL-TIME CHAT ============
+
+// Store active WebSocket connections by user ID
+const wsConnections = new Map<number, Set<WebSocket>>();
+
+// Helper to send to all connections of a user
+function sendToUser(userId: number, data: any) {
+  const connections = wsConnections.get(userId);
+  if (connections) {
+    const message = JSON.stringify(data);
+    for (const ws of connections) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(message);
+      }
+    }
+  }
+}
+
+// Bun.serve with WebSocket support
+const server = Bun.serve({
   port,
-  fetch: app.fetch,
-};
+  fetch(req, server) {
+    const url = new URL(req.url);
+
+    // Handle WebSocket upgrade for /ws path
+    if (url.pathname === "/ws") {
+      const token = url.searchParams.get("token");
+      if (!token) {
+        return new Response("Token required", { status: 401 });
+      }
+
+      const payload = verifyJWT(token);
+      if (!payload) {
+        return new Response("Invalid token", { status: 401 });
+      }
+
+      const userId = parseInt(payload.sub);
+      const upgraded = server.upgrade(req, {
+        data: { userId },
+      });
+
+      if (upgraded) {
+        return undefined;
+      }
+      return new Response("WebSocket upgrade failed", { status: 500 });
+    }
+
+    // Handle regular HTTP requests with Hono
+    return app.fetch(req);
+  },
+  websocket: {
+    open(ws) {
+      const userId = (ws.data as any)?.userId as number;
+      if (userId) {
+        if (!wsConnections.has(userId)) {
+          wsConnections.set(userId, new Set());
+        }
+        wsConnections.get(userId)!.add(ws as any);
+        console.log(`WebSocket connected: user ${userId}`);
+      }
+    },
+    async message(ws, message) {
+      const userId = (ws.data as any)?.userId as number;
+      if (!userId) return;
+
+      try {
+        const data = JSON.parse(message.toString());
+
+        switch (data.type) {
+          case "chat:send": {
+            // Send message via API and broadcast
+            const { conversationId, content } = data;
+            if (!conversationId || !content) return;
+
+            const conversation = await getConversationById(conversationId);
+            if (!conversation) return;
+
+            // Verify user is in conversation
+            const conv = conversation as any;
+            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
+
+            const msg = await createMessage(conversationId, userId, content);
+
+            // Determine other user
+            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+
+            // Send to both users
+            const messageData = {
+              type: "chat:message",
+              conversationId,
+              message: msg,
+            };
+            sendToUser(userId, messageData);
+            sendToUser(otherUserId, messageData);
+            break;
+          }
+
+          case "chat:typing": {
+            // Broadcast typing indicator
+            const { conversationId } = data;
+            if (!conversationId) return;
+
+            const conversation = await getConversationById(conversationId);
+            if (!conversation) return;
+
+            const conv = conversation as any;
+            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
+
+            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+            sendToUser(otherUserId, {
+              type: "chat:typing",
+              conversationId,
+              userId,
+            });
+            break;
+          }
+
+          case "chat:read": {
+            // Mark messages as read and notify
+            const { conversationId } = data;
+            if (!conversationId) return;
+
+            const conversation = await getConversationById(conversationId);
+            if (!conversation) return;
+
+            const conv = conversation as any;
+            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
+
+            await markMessagesAsRead(conversationId, userId);
+
+            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+            sendToUser(otherUserId, {
+              type: "chat:read",
+              conversationId,
+              userId,
+            });
+            break;
+          }
+
+          case "ping": {
+            (ws as any).send(JSON.stringify({ type: "pong" }));
+            break;
+          }
+        }
+      } catch (err) {
+        console.error("WebSocket message error:", err);
+      }
+    },
+    close(ws) {
+      const userId = (ws.data as any)?.userId as number;
+      if (userId) {
+        const connections = wsConnections.get(userId);
+        if (connections) {
+          connections.delete(ws as any);
+          if (connections.size === 0) {
+            wsConnections.delete(userId);
+          }
+        }
+        console.log(`WebSocket disconnected: user ${userId}`);
+      }
+    },
+  },
+});
+
+console.log(`Server with WebSocket running on http://localhost:${port}`);
+
+// Export for Bun compatibility
+export default server;

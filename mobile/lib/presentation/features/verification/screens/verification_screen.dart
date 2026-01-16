@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -12,7 +13,7 @@ class VerificationScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Vérification'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -31,7 +32,7 @@ class VerificationScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Icon(
-                  Icons.verified_user,
+                  LucideIcons.shieldCheck,
                   color: Colors.white,
                   size: 64,
                 ),
@@ -71,7 +72,7 @@ class VerificationScreen extends StatelessWidget {
           _VerificationLevel(
             level: 'Email',
             description: 'Vérifie ton adresse email',
-            icon: Icons.email,
+            icon: LucideIcons.mail,
             isCompleted: true,
             badge: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -91,7 +92,7 @@ class VerificationScreen extends StatelessWidget {
           _VerificationLevel(
             level: 'Photo',
             description: 'Prends un selfie pour prouver que c\'est bien toi',
-            icon: Icons.camera_alt,
+            icon: LucideIcons.camera,
             isCompleted: false,
             badge: ElevatedButton(
               onPressed: () {
@@ -106,7 +107,7 @@ class VerificationScreen extends StatelessWidget {
           _VerificationLevel(
             level: 'Téléphone',
             description: 'Vérifie ton numéro de téléphone',
-            icon: Icons.phone,
+            icon: LucideIcons.phone,
             isCompleted: false,
             badge: OutlinedButton(
               onPressed: () {
@@ -130,7 +131,7 @@ class VerificationScreen extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.star, color: AppColors.accentGold),
+                      Icon(LucideIcons.star, color: AppColors.accentGold),
                       SizedBox(width: 8),
                       Text(
                         'Avantages du badge vérifié',
@@ -140,19 +141,19 @@ class VerificationScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _BenefitRow(
-                    icon: Icons.visibility,
+                    icon: LucideIcons.eye,
                     text: 'Plus de visibilité dans les recherches',
                   ),
                   _BenefitRow(
-                    icon: Icons.favorite,
+                    icon: LucideIcons.heart,
                     text: '3x plus de chances de matcher',
                   ),
                   _BenefitRow(
-                    icon: Icons.security,
+                    icon: LucideIcons.shield,
                     text: 'Inspire confiance aux autres membres',
                   ),
                   _BenefitRow(
-                    icon: Icons.verified,
+                    icon: LucideIcons.badgeCheck,
                     text: 'Badge visible sur ton profil',
                   ),
                 ],
@@ -171,7 +172,7 @@ class VerificationScreen extends StatelessWidget {
             ),
             child: const Row(
               children: [
-                Icon(Icons.lock, color: AppColors.info),
+                Icon(LucideIcons.lock, color: AppColors.info),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -209,7 +210,7 @@ class VerificationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Icon(
-              Icons.camera_alt,
+              LucideIcons.camera,
               size: 64,
               color: AppColors.primary,
             ),
@@ -246,7 +247,7 @@ class VerificationScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.person,
+                    LucideIcons.user,
                     size: 60,
                     color: AppColors.primary,
                   ),
@@ -263,7 +264,7 @@ class VerificationScreen extends StatelessWidget {
                 Navigator.pop(context);
                 // TODO: Open camera
               },
-              icon: const Icon(Icons.camera_alt),
+              icon: const Icon(LucideIcons.camera),
               label: const Text('Ouvrir la caméra'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 56),

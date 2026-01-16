@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
@@ -168,7 +169,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                        const Icon(LucideIcons.alertCircle, color: Colors.white, size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

@@ -128,6 +128,83 @@ export async function initDb() {
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
 
+  // Conversations table (created automatically when match happens)
+  await sql`
+    CREATE TABLE IF NOT EXISTS conversations (
+      id SERIAL PRIMARY KEY,
+      match_id INTEGER REFERENCES matches(id) ON DELETE CASCADE,
+      user1_id INTEGER REFERENCES users(id),
+      user2_id INTEGER REFERENCES users(id),
+      last_message_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Messages table
+  await sql`
+    CREATE TABLE IF NOT EXISTS messages (
+      id SERIAL PRIMARY KEY,
+      conversation_id INTEGER REFERENCES conversations(id) ON DELETE CASCADE,
+      sender_id INTEGER REFERENCES users(id),
+      content TEXT NOT NULL,
+      is_read BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Events table
+  await sql`
+    CREATE TABLE IF NOT EXISTS events (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      event_type VARCHAR(50),
+      location VARCHAR(255),
+      address TEXT,
+      latitude DECIMAL(10, 8),
+      longitude DECIMAL(11, 8),
+      date DATE NOT NULL,
+      time TIME,
+      end_time TIME,
+      price DECIMAL(10, 2) DEFAULT 0,
+      currency VARCHAR(3) DEFAULT 'EUR',
+      max_attendees INTEGER,
+      image_url TEXT,
+      organizer_id INTEGER REFERENCES users(id),
+      is_published BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Event RSVPs table
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_rsvps (
+      id SERIAL PRIMARY KEY,
+      event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+      user_id INTEGER REFERENCES users(id),
+      status VARCHAR(20) DEFAULT 'going',
+      paid BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(event_id, user_id)
+    )
+  `;
+
+  // Subscriptions table (sync with RevenueCat)
+  await sql`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) UNIQUE,
+      plan_type VARCHAR(50),
+      status VARCHAR(20) DEFAULT 'active',
+      revenuecat_id VARCHAR(255),
+      started_at TIMESTAMP,
+      expires_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   console.log("Database initialized");
 
   // Seed fake profiles if empty
@@ -650,11 +727,19 @@ export async function recordSwipe(userId: number, targetUserId: number, action: 
     if (mutualLike.length > 0) {
       // Create match (order user IDs to prevent duplicates)
       const [user1, user2] = userId < targetUserId ? [userId, targetUserId] : [targetUserId, userId];
-      await sql`
+      const matchResult = await sql`
         INSERT INTO matches (user1_id, user2_id)
         VALUES (${user1}, ${user2})
         ON CONFLICT (user1_id, user2_id) DO NOTHING
+        RETURNING id
       `;
+
+      // Create conversation for the match
+      if (matchResult.length > 0) {
+        const matchId = (matchResult[0] as any).id;
+        await createConversationForMatch(matchId, user1, user2);
+      }
+
       return { match: true, targetUserId };
     }
   }
@@ -834,4 +919,563 @@ async function seedFakeProfiles() {
   }
 
   console.log("Seeded 20 fake profiles (10 women, 10 men)");
+}
+
+// ============ CONVERSATIONS & MESSAGES ============
+
+export async function createConversationForMatch(matchId: number, user1Id: number, user2Id: number) {
+  const result = await sql`
+    INSERT INTO conversations (match_id, user1_id, user2_id)
+    VALUES (${matchId}, ${user1Id}, ${user2Id})
+    ON CONFLICT DO NOTHING
+    RETURNING *
+  `;
+  return result[0];
+}
+
+export async function getConversations(userId: number) {
+  const conversations = await sql`
+    SELECT
+      c.id,
+      c.match_id,
+      c.last_message_at,
+      c.created_at,
+      CASE
+        WHEN c.user1_id = ${userId} THEN c.user2_id
+        ELSE c.user1_id
+      END as other_user_id,
+      (
+        SELECT content FROM messages
+        WHERE conversation_id = c.id
+        ORDER BY created_at DESC
+        LIMIT 1
+      ) as last_message,
+      (
+        SELECT COUNT(*) FROM messages
+        WHERE conversation_id = c.id
+        AND sender_id != ${userId}
+        AND is_read = false
+      ) as unread_count
+    FROM conversations c
+    WHERE c.user1_id = ${userId} OR c.user2_id = ${userId}
+    ORDER BY COALESCE(c.last_message_at, c.created_at) DESC
+  `;
+
+  if (conversations.length === 0) return [];
+
+  const otherUserIds = conversations.map((c: any) => c.other_user_id);
+  const profiles = await sql`
+    SELECT
+      p.user_id,
+      p.display_name,
+      p.is_verified,
+      u.picture
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id IN ${sql(otherUserIds)}
+  `;
+
+  const profileMap = new Map<number, any>();
+  for (const p of profiles as any[]) {
+    profileMap.set(p.user_id, p);
+  }
+
+  return conversations.map((c: any) => ({
+    id: c.id,
+    matchId: c.match_id,
+    lastMessageAt: c.last_message_at,
+    createdAt: c.created_at,
+    lastMessage: c.last_message,
+    unreadCount: parseInt(c.unread_count),
+    otherUser: profileMap.get(c.other_user_id),
+  }));
+}
+
+export async function getMessages(conversationId: number, limit = 50, offset = 0) {
+  const messages = await sql`
+    SELECT
+      m.id,
+      m.sender_id,
+      m.content,
+      m.is_read,
+      m.created_at
+    FROM messages m
+    WHERE m.conversation_id = ${conversationId}
+    ORDER BY m.created_at DESC
+    LIMIT ${limit}
+    OFFSET ${offset}
+  `;
+  return messages.reverse(); // Return in chronological order
+}
+
+export async function createMessage(conversationId: number, senderId: number, content: string) {
+  const result = await sql`
+    INSERT INTO messages (conversation_id, sender_id, content)
+    VALUES (${conversationId}, ${senderId}, ${content})
+    RETURNING *
+  `;
+
+  // Update last_message_at
+  await sql`
+    UPDATE conversations
+    SET last_message_at = NOW()
+    WHERE id = ${conversationId}
+  `;
+
+  return result[0];
+}
+
+export async function markMessagesAsRead(conversationId: number, userId: number) {
+  await sql`
+    UPDATE messages
+    SET is_read = true
+    WHERE conversation_id = ${conversationId}
+    AND sender_id != ${userId}
+    AND is_read = false
+  `;
+}
+
+export async function getConversationById(conversationId: number) {
+  const result = await sql`
+    SELECT * FROM conversations WHERE id = ${conversationId}
+  `;
+  return result.length ? result[0] : null;
+}
+
+export async function getConversationByMatchId(matchId: number) {
+  const result = await sql`
+    SELECT * FROM conversations WHERE match_id = ${matchId}
+  `;
+  return result.length ? result[0] : null;
+}
+
+// ============ EVENTS ============
+
+export interface Event {
+  id: number;
+  title: string;
+  description: string | null;
+  event_type: string | null;
+  location: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  date: string;
+  time: string | null;
+  end_time: string | null;
+  price: number;
+  currency: string;
+  max_attendees: number | null;
+  image_url: string | null;
+  organizer_id: number | null;
+  is_published: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export async function createEvent(params: {
+  title: string;
+  description?: string;
+  eventType?: string;
+  location?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  date: string;
+  time?: string;
+  endTime?: string;
+  price?: number;
+  currency?: string;
+  maxAttendees?: number;
+  imageUrl?: string;
+  organizerId?: number;
+  isPublished?: boolean;
+}) {
+  const result = await sql`
+    INSERT INTO events (title, description, event_type, location, address, latitude, longitude, date, time, end_time, price, currency, max_attendees, image_url, organizer_id, is_published)
+    VALUES (
+      ${params.title},
+      ${params.description ?? null},
+      ${params.eventType ?? null},
+      ${params.location ?? null},
+      ${params.address ?? null},
+      ${params.latitude ?? null},
+      ${params.longitude ?? null},
+      ${params.date},
+      ${params.time ?? null},
+      ${params.endTime ?? null},
+      ${params.price ?? 0},
+      ${params.currency ?? 'EUR'},
+      ${params.maxAttendees ?? null},
+      ${params.imageUrl ?? null},
+      ${params.organizerId ?? null},
+      ${params.isPublished ?? false}
+    )
+    RETURNING *
+  `;
+  return result[0] as Event;
+}
+
+export async function updateEvent(eventId: number, params: Partial<{
+  title: string;
+  description: string;
+  eventType: string;
+  location: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  date: string;
+  time: string;
+  endTime: string;
+  price: number;
+  currency: string;
+  maxAttendees: number;
+  imageUrl: string;
+  isPublished: boolean;
+}>) {
+  const result = await sql`
+    UPDATE events SET
+      title = COALESCE(${params.title ?? null}, title),
+      description = COALESCE(${params.description ?? null}, description),
+      event_type = COALESCE(${params.eventType ?? null}, event_type),
+      location = COALESCE(${params.location ?? null}, location),
+      address = COALESCE(${params.address ?? null}, address),
+      latitude = COALESCE(${params.latitude ?? null}, latitude),
+      longitude = COALESCE(${params.longitude ?? null}, longitude),
+      date = COALESCE(${params.date ?? null}, date),
+      time = COALESCE(${params.time ?? null}, time),
+      end_time = COALESCE(${params.endTime ?? null}, end_time),
+      price = COALESCE(${params.price ?? null}, price),
+      currency = COALESCE(${params.currency ?? null}, currency),
+      max_attendees = COALESCE(${params.maxAttendees ?? null}, max_attendees),
+      image_url = COALESCE(${params.imageUrl ?? null}, image_url),
+      is_published = COALESCE(${params.isPublished ?? null}, is_published),
+      updated_at = NOW()
+    WHERE id = ${eventId}
+    RETURNING *
+  `;
+  return result[0] as Event;
+}
+
+export async function deleteEvent(eventId: number) {
+  await sql`DELETE FROM events WHERE id = ${eventId}`;
+}
+
+export async function getEvents(filters?: {
+  type?: string;
+  fromDate?: string;
+  publishedOnly?: boolean;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 50;
+  const offset = filters?.offset ?? 0;
+  const publishedOnly = filters?.publishedOnly ?? true;
+
+  let events;
+  if (filters?.type && filters?.fromDate) {
+    events = await sql`
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+      FROM events e
+      WHERE (${!publishedOnly} OR e.is_published = true)
+        AND e.event_type = ${filters.type}
+        AND e.date >= ${filters.fromDate}
+      ORDER BY e.date ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  } else if (filters?.type) {
+    events = await sql`
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+      FROM events e
+      WHERE (${!publishedOnly} OR e.is_published = true)
+        AND e.event_type = ${filters.type}
+      ORDER BY e.date ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  } else if (filters?.fromDate) {
+    events = await sql`
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+      FROM events e
+      WHERE (${!publishedOnly} OR e.is_published = true)
+        AND e.date >= ${filters.fromDate}
+      ORDER BY e.date ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  } else {
+    events = await sql`
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+      FROM events e
+      WHERE (${!publishedOnly} OR e.is_published = true)
+      ORDER BY e.date ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  }
+
+  return events;
+}
+
+export async function getEventById(eventId: number) {
+  const result = await sql`
+    SELECT e.*,
+      (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+    FROM events e
+    WHERE e.id = ${eventId}
+  `;
+  return result.length ? result[0] : null;
+}
+
+export async function createRsvp(eventId: number, userId: number, status = 'going') {
+  const result = await sql`
+    INSERT INTO event_rsvps (event_id, user_id, status)
+    VALUES (${eventId}, ${userId}, ${status})
+    ON CONFLICT (event_id, user_id)
+    DO UPDATE SET status = ${status}
+    RETURNING *
+  `;
+  return result[0];
+}
+
+export async function deleteRsvp(eventId: number, userId: number) {
+  await sql`
+    DELETE FROM event_rsvps
+    WHERE event_id = ${eventId} AND user_id = ${userId}
+  `;
+}
+
+export async function getEventAttendees(eventId: number) {
+  const attendees = await sql`
+    SELECT
+      r.id as rsvp_id,
+      r.status,
+      r.paid,
+      r.created_at as rsvp_at,
+      u.id as user_id,
+      u.email,
+      u.name,
+      u.picture,
+      p.display_name
+    FROM event_rsvps r
+    JOIN users u ON u.id = r.user_id
+    LEFT JOIN profiles p ON p.user_id = u.id
+    WHERE r.event_id = ${eventId}
+    ORDER BY r.created_at ASC
+  `;
+  return attendees;
+}
+
+export async function getUserRsvp(eventId: number, userId: number) {
+  const result = await sql`
+    SELECT * FROM event_rsvps
+    WHERE event_id = ${eventId} AND user_id = ${userId}
+  `;
+  return result.length ? result[0] : null;
+}
+
+// ============ SUBSCRIPTIONS ============
+
+export interface Subscription {
+  id: number;
+  user_id: number;
+  plan_type: string | null;
+  status: string;
+  revenuecat_id: string | null;
+  started_at: Date | null;
+  expires_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export async function syncSubscription(userId: number, params: {
+  planType?: string;
+  status?: string;
+  revenuecatId?: string;
+  startsAt?: string;
+  expiresAt?: string;
+}) {
+  const result = await sql`
+    INSERT INTO subscriptions (user_id, plan_type, status, revenuecat_id, started_at, expires_at)
+    VALUES (
+      ${userId},
+      ${params.planType ?? null},
+      ${params.status ?? 'active'},
+      ${params.revenuecatId ?? null},
+      ${params.startsAt ?? null},
+      ${params.expiresAt ?? null}
+    )
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+      plan_type = COALESCE(${params.planType ?? null}, subscriptions.plan_type),
+      status = COALESCE(${params.status ?? null}, subscriptions.status),
+      revenuecat_id = COALESCE(${params.revenuecatId ?? null}, subscriptions.revenuecat_id),
+      expires_at = COALESCE(${params.expiresAt ?? null}, subscriptions.expires_at),
+      updated_at = NOW()
+    RETURNING *
+  `;
+  return result[0] as Subscription;
+}
+
+export async function getSubscription(userId: number) {
+  const result = await sql`
+    SELECT * FROM subscriptions WHERE user_id = ${userId}
+  `;
+  return result.length ? result[0] as Subscription : null;
+}
+
+export async function getAllSubscriptions(filters?: {
+  status?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 100;
+  const offset = filters?.offset ?? 0;
+
+  if (filters?.status) {
+    return await sql`
+      SELECT s.*, u.email, u.name, p.display_name
+      FROM subscriptions s
+      JOIN users u ON u.id = s.user_id
+      LEFT JOIN profiles p ON p.user_id = s.user_id
+      WHERE s.status = ${filters.status}
+      ORDER BY s.created_at DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  }
+
+  return await sql`
+    SELECT s.*, u.email, u.name, p.display_name
+    FROM subscriptions s
+    JOIN users u ON u.id = s.user_id
+    LEFT JOIN profiles p ON p.user_id = s.user_id
+    ORDER BY s.created_at DESC
+    LIMIT ${limit}
+    OFFSET ${offset}
+  `;
+}
+
+// ============ ADMIN STATS ============
+
+export async function getAdminStats() {
+  const [users, matches, messages, events, subscriptions] = await Promise.all([
+    sql`SELECT
+      COUNT(*) as total,
+      COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days') as new_this_week,
+      COUNT(*) FILTER (WHERE last_login_at > NOW() - INTERVAL '24 hours') as active_today
+    FROM users WHERE provider != 'seed'`,
+    sql`SELECT COUNT(*) as total FROM matches`,
+    sql`SELECT COUNT(*) as total FROM messages`,
+    sql`SELECT
+      COUNT(*) as total,
+      COUNT(*) FILTER (WHERE is_published = true) as published,
+      COUNT(*) FILTER (WHERE date >= CURRENT_DATE) as upcoming
+    FROM events`,
+    sql`SELECT
+      COUNT(*) as total,
+      COUNT(*) FILTER (WHERE status = 'active') as active
+    FROM subscriptions`,
+  ]);
+
+  return {
+    users: {
+      total: parseInt((users[0] as any).total),
+      newThisWeek: parseInt((users[0] as any).new_this_week),
+      activeToday: parseInt((users[0] as any).active_today),
+    },
+    matches: parseInt((matches[0] as any).total),
+    messages: parseInt((messages[0] as any).total),
+    events: {
+      total: parseInt((events[0] as any).total),
+      published: parseInt((events[0] as any).published),
+      upcoming: parseInt((events[0] as any).upcoming),
+    },
+    subscriptions: {
+      total: parseInt((subscriptions[0] as any).total),
+      active: parseInt((subscriptions[0] as any).active),
+    },
+  };
+}
+
+// ============ ADMIN USERS ============
+
+export async function getAdminUsers(filters?: {
+  search?: string;
+  status?: string;
+  hasSubscription?: boolean;
+  isVerified?: boolean;
+  limit?: number;
+  offset?: number;
+}) {
+  const limit = filters?.limit ?? 50;
+  const offset = filters?.offset ?? 0;
+
+  let users;
+  if (filters?.search) {
+    users = await sql`
+      SELECT
+        u.id,
+        u.email,
+        u.name,
+        u.picture,
+        u.provider,
+        u.created_at,
+        u.last_login_at,
+        u.is_active,
+        p.display_name,
+        p.location,
+        p.is_verified,
+        p.verification_level,
+        s.plan_type as subscription_plan,
+        s.status as subscription_status
+      FROM users u
+      LEFT JOIN profiles p ON p.user_id = u.id
+      LEFT JOIN subscriptions s ON s.user_id = u.id
+      WHERE u.provider != 'seed'
+        AND (u.email ILIKE ${'%' + filters.search + '%'} OR u.name ILIKE ${'%' + filters.search + '%'} OR p.display_name ILIKE ${'%' + filters.search + '%'})
+      ORDER BY u.created_at DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  } else {
+    users = await sql`
+      SELECT
+        u.id,
+        u.email,
+        u.name,
+        u.picture,
+        u.provider,
+        u.created_at,
+        u.last_login_at,
+        u.is_active,
+        p.display_name,
+        p.location,
+        p.is_verified,
+        p.verification_level,
+        s.plan_type as subscription_plan,
+        s.status as subscription_status
+      FROM users u
+      LEFT JOIN profiles p ON p.user_id = u.id
+      LEFT JOIN subscriptions s ON s.user_id = u.id
+      WHERE u.provider != 'seed'
+      ORDER BY u.created_at DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+  }
+
+  return users;
+}
+
+export async function setUserActiveStatus(userId: number, isActive: boolean) {
+  await sql`
+    UPDATE users SET is_active = ${isActive}, updated_at = NOW()
+    WHERE id = ${userId}
+  `;
 }

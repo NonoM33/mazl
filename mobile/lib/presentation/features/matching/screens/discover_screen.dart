@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -61,7 +62,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         title: const Text('MAZL'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune),
+            icon: const Icon(LucideIcons.slidersHorizontal),
             onPressed: () {
               // TODO: Show filters
             },
@@ -86,7 +87,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+            Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               _error!,
@@ -107,7 +108,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+            Icon(LucideIcons.searchX, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Plus de profils disponibles',
@@ -161,7 +162,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             children: [
               // Undo
               _ActionButton(
-                icon: Icons.replay,
+                icon: LucideIcons.rotateCcw,
                 color: AppColors.warning,
                 size: 50,
                 onPressed: () => _controller.undo(),
@@ -169,7 +170,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
               // Pass
               _ActionButton(
-                icon: Icons.close,
+                icon: LucideIcons.x,
                 color: AppColors.passRed,
                 size: 60,
                 onPressed: () => _controller.swipe(CardSwiperDirection.left),
@@ -177,7 +178,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
               // Super Like
               _ActionButton(
-                icon: Icons.star,
+                icon: LucideIcons.star,
                 color: AppColors.superLikeBlue,
                 size: 50,
                 onPressed: () => _controller.swipe(CardSwiperDirection.top),
@@ -185,7 +186,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
               // Like
               _ActionButton(
-                icon: Icons.favorite,
+                icon: LucideIcons.heart,
                 color: AppColors.likeGreen,
                 size: 60,
                 onPressed: () => _controller.swipe(CardSwiperDirection.right),
@@ -193,7 +194,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
               // Boost (premium)
               _ActionButton(
-                icon: Icons.bolt,
+                icon: LucideIcons.zap,
                 color: AppColors.accentGold,
                 size: 50,
                 onPressed: () {
@@ -373,7 +374,7 @@ class _ProfileCard extends StatelessWidget {
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.verified,
+                                LucideIcons.badgeCheck,
                                 color: Colors.white,
                                 size: 14,
                               ),
@@ -397,7 +398,7 @@ class _ProfileCard extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(
-                        Icons.location_on,
+                        LucideIcons.mapPin,
                         color: Colors.white70,
                         size: 16,
                       ),
@@ -492,7 +493,7 @@ class _ProfileCard extends StatelessWidget {
       ),
       child: Center(
         child: Icon(
-          Icons.person,
+          LucideIcons.user,
           size: 120,
           color: Colors.white.withOpacity(0.3),
         ),
