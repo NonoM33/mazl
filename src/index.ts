@@ -1652,18 +1652,14 @@ const wsConnections = new Map<number, Set<WebSocket>>();
 
 // Helper to send to all connections of a user
 function sendToUser(userId: number, data: any) {
-  console.log(`[WS] sendToUser called for userId: ${userId}`);
   const connections = wsConnections.get(userId);
-  console.log(`[WS] Found ${connections?.size ?? 0} connections for user ${userId}`);
   if (connections) {
     const message = JSON.stringify(data);
     for (const ws of connections) {
       try {
-        // Bun's ServerWebSocket doesn't have readyState, just try to send
         (ws as any).send(message);
-        console.log(`[WS] Sent message to user ${userId}`);
       } catch (err) {
-        console.error(`[WS] Failed to send to user ${userId}:`, err);
+        console.error(`WebSocket send error for user ${userId}:`, err);
       }
     }
   }
