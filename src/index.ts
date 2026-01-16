@@ -1740,16 +1740,18 @@ app.get("/api/dev/reset-swipes/:email", async (c) => {
   }
 
   try {
+    console.log("Looking for user with email:", email);
     const user = await findUserByEmail(email);
+    console.log("Found user:", user);
     if (!user) {
-      return c.json({ success: false, error: "User not found" }, 404);
+      return c.json({ success: false, error: `User not found with email: ${email}` }, 404);
     }
 
     const result = await resetUserSwipes(user.id);
     return c.json({ success: true, message: `Swipes reset for ${email} (user ${user.id})`, ...result });
   } catch (error: any) {
     console.error("Reset swipes error:", error);
-    return c.json({ success: false, error: "Failed to reset swipes" }, 500);
+    return c.json({ success: false, error: `Failed to reset swipes: ${error.message}` }, 500);
   }
 });
 
