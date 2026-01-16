@@ -392,6 +392,57 @@ app.post("/api/admin/login", async (c) => {
   }
 });
 
+// Admin whitelist for Google login
+const ADMIN_EMAILS = [
+  "renaudlemagicien@gmail.com",
+  process.env.ADMIN_EMAIL,
+].filter(Boolean);
+
+// Google login for admin
+app.post("/api/admin/google-login", async (c) => {
+  try {
+    const { idToken, email: directEmail } = await c.req.json();
+
+    let email: string | null = null;
+
+    // If we have an ID token, verify it
+    if (idToken) {
+      const payload = await verifyGoogleIdToken(idToken);
+      if (!payload || !payload.email) {
+        return c.json({ success: false, error: "Token Google invalide" }, 401);
+      }
+      email = payload.email;
+    } else if (directEmail) {
+      // Direct email (from OAuth2 access token flow)
+      email = directEmail;
+    }
+
+    if (!email) {
+      return c.json({ success: false, error: "Email non fourni" }, 400);
+    }
+
+    // Check if email is in admin whitelist
+    if (!ADMIN_EMAILS.includes(email)) {
+      console.log(`Admin login attempt rejected for: ${email}`);
+      return c.json({ success: false, error: "Cet email n'est pas autorise" }, 403);
+    }
+
+    // Generate admin JWT
+    const token = generateAdminJWT(email);
+
+    console.log(`Admin logged in via Google: ${email}`);
+
+    return c.json({
+      success: true,
+      token,
+      email,
+    });
+  } catch (e) {
+    console.error("Admin Google login error:", e);
+    return c.json({ success: false, error: "Erreur serveur" }, 500);
+  }
+});
+
 app.get("/api/admin/verify", async (c) => {
   const auth = assertAdmin(c);
   if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
