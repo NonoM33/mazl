@@ -1989,6 +1989,131 @@ app.post("/api/admin/reset-swipes", async (c) => {
   }
 });
 
+// ============ DEV/DEBUG ENDPOINTS ============
+
+// Enable couple mode for testing (dev endpoint)
+app.post("/api/dev/couple/enable", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { userId, partnerId } = body;
+
+    if (!userId) {
+      return c.json({ success: false, error: "userId required" }, 400);
+    }
+
+    // Use partnerId if provided, otherwise find a seed profile
+    let partnerUserId = partnerId;
+    if (!partnerUserId) {
+      const seedResult = await sql`
+        SELECT id FROM users WHERE provider = 'seed' LIMIT 1
+      `;
+      if (seedResult.length === 0) {
+        return c.json({ success: false, error: "No seed profiles available for partner" }, 404);
+      }
+      partnerUserId = (seedResult[0] as any).id;
+    }
+
+    // Check if couple already exists
+    const existingCouple = await sql`
+      SELECT id FROM couples
+      WHERE ((user1_id = ${userId} AND user2_id = ${partnerUserId})
+         OR (user1_id = ${partnerUserId} AND user2_id = ${userId}))
+        AND status = 'active'
+    `;
+
+    if (existingCouple.length > 0) {
+      return c.json({
+        success: true,
+        message: "Couple already exists",
+        coupleId: (existingCouple[0] as any).id
+      });
+    }
+
+    // Deactivate any existing couples for these users
+    await sql`
+      UPDATE couples SET status = 'ended', updated_at = NOW()
+      WHERE (user1_id = ${userId} OR user2_id = ${userId}
+         OR user1_id = ${partnerUserId} OR user2_id = ${partnerUserId})
+        AND status = 'active'
+    `;
+
+    // Create new couple
+    const result = await sql`
+      INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at, status)
+      VALUES (${userId}, ${partnerUserId}, 'in_relationship', NOW(), NOW(), 'active')
+      RETURNING id
+    `;
+
+    const coupleId = (result[0] as any).id;
+
+    return c.json({
+      success: true,
+      message: `Couple mode enabled for user ${userId} with partner ${partnerUserId}`,
+      coupleId
+    });
+  } catch (error: any) {
+    console.error("Enable couple mode error:", error);
+    return c.json({ success: false, error: `Failed: ${error.message}` }, 500);
+  }
+});
+
+// Disable couple mode for testing (dev endpoint)
+app.post("/api/dev/couple/disable", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { userId } = body;
+
+    if (!userId) {
+      return c.json({ success: false, error: "userId required" }, 400);
+    }
+
+    // End all active couples for this user
+    const result = await sql`
+      UPDATE couples SET status = 'ended', updated_at = NOW()
+      WHERE (user1_id = ${userId} OR user2_id = ${userId})
+        AND status = 'active'
+      RETURNING id
+    `;
+
+    return c.json({
+      success: true,
+      message: `Couple mode disabled for user ${userId}`,
+      endedCouples: result.length
+    });
+  } catch (error: any) {
+    console.error("Disable couple mode error:", error);
+    return c.json({ success: false, error: `Failed: ${error.message}` }, 500);
+  }
+});
+
+// Get couple status for debugging (dev endpoint)
+app.get("/api/dev/couple/status/:userId", async (c) => {
+  try {
+    const userId = parseInt(c.req.param("userId"));
+
+    const couples = await sql`
+      SELECT c.*,
+        CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END as partner_id,
+        CASE WHEN c.user1_id = ${userId} THEN p2.display_name ELSE p1.display_name END as partner_name
+      FROM couples c
+      LEFT JOIN profiles p1 ON p1.user_id = c.user1_id
+      LEFT JOIN profiles p2 ON p2.user_id = c.user2_id
+      WHERE c.user1_id = ${userId} OR c.user2_id = ${userId}
+      ORDER BY c.created_at DESC
+    `;
+
+    return c.json({
+      success: true,
+      userId,
+      activeCouple: couples.find((c: any) => c.status === 'active') || null,
+      allCouples: couples
+    });
+  } catch (error: any) {
+    console.error("Get couple status error:", error);
+    return c.json({ success: false, error: `Failed: ${error.message}` }, 500);
+  }
+});
+
 // Reset swipes by email (dev endpoint)
 app.get("/api/dev/reset-swipes/:email", async (c) => {
   const email = c.req.param("email");
