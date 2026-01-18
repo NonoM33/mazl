@@ -27,6 +27,12 @@ import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart
 import '../../presentation/features/couple/screens/couple_dashboard_screen.dart';
 import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
+import '../../presentation/features/likes/screens/likes_screen.dart';
+import '../../presentation/features/boost/screens/boost_screen.dart';
+import '../../presentation/features/visitors/screens/visitors_screen.dart';
+import '../../presentation/features/couple/screens/success_stories_screen.dart';
+import '../../presentation/features/matching/screens/filters_screen.dart';
+import '../../presentation/features/matching/screens/daily_picks_screen.dart';
 
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -112,6 +118,78 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const PremiumScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Likes Screen
+      GoRoute(
+        path: RoutePaths.likes,
+        name: RouteNames.likes,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const LikesScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Boost Screen
+      GoRoute(
+        path: RoutePaths.boost,
+        name: RouteNames.boost,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const BoostScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Visitors Screen
+      GoRoute(
+        path: RoutePaths.visitors,
+        name: RouteNames.visitors,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const VisitorsScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Success Stories Screen
+      GoRoute(
+        path: RoutePaths.successStories,
+        name: RouteNames.successStories,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SuccessStoriesScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Filters Screen
+      GoRoute(
+        path: RoutePaths.filters,
+        name: RouteNames.filters,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const FiltersScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Daily Picks Screen
+      GoRoute(
+        path: RoutePaths.dailyPicks,
+        name: RouteNames.dailyPicks,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const DailyPicksScreen(),
           transitionsBuilder: slideUpTransition,
         ),
       ),

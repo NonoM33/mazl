@@ -76,6 +76,7 @@ class AuthUser {
 enum AuthProvider {
   google,
   apple,
+  email,
   unknown,
 }
 
@@ -310,6 +311,139 @@ class AuthService {
     }
   }
 
+  /// Sign in with email and password
+  Future<AuthResult> signInWithEmail(String email, String password) async {
+    try {
+      debugPrint('AuthService: Signing in with email - $email');
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        debugPrint('AuthService: Login error - ${response.body}');
+        return AuthResult.failure(data['error'] ?? 'Email ou mot de passe incorrect');
+      }
+
+      if (data['success'] != true) {
+        return AuthResult.failure(data['error'] ?? 'Connexion échouée');
+      }
+
+      // Create auth user from backend response
+      final backendUser = data['user'];
+      final user = AuthUser(
+        id: backendUser['id'].toString(),
+        email: backendUser['email'] ?? email,
+        displayName: backendUser['name'],
+        photoUrl: backendUser['picture'],
+        provider: AuthProvider.email,
+        jwtToken: data['token'],
+      );
+
+      // Save user and login to RevenueCat + OneSignal
+      await _saveUser(user);
+      await _revenueCat.login(user.id);
+      await _pushService.loginUser(int.parse(user.id));
+
+      debugPrint('AuthService: Email login successful - user ID: ${user.id}');
+
+      return AuthResult.success(user, isNewUser: false);
+    } catch (e) {
+      debugPrint('AuthService: Email sign-in error - $e');
+      return AuthResult.failure('Erreur de connexion: $e');
+    }
+  }
+
+  /// Register with email and password
+  Future<AuthResult> registerWithEmail(
+    String email,
+    String password,
+    String displayName,
+  ) async {
+    try {
+      debugPrint('AuthService: Registering with email - $email');
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'name': displayName,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        debugPrint('AuthService: Registration error - ${response.body}');
+        return AuthResult.failure(data['error'] ?? 'Inscription échouée');
+      }
+
+      if (data['success'] != true) {
+        return AuthResult.failure(data['error'] ?? 'Inscription échouée');
+      }
+
+      // Create auth user from backend response
+      final backendUser = data['user'];
+      final user = AuthUser(
+        id: backendUser['id'].toString(),
+        email: backendUser['email'] ?? email,
+        displayName: backendUser['name'] ?? displayName,
+        photoUrl: backendUser['picture'],
+        provider: AuthProvider.email,
+        jwtToken: data['token'],
+      );
+
+      // Save user and login to RevenueCat + OneSignal
+      await _saveUser(user);
+      await _revenueCat.login(user.id);
+      await _pushService.loginUser(int.parse(user.id));
+
+      debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
+
+      return AuthResult.success(user, isNewUser: true);
+    } catch (e) {
+      debugPrint('AuthService: Email registration error - $e');
+      return AuthResult.failure('Erreur d\'inscription: $e');
+    }
+  }
+
+  /// Send password reset email
+  Future<AuthResult> sendPasswordResetEmail(String email) async {
+    try {
+      debugPrint('AuthService: Sending password reset email to - $email');
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/forgot-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        debugPrint('AuthService: Password reset error - ${response.body}');
+        return AuthResult.failure(data['error'] ?? 'Erreur lors de l\'envoi');
+      }
+
+      debugPrint('AuthService: Password reset email sent');
+
+      // Return success without user (no login happens)
+      return AuthResult(success: true, isNewUser: false);
+    } catch (e) {
+      debugPrint('AuthService: Password reset error - $e');
+      return AuthResult.failure('Erreur: $e');
+    }
+  }
+
   /// Sign out current user
   Future<void> signOut() async {
     try {
@@ -334,17 +468,44 @@ class AuthService {
     }
   }
 
-  /// Delete user account
-  Future<void> deleteAccount() async {
+  /// Delete user account (RGPD compliant)
+  Future<AuthResult> deleteAccount({String? reason}) async {
     try {
-      // TODO: Call backend to delete user data
-      // await _apiClient.delete('/users/me');
+      if (_currentUser == null) {
+        return AuthResult.failure('Aucun utilisateur connecté');
+      }
 
+      debugPrint('AuthService: Deleting account for user ${_currentUser!.id}');
+
+      // Call backend to delete user data
+      final response = await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (_currentUser!.jwtToken != null)
+            'Authorization': 'Bearer ${_currentUser!.jwtToken}',
+        },
+        body: jsonEncode({
+          'reason': reason ?? 'Non spécifié',
+        }),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        final data = jsonDecode(response.body);
+        debugPrint('AuthService: Delete account error - ${response.body}');
+        return AuthResult.failure(data['error'] ?? 'Erreur lors de la suppression');
+      }
+
+      debugPrint('AuthService: Account deleted on backend');
+
+      // Sign out locally
       await signOut();
-      debugPrint('AuthService: Account deleted');
+
+      debugPrint('AuthService: Account fully deleted');
+      return AuthResult(success: true, isNewUser: false);
     } catch (e) {
       debugPrint('AuthService: Delete account error - $e');
-      rethrow;
+      return AuthResult.failure('Erreur: $e');
     }
   }
 

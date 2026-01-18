@@ -136,6 +136,19 @@ class _MatchesScreenState extends State<MatchesScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mes Matchs'),
+        actions: [
+          // Likes button with potential badge
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(LucideIcons.heart),
+                tooltip: 'Qui t\'a like',
+                onPressed: () => context.push(RoutePaths.likes),
+              ),
+            ],
+          ),
+        ],
       ),
       body: _buildBody(),
     );

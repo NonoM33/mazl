@@ -12,6 +12,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
 import '../../../common/widgets/mazl_logo.dart';
+import 'email_auth_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -100,6 +101,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
       }
     }
+  }
+
+  void _navigateToEmailAuth({required bool isLogin}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EmailAuthScreen(isLogin: isLogin),
+      ),
+    );
   }
 
   @override
@@ -222,6 +232,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
 
                       const SizedBox(height: 16),
+
+                      // Divider
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: Colors.white.withOpacity(0.3))),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'ou',
+                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: Colors.white.withOpacity(0.3))),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Email Sign In
+                      _SocialLoginButton(
+                        onPressed: _isLoading ? null : () => _navigateToEmailAuth(isLogin: true),
+                        icon: '@',
+                        label: 'Continuer avec Email',
+                        backgroundColor: Colors.white.withOpacity(0.15),
+                        textColor: Colors.white,
+                        isLoading: false,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Create account link
+                      TextButton(
+                        onPressed: _isLoading ? null : () => _navigateToEmailAuth(isLogin: false),
+                        child: Text(
+                          'Pas encore de compte ? Inscris-toi',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
 
                       // Terms
                       Text(

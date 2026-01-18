@@ -9,6 +9,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/block_report_dialog.dart';
 import '../../../widgets/skeletons.dart';
 
 class ProfileViewScreen extends ConsumerStatefulWidget {
@@ -1708,63 +1709,36 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   void _showReportDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Signaler ce profil',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(LucideIcons.alertTriangle, color: Colors.orange),
-              title: const Text('Contenu inapproprie'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.userX, color: Colors.red),
-              title: const Text('Comportement inapproprie'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.image, color: Colors.purple),
-              title: const Text('Fausses photos'),
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+    if (_otherProfile == null) return;
+
+    BlockReportDialog.show(
+      context,
+      userId: _otherProfile!.userId,
+      userName: _otherProfile!.displayName ?? 'Cet utilisateur',
+      onBlocked: () {
+        // Navigate back after blocking
+        if (mounted) context.pop();
+      },
+      onReported: () {
+        // Optionally navigate back after reporting
+      },
     );
   }
 
   void _showOptionsMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(LucideIcons.eyeOff),
-              title: const Text('Ne plus voir ce profil'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.ban, color: Colors.red),
-              title: const Text('Bloquer', style: TextStyle(color: Colors.red)),
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+    if (_otherProfile == null) return;
+
+    BlockReportDialog.show(
+      context,
+      userId: _otherProfile!.userId,
+      userName: _otherProfile!.displayName ?? 'Cet utilisateur',
+      onBlocked: () {
+        // Navigate back after blocking
+        if (mounted) context.pop();
+      },
+      onReported: () {
+        // Optionally navigate back after reporting
+      },
     );
   }
 }

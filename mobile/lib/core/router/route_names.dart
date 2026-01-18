@@ -33,6 +33,12 @@ abstract class RouteNames {
   static const profileView = 'profileView';
   static const matchProfile = 'matchProfile';
   static const premium = 'premium';
+  static const likes = 'likes';
+  static const boost = 'boost';
+  static const visitors = 'visitors';
+  static const successStories = 'successStories';
+  static const filters = 'filters';
+  static const dailyPicks = 'dailyPicks';
 }
 
 /// Route paths for the application
@@ -70,6 +76,12 @@ abstract class RoutePaths {
   static const profileView = '/discover/profile/:userId';
   static const matchProfile = '/matches/profile/:userId';
   static const premium = '/premium';
+  static const likes = '/likes';
+  static const boost = '/boost';
+  static const visitors = '/visitors';
+  static const successStories = '/success-stories';
+  static const filters = '/filters';
+  static const dailyPicks = '/daily-picks';
 
   /// Helper to get match profile path
   static String matchProfilePath(String userId) => '/matches/profile/$userId';

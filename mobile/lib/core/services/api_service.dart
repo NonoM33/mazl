@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -54,6 +55,7 @@ class Profile {
   final String? denomination;
   final String? kashrut;
   final String? shabbatObservance;
+  final String? relationshipIntention;
   final List<String> photos;
   final bool isVerified;
   final String? verificationLevel;
@@ -76,6 +78,7 @@ class Profile {
     this.denomination,
     this.kashrut,
     this.shabbatObservance,
+    this.relationshipIntention,
     this.photos = const [],
     this.isVerified = false,
     this.verificationLevel,
@@ -100,6 +103,7 @@ class Profile {
       denomination: json['denomination'] as String?,
       kashrut: json['kashrut_level'] as String?,
       shabbatObservance: json['shabbat_observance'] as String?,
+      relationshipIntention: json['relationship_intention'] as String?,
       photos: (json['photos'] as List<dynamic>?)?.cast<String>() ?? [],
       isVerified: json['is_verified'] == true,
       verificationLevel: json['verification_level'] as String?,
@@ -277,6 +281,31 @@ class ApiService {
       final profiles = (data['profiles'] as List)
           .map((p) => Profile.fromJson(p))
           .toList();
+
+      return ApiResponse.success(profiles);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get daily picks (curated profiles for the day)
+  Future<ApiResponse<List<Profile>>> getDailyPicks() async {
+    try {
+      final response = await _get('/api/daily-picks');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get daily picks');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      final profiles = (data['picks'] as List?)
+          ?.map((p) => Profile.fromJson(p))
+          .toList() ?? [];
 
       return ApiResponse.success(profiles);
     } catch (e) {
@@ -542,6 +571,43 @@ class ApiService {
 
       if (response.statusCode != 200) {
         return ApiResponse.failure('Failed to send message');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(Message.fromJson(data['message']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Send an image message
+  Future<ApiResponse<Message>> sendImageMessage(int conversationId, File imageFile) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}/api/conversations/$conversationId/messages/image');
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add auth header
+      final token = await _getToken();
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Add image file
+      request.files.add(await http.MultipartFile.fromPath(
+        'image',
+        imageFile.path,
+      ));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to send image');
       }
 
       final data = jsonDecode(response.body);
@@ -842,6 +908,576 @@ class ApiService {
       return ApiResponse.failure(e.toString());
     }
   }
+
+  // ============ BLOCKING ============
+
+  /// Block a user
+  Future<ApiResponse<void>> blockUser(int userId, {String? reason}) async {
+    try {
+      final response = await _post('/api/users/$userId/block', {
+        if (reason != null) 'reason': reason,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to block user');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Unblock a user
+  Future<ApiResponse<void>> unblockUser(int userId) async {
+    try {
+      final response = await _delete('/api/users/$userId/block');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to unblock user');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get list of blocked users
+  Future<ApiResponse<List<BlockedUser>>> getBlockedUsers() async {
+    try {
+      final response = await _get('/api/users/blocked');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get blocked users');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      final blockedList = (data['blocked_users'] as List<dynamic>?)
+          ?.map((json) => BlockedUser.fromJson(json))
+          .toList() ?? [];
+
+      return ApiResponse.success(blockedList);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ REPORTING ============
+
+  /// Report a user
+  Future<ApiResponse<void>> reportUser({
+    required int userId,
+    required String category,
+    String? comment,
+    bool blockUser = false,
+  }) async {
+    try {
+      final response = await _post('/api/users/$userId/report', {
+        'category': category,
+        if (comment != null) 'comment': comment,
+        'block_user': blockUser,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to report user');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ VERIFICATION ============
+
+  /// Start photo verification process
+  Future<ApiResponse<Map<String, dynamic>>> startVerification() async {
+    try {
+      final response = await _post('/api/verification/start', {});
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to start verification');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Submit verification selfie
+  Future<ApiResponse<Map<String, dynamic>>> submitVerification(String selfieBase64, String gestureId) async {
+    try {
+      final response = await _post('/api/verification/submit', {
+        'selfie': selfieBase64,
+        'gesture_id': gestureId,
+      });
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to submit verification');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get verification status
+  Future<ApiResponse<Map<String, dynamic>>> getVerificationStatus() async {
+    try {
+      final response = await _get('/api/verification/status');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get verification status');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ LIKES ============
+
+  /// Get received likes (blurred for free users)
+  Future<ApiResponse<LikesData>> getReceivedLikes() async {
+    try {
+      final response = await _get('/api/likes/received');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get received likes');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(LikesData.fromJson(data));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get count of received likes
+  Future<ApiResponse<int>> getReceivedLikesCount() async {
+    try {
+      final response = await _get('/api/likes/received/count');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get likes count');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ PROFILE PROMPTS ============
+
+  /// Get available prompts list
+  Future<ApiResponse<List<PromptTemplate>>> getAvailablePrompts() async {
+    try {
+      final response = await _get('/api/prompts');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get prompts');
+      }
+
+      final data = jsonDecode(response.body);
+      final prompts = (data['prompts'] as List<dynamic>?)
+          ?.map((json) => PromptTemplate.fromJson(json))
+          .toList() ?? [];
+
+      return ApiResponse.success(prompts);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get my profile prompts
+  Future<ApiResponse<List<ProfilePrompt>>> getMyPrompts() async {
+    try {
+      final response = await _get('/api/profile/prompts');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get my prompts');
+      }
+
+      final data = jsonDecode(response.body);
+      final prompts = (data['prompts'] as List<dynamic>?)
+          ?.map((json) => ProfilePrompt.fromJson(json))
+          .toList() ?? [];
+
+      return ApiResponse.success(prompts);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Add a prompt to profile
+  Future<ApiResponse<ProfilePrompt>> addPrompt({
+    required String promptId,
+    required String answer,
+    required int position,
+  }) async {
+    try {
+      final response = await _post('/api/profile/prompts', {
+        'prompt_id': promptId,
+        'answer': answer,
+        'position': position,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to add prompt');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Update a prompt
+  Future<ApiResponse<ProfilePrompt>> updatePrompt(int promptId, String answer) async {
+    try {
+      final response = await _put('/api/profile/prompts/$promptId', {
+        'answer': answer,
+      });
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to update prompt');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Delete a prompt
+  Future<ApiResponse<void>> deletePrompt(int promptId) async {
+    try {
+      final response = await _delete('/api/profile/prompts/$promptId');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to delete prompt');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Like a profile via prompt
+  Future<ApiResponse<Map<String, dynamic>>> likeViaPrompt({
+    required int targetUserId,
+    required int promptId,
+  }) async {
+    try {
+      final response = await _post('/api/swipes/like-prompt', {
+        'target_user_id': targetUserId,
+        'prompt_id': promptId,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to like via prompt');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(data);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ BOOST ============
+
+  /// Get boost status
+  Future<ApiResponse<BoostStatus>> getBoostStatus() async {
+    try {
+      final response = await _get('/api/boost/status');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get boost status');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(BoostStatus.fromJson(data));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Activate boost
+  Future<ApiResponse<BoostStatus>> activateBoost() async {
+    try {
+      final response = await _post('/api/boost/activate', {});
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final data = jsonDecode(response.body);
+        return ApiResponse.failure(data['error'] ?? 'Failed to activate boost');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(BoostStatus.fromJson(data));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ PROFILE VISITORS ============
+
+  /// Get profile visitors
+  Future<ApiResponse<VisitorsData>> getProfileVisitors() async {
+    try {
+      final response = await _get('/api/profile/visitors');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get visitors');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(VisitorsData.fromJson(data));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get visitors count (for badge)
+  Future<ApiResponse<int>> getVisitorsCount() async {
+    try {
+      final response = await _get('/api/profile/visitors/count');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get visitors count');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ COUPLE ANNIVERSARY ============
+
+  /// Get couple anniversary data
+  Future<ApiResponse<CoupleAnniversaryData>> getCoupleAnniversary() async {
+    try {
+      final response = await _get('/api/couple/anniversary');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get anniversary data');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(CoupleAnniversaryData.fromJson(data));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get upcoming milestones
+  Future<ApiResponse<List<CoupleMilestone>>> getUpcomingMilestones() async {
+    try {
+      final response = await _get('/api/couple/milestones');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get milestones');
+      }
+
+      final data = jsonDecode(response.body);
+      final milestones = (data['milestones'] as List<dynamic>?)
+              ?.map((m) => CoupleMilestone.fromJson(m))
+              .toList() ??
+          [];
+
+      return ApiResponse.success(milestones);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Generate shareable anniversary card
+  Future<ApiResponse<String>> generateAnniversaryCard() async {
+    try {
+      final response = await _post('/api/couple/anniversary/card', {});
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to generate card');
+      }
+
+      final data = jsonDecode(response.body);
+      return ApiResponse.success(data['card_url'] as String? ?? '');
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  // ============ SUCCESS STORIES ============
+
+  /// Get success stories
+  Future<ApiResponse<List<SuccessStory>>> getSuccessStories({int page = 1}) async {
+    try {
+      final response = await _get('/api/success-stories?page=$page');
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get success stories');
+      }
+
+      final data = jsonDecode(response.body);
+      final stories = (data['stories'] as List<dynamic>?)
+              ?.map((s) => SuccessStory.fromJson(s))
+              .toList() ??
+          [];
+
+      return ApiResponse.success(stories);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Submit a success story
+  Future<ApiResponse<void>> submitSuccessStory({
+    required String story,
+    required List<String> photoUrls,
+    String? status, // 'dating', 'engaged', 'married'
+    DateTime? statusDate,
+  }) async {
+    try {
+      final response = await _post('/api/success-stories', {
+        'story': story,
+        'photos': photoUrls,
+        if (status != null) 'status': status,
+        if (statusDate != null) 'status_date': statusDate.toIso8601String(),
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        return ApiResponse.failure('Failed to submit success story');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Like a success story
+  Future<ApiResponse<void>> likeSuccessStory(int storyId) async {
+    try {
+      final response = await _post('/api/success-stories/$storyId/like', {});
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to like story');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
+
+  /// Get own success story
+  Future<ApiResponse<SuccessStory?>> getMySuccessStory() async {
+    try {
+      final response = await _get('/api/couple/success-story');
+
+      if (response.statusCode == 404) {
+        return ApiResponse.success(null);
+      }
+
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get success story');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['story'] == null) {
+        return ApiResponse.success(null);
+      }
+
+      return ApiResponse.success(SuccessStory.fromJson(data['story']));
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return ApiResponse.failure(e.toString());
+    }
+  }
 }
 
 // ============ MODELS ============
@@ -909,6 +1545,8 @@ class Message {
   final int id;
   final int senderId;
   final String content;
+  final String? imageUrl;
+  final String messageType; // 'text' or 'image'
   final bool isRead;
   final DateTime createdAt;
 
@@ -916,15 +1554,21 @@ class Message {
     required this.id,
     required this.senderId,
     required this.content,
+    this.imageUrl,
+    this.messageType = 'text',
     this.isRead = false,
     required this.createdAt,
   });
+
+  bool get isImage => messageType == 'image' || imageUrl != null;
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       id: _parseIntSafe(json['id']) ?? 0,
       senderId: _parseIntSafe(json['sender_id']) ?? 0,
-      content: json['content'] as String,
+      content: json['content'] as String? ?? '',
+      imageUrl: json['image_url'] as String?,
+      messageType: json['message_type'] as String? ?? 'text',
       isRead: json['is_read'] == true,
       createdAt: DateTime.parse(json['created_at']),
     );
@@ -1006,5 +1650,748 @@ class Event {
     final left = maxAttendees! - attendeeCount;
     if (left <= 0) return 'Complet';
     return '$left places restantes';
+  }
+}
+
+/// Blocked user model
+class BlockedUser {
+  final int id;
+  final int userId;
+  final String? displayName;
+  final String? picture;
+  final DateTime blockedAt;
+
+  BlockedUser({
+    required this.id,
+    required this.userId,
+    this.displayName,
+    this.picture,
+    required this.blockedAt,
+  });
+
+  factory BlockedUser.fromJson(Map<String, dynamic> json) {
+    return BlockedUser(
+      id: _parseIntSafe(json['id']) ?? 0,
+      userId: _parseIntSafe(json['user_id']) ?? 0,
+      displayName: json['display_name'] as String?,
+      picture: json['picture'] as String?,
+      blockedAt: json['blocked_at'] != null
+          ? DateTime.parse(json['blocked_at'])
+          : DateTime.now(),
+    );
+  }
+}
+
+/// Report categories
+class ReportCategory {
+  final String id;
+  final String label;
+  final String description;
+  final String severity;
+
+  const ReportCategory({
+    required this.id,
+    required this.label,
+    required this.description,
+    required this.severity,
+  });
+
+  static const List<ReportCategory> categories = [
+    ReportCategory(
+      id: 'fake_profile',
+      label: 'Faux profil',
+      description: 'Photos volées, identité fausse',
+      severity: 'high',
+    ),
+    ReportCategory(
+      id: 'inappropriate_photos',
+      label: 'Photos inappropriées',
+      description: 'Contenu sexuel, violent ou choquant',
+      severity: 'high',
+    ),
+    ReportCategory(
+      id: 'harassment',
+      label: 'Harcèlement',
+      description: 'Messages insistants, menaces, insultes',
+      severity: 'critical',
+    ),
+    ReportCategory(
+      id: 'spam',
+      label: 'Spam / Arnaque',
+      description: 'Publicité, demande d\'argent, liens suspects',
+      severity: 'high',
+    ),
+    ReportCategory(
+      id: 'underage',
+      label: 'Mineur',
+      description: 'La personne semble avoir moins de 18 ans',
+      severity: 'critical',
+    ),
+    ReportCategory(
+      id: 'offline_behavior',
+      label: 'Comportement hors app',
+      description: 'Comportement inapproprié lors d\'une rencontre',
+      severity: 'medium',
+    ),
+    ReportCategory(
+      id: 'other',
+      label: 'Autre',
+      description: 'Autre raison (précisez)',
+      severity: 'low',
+    ),
+  ];
+}
+
+/// Likes data model
+class LikesData {
+  final int count;
+  final bool isPremium;
+  final List<LikeProfile> likes;
+
+  LikesData({
+    required this.count,
+    required this.isPremium,
+    required this.likes,
+  });
+
+  factory LikesData.fromJson(Map<String, dynamic> json) {
+    return LikesData(
+      count: _parseIntSafe(json['count']) ?? 0,
+      isPremium: json['is_premium'] == true,
+      likes: (json['likes'] as List<dynamic>?)
+          ?.map((e) => LikeProfile.fromJson(e))
+          .toList() ?? [],
+    );
+  }
+
+  String get displayCount {
+    if (count <= 10) return '$count';
+    if (count <= 25) return '10+';
+    if (count <= 50) return '25+';
+    if (count <= 99) return '50+';
+    return '99+';
+  }
+}
+
+/// Like profile model
+class LikeProfile {
+  final int userId;
+  final String? displayName;
+  final String? picture;
+  final int? age;
+  final bool isVerified;
+  final DateTime likedAt;
+
+  LikeProfile({
+    required this.userId,
+    this.displayName,
+    this.picture,
+    this.age,
+    this.isVerified = false,
+    required this.likedAt,
+  });
+
+  factory LikeProfile.fromJson(Map<String, dynamic> json) {
+    return LikeProfile(
+      userId: _parseIntSafe(json['user_id']) ?? 0,
+      displayName: json['display_name'] as String?,
+      picture: json['picture'] as String?,
+      age: _parseIntSafe(json['age']),
+      isVerified: json['is_verified'] == true,
+      likedAt: json['liked_at'] != null
+          ? DateTime.parse(json['liked_at'])
+          : DateTime.now(),
+    );
+  }
+}
+
+/// Prompt template model
+class PromptTemplate {
+  final String id;
+  final String text;
+  final String? category;
+
+  PromptTemplate({
+    required this.id,
+    required this.text,
+    this.category,
+  });
+
+  factory PromptTemplate.fromJson(Map<String, dynamic> json) {
+    return PromptTemplate(
+      id: json['id'] as String,
+      text: json['text'] as String,
+      category: json['category'] as String?,
+    );
+  }
+
+  /// Default prompts list (used if API unavailable)
+  static const List<Map<String, String>> defaultPrompts = [
+    // Personnalité
+    {'id': 'perfect_sunday', 'text': 'Mon dimanche parfait...', 'category': 'personality'},
+    {'id': 'fun_fact', 'text': 'Un fait surprenant sur moi...', 'category': 'personality'},
+    {'id': 'life_goal', 'text': 'Un de mes objectifs dans la vie...', 'category': 'personality'},
+    {'id': 'pet_peeve', 'text': 'Ce qui m\'énerve le plus...', 'category': 'personality'},
+    {'id': 'proud_of', 'text': 'Je suis fier(e) de...', 'category': 'personality'},
+    {'id': 'looking_for', 'text': 'Je cherche quelqu\'un qui...', 'category': 'personality'},
+    // Lifestyle
+    {'id': 'ideal_vacation', 'text': 'Mes vacances idéales...', 'category': 'lifestyle'},
+    {'id': 'favorite_food', 'text': 'Mon plat préféré...', 'category': 'lifestyle'},
+    {'id': 'hidden_talent', 'text': 'Mon talent caché...', 'category': 'lifestyle'},
+    {'id': 'binge_watching', 'text': 'En ce moment je regarde...', 'category': 'lifestyle'},
+    // Judaïsme
+    {'id': 'shabbat_ideal', 'text': 'Mon Shabbat idéal...', 'category': 'jewish'},
+    {'id': 'family_tradition', 'text': 'Une tradition familiale que j\'adore...', 'category': 'jewish'},
+    {'id': 'favorite_holiday', 'text': 'Ma fête juive préférée...', 'category': 'jewish'},
+    {'id': 'friday_night', 'text': 'Le vendredi soir chez moi...', 'category': 'jewish'},
+    {'id': 'israel_memory', 'text': 'Mon meilleur souvenir en Israël...', 'category': 'jewish'},
+    {'id': 'jewish_value', 'text': 'Une valeur juive qui me guide...', 'category': 'jewish'},
+    // Conversation starters
+    {'id': 'debate_me', 'text': 'Débats moi sur...', 'category': 'conversation'},
+    {'id': 'teach_me', 'text': 'Apprends-moi quelque chose sur...', 'category': 'conversation'},
+    {'id': 'together_we_could', 'text': 'Ensemble on pourrait...', 'category': 'conversation'},
+    {'id': 'first_date', 'text': 'Premier date idéal...', 'category': 'conversation'},
+  ];
+}
+
+/// Profile prompt model
+class ProfilePrompt {
+  final int id;
+  final String promptId;
+  final String promptText;
+  final String answer;
+  final int position;
+
+  ProfilePrompt({
+    required this.id,
+    required this.promptId,
+    required this.promptText,
+    required this.answer,
+    required this.position,
+  });
+
+  factory ProfilePrompt.fromJson(Map<String, dynamic> json) {
+    return ProfilePrompt(
+      id: _parseIntSafe(json['id']) ?? 0,
+      promptId: json['prompt_id'] as String,
+      promptText: json['prompt_text'] as String? ?? '',
+      answer: json['answer'] as String,
+      position: _parseIntSafe(json['position']) ?? 1,
+    );
+  }
+}
+
+/// Relationship intention
+class RelationshipIntention {
+  final String id;
+  final String label;
+  final String icon;
+  final String description;
+
+  const RelationshipIntention({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.description,
+  });
+
+  static const List<RelationshipIntention> intentions = [
+    RelationshipIntention(
+      id: 'marriage',
+      label: 'Mariage',
+      icon: 'ring',
+      description: 'Je cherche mon/ma futur(e) mari/femme',
+    ),
+    RelationshipIntention(
+      id: 'serious',
+      label: 'Relation sérieuse',
+      icon: 'heart',
+      description: 'Je cherche une relation durable',
+    ),
+    RelationshipIntention(
+      id: 'open',
+      label: 'Ouvert(e) à tout',
+      icon: 'sparkles',
+      description: 'On verra où ça nous mène',
+    ),
+    RelationshipIntention(
+      id: 'friends_first',
+      label: 'Amitié d\'abord',
+      icon: 'users',
+      description: 'Commençons par apprendre à se connaître',
+    ),
+  ];
+}
+
+/// Compatibility score between two users
+class CompatibilityScore {
+  final int score; // 0-100
+  final bool isSuperCompatible; // score > 85
+  final List<CompatibilityFactor> factors;
+
+  CompatibilityScore({
+    required this.score,
+    required this.isSuperCompatible,
+    required this.factors,
+  });
+
+  factory CompatibilityScore.fromJson(Map<String, dynamic> json) {
+    final score = _parseIntSafe(json['score']) ?? 0;
+    return CompatibilityScore(
+      score: score,
+      isSuperCompatible: score >= 85,
+      factors: (json['factors'] as List<dynamic>?)
+              ?.map((f) => CompatibilityFactor.fromJson(f))
+              .toList() ??
+          [],
+    );
+  }
+
+  /// Calculate compatibility locally (fallback if API not available)
+  static CompatibilityScore calculate({
+    required Profile myProfile,
+    required Profile otherProfile,
+  }) {
+    final factors = <CompatibilityFactor>[];
+    int totalScore = 0;
+    int factorCount = 0;
+
+    // 1. Relationship intention match (30 points)
+    if (myProfile.relationshipIntention != null &&
+        otherProfile.relationshipIntention != null) {
+      factorCount++;
+      if (myProfile.relationshipIntention == otherProfile.relationshipIntention) {
+        totalScore += 30;
+        factors.add(CompatibilityFactor(
+          name: 'Intentions',
+          score: 100,
+          description: 'Vous cherchez la meme chose',
+          icon: 'heart',
+        ));
+      } else {
+        factors.add(CompatibilityFactor(
+          name: 'Intentions',
+          score: 40,
+          description: 'Intentions differentes',
+          icon: 'heart',
+        ));
+        totalScore += 12;
+      }
+    }
+
+    // 2. Jewish practice alignment (25 points)
+    if (myProfile.denomination != null && otherProfile.denomination != null) {
+      factorCount++;
+      final denom1 = myProfile.denomination!.toLowerCase();
+      final denom2 = otherProfile.denomination!.toLowerCase();
+      if (denom1 == denom2) {
+        totalScore += 25;
+        factors.add(CompatibilityFactor(
+          name: 'Pratique',
+          score: 100,
+          description: 'Meme denomination',
+          icon: 'star',
+        ));
+      } else {
+        // Partial match for similar denominations
+        final similarGroups = [
+          ['orthodox', 'modern orthodox', 'habad'],
+          ['massorti', 'traditionaliste'],
+          ['laique'],
+        ];
+        bool similar = false;
+        for (final group in similarGroups) {
+          if (group.contains(denom1) && group.contains(denom2)) {
+            similar = true;
+            break;
+          }
+        }
+        if (similar) {
+          totalScore += 18;
+          factors.add(CompatibilityFactor(
+            name: 'Pratique',
+            score: 70,
+            description: 'Pratique similaire',
+            icon: 'star',
+          ));
+        } else {
+          totalScore += 8;
+          factors.add(CompatibilityFactor(
+            name: 'Pratique',
+            score: 30,
+            description: 'Pratique differente',
+            icon: 'star',
+          ));
+        }
+      }
+    }
+
+    // 3. Age compatibility (20 points)
+    if (myProfile.age != null && otherProfile.age != null) {
+      factorCount++;
+      final ageDiff = (myProfile.age! - otherProfile.age!).abs();
+      if (ageDiff <= 3) {
+        totalScore += 20;
+        factors.add(CompatibilityFactor(
+          name: 'Age',
+          score: 100,
+          description: 'Age tres proche',
+          icon: 'calendar',
+        ));
+      } else if (ageDiff <= 5) {
+        totalScore += 16;
+        factors.add(CompatibilityFactor(
+          name: 'Age',
+          score: 80,
+          description: 'Age proche',
+          icon: 'calendar',
+        ));
+      } else if (ageDiff <= 10) {
+        totalScore += 10;
+        factors.add(CompatibilityFactor(
+          name: 'Age',
+          score: 50,
+          description: 'Difference d\'age moderee',
+          icon: 'calendar',
+        ));
+      } else {
+        totalScore += 4;
+        factors.add(CompatibilityFactor(
+          name: 'Age',
+          score: 20,
+          description: 'Grande difference d\'age',
+          icon: 'calendar',
+        ));
+      }
+    }
+
+    // 4. Location/Distance (25 points)
+    if (otherProfile.distance != null) {
+      factorCount++;
+      final dist = otherProfile.distance!;
+      if (dist <= 10) {
+        totalScore += 25;
+        factors.add(CompatibilityFactor(
+          name: 'Distance',
+          score: 100,
+          description: 'Tres proche (< 10km)',
+          icon: 'map-pin',
+        ));
+      } else if (dist <= 25) {
+        totalScore += 20;
+        factors.add(CompatibilityFactor(
+          name: 'Distance',
+          score: 80,
+          description: 'Proche (< 25km)',
+          icon: 'map-pin',
+        ));
+      } else if (dist <= 50) {
+        totalScore += 12;
+        factors.add(CompatibilityFactor(
+          name: 'Distance',
+          score: 50,
+          description: 'Distance moderee',
+          icon: 'map-pin',
+        ));
+      } else {
+        totalScore += 5;
+        factors.add(CompatibilityFactor(
+          name: 'Distance',
+          score: 20,
+          description: 'Assez loin',
+          icon: 'map-pin',
+        ));
+      }
+    }
+
+    // Normalize score if we have factors
+    final finalScore = factorCount > 0 ? (totalScore * 100 ~/ (factorCount * 25)) : 50;
+    final clampedScore = finalScore.clamp(0, 100);
+
+    return CompatibilityScore(
+      score: clampedScore,
+      isSuperCompatible: clampedScore >= 85,
+      factors: factors,
+    );
+  }
+}
+
+/// Individual compatibility factor
+class CompatibilityFactor {
+  final String name;
+  final int score; // 0-100
+  final String description;
+  final String icon;
+
+  CompatibilityFactor({
+    required this.name,
+    required this.score,
+    required this.description,
+    required this.icon,
+  });
+
+  factory CompatibilityFactor.fromJson(Map<String, dynamic> json) {
+    return CompatibilityFactor(
+      name: json['name'] as String? ?? '',
+      score: _parseIntSafe(json['score']) ?? 0,
+      description: json['description'] as String? ?? '',
+      icon: json['icon'] as String? ?? 'star',
+    );
+  }
+}
+
+/// Profile boost status
+class BoostStatus {
+  final bool isActive;
+  final DateTime? expiresAt;
+  final int? remainingBoosts; // null if unlimited (premium)
+  final int viewsDuringBoost;
+  final int likesDuringBoost;
+
+  BoostStatus({
+    required this.isActive,
+    this.expiresAt,
+    this.remainingBoosts,
+    this.viewsDuringBoost = 0,
+    this.likesDuringBoost = 0,
+  });
+
+  int get minutesRemaining {
+    if (!isActive || expiresAt == null) return 0;
+    return expiresAt!.difference(DateTime.now()).inMinutes.clamp(0, 999);
+  }
+
+  factory BoostStatus.fromJson(Map<String, dynamic> json) {
+    return BoostStatus(
+      isActive: json['is_active'] == true,
+      expiresAt: json['expires_at'] != null
+          ? DateTime.tryParse(json['expires_at'])
+          : null,
+      remainingBoosts: _parseIntSafe(json['remaining_boosts']),
+      viewsDuringBoost: _parseIntSafe(json['views_during_boost']) ?? 0,
+      likesDuringBoost: _parseIntSafe(json['likes_during_boost']) ?? 0,
+    );
+  }
+}
+
+/// Profile visitor
+class ProfileVisitor {
+  final int userId;
+  final String? displayName;
+  final String? photoUrl;
+  final int? age;
+  final bool isVerified;
+  final DateTime visitedAt;
+  final bool isBlurred; // true for free users
+
+  ProfileVisitor({
+    required this.userId,
+    this.displayName,
+    this.photoUrl,
+    this.age,
+    this.isVerified = false,
+    required this.visitedAt,
+    this.isBlurred = true,
+  });
+
+  factory ProfileVisitor.fromJson(Map<String, dynamic> json) {
+    return ProfileVisitor(
+      userId: _parseIntSafe(json['user_id']) ?? 0,
+      displayName: json['display_name'] as String?,
+      photoUrl: json['photo_url'] as String?,
+      age: _parseIntSafe(json['age']),
+      isVerified: json['is_verified'] == true,
+      visitedAt: DateTime.tryParse(json['visited_at'] ?? '') ?? DateTime.now(),
+      isBlurred: json['is_blurred'] == true,
+    );
+  }
+}
+
+/// Visitors data (includes premium status)
+class VisitorsData {
+  final List<ProfileVisitor> visitors;
+  final int totalCount;
+  final bool isPremium;
+
+  VisitorsData({
+    required this.visitors,
+    required this.totalCount,
+    required this.isPremium,
+  });
+
+  factory VisitorsData.fromJson(Map<String, dynamic> json) {
+    return VisitorsData(
+      visitors: (json['visitors'] as List<dynamic>?)
+              ?.map((v) => ProfileVisitor.fromJson(v))
+              .toList() ??
+          [],
+      totalCount: _parseIntSafe(json['total_count']) ?? 0,
+      isPremium: json['is_premium'] == true,
+    );
+  }
+}
+
+/// Couple anniversary data
+class CoupleAnniversaryData {
+  final DateTime matchDate;
+  final int daysTogether;
+  final String partnerName;
+  final String? partnerPhotoUrl;
+  final String? myPhotoUrl;
+  final CoupleMilestone? currentMilestone;
+  final CoupleMilestone? nextMilestone;
+  final bool isAnniversaryToday;
+
+  CoupleAnniversaryData({
+    required this.matchDate,
+    required this.daysTogether,
+    required this.partnerName,
+    this.partnerPhotoUrl,
+    this.myPhotoUrl,
+    this.currentMilestone,
+    this.nextMilestone,
+    this.isAnniversaryToday = false,
+  });
+
+  factory CoupleAnniversaryData.fromJson(Map<String, dynamic> json) {
+    return CoupleAnniversaryData(
+      matchDate: DateTime.tryParse(json['match_date'] ?? '') ?? DateTime.now(),
+      daysTogether: _parseIntSafe(json['days_together']) ?? 0,
+      partnerName: json['partner_name'] as String? ?? '',
+      partnerPhotoUrl: json['partner_photo_url'] as String?,
+      myPhotoUrl: json['my_photo_url'] as String?,
+      currentMilestone: json['current_milestone'] != null
+          ? CoupleMilestone.fromJson(json['current_milestone'])
+          : null,
+      nextMilestone: json['next_milestone'] != null
+          ? CoupleMilestone.fromJson(json['next_milestone'])
+          : null,
+      isAnniversaryToday: json['is_anniversary_today'] == true,
+    );
+  }
+}
+
+/// Couple milestone
+class CoupleMilestone {
+  final int days;
+  final String label;
+  final String icon;
+  final bool isSpecial;
+  final DateTime? date;
+  final int? daysUntil;
+  final bool isReached;
+
+  CoupleMilestone({
+    required this.days,
+    required this.label,
+    required this.icon,
+    this.isSpecial = false,
+    this.date,
+    this.daysUntil,
+    this.isReached = false,
+  });
+
+  factory CoupleMilestone.fromJson(Map<String, dynamic> json) {
+    return CoupleMilestone(
+      days: _parseIntSafe(json['days']) ?? 0,
+      label: json['label'] as String? ?? '',
+      icon: json['icon'] as String? ?? 'heart',
+      isSpecial: json['is_special'] == true,
+      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
+      daysUntil: _parseIntSafe(json['days_until']),
+      isReached: json['is_reached'] == true,
+    );
+  }
+
+  /// Predefined milestones
+  static List<CoupleMilestone> get defaultMilestones => [
+        CoupleMilestone(days: 7, label: '1 semaine', icon: 'seedling'),
+        CoupleMilestone(days: 30, label: '1 mois', icon: 'heart'),
+        CoupleMilestone(days: 90, label: '3 mois', icon: 'star'),
+        CoupleMilestone(days: 180, label: '6 mois', icon: 'fire'),
+        CoupleMilestone(days: 365, label: '1 an', icon: 'crown', isSpecial: true),
+        CoupleMilestone(days: 730, label: '2 ans', icon: 'diamond', isSpecial: true),
+      ];
+}
+
+/// Success story
+class SuccessStory {
+  final int id;
+  final String couple1Name;
+  final String couple2Name;
+  final String? couple1PhotoUrl;
+  final String? couple2PhotoUrl;
+  final String story;
+  final List<String> photoUrls;
+  final String status; // 'dating', 'engaged', 'married'
+  final DateTime? statusDate;
+  final DateTime matchDate;
+  final DateTime submittedAt;
+  final int likesCount;
+  final bool isLikedByMe;
+  final bool isApproved;
+
+  SuccessStory({
+    required this.id,
+    required this.couple1Name,
+    required this.couple2Name,
+    this.couple1PhotoUrl,
+    this.couple2PhotoUrl,
+    required this.story,
+    this.photoUrls = const [],
+    this.status = 'dating',
+    this.statusDate,
+    required this.matchDate,
+    required this.submittedAt,
+    this.likesCount = 0,
+    this.isLikedByMe = false,
+    this.isApproved = false,
+  });
+
+  String get statusLabel {
+    switch (status) {
+      case 'engaged':
+        return 'Fiances';
+      case 'married':
+        return 'Maries';
+      default:
+        return 'En couple';
+    }
+  }
+
+  String get statusEmoji {
+    switch (status) {
+      case 'engaged':
+        return '💍';
+      case 'married':
+        return '👰';
+      default:
+        return '❤️';
+    }
+  }
+
+  factory SuccessStory.fromJson(Map<String, dynamic> json) {
+    return SuccessStory(
+      id: _parseIntSafe(json['id']) ?? 0,
+      couple1Name: json['couple1_name'] as String? ?? '',
+      couple2Name: json['couple2_name'] as String? ?? '',
+      couple1PhotoUrl: json['couple1_photo_url'] as String?,
+      couple2PhotoUrl: json['couple2_photo_url'] as String?,
+      story: json['story'] as String? ?? '',
+      photoUrls: (json['photo_urls'] as List<dynamic>?)
+              ?.map((p) => p as String)
+              .toList() ??
+          [],
+      status: json['status'] as String? ?? 'dating',
+      statusDate: json['status_date'] != null
+          ? DateTime.tryParse(json['status_date'])
+          : null,
+      matchDate: DateTime.tryParse(json['match_date'] ?? '') ?? DateTime.now(),
+      submittedAt:
+          DateTime.tryParse(json['submitted_at'] ?? '') ?? DateTime.now(),
+      likesCount: _parseIntSafe(json['likes_count']) ?? 0,
+      isLikedByMe: json['is_liked_by_me'] == true,
+      isApproved: json['is_approved'] == true,
+    );
   }
 }

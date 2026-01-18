@@ -5,6 +5,7 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
@@ -96,6 +97,50 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('MAZL'),
+        actions: [
+          // Daily Picks button
+          IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(LucideIcons.sparkles),
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppColors.accentGold,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text(
+                      '!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            tooltip: 'Selections du jour',
+            onPressed: () => context.push(RoutePaths.dailyPicks),
+          ),
+          // Filters button
+          IconButton(
+            icon: const Icon(LucideIcons.slidersHorizontal),
+            tooltip: 'Filtres',
+            onPressed: () async {
+              final result = await context.push<bool>(RoutePaths.filters);
+              if (result == true && mounted) {
+                // Reload profiles with new filters
+                _loadProfiles(isRefresh: true);
+              }
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: _buildBody(),

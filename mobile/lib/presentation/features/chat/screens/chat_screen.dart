@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -28,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final ApiService _apiService = ApiService();
   final WebSocketService _wsService = WebSocketService();
+  final ImagePicker _imagePicker = ImagePicker();
 
   List<Message> _messages = [];
   ConversationUser? _otherUser;
@@ -35,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSending = false;
   bool _isTyping = false;
   bool _hasMore = true;
+  bool _isUploadingImage = false;
   int? _currentUserId;
   StreamSubscription<ChatEvent>? _wsSubscription;
   Timer? _typingTimer;
@@ -204,6 +208,138 @@ class _ChatScreenState extends State<ChatScreen> {
     _wsService.sendTyping(_conversationId);
   }
 
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(LucideIcons.camera, color: AppColors.primary),
+              ),
+              title: const Text('Prendre une photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickAndSendImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(LucideIcons.image, color: AppColors.secondary),
+              ),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickAndSendImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndSendImage(ImageSource source) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 80,
+      );
+
+      if (image == null || !mounted) return;
+
+      setState(() => _isUploadingImage = true);
+
+      // Upload image and send message
+      final response = await _apiService.sendImageMessage(
+        _conversationId,
+        File(image.path),
+      );
+
+      if (!mounted) return;
+      setState(() => _isUploadingImage = false);
+
+      if (response.success && response.data != null) {
+        // Add to messages if not already there from WebSocket
+        final exists = _messages.any((m) => m.id == response.data!.id);
+        if (!exists) {
+          setState(() {
+            _messages.insert(0, response.data!);
+          });
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.error ?? 'Erreur lors de l\'envoi de l\'image'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingImage = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showImageFullscreen(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(color: Colors.black87),
+            ),
+            InteractiveViewer(
+              child: Center(
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.contain,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              right: 16,
+              child: IconButton(
+                icon: const Icon(LucideIcons.x, color: Colors.white, size: 28),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final diff = now.difference(dateTime);
@@ -315,6 +451,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             message: message,
                             isMe: isMe,
                             formattedTime: _formatTime(message.createdAt),
+                            onTapImage: _showImageFullscreen,
                           );
                         },
                       ),
@@ -336,13 +473,18 @@ class _ChatScreenState extends State<ChatScreen> {
             child: SafeArea(
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(LucideIcons.plusCircle),
-                    color: AppColors.primary,
-                    onPressed: () {
-                      // TODO: Show attachment options
-                    },
-                  ),
+                  _isUploadingImage
+                      ? Container(
+                          width: 48,
+                          height: 48,
+                          padding: const EdgeInsets.all(12),
+                          child: const CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : IconButton(
+                          icon: const Icon(LucideIcons.plusCircle),
+                          color: AppColors.primary,
+                          onPressed: _showAttachmentOptions,
+                        ),
                   Expanded(
                     child: TextField(
                       controller: _messageController,
@@ -480,14 +622,18 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMe,
     required this.formattedTime,
+    this.onTapImage,
   });
 
   final Message message;
   final bool isMe;
   final String formattedTime;
+  final void Function(String imageUrl)? onTapImage;
 
   @override
   Widget build(BuildContext context) {
+    final isImage = message.isImage;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -497,7 +643,9 @@ class _MessageBubble extends StatelessWidget {
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: isImage
+                ? const EdgeInsets.all(4)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: isMe
                   ? AppColors.primary
@@ -512,41 +660,76 @@ class _MessageBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  message.content,
-                  style: TextStyle(
-                    color: isMe
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      formattedTime,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isMe
-                            ? Colors.white.withOpacity(0.7)
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5),
+                // Image content
+                if (isImage && message.imageUrl != null)
+                  GestureDetector(
+                    onTap: () => onTapImage?.call(message.imageUrl!),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: CachedNetworkImage(
+                        imageUrl: message.imageUrl!,
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey.withOpacity(0.3),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.grey.withOpacity(0.3),
+                          child: const Icon(LucideIcons.imageOff),
+                        ),
                       ),
                     ),
-                    if (isMe) ...[
-                      const SizedBox(width: 4),
-                      Icon(
-                        message.isRead ? LucideIcons.checkCheck : LucideIcons.check,
-                        size: 12,
-                        color: message.isRead
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.7),
+                  )
+                // Text content
+                else
+                  Text(
+                    message.content,
+                    style: TextStyle(
+                      color: isMe
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: isImage
+                      ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+                      : EdgeInsets.zero,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        formattedTime,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMe
+                              ? Colors.white.withOpacity(0.7)
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.5),
+                        ),
                       ),
+                      if (isMe) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.isRead ? LucideIcons.checkCheck : LucideIcons.check,
+                          size: 12,
+                          color: message.isRead
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.7),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ],
             ),

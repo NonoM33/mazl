@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/anniversary_widget.dart';
+import 'success_stories_screen.dart';
 
 class CoupleDashboardScreen extends StatefulWidget {
   const CoupleDashboardScreen({super.key});
@@ -213,6 +217,28 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   ),
                   const SizedBox(height: 12),
                   _buildJewishCalendarCard(),
+
+                  const SizedBox(height: 24),
+
+                  // Success Stories section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Success Stories',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.push(RoutePaths.successStories),
+                        child: const Text('Voir toutes'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSuccessStoriesCard(),
 
                   const SizedBox(height: 100),
                 ],
@@ -777,6 +803,108 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildSuccessStoriesCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.secondary.withOpacity(0.15),
+            AppColors.primary.withOpacity(0.15),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.secondary.withOpacity(0.2),
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  LucideIcons.heart,
+                  color: AppColors.secondary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Partagez votre histoire !',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Inspirez la communaute MAZL avec votre success story',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push(RoutePaths.successStories),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.secondary,
+                    side: const BorderSide(color: AppColors.secondary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Voir les stories'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final result = await SubmitSuccessStoryDialog.show(context);
+                    if (result == true) {
+                      // Story submitted
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Partager'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

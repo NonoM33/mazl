@@ -6,6 +6,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/profile_prompts_section.dart';
+import '../widgets/relationship_intention_selector.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -32,6 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _denomination;
   String? _kashrut;
   String? _shabbatObservance;
+  String? _relationshipIntention;
 
   @override
   void initState() {
@@ -66,6 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _denomination = profile?.denomination;
         _kashrut = profile?.kashrut;
         _shabbatObservance = profile?.shabbatObservance;
+        _relationshipIntention = profile?.relationshipIntention;
         _bioController.text = _bio ?? '';
         _isLoading = false;
       });
@@ -100,6 +104,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'denomination': _denomination,
       'kashrutLevel': _kashrut,
       'shabbatObservance': _shabbatObservance,
+      'relationshipIntention': _relationshipIntention,
     });
 
     setState(() => _isSaving = false);
@@ -628,6 +633,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             hintText: 'Parle de toi...',
             border: OutlineInputBorder(),
           ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // Profile Prompts
+        const ProfilePromptsSection(),
+
+        const SizedBox(height: 24),
+
+        // Relationship Intention
+        RelationshipIntentionSelector(
+          selectedIntention: _relationshipIntention,
+          onChanged: (value) => setState(() => _relationshipIntention = value),
         ),
 
         const SizedBox(height: 24),

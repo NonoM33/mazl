@@ -11,6 +11,7 @@ import '../../../../core/services/places_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'blocked_users_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -491,18 +492,269 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleDeleteAccount() async {
-    final confirmed = await _showConfirmSheet(
-      title: 'Supprimer le compte',
-      message: 'Cette action est irreversible. Toutes tes donnees seront supprimees.',
-      confirmText: 'Supprimer',
-      isDestructive: true,
-    );
+    // Step 1: Show reason selection
+    final reason = await _showDeleteReasonSheet();
+    if (reason == null || !mounted) return;
 
-    if (confirmed == true && mounted) {
-      final authService = ref.read(authServiceProvider);
-      await authService.deleteAccount();
-      if (mounted) context.go(RoutePaths.login);
+    // Step 2: Show final confirmation
+    final confirmed = await _showDeleteConfirmationSheet(reason);
+    if (confirmed != true || !mounted) return;
+
+    // Step 3: Delete account
+    setState(() => _isLoading = true);
+
+    final authService = ref.read(authServiceProvider);
+    final result = await authService.deleteAccount(reason: reason);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      context.go(RoutePaths.login);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage ?? 'Erreur lors de la suppression'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
+  }
+
+  Future<String?> _showDeleteReasonSheet() {
+    String? selectedReason;
+    final reasons = [
+      'J\'ai trouvé quelqu\'un',
+      'Je n\'utilise plus l\'application',
+      'Je souhaite faire une pause',
+      'Problèmes techniques',
+      'Je ne suis pas satisfait(e) du service',
+      'Autre raison',
+    ];
+
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildSheetHandle(),
+                const SizedBox(height: 16),
+                const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
+                const SizedBox(height: 16),
+                const Text(
+                  'Supprimer mon compte',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'Pourquoi souhaites-tu nous quitter ?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: reasons.length,
+                    itemBuilder: (context, index) {
+                      final reason = reasons[index];
+                      final isSelected = selectedReason == reason;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () => setSheetState(() => selectedReason = reason),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.error.withOpacity(0.1)
+                                  : Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.error
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isSelected
+                                      ? LucideIcons.checkCircle
+                                      : LucideIcons.circle,
+                                  color: isSelected
+                                      ? AppColors.error
+                                      : Colors.grey,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(child: Text(reason)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text('Annuler'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: selectedReason != null
+                              ? () => Navigator.pop(context, selectedReason)
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text('Continuer'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmationSheet(String reason) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildSheetHandle(),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  LucideIcons.alertTriangle,
+                  color: AppColors.error,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Confirmation finale',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Cette action est irréversible !',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Toutes tes données seront supprimées :\n• Ton profil et tes photos\n• Tes matchs et conversations\n• Ton historique de likes\n• Tes paramètres',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text('Garder mon compte'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.error,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text('Supprimer'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _handleDeactivateCoupleMode() async {
@@ -992,6 +1244,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: LucideIcons.refreshCw,
                 title: 'Restaurer les achats',
                 onTap: _handleRestorePurchases,
+              ),
+
+              // Privacy & Safety
+              _SectionHeader(title: 'Confidentialite & Securite'),
+              _SettingTile(
+                icon: LucideIcons.ban,
+                title: 'Utilisateurs bloques',
+                subtitle: 'Gerer les personnes bloquees',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BlockedUsersScreen()),
+                ),
+              ),
+              _SettingTile(
+                icon: LucideIcons.shieldCheck,
+                title: 'Verification du profil',
+                subtitle: _userProfile?.profile?.isVerified == true ? 'Verifie' : 'Non verifie',
+                onTap: () => context.push(RoutePaths.verification),
               ),
 
               // About
