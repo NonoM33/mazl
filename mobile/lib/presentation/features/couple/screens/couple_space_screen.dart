@@ -67,7 +67,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.settings),
-            onPressed: () => context.push('/couple/profile/settings'),
+            onPressed: () => context.push('/couple/space/settings'),
           ),
         ],
       ),
@@ -305,9 +305,10 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TextButton(
-              onPressed: () => context.push('/couple/memories'),
-              child: const Text('Voir tout'),
+            IconButton(
+              onPressed: _showAddMemorySheet,
+              icon: const Icon(LucideIcons.plus),
+              color: coupleAccent,
             ),
           ],
         ),
@@ -444,9 +445,10 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () => context.push('/couple/bucket-list'),
-              child: const Text('Voir tout'),
+            IconButton(
+              onPressed: _showAddBucketItemSheet,
+              icon: const Icon(LucideIcons.plus),
+              color: AppColors.accentGold,
             ),
           ],
         ),
@@ -514,7 +516,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
               ),
             ),
             TextButton(
-              onPressed: () => context.push('/couple/calendar'),
+              onPressed: () => context.go('/couple/calendar'),
               child: const Text('Voir tout'),
             ),
           ],

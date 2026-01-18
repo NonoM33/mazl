@@ -222,16 +222,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: RoutePaths.jewishCalendar,
-        name: RouteNames.jewishCalendar,
-        parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const JewishCalendarScreen(),
-          transitionsBuilder: slideLeftTransition,
-        ),
-      ),
-      GoRoute(
         path: RoutePaths.mazelTov,
         name: RouteNames.mazelTov,
         parentNavigatorKey: _rootNavigatorKey,

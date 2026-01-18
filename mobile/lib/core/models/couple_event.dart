@@ -47,28 +47,43 @@ class CoupleEvent {
 
   factory CoupleEvent.fromJson(Map<String, dynamic> json) {
     return CoupleEvent(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String? ?? '',
-      category: json['category'] as String?,
-      imageUrl: json['image_url'] as String?,
-      eventDate: DateTime.parse(json['event_date']),
-      eventTime: json['event_time'] as String?,
-      endTime: json['end_time'] as String?,
-      location: json['location'] as String?,
-      address: json['address'] as String?,
-      city: json['city'] as String?,
-      priceCents: json['price_cents'] as int?,
-      maxCouples: json['max_couples'] as int?,
-      currentCouples: json['current_couples'] as int? ?? 0,
-      isKosher: json['is_kosher'] as bool? ?? false,
-      dressCode: json['dress_code'] as String?,
-      whatIncluded: json['what_included'] as String?,
-      organizerName: json['organizer_name'] as String?,
-      isFeatured: json['is_featured'] as bool? ?? false,
-      registeredAt: json['registered_at'] != null ? DateTime.parse(json['registered_at']) : null,
-      registrationStatus: json['registration_status'] as String?,
+      id: _parseInt(json['id']) ?? 0,
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      category: json['category']?.toString(),
+      imageUrl: json['image_url']?.toString(),
+      eventDate: _parseDate(json['event_date']) ?? DateTime.now(),
+      eventTime: json['event_time']?.toString(),
+      endTime: json['end_time']?.toString(),
+      location: json['location']?.toString(),
+      address: json['address']?.toString(),
+      city: json['city']?.toString(),
+      priceCents: _parseInt(json['price_cents']),
+      maxCouples: _parseInt(json['max_couples']),
+      currentCouples: _parseInt(json['current_couples']) ?? 0,
+      isKosher: json['is_kosher'] == true || json['is_kosher'] == 'true',
+      dressCode: json['dress_code']?.toString(),
+      whatIncluded: json['what_included']?.toString(),
+      organizerName: json['organizer_name']?.toString(),
+      isFeatured: json['is_featured'] == true || json['is_featured'] == 'true',
+      registeredAt: _parseDate(json['registered_at']),
+      registrationStatus: json['registration_status']?.toString(),
     );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 
   String get formattedPrice {
