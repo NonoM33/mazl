@@ -207,6 +207,8 @@ class CoupleService {
   /// Initialize the service
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // First, load from local storage for fast startup
     _isCoupleModeEnabled = prefs.getBool(_coupleModeEnabledKey) ?? false;
 
     final coupleDataJson = prefs.getString(_coupleDataKey);
@@ -216,6 +218,48 @@ class CoupleService {
       } catch (e) {
         _coupleData = null;
       }
+    }
+
+    // Then, sync with backend to get the real status
+    await _syncWithBackend();
+  }
+
+  /// Sync couple status with backend
+  Future<void> _syncWithBackend() async {
+    try {
+      final apiService = ApiService();
+      final response = await apiService.getCoupleData();
+
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        final couple = data['couple'];
+
+        if (couple != null) {
+          // User is in couple mode
+          _coupleData = CoupleData(
+            partnerId: couple['partner_id'] as int? ?? 0,
+            partnerName: couple['partner_name'] as String? ?? 'Partenaire',
+            partnerPicture: couple['partner_picture'] as String?,
+            relationshipStartDate: DateTime.tryParse(couple['started_at']?.toString() ?? '') ?? DateTime.now(),
+            metOnMazlDate: DateTime.tryParse(couple['created_at']?.toString() ?? '') ?? DateTime.now(),
+            status: RelationshipStatus.inRelationship,
+          );
+          _isCoupleModeEnabled = true;
+          await _saveData();
+          debugPrint('CoupleService: Synced - couple mode enabled');
+        } else {
+          // User is NOT in couple mode - clear local data if inconsistent
+          if (_isCoupleModeEnabled) {
+            _isCoupleModeEnabled = false;
+            _coupleData = null;
+            await _saveData();
+            debugPrint('CoupleService: Synced - couple mode disabled (was inconsistent)');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('CoupleService: Error syncing with backend: $e');
+      // Keep local data on error
     }
   }
 

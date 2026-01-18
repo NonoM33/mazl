@@ -67,14 +67,17 @@ class DataPrefetchService {
   Future<void> prefetchAll() async {
     debugPrint('DataPrefetchService: Starting prefetch all...');
 
-    // Load all data in parallel
-    await Future.wait([
-      fetchDiscoverProfiles(),
-      fetchMatches(),
-      fetchConversations(),
-      fetchEvents(),
-      fetchCurrentUser(),
-    ]);
+    // Load data sequentially to avoid socket exhaustion on iOS simulator
+    // Each call has a small delay to prevent connection issues
+    await fetchCurrentUser();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await fetchDiscoverProfiles();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await fetchMatches();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await fetchConversations();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await fetchEvents();
 
     debugPrint('DataPrefetchService: Prefetch complete!');
   }

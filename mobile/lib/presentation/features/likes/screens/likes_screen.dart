@@ -514,8 +514,8 @@ class _LikeCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             isPremium
-                                ? '${profile.displayName}${profile.age != null ? ', ${profile.age}' : ''}'
-                                : profile.displayName,
+                                ? '${profile.displayName ?? 'Anonyme'}${profile.age != null ? ', ${profile.age}' : ''}'
+                                : profile.displayName ?? 'Anonyme',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -638,7 +638,7 @@ class _LikeCard extends StatelessWidget {
         color: AppColors.primary.withOpacity(0.3),
         child: Center(
           child: Text(
-            profile.displayName.isNotEmpty ? profile.displayName[0].toUpperCase() : '?',
+            (profile.displayName?.isNotEmpty ?? false) ? profile.displayName![0].toUpperCase() : '?',
             style: const TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,
@@ -769,8 +769,8 @@ class _ProfilePreviewSheet extends StatelessWidget {
                         color: AppColors.primary.withOpacity(0.3),
                         child: Center(
                           child: Text(
-                            profile.displayName.isNotEmpty
-                                ? profile.displayName[0].toUpperCase()
+                            (profile.displayName?.isNotEmpty ?? false)
+                                ? profile.displayName![0].toUpperCase()
                                 : '?',
                             style: const TextStyle(
                               fontSize: 72,

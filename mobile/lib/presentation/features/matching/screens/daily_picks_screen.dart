@@ -36,7 +36,16 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
       _error = null;
     });
 
-    final response = await _apiService.getDailyPicks();
+    // Try daily-picks endpoint first, fallback to discover profiles
+    var response = await _apiService.getDailyPicks();
+
+    // Fallback to discover profiles if daily-picks fails
+    if (!response.success || response.data == null || response.data!.isEmpty) {
+      final discoverResponse = await _apiService.getDiscoverProfiles(limit: 5);
+      if (discoverResponse.success && discoverResponse.data != null) {
+        response = ApiResponse.success(discoverResponse.data!);
+      }
+    }
 
     if (mounted) {
       setState(() {

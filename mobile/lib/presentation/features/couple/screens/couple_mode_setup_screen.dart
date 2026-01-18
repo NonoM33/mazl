@@ -70,11 +70,11 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
-      // Navigate back then push dashboard
+      // Navigate back then push couple activities
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
-      context.push('/couple/dashboard');
+      context.push('/couple/activities');
     }
   }
 

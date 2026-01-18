@@ -25,7 +25,14 @@ abstract class RouteNames {
 
   // Couple mode
   static const coupleSetup = 'coupleSetup';
-  static const coupleDashboard = 'coupleDashboard';
+  static const coupleActivities = 'coupleActivities';
+  static const coupleActivityDetail = 'coupleActivityDetail';
+  static const coupleSavedActivities = 'coupleSavedActivities';
+  static const coupleCalendar = 'coupleCalendar';
+  static const coupleEvents = 'coupleEvents';
+  static const coupleEventDetail = 'coupleEventDetail';
+  static const coupleSpace = 'coupleSpace';
+  static const coupleSettings = 'coupleSettings';
   static const jewishCalendar = 'jewishCalendar';
   static const mazelTov = 'mazelTov';
 
@@ -68,9 +75,19 @@ abstract class RoutePaths {
 
   // Couple mode
   static const coupleSetup = '/couple/setup';
-  static const coupleDashboard = '/couple/dashboard';
+  static const coupleActivities = '/couple/activities';
+  static const coupleSavedActivities = '/couple/activities/saved';
+  static const coupleCalendar = '/couple/calendar';
+  static const coupleEvents = '/couple/events';
+  static const coupleSpace = '/couple/space';
   static const jewishCalendar = '/couple/calendar';
   static const mazelTov = '/couple/mazel-tov';
+
+  /// Helper to get couple activity detail path
+  static String coupleActivityPath(int activityId) => '/couple/activities/$activityId';
+
+  /// Helper to get couple event detail path
+  static String coupleEventPath(int eventId) => '/couple/events/$eventId';
 
   // Other
   static const profileView = '/discover/profile/:userId';

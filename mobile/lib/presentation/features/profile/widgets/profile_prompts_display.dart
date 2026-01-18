@@ -97,7 +97,7 @@ class _PromptDisplayCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Text(
-              prompt.question,
+              prompt.promptText,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -224,7 +224,7 @@ class InlinePromptsDisplay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    prompt.question,
+                    prompt.promptText,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 12,

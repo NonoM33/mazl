@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/services/jewish_calendar_service.dart';
@@ -22,108 +21,65 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
     final shabbatActivities = _calendarService.getActivitiesForOccasion('shabbat');
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Header
-          SliverAppBar(
-            expandedHeight: 180,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.accentGold,
-                      AppColors.accentGold.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            LucideIcons.moonStar,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Calendrier Juif',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Planifiez vos moments en couple',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Icon(LucideIcons.moonStar, size: 24),
+            const SizedBox(width: 8),
+            const Text('Calendrier'),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.accentGold.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '✡️ Juif',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.accentGold,
                 ),
               ),
             ),
-            leading: IconButton(
-              icon: const Icon(LucideIcons.arrowLeft),
-              onPressed: () => context.pop(),
+          ],
+        ),
+        automaticallyImplyLeading: false,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // This week's Shabbat
+          _buildShabbatCard(shabbat),
+
+          const SizedBox(height: 24),
+
+          // Shabbat activities for couples
+          const Text(
+            'Idees pour ce Shabbat',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 12),
+          ...shabbatActivities.map((a) => _buildActivityCard(a)),
 
-          // Content
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // This week's Shabbat
-                  _buildShabbatCard(shabbat),
+          const SizedBox(height: 24),
 
-                  const SizedBox(height: 24),
-
-                  // Shabbat activities for couples
-                  const Text(
-                    'Idees pour ce Shabbat',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...shabbatActivities.map((a) => _buildActivityCard(a)),
-
-                  const SizedBox(height: 24),
-
-                  // Upcoming holidays
-                  const Text(
-                    'Prochaines fetes',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...holidays.map((h) => _buildHolidayCard(h)),
-
-                  const SizedBox(height: 100),
-                ],
-              ),
+          // Upcoming holidays
+          const Text(
+            'Prochaines fetes',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 12),
+          ...holidays.map((h) => _buildHolidayCard(h)),
+
+          const SizedBox(height: 24),
         ],
       ),
     );

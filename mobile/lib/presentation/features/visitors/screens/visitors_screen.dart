@@ -137,8 +137,12 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   }
 
   Widget _buildStatsHeader() {
-    final total = _visitorsData?.totalVisitors ?? 0;
-    final thisWeek = _visitorsData?.thisWeekCount ?? 0;
+    final total = _visitorsData?.totalCount ?? 0;
+    final visitors = _visitorsData?.visitors ?? [];
+    // Count this week's visitors
+    final thisWeek = visitors.where((v) => v.visitedAt.isAfter(
+      DateTime.now().subtract(const Duration(days: 7))
+    )).length;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -267,7 +271,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              LucideIcons.userSearch,
+              LucideIcons.searchCheck,
               size: 48,
               color: Colors.grey[400],
             ),
@@ -313,7 +317,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   }
 
   void _viewProfile(ProfileVisitor visitor) {
-    context.push(RoutePaths.profileView, extra: visitor.visitorId);
+    context.push(RoutePaths.profileView, extra: visitor.userId);
   }
 
   void _showPremiumPrompt() {
@@ -511,8 +515,8 @@ class _VisitorCard extends StatelessWidget {
                   children: [
                     Text(
                       isPremium
-                          ? '${visitor.name}, ${visitor.age}'
-                          : '${visitor.name?.substring(0, 1) ?? '?'}***',
+                          ? '${visitor.displayName ?? 'Anonyme'}, ${visitor.age}'
+                          : '${visitor.displayName?.substring(0, 1) ?? '?'}***',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,

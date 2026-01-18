@@ -114,6 +114,36 @@ import {
   rejectPhoto,
   getModerationLogs,
   getReportStats,
+  // Couple Mode - Activities & Events
+  getCoupleActivities,
+  getCoupleActivity,
+  saveCoupleActivity,
+  passCoupleActivity,
+  getSavedActivities,
+  removeSavedActivity,
+  createCoupleBooking,
+  getCoupleBookings,
+  getCoupleEvents,
+  getCoupleEvent,
+  registerForCoupleEvent,
+  cancelCoupleEventRegistration,
+  getCoupleRegisteredEvents,
+  // Couple Mode - Memories & Dates
+  addCoupleMemory,
+  getCoupleMemories,
+  deleteCoupleMemory,
+  addCoupleDate,
+  getCoupleDates,
+  updateCoupleDate,
+  deleteCoupleDate,
+  // Couple Mode - Bucket List & Stats
+  addBucketListItem,
+  getBucketList,
+  completeBucketListItem,
+  deleteBucketListItem,
+  getCoupleStats,
+  getCoupleAchievements,
+  getCoupleByUserId,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail, sendCampaignEmail } from "./email";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
@@ -1991,6 +2021,90 @@ app.post("/api/admin/reset-swipes", async (c) => {
 
 // ============ DEV/DEBUG ENDPOINTS ============
 
+// Create test user (dev only)
+app.post("/api/dev/test-user", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, password, name } = body;
+
+    if (!email || !password) {
+      return c.json({ success: false, error: "email and password required" }, 400);
+    }
+
+    // Check if user exists
+    const existing = await sql`SELECT id, name FROM users WHERE email = ${email}`;
+    if (existing.length > 0) {
+      // User exists, return token
+      const userId = (existing[0] as any).id;
+      const userName = (existing[0] as any).name || 'Test User';
+      const token = generateJWT({
+        id: userId,
+        email,
+        name: userName,
+        provider: 'google' as const, // Use google for compatibility
+        providerId: email,
+      });
+      return c.json({ success: true, token, user: { id: userId, email } });
+    }
+
+    // Create new test user
+    const result = await sql`
+      INSERT INTO users (email, name, provider, provider_id, created_at)
+      VALUES (${email}, ${name || 'Test User'}, 'test', ${email}, NOW())
+      RETURNING id
+    `;
+    const userId = (result[0] as any).id;
+
+    // Create profile
+    await sql`
+      INSERT INTO profiles (user_id, display_name, created_at)
+      VALUES (${userId}, ${name || 'Test User'}, NOW())
+    `;
+
+    const token = generateJWT({
+      id: userId,
+      email,
+      name: name || 'Test User',
+      provider: 'google' as const, // Use google for compatibility
+      providerId: email,
+    });
+    return c.json({ success: true, token, user: { id: userId, email } });
+  } catch (error: any) {
+    console.error("Create test user error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Login test user (dev only)
+app.post("/api/dev/test-login", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email) {
+      return c.json({ success: false, error: "email required" }, 400);
+    }
+
+    const result = await sql`SELECT id, email, name FROM users WHERE email = ${email}`;
+    if (result.length === 0) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
+
+    const user = result[0] as any;
+    const token = generateJWT({
+      id: user.id,
+      email: user.email,
+      name: user.name || 'Test User',
+      provider: 'google' as const,
+      providerId: user.email,
+    });
+    return c.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name } });
+  } catch (error: any) {
+    console.error("Test login error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
 // Enable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/enable", async (c) => {
   try {
@@ -2013,38 +2127,47 @@ app.post("/api/dev/couple/enable", async (c) => {
       partnerUserId = (seedResult[0] as any).id;
     }
 
-    // Check if couple already exists
+    // Check if couple already exists (any status)
     const existingCouple = await sql`
-      SELECT id FROM couples
-      WHERE ((user1_id = ${userId} AND user2_id = ${partnerUserId})
-         OR (user1_id = ${partnerUserId} AND user2_id = ${userId}))
-        AND status = 'active'
+      SELECT id, status FROM couples
+      WHERE (user1_id = ${userId} AND user2_id = ${partnerUserId})
+         OR (user1_id = ${partnerUserId} AND user2_id = ${userId})
     `;
+
+    let coupleId: number;
 
     if (existingCouple.length > 0) {
-      return c.json({
-        success: true,
-        message: "Couple already exists",
-        coupleId: (existingCouple[0] as any).id
-      });
+      const couple = existingCouple[0] as any;
+      if (couple.status === 'active') {
+        return c.json({
+          success: true,
+          message: "Couple already exists",
+          coupleId: couple.id
+        });
+      }
+      // Reactivate existing couple
+      await sql`
+        UPDATE couples SET status = 'active', updated_at = NOW()
+        WHERE id = ${couple.id}
+      `;
+      coupleId = couple.id;
+    } else {
+      // Deactivate any other existing couples for these users
+      await sql`
+        UPDATE couples SET status = 'ended', updated_at = NOW()
+        WHERE (user1_id = ${userId} OR user2_id = ${userId}
+           OR user1_id = ${partnerUserId} OR user2_id = ${partnerUserId})
+          AND status = 'active'
+      `;
+
+      // Create new couple
+      const result = await sql`
+        INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at, status)
+        VALUES (${userId}, ${partnerUserId}, 'in_relationship', NOW(), NOW(), 'active')
+        RETURNING id
+      `;
+      coupleId = (result[0] as any).id;
     }
-
-    // Deactivate any existing couples for these users
-    await sql`
-      UPDATE couples SET status = 'ended', updated_at = NOW()
-      WHERE (user1_id = ${userId} OR user2_id = ${userId}
-         OR user1_id = ${partnerUserId} OR user2_id = ${partnerUserId})
-        AND status = 'active'
-    `;
-
-    // Create new couple
-    const result = await sql`
-      INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at, status)
-      VALUES (${userId}, ${partnerUserId}, 'in_relationship', NOW(), NOW(), 'active')
-      RETURNING id
-    `;
-
-    const coupleId = (result[0] as any).id;
 
     return c.json({
       success: true,
@@ -2397,6 +2520,618 @@ app.get("/api/couple/:coupleId/milestones", async (c) => {
     return c.json({ success: true, milestones });
   } catch (error: any) {
     console.error("Get milestones error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE MODE - ACTIVITIES FEED ============
+
+// Get couple activities feed
+app.get("/api/couple/activities", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const limit = parseInt(c.req.query("limit") || "20");
+    const offset = parseInt(c.req.query("offset") || "0");
+    const category = c.req.query("category");
+
+    const activities = await getCoupleActivities((couple as any).id, limit, offset, category || undefined);
+
+    return c.json({ success: true, activities });
+  } catch (error: any) {
+    console.error("Get couple activities error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get single activity detail
+app.get("/api/couple/activities/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const activityId = parseInt(c.req.param("id"));
+    const activity = await getCoupleActivity(activityId);
+
+    if (!activity) return c.json({ success: false, error: "Activity not found" }, 404);
+
+    return c.json({ success: true, activity });
+  } catch (error: any) {
+    console.error("Get activity error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Save activity (swipe up / bookmark)
+app.post("/api/couple/activities/:id/save", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const activityId = parseInt(c.req.param("id"));
+    const body = await c.req.json().catch(() => ({}));
+
+    await saveCoupleActivity((couple as any).id, activityId, body.notes);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Save activity error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Pass activity (swipe left)
+app.post("/api/couple/activities/:id/pass", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const activityId = parseInt(c.req.param("id"));
+    await passCoupleActivity((couple as any).id, activityId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Pass activity error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get saved activities
+app.get("/api/couple/saved", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const activities = await getSavedActivities((couple as any).id);
+
+    return c.json({ success: true, activities });
+  } catch (error: any) {
+    console.error("Get saved activities error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Remove saved activity
+app.delete("/api/couple/saved/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const activityId = parseInt(c.req.param("id"));
+    await removeSavedActivity((couple as any).id, activityId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Remove saved activity error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Create booking
+app.post("/api/couple/bookings", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const body = await c.req.json();
+    const booking = await createCoupleBooking({
+      coupleId: (couple as any).id,
+      activityId: body.activityId,
+      eventId: body.eventId,
+      bookingDate: body.bookingDate,
+      bookingTime: body.bookingTime,
+      notes: body.notes,
+    });
+
+    return c.json({ success: true, booking });
+  } catch (error: any) {
+    console.error("Create booking error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get bookings
+app.get("/api/couple/bookings", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const bookings = await getCoupleBookings((couple as any).id);
+
+    return c.json({ success: true, bookings });
+  } catch (error: any) {
+    console.error("Get bookings error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE MODE - EVENTS ============
+
+// Get couple events
+app.get("/api/couple/events", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const limit = parseInt(c.req.query("limit") || "20");
+    const offset = parseInt(c.req.query("offset") || "0");
+    const category = c.req.query("category");
+
+    const events = await getCoupleEvents(limit, offset, category || undefined);
+
+    return c.json({ success: true, events });
+  } catch (error: any) {
+    console.error("Get couple events error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get registered events (must be before :id route)
+app.get("/api/couple/events/registered", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const events = await getCoupleRegisteredEvents((couple as any).id);
+
+    return c.json({ success: true, events });
+  } catch (error: any) {
+    console.error("Get registered events error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Get single event
+app.get("/api/couple/events/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const eventId = parseInt(c.req.param("id"));
+    const event = await getCoupleEvent(eventId);
+
+    if (!event) return c.json({ success: false, error: "Event not found" }, 404);
+
+    return c.json({ success: true, event });
+  } catch (error: any) {
+    console.error("Get event error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Register for event
+app.post("/api/couple/events/:id/register", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const eventId = parseInt(c.req.param("id"));
+    const registration = await registerForCoupleEvent((couple as any).id, eventId);
+
+    return c.json({ success: true, registration });
+  } catch (error: any) {
+    console.error("Register for event error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Cancel registration
+app.delete("/api/couple/events/:id/register", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const eventId = parseInt(c.req.param("id"));
+    await cancelCoupleEventRegistration((couple as any).id, eventId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Cancel registration error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+// ============ COUPLE MODE - MEMORIES ============
+
+// Get memories
+app.get("/api/couple/memories", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const memories = await getCoupleMemories((couple as any).id);
+
+    return c.json({ success: true, memories });
+  } catch (error: any) {
+    console.error("Get memories error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Add memory
+app.post("/api/couple/memories", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const body = await c.req.json();
+    const memory = await addCoupleMemory({
+      coupleId: (couple as any).id,
+      type: body.type,
+      title: body.title,
+      content: body.content,
+      imageUrl: body.imageUrl,
+      memoryDate: body.memoryDate,
+      location: body.location,
+      createdBy: userId,
+    });
+
+    return c.json({ success: true, memory });
+  } catch (error: any) {
+    console.error("Add memory error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Delete memory
+app.delete("/api/couple/memories/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const memoryId = parseInt(c.req.param("id"));
+    await deleteCoupleMemory((couple as any).id, memoryId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete memory error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE MODE - DATES ============
+
+// Get dates
+app.get("/api/couple/dates", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const dates = await getCoupleDates((couple as any).id);
+
+    return c.json({ success: true, dates });
+  } catch (error: any) {
+    console.error("Get dates error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Add date
+app.post("/api/couple/dates", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const body = await c.req.json();
+    const date = await addCoupleDate({
+      coupleId: (couple as any).id,
+      title: body.title,
+      date: body.date,
+      type: body.type,
+      isRecurring: body.isRecurring,
+      remindDaysBefore: body.remindDaysBefore,
+      notes: body.notes,
+    });
+
+    return c.json({ success: true, date });
+  } catch (error: any) {
+    console.error("Add date error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Update date
+app.put("/api/couple/dates/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const dateId = parseInt(c.req.param("id"));
+    const body = await c.req.json();
+
+    const date = await updateCoupleDate((couple as any).id, dateId, body);
+
+    return c.json({ success: true, date });
+  } catch (error: any) {
+    console.error("Update date error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Delete date
+app.delete("/api/couple/dates/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const dateId = parseInt(c.req.param("id"));
+    await deleteCoupleDate((couple as any).id, dateId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete date error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE MODE - BUCKET LIST ============
+
+// Get bucket list
+app.get("/api/couple/bucket-list", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const items = await getBucketList((couple as any).id);
+
+    return c.json({ success: true, items });
+  } catch (error: any) {
+    console.error("Get bucket list error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Add bucket list item
+app.post("/api/couple/bucket-list", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const body = await c.req.json();
+    const item = await addBucketListItem({
+      coupleId: (couple as any).id,
+      title: body.title,
+      description: body.description,
+      category: body.category,
+      targetDate: body.targetDate,
+    });
+
+    return c.json({ success: true, item });
+  } catch (error: any) {
+    console.error("Add bucket list item error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Complete bucket list item
+app.post("/api/couple/bucket-list/:id/complete", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const itemId = parseInt(c.req.param("id"));
+    const item = await completeBucketListItem((couple as any).id, itemId);
+
+    return c.json({ success: true, item });
+  } catch (error: any) {
+    console.error("Complete bucket list item error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// Delete bucket list item
+app.delete("/api/couple/bucket-list/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const itemId = parseInt(c.req.param("id"));
+    await deleteBucketListItem((couple as any).id, itemId);
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error("Delete bucket list item error:", error);
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE MODE - STATS & ACHIEVEMENTS ============
+
+// Get couple stats
+app.get("/api/couple/stats", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const couple = await getCoupleByUserId(userId);
+    if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
+
+    const stats = await getCoupleStats((couple as any).id);
+    const achievements = await getCoupleAchievements((couple as any).id);
+
+    return c.json({ success: true, stats, achievements });
+  } catch (error: any) {
+    console.error("Get couple stats error:", error);
     return c.json({ success: false, error: error.message }, 500);
   }
 });

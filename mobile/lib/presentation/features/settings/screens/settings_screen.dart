@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -920,12 +922,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => context.push(RoutePaths.coupleDashboard),
+                    onPressed: () => context.push(RoutePaths.coupleActivities),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white54),
                     ),
-                    child: const Text('Dashboard'),
+                    child: const Text('Mode Couple'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -998,6 +1000,159 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  // ============ DEBUG METHODS ============
+
+  Future<void> _debugEnableCoupleMode() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = _userProfile?.id ?? 22; // Default to user 22 if not loaded
+      final response = await _apiService.post('/api/dev/couple/enable', {
+        'userId': userId,
+      });
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        final message = response['message'] ?? 'Couple mode enabled';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.success),
+        );
+
+        // Refresh couple service
+        final coupleService = CoupleService();
+        await coupleService.initialize();
+
+        // Navigate to couple activities (main couple mode screen)
+        if (coupleService.isCoupleModeEnabled) {
+          context.go('/couple/activities');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _debugDisableCoupleMode() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = _userProfile?.id ?? 22;
+      final response = await _apiService.post('/api/dev/couple/disable', {
+        'userId': userId,
+      });
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        final message = response['message'] ?? 'Couple mode disabled';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.success),
+        );
+
+        // Clear local couple data
+        final coupleService = CoupleService();
+        await coupleService.disableCoupleMode();
+
+        // Go back to discover
+        context.go('/discover');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _debugResetSwipes() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final email = _userProfile?.email ?? 'renaudlemagicien@gmail.com';
+      final response = await _apiService.get('/api/dev/reset-swipes/$email');
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        final message = response['message'] ?? 'Swipes reset';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.success),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _debugShowCoupleStatus() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = _userProfile?.id ?? 22;
+      final response = await _apiService.get('/api/dev/couple/status/$userId');
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+
+        final activeCouple = response['activeCouple'];
+        final allCouples = response['allCouples'] as List? ?? [];
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Status Couple (Debug)'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('User ID: $userId', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text('Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}'),
+                  if (activeCouple != null) ...[
+                    const SizedBox(height: 8),
+                    Text('Partner: ${activeCouple['partner_name']}'),
+                    Text('Couple ID: ${activeCouple['id']}'),
+                    Text('Status: ${activeCouple['status']}'),
+                  ],
+                  const SizedBox(height: 16),
+                  Text('Historique (${allCouples.length} couples):', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ...allCouples.map((c) => Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('- ID ${c['id']}: ${c['status']} (partner: ${c['partner_name']})'),
+                  )),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Fermer'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
   }
 
   @override
@@ -1289,6 +1444,59 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {},
               ),
 
+              // Debug section (only in debug mode)
+              if (kDebugMode) ...[
+                _SectionHeader(title: 'Debug (Dev Only)'),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(LucideIcons.bug, color: Colors.orange, size: 20),
+                          const SizedBox(width: 8),
+                          const Text('Menu Debug', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _DebugButton(
+                            label: 'Activer Couple',
+                            icon: LucideIcons.heart,
+                            onPressed: _debugEnableCoupleMode,
+                          ),
+                          _DebugButton(
+                            label: 'Desactiver Couple',
+                            icon: LucideIcons.heartOff,
+                            onPressed: _debugDisableCoupleMode,
+                          ),
+                          _DebugButton(
+                            label: 'Status Couple',
+                            icon: LucideIcons.info,
+                            onPressed: _debugShowCoupleStatus,
+                          ),
+                          _DebugButton(
+                            label: 'Reset Swipes',
+                            icon: LucideIcons.refreshCw,
+                            onPressed: _debugResetSwipes,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               // Logout & Delete
               const SizedBox(height: 16),
               Padding(
@@ -1372,6 +1580,33 @@ class _SettingTile extends StatelessWidget {
       subtitle: subtitle != null ? Text(subtitle!) : null,
       trailing: trailing ?? (showChevron ? const Icon(LucideIcons.chevronRight) : null),
       onTap: onTap,
+    );
+  }
+}
+
+class _DebugButton extends StatelessWidget {
+  const _DebugButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: const Size(0, 36),
+      ),
     );
   }
 }

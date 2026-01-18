@@ -73,7 +73,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     }
 
     // Filter out already used prompts
-    final usedTemplateIds = _myPrompts.map((p) => p.templateId).toSet();
+    final usedTemplateIds = _myPrompts.map((p) => p.promptId).toSet();
     final availableToAdd = _availablePrompts
         .where((t) => !usedTemplateIds.contains(t.id))
         .toList();
@@ -99,14 +99,15 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     if (selectedTemplate == null) return;
 
     // Show answer input dialog
-    final answer = await _showAnswerDialog(selectedTemplate.question);
+    final answer = await _showAnswerDialog(selectedTemplate.text);
 
     if (answer == null || answer.isEmpty) return;
 
     // Save the prompt
     final result = await _apiService.addPrompt(
-      templateId: selectedTemplate.id,
+      promptId: selectedTemplate.id,
       answer: answer,
+      position: _myPrompts.length + 1,
     );
 
     if (mounted) {
@@ -127,14 +128,11 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   }
 
   Future<void> _editPrompt(ProfilePrompt prompt) async {
-    final answer = await _showAnswerDialog(prompt.question, currentAnswer: prompt.answer);
+    final answer = await _showAnswerDialog(prompt.promptText, currentAnswer: prompt.answer);
 
     if (answer == null || answer.isEmpty || answer == prompt.answer) return;
 
-    final result = await _apiService.updatePrompt(
-      promptId: prompt.id,
-      answer: answer,
-    );
+    final result = await _apiService.updatePrompt(prompt.id, answer);
 
     if (mounted) {
       if (result.success && result.data != null) {
@@ -412,7 +410,7 @@ class _PromptCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    prompt.question,
+                    prompt.promptText,
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,
@@ -612,7 +610,7 @@ class _PromptOption extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                prompt.question,
+                prompt.text,
                 style: const TextStyle(fontSize: 15),
               ),
             ),

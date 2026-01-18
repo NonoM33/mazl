@@ -143,8 +143,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
       if (_isLogin) {
         final result = await authService.signInWithEmail(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
+          _emailController.text.trim(),
+          _passwordController.text,
         );
 
         if (!mounted) return;
@@ -158,9 +158,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
         }
       } else {
         final result = await authService.registerWithEmail(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          displayName: _nameController.text.trim(),
+          _emailController.text.trim(),
+          _passwordController.text,
+          _nameController.text.trim(),
         );
 
         if (!mounted) return;
@@ -556,7 +556,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             style: const TextStyle(color: Colors.white),
                             decoration: _inputDecoration(
                               label: 'Confirmer le mot de passe',
-                              icon: LucideIcons.lockKeyhole,
+                              icon: LucideIcons.lock,
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscureConfirmPassword

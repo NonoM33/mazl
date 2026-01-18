@@ -55,9 +55,9 @@ class IcebreakerService {
 
   Icebreaker _generatePromptIcebreaker(ProfilePrompt prompt) {
     final templates = [
-      'J\'ai adore ta reponse a "${prompt.question}" ! ${_getFollowUp(prompt.answer)}',
-      'Ta reponse sur "${prompt.question}" m\'a fait sourire. Tu peux m\'en dire plus ?',
-      'Je suis curieux(se) de savoir pourquoi tu as repondu "${_truncate(prompt.answer, 30)}" a la question sur ${_extractTopic(prompt.question)}',
+      'J\'ai adore ta reponse a "${prompt.promptText}" ! ${_getFollowUp(prompt.answer)}',
+      'Ta reponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?',
+      'Je suis curieux(se) de savoir pourquoi tu as repondu "${_truncate(prompt.answer, 30)}" a la question sur ${_extractTopic(prompt.promptText)}',
     ];
 
     return Icebreaker(

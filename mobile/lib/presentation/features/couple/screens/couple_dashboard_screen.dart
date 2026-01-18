@@ -5,7 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
-import '../../../../core/services/api_service.dart';
+import '../../../../core/services/api_service.dart' hide CoupleMilestone;
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/anniversary_widget.dart';
 import 'success_stories_screen.dart';

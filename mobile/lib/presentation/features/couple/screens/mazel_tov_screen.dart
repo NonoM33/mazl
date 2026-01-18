@@ -528,7 +528,7 @@ class _MazelTovScreenState extends State<MazelTovScreen> {
       partnerName: widget.partnerName,
       partnerPicture: widget.partnerPicture,
       myPicture: widget.myPicture,
-      onContinue: () => context.go('/couple/dashboard'),
+      onContinue: () => context.go('/couple/activities'),
     );
   }
 }

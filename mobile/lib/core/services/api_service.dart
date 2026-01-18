@@ -215,6 +215,24 @@ class ApiService {
     return http.delete(url, headers: _headers);
   }
 
+  /// Public POST request (returns parsed JSON)
+  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
+    final response = await _post(endpoint, body);
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  /// Public GET request (returns parsed JSON)
+  Future<Map<String, dynamic>> get(String endpoint) async {
+    final response = await _get(endpoint);
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  /// Public DELETE request (returns parsed JSON)
+  Future<Map<String, dynamic>> delete(String endpoint) async {
+    final response = await _delete(endpoint);
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
   /// Get current user profile
   Future<ApiResponse<UserProfile>> getCurrentUser() async {
     try {
@@ -592,7 +610,7 @@ class ApiService {
       final request = http.MultipartRequest('POST', uri);
 
       // Add auth header
-      final token = await _getToken();
+      final token = _authService.currentUser?.jwtToken;
       if (token != null) {
         request.headers['Authorization'] = 'Bearer $token';
       }
@@ -1754,6 +1772,9 @@ class LikesData {
     required this.likes,
   });
 
+  // Alias for count
+  int get totalCount => count;
+
   factory LikesData.fromJson(Map<String, dynamic> json) {
     return LikesData(
       count: _parseIntSafe(json['count']) ?? 0,
@@ -1781,6 +1802,7 @@ class LikeProfile {
   final int? age;
   final bool isVerified;
   final DateTime likedAt;
+  final double? distance;
 
   LikeProfile({
     required this.userId,
@@ -1789,7 +1811,11 @@ class LikeProfile {
     this.age,
     this.isVerified = false,
     required this.likedAt,
+    this.distance,
   });
+
+  // Alias for picture
+  String? get photoUrl => picture;
 
   factory LikeProfile.fromJson(Map<String, dynamic> json) {
     return LikeProfile(
@@ -1801,6 +1827,7 @@ class LikeProfile {
       likedAt: json['liked_at'] != null
           ? DateTime.parse(json['liked_at'])
           : DateTime.now(),
+      distance: _parseDoubleSafe(json['distance']),
     );
   }
 }
