@@ -1170,6 +1170,39 @@ app.get("/api/discover", async (c) => {
   }
 });
 
+// Get daily picks (curated selection of profiles)
+app.get("/api/daily-picks", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+
+    // Get profiles and return top 5 as daily picks
+    const profiles = await getDiscoverProfiles(userId, 5, 0);
+
+    // Add "picked today" timestamp
+    const today = new Date().toISOString().split('T')[0];
+
+    return c.json({
+      success: true,
+      picks: profiles,
+      date: today,
+      refreshesAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
+    });
+  } catch (error: any) {
+    console.error("Daily picks error:", error);
+    return c.json({ success: false, error: "Failed to get daily picks" }, 500);
+  }
+});
+
 // Record swipe action
 app.post("/api/swipes", async (c) => {
   try {
