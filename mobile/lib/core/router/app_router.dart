@@ -30,6 +30,7 @@ import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
 import '../../presentation/features/couple/screens/couple_activities_feed_screen.dart';
 import '../../presentation/features/couple/screens/couple_activity_detail_screen.dart';
 import '../../presentation/features/couple/screens/couple_events_screen.dart';
+import '../../presentation/features/couple/screens/couple_event_detail_screen.dart';
 import '../../presentation/features/couple/screens/couple_space_screen.dart';
 import '../../presentation/features/couple/screens/saved_activities_screen.dart';
 import '../../presentation/features/likes/screens/likes_screen.dart';
@@ -312,7 +313,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       final eventId = state.pathParameters['eventId']!;
                       return CustomTransitionPage(
                         key: state.pageKey,
-                        child: EventDetailScreen(eventId: eventId),
+                        child: CoupleEventDetailScreen(eventId: eventId),
                         transitionsBuilder: slideUpTransition,
                       );
                     },

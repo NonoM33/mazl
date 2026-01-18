@@ -506,10 +506,13 @@ class _EventCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Bottom row: Price + Spots + Button
-                  Row(
+                  // Bottom row: Price + Spots
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      // Price
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
@@ -526,64 +529,34 @@ class _EventCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-
-                      // Spots left
-                      if (event.maxCouples != null) ...[
-                        Icon(
-                          LucideIcons.users,
-                          size: 16,
-                          color: event.isFull
-                              ? AppColors.error
-                              : Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          event.isFull
-                              ? 'Complet'
-                              : '${event.spotsLeft} places',
-                          style: TextStyle(
-                            color: event.isFull
-                                ? AppColors.error
-                                : Colors.grey[600],
-                            fontSize: 13,
-                            fontWeight:
-                                event.isFull ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-
-                      const Spacer(),
-
-                      // Register/Cancel button
-                      if (showRegisterButton && !isRegistered && !event.isFull)
-                        ElevatedButton(
-                          onPressed: onRegister,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: coupleAccent,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                      if (event.maxCouples != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LucideIcons.users,
+                              size: 16,
+                              color: event.isFull
+                                  ? AppColors.error
+                                  : Colors.grey[600],
                             ),
-                          ),
-                          child: const Text('S\'inscrire'),
-                        )
-                      else if (isRegistered)
-                        OutlinedButton(
-                          onPressed: onCancel,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.error,
-                            side: const BorderSide(color: AppColors.error),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                            const SizedBox(width: 4),
+                            Text(
+                              event.isFull
+                                  ? 'Complet'
+                                  : '${event.spotsLeft} places',
+                              style: TextStyle(
+                                color: event.isFull
+                                    ? AppColors.error
+                                    : Colors.grey[600],
+                                fontSize: 13,
+                                fontWeight:
+                                    event.isFull ? FontWeight.w600 : FontWeight.normal,
+                              ),
                             ),
-                          ),
-                          child: const Text('Annuler'),
+                          ],
                         ),
+                      _buildActionButton(),
                     ],
                   ),
                 ],
@@ -593,6 +566,37 @@ class _EventCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildActionButton() {
+    if (showRegisterButton && !isRegistered && !event.isFull) {
+      return ElevatedButton(
+        onPressed: onRegister,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: coupleAccent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: const Text('S\'inscrire'),
+      );
+    } else if (isRegistered) {
+      return OutlinedButton(
+        onPressed: onCancel,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.error,
+          side: const BorderSide(color: AppColors.error),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: const Text('Annuler'),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildPlaceholder() {
