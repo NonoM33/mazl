@@ -8,6 +8,10 @@ pipeline {
         FLUTTER_HOME = "/opt/homebrew/share/flutter"
         PATH = "${JAVA_HOME}/bin:${FLUTTER_HOME}/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/cmdline-tools/latest/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         COOLIFY_URL = "http://157.180.43.90:8000"
+        LANG = "en_US.UTF-8"
+        LC_ALL = "en_US.UTF-8"
+        FASTLANE_SKIP_UPDATE_CHECK = "1"
+        FASTLANE_HIDE_CHANGELOG = "1"
     }
 
     parameters {
@@ -50,12 +54,12 @@ pipeline {
         stage('Build Android') {
             steps {
                 dir("${params.FLUTTER_DIR}") {
-                    sh 'flutter build apk --release'
+                    sh 'flutter build appbundle --release'
                 }
             }
             post {
                 success {
-                    archiveArtifacts artifacts: "${params.FLUTTER_DIR}/build/app/outputs/**/*.apk", fingerprint: true
+                    archiveArtifacts artifacts: "${params.FLUTTER_DIR}/build/app/outputs/**/*.aab", fingerprint: true
                 }
             }
         }
@@ -63,12 +67,56 @@ pipeline {
         stage('Build iOS') {
             steps {
                 dir("${params.FLUTTER_DIR}") {
-                    sh 'flutter build ios --release --no-codesign'
+                    withCredentials([
+                        string(credentialsId: 'asc-key-id', variable: 'ASC_KEY_ID'),
+                        string(credentialsId: 'asc-issuer-id', variable: 'ASC_ISSUER_ID')
+                    ]) {
+                        sh 'flutter build ipa --release --export-options-plist=ios/ExportOptions.plist || flutter build ipa --release || true'
+                    }
                 }
             }
             post {
                 success {
                     archiveArtifacts artifacts: "${params.FLUTTER_DIR}/build/ios/ipa/*.ipa", allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Deploy to Google Play') {
+            when {
+                expression {
+                    return fileExists("${params.FLUTTER_DIR}/build/app/outputs/bundle/release/app-release.aab")
+                }
+            }
+            steps {
+                dir("${params.FLUTTER_DIR}") {
+                    sh """
+                        fastlane supply \
+                          --aab build/app/outputs/bundle/release/app-release.aab \
+                          --track internal \
+                          --json_key /Users/renaud/.jenkins/credentials/google-play-service-account.json \
+                          --skip_upload_metadata \
+                          --skip_upload_images \
+                          --skip_upload_screenshots
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to TestFlight') {
+            when {
+                expression {
+                    def ipaFiles = findFiles(glob: "${params.FLUTTER_DIR}/build/ios/ipa/*.ipa")
+                    return ipaFiles.length > 0
+                }
+            }
+            steps {
+                dir("${params.FLUTTER_DIR}") {
+                    sh '''
+                        fastlane pilot upload \
+                          --ipa build/ios/ipa/*.ipa \
+                          --api_key_path /Users/renaud/.jenkins/credentials/asc_api_key.json
+                    '''
                 }
             }
         }
@@ -102,11 +150,31 @@ pipeline {
         always {
             cleanWs()
         }
-        failure {
-            echo 'Build failed!'
-        }
         success {
-            echo 'Build succeeded!'
+            withCredentials([
+                string(credentialsId: 'telegram-bot-token', variable: 'TG_TOKEN'),
+                string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT')
+            ]) {
+                sh """
+                    curl -s "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
+                      -d "chat_id=\${TG_CHAT}" \
+                      -d "parse_mode=HTML" \
+                      -d "text=<b>BUILD OK</b> %E2%9C%85%0A%0AJob: <b>${env.JOB_NAME}</b>%0ABuild: %23${env.BUILD_NUMBER}%0ABranche: ${env.GIT_BRANCH ?: 'N/A'}%0A%0A<a href='${env.BUILD_URL}'>Voir le build</a>"
+                """
+            }
+        }
+        failure {
+            withCredentials([
+                string(credentialsId: 'telegram-bot-token', variable: 'TG_TOKEN'),
+                string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT')
+            ]) {
+                sh """
+                    curl -s "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
+                      -d "chat_id=\${TG_CHAT}" \
+                      -d "parse_mode=HTML" \
+                      -d "text=<b>BUILD FAILED</b> %E2%9D%8C%0A%0AJob: <b>${env.JOB_NAME}</b>%0ABuild: %23${env.BUILD_NUMBER}%0ABranche: ${env.GIT_BRANCH ?: 'N/A'}%0A%0A<a href='${env.BUILD_URL}'>Voir le build</a>"
+                """
+            }
         }
     }
 }
