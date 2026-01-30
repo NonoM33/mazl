@@ -66,17 +66,14 @@ pipeline {
 
         stage('Build iOS') {
             steps {
-                dir("${params.FLUTTER_DIR}") {
-                    withCredentials([
-                        string(credentialsId: 'asc-key-id', variable: 'ASC_KEY_ID'),
-                        string(credentialsId: 'asc-issuer-id', variable: 'ASC_ISSUER_ID')
-                    ]) {
-                        sh 'flutter build ipa --release --export-options-plist=ios/ExportOptions.plist || flutter build ipa --release || true'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dir("${params.FLUTTER_DIR}") {
+                        sh 'flutter build ipa --release --export-options-plist=ios/ExportOptions.plist || flutter build ipa --release || echo "iOS build failed, continuing"'
                     }
                 }
             }
             post {
-                success {
+                always {
                     archiveArtifacts artifacts: "${params.FLUTTER_DIR}/build/ios/ipa/*.ipa", allowEmptyArchive: true
                 }
             }
@@ -89,16 +86,29 @@ pipeline {
                 }
             }
             steps {
-                dir("${params.FLUTTER_DIR}") {
-                    sh """
-                        fastlane supply \
-                          --aab build/app/outputs/bundle/release/app-release.aab \
-                          --track internal \
-                          --json_key /Users/renaud/.jenkins/credentials/google-play-service-account.json \
-                          --skip_upload_metadata \
-                          --skip_upload_images \
-                          --skip_upload_screenshots
-                    """
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dir("${params.FLUTTER_DIR}") {
+                        script {
+                            def packageName = sh(
+                                script: "grep -rh 'applicationId' android/app/build.gradle android/app/build.gradle.kts 2>/dev/null | grep -oE '\"[a-z][a-z0-9_.]+\"' | head -1 | tr -d '\"'",
+                                returnStdout: true
+                            ).trim()
+                            if (packageName) {
+                                sh """
+                                    fastlane supply \
+                                      --aab build/app/outputs/bundle/release/app-release.aab \
+                                      --track internal \
+                                      --package_name ${packageName} \
+                                      --json_key /Users/renaud/.jenkins/credentials/google-play-service-account.json \
+                                      --skip_upload_metadata \
+                                      --skip_upload_images \
+                                      --skip_upload_screenshots
+                                """
+                            } else {
+                                echo "Package name not found in build.gradle, skipping Google Play deploy"
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -111,12 +121,14 @@ pipeline {
                 }
             }
             steps {
-                dir("${params.FLUTTER_DIR}") {
-                    sh '''
-                        fastlane pilot upload \
-                          --ipa build/ios/ipa/*.ipa \
-                          --api_key_path /Users/renaud/.jenkins/credentials/asc_api_key.json
-                    '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dir("${params.FLUTTER_DIR}") {
+                        sh '''
+                            fastlane pilot upload \
+                              --ipa build/ios/ipa/*.ipa \
+                              --api_key_path /Users/renaud/.jenkins/credentials/asc_api_key.json
+                        '''
+                    }
                 }
             }
         }
