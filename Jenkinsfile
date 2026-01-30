@@ -187,8 +187,12 @@ pipeline {
                     # Fetch last 150 lines of build log via Jenkins API
                     BUILD_LOG=$(curl -s -u "renaud:24536Tetr@" "${BUILD_URL}consoleText" | tail -150)
 
-                    # Write Claude request payload
-                    python3 -c "
+                    if [ -z "$BUILD_LOG" ]; then
+                        echo "[WARN] Could not fetch build log, skipping Claude analysis"
+                        ANALYSIS="Log indisponible"
+                    else
+                        # Write Claude request payload
+                        python3 -c "
 import json, sys
 log = sys.stdin.read()
 payload = {
@@ -202,22 +206,32 @@ payload = {
 json.dump(payload, open('/tmp/claude_request.json', 'w'))
 " <<< "$BUILD_LOG"
 
-                    # Call Claude API
-                    CLAUDE_RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-                      -H "x-api-key: ${ANTHROPIC_KEY}" \
-                      -H "anthropic-version: 2023-06-01" \
-                      -H "content-type: application/json" \
-                      -d @/tmp/claude_request.json)
+                        # Call Claude API
+                        HTTP_CODE=$(curl -s -o /tmp/claude_response.json -w '%{http_code}' https://api.anthropic.com/v1/messages \
+                          -H "x-api-key: ${ANTHROPIC_KEY}" \
+                          -H "anthropic-version: 2023-06-01" \
+                          -H "content-type: application/json" \
+                          -d @/tmp/claude_request.json)
 
-                    # Extract analysis text
-                    ANALYSIS=$(python3 -c "
+                        echo "[DEBUG] Claude API HTTP status: $HTTP_CODE"
+
+                        if [ "$HTTP_CODE" = "200" ]; then
+                            ANALYSIS=$(python3 -c "
 import json, sys
 try:
     data = json.loads(sys.stdin.read())
     print(data['content'][0]['text'])
-except:
-    print('Analyse indisponible')
-" <<< "$CLAUDE_RESPONSE")
+except Exception as e:
+    print('Erreur parsing: ' + str(e))
+" < /tmp/claude_response.json)
+                        else
+                            echo "[WARN] Claude API returned HTTP $HTTP_CODE"
+                            cat /tmp/claude_response.json 2>/dev/null
+                            ANALYSIS="Analyse indisponible (HTTP $HTTP_CODE)"
+                        fi
+
+                        rm -f /tmp/claude_request.json /tmp/claude_response.json
+                    fi
 
                     # Send to Telegram
                     MSG=$(printf '❌ BUILD FAILED\n\nJob: %s\nBuild: #%s\n\n🤖 Analyse Claude:\n%s\n\n%s' \
@@ -226,8 +240,6 @@ except:
                     curl -s "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
                       -d "chat_id=${TG_CHAT}" \
                       --data-urlencode "text=${MSG}"
-
-                    rm -f /tmp/claude_request.json
                 '''
             }
         }
