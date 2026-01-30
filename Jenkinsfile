@@ -116,8 +116,7 @@ pipeline {
         stage('Deploy to TestFlight') {
             when {
                 expression {
-                    def ipaFiles = findFiles(glob: "${params.FLUTTER_DIR}/build/ios/ipa/*.ipa")
-                    return ipaFiles.length > 0
+                    return sh(script: "ls ${params.FLUTTER_DIR}/build/ios/ipa/*.ipa 2>/dev/null", returnStatus: true) == 0
                 }
             }
             steps {
