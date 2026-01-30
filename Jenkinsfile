@@ -166,14 +166,66 @@ pipeline {
         failure {
             withCredentials([
                 string(credentialsId: 'telegram-bot-token', variable: 'TG_TOKEN'),
-                string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT')
+                string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT'),
+                string(credentialsId: 'anthropic-api-key', variable: 'ANTHROPIC_KEY')
             ]) {
-                sh """
-                    curl -s "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
-                      -d "chat_id=\${TG_CHAT}" \
-                      -d "parse_mode=HTML" \
-                      -d "text=<b>BUILD FAILED</b> %E2%9D%8C%0A%0AJob: <b>${env.JOB_NAME}</b>%0ABuild: %23${env.BUILD_NUMBER}%0ABranche: ${env.GIT_BRANCH ?: 'N/A'}%0A%0A<a href='${env.BUILD_URL}'>Voir le build</a>"
-                """
+                script {
+                    // Grab last 150 lines of console log
+                    def logLines = currentBuild.rawBuild.getLog(150).join('\n')
+
+                    // Escape for JSON
+                    def escapedLog = logLines
+                        .replace('\\', '\\\\')
+                        .replace('"', '\\"')
+                        .replace('\n', '\\n')
+                        .replace('\r', '')
+                        .replace('\t', '\\t')
+
+                    // Call Claude API
+                    def claudePayload = """
+{
+  "model": "claude-sonnet-4-20250514",
+  "max_tokens": 1024,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Tu es un expert CI/CD Flutter. Analyse ce log de build Jenkins qui a echoue. Reponds en francais, max 800 caracteres. Donne:\\n1. Le stage qui a echoue\\n2. La cause exacte de l'erreur\\n3. Comment corriger\\n\\nLog:\\n${escapedLog}"
+    }
+  ]
+}"""
+
+                    writeFile file: '/tmp/claude_request.json', text: claudePayload
+
+                    def claudeResponse = sh(
+                        script: '''
+                            curl -s https://api.anthropic.com/v1/messages \
+                              -H "x-api-key: ${ANTHROPIC_KEY}" \
+                              -H "anthropic-version: 2023-06-01" \
+                              -H "content-type: application/json" \
+                              -d @/tmp/claude_request.json
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    def analysis = ''
+                    try {
+                        def json = readJSON text: claudeResponse
+                        analysis = json.content[0].text
+                    } catch (e) {
+                        analysis = 'Analyse indisponible'
+                    }
+
+                    // URL-encode the analysis for Telegram
+                    def encodedAnalysis = java.net.URLEncoder.encode(analysis, 'UTF-8')
+                    def header = java.net.URLEncoder.encode("\u274C BUILD FAILED\n\nJob: ${env.JOB_NAME}\nBuild: #${env.BUILD_NUMBER}\n\n\uD83E\uDD16 Analyse Claude:\n", 'UTF-8')
+                    def footer = java.net.URLEncoder.encode("\n\n${env.BUILD_URL}", 'UTF-8')
+
+                    sh """
+                        curl -s "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
+                          -d "chat_id=\${TG_CHAT}" \
+                          -d "text=${header}${encodedAnalysis}${footer}"
+                    """
+                }
             }
         }
     }
