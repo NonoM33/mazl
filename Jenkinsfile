@@ -169,63 +169,54 @@ pipeline {
                 string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT'),
                 string(credentialsId: 'anthropic-api-key', variable: 'ANTHROPIC_KEY')
             ]) {
-                script {
-                    // Grab last 150 lines of console log
-                    def logLines = currentBuild.rawBuild.getLog(150).join('\n')
+                sh '''#!/bin/bash
+                    set +e
 
-                    // Escape for JSON
-                    def escapedLog = logLines
-                        .replace('\\', '\\\\')
-                        .replace('"', '\\"')
-                        .replace('\n', '\\n')
-                        .replace('\r', '')
-                        .replace('\t', '\\t')
+                    # Fetch last 150 lines of build log via Jenkins API
+                    BUILD_LOG=$(curl -s -u "renaud:24536Tetr@" "${BUILD_URL}consoleText" | tail -150)
 
-                    // Call Claude API
-                    def claudePayload = """
-{
-  "model": "claude-sonnet-4-20250514",
-  "max_tokens": 1024,
-  "messages": [
-    {
-      "role": "user",
-      "content": "Tu es un expert CI/CD Flutter. Analyse ce log de build Jenkins qui a echoue. Reponds en francais, max 800 caracteres. Donne:\\n1. Le stage qui a echoue\\n2. La cause exacte de l'erreur\\n3. Comment corriger\\n\\nLog:\\n${escapedLog}"
-    }
-  ]
-}"""
+                    # Write Claude request payload
+                    python3 -c "
+import json, sys
+log = sys.stdin.read()
+payload = {
+    'model': 'claude-sonnet-4-20250514',
+    'max_tokens': 1024,
+    'messages': [{
+        'role': 'user',
+        'content': 'Tu es un expert CI/CD Flutter. Analyse ce log de build Jenkins qui a echoue. Reponds en francais, max 800 caracteres. Donne: 1) Le stage qui a echoue 2) La cause exacte 3) Comment corriger\\n\\nLog:\\n' + log[-4000:]
+    }]
+}
+json.dump(payload, open('/tmp/claude_request.json', 'w'))
+" <<< "$BUILD_LOG"
 
-                    writeFile file: '/tmp/claude_request.json', text: claudePayload
+                    # Call Claude API
+                    CLAUDE_RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+                      -H "x-api-key: ${ANTHROPIC_KEY}" \
+                      -H "anthropic-version: 2023-06-01" \
+                      -H "content-type: application/json" \
+                      -d @/tmp/claude_request.json)
 
-                    def claudeResponse = sh(
-                        script: '''
-                            curl -s https://api.anthropic.com/v1/messages \
-                              -H "x-api-key: ${ANTHROPIC_KEY}" \
-                              -H "anthropic-version: 2023-06-01" \
-                              -H "content-type: application/json" \
-                              -d @/tmp/claude_request.json
-                        ''',
-                        returnStdout: true
-                    ).trim()
+                    # Extract analysis text
+                    ANALYSIS=$(python3 -c "
+import json, sys
+try:
+    data = json.loads(sys.stdin.read())
+    print(data['content'][0]['text'])
+except:
+    print('Analyse indisponible')
+" <<< "$CLAUDE_RESPONSE")
 
-                    def analysis = ''
-                    try {
-                        def json = readJSON text: claudeResponse
-                        analysis = json.content[0].text
-                    } catch (e) {
-                        analysis = 'Analyse indisponible'
-                    }
+                    # Send to Telegram
+                    MSG=$(printf '❌ BUILD FAILED\n\nJob: %s\nBuild: #%s\n\n🤖 Analyse Claude:\n%s\n\n%s' \
+                      "${JOB_NAME}" "${BUILD_NUMBER}" "$ANALYSIS" "${BUILD_URL}")
 
-                    // URL-encode the analysis for Telegram
-                    def encodedAnalysis = java.net.URLEncoder.encode(analysis, 'UTF-8')
-                    def header = java.net.URLEncoder.encode("\u274C BUILD FAILED\n\nJob: ${env.JOB_NAME}\nBuild: #${env.BUILD_NUMBER}\n\n\uD83E\uDD16 Analyse Claude:\n", 'UTF-8')
-                    def footer = java.net.URLEncoder.encode("\n\n${env.BUILD_URL}", 'UTF-8')
+                    curl -s "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+                      -d "chat_id=${TG_CHAT}" \
+                      --data-urlencode "text=${MSG}"
 
-                    sh """
-                        curl -s "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
-                          -d "chat_id=\${TG_CHAT}" \
-                          -d "text=${header}${encodedAnalysis}${footer}"
-                    """
-                }
+                    rm -f /tmp/claude_request.json
+                '''
             }
         }
     }
