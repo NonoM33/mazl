@@ -68,7 +68,50 @@ pipeline {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                     dir("${params.FLUTTER_DIR}") {
-                        sh 'flutter build ipa --release --export-options-plist=ios/ExportOptions.plist || flutter build ipa --release || echo "iOS build failed, continuing"'
+                        sh '''#!/bin/bash
+                            set -e
+
+                            # Step 1: Build unsigned app (fast, ~90s)
+                            flutter build ios --no-codesign --release
+
+                            APP="build/ios/iphoneos/Runner.app"
+                            CERT="Apple Distribution: Renaud cosson (66GH4N82J9)"
+                            PROFILE_UUID="399500f9-c3a4-43b5-8b3e-8a8cb906c050"
+                            PROFILE="$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
+                            ENT="ios/Runner/Runner.entitlements"
+                            IPA_DIR="build/ios/ipa"
+
+                            # Step 2: Embed provisioning profile
+                            cp "$PROFILE" "$APP/embedded.mobileprovision"
+
+                            # Step 3: Sign all frameworks
+                            for fw in "$APP/Frameworks/"*.framework; do
+                                codesign -f -s "$CERT" "$fw"
+                            done
+                            for dylib in "$APP/Frameworks/"*.dylib; do
+                                [ -f "$dylib" ] && codesign -f -s "$CERT" "$dylib"
+                            done
+
+                            # Step 4: Sign the main app
+                            codesign -f -s "$CERT" --entitlements "$ENT" "$APP"
+
+                            # Step 5: Verify signature
+                            codesign -dvv "$APP"
+
+                            # Step 6: Create IPA
+                            mkdir -p "$IPA_DIR"
+                            rm -f "$IPA_DIR"/*.ipa
+                            TMPD=$(mktemp -d)
+                            mkdir -p "$TMPD/Payload"
+                            cp -R "$APP" "$TMPD/Payload/"
+                            cd "$TMPD"
+                            zip -qr "$WORKSPACE/${FLUTTER_DIR}/$IPA_DIR/Runner.ipa" Payload
+                            rm -rf "$TMPD"
+                            cd "$WORKSPACE/${FLUTTER_DIR}"
+
+                            echo "IPA created:"
+                            ls -lh "$IPA_DIR/"*.ipa
+                        '''
                     }
                 }
             }
