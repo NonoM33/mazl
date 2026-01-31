@@ -71,6 +71,10 @@ pipeline {
                         sh '''#!/bin/bash
                             set -e
 
+                            # Step 0: Unlock keychain for codesign
+                            security unlock-keychain -p "renaud2026" ~/Library/Keychains/login.keychain-db
+                            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "renaud2026" ~/Library/Keychains/login.keychain-db > /dev/null
+
                             # Step 1: Build unsigned app (fast, ~90s)
                             flutter build ios --no-codesign --release
 
