@@ -137,6 +137,7 @@ class PremiumGate {
     );
 
     if (result == true) {
+      if (!context.mounted) return false;
       return checkAccess(context, feature);
     }
 
@@ -221,7 +222,7 @@ class _PremiumFeatureSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -269,7 +270,7 @@ class _PremiumFeatureSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.secondary.withOpacity(0.4),
+                  color: AppColors.secondary.withValues(alpha: 0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),

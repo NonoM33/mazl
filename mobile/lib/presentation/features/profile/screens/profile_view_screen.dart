@@ -245,7 +245,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                                     userBio,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                                       height: 1.5,
                                     ),
                                   ),
@@ -315,7 +315,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                                     lookingFor,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                                       height: 1.5,
                                     ),
                                   ),
@@ -422,16 +422,16 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         margin: const EdgeInsets.only(top: 16, bottom: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.grey.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(LucideIcons.heartHandshake, color: Colors.grey[600], size: 24),
@@ -466,19 +466,19 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.accentGold.withOpacity(0.1),
-              AppColors.accentGold.withOpacity(0.05),
+              AppColors.accentGold.withValues(alpha: 0.1),
+              AppColors.accentGold.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+          border: Border.all(color: AppColors.accentGold.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.accentGold.withOpacity(0.2),
+                color: AppColors.accentGold.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(LucideIcons.clock, color: AppColors.accentGold, size: 24),
@@ -525,7 +525,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF6B9D).withOpacity(0.3),
+            color: const Color(0xFFFF6B9D).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -539,7 +539,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(LucideIcons.heartHandshake, color: Colors.white, size: 24),
@@ -561,7 +561,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           Text(
             'Vous avez matche ! Pret a passer a l\'etape suivante ?',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.95),
+              color: Colors.white.withValues(alpha: 0.95),
               fontSize: 14,
               height: 1.4,
             ),
@@ -570,7 +570,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           Text(
             'Activez le mode couple pour profiter d\'activites exclusives ensemble et montrer au monde que vous etes ensemble.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: 13,
               height: 1.4,
             ),
@@ -739,10 +739,10 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                       shape: BoxShape.circle,
                       color: index == _currentPhotoIndex
                           ? Colors.white
-                          : Colors.white.withOpacity(0.5),
+                          : Colors.white.withValues(alpha: 0.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 4,
                         ),
                       ],
@@ -805,7 +805,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 gradient: LinearGradient(
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.3),
+                    Colors.black.withValues(alpha: 0.3),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -833,7 +833,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           children: [
             CircleAvatar(
               radius: 60,
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
               child: Text(
                 userName.isNotEmpty ? userName[0].toUpperCase() : '?',
                 style: const TextStyle(
@@ -847,7 +847,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             Text(
               'Pas de photo',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),
@@ -858,8 +858,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   Widget _buildAICompatibilityCard(String userName) {
-    // TODO: Check subscription status from provider
-    final hasPremium = false; // Replace with actual subscription check
+    final hasPremium = ref.watch(isMazlProProvider);
 
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 16),
@@ -873,7 +872,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6C5CE7).withOpacity(0.3),
+            color: const Color(0xFF6C5CE7).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -887,7 +886,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -911,7 +910,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
@@ -949,7 +948,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 Text(
                   'compatible',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 16,
                   ),
                 ),
@@ -959,7 +958,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             Text(
               'Memes valeurs, interets communs en cuisine et voyages',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.85),
+                color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 13,
                 height: 1.4,
               ),
@@ -969,7 +968,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             Text(
               'Decouvre ton score de compatibilite avec $userName',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -1027,7 +1026,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 border: Border.all(color: Colors.white, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -1039,13 +1038,13 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         imageUrl: fallbackPicture,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           child: const Center(
                             child: CircularProgressIndicator(color: Colors.white),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           child: Center(
                             child: Text(
                               userName.isNotEmpty ? userName[0].toUpperCase() : '?',
@@ -1059,7 +1058,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                         ),
                       )
                     : Container(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         child: Center(
                           child: Text(
                             userName.isNotEmpty ? userName[0].toUpperCase() : '?',
@@ -1084,7 +1083,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -1139,9 +1138,9 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.success.withOpacity(0.1),
+              color: AppColors.success.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1190,7 +1189,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           ),
           const SizedBox(width: 8),
           Text(
-            '${distance!.round()} km',
+            '${distance.round()} km',
             style: TextStyle(
               fontSize: 15,
               color: Colors.grey[600],
@@ -1249,14 +1248,14 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.secondary.withOpacity(0.1),
+            AppColors.primary.withValues(alpha: 0.1),
+            AppColors.secondary.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1300,7 +1299,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: Colors.grey.withOpacity(0.2),
+              backgroundColor: Colors.grey.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 6,
             ),
@@ -1317,8 +1316,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   height: 24,
                   decoration: BoxDecoration(
                     color: step.isComplete
-                        ? AppColors.success.withOpacity(0.2)
-                        : Colors.grey.withOpacity(0.1),
+                        ? AppColors.success.withValues(alpha: 0.2)
+                        : Colors.grey.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1348,7 +1347,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.1),
+              color: AppColors.accentGold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -1442,7 +1441,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1508,7 +1507,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: (color ?? AppColors.primary).withOpacity(0.1),
+          color: (color ?? AppColors.primary).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: color ?? AppColors.primary, size: 22),
@@ -1535,7 +1534,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 20),
@@ -1550,7 +1549,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         color: Theme.of(context).scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -1601,12 +1600,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: color.withOpacity(0.3), width: 2),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
         ),
         child: Icon(icon, color: color, size: size * 0.4),
       ),
@@ -1663,7 +1662,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 'Vous pouvez maintenant discuter avec ${_otherProfile?.displayName ?? "cette personne"}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 16,
                 ),
               ),

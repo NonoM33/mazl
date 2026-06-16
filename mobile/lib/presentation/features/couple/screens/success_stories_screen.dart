@@ -197,7 +197,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
+              color: AppColors.secondary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -261,8 +261,8 @@ class _SuccessStoryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.secondary.withOpacity(0.1),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.secondary.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -398,7 +398,7 @@ class _SuccessStoryCard extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: story.isLikedByMe
-                          ? AppColors.secondary.withOpacity(0.1)
+                          ? AppColors.secondary.withValues(alpha: 0.1)
                           : Colors.grey[100],
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -475,7 +475,7 @@ class _SuccessStoryCard extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
           ),
         ],
@@ -535,7 +535,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
   final _apiService = ApiService();
   String _selectedStatus = 'dating';
   DateTime? _statusDate;
-  List<String> _photoUrls = [];
+  final List<String> _photoUrls = [];
   bool _isSubmitting = false;
 
   @override
@@ -746,7 +746,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
           setState(() => _selectedStatus = value);
         }
       },
-      selectedColor: AppColors.secondary.withOpacity(0.2),
+      selectedColor: AppColors.secondary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
         color: isSelected ? AppColors.secondary : Colors.grey[700],
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,

@@ -126,7 +126,7 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: iconColor),
@@ -415,7 +415,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                                 width: isSelected ? 2 : 1,
                               ),
                               borderRadius: BorderRadius.circular(12),
-                              color: isSelected ? AppColors.primary.withOpacity(0.05) : null,
+                              color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : null,
                             ),
                             child: Row(
                               children: [

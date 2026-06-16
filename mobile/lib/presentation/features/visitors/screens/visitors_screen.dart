@@ -156,7 +156,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6C5CE7).withOpacity(0.3),
+            color: const Color(0xFF6C5CE7).withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -168,7 +168,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -193,7 +193,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                 Text(
                   '$thisWeek cette semaine',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
                   ),
                 ),
@@ -210,16 +210,16 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withOpacity(0.1),
+        color: AppColors.accentGold.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+        border: Border.all(color: AppColors.accentGold.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.2),
+              color: AppColors.accentGold.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(LucideIcons.crown, color: AppColors.accentGold, size: 24),
@@ -343,7 +343,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.accentGold.withOpacity(0.1),
+                color: AppColors.accentGold.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -443,7 +443,7 @@ class _VisitorCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -481,7 +481,7 @@ class _VisitorCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                     stops: const [0.5, 1.0],
                   ),
@@ -494,7 +494,7 @@ class _VisitorCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -529,13 +529,13 @@ class _VisitorCard extends StatelessWidget {
                         Icon(
                           LucideIcons.clock,
                           size: 12,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           _formatVisitTime(),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 12,
                           ),
                         ),

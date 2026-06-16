@@ -58,6 +58,8 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
         // Archive all other conversations with a goodbye message
         await _coupleService.archiveOtherConversations();
 
+        if (!mounted) return;
+
         setState(() => _isLoading = false);
         Navigator.of(context).pop();
 
@@ -158,7 +160,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
                 else
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: AppColors.primary.withOpacity(0.2),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                     child: Text(
                       widget.request.requesterName.isNotEmpty
                           ? widget.request.requesterName[0].toUpperCase()
@@ -195,7 +197,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

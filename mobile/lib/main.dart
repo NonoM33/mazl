@@ -38,9 +38,6 @@ void main() async {
   // Initialize Push Notifications (OneSignal)
   await PushNotificationService().initialize();
 
-  // TODO: Initialize Hive for local storage
-  // await Hive.initFlutter();
-
   runApp(
     const ProviderScope(
       child: MazlApp(),

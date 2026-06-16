@@ -172,7 +172,7 @@ class _CoupleActivityDetailScreenState
                       imageUrl: activity.imageUrl!,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: coupleAccent.withOpacity(0.3),
+                        color: coupleAccent.withValues(alpha: 0.3),
                       ),
                       errorWidget: (context, url, error) =>
                           _buildPlaceholder(activity),
@@ -185,7 +185,7 @@ class _CoupleActivityDetailScreenState
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -228,7 +228,7 @@ class _CoupleActivityDetailScreenState
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: coupleAccent.withOpacity(0.1),
+                          color: coupleAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -260,7 +260,7 @@ class _CoupleActivityDetailScreenState
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.6),
+                                  .withValues(alpha: 0.6),
                               fontSize: 14,
                             ),
                           ),
@@ -290,7 +290,7 @@ class _CoupleActivityDetailScreenState
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.6),
+                              .withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -300,7 +300,7 @@ class _CoupleActivityDetailScreenState
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -312,7 +312,7 @@ class _CoupleActivityDetailScreenState
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.6),
+                              .withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -322,7 +322,7 @@ class _CoupleActivityDetailScreenState
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -366,10 +366,10 @@ class _CoupleActivityDetailScreenState
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.accentGold.withOpacity(0.1),
+                        color: AppColors.accentGold.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppColors.accentGold.withOpacity(0.3),
+                          color: AppColors.accentGold.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -377,7 +377,7 @@ class _CoupleActivityDetailScreenState
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: AppColors.accentGold.withOpacity(0.2),
+                              color: AppColors.accentGold.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -439,7 +439,7 @@ class _CoupleActivityDetailScreenState
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.8),
+                          .withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -463,7 +463,7 @@ class _CoupleActivityDetailScreenState
                                   '#$tag',
                                   style: const TextStyle(fontSize: 12),
                                 ),
-                                backgroundColor: coupleAccent.withOpacity(0.1),
+                                backgroundColor: coupleAccent.withValues(alpha: 0.1),
                               ))
                           .toList(),
                     ),
@@ -486,7 +486,7 @@ class _CoupleActivityDetailScreenState
                         color: Theme.of(context)
                             .colorScheme
                             .surface
-                            .withOpacity(0.5),
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: Theme.of(context).dividerColor,
@@ -512,7 +512,7 @@ class _CoupleActivityDetailScreenState
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onSurface
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                           if (activity.city != null) ...[
@@ -523,7 +523,7 @@ class _CoupleActivityDetailScreenState
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onSurface
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                           ],
@@ -584,7 +584,7 @@ class _CoupleActivityDetailScreenState
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -606,7 +606,7 @@ class _CoupleActivityDetailScreenState
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.6),
+                            .withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -664,7 +664,7 @@ class _CoupleActivityDetailScreenState
         gradient: LinearGradient(
           colors: [
             coupleAccent,
-            coupleAccent.withOpacity(0.7),
+            coupleAccent.withValues(alpha: 0.7),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -696,7 +696,7 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

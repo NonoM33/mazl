@@ -154,7 +154,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
             Icon(
               LucideIcons.wifiOff,
               size: 48,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             const Text('Impossible de charger les conversations'),
@@ -176,7 +176,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -198,7 +198,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               'Faites des matchs pour commencer\nà discuter !',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 24),
@@ -306,7 +306,7 @@ class _ConversationTile extends StatelessWidget {
               fontSize: 12,
               color: hasUnread
                   ? AppColors.primary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -321,7 +321,7 @@ class _ConversationTile extends StatelessWidget {
               style: TextStyle(
                 color: hasUnread
                     ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
               ),
             ),

@@ -122,7 +122,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
         gradient: LinearGradient(
           colors: [
             coupleAccent,
-            coupleAccent.withOpacity(0.7),
+            coupleAccent.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -140,7 +140,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -179,7 +179,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
               Text(
                 'Ensemble depuis X jours', // TODO: Calculate from couple creation
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
                 ),
               ),
@@ -199,7 +199,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
           ),
         ],
@@ -317,7 +317,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: coupleAccent.withOpacity(0.1),
+              color: coupleAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -358,7 +358,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: coupleAccent.withOpacity(0.1),
+                    color: coupleAccent.withValues(alpha: 0.1),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Stack(
@@ -431,7 +431,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.accentGold.withOpacity(0.1),
+                    color: AppColors.accentGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -457,7 +457,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.1),
+              color: AppColors.accentGold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -526,7 +526,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.info.withOpacity(0.1),
+              color: AppColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -588,7 +588,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.purple.withOpacity(0.1),
+              color: Colors.purple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -672,6 +672,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   Future<void> _completeBucketItem(int itemId) async {
     final success = await _apiService.completeBucketListItem(itemId);
     if (success) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Objectif accompli ! 🎉'),
@@ -744,7 +745,7 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -765,7 +766,7 @@ class _StatCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -797,7 +798,7 @@ class _QuickActionButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: color.withOpacity(0.3)),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -805,7 +806,7 @@ class _QuickActionButton extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 20),
@@ -817,7 +818,7 @@ class _QuickActionButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -895,7 +896,7 @@ class _BucketListItem extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -969,7 +970,7 @@ class _DateItem extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -999,7 +1000,7 @@ class _AchievementBadge extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 28),
@@ -1025,7 +1026,7 @@ class _AddMemorySheet extends StatefulWidget {
 class _AddMemorySheetState extends State<_AddMemorySheet> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  String _selectedType = 'note';
+  final String _selectedType = 'note';
 
   @override
   Widget build(BuildContext context) {
@@ -1159,7 +1160,7 @@ class _AddDateSheet extends StatefulWidget {
 class _AddDateSheetState extends State<_AddDateSheet> {
   final _titleController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  String _selectedType = 'anniversary';
+  final String _selectedType = 'anniversary';
 
   @override
   Widget build(BuildContext context) {

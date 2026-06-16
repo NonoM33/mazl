@@ -175,7 +175,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
+                color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -221,7 +221,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.accentGold.withOpacity(0.2),
+                      color: AppColors.accentGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -307,7 +307,7 @@ class _DailyPickCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -324,7 +324,7 @@ class _DailyPickCard extends StatelessWidget {
                   imageUrl: imageUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     child: const Center(
                       child: CircularProgressIndicator(color: Colors.white),
                     ),
@@ -336,7 +336,7 @@ class _DailyPickCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         AppColors.primary,
-                        AppColors.primary.withOpacity(0.7),
+                        AppColors.primary.withValues(alpha: 0.7),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -345,7 +345,7 @@ class _DailyPickCard extends StatelessWidget {
                   child: Icon(
                     LucideIcons.user,
                     size: 60,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
 
@@ -356,7 +356,7 @@ class _DailyPickCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,

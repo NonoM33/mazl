@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
@@ -110,7 +109,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                     imageUrl: event.imageUrl!,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: coupleAccent.withOpacity(0.3),
+                      color: coupleAccent.withValues(alpha: 0.3),
                     ),
                     errorWidget: (context, url, error) => _buildPlaceholder(),
                   )
@@ -119,7 +118,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
           leading: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -144,7 +143,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: coupleAccent.withOpacity(0.1),
+                        color: coupleAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -159,7 +158,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.accentGold.withOpacity(0.1),
+                          color: AppColors.accentGold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -237,7 +236,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -357,7 +356,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: coupleAccent.withOpacity(0.3),
+      color: coupleAccent.withValues(alpha: 0.3),
       child: Center(
         child: Text(
           _event?.categoryEmoji ?? '',

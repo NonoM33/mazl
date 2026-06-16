@@ -257,7 +257,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
                     decoration: InputDecoration(
                       hintText: 'Ta reponse...',
                       filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
+                      fillColor: Colors.grey.withValues(alpha: 0.1),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -390,7 +390,7 @@ class _PromptCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -403,7 +403,7 @@ class _PromptCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Row(

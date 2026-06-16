@@ -50,9 +50,9 @@ class GlassContainer extends StatelessWidget {
                   LinearGradient(
                     colors: [
                       (isDark ? AppColors.glassDark : AppColors.glassLight)
-                          .withOpacity(opacity),
+                          .withValues(alpha: opacity),
                       (isDark ? AppColors.glassDark : AppColors.glassLight)
-                          .withOpacity(opacity * 0.5),
+                          .withValues(alpha: opacity * 0.5),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -111,7 +111,7 @@ class GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: elevation * 2,
             offset: Offset(0, elevation),
           ),

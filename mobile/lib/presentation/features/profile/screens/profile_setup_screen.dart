@@ -115,7 +115,7 @@ class _BasicInfoStep extends StatelessWidget {
         Text(
           'Ces informations seront visibles sur ton profil',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 32),
@@ -184,7 +184,7 @@ class _PhotosStep extends StatelessWidget {
         Text(
           'Ajoute au moins 2 photos pour continuer',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 32),
@@ -202,7 +202,7 @@ class _PhotosStep extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: index == 0
                       ? Border.all(color: AppColors.primary, width: 2)
@@ -237,7 +237,7 @@ class _PhotosStep extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.info.withOpacity(0.1),
+            color: AppColors.info.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Row(
@@ -275,7 +275,7 @@ class _JewishInfoStep extends StatelessWidget {
         Text(
           'Aide-nous à trouver quelqu\'un qui te correspond',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 32),
@@ -361,7 +361,7 @@ class _PreferencesStep extends StatelessWidget {
         Text(
           'Aide-nous à te montrer les bons profils',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 32),
@@ -490,7 +490,7 @@ class _SelectableChip extends StatelessWidget {
       label: Text(label),
       selected: selected,
       onSelected: (value) {},
-      selectedColor: AppColors.primary.withOpacity(0.2),
+      selectedColor: AppColors.primary.withValues(alpha: 0.2),
       checkmarkColor: AppColors.primary,
     );
   }

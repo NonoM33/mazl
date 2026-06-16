@@ -164,7 +164,7 @@ class _EventsListScreenState extends State<EventsListScreen>
               color: Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -186,7 +186,7 @@ class _EventsListScreenState extends State<EventsListScreen>
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? _getTypeColor(type == 'all' ? null : type) : Colors.grey.withOpacity(0.1),
+                        color: isSelected ? _getTypeColor(type == 'all' ? null : type) : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected ? _getTypeColor(type == 'all' ? null : type) : Colors.transparent,
@@ -242,7 +242,7 @@ class _EventsListScreenState extends State<EventsListScreen>
             Icon(
               LucideIcons.wifiOff,
               size: 48,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             const Text('Impossible de charger les événements'),
@@ -264,7 +264,7 @@ class _EventsListScreenState extends State<EventsListScreen>
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -286,7 +286,7 @@ class _EventsListScreenState extends State<EventsListScreen>
               'Revenez bientôt pour découvrir\nde nouveaux événements !',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -411,7 +411,7 @@ class _EventCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
       elevation: 2,
-      shadowColor: typeColor.withOpacity(0.3),
+      shadowColor: typeColor.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -429,7 +429,7 @@ class _EventCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: event.imageUrl == null
                         ? LinearGradient(
-                            colors: [typeColor, typeColor.withOpacity(0.7)],
+                            colors: [typeColor, typeColor.withValues(alpha: 0.7)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )
@@ -442,12 +442,12 @@ class _EventCard extends StatelessWidget {
                           placeholder: (context, url) => Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [typeColor, typeColor.withOpacity(0.7)],
+                                colors: [typeColor, typeColor.withValues(alpha: 0.7)],
                               ),
                             ),
                             child: Center(
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withOpacity(0.5)),
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withValues(alpha: 0.5)),
                                 strokeWidth: 2,
                               ),
                             ),
@@ -455,7 +455,7 @@ class _EventCard extends StatelessWidget {
                           errorWidget: (context, url, error) => Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [typeColor, typeColor.withOpacity(0.7)],
+                                colors: [typeColor, typeColor.withValues(alpha: 0.7)],
                               ),
                             ),
                             child: Icon(typeIcon, size: 48, color: Colors.white54),
@@ -478,7 +478,7 @@ class _EventCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.4),
+                          Colors.black.withValues(alpha: 0.4),
                         ],
                       ),
                     ),
@@ -495,7 +495,7 @@ class _EventCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: typeColor.withOpacity(0.4),
+                          color: typeColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -561,7 +561,7 @@ class _EventCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withValues(alpha: 0.15),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -607,7 +607,7 @@ class _EventCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: typeColor.withOpacity(0.1),
+                          color: typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(LucideIcons.calendar, size: 16, color: typeColor),
@@ -633,7 +633,7 @@ class _EventCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: typeColor.withOpacity(0.1),
+                            color: typeColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(LucideIcons.mapPin, size: 16, color: typeColor),
@@ -670,9 +670,9 @@ class _EventCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.warning.withOpacity(0.15),
+                            color: AppColors.warning.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+                            border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -700,7 +700,7 @@ class _EventCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: event.attendeeCount / event.maxAttendees!,
-                        backgroundColor: Colors.grey.withOpacity(0.15),
+                        backgroundColor: Colors.grey.withValues(alpha: 0.15),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           isAlmostFull ? AppColors.warning : typeColor,
                         ),

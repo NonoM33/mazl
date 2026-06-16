@@ -250,7 +250,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                               });
                             }
                           : null,
-                      selectedColor: AppColors.primary.withOpacity(0.2),
+                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
                       checkmarkColor: AppColors.primary,
                     );
                   }).toList(),
@@ -282,7 +282,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                               });
                             }
                           : null,
-                      selectedColor: AppColors.secondary.withOpacity(0.2),
+                      selectedColor: AppColors.secondary.withValues(alpha: 0.2),
                       checkmarkColor: AppColors.secondary,
                     );
                   }).toList(),
@@ -311,7 +311,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                               });
                             }
                           : null,
-                      selectedColor: AppColors.primary.withOpacity(0.2),
+                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
                       checkmarkColor: AppColors.primary,
                     );
                   }).toList(),
@@ -381,7 +381,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       title: const Text('Profils vérifiés uniquement'),
                       subtitle: const Text('Voir seulement les profils vérifiés'),
                       value: _onlyVerified,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (value) {
                         setState(() {
                           _onlyVerified = value;
@@ -394,7 +394,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       title: const Text('Avec photo uniquement'),
                       subtitle: const Text('Exclure les profils sans photo'),
                       value: _onlyWithPhoto,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (value) {
                         setState(() {
                           _onlyWithPhoto = value;
@@ -407,7 +407,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       title: const Text('En ligne maintenant'),
                       subtitle: const Text('Voir les utilisateurs actifs'),
                       value: _onlyOnline,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: isPremium
                           ? (value) {
                               setState(() {
@@ -545,7 +545,7 @@ class _FilterSection extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.2),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -570,7 +570,7 @@ class _FilterSection extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.accentGold.withOpacity(0.2),
+                    color: AppColors.accentGold.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

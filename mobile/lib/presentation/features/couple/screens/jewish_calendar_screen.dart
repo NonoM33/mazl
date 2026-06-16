@@ -91,13 +91,13 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.accentGold.withOpacity(0.15),
-            AppColors.accentGold.withOpacity(0.05),
+            AppColors.accentGold.withValues(alpha: 0.15),
+            AppColors.accentGold.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.accentGold.withOpacity(0.3),
+          color: AppColors.accentGold.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -154,7 +154,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
               Container(
                 width: 1,
                 height: 50,
-                color: AppColors.accentGold.withOpacity(0.3),
+                color: AppColors.accentGold.withValues(alpha: 0.3),
               ),
               Expanded(
                 child: _buildShabbatTime(
@@ -247,7 +247,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -258,7 +258,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.1),
+              color: AppColors.accentGold.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.accentGold, size: 20),
@@ -288,7 +288,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
               vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -314,15 +314,15 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isOngoing
-            ? AppColors.primary.withOpacity(0.1)
+            ? AppColors.primary.withValues(alpha: 0.1)
             : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: isOngoing
-            ? Border.all(color: AppColors.primary.withOpacity(0.3))
+            ? Border.all(color: AppColors.primary.withValues(alpha: 0.3))
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -337,7 +337,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: _getHolidayColor(holiday.type).withOpacity(0.1),
+                  color: _getHolidayColor(holiday.type).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -467,7 +467,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withOpacity(0.1),
+                    color: AppColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(

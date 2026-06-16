@@ -192,7 +192,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               Icon(
                 LucideIcons.alertTriangle,
                 size: 48,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 16),
               const Text('Événement introuvable'),
@@ -294,7 +294,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: typeColor.withOpacity(0.1),
+                      color: typeColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -385,7 +385,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                         height: 1.5,
                       ),
                     ),
@@ -397,10 +397,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.1),
+                        color: AppColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.success.withOpacity(0.3),
+                          color: AppColors.success.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -436,7 +436,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -528,7 +528,7 @@ class _InfoCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primary),
@@ -563,7 +563,7 @@ class _InfoCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: (badgeColor ?? AppColors.warning)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

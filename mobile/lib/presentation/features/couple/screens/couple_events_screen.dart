@@ -81,7 +81,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: coupleAccent.withOpacity(0.1),
+                color: coupleAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
@@ -169,7 +169,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
               checkmarkColor: Colors.white,
               onSelected: (selected) {
                 setState(() {
-                  _selectedCategory = cat['key'] as String?;
+                  _selectedCategory = cat['key'];
                 });
                 _loadEvents();
               },
@@ -234,6 +234,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
 
   Future<void> _registerForEvent(CoupleEvent event) async {
     final success = await _apiService.registerForEvent(event.id);
+    if (!mounted) return;
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -278,6 +279,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
 
     if (confirmed == true) {
       final success = await _apiService.cancelEventRegistration(event.id);
+      if (!mounted) return;
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -333,7 +335,7 @@ class _EventCard extends StatelessWidget {
                           imageUrl: event.imageUrl!,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
-                            color: coupleAccent.withOpacity(0.3),
+                            color: coupleAccent.withValues(alpha: 0.3),
                             child: const Center(
                               child: CircularProgressIndicator(
                                   color: Colors.white),
@@ -356,7 +358,7 @@ class _EventCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                         ),
                       ],
@@ -423,7 +425,7 @@ class _EventCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
@@ -517,7 +519,7 @@ class _EventCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.1),
+                          color: AppColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -601,7 +603,7 @@ class _EventCard extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: coupleAccent.withOpacity(0.3),
+      color: coupleAccent.withValues(alpha: 0.3),
       child: Center(
         child: Text(
           event.categoryEmoji,

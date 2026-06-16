@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'route_names.dart';
 import 'route_transitions.dart';
+import '../di/providers/service_providers.dart';
 import '../../presentation/features/splash/splash_screen.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
@@ -24,7 +25,6 @@ import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.da
 import '../../presentation/features/verification/screens/verification_screen.dart';
 import '../../presentation/features/premium/screens/premium_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
-import '../../presentation/features/couple/screens/couple_dashboard_screen.dart';
 import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
 import '../../presentation/features/couple/screens/couple_activities_feed_screen.dart';
@@ -73,19 +73,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      // TODO: Add auth state check here
-      // final isAuthenticated = ref.read(authStateProvider);
-      // final isOnboarded = ref.read(onboardingStateProvider);
+      final location = state.matchedLocation;
 
-      // If on splash, allow
-      if (state.matchedLocation == RoutePaths.splash) {
+      // Splash handles its own auth-based routing
+      if (location == RoutePaths.splash) {
         return null;
       }
 
-      // TODO: Redirect based on auth state
-      // if (!isAuthenticated && !_publicRoutes.contains(state.matchedLocation)) {
-      //   return RoutePaths.login;
-      // }
+      // Block protected routes for unauthenticated users (e.g. deep links)
+      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      if (!isAuthenticated && !_publicRoutes.contains(location)) {
+        return RoutePaths.onboarding;
+      }
 
       return null;
     },

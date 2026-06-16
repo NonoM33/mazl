@@ -53,7 +53,7 @@ class AnniversaryWidget extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: (isAnniversary ? const Color(0xFFFF6B6B) : AppColors.primary)
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -71,7 +71,7 @@ class AnniversaryWidget extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -102,7 +102,7 @@ class AnniversaryWidget extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(horizontal: 8),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -131,7 +131,7 @@ class AnniversaryWidget extends StatelessWidget {
                 Text(
                   'jours ensemble',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 16,
                   ),
                 ),
@@ -142,7 +142,7 @@ class AnniversaryWidget extends StatelessWidget {
                 Text(
                   'avec ${anniversaryData.partnerName}',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                   ),
                 ),
@@ -154,7 +154,7 @@ class AnniversaryWidget extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -186,7 +186,7 @@ class AnniversaryWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
@@ -197,7 +197,7 @@ class AnniversaryWidget extends StatelessWidget {
                 if (anniversaryData.nextMilestone != null) ...[
                   Icon(
                     _getIconForName(anniversaryData.nextMilestone!.icon),
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -205,7 +205,7 @@ class AnniversaryWidget extends StatelessWidget {
                     child: Text(
                       'Prochain: ${anniversaryData.nextMilestone!.label} dans ${anniversaryData.nextMilestone!.daysUntil ?? 0} jours',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
                       ),
                     ),
@@ -221,7 +221,7 @@ class AnniversaryWidget extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -244,7 +244,7 @@ class AnniversaryWidget extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -368,7 +368,7 @@ class _AnniversaryCelebrationDialogState
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -396,7 +396,7 @@ class _AnniversaryCelebrationDialogState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -420,7 +420,7 @@ class _AnniversaryCelebrationDialogState
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Icon(
                       LucideIcons.heart,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       size: 24,
                     ),
                   ),
@@ -434,7 +434,7 @@ class _AnniversaryCelebrationDialogState
               Text(
                 '${widget.anniversaryData.daysTogether} jours avec ${widget.anniversaryData.partnerName}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
@@ -600,8 +600,8 @@ class MilestonesTimeline extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isReached
                             ? (milestone.isSpecial
-                                ? AppColors.accentGold.withOpacity(0.2)
-                                : AppColors.primary.withOpacity(0.15))
+                                ? AppColors.accentGold.withValues(alpha: 0.2)
+                                : AppColors.primary.withValues(alpha: 0.15))
                             : Colors.grey[100],
                         shape: BoxShape.circle,
                         border: isCurrent

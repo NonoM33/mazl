@@ -166,7 +166,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: coupleAccent.withOpacity(0.1),
+                color: coupleAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
@@ -234,7 +234,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
               checkmarkColor: Colors.white,
               onSelected: (selected) {
                 setState(() {
-                  _selectedCategory = cat['key'] as String?;
+                  _selectedCategory = cat['key'];
                 });
                 _loadActivities(isRefresh: true);
               },
@@ -439,7 +439,7 @@ class _ActivityCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -456,7 +456,7 @@ class _ActivityCard extends StatelessWidget {
                 imageUrl: activity.imageUrl!,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: coupleAccent.withOpacity(0.3),
+                  color: coupleAccent.withValues(alpha: 0.3),
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -477,7 +477,7 @@ class _ActivityCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.9),
+                      Colors.black.withValues(alpha: 0.9),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -553,7 +553,7 @@ class _ActivityCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -587,7 +587,7 @@ class _ActivityCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.accentGold.withOpacity(0.9),
+                        color: AppColors.accentGold.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -621,7 +621,7 @@ class _ActivityCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
@@ -654,7 +654,7 @@ class _ActivityCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -675,7 +675,7 @@ class _ActivityCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -790,7 +790,7 @@ class _ActivityCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             coupleAccent,
-            coupleAccent.withOpacity(0.7),
+            coupleAccent.withValues(alpha: 0.7),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -831,7 +831,7 @@ class _ActionButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

@@ -27,15 +27,15 @@ class IcebreakersWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.secondary.withOpacity(0.1),
+            AppColors.primary.withValues(alpha: 0.1),
+            AppColors.secondary.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -47,7 +47,7 @@ class IcebreakersWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -151,7 +151,7 @@ class _IcebreakerCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -173,7 +173,7 @@ class _IcebreakerCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -219,8 +219,8 @@ class InlineIcebreakersChips extends StatelessWidget {
               style: const TextStyle(fontSize: 12),
             ),
             onPressed: () => onSelect(icebreaker.text),
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
           );
         },
       ),

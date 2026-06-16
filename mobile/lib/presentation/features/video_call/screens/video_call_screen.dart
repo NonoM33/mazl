@@ -70,7 +70,7 @@ class VideoCallScreen extends StatelessWidget {
                 color: AppColors.surfaceDark,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 2,
                 ),
               ),
@@ -162,7 +162,7 @@ class _CallButton extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 28,
-          backgroundColor: color ?? Colors.white.withOpacity(0.2),
+          backgroundColor: color ?? Colors.white.withValues(alpha: 0.2),
           child: IconButton(
             icon: Icon(icon, color: Colors.white),
             onPressed: onPressed,

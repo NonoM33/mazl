@@ -5,9 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
-import '../../../../core/services/api_service.dart' hide CoupleMilestone;
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/anniversary_widget.dart';
 import 'success_stories_screen.dart';
 
 class CoupleDashboardScreen extends StatefulWidget {
@@ -64,7 +62,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 16),
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -87,7 +85,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -260,7 +258,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           ),
           child: CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.white.withOpacity(0.3),
+            backgroundColor: Colors.white.withValues(alpha: 0.3),
             backgroundImage:
                 imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
             child: imageUrl == null
@@ -293,13 +291,13 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.secondary.withOpacity(0.1),
+            AppColors.primary.withValues(alpha: 0.1),
+            AppColors.secondary.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -334,7 +332,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.2),
+                  color: AppColors.secondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -412,7 +410,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -424,7 +422,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 20, color: AppColors.primary),
@@ -458,13 +456,13 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: milestone.isAchieved
-            ? AppColors.success.withOpacity(0.1)
+            ? AppColors.success.withValues(alpha: 0.1)
             : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: milestone.isAchieved
-              ? AppColors.success.withOpacity(0.3)
-              : Colors.grey.withOpacity(0.2),
+              ? AppColors.success.withValues(alpha: 0.3)
+              : Colors.grey.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -474,8 +472,8 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             height: 48,
             decoration: BoxDecoration(
               color: milestone.isAchieved
-                  ? AppColors.success.withOpacity(0.2)
-                  : Colors.grey.withOpacity(0.1),
+                  ? AppColors.success.withValues(alpha: 0.2)
+                  : Colors.grey.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -528,8 +526,8 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.secondary.withOpacity(0.1),
-            AppColors.primary.withOpacity(0.1),
+            AppColors.secondary.withValues(alpha: 0.1),
+            AppColors.primary.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -608,10 +606,10 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withOpacity(0.1),
+        color: AppColors.accentGold.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.accentGold.withOpacity(0.3),
+          color: AppColors.accentGold.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -813,15 +811,15 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.secondary.withOpacity(0.15),
-            AppColors.primary.withOpacity(0.15),
+            AppColors.secondary.withValues(alpha: 0.15),
+            AppColors.primary.withValues(alpha: 0.15),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.secondary.withOpacity(0.2),
+          color: AppColors.secondary.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -831,7 +829,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.2),
+                  color: AppColors.secondary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

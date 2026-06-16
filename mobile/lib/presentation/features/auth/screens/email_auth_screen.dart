@@ -200,7 +200,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(LucideIcons.mail, color: AppColors.success),
@@ -292,8 +292,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isSuccess
-                        ? AppColors.success.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -422,7 +422,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                       : 'Cree ton compte MAZL',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ).animate(delay: 100.ms).fadeIn(),
 
@@ -434,9 +434,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.red.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.withOpacity(0.5)),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
@@ -525,7 +525,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
                                     value: passwordStrength,
-                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                                     valueColor: AlwaysStoppedAnimation(
                                       _getPasswordStrengthColor(passwordStrength),
                                     ),
@@ -601,7 +601,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                 child: Text(
                                   'J\'accepte les Conditions d\'utilisation et la Politique de confidentialite',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -619,7 +619,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                               child: Text(
                                 'Mot de passe oublie ?',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                             ),
@@ -671,7 +671,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                   ? 'Pas encore de compte ?'
                                   : 'Deja un compte ?',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                               ),
                             ),
                             TextButton(
@@ -711,12 +711,12 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   }) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
       prefixIcon: Icon(icon, color: Colors.white70),
       suffixIcon: suffixIcon,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -724,7 +724,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.withOpacity(0.7)),
+        borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.7)),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

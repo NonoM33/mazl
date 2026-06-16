@@ -144,6 +144,36 @@ class _VerificationScreenState extends State<VerificationScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (_error != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(LucideIcons.alertCircle,
+                            color: AppColors.error),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _loadVerificationStatus,
+                          child: const Text('Reessayer'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 // Header
                 Container(
                   padding: const EdgeInsets.all(24),
@@ -151,7 +181,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     gradient: LinearGradient(
                       colors: [
                         _isVerified ? AppColors.success : AppColors.primary,
-                        (_isVerified ? AppColors.success : AppColors.primary).withOpacity(0.7),
+                        (_isVerified ? AppColors.success : AppColors.primary).withValues(alpha: 0.7),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
@@ -179,7 +209,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             : 'Les profils verifies recoivent 3x plus de matchs !',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -320,7 +350,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.info.withOpacity(0.1),
+                    color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
@@ -345,7 +375,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     // Start verification to get random gesture
     final startResult = await _apiService.startVerification();
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (!startResult.success || startResult.data == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -391,7 +421,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     );
 
     if (image == null) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Photo annulee'),
@@ -403,7 +433,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     }
 
     // Show loading
-    if (mounted) {
+    if (context.mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -418,7 +448,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     // Submit for verification
     final result = await _apiService.submitVerification(base64Image, gesture.id);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     // Close loading dialog
     Navigator.pop(context);
@@ -463,7 +493,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -525,7 +555,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -638,7 +668,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
             'Prends un selfie en realisant le geste ci-dessous',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 24),
@@ -647,7 +677,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: AppColors.primary,
@@ -679,7 +709,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.info.withOpacity(0.1),
+              color: AppColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -800,8 +830,8 @@ class _VerificationLevel extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: isCompleted
-                ? AppColors.success.withOpacity(0.1)
-                : AppColors.primary.withOpacity(0.1),
+                ? AppColors.success.withValues(alpha: 0.1)
+                : AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -816,7 +846,7 @@ class _VerificationLevel extends StatelessWidget {
         subtitle: Text(
           description,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 13,
           ),
         ),

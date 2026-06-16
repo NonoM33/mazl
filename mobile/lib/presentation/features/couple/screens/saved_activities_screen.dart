@@ -92,7 +92,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: coupleAccent.withOpacity(0.1),
+                    color: coupleAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -200,7 +200,7 @@ class _SavedActivityCard extends StatelessWidget {
                       imageUrl: activity.imageUrl!,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: coupleAccent.withOpacity(0.3),
+                        color: coupleAccent.withValues(alpha: 0.3),
                       ),
                       errorWidget: (context, url, error) => _buildPlaceholder(),
                     )
@@ -269,7 +269,7 @@ class _SavedActivityCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.1),
+                            color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -303,7 +303,7 @@ class _SavedActivityCard extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: coupleAccent.withOpacity(0.3),
+      color: coupleAccent.withValues(alpha: 0.3),
       child: Center(
         child: Text(
           activity.categoryEmoji,
