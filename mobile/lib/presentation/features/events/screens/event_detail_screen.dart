@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -274,7 +275,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   child: Icon(LucideIcons.share2, color: Colors.white),
                 ),
                 onPressed: () {
-                  // TODO: Share event
+                  final event = _event;
+                  if (event == null) return;
+                  Share.share(
+                    'Rejoins-moi à "${event.title}" sur MAZL ! 🎉',
+                    subject: event.title,
+                  );
                 },
               ),
             ],

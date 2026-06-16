@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -202,6 +203,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
           content: Text('Les abonnements seront disponibles prochainement !'),
         ),
       );
+    }
+  }
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
@@ -697,9 +705,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextButton(
-                onPressed: () {
-                  // TODO: Open terms
-                },
+                onPressed: () => _openUrl('https://mazl.app/terms'),
                 child: Text(
                   'Conditions',
                   style: TextStyle(
@@ -710,9 +716,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ),
               Text('•', style: TextStyle(color: Colors.grey[400])),
               TextButton(
-                onPressed: () {
-                  // TODO: Open privacy
-                },
+                onPressed: () => _openUrl('https://mazl.app/privacy'),
                 child: Text(
                   'Confidentialite',
                   style: TextStyle(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/models/couple_activity.dart';
@@ -200,7 +201,12 @@ class _CoupleActivityDetailScreenState
               IconButton(
                 icon: const Icon(LucideIcons.share2, color: Colors.white),
                 onPressed: () {
-                  // TODO: Implement share
+                  final activity = _activity;
+                  if (activity == null) return;
+                  Share.share(
+                    'Idée de date pour nous : "${activity.title}" 💕 (via MAZL)',
+                    subject: activity.title,
+                  );
                 },
               ),
               // Save button

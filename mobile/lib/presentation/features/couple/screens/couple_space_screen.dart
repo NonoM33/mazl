@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
+import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class CoupleSpaceScreen extends StatefulWidget {
@@ -116,6 +118,12 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildCoupleHeader() {
+    final couple = CoupleService().coupleData;
+    final user = AuthService().currentUser;
+    final userName = user?.displayName ?? 'Vous';
+    final partnerName = couple?.partnerName ?? 'Votre Moitié';
+    final daysTogether = couple?.daysTogether ?? 0;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -135,7 +143,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildProfileAvatar(null), // TODO: Load user photo
+              _buildProfileAvatar(user?.photoUrl),
               const SizedBox(width: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -150,15 +158,15 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              _buildProfileAvatar(null), // TODO: Load partner photo
+              _buildProfileAvatar(couple?.partnerPicture),
             ],
           ),
           const SizedBox(height: 16),
 
           // Couple names
-          const Text(
-            'Vous & Votre Moitié',
-            style: TextStyle(
+          Text(
+            '$userName & $partnerName',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -177,7 +185,9 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
               ),
               const SizedBox(width: 6),
               Text(
-                'Ensemble depuis X jours', // TODO: Calculate from couple creation
+                daysTogether > 0
+                    ? 'Ensemble depuis $daysTogether jours'
+                    : 'Votre histoire commence',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
