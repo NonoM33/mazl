@@ -75,6 +75,19 @@ export async function verifyGoogleIdToken(idToken: string): Promise<GoogleTokenP
   }
 }
 
+interface AppleKey {
+  kid: string;
+  kty: string;
+  use: string;
+  alg: string;
+  n: string;
+  e: string;
+}
+
+interface AppleKeysResponse {
+  keys: AppleKey[];
+}
+
 /**
  * Verify Apple Identity Token
  */
@@ -86,13 +99,14 @@ export async function verifyAppleIdToken(identityToken: string): Promise<{
   try {
     // Decode the JWT header to get the key ID
     const [headerB64] = identityToken.split(".");
+    if (!headerB64) return null;
     const header = JSON.parse(atob(headerB64));
     const kid = header.kid;
 
     // Fetch Apple's public keys
     const keysResponse = await fetch("https://appleid.apple.com/auth/keys");
-    const keysData = await keysResponse.json();
-    const key = keysData.keys.find((k: any) => k.kid === kid);
+    const keysData = (await keysResponse.json()) as AppleKeysResponse;
+    const key = keysData.keys.find((k) => k.kid === kid);
 
     if (!key) {
       console.error("Apple key not found for kid:", kid);
@@ -102,6 +116,7 @@ export async function verifyAppleIdToken(identityToken: string): Promise<{
     // For simplicity, we'll use tokeninfo-style verification
     // In production, you should properly verify the JWT signature
     const [, payloadB64] = identityToken.split(".");
+    if (!payloadB64) return null;
     const payload = JSON.parse(atob(payloadB64));
 
     // Verify issuer
@@ -166,6 +181,9 @@ export function generateJWT(user: AuthUser): string {
 export function verifyJWT(token: string): { sub: string; email: string; name?: string } | null {
   try {
     const [headerB64, payloadB64, signature] = token.split(".");
+    if (!headerB64 || !payloadB64 || !signature) {
+      return null;
+    }
 
     // Verify signature
     const expectedSignature = signHS256(`${headerB64}.${payloadB64}`, JWT_SECRET);
@@ -203,7 +221,7 @@ function signHS256(data: string, secret: string): string {
   let hash = 0;
   const combined = new Uint8Array([...keyData, ...message]);
   for (let i = 0; i < combined.length; i++) {
-    hash = ((hash << 5) - hash + combined[i]) | 0;
+    hash = ((hash << 5) - hash + (combined[i] ?? 0)) | 0;
   }
 
   return btoa(hash.toString(16)).replace(/=/g, "");
@@ -215,6 +233,7 @@ function signHS256(data: string, secret: string): string {
 export function extractBearerToken(authHeader: string | undefined): string | null {
   if (!authHeader) return null;
   const parts = authHeader.split(" ");
-  if (parts.length !== 2 || parts[0] !== "Bearer") return null;
-  return parts[1];
+  const [scheme, value] = parts;
+  if (parts.length !== 2 || scheme !== "Bearer" || !value) return null;
+  return value;
 }

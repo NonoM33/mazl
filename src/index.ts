@@ -219,6 +219,7 @@ function verifyAdminJWT(token: string): { valid: boolean; email?: string; error?
     if (parts.length !== 3) return { valid: false, error: "Invalid token format" };
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) return { valid: false, error: "Invalid token format" };
     const data = `${header}.${payload}`;
 
     // Verify signature
@@ -3890,7 +3891,11 @@ function sendToUser(userId: number, data: any) {
 }
 
 // Bun.serve with WebSocket support
-const server = Bun.serve({
+interface WebSocketData {
+  userId: number;
+}
+
+const server = Bun.serve<WebSocketData>({
   port,
   fetch(req, server) {
     const url = new URL(req.url);

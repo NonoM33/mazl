@@ -1264,8 +1264,10 @@ export async function seedFakeProfiles(force = false) {
   // Create users and profiles for women
   for (let i = 0; i < femaleProfiles.length; i++) {
     const p = femaleProfiles[i];
+    if (!p) continue;
     const birthYear = new Date().getFullYear() - p.age;
     const birthdate = `${birthYear}-06-15`;
+    const firstName = p.name.split(' ')[0] ?? p.name;
 
     const userResult = await sql`
       INSERT INTO users (email, name, picture, provider, provider_id)
@@ -1285,7 +1287,7 @@ export async function seedFakeProfiles(force = false) {
       INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
       VALUES (
         ${userId},
-        ${p.name.split(' ')[0]},
+        ${firstName},
         ${birthdate},
         'female',
         ${p.bio},
@@ -1312,8 +1314,10 @@ export async function seedFakeProfiles(force = false) {
   // Create users and profiles for men
   for (let i = 0; i < maleProfiles.length; i++) {
     const p = maleProfiles[i];
+    if (!p) continue;
     const birthYear = new Date().getFullYear() - p.age;
     const birthdate = `${birthYear}-06-15`;
+    const firstName = p.name.split(' ')[0] ?? p.name;
 
     const userResult = await sql`
       INSERT INTO users (email, name, picture, provider, provider_id)
@@ -1333,7 +1337,7 @@ export async function seedFakeProfiles(force = false) {
       INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
       VALUES (
         ${userId},
-        ${p.name.split(' ')[0]},
+        ${firstName},
         ${birthdate},
         'male',
         ${p.bio},
@@ -2018,6 +2022,7 @@ export async function getDailyQuestion(coupleId: number) {
   // Pick a random question
   const randomIndex = Math.floor(Math.random() * DAILY_QUESTIONS.length);
   const questionData = DAILY_QUESTIONS[randomIndex];
+  if (!questionData) throw new Error("No daily question available");
 
   // Create new question for today
   const result = await sql`
@@ -2399,14 +2404,15 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
     SELECT * FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}
   `;
 
-  if (photo.length === 0) {
+  const deletedPhoto = photo[0];
+  if (!deletedPhoto) {
     throw new Error("Photo not found");
   }
 
   await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
 
   // If deleted photo was primary, set the first remaining as primary
-  if (photo[0].is_primary) {
+  if (deletedPhoto.is_primary) {
     await sql`
       UPDATE profile_photos
       SET is_primary = true
@@ -2421,7 +2427,9 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
   `;
 
   for (let i = 0; i < remaining.length; i++) {
-    await sql`UPDATE profile_photos SET position = ${i} WHERE id = ${remaining[i].id}`;
+    const row = remaining[i];
+    if (!row) continue;
+    await sql`UPDATE profile_photos SET position = ${i} WHERE id = ${row.id}`;
   }
 }
 
@@ -2441,10 +2449,12 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
 
   // Update positions
   for (let i = 0; i < photoIds.length; i++) {
+    const photoId = photoIds[i];
+    if (photoId === undefined) continue;
     await sql`
       UPDATE profile_photos
       SET position = ${i}, is_primary = ${i === 0}
-      WHERE id = ${photoIds[i]} AND user_id = ${userId}
+      WHERE id = ${photoId} AND user_id = ${userId}
     `;
   }
 
