@@ -121,7 +121,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Navigate to chat
+              context.go(RoutePaths.matches);
             },
             child: const Text('Envoyer un message'),
           ),

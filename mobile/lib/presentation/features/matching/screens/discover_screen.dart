@@ -285,14 +285,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                 isPremium: !PremiumGate.isPremium,
                 onPressed: () async {
                   if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
-                    if (!mounted) return;
-                    // TODO: Activate boost
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
-                        backgroundColor: AppColors.accentGold,
-                      ),
-                    );
+                    await _activateBoost();
                   }
                 },
               ),
@@ -301,6 +294,27 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         ),
       ],
     );
+  }
+
+  Future<void> _activateBoost() async {
+    final response = await _apiService.activateBoost();
+    if (!mounted) return;
+
+    if (response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
+          backgroundColor: AppColors.accentGold,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.error ?? 'Impossible d\'activer le boost'),
+          backgroundColor: AppColors.passRed,
+        ),
+      );
+    }
   }
 
   void _handleSwipeFromDetail(String action) {
@@ -393,7 +407,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Navigate to chat
+              context.go(RoutePaths.matches);
             },
             child: const Text('Envoyer un message'),
           ),
