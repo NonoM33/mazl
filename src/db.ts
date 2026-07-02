@@ -290,6 +290,17 @@ export async function initDb() {
     )
   `;
 
+  // Blocked users (user-to-user blocking)
+  await sql`
+    CREATE TABLE IF NOT EXISTS blocked_users (
+      id SERIAL PRIMARY KEY,
+      blocker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      blocked_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (blocker_id, blocked_id)
+    )
+  `;
+
   // Campaigns (email/push)
   await sql`
     CREATE TABLE IF NOT EXISTS campaigns (
@@ -602,6 +613,8 @@ export async function initDb() {
   await sql`CREATE INDEX IF NOT EXISTS idx_couples_user1 ON couples (user1_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_couples_user2 ON couples (user2_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocker ON blocked_users (blocker_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocked ON blocked_users (blocked_id)`;
 
   console.log("Database initialized");
 
@@ -1142,6 +1155,12 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
       )
+      -- exclude users blocked in either direction
+      AND p.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
       -- caller wants candidate's gender (skip when either side unset or open)
       AND (
         me.looking_for IS NULL
@@ -1265,7 +1284,13 @@ export async function getMatches(userId: number) {
       END as other_user_id
     FROM matches m
     LEFT JOIN conversations c ON c.match_id = m.id
-    WHERE m.user1_id = ${userId} OR m.user2_id = ${userId}
+    WHERE (m.user1_id = ${userId} OR m.user2_id = ${userId})
+      -- exclude matches with a user blocked in either direction
+      AND (CASE WHEN m.user1_id = ${userId} THEN m.user2_id ELSE m.user1_id END) NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
     ORDER BY m.created_at DESC
   `;
 
@@ -1476,7 +1501,13 @@ export async function getConversations(userId: number) {
         AND is_read = false
       ) as unread_count
     FROM conversations c
-    WHERE c.user1_id = ${userId} OR c.user2_id = ${userId}
+    WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
+      -- hide conversations with a user blocked in either direction
+      AND (CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END) NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
     ORDER BY COALESCE(c.last_message_at, c.created_at) DESC
   `;
 
@@ -2927,6 +2958,84 @@ export async function createReport(params: {
     RETURNING *
   `;
   return result[0];
+}
+
+// ============ USER BLOCKING ============
+
+// Block a user (idempotent). Returns nothing meaningful; conflict is ignored.
+export async function blockUser(blockerId: number, blockedId: number): Promise<void> {
+  await sql`
+    INSERT INTO blocked_users (blocker_id, blocked_id)
+    VALUES (${blockerId}, ${blockedId})
+    ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+  `;
+}
+
+// Unblock a user (idempotent).
+export async function unblockUser(blockerId: number, blockedId: number): Promise<void> {
+  await sql`
+    DELETE FROM blocked_users
+    WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+  `;
+}
+
+// Return the set of user ids that `userId` has blocked OR that have blocked
+// `userId` (bidirectional). Used to filter listings both ways.
+export async function getBlockedUserIds(userId: number): Promise<Set<number>> {
+  const rows = await sql`
+    SELECT blocked_id AS other_id FROM blocked_users WHERE blocker_id = ${userId}
+    UNION
+    SELECT blocker_id AS other_id FROM blocked_users WHERE blocked_id = ${userId}
+  `;
+  return new Set((rows as unknown as Array<{ other_id: number }>).map((r) => r.other_id));
+}
+
+// True when either user has blocked the other.
+export async function isBlockedBetween(userA: number, userB: number): Promise<boolean> {
+  const rows = await sql`
+    SELECT 1 FROM blocked_users
+    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
+       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    LIMIT 1
+  `;
+  return rows.length > 0;
+}
+
+// Profiles blocked BY userId (the outgoing block list shown to the user).
+// Shape mirrors getMatches/getConversations profile rows.
+export async function getBlockedUsers(userId: number): Promise<Array<{
+  user_id: number;
+  display_name: string | null;
+  age: number | null;
+  location: string | null;
+  is_verified: boolean | null;
+  picture: string | null;
+  blocked_at: Date;
+}>> {
+  const rows = await sql`
+    SELECT
+      b.blocked_id AS user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) AS age,
+      p.location,
+      p.is_verified,
+      u.picture,
+      b.created_at AS blocked_at
+    FROM blocked_users b
+    JOIN users u ON u.id = b.blocked_id
+    LEFT JOIN profiles p ON p.user_id = b.blocked_id
+    WHERE b.blocker_id = ${userId}
+    ORDER BY b.created_at DESC
+  `;
+  return rows as unknown as Array<{
+    user_id: number;
+    display_name: string | null;
+    age: number | null;
+    location: string | null;
+    is_verified: boolean | null;
+    picture: string | null;
+    blocked_at: Date;
+  }>;
 }
 
 // Get reports

@@ -108,6 +108,10 @@ import {
   unsubscribeEmail,
   // Module 4: Modération
   createReport,
+  blockUser,
+  unblockUser,
+  getBlockedUsers,
+  isBlockedBetween,
   getReports,
   handleReport,
   getPendingPhotos,
@@ -3786,6 +3790,115 @@ app.get("/api/unsubscribe", async (c) => {
 
 // ============ MODULE 4: MODÉRATION & SIGNALEMENTS ============
 
+// Block a user
+app.post("/api/users/:id/block", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const blockedId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(blockedId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+    if (blockedId === userId) {
+      return c.json({ success: false, error: "Cannot block yourself" }, 400);
+    }
+
+    await blockUser(userId, blockedId);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Block user error:", error);
+    return c.json({ success: false, error: "Failed to block user" }, 500);
+  }
+});
+
+// Unblock a user
+app.delete("/api/users/:id/block", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const blockedId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(blockedId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    await unblockUser(userId, blockedId);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Unblock user error:", error);
+    return c.json({ success: false, error: "Failed to unblock user" }, 500);
+  }
+});
+
+// List profiles blocked by the current user
+app.get("/api/users/blocked", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const blocked = await getBlockedUsers(userId);
+    return c.json({ success: true, blocked });
+  } catch (error) {
+    console.error("Get blocked users error:", error);
+    return c.json({ success: false, error: "Failed to get blocked users" }, 500);
+  }
+});
+
+// Report a user (mobile alias for POST /api/report, with optional block)
+app.post("/api/users/:id/report", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const reportedUserId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(reportedUserId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    const body = await c.req.json();
+    const category = typeof body.category === "string" ? body.category : undefined;
+    const comment = typeof body.comment === "string" ? body.comment : undefined;
+    const blockUserFlag = body.block_user === true;
+
+    if (!category) {
+      return c.json({ success: false, error: "Category required" }, 400);
+    }
+
+    const report = await createReport({
+      reporterId: userId,
+      reportedUserId,
+      reason: category,
+      details: comment,
+    });
+
+    if (blockUserFlag && reportedUserId !== userId) {
+      await blockUser(userId, reportedUserId);
+    }
+
+    return c.json({ success: true, report, blocked: blockUserFlag && reportedUserId !== userId });
+  } catch (error) {
+    console.error("Report user error:", error);
+    return c.json({ success: false, error: "Failed to create report" }, 500);
+  }
+});
+
 // Report user (from mobile app)
 app.post("/api/report", async (c) => {
   try {
@@ -4125,10 +4238,13 @@ const server = Bun.serve<WebSocketData>({
             const conv = conversation as any;
             if (conv.user1_id !== userId && conv.user2_id !== userId) return;
 
-            const msg = await createMessage(conversationId, userId, content);
-
             // Determine other user
             const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+
+            // Refuse silently if either party has blocked the other
+            if (await isBlockedBetween(userId, otherUserId)) return;
+
+            const msg = await createMessage(conversationId, userId, content);
 
             // Send to both users
             const messageData = {
