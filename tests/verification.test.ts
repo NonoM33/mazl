@@ -34,7 +34,8 @@ describe("Selfie verification", () => {
     r = await fetch(`${BASE_URL}/api/verification/start`, { method: "POST", headers: H(u.token) });
     expect(r.status).toBe(200);
     const st = (await r.json()) as { gesture_id?: string };
-    expect(GESTURES).toContain(st.gesture_id);
+    expect(st.gesture_id).toBeDefined();
+    expect(GESTURES).toContain(st.gesture_id ?? "");
 
     r = await fetch(`${BASE_URL}/api/verification/submit`, {
       method: "POST",
