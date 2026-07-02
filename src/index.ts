@@ -77,6 +77,12 @@ import {
   // Couple Mode
   createCouple,
   getCouple,
+  createCoupleRequest,
+  respondToCoupleRequest,
+  cancelCoupleRequest,
+  getCoupleRequestsForUser,
+  getCoupleStatusWith,
+  archiveConversationsExceptPartner,
   updateCoupleStatus,
   updateRelationshipStatus,
   deleteCouple,
@@ -2779,6 +2785,184 @@ app.get("/api/couple", async (c) => {
   } catch (error: any) {
     console.error("Get couple error:", error);
     return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+// ============ COUPLE REQUESTS (demande / acceptation de couple) ============
+// NOTE: registered before /api/couple/:coupleId so literal "request(s)"/"check"
+// segments are not captured by the :coupleId param.
+
+// Send a couple request
+app.post("/api/couple/request", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const body = await c.req.json();
+    const targetUserId = Number((body as { target_user_id?: unknown }).target_user_id);
+
+    if (!Number.isInteger(targetUserId) || targetUserId <= 0) {
+      return c.json({ success: false, error: "target_user_id required" }, 400);
+    }
+
+    const result = await createCoupleRequest(userId, targetUserId);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, 400);
+    }
+
+    return c.json({ success: true, request: result.request });
+  } catch (error) {
+    console.error("Create couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Respond to a couple request (accept / reject) — only the target may respond
+app.put("/api/couple/request/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const requestId = parseInt(c.req.param("id"));
+    if (!Number.isInteger(requestId)) {
+      return c.json({ success: false, error: "Invalid request id" }, 400);
+    }
+
+    const body = await c.req.json();
+    const action = (body as { action?: unknown }).action;
+    if (action !== "accept" && action !== "reject") {
+      return c.json({ success: false, error: "action must be 'accept' or 'reject'" }, 400);
+    }
+
+    const result = await respondToCoupleRequest(requestId, userId, action);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, result.status as 403 | 404 | 409);
+    }
+
+    if (result.action === "accepted") {
+      return c.json({ success: true, action: "accepted", couple: result.couple });
+    }
+    return c.json({ success: true, action: "rejected" });
+  } catch (error) {
+    console.error("Respond couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Cancel a sent couple request — only the requester may cancel
+app.delete("/api/couple/request/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const requestId = parseInt(c.req.param("id"));
+    if (!Number.isInteger(requestId)) {
+      return c.json({ success: false, error: "Invalid request id" }, 400);
+    }
+
+    const result = await cancelCoupleRequest(requestId, userId);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, result.status as 403 | 404 | 409);
+    }
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Cancel couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// List pending couple requests (sent + received)
+app.get("/api/couple/requests", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const { sent, received } = await getCoupleRequestsForUser(userId);
+
+    return c.json({ success: true, sent, received });
+  } catch (error) {
+    console.error("Get couple requests error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Check couple/request status with a specific user
+app.get("/api/couple/check/:userId", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const otherUserId = parseInt(c.req.param("userId"));
+    if (!Number.isInteger(otherUserId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    const status = await getCoupleStatusWith(userId, otherUserId);
+
+    return c.json({
+      success: true,
+      status,
+      in_couple_mode: status === "coupled",
+    });
+  } catch (error) {
+    console.error("Check couple status error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Archive the user's conversations except with the partner
+app.post("/api/couple/archive-conversations", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+
+    const payload = verifyJWT(token);
+    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+
+    const userId = parseInt(payload.sub);
+    const body = await c.req.json().catch(() => ({}));
+    const rawPartner = (body as { partner_user_id?: unknown }).partner_user_id;
+    const partnerUserId =
+      rawPartner === undefined || rawPartner === null
+        ? null
+        : Number(rawPartner);
+    if (partnerUserId !== null && !Number.isInteger(partnerUserId)) {
+      return c.json({ success: false, error: "Invalid partner_user_id" }, 400);
+    }
+    const rawMessage = (body as { message?: unknown }).message;
+    const message = typeof rawMessage === "string" ? rawMessage : undefined;
+
+    const { archived } = await archiveConversationsExceptPartner(
+      userId,
+      partnerUserId,
+      message
+    );
+
+    return c.json({ success: true, archived });
+  } catch (error) {
+    console.error("Archive conversations error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
   }
 });
 

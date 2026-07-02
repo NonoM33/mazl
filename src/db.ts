@@ -270,6 +270,39 @@ export async function initDb() {
     )
   `;
 
+  // Couple requests (demande / acceptation de couple)
+  await sql`
+    CREATE TABLE IF NOT EXISTS couple_requests (
+      id SERIAL PRIMARY KEY,
+      requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      target_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couple_requests_target ON couple_requests(target_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couple_requests_requester ON couple_requests(requester_id)`;
+  // Prevent duplicate pending requests between the same ordered pair.
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS uniq_couple_requests_pending
+    ON couple_requests(requester_id, target_id)
+    WHERE status = 'pending'
+  `;
+
+  // Per-user conversation archiving (couple mode hides other convos).
+  // Scoped to the archiving user only; never mutates the shared conversation row.
+  await sql`
+    CREATE TABLE IF NOT EXISTS archived_conversations (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(user_id, conversation_id)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_archived_conversations_user ON archived_conversations(user_id)`;
+
   // ============ ADMIN BACK-OFFICE TABLES ============
 
   // User bans
@@ -2384,6 +2417,277 @@ export async function deleteCouple(coupleId: number) {
     UPDATE couples SET status = 'ended', updated_at = NOW()
     WHERE id = ${coupleId}
   `;
+}
+
+// ============ COUPLE REQUESTS (demande / acceptation de couple) ============
+
+export type CoupleRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+
+export interface CoupleRequestRow {
+  id: number;
+  requester_id: number;
+  target_id: number;
+  status: CoupleRequestStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type CreateCoupleRequestResult =
+  | { ok: true; request: CoupleRequestRow }
+  | { ok: false; error: string };
+
+export type CoupleStatusWith =
+  | 'none'
+  | 'pending_sent'
+  | 'pending_received'
+  | 'coupled';
+
+export interface CoupleRequestView {
+  id: number;
+  requester_id: number;
+  target_id: number;
+  status: CoupleRequestStatus;
+  created_at: Date;
+  requester_name: string | null;
+  requester_picture: string | null;
+  target_name: string | null;
+  target_picture: string | null;
+}
+
+/**
+ * Create a pending couple request. Refuses self-targeting, blocked pairs,
+ * an existing pending request in either direction, or an already-active couple.
+ */
+export async function createCoupleRequest(
+  requesterId: number,
+  targetId: number
+): Promise<CreateCoupleRequestResult> {
+  if (requesterId === targetId) {
+    return { ok: false, error: 'Cannot send a couple request to yourself' };
+  }
+
+  if (await isBlockedBetween(requesterId, targetId)) {
+    return { ok: false, error: 'User is unavailable' };
+  }
+
+  // Refuse if either user is already in an active couple.
+  const existingCouple = await sql`
+    SELECT 1 FROM couples
+    WHERE status = 'active'
+      AND (user1_id IN (${requesterId}, ${targetId})
+           OR user2_id IN (${requesterId}, ${targetId}))
+    LIMIT 1
+  `;
+  if (existingCouple.length > 0) {
+    return { ok: false, error: 'One of the users is already in a couple' };
+  }
+
+  // Refuse if a pending request already exists in either direction.
+  const existingPending = await sql`
+    SELECT 1 FROM couple_requests
+    WHERE status = 'pending'
+      AND ((requester_id = ${requesterId} AND target_id = ${targetId})
+        OR (requester_id = ${targetId} AND target_id = ${requesterId}))
+    LIMIT 1
+  `;
+  if (existingPending.length > 0) {
+    return { ok: false, error: 'A pending couple request already exists' };
+  }
+
+  const rows = await sql`
+    INSERT INTO couple_requests (requester_id, target_id, status)
+    VALUES (${requesterId}, ${targetId}, 'pending')
+    RETURNING *
+  `;
+  return { ok: true, request: rows[0] as CoupleRequestRow };
+}
+
+export async function getCoupleRequestById(
+  id: number
+): Promise<CoupleRequestRow | null> {
+  const rows = await sql`
+    SELECT * FROM couple_requests WHERE id = ${id} LIMIT 1
+  `;
+  return rows.length ? (rows[0] as CoupleRequestRow) : null;
+}
+
+export type RespondToCoupleRequestResult =
+  | { ok: true; action: 'accepted'; couple: Record<string, unknown> }
+  | { ok: true; action: 'rejected' }
+  | { ok: false; status: number; error: string };
+
+/**
+ * Accept or reject a couple request. Only the target may respond (IDOR guard).
+ * On accept, the existing createCouple() is reused to build the couple.
+ */
+export async function respondToCoupleRequest(
+  requestId: number,
+  userId: number,
+  action: 'accept' | 'reject'
+): Promise<RespondToCoupleRequestResult> {
+  const request = await getCoupleRequestById(requestId);
+  if (!request) {
+    return { ok: false, status: 404, error: 'Couple request not found' };
+  }
+  if (request.target_id !== userId) {
+    return { ok: false, status: 403, error: 'Forbidden' };
+  }
+  if (request.status !== 'pending') {
+    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
+  }
+
+  if (action === 'reject') {
+    await sql`
+      UPDATE couple_requests
+      SET status = 'rejected', updated_at = NOW()
+      WHERE id = ${requestId}
+    `;
+    return { ok: true, action: 'rejected' };
+  }
+
+  const couple = await createCouple(request.requester_id, request.target_id);
+  await sql`
+    UPDATE couple_requests
+    SET status = 'accepted', updated_at = NOW()
+    WHERE id = ${requestId}
+  `;
+  return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> };
+}
+
+export type CancelCoupleRequestResult =
+  | { ok: true }
+  | { ok: false; status: number; error: string };
+
+/**
+ * Cancel a pending couple request. Only the requester may cancel (IDOR guard).
+ */
+export async function cancelCoupleRequest(
+  requestId: number,
+  userId: number
+): Promise<CancelCoupleRequestResult> {
+  const request = await getCoupleRequestById(requestId);
+  if (!request) {
+    return { ok: false, status: 404, error: 'Couple request not found' };
+  }
+  if (request.requester_id !== userId) {
+    return { ok: false, status: 403, error: 'Forbidden' };
+  }
+  if (request.status !== 'pending') {
+    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
+  }
+
+  await sql`
+    UPDATE couple_requests
+    SET status = 'cancelled', updated_at = NOW()
+    WHERE id = ${requestId}
+  `;
+  return { ok: true };
+}
+
+/** Pending requests sent by AND received by the user, with names/photos on both sides. */
+export async function getCoupleRequestsForUser(
+  userId: number
+): Promise<{ sent: CoupleRequestView[]; received: CoupleRequestView[] }> {
+  const rows = await sql`
+    SELECT
+      cr.id,
+      cr.requester_id,
+      cr.target_id,
+      cr.status,
+      cr.created_at,
+      rp.display_name AS requester_name,
+      ru.picture AS requester_picture,
+      tp.display_name AS target_name,
+      tu.picture AS target_picture
+    FROM couple_requests cr
+    LEFT JOIN profiles rp ON rp.user_id = cr.requester_id
+    LEFT JOIN users ru ON ru.id = cr.requester_id
+    LEFT JOIN profiles tp ON tp.user_id = cr.target_id
+    LEFT JOIN users tu ON tu.id = cr.target_id
+    WHERE cr.status = 'pending'
+      AND (cr.requester_id = ${userId} OR cr.target_id = ${userId})
+    ORDER BY cr.created_at DESC
+  `;
+
+  const sent: CoupleRequestView[] = [];
+  const received: CoupleRequestView[] = [];
+  for (const row of rows as unknown as CoupleRequestView[]) {
+    if (row.requester_id === userId) {
+      sent.push(row);
+    } else {
+      received.push(row);
+    }
+  }
+  return { sent, received };
+}
+
+/** Relationship state between two users: none / pending_sent / pending_received / coupled. */
+export async function getCoupleStatusWith(
+  userId: number,
+  otherUserId: number
+): Promise<CoupleStatusWith> {
+  const coupled = await sql`
+    SELECT 1 FROM couples
+    WHERE status = 'active'
+      AND ((user1_id = ${userId} AND user2_id = ${otherUserId})
+        OR (user1_id = ${otherUserId} AND user2_id = ${userId}))
+    LIMIT 1
+  `;
+  if (coupled.length > 0) return 'coupled';
+
+  const pending = await sql`
+    SELECT requester_id, target_id FROM couple_requests
+    WHERE status = 'pending'
+      AND ((requester_id = ${userId} AND target_id = ${otherUserId})
+        OR (requester_id = ${otherUserId} AND target_id = ${userId}))
+    LIMIT 1
+  `;
+  if (pending.length > 0) {
+    const row = pending[0] as { requester_id: number; target_id: number };
+    return row.requester_id === userId ? 'pending_sent' : 'pending_received';
+  }
+
+  return 'none';
+}
+
+/**
+ * Archive (per-user) all of the user's conversations except the one(s) with the
+ * given partner. Purely additive: getConversations is untouched, callers opt in.
+ * Optionally posts a farewell message into each archived conversation.
+ */
+export async function archiveConversationsExceptPartner(
+  userId: number,
+  partnerUserId: number | null,
+  message?: string
+): Promise<{ archived: number }> {
+  const conversations = await sql`
+    SELECT
+      c.id,
+      CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END AS other_user_id
+    FROM conversations c
+    WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
+  `;
+
+  let archived = 0;
+  for (const conv of conversations as unknown as Array<{ id: number; other_user_id: number }>) {
+    if (partnerUserId !== null && conv.other_user_id === partnerUserId) continue;
+
+    await sql`
+      INSERT INTO archived_conversations (user_id, conversation_id)
+      VALUES (${userId}, ${conv.id})
+      ON CONFLICT (user_id, conversation_id) DO NOTHING
+    `;
+    archived += 1;
+
+    if (message && message.trim().length > 0) {
+      await sql`
+        INSERT INTO messages (conversation_id, sender_id, content)
+        VALUES (${conv.id}, ${userId}, ${message})
+      `;
+    }
+  }
+
+  return { archived };
 }
 
 // Daily questions for couples
