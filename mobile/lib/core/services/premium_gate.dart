@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../router/route_names.dart';
 import '../theme/app_colors.dart';
@@ -87,12 +90,110 @@ extension PremiumFeatureInfo on PremiumFeature {
 class PremiumGate {
   static final RevenueCatService _revenueCat = RevenueCatService();
 
-  // Track super likes used today (resets on app restart for now)
+  // Persistence keys. The stored date (yyyy-MM-dd) is compared against the
+  // current day; when it differs, all daily counters reset to zero.
+  static const String _kDateKey = 'premium_gate_quota_date';
+  static const String _kLikesUsedKey = 'premium_gate_free_likes_used';
+  static const String _kSuperLikesUsedKey = 'premium_gate_super_likes_used';
+  static const String _kBoostsUsedKey = 'premium_gate_boosts_used';
+
+  // Free daily limits (premium users are unlimited and bypass these).
+  static const int _freeLikesPerDay = 10;
+  static const int _freeSuperLikesPerDay = 1;
+  static const int _premiumSuperLikesPerDay = 5;
+  static const int _premiumBoostsPerDay = 1;
+
+  // In-memory cache hydrated from [SharedPreferences]. Public getters read this
+  // cache synchronously so the existing (synchronous) call sites keep working;
+  // hydration happens lazily/asynchronously on first access.
+  static int _freeLikesUsedToday = 0;
   static int _superLikesUsedToday = 0;
-  static DateTime _lastResetDate = DateTime.now();
+  static int _boostsUsedToday = 0;
+  static String? _quotaDate;
+  static bool _hydrated = false;
+  static Future<void>? _hydrating;
 
   // Callback to notify UI of changes
   static VoidCallback? onSuperLikesChanged;
+
+  /// Today's date as a stable `yyyy-MM-dd` string used as the reset boundary.
+  static String _today() {
+    final now = DateTime.now();
+    final month = now.month.toString().padLeft(2, '0');
+    final day = now.day.toString().padLeft(2, '0');
+    return '${now.year}-$month-$day';
+  }
+
+  /// Load persisted counters into the in-memory cache. Safe to call multiple
+  /// times; the actual work runs at most once (subsequent calls await the same
+  /// future). Errors are swallowed so a storage failure never blocks the UI —
+  /// the cache simply falls back to zero-usage defaults.
+  static Future<void> ensureInitialized() {
+    if (_hydrated) return Future<void>.value();
+    return _hydrating ??= _hydrate();
+  }
+
+  static Future<void> _hydrate() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedDate = prefs.getString(_kDateKey);
+      final today = _today();
+      if (storedDate == today) {
+        _freeLikesUsedToday = prefs.getInt(_kLikesUsedKey) ?? 0;
+        _superLikesUsedToday = prefs.getInt(_kSuperLikesUsedKey) ?? 0;
+        _boostsUsedToday = prefs.getInt(_kBoostsUsedKey) ?? 0;
+        _quotaDate = today;
+      } else {
+        // New day (or first launch): reset and persist the fresh boundary.
+        _freeLikesUsedToday = 0;
+        _superLikesUsedToday = 0;
+        _boostsUsedToday = 0;
+        _quotaDate = today;
+        await _persist();
+      }
+    } catch (error, stackTrace) {
+      debugPrint('PremiumGate: failed to load quotas: $error\n$stackTrace');
+    } finally {
+      _hydrated = true;
+      _hydrating = null;
+    }
+  }
+
+  /// Kick off hydration if it has not happened yet, notifying listeners once
+  /// the real counts are available so any badge rendered from stale defaults
+  /// refreshes. Fire-and-forget: callers must not await it.
+  static void _hydrateInBackground() {
+    if (_hydrated) return;
+    ensureInitialized().then((_) => onSuperLikesChanged?.call());
+  }
+
+  /// Reset the in-memory counters when the day rolls over between accesses
+  /// (e.g. the app stayed open past midnight). Returns true if a reset happened.
+  static bool _resetIfNewDay() {
+    final today = _today();
+    if (_quotaDate != today) {
+      _freeLikesUsedToday = 0;
+      _superLikesUsedToday = 0;
+      _boostsUsedToday = 0;
+      _quotaDate = today;
+      return true;
+    }
+    return false;
+  }
+
+  /// Persist the current in-memory counters. Fire-and-forget at call sites;
+  /// failures are logged but never thrown so a like is never blocked by storage.
+  static Future<void> _persist() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kDateKey, _quotaDate ?? _today());
+      await prefs.setInt(_kLikesUsedKey, _freeLikesUsedToday);
+      await prefs.setInt(_kSuperLikesUsedKey, _superLikesUsedToday);
+      await prefs.setInt(_kBoostsUsedKey, _boostsUsedToday);
+    } catch (error, stackTrace) {
+      debugPrint('PremiumGate: failed to persist quotas: $error\n$stackTrace');
+    }
+  }
 
   /// Check if user has premium access
   static bool get isPremium => _revenueCat.isMazlPro;
@@ -144,42 +245,70 @@ class PremiumGate {
     return false;
   }
 
-  /// Get remaining free likes for today (non-premium users)
+  /// Get remaining free likes for today (non-premium users).
+  ///
+  /// Returns `-1` for premium (unlimited). For free users it reflects the real
+  /// persisted daily count. On the very first access before hydration completes
+  /// it returns the full quota and triggers a background refresh.
   static int get remainingFreeLikes {
     if (isPremium) return -1; // Unlimited
-    // TODO: Track daily likes in local storage
-    return 10; // Default free limit
+    _hydrateInBackground();
+    _resetIfNewDay();
+    return (_freeLikesPerDay - _freeLikesUsedToday)
+        .clamp(0, _freeLikesPerDay);
   }
 
-  /// Reset daily counters if it's a new day
-  static void _checkDailyReset() {
-    final now = DateTime.now();
-    if (now.day != _lastResetDate.day ||
-        now.month != _lastResetDate.month ||
-        now.year != _lastResetDate.year) {
-      _superLikesUsedToday = 0;
-      _lastResetDate = now;
+  /// Consume one free like. No-op for premium users (unlimited). Persists the
+  /// updated count and notifies listeners so any badge refreshes.
+  static void useFreeLike() {
+    if (isPremium) return;
+    _resetIfNewDay();
+    if (_freeLikesUsedToday < _freeLikesPerDay) {
+      _freeLikesUsedToday++;
     }
-  }
-
-  /// Get remaining super likes for today
-  static int get remainingSuperLikes {
-    _checkDailyReset();
-    final maxSuperLikes = isPremium ? 5 : 1;
-    return (maxSuperLikes - _superLikesUsedToday).clamp(0, maxSuperLikes);
-  }
-
-  /// Use a super like
-  static void useSuperLike() {
-    _checkDailyReset();
-    _superLikesUsedToday++;
+    unawaited(_persist());
     onSuperLikesChanged?.call();
   }
 
-  /// Get remaining boosts
+  /// Get remaining super likes for today.
+  static int get remainingSuperLikes {
+    _hydrateInBackground();
+    _resetIfNewDay();
+    final maxSuperLikes =
+        isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+    return (maxSuperLikes - _superLikesUsedToday).clamp(0, maxSuperLikes);
+  }
+
+  /// Use a super like. Persists the updated count and notifies listeners.
+  static void useSuperLike() {
+    _resetIfNewDay();
+    final maxSuperLikes =
+        isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+    if (_superLikesUsedToday < maxSuperLikes) {
+      _superLikesUsedToday++;
+    }
+    unawaited(_persist());
+    onSuperLikesChanged?.call();
+  }
+
+  /// Get remaining boosts for today. Free users get none.
   static int get remainingBoosts {
     if (!isPremium) return 0;
-    return 1; // 1 per week for premium
+    _hydrateInBackground();
+    _resetIfNewDay();
+    return (_premiumBoostsPerDay - _boostsUsedToday)
+        .clamp(0, _premiumBoostsPerDay);
+  }
+
+  /// Consume one boost (premium only). Persists and notifies listeners.
+  static void useBoost() {
+    if (!isPremium) return;
+    _resetIfNewDay();
+    if (_boostsUsedToday < _premiumBoostsPerDay) {
+      _boostsUsedToday++;
+    }
+    unawaited(_persist());
+    onSuperLikesChanged?.call();
   }
 }
 
