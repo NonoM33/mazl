@@ -3,13 +3,15 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/env.dart';
 import 'auth_service.dart';
 
 /// API Configuration
+///
+/// The base URL is resolved per-environment from `--dart-define` via [Env].
+/// See `lib/core/config/env.dart` for launch instructions.
 class ApiConfig {
-  static const String baseUrl = 'https://api.mazl.app';
-  // For local development:
-  // static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = Env.apiBaseUrl;
 }
 
 /// API Response wrapper
