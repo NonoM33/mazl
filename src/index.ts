@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
@@ -153,8 +154,38 @@ const app = new Hono();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 
-// CORS
-app.use("/api/*", cors());
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+// CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)
+const DEFAULT_CORS_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:8080",
+  "capacitor://localhost",
+  "ionic://localhost",
+  "http://localhost",
+];
+
+const ALLOWED_ORIGINS: readonly string[] = (() => {
+  const fromEnv = process.env.CORS_ORIGINS;
+  if (fromEnv) {
+    return fromEnv
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0);
+  }
+  return DEFAULT_CORS_ORIGINS;
+})();
+
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin) => (ALLOWED_ORIGINS.includes(origin) ? origin : null),
+    allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "x-admin-password"],
+    credentials: true,
+  }),
+);
 
 // Pretty routes (must be before static)
 app.get("/verify", async (c) => {
@@ -178,12 +209,23 @@ app.use("/uploads/*", async (c) => {
 // Static files
 app.use("/*", serveStatic({ root: "./public" }));
 
-function getAdminPassword(c: any) {
-  return c.req.query("password") || c.req.header("x-admin-password") || "";
+function getAdminPassword(c: Context): string {
+  // Only accept the admin password via header, never via query string
+  // (query strings leak into logs, browser history and Referer headers).
+  return c.req.header("x-admin-password") || "";
 }
 
-// Admin JWT secret (use a different secret than user JWT)
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || "admin-secret-key";
+// Admin JWT secret (use a different secret than user JWT).
+// Fail fast at boot rather than silently falling back to a hard-coded secret.
+const ADMIN_JWT_SECRET: string = (() => {
+  const secret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "ADMIN_JWT_SECRET (or JWT_SECRET) must be set; refusing to start with a hard-coded admin secret",
+    );
+  }
+  return secret;
+})();
 
 // Generate admin JWT token
 function generateAdminJWT(email: string): string {
@@ -249,8 +291,11 @@ function verifyAdminJWT(token: string): { valid: boolean; email?: string; error?
   }
 }
 
-function assertAdmin(c: any) {
-  // First try JWT token from Authorization header
+type AdminAuthResult = { ok: true; email?: string } | { ok: false; error: string };
+
+function assertAdmin(c: Context): AdminAuthResult {
+  // Admin JWT token from the Authorization header only (no query-string tokens:
+  // they leak into logs, history and Referer headers).
   const authHeader = c.req.header("Authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
     const token = authHeader.substring(7);
@@ -260,7 +305,20 @@ function assertAdmin(c: any) {
     }
   }
 
-  // Try JWT token from query parameter (for file downloads)
+  // Fallback to password method via header only (for backward compatibility).
+  const required = process.env.ADMIN_PASSWORD;
+  if (!required) return { ok: false, error: "ADMIN_PASSWORD not set" };
+  if (getAdminPassword(c) !== required) return { ok: false, error: "Unauthorized" };
+  return { ok: true };
+}
+
+// Admin auth for browser file downloads only. An <a href> navigation cannot set
+// an Authorization header, so this single read-only endpoint additionally accepts
+// a signed admin JWT via the `token` query param. No password is ever accepted here.
+function assertAdminFileDownload(c: Context): AdminAuthResult {
+  const headerResult = assertAdmin(c);
+  if (headerResult.ok) return headerResult;
+
   const tokenParam = c.req.query("token");
   if (tokenParam) {
     const result = verifyAdminJWT(tokenParam);
@@ -269,11 +327,21 @@ function assertAdmin(c: any) {
     }
   }
 
-  // Fallback to old password method (for backward compatibility)
-  const required = process.env.ADMIN_PASSWORD;
-  if (!required) return { ok: false, error: "ADMIN_PASSWORD not set" };
-  if (getAdminPassword(c) !== required) return { ok: false, error: "Unauthorized" };
-  return { ok: true };
+  return { ok: false, error: "Unauthorized" };
+}
+
+// IDOR guard: confirm the authenticated user is a member of the target couple.
+// getCouple(userId) returns only the caller's own active couple (with its id),
+// so a matching id proves membership.
+async function assertCoupleMembership(
+  userId: number,
+  coupleId: number,
+): Promise<boolean> {
+  if (Number.isNaN(coupleId)) return false;
+  const couple = await getCouple(userId);
+  if (!couple) return false;
+  const ownedId = Number((couple as { id: number }).id);
+  return ownedId === coupleId;
 }
 
 function getFileExtension(file: File) {
@@ -715,7 +783,7 @@ app.post("/api/admin/documents/:id/reject", async (c) => {
 });
 
 app.get("/api/admin/documents/:id/file", async (c) => {
-  const auth = assertAdmin(c);
+  const auth = assertAdminFileDownload(c);
   if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
   const documentId = Number.parseInt(c.req.param("id"), 10);
@@ -2024,6 +2092,7 @@ app.post("/api/admin/reset-swipes", async (c) => {
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email, password, name } = body;
@@ -2078,6 +2147,7 @@ app.post("/api/dev/test-user", async (c) => {
 
 // Login test user (dev only)
 app.post("/api/dev/test-login", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email } = body;
@@ -2108,6 +2178,7 @@ app.post("/api/dev/test-login", async (c) => {
 
 // Enable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/enable", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId, partnerId } = body;
@@ -2183,6 +2254,7 @@ app.post("/api/dev/couple/enable", async (c) => {
 
 // Disable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/disable", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId } = body;
@@ -2212,6 +2284,7 @@ app.post("/api/dev/couple/disable", async (c) => {
 
 // Get couple status for debugging (dev endpoint)
 app.get("/api/dev/couple/status/:userId", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const userId = parseInt(c.req.param("userId"));
 
@@ -2240,6 +2313,7 @@ app.get("/api/dev/couple/status/:userId", async (c) => {
 
 // Reset swipes by email (dev endpoint)
 app.get("/api/dev/reset-swipes/:email", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   const email = c.req.param("email");
   if (!email) {
     return c.json({ success: false, error: "email required" }, 400);
@@ -2416,6 +2490,9 @@ app.patch("/api/couple/:coupleId/status", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const { relationshipStatus } = await c.req.json();
 
     await updateRelationshipStatus(coupleId, relationshipStatus);
@@ -2437,6 +2514,9 @@ app.delete("/api/couple/:coupleId", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     await deleteCouple(coupleId);
 
     return c.json({ success: true });
@@ -2456,6 +2536,9 @@ app.get("/api/couple/:coupleId/question", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const question = await getDailyQuestion(coupleId);
 
     return c.json({ success: true, question });
@@ -2475,6 +2558,9 @@ app.post("/api/couple/:coupleId/question/:questionId/answer", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const questionId = parseInt(c.req.param("questionId"));
     const { answer } = await c.req.json();
 
@@ -2497,6 +2583,9 @@ app.get("/api/couple/:coupleId/questions", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const questions = await getCoupleQuestionHistory(coupleId);
 
     return c.json({ success: true, questions });
@@ -2516,6 +2605,9 @@ app.get("/api/couple/:coupleId/milestones", async (c) => {
     if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(parseInt(payload.sub), coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const milestones = await getCoupleMilestones(coupleId);
 
     return c.json({ success: true, milestones });
