@@ -137,6 +137,22 @@ export async function initDb() {
     )
   `;
 
+  // Selfie verification attempts (US-TS-03).
+  // Each row is one selfie-verification attempt. The 3-per-day quota is
+  // enforced server-side by counting today's rows for the user (see
+  // startVerification / submitVerification below). NOTE: the base64 selfie is
+  // intentionally NOT persisted here and is never added to profile_photos /
+  // profiles.photos — it is only used transiently to decide pass/fail.
+  await sql`
+    CREATE TABLE IF NOT EXISTS verification_attempts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      gesture_id VARCHAR(30) NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+
   // Boosts table (profile boost: temporarily prioritized in discover feed)
   await sql`
     CREATE TABLE IF NOT EXISTS boosts (
@@ -676,6 +692,8 @@ export async function initDb() {
   await sql`CREATE INDEX IF NOT EXISTS idx_boosts_user ON boosts (user_id)`;
   // Speeds up "currently boosted?" lookups and the active-boost prioritization.
   await sql`CREATE INDEX IF NOT EXISTS idx_boosts_expires_at ON boosts (expires_at)`;
+  // Speeds up the daily-quota count in the selfie verification flow.
+  await sql`CREATE INDEX IF NOT EXISTS idx_verification_attempts_user_created ON verification_attempts (user_id, created_at)`;
 
   console.log("Database initialized");
 
@@ -1244,6 +1262,213 @@ export async function getActiveBoostedUserIds(): Promise<Set<number>> {
     WHERE expires_at > NOW()
   `;
   return new Set(rows.map((r) => r.user_id));
+}
+
+// ============ SELFIE VERIFICATION (US-TS-03) ============
+//
+// IMPORTANT — NO REAL FACE MATCHING IS PERFORMED HERE.
+// This flow deliberately does NOT run any facial recognition / ML comparison
+// between the submitted selfie and the profile photos (out of scope: no ML in
+// this codebase). A submission that provides an image simply "passes". This is
+// the natural place to branch in a real face-match service or an admin review
+// step (a documentary-verification admin flow already exists elsewhere in this
+// app and could gate `is_verified` the same way). The selfie itself is never
+// stored in profile_photos / profiles.photos — it is only used transiently.
+
+/** Maximum selfie-verification attempts a user may make per calendar day. */
+export const VERIFICATION_DAILY_LIMIT = 3;
+
+/** Gestures a user may be asked to perform. IDs must match the mobile client. */
+export const VERIFICATION_GESTURES = [
+  "hand_up",
+  "smile",
+  "thumbs_up",
+] as const;
+
+export type VerificationGestureId = (typeof VERIFICATION_GESTURES)[number];
+
+export interface StartVerificationResult {
+  ok: boolean;
+  gestureId?: VerificationGestureId;
+  attemptId?: number;
+  /** ISO timestamp of the next allowed attempt when the quota is exhausted. */
+  nextAttemptTime?: string;
+  message?: string;
+}
+
+export interface SubmitVerificationResult {
+  verified: boolean;
+  attemptsRemaining: number;
+  message: string;
+  /** Set when the daily quota was already exhausted (no attempt consumed). */
+  nextAttemptTime?: string;
+}
+
+export interface VerificationStatus {
+  isVerified: boolean;
+  attemptsToday: number;
+  nextAttemptTime?: string;
+}
+
+/** Count verification attempts made by the user during the current server day. */
+async function countVerificationAttemptsToday(userId: number): Promise<number> {
+  const rows = await sql<{ count: string }[]>`
+    SELECT COUNT(*)::int AS count
+    FROM verification_attempts
+    WHERE user_id = ${userId}
+      AND created_at >= DATE_TRUNC('day', NOW())
+  `;
+  return Number(rows[0]?.count ?? 0);
+}
+
+/** ISO timestamp of the next midnight (start of tomorrow), server-local. */
+async function nextMidnightIso(): Promise<string> {
+  const rows = await sql<{ next_midnight: Date }[]>`
+    SELECT (DATE_TRUNC('day', NOW()) + INTERVAL '1 day') AS next_midnight
+  `;
+  return (rows[0]?.next_midnight ?? new Date()).toISOString();
+}
+
+/**
+ * Start a selfie verification: enforce the per-day quota, pick a random
+ * gesture, and record a `pending` attempt. Returns the gesture + attempt id,
+ * or an unsuccessful result carrying `nextAttemptTime` when the quota is hit.
+ * The quota is enforced HERE (server-side), not trusted from the client.
+ */
+export async function startVerification(
+  userId: number,
+): Promise<StartVerificationResult> {
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+  if (attemptsToday >= VERIFICATION_DAILY_LIMIT) {
+    return {
+      ok: false,
+      nextAttemptTime: await nextMidnightIso(),
+      message: "Limite de tentatives atteinte (3/jour). Réessayez demain.",
+    };
+  }
+
+  const gestureId =
+    VERIFICATION_GESTURES[
+      Math.floor(Math.random() * VERIFICATION_GESTURES.length)
+    ]!;
+
+  const rows = await sql<{ id: number }[]>`
+    INSERT INTO verification_attempts (user_id, gesture_id, status)
+    VALUES (${userId}, ${gestureId}, 'pending')
+    RETURNING id
+  `;
+
+  return { ok: true, gestureId, attemptId: rows[0]!.id };
+}
+
+/**
+ * Submit a selfie for the given gesture. Re-checks the daily quota server-side
+ * (the pending row from `startVerification` counts toward it), then marks the
+ * latest pending attempt as passed/failed and, on success, flips the profile
+ * to verified. Returns `{ verified, attemptsRemaining, message }`.
+ *
+ * `imageProvided` is the only signal used to decide pass/fail — see the module
+ * note above: NO real face matching is done.
+ */
+export async function submitVerification(
+  userId: number,
+  gestureId: string,
+  imageProvided: boolean,
+): Promise<SubmitVerificationResult> {
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+  if (attemptsToday > VERIFICATION_DAILY_LIMIT) {
+    return {
+      verified: false,
+      attemptsRemaining: 0,
+      message: "Limite de tentatives atteinte (3/jour). Réessayez demain.",
+      nextAttemptTime: await nextMidnightIso(),
+    };
+  }
+
+  // Find the most recent pending attempt to resolve. If none exists (client
+  // called submit without start), create a resolved row so the attempt is
+  // still counted against the daily quota.
+  const pending = await sql<{ id: number }[]>`
+    SELECT id
+    FROM verification_attempts
+    WHERE user_id = ${userId}
+      AND status = 'pending'
+      AND created_at >= DATE_TRUNC('day', NOW())
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+
+  // Passes iff an image was provided. NO facial comparison is performed.
+  const passed = imageProvided;
+  const newStatus = passed ? "passed" : "failed";
+
+  if (pending[0]) {
+    await sql`
+      UPDATE verification_attempts
+      SET status = ${newStatus}, gesture_id = ${gestureId}
+      WHERE id = ${pending[0].id}
+    `;
+  } else {
+    await sql`
+      INSERT INTO verification_attempts (user_id, gesture_id, status)
+      VALUES (${userId}, ${gestureId}, ${newStatus})
+    `;
+  }
+
+  if (passed) {
+    await sql`
+      UPDATE profiles
+      SET is_verified = true,
+          verification_level = 'photo',
+          updated_at = NOW()
+      WHERE user_id = ${userId}
+    `;
+    return {
+      verified: true,
+      attemptsRemaining: Math.max(
+        0,
+        VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
+      ),
+      message: "Vérification réussie. Ton profil affiche le badge vérifié.",
+    };
+  }
+
+  const attemptsRemaining = Math.max(
+    0,
+    VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
+  );
+  return {
+    verified: false,
+    attemptsRemaining,
+    message:
+      attemptsRemaining > 0
+        ? "Le selfie n'a pas pu être validé. Réessaie en suivant bien le geste demandé."
+        : "Le selfie n'a pas pu être validé. Limite atteinte, réessaie demain.",
+  };
+}
+
+/**
+ * Current verification status for the user: whether the profile is verified,
+ * how many attempts were made today, and — if the daily quota is exhausted —
+ * the ISO timestamp of the next allowed attempt (next midnight).
+ */
+export async function getVerificationStatus(
+  userId: number,
+): Promise<VerificationStatus> {
+  const profileRows = await sql<{ is_verified: boolean }[]>`
+    SELECT is_verified
+    FROM profiles
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `;
+  const isVerified = Boolean(profileRows[0]?.is_verified);
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+
+  const status: VerificationStatus = { isVerified, attemptsToday };
+  if (!isVerified && attemptsToday >= VERIFICATION_DAILY_LIMIT) {
+    status.nextAttemptTime = await nextMidnightIso();
+  }
+  return status;
 }
 
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {

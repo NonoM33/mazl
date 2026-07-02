@@ -103,6 +103,10 @@ import {
   getUserActivity,
   deleteUserCompletely,
   setUserVerificationLevel,
+  // Selfie verification (US-TS-03)
+  startVerification,
+  submitVerification,
+  getVerificationStatus,
   // Profile Photos
   getProfilePhotos,
   addProfilePhoto,
@@ -1022,6 +1026,117 @@ app.put("/api/profile", async (c) => {
 // ============ PROFILE PHOTOS ============
 
 // Get profile photos
+// ============ SELFIE VERIFICATION (US-TS-03) ============
+// Distinct from the WEB email-token flow at /api/verify/* — do not conflate.
+// These literal /api/verification/* routes are registered before any
+// parameterized route that could otherwise capture them.
+
+// Start a selfie verification: returns a random gesture to perform.
+app.post("/api/verification/start", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+
+    const result = await startVerification(userId);
+    if (!result.ok) {
+      // Daily quota exhausted — enforced server-side.
+      return c.json(
+        {
+          success: false,
+          error: result.message ?? "Daily verification limit reached",
+          next_attempt_time: result.nextAttemptTime,
+        },
+        429,
+      );
+    }
+
+    return c.json({ success: true, gesture_id: result.gestureId });
+  } catch (error: unknown) {
+    console.error("Verification start error:", error);
+    return c.json({ success: false, error: "Failed to start verification" }, 500);
+  }
+});
+
+// Submit a selfie (base64) for the given gesture.
+app.post("/api/verification/submit", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+
+    const body = await c.req.json().catch(() => null);
+    const rawGesture =
+      body && typeof body.gesture_id === "string" ? body.gesture_id : "";
+    const selfie =
+      body && typeof body.selfie === "string" ? body.selfie : "";
+    // The base64 selfie is used transiently only; it is never persisted to
+    // profile_photos / profiles.photos. We just check that one was provided.
+    const imageProvided = selfie.length > 0;
+
+    const result = await submitVerification(userId, rawGesture, imageProvided);
+    if (result.nextAttemptTime && !result.verified && result.attemptsRemaining === 0) {
+      // Quota was already exhausted before this call — refuse.
+      return c.json(
+        {
+          success: false,
+          error: result.message,
+          next_attempt_time: result.nextAttemptTime,
+        },
+        429,
+      );
+    }
+
+    return c.json({
+      success: true,
+      verified: result.verified,
+      message: result.message,
+      attempts_remaining: result.attemptsRemaining,
+    });
+  } catch (error: unknown) {
+    console.error("Verification submit error:", error);
+    return c.json({ success: false, error: "Failed to submit verification" }, 500);
+  }
+});
+
+// Current verification status (verified flag + daily quota).
+app.get("/api/verification/status", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+
+    const status = await getVerificationStatus(userId);
+    return c.json({
+      success: true,
+      is_verified: status.isVerified,
+      attempts_today: status.attemptsToday,
+      next_attempt_time: status.nextAttemptTime ?? null,
+    });
+  } catch (error: unknown) {
+    console.error("Verification status error:", error);
+    return c.json({ success: false, error: "Failed to get verification status" }, 500);
+  }
+});
+
 app.get("/api/profile/photos", async (c) => {
   try {
     const token = extractBearerToken(c.req.header("Authorization"));
