@@ -34,6 +34,17 @@ import {
   getDiscoverProfiles,
   recordSwipe,
   getMatches,
+  // Received likes
+  getReceivedLikes,
+  getReceivedLikesCount,
+  // Profile prompts
+  PROMPT_CATALOG,
+  getPromptText,
+  getProfilePrompts,
+  addProfilePrompt,
+  updateProfilePrompt,
+  deleteProfilePrompt,
+  ProfilePromptLimitError,
   // Chat
   getConversations,
   getConversationById,
@@ -1216,6 +1227,157 @@ app.get("/uploads/profiles/:userId/:filename", async (c) => {
 });
 
 // Get user profile by ID (for viewing other users)
+// ============ PROFILE PROMPTS ============
+// NOTE: these /api/profile/prompts routes MUST be declared BEFORE
+// /api/profile/:userId, otherwise "prompts" is captured as :userId
+// (parseInt("prompts") = NaN) and returns 400 instead of the prompts.
+
+// Public prompt catalog (available questions). Shape aligns with PromptTemplate.
+app.get("/api/prompts", (c) => {
+  return c.json({ success: true, prompts: PROMPT_CATALOG });
+});
+
+// Get the caller's own prompts
+app.get("/api/profile/prompts", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+    const rows = await getProfilePrompts(userId);
+    const prompts = rows.map((r) => ({
+      id: r.id,
+      prompt_id: r.prompt_id,
+      prompt_text: getPromptText(r.prompt_id),
+      answer: r.answer,
+      position: r.position,
+    }));
+    return c.json({ success: true, prompts });
+  } catch (error: unknown) {
+    console.error("Get prompts error:", error);
+    return c.json({ success: false, error: "Failed to get prompts" }, 500);
+  }
+});
+
+// Add a prompt to the caller's profile (max 3)
+app.post("/api/profile/prompts", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+    const body = (await c.req.json()) as {
+      prompt_id?: unknown;
+      answer?: unknown;
+      position?: unknown;
+    };
+    const promptId = typeof body.prompt_id === "string" ? body.prompt_id : null;
+    const answer = typeof body.answer === "string" ? body.answer : null;
+    if (!promptId || !answer || !answer.trim()) {
+      return c.json({ success: false, error: "Missing prompt_id or answer" }, 400);
+    }
+    const position = typeof body.position === "number" ? body.position : 0;
+
+    const row = await addProfilePrompt(userId, promptId, answer, position);
+    return c.json({
+      success: true,
+      prompt: {
+        id: row.id,
+        prompt_id: row.prompt_id,
+        prompt_text: getPromptText(row.prompt_id),
+        answer: row.answer,
+        position: row.position,
+      },
+    }, 201);
+  } catch (error: unknown) {
+    if (error instanceof ProfilePromptLimitError) {
+      return c.json({ success: false, error: error.message }, 400);
+    }
+    console.error("Add prompt error:", error);
+    return c.json({ success: false, error: "Failed to add prompt" }, 500);
+  }
+});
+
+// Update one of the caller's prompts
+app.put("/api/profile/prompts/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+    const promptId = parseInt(c.req.param("id"));
+    if (isNaN(promptId)) {
+      return c.json({ success: false, error: "Invalid prompt ID" }, 400);
+    }
+    const body = (await c.req.json()) as { answer?: unknown };
+    const answer = typeof body.answer === "string" ? body.answer : null;
+    if (!answer || !answer.trim()) {
+      return c.json({ success: false, error: "Missing answer" }, 400);
+    }
+
+    const row = await updateProfilePrompt(userId, promptId, answer);
+    if (!row) {
+      return c.json({ success: false, error: "Prompt not found" }, 404);
+    }
+    return c.json({
+      success: true,
+      prompt: {
+        id: row.id,
+        prompt_id: row.prompt_id,
+        prompt_text: getPromptText(row.prompt_id),
+        answer: row.answer,
+        position: row.position,
+      },
+    });
+  } catch (error: unknown) {
+    console.error("Update prompt error:", error);
+    return c.json({ success: false, error: "Failed to update prompt" }, 500);
+  }
+});
+
+// Delete one of the caller's prompts
+app.delete("/api/profile/prompts/:id", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+    const promptId = parseInt(c.req.param("id"));
+    if (isNaN(promptId)) {
+      return c.json({ success: false, error: "Invalid prompt ID" }, 400);
+    }
+
+    const deleted = await deleteProfilePrompt(userId, promptId);
+    if (!deleted) {
+      return c.json({ success: false, error: "Prompt not found" }, 404);
+    }
+    return c.json({ success: true });
+  } catch (error: unknown) {
+    console.error("Delete prompt error:", error);
+    return c.json({ success: false, error: "Failed to delete prompt" }, 500);
+  }
+});
+
 app.get("/api/profile/:userId", async (c) => {
   try {
     const token = extractBearerToken(c.req.header("Authorization"));
@@ -1364,6 +1526,59 @@ app.get("/api/matches", async (c) => {
   } catch (error: any) {
     console.error("Matches error:", error);
     return c.json({ success: false, error: "Failed to get matches" }, 500);
+  }
+});
+
+// ============ RECEIVED LIKES ============
+
+// Profiles of users who liked me but with whom I have not matched yet.
+app.get("/api/likes/received", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+
+    const rows = await getReceivedLikes(userId);
+    const likes = rows.map((r) => ({
+      user_id: r.user_id,
+      display_name: r.display_name,
+      picture: r.picture,
+      age: r.age !== null ? Math.trunc(r.age) : null,
+      is_verified: r.is_verified === true,
+      liked_at: r.liked_at,
+    }));
+
+    return c.json({ success: true, count: likes.length, likes });
+  } catch (error: unknown) {
+    console.error("Received likes error:", error);
+    return c.json({ success: false, error: "Failed to get received likes" }, 500);
+  }
+});
+
+// Count of received likes.
+app.get("/api/likes/received/count", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+    const userId = parseInt(payload.sub);
+
+    const count = await getReceivedLikesCount(userId);
+    return c.json({ success: true, count });
+  } catch (error: unknown) {
+    console.error("Received likes count error:", error);
+    return c.json({ success: false, error: "Failed to get likes count" }, 500);
   }
 });
 

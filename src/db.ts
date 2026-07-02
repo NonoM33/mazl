@@ -124,6 +124,19 @@ export async function initDb() {
     )
   `;
 
+  // Profile prompts (question/answer cards on a user's profile, max 3)
+  await sql`
+    CREATE TABLE IF NOT EXISTS profile_prompts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      prompt_id VARCHAR(50) NOT NULL,
+      answer TEXT NOT NULL,
+      position INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
@@ -615,6 +628,7 @@ export async function initDb() {
   await sql`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocker ON blocked_users (blocker_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocked ON blocked_users (blocked_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts (user_id)`;
 
   console.log("Database initialized");
 
@@ -1322,6 +1336,184 @@ export async function getMatches(userId: number) {
     conversationId: m.conversation_id,
     profile: profileMap.get(m.other_user_id),
   }));
+}
+
+// ============ RECEIVED LIKES ============
+
+// Profiles of users who liked/super-liked the caller but with whom no match
+// exists yet, excluding users blocked in either direction. Shape mirrors
+// getMatches profile rows plus liked_at.
+export async function getReceivedLikes(userId: number): Promise<Array<{
+  user_id: number;
+  display_name: string | null;
+  age: number | null;
+  location: string | null;
+  is_verified: boolean | null;
+  picture: string | null;
+  liked_at: Date;
+}>> {
+  const rows = await sql`
+    SELECT
+      s.user_id AS user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) AS age,
+      p.location,
+      p.is_verified,
+      u.picture,
+      s.created_at AS liked_at
+    FROM swipes s
+    JOIN users u ON u.id = s.user_id
+    LEFT JOIN profiles p ON p.user_id = s.user_id
+    WHERE s.target_user_id = ${userId}
+      AND s.action IN ('like', 'super_like')
+      -- not already matched
+      AND NOT EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.user1_id = ${userId} AND m.user2_id = s.user_id)
+           OR (m.user2_id = ${userId} AND m.user1_id = s.user_id)
+      )
+      -- exclude users blocked in either direction
+      AND s.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
+    ORDER BY s.created_at DESC
+  `;
+  return rows as unknown as Array<{
+    user_id: number;
+    display_name: string | null;
+    age: number | null;
+    location: string | null;
+    is_verified: boolean | null;
+    picture: string | null;
+    liked_at: Date;
+  }>;
+}
+
+export async function getReceivedLikesCount(userId: number): Promise<number> {
+  const rows = await sql`
+    SELECT COUNT(*) AS count
+    FROM swipes s
+    WHERE s.target_user_id = ${userId}
+      AND s.action IN ('like', 'super_like')
+      AND NOT EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.user1_id = ${userId} AND m.user2_id = s.user_id)
+           OR (m.user2_id = ${userId} AND m.user1_id = s.user_id)
+      )
+      AND s.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
+  `;
+  const row = rows[0] as { count: string } | undefined;
+  return row ? parseInt(row.count) : 0;
+}
+
+// ============ PROFILE PROMPTS ============
+
+export interface ProfilePromptRow {
+  id: number;
+  prompt_id: string;
+  answer: string;
+  position: number;
+}
+
+export const PROMPT_CATALOG: ReadonlyArray<{ id: string; text: string; category: string }> = [
+  // Personnalité
+  { id: 'perfect_sunday', text: 'Mon dimanche parfait...', category: 'personality' },
+  { id: 'fun_fact', text: 'Un fait surprenant sur moi...', category: 'personality' },
+  { id: 'life_goal', text: 'Un de mes objectifs dans la vie...', category: 'personality' },
+  { id: 'pet_peeve', text: "Ce qui m'énerve le plus...", category: 'personality' },
+  { id: 'proud_of', text: 'Je suis fier(e) de...', category: 'personality' },
+  { id: 'looking_for', text: 'Je cherche quelqu\'un qui...', category: 'personality' },
+  // Lifestyle
+  { id: 'ideal_vacation', text: 'Mes vacances idéales...', category: 'lifestyle' },
+  { id: 'favorite_food', text: 'Mon plat préféré...', category: 'lifestyle' },
+  { id: 'hidden_talent', text: 'Mon talent caché...', category: 'lifestyle' },
+  { id: 'binge_watching', text: 'En ce moment je regarde...', category: 'lifestyle' },
+  // Judaïsme
+  { id: 'shabbat_ideal', text: 'Mon Shabbat idéal...', category: 'jewish' },
+  { id: 'family_tradition', text: "Une tradition familiale que j'adore...", category: 'jewish' },
+  { id: 'favorite_holiday', text: 'Ma fête juive préférée...', category: 'jewish' },
+  { id: 'friday_night', text: 'Le vendredi soir chez moi...', category: 'jewish' },
+  { id: 'israel_memory', text: 'Mon meilleur souvenir en Israël...', category: 'jewish' },
+  { id: 'jewish_value', text: 'Une valeur juive qui me guide...', category: 'jewish' },
+  // Conversation starters
+  { id: 'debate_me', text: 'Débats moi sur...', category: 'conversation' },
+  { id: 'teach_me', text: 'Apprends-moi quelque chose sur...', category: 'conversation' },
+  { id: 'together_we_could', text: 'Ensemble on pourrait...', category: 'conversation' },
+  { id: 'first_date', text: 'Premier date idéal...', category: 'conversation' },
+];
+
+const PROMPT_TEXT_BY_ID = new Map(PROMPT_CATALOG.map((p) => [p.id, p.text]));
+
+export function getPromptText(promptId: string): string {
+  return PROMPT_TEXT_BY_ID.get(promptId) ?? '';
+}
+
+export class ProfilePromptLimitError extends Error {
+  constructor() {
+    super('Maximum of 3 prompts reached');
+    this.name = 'ProfilePromptLimitError';
+  }
+}
+
+export async function getProfilePrompts(userId: number): Promise<ProfilePromptRow[]> {
+  const rows = await sql`
+    SELECT id, prompt_id, answer, position
+    FROM profile_prompts
+    WHERE user_id = ${userId}
+    ORDER BY position ASC, id ASC
+  `;
+  return rows as unknown as ProfilePromptRow[];
+}
+
+export async function addProfilePrompt(
+  userId: number,
+  promptId: string,
+  answer: string,
+  position: number,
+): Promise<ProfilePromptRow> {
+  const countRows = await sql`
+    SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
+  `;
+  const existing = parseInt((countRows[0] as { count: string }).count);
+  if (existing >= 3) {
+    throw new ProfilePromptLimitError();
+  }
+
+  const rows = await sql`
+    INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
+    VALUES (${userId}, ${promptId}, ${answer}, ${position})
+    RETURNING id, prompt_id, answer, position
+  `;
+  return rows[0] as unknown as ProfilePromptRow;
+}
+
+export async function updateProfilePrompt(
+  userId: number,
+  promptId: number,
+  answer: string,
+): Promise<ProfilePromptRow | null> {
+  const rows = await sql`
+    UPDATE profile_prompts
+    SET answer = ${answer}, updated_at = NOW()
+    WHERE id = ${promptId} AND user_id = ${userId}
+    RETURNING id, prompt_id, answer, position
+  `;
+  return rows.length ? (rows[0] as unknown as ProfilePromptRow) : null;
+}
+
+export async function deleteProfilePrompt(userId: number, promptId: number): Promise<boolean> {
+  const rows = await sql`
+    DELETE FROM profile_prompts
+    WHERE id = ${promptId} AND user_id = ${userId}
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 // ============ SEED FAKE PROFILES ============
