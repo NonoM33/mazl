@@ -32,6 +32,10 @@ import {
   getFullProfile,
   upsertProfile,
   getDiscoverProfiles,
+  // Boost
+  activateBoost,
+  getActiveBoost,
+  getBoostsUsedToday,
   recordSwipe,
   getMatches,
   // Received likes
@@ -1465,6 +1469,80 @@ app.get("/api/daily-picks", async (c) => {
   } catch (error: any) {
     console.error("Daily picks error:", error);
     return c.json({ success: false, error: "Failed to get daily picks" }, 500);
+  }
+});
+
+// ============ BOOST ============
+
+// Free-tier daily boost allowance. Premium (unlimited) enforcement lives
+// on the client for now; the server just reports a sensible remaining count.
+const FREE_DAILY_BOOSTS = 3;
+
+async function buildBoostStatus(userId: number) {
+  const [activeBoost, boostsUsedToday] = await Promise.all([
+    getActiveBoost(userId),
+    getBoostsUsedToday(userId),
+  ]);
+
+  const remainingBoosts = Math.max(0, FREE_DAILY_BOOSTS - boostsUsedToday);
+  const expiresAt = activeBoost ? activeBoost.expires_at.toISOString() : null;
+
+  // Keys are snake_case to match the mobile BoostStatus.fromJson parser.
+  return {
+    is_active: activeBoost !== null,
+    expires_at: expiresAt,
+    active_until: expiresAt,
+    remaining_boosts: remainingBoosts,
+    boosts_used_today: boostsUsedToday,
+    views_during_boost: 0,
+    likes_during_boost: 0,
+  };
+}
+
+// Get current boost status
+app.get("/api/boost/status", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const status = await buildBoostStatus(userId);
+
+    return c.json({ success: true, ...status });
+  } catch (error: any) {
+    console.error("Boost status error:", error);
+    return c.json({ success: false, error: "Failed to get boost status" }, 500);
+  }
+});
+
+// Activate a boost (30 minutes)
+app.post("/api/boost/activate", async (c) => {
+  try {
+    const token = extractBearerToken(c.req.header("Authorization"));
+    if (!token) {
+      return c.json({ success: false, error: "No token provided" }, 401);
+    }
+
+    const payload = verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    const userId = parseInt(payload.sub);
+    const boost = await activateBoost(userId, 30);
+    const status = await buildBoostStatus(userId);
+
+    return c.json({ success: true, boost, status, ...status }, 201);
+  } catch (error: any) {
+    console.error("Boost activate error:", error);
+    return c.json({ success: false, error: "Failed to activate boost" }, 500);
   }
 });
 

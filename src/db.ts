@@ -137,6 +137,17 @@ export async function initDb() {
     )
   `;
 
+  // Boosts table (profile boost: temporarily prioritized in discover feed)
+  await sql`
+    CREATE TABLE IF NOT EXISTS boosts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      activated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
@@ -629,6 +640,9 @@ export async function initDb() {
   await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocker ON blocked_users (blocker_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocked ON blocked_users (blocked_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_boosts_user ON boosts (user_id)`;
+  // Speeds up "currently boosted?" lookups and the active-boost prioritization.
+  await sql`CREATE INDEX IF NOT EXISTS idx_boosts_expires_at ON boosts (expires_at)`;
 
   console.log("Database initialized");
 
@@ -1126,6 +1140,79 @@ export async function upsertProfile(userId: number, params: {
 
 // ============ DISCOVER & SWIPES ============
 
+// ============ BOOST ============
+
+export interface BoostRecord {
+  id: number;
+  user_id: number;
+  activated_at: Date;
+  expires_at: Date;
+  created_at: Date;
+}
+
+/**
+ * Activate a boost for a user: inserts a boost row expiring in
+ * `durationMinutes` (default 30). Returns the created record.
+ */
+export async function activateBoost(
+  userId: number,
+  durationMinutes = 30,
+): Promise<BoostRecord> {
+  const rows = await sql<BoostRecord[]>`
+    INSERT INTO boosts (user_id, activated_at, expires_at)
+    VALUES (
+      ${userId},
+      NOW(),
+      NOW() + (${durationMinutes} * INTERVAL '1 minute')
+    )
+    RETURNING id, user_id, activated_at, expires_at, created_at
+  `;
+  return rows[0]!;
+}
+
+/**
+ * Return the user's currently-active boost (expires_at in the future),
+ * or null if none is active. Picks the one expiring latest.
+ */
+export async function getActiveBoost(userId: number): Promise<BoostRecord | null> {
+  const rows = await sql<BoostRecord[]>`
+    SELECT id, user_id, activated_at, expires_at, created_at
+    FROM boosts
+    WHERE user_id = ${userId}
+      AND expires_at > NOW()
+    ORDER BY expires_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ?? null;
+}
+
+/**
+ * Count how many boosts the user activated today (server-local calendar day).
+ * Useful for quota enforcement / display.
+ */
+export async function getBoostsUsedToday(userId: number): Promise<number> {
+  const rows = await sql<{ count: string }[]>`
+    SELECT COUNT(*)::int AS count
+    FROM boosts
+    WHERE user_id = ${userId}
+      AND activated_at >= DATE_TRUNC('day', NOW())
+  `;
+  return Number(rows[0]?.count ?? 0);
+}
+
+/**
+ * Set of user IDs that currently have an active boost.
+ * Used to prioritize boosted profiles in the discover feed.
+ */
+export async function getActiveBoostedUserIds(): Promise<Set<number>> {
+  const rows = await sql<{ user_id: number }[]>`
+    SELECT DISTINCT user_id
+    FROM boosts
+    WHERE expires_at > NOW()
+  `;
+  return new Set(rows.map((r) => r.user_id));
+}
+
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
   // Fetch candidate profiles filtered against the CALLER's own preferences.
   // Criteria are read directly from the caller's profile row (CTE `me`) so
@@ -1213,6 +1300,13 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
         )
       )
     ORDER BY
+      -- boosted candidates float to the top of the feed
+      (
+        CASE WHEN EXISTS (
+          SELECT 1 FROM boosts b
+          WHERE b.user_id = p.user_id AND b.expires_at > NOW()
+        ) THEN 1 ELSE 0 END
+      ) DESC,
       (
         CASE WHEN me.denomination IS NOT NULL AND p.denomination = me.denomination THEN 3 ELSE 0 END
         + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
