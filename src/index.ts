@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
+import { z } from "zod";
 import { createMiddleware } from "hono/factory";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
@@ -185,6 +186,112 @@ type AppVariables = {
 };
 
 const app = new Hono<{ Variables: AppVariables }>();
+
+// ============ INPUT VALIDATION (permissive safety net) ============
+// These schemas only guard the TYPES of fields actually read by each handler
+// and the presence of fields the handler logic already requires. They use
+// `.passthrough()` so extra fields from the mobile app are never rejected, and
+// keep optional anything the handler already treats as optional. On failure the
+// caller returns the same `{ success: false, error }` 400 shape as the rest of
+// the file — business logic and success responses are unchanged.
+
+type BodyParseResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string };
+
+async function parseBody<T>(
+  schema: z.ZodType<T>,
+  c: Context<{ Variables: AppVariables }>,
+): Promise<BodyParseResult<T>> {
+  let raw: unknown;
+  try {
+    raw = await c.req.json();
+  } catch {
+    return { ok: false, error: "Invalid JSON body" };
+  }
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    const path = first?.path.join(".");
+    const message = first
+      ? path
+        ? `${path}: ${first.message}`
+        : first.message
+      : "Invalid request body";
+    return { ok: false, error: message };
+  }
+  return { ok: true, data: parsed.data };
+}
+
+const swipeBodySchema = z
+  .object({
+    target_user_id: z.number(),
+    action: z.enum(["like", "pass", "super_like"]),
+  })
+  .passthrough();
+
+const reportUserBodySchema = z
+  .object({
+    category: z.string().optional(),
+    comment: z.string().optional(),
+    block_user: z.boolean().optional(),
+  })
+  .passthrough();
+
+const coupleRequestBodySchema = z
+  .object({
+    target_user_id: z.number(),
+  })
+  .passthrough();
+
+const coupleRespondBodySchema = z
+  .object({
+    action: z.enum(["accept", "reject"]),
+  })
+  .passthrough();
+
+const addPromptBodySchema = z
+  .object({
+    prompt_id: z.string(),
+    answer: z.string(),
+    position: z.number().optional(),
+  })
+  .passthrough();
+
+const updatePromptBodySchema = z
+  .object({
+    answer: z.string(),
+  })
+  .passthrough();
+
+const sendMessageBodySchema = z
+  .object({
+    content: z.string().min(1),
+  })
+  .passthrough();
+
+// PUT /api/profile: guard the numeric field TYPES (ageMin/ageMax/distanceMax,
+// lat/long) and declare the string fields the handler reads so they stay
+// well-typed. Everything is optional and `.passthrough()` keeps any other
+// field the mobile app may send — nothing legitimate is rejected.
+const updateProfileBodySchema = z
+  .object({
+    displayName: z.string().optional(),
+    birthdate: z.string().optional(),
+    gender: z.string().optional(),
+    bio: z.string().optional(),
+    location: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    denomination: z.string().optional(),
+    kashrutLevel: z.string().optional(),
+    shabbatObservance: z.string().optional(),
+    lookingFor: z.string().optional(),
+    ageMin: z.number().optional(),
+    ageMax: z.number().optional(),
+    distanceMax: z.number().optional(),
+  })
+  .passthrough();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 
@@ -1002,7 +1109,11 @@ app.get("/api/auth/me", requireAuth, async (c) => {
 app.put("/api/profile", requireAuth, async (c) => {
   try {
     const userId = c.get("userId");
-    const body = await c.req.json();
+    const parsed = await parseBody(updateProfileBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const body = parsed.data;
 
     const profile = await upsertProfile(userId, {
       displayName: body.displayName,
@@ -1316,13 +1427,13 @@ app.get("/api/profile/prompts", requireAuth, async (c) => {
 app.post("/api/profile/prompts", requireAuth, async (c) => {
   try {
     const userId = c.get("userId");
-    const body = (await c.req.json()) as {
-      prompt_id?: unknown;
-      answer?: unknown;
-      position?: unknown;
-    };
-    const promptId = typeof body.prompt_id === "string" ? body.prompt_id : null;
-    const answer = typeof body.answer === "string" ? body.answer : null;
+    const parsed = await parseBody(addPromptBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const body = parsed.data;
+    const promptId = body.prompt_id;
+    const answer = body.answer;
     if (!promptId || !answer || !answer.trim()) {
       return c.json({ success: false, error: "Missing prompt_id or answer" }, 400);
     }
@@ -1356,8 +1467,11 @@ app.put("/api/profile/prompts/:id", requireAuth, async (c) => {
     if (isNaN(promptId)) {
       return c.json({ success: false, error: "Invalid prompt ID" }, 400);
     }
-    const body = (await c.req.json()) as { answer?: unknown };
-    const answer = typeof body.answer === "string" ? body.answer : null;
+    const parsed = await parseBody(updatePromptBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const answer = parsed.data.answer;
     if (!answer || !answer.trim()) {
       return c.json({ success: false, error: "Missing answer" }, 400);
     }
@@ -1522,15 +1636,11 @@ app.post("/api/boost/activate", requireAuth, async (c) => {
 app.post("/api/swipes", requireAuth, async (c) => {
   try {
     const userId = c.get("userId");
-    const { target_user_id, action } = await c.req.json();
-
-    if (!target_user_id || !action) {
-      return c.json({ success: false, error: "Missing target_user_id or action" }, 400);
+    const parsed = await parseBody(swipeBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
     }
-
-    if (!['like', 'pass', 'super_like'].includes(action)) {
-      return c.json({ success: false, error: "Invalid action" }, 400);
-    }
+    const { target_user_id, action } = parsed.data;
 
     const result = await recordSwipe(userId, target_user_id, action);
 
@@ -1666,7 +1776,11 @@ app.post("/api/conversations/:id/messages", requireAuth, async (c) => {
   try {
     const userId = c.get("userId");
     const conversationId = parseInt(c.req.param("id"));
-    const { content } = await c.req.json();
+    const parsed = await parseBody(sendMessageBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const content = parsed.data.content;
 
     if (!content || typeof content !== "string" || content.trim().length === 0) {
       return c.json({ success: false, error: "Message content required" }, 400);
@@ -2671,8 +2785,11 @@ app.get("/api/couple", requireAuth, async (c) => {
 app.post("/api/couple/request", requireAuth, async (c) => {
   try {
     const userId = c.get("userId");
-    const body = await c.req.json();
-    const targetUserId = Number((body as { target_user_id?: unknown }).target_user_id);
+    const parsed = await parseBody(coupleRequestBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const targetUserId = Number(parsed.data.target_user_id);
 
     if (!Number.isInteger(targetUserId) || targetUserId <= 0) {
       return c.json({ success: false, error: "target_user_id required" }, 400);
@@ -2699,11 +2816,11 @@ app.put("/api/couple/request/:id", requireAuth, async (c) => {
       return c.json({ success: false, error: "Invalid request id" }, 400);
     }
 
-    const body = await c.req.json();
-    const action = (body as { action?: unknown }).action;
-    if (action !== "accept" && action !== "reject") {
-      return c.json({ success: false, error: "action must be 'accept' or 'reject'" }, 400);
+    const parsed = await parseBody(coupleRespondBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
     }
+    const action = parsed.data.action;
 
     const result = await respondToCoupleRequest(requestId, userId, action);
     if (!result.ok) {
@@ -3996,9 +4113,13 @@ app.post("/api/users/:id/report", requireAuth, async (c) => {
       return c.json({ success: false, error: "Invalid user id" }, 400);
     }
 
-    const body = await c.req.json();
-    const category = typeof body.category === "string" ? body.category : undefined;
-    const comment = typeof body.comment === "string" ? body.comment : undefined;
+    const parsed = await parseBody(reportUserBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const body = parsed.data;
+    const category = body.category;
+    const comment = body.comment;
     const blockUserFlag = body.block_user === true;
 
     if (!category) {
