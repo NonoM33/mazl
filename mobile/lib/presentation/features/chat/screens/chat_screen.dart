@@ -7,11 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/block_report_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
@@ -181,7 +183,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (content.isEmpty || _isSending) return;
 
     setState(() => _isSending = true);
-    _messageController.clear();
 
     // Send via WebSocket for real-time
     _wsService.sendMessage(_conversationId, content);
@@ -189,18 +190,28 @@ class _ChatScreenState extends State<ChatScreen> {
     // Also send via API for persistence
     final response = await _apiService.sendMessage(_conversationId, content);
 
-    if (mounted) {
-      setState(() => _isSending = false);
+    if (!mounted) return;
 
-      if (response.success && response.data != null) {
-        // Add to messages if not already there from WebSocket
-        final exists = _messages.any((m) => m.id == response.data!.id);
-        if (!exists) {
-          setState(() {
-            _messages.insert(0, response.data!);
-          });
-        }
+    setState(() => _isSending = false);
+
+    if (response.success && response.data != null) {
+      // Clear the field only after a confirmed successful send
+      _messageController.clear();
+      // Add to messages if not already there from WebSocket
+      final exists = _messages.any((m) => m.id == response.data!.id);
+      if (!exists) {
+        setState(() {
+          _messages.insert(0, response.data!);
+        });
       }
+    } else {
+      // Keep the text so the user does not lose their message, and surface the error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.error ?? 'Erreur lors de l\'envoi du message'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -572,6 +583,39 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _openOtherUserProfile() {
+    final otherUser = _otherUser;
+    if (otherUser == null) return;
+    context.push(RoutePaths.matchProfilePath(otherUser.userId.toString()));
+  }
+
+  void _openBlockReportDialog() {
+    final otherUser = _otherUser;
+    if (otherUser == null) return;
+    BlockReportDialog.show(
+      context,
+      userId: otherUser.userId,
+      userName: otherUser.displayName ?? 'Cet utilisateur',
+      onBlocked: () {
+        // Leave the conversation once the user is blocked
+        if (mounted) context.pop();
+      },
+    );
+  }
+
+  Future<void> _toggleMuteConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'muted_conversation_$_conversationId';
+    await prefs.setBool(key, true);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notifications coupées pour cette conversation'),
+      ),
+    );
+  }
+
   void _showOptionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -584,7 +628,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Voir le profil'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to profile
+                _openOtherUserProfile();
               },
             ),
             ListTile(
@@ -592,6 +636,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Couper les notifications'),
               onTap: () {
                 Navigator.pop(context);
+                _toggleMuteConversation();
               },
             ),
             ListTile(
@@ -599,7 +644,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: Text('Signaler', style: TextStyle(color: Colors.orange[700])),
               onTap: () {
                 Navigator.pop(context);
-                // Show report dialog
+                _openBlockReportDialog();
               },
             ),
             ListTile(
@@ -607,7 +652,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Bloquer', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
-                // Show block confirmation
+                _openBlockReportDialog();
               },
             ),
           ],

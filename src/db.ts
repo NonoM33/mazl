@@ -589,6 +589,20 @@ export async function initDb() {
     )
   `;
 
+  // ============ PERFORMANCE INDEXES ============
+  // Hot paths: swipe exclusion, conversation messages, match lookups,
+  // profile joins, event RSVPs, couple lookups, subscription lookups.
+  await sql`CREATE INDEX IF NOT EXISTS idx_swipes_user_target ON swipes (user_id, target_user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_swipes_target_user ON swipes (target_user_id, user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches (user1_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches (user2_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_event_rsvps_event ON event_rsvps (event_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couples_user1 ON couples (user1_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couples_user2 ON couples (user2_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id)`;
+
   console.log("Database initialized");
 
   // Seed fake profiles if empty
@@ -1086,8 +1100,26 @@ export async function upsertProfile(userId: number, params: {
 // ============ DISCOVER & SWIPES ============
 
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
-  // Get profiles that the user hasn't swiped on yet
+  // Fetch candidate profiles filtered against the CALLER's own preferences.
+  // Criteria are read directly from the caller's profile row (CTE `me`) so
+  // the public signature stays (userId, limit, offset).
+  //
+  // Filtering rules (all null-tolerant: a missing criterion never excludes):
+  //  - gender/orientation: bidirectional. The candidate's gender must match the
+  //    caller's `looking_for`, AND the candidate's `looking_for` must match the
+  //    caller's gender. `looking_for = 'all'`/'any'/'everyone' disables that side.
+  //  - age: candidate age within the caller's [age_min, age_max].
+  //  - distance: when both parties have lat/long and the caller has distance_max,
+  //    haversine distance (km) must be <= distance_max.
+  //
+  // Ordering: religious-compatibility score first (denomination / kashrut /
+  // shabbat matches with the caller weighted), then recency.
   const profiles = await sql`
+    WITH me AS (
+      SELECT gender, looking_for, age_min, age_max, distance_max,
+             latitude, longitude, denomination, kashrut_level, shabbat_observance
+      FROM profiles WHERE user_id = ${userId}
+    )
     SELECT
       p.id,
       p.user_id,
@@ -1104,12 +1136,56 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
       u.picture
     FROM profiles p
     JOIN users u ON u.id = p.user_id
+    CROSS JOIN me
     WHERE p.user_id != ${userId}
       AND p.is_complete = true
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
       )
-    ORDER BY p.created_at DESC
+      -- caller wants candidate's gender (skip when either side unset or open)
+      AND (
+        me.looking_for IS NULL
+        OR LOWER(me.looking_for) IN ('all', 'any', 'everyone', 'both')
+        OR p.gender IS NULL
+        OR LOWER(p.gender) = LOWER(me.looking_for)
+      )
+      -- candidate wants caller's gender (skip when either side unset or open)
+      AND (
+        p.looking_for IS NULL
+        OR LOWER(p.looking_for) IN ('all', 'any', 'everyone', 'both')
+        OR me.gender IS NULL
+        OR LOWER(me.gender) = LOWER(p.looking_for)
+      )
+      -- candidate age within caller's range (skip when birthdate unknown)
+      AND (
+        p.birthdate IS NULL
+        OR (
+          DATE_PART('year', AGE(p.birthdate)) >= COALESCE(me.age_min, 18)
+          AND DATE_PART('year', AGE(p.birthdate)) <= COALESCE(me.age_max, 99)
+        )
+      )
+      -- distance filter (only when both have coords and caller set distance_max)
+      AND (
+        me.distance_max IS NULL
+        OR me.latitude IS NULL OR me.longitude IS NULL
+        OR p.latitude IS NULL OR p.longitude IS NULL
+        OR (
+          6371 * ACOS(
+            LEAST(1.0, GREATEST(-1.0,
+              COS(RADIANS(me.latitude)) * COS(RADIANS(p.latitude))
+              * COS(RADIANS(p.longitude) - RADIANS(me.longitude))
+              + SIN(RADIANS(me.latitude)) * SIN(RADIANS(p.latitude))
+            ))
+          ) <= me.distance_max
+        )
+      )
+    ORDER BY
+      (
+        CASE WHEN me.denomination IS NOT NULL AND p.denomination = me.denomination THEN 3 ELSE 0 END
+        + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
+        + CASE WHEN me.shabbat_observance IS NOT NULL AND p.shabbat_observance = me.shabbat_observance THEN 2 ELSE 0 END
+      ) DESC,
+      p.created_at DESC
     LIMIT ${limit}
     OFFSET ${offset}
   `;

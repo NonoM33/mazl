@@ -31,6 +31,7 @@ class ProfileViewScreen extends ConsumerStatefulWidget {
 class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   UserProfile? _userProfile;
   Profile? _otherProfile;
+  CompatibilityScore? _compatibilityScore;
   bool _isLoading = true;
   bool _hasLoadedOnce = false;
   final ApiService _apiService = ApiService();
@@ -107,8 +108,19 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
 
       final response = await _apiService.getProfileById(userId);
       if (response.success && response.data != null && mounted) {
+        final otherProfile = response.data!;
+        // Load the current user's profile to compute a real compatibility score.
+        final myResponse = await _apiService.getCurrentUser();
+        final myProfile = myResponse.success ? myResponse.data?.profile : null;
+        if (!mounted) return;
         setState(() {
-          _otherProfile = response.data;
+          _otherProfile = otherProfile;
+          _compatibilityScore = myProfile != null
+              ? CompatibilityScore.calculate(
+                  myProfile: myProfile,
+                  otherProfile: otherProfile,
+                )
+              : null;
           _isLoading = false;
           _hasLoadedOnce = true;
         });
@@ -933,36 +945,18 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           ),
           const SizedBox(height: 12),
           if (hasPremium) ...[
-            // Show actual compatibility score
-            Row(
-              children: [
-                const Text(
-                  '87%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
+            if (_compatibilityScore != null)
+              ..._buildCompatibilityContent(_compatibilityScore!)
+            else
+              // No score could be computed (missing data on either profile).
+              Text(
+                'Compatibilite indisponible pour le moment',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontSize: 13,
+                  height: 1.4,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'compatible',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Memes valeurs, interets communs en cuisine et voyages',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 13,
-                height: 1.4,
               ),
-            ),
           ] else ...[
             // Blurred preview for non-premium users
             Text(
@@ -996,6 +990,66 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildCompatibilityContent(CompatibilityScore compatibility) {
+    final score = compatibility.score;
+    final String label;
+    if (compatibility.isSuperCompatible) {
+      label = 'Tres compatible';
+    } else if (score >= 60) {
+      label = 'Compatible';
+    } else if (score >= 40) {
+      label = 'Compatibilite moyenne';
+    } else {
+      label = 'Peu compatible';
+    }
+
+    // Build a short description from the strongest matching factors.
+    final topFactors = [...compatibility.factors]
+      ..sort((a, b) => b.score.compareTo(a.score));
+    final description = topFactors.isNotEmpty
+        ? topFactors
+            .take(3)
+            .map((f) => f.description)
+            .join(' | ')
+        : 'Base sur vos profils respectifs';
+
+    return [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            '$score%',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Text(
+        description,
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.85),
+          fontSize: 13,
+          height: 1.4,
+        ),
+      ),
+    ];
   }
 
   Widget _buildCompactProfileHeader({

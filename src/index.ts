@@ -1328,6 +1328,11 @@ app.post("/api/swipes", async (c) => {
 
     const result = await recordSwipe(userId, target_user_id, action);
 
+    // On a reciprocal match, notify both users over WebSocket if connected.
+    if (result.match) {
+      await emitNewMatch(userId, target_user_id);
+    }
+
     return c.json({ success: true, ...result });
   } catch (error: any) {
     console.error("Swipe error:", error);
@@ -3982,6 +3987,71 @@ function sendToUser(userId: number, data: any) {
   }
 }
 
+interface MatchNewPayload {
+  matchId: number;
+  conversationId: number;
+  userId: number;
+  userName: string;
+  userPicture: string | null;
+}
+
+// Emit a `match:new` event to both freshly-matched users (if connected).
+// Each user receives the *other* person's identity, matching the shape the
+// mobile client expects (see websocket_service.dart:193-203).
+async function emitNewMatch(userAId: number, userBId: number): Promise<void> {
+  const rows = await sql`
+    SELECT
+      m.id as match_id,
+      c.id as conversation_id,
+      pa.display_name as user_a_name,
+      ua.picture as user_a_picture,
+      pb.display_name as user_b_name,
+      ub.picture as user_b_picture
+    FROM matches m
+    LEFT JOIN conversations c ON c.match_id = m.id
+    JOIN users ua ON ua.id = ${userAId}
+    JOIN users ub ON ub.id = ${userBId}
+    LEFT JOIN profiles pa ON pa.user_id = ${userAId}
+    LEFT JOIN profiles pb ON pb.user_id = ${userBId}
+    WHERE (m.user1_id = ${userAId} AND m.user2_id = ${userBId})
+       OR (m.user1_id = ${userBId} AND m.user2_id = ${userAId})
+    LIMIT 1
+  `;
+
+  const row = rows[0] as
+    | {
+        match_id: number;
+        conversation_id: number | null;
+        user_a_name: string | null;
+        user_a_picture: string | null;
+        user_b_name: string | null;
+        user_b_picture: string | null;
+      }
+    | undefined;
+  if (!row || row.conversation_id === null) return;
+
+  const matchId = row.match_id;
+  const conversationId = row.conversation_id;
+
+  const toUserA: MatchNewPayload = {
+    matchId,
+    conversationId,
+    userId: userBId,
+    userName: row.user_b_name ?? "",
+    userPicture: row.user_b_picture,
+  };
+  const toUserB: MatchNewPayload = {
+    matchId,
+    conversationId,
+    userId: userAId,
+    userName: row.user_a_name ?? "",
+    userPicture: row.user_a_picture,
+  };
+
+  sendToUser(userAId, { type: "match:new", payload: toUserA });
+  sendToUser(userBId, { type: "match:new", payload: toUserB });
+}
+
 // Bun.serve with WebSocket support
 interface WebSocketData {
   userId: number;
@@ -4038,9 +4108,15 @@ const server = Bun.serve<WebSocketData>({
 
         switch (data.type) {
           case "chat:send": {
-            // Send message via API and broadcast
-            const { conversationId, content } = data;
-            if (!conversationId || !content) return;
+            // Send message via API and broadcast.
+            // The mobile client wraps fields inside `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:247-255).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            const content = (payload as Record<string, unknown>).content;
+            if (typeof conversationId !== "number" || typeof content !== "string") return;
+            if (content.length === 0) return;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;
@@ -4071,9 +4147,15 @@ const server = Bun.serve<WebSocketData>({
           }
 
           case "chat:typing": {
-            // Broadcast typing indicator
-            const { conversationId } = data;
-            if (!conversationId) return;
+            // Broadcast typing indicator.
+            // Fields are nested under `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:258-265).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            const isTypingRaw = (payload as Record<string, unknown>).isTyping;
+            if (typeof conversationId !== "number") return;
+            const isTyping = typeof isTypingRaw === "boolean" ? isTypingRaw : true;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;
@@ -4087,16 +4169,20 @@ const server = Bun.serve<WebSocketData>({
               payload: {
                 conversationId,
                 userId,
-                isTyping: true,
+                isTyping,
               },
             });
             break;
           }
 
           case "chat:read": {
-            // Mark messages as read and notify
-            const { conversationId } = data;
-            if (!conversationId) return;
+            // Mark messages as read and notify.
+            // Fields are nested under `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:269-275).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            if (typeof conversationId !== "number") return;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;
