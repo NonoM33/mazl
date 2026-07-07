@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -12,18 +13,59 @@ import 'auth_service.dart';
 /// See `lib/core/config/env.dart` for launch instructions.
 class ApiConfig {
   static const String baseUrl = Env.apiBaseUrl;
+
+  /// Maximum time to wait for any single network request before failing fast.
+  /// Prevents an unresponsive backend from leaving the UI on an infinite spinner.
+  static const Duration requestTimeout = Duration(seconds: 15);
 }
+
+/// Kind of failure surfaced by a failed [ApiResponse].
+///
+/// Lets callers differentiate transient network problems (timeout, no
+/// connectivity, server unreachable) from application-level errors without
+/// parsing message strings. Existing call sites that only read [ApiResponse.error]
+/// keep working unchanged.
+enum ApiErrorKind { timeout, network, server, unknown }
 
 /// API Response wrapper
 class ApiResponse<T> {
   final bool success;
   final T? data;
   final String? error;
+  final ApiErrorKind? errorKind;
 
-  ApiResponse({required this.success, this.data, this.error});
+  ApiResponse({required this.success, this.data, this.error, this.errorKind});
 
   factory ApiResponse.success(T data) => ApiResponse(success: true, data: data);
-  factory ApiResponse.failure(String error) => ApiResponse(success: false, error: error);
+  factory ApiResponse.failure(String error, [ApiErrorKind kind = ApiErrorKind.unknown]) =>
+      ApiResponse(success: false, error: error, errorKind: kind);
+}
+
+/// Translates a caught network exception into a user-facing [ApiResponse.failure].
+///
+/// Centralises the timeout vs. connectivity vs. generic distinction so every
+/// endpoint reports clear, differentiated messages instead of a raw
+/// `e.toString()`.
+ApiResponse<T> _networkFailure<T>(Object error) {
+  if (error is TimeoutException) {
+    return ApiResponse.failure(
+      'Délai d\'attente dépassé, vérifie ta connexion.',
+      ApiErrorKind.timeout,
+    );
+  }
+  if (error is SocketException) {
+    return ApiResponse.failure(
+      'Pas de connexion internet ou serveur injoignable.',
+      ApiErrorKind.network,
+    );
+  }
+  if (error is http.ClientException) {
+    return ApiResponse.failure(
+      'Serveur injoignable, réessaie plus tard.',
+      ApiErrorKind.network,
+    );
+  }
+  return ApiResponse.failure(error.toString(), ApiErrorKind.unknown);
 }
 
 /// Helper functions for safe JSON parsing (handles strings and numbers)
@@ -193,28 +235,32 @@ class ApiService {
   Future<http.Response> _get(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API GET: $url');
-    return http.get(url, headers: _headers);
+    return http.get(url, headers: _headers).timeout(ApiConfig.requestTimeout);
   }
 
   /// POST request
   Future<http.Response> _post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API POST: $url');
-    return http.post(url, headers: _headers, body: jsonEncode(body));
+    return http
+        .post(url, headers: _headers, body: jsonEncode(body))
+        .timeout(ApiConfig.requestTimeout);
   }
 
   /// PUT request
   Future<http.Response> _put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API PUT: $url');
-    return http.put(url, headers: _headers, body: jsonEncode(body));
+    return http
+        .put(url, headers: _headers, body: jsonEncode(body))
+        .timeout(ApiConfig.requestTimeout);
   }
 
   /// DELETE request
   Future<http.Response> _delete(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API DELETE: $url');
-    return http.delete(url, headers: _headers);
+    return http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
   }
 
   /// Public POST request (returns parsed JSON)
@@ -256,7 +302,7 @@ class ApiService {
       return ApiResponse.success(UserProfile.fromJson(userData));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -277,7 +323,7 @@ class ApiService {
       return ApiResponse.success(Profile.fromJson(data['profile']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -305,7 +351,7 @@ class ApiService {
       return ApiResponse.success(profiles);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -330,7 +376,7 @@ class ApiService {
       return ApiResponse.success(profiles);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -353,7 +399,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -374,7 +420,7 @@ class ApiService {
       return ApiResponse.success(Profile.fromJson(data['profile']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -401,7 +447,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -416,7 +462,7 @@ class ApiService {
       request.files.add(await http.MultipartFile.fromPath('photo', filePath));
       request.fields['is_primary'] = isPrimary.toString();
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200) {
@@ -431,7 +477,7 @@ class ApiService {
       return ApiResponse.success(ProfilePhoto.fromJson(data['photo']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -452,7 +498,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -477,7 +523,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -502,7 +548,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -526,7 +572,7 @@ class ApiService {
       return ApiResponse.success(matches);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -553,7 +599,7 @@ class ApiService {
       return ApiResponse.success(conversations);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -578,7 +624,7 @@ class ApiService {
       return ApiResponse.success(messages);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -601,7 +647,7 @@ class ApiService {
       return ApiResponse.success(Message.fromJson(data['message']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -623,7 +669,7 @@ class ApiService {
         imageFile.path,
       ));
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -638,7 +684,7 @@ class ApiService {
       return ApiResponse.success(Message.fromJson(data['message']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -654,7 +700,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -687,7 +733,7 @@ class ApiService {
       return ApiResponse.success(events);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -708,7 +754,7 @@ class ApiService {
       return ApiResponse.success(Event.fromJson(data['event']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -729,7 +775,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -737,7 +783,8 @@ class ApiService {
   Future<ApiResponse<void>> cancelRsvp(int eventId) async {
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/api/events/$eventId/rsvp');
-      final response = await http.delete(url, headers: _headers);
+      final response =
+          await http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
 
       if (response.statusCode != 200) {
         return ApiResponse.failure('Failed to cancel RSVP');
@@ -746,7 +793,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -771,7 +818,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -797,7 +844,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -818,7 +865,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -839,7 +886,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -866,7 +913,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -887,7 +934,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -908,7 +955,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -925,7 +972,7 @@ class ApiService {
       return ApiResponse.success(data['in_couple_mode'] == true);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -950,7 +997,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -971,7 +1018,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -996,7 +1043,7 @@ class ApiService {
       return ApiResponse.success(blockedList);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1028,7 +1075,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1051,7 +1098,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1071,7 +1118,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1088,7 +1135,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1111,7 +1158,7 @@ class ApiService {
       return ApiResponse.success(LikesData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1128,7 +1175,7 @@ class ApiService {
       return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1151,7 +1198,7 @@ class ApiService {
       return ApiResponse.success(prompts);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1172,7 +1219,7 @@ class ApiService {
       return ApiResponse.success(prompts);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1201,7 +1248,7 @@ class ApiService {
       return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1224,7 +1271,7 @@ class ApiService {
       return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1245,7 +1292,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1268,7 +1315,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1287,7 +1334,7 @@ class ApiService {
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1305,7 +1352,7 @@ class ApiService {
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1324,7 +1371,7 @@ class ApiService {
       return ApiResponse.success(VisitorsData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1341,7 +1388,7 @@ class ApiService {
       return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1360,7 +1407,7 @@ class ApiService {
       return ApiResponse.success(CoupleAnniversaryData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1382,7 +1429,7 @@ class ApiService {
       return ApiResponse.success(milestones);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1399,7 +1446,7 @@ class ApiService {
       return ApiResponse.success(data['card_url'] as String? ?? '');
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1423,7 +1470,7 @@ class ApiService {
       return ApiResponse.success(stories);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1454,7 +1501,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1470,7 +1517,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1495,7 +1542,7 @@ class ApiService {
       return ApiResponse.success(SuccessStory.fromJson(data['story']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 }
