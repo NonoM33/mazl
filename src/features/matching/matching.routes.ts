@@ -7,7 +7,8 @@ import {
   getReceivedLikesCount,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { parseBody, swipeBodySchema, emitNewMatch } from "../../index";
+import { parseBody, swipeBodySchema } from "../../shared/http/validation";
+import { emitNewMatch } from "../../shared/realtime/connections";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
 // received likes). These routes are moved verbatim from the monolith
@@ -16,8 +17,8 @@ import { parseBody, swipeBodySchema, emitNewMatch } from "../../index";
 // couple endpoints are intentionally NOT part of this feature.
 //
 // `POST /api/swipes` still emits the `match:new` WebSocket event through
-// `emitNewMatch`, which remains defined in src/index.ts (it depends on the
-// server-local `sql`/`sendToUser` helpers) and is imported here unchanged.
+// `emitNewMatch`, now imported from `src/shared/realtime/connections.ts` (it
+// depends on the shared `sql`/`sendToUser` helpers) with identical behaviour.
 export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>): void {
   // Get profiles for discovery
   app.get("/api/discover", requireAuth, async (c) => {

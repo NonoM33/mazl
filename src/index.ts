@@ -166,6 +166,13 @@ import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationR
 import { verifyGoogleIdToken, generateJWT, verifyJWT } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
+import { parseBody, swipeBodySchema } from "./shared/http/validation";
+import {
+  sendToUser,
+  emitNewMatch,
+  addConnection,
+  removeConnection,
+} from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { registerSubscriptionsRoutes } from "./features/subscriptions/subscriptions.routes";
@@ -181,40 +188,9 @@ const app = new Hono<{ Variables: AppVariables }>();
 // caller returns the same `{ success: false, error }` 400 shape as the rest of
 // the file — business logic and success responses are unchanged.
 
-type BodyParseResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
-
-export async function parseBody<T>(
-  schema: z.ZodType<T>,
-  c: Context<{ Variables: AppVariables }>,
-): Promise<BodyParseResult<T>> {
-  let raw: unknown;
-  try {
-    raw = await c.req.json();
-  } catch {
-    return { ok: false, error: "Invalid JSON body" };
-  }
-  const parsed = schema.safeParse(raw);
-  if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    const path = first?.path.join(".");
-    const message = first
-      ? path
-        ? `${path}: ${first.message}`
-        : first.message
-      : "Invalid request body";
-    return { ok: false, error: message };
-  }
-  return { ok: true, data: parsed.data };
-}
-
-export const swipeBodySchema = z
-  .object({
-    target_user_id: z.number(),
-    action: z.enum(["like", "pass", "super_like"]),
-  })
-  .passthrough();
+// `parseBody` and the shared `swipeBodySchema` now live in
+// `src/shared/http/validation.ts` (imported above). The schemas below are
+// used only by handlers in this file.
 
 const reportUserBodySchema = z
   .object({
@@ -3833,89 +3809,9 @@ await initDb();
 console.log(`Server running on http://localhost:${port}`);
 
 // ============ WEBSOCKET FOR REAL-TIME CHAT ============
-
-// Store active WebSocket connections by user ID
-const wsConnections = new Map<number, Set<WebSocket>>();
-
-// Helper to send to all connections of a user
-function sendToUser(userId: number, data: any) {
-  const connections = wsConnections.get(userId);
-  if (connections) {
-    const message = JSON.stringify(data);
-    for (const ws of connections) {
-      try {
-        (ws as any).send(message);
-      } catch (err) {
-        console.error(`WebSocket send error for user ${userId}:`, err);
-      }
-    }
-  }
-}
-
-interface MatchNewPayload {
-  matchId: number;
-  conversationId: number;
-  userId: number;
-  userName: string;
-  userPicture: string | null;
-}
-
-// Emit a `match:new` event to both freshly-matched users (if connected).
-// Each user receives the *other* person's identity, matching the shape the
-// mobile client expects (see websocket_service.dart:193-203).
-export async function emitNewMatch(userAId: number, userBId: number): Promise<void> {
-  const rows = await sql`
-    SELECT
-      m.id as match_id,
-      c.id as conversation_id,
-      pa.display_name as user_a_name,
-      ua.picture as user_a_picture,
-      pb.display_name as user_b_name,
-      ub.picture as user_b_picture
-    FROM matches m
-    LEFT JOIN conversations c ON c.match_id = m.id
-    JOIN users ua ON ua.id = ${userAId}
-    JOIN users ub ON ub.id = ${userBId}
-    LEFT JOIN profiles pa ON pa.user_id = ${userAId}
-    LEFT JOIN profiles pb ON pb.user_id = ${userBId}
-    WHERE (m.user1_id = ${userAId} AND m.user2_id = ${userBId})
-       OR (m.user1_id = ${userBId} AND m.user2_id = ${userAId})
-    LIMIT 1
-  `;
-
-  const row = rows[0] as
-    | {
-        match_id: number;
-        conversation_id: number | null;
-        user_a_name: string | null;
-        user_a_picture: string | null;
-        user_b_name: string | null;
-        user_b_picture: string | null;
-      }
-    | undefined;
-  if (!row || row.conversation_id === null) return;
-
-  const matchId = row.match_id;
-  const conversationId = row.conversation_id;
-
-  const toUserA: MatchNewPayload = {
-    matchId,
-    conversationId,
-    userId: userBId,
-    userName: row.user_b_name ?? "",
-    userPicture: row.user_b_picture,
-  };
-  const toUserB: MatchNewPayload = {
-    matchId,
-    conversationId,
-    userId: userAId,
-    userName: row.user_a_name ?? "",
-    userPicture: row.user_a_picture,
-  };
-
-  sendToUser(userAId, { type: "match:new", payload: toUserA });
-  sendToUser(userBId, { type: "match:new", payload: toUserB });
-}
+// The connection registry (`sendToUser`, `addConnection`, `removeConnection`)
+// and `emitNewMatch` now live in `src/shared/realtime/connections.ts` and are
+// imported above. The `Bun.serve` websocket handlers below use those helpers.
 
 // Bun.serve with WebSocket support
 interface WebSocketData {
@@ -3957,10 +3853,7 @@ const server = Bun.serve<WebSocketData>({
     open(ws) {
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
-        if (!wsConnections.has(userId)) {
-          wsConnections.set(userId, new Set());
-        }
-        wsConnections.get(userId)!.add(ws as any);
+        addConnection(userId, ws as unknown as WebSocket);
         console.log(`WebSocket connected: user ${userId}`);
       }
     },
@@ -4083,13 +3976,7 @@ const server = Bun.serve<WebSocketData>({
     close(ws) {
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
-        const connections = wsConnections.get(userId);
-        if (connections) {
-          connections.delete(ws as any);
-          if (connections.size === 0) {
-            wsConnections.delete(userId);
-          }
-        }
+        removeConnection(userId, ws as unknown as WebSocket);
         console.log(`WebSocket disconnected: user ${userId}`);
       }
     },
