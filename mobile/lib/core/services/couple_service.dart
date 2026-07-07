@@ -203,7 +203,7 @@ class DailyQuestion {
 }
 
 /// Service to manage couple mode
-class CoupleService {
+class CoupleService extends ChangeNotifier {
   static final CoupleService _instance = CoupleService._internal();
   factory CoupleService() => _instance;
   CoupleService._internal();
@@ -237,6 +237,8 @@ class CoupleService {
 
     // Then, sync with backend to get the real status
     await _syncWithBackend();
+
+    notifyListeners();
   }
 
   /// Sync couple status with backend.
@@ -280,6 +282,7 @@ class CoupleService {
         _isCoupleModeEnabled = true;
         await _saveData();
         debugPrint('CoupleService: Synced - couple mode enabled');
+        notifyListeners();
       } else {
         // Confirmed by the server: no active couple. Clear stale local state.
         if (_isCoupleModeEnabled || _coupleData != null) {
@@ -287,6 +290,7 @@ class CoupleService {
           _coupleData = null;
           await _clearData();
           debugPrint('CoupleService: Synced - couple mode ended server-side');
+          notifyListeners();
         }
       }
     } catch (e) {
@@ -354,6 +358,7 @@ class CoupleService {
     _isCoupleModeEnabled = true;
 
     await _saveData();
+    notifyListeners();
   }
 
   /// Disable couple mode.
@@ -389,6 +394,7 @@ class CoupleService {
     _isCoupleModeEnabled = false;
     _coupleData = null;
     await _clearData();
+    notifyListeners();
   }
 
   /// Update relationship status
@@ -405,6 +411,7 @@ class CoupleService {
         daysTogetherStreak: _coupleData!.daysTogetherStreak,
       );
       await _saveData();
+      notifyListeners();
     }
   }
 
@@ -599,6 +606,7 @@ class CoupleService {
           status: CoupleRequestStatus.pending,
           createdAt: DateTime.now(),
         );
+        notifyListeners();
         return true;
       }
       return false;
@@ -624,6 +632,7 @@ class CoupleService {
           partnerPicture: request.requesterPicture,
         );
         _receivedRequest = null;
+        notifyListeners();
         return true;
       }
       return false;
@@ -643,6 +652,7 @@ class CoupleService {
 
       if (response.success) {
         _receivedRequest = null;
+        notifyListeners();
         return true;
       }
       return false;
@@ -661,6 +671,7 @@ class CoupleService {
 
       if (response.success) {
         _pendingRequest = null;
+        notifyListeners();
         return true;
       }
       return false;
@@ -690,6 +701,8 @@ class CoupleService {
         } else {
           _receivedRequest = null;
         }
+
+        notifyListeners();
       }
     } catch (e) {
       debugPrint('CoupleService: Error fetching couple requests: $e');

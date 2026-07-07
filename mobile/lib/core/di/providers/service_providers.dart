@@ -44,7 +44,12 @@ final subscriptionStatusProvider = Provider<String>((ref) {
 });
 
 /// Couple Service Provider
-final coupleServiceProvider = Provider<CoupleService>((ref) {
+///
+/// [CoupleService] is an application-wide singleton that extends [ChangeNotifier].
+/// Exposing it through a [ChangeNotifierProvider] makes every dependent provider
+/// recompute whenever the couple state changes (activation / deactivation /
+/// data sync / couple request updates).
+final coupleServiceProvider = ChangeNotifierProvider<CoupleService>((ref) {
   return CoupleService();
 });
 
