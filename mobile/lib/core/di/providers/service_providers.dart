@@ -10,7 +10,12 @@ final revenueCatServiceProvider = Provider<RevenueCatService>((ref) {
 });
 
 /// Auth Service Provider
-final authServiceProvider = Provider<AuthService>((ref) {
+///
+/// [AuthService] is an application-wide singleton that extends [ChangeNotifier].
+/// Exposing it through a [ChangeNotifierProvider] makes every dependent provider
+/// (and the router's [refreshListenable]) recompute whenever the authentication
+/// state changes (login / logout / init / user refresh).
+final authServiceProvider = ChangeNotifierProvider<AuthService>((ref) {
   return AuthService();
 });
 

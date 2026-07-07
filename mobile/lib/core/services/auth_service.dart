@@ -102,7 +102,7 @@ class AuthResult {
 }
 
 /// Authentication Service handling Google and Apple Sign-In
-class AuthService {
+class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
@@ -151,6 +151,7 @@ class AuthService {
       debugPrint('AuthService: Initialization error - $e');
       _isInitialized = true;
     }
+    notifyListeners();
   }
 
   /// Sign in with Google
@@ -462,6 +463,7 @@ class AuthService {
 
       _currentUser = null;
       debugPrint('AuthService: User signed out');
+      notifyListeners();
     } catch (e) {
       debugPrint('AuthService: Sign out error - $e');
       rethrow;
@@ -516,6 +518,7 @@ class AuthService {
       key: _userKey,
       value: jsonEncode(user.toJson()),
     );
+    notifyListeners();
   }
 
   /// Generate random nonce for Apple Sign-In

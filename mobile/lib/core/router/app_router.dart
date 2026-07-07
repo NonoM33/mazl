@@ -68,10 +68,16 @@ final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleProfile =
 
 /// Provider for the GoRouter instance
 final appRouterProvider = Provider<GoRouter>((ref) {
+  // The AuthService singleton is a ChangeNotifier: use it as the router's
+  // refreshListenable so the redirect/guard is re-evaluated whenever the
+  // authentication state changes (login / logout / init / user refresh).
+  final authService = ref.watch(authServiceProvider.notifier);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
+    refreshListenable: authService,
     redirect: (context, state) {
       final location = state.matchedLocation;
 
