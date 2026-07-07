@@ -27,7 +27,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
-  bool _isInitialLoad = true;
   String? _error;
   bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
 
@@ -51,7 +50,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       setState(() {
         _profiles = cachedProfiles;
         _isLoading = false;
-        _isInitialLoad = false;
       });
     } else {
       // Load from API if no cached data
@@ -73,13 +71,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       setState(() {
         _profiles = response.data!;
         _isLoading = false;
-        _isInitialLoad = false;
       });
     } else {
       setState(() {
         _error = response.error ?? 'Erreur de chargement';
         _isLoading = false;
-        _isInitialLoad = false;
       });
     }
   }
@@ -289,13 +285,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                 isPremium: !PremiumGate.isPremium,
                 onPressed: () async {
                   if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
-                    // TODO: Activate boost
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
-                        backgroundColor: AppColors.accentGold,
-                      ),
-                    );
+                    await _activateBoost();
                   }
                 },
               ),
@@ -304,6 +294,27 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         ),
       ],
     );
+  }
+
+  Future<void> _activateBoost() async {
+    final response = await _apiService.activateBoost();
+    if (!mounted) return;
+
+    if (response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
+          backgroundColor: AppColors.accentGold,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.error ?? 'Impossible d\'activer le boost'),
+          backgroundColor: AppColors.passRed,
+        ),
+      );
+    }
   }
 
   void _handleSwipeFromDetail(String action) {
@@ -396,7 +407,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Navigate to chat
+              context.go(RoutePaths.matches);
             },
             child: const Text('Envoyer un message'),
           ),
@@ -426,7 +437,7 @@ class _ProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -443,7 +454,7 @@ class _ProfileCard extends StatelessWidget {
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   child: const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
@@ -464,7 +475,7 @@ class _ProfileCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -500,7 +511,7 @@ class _ProfileCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.8),
+                            color: AppColors.success.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -579,7 +590,7 @@ class _ProfileCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withValues(alpha: 0.4),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -638,7 +649,7 @@ class _ProfileCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             AppColors.primary,
-            AppColors.primary.withOpacity(0.7),
+            AppColors.primary.withValues(alpha: 0.7),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -648,7 +659,7 @@ class _ProfileCard extends StatelessWidget {
         child: Icon(
           LucideIcons.user,
           size: 120,
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -687,7 +698,7 @@ class _ActionButton extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

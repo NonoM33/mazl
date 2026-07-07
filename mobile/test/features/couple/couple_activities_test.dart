@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mazl/core/models/couple_activity.dart';
 
 import '../../mocks/mock_data.dart';
 import '../../mocks/mock_couple_api_service.dart';

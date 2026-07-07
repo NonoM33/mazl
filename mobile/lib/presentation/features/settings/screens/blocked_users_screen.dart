@@ -191,7 +191,7 @@ class _BlockedUserTile extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         radius: 24,
-        backgroundColor: AppColors.primary.withOpacity(0.1),
+        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
         backgroundImage: user.picture != null
             ? CachedNetworkImageProvider(user.picture!)
             : null,

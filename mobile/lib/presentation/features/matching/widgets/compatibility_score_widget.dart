@@ -53,9 +53,9 @@ class CompatibilityBadge extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: _padding * 1.5, vertical: _padding),
         decoration: BoxDecoration(
-          color: _color.withOpacity(0.15),
+          color: _color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _color.withOpacity(0.3)),
+          border: Border.all(color: _color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -111,14 +111,14 @@ class CompatibilityScoreCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              _mainColor.withOpacity(0.15),
-              _mainColor.withOpacity(0.05),
+              _mainColor.withValues(alpha: 0.15),
+              _mainColor.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _mainColor.withOpacity(0.3)),
+          border: Border.all(color: _mainColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -200,7 +200,7 @@ class _ScoreCircle extends StatelessWidget {
           CircularProgressIndicator(
             value: 1,
             strokeWidth: 4,
-            valueColor: AlwaysStoppedAnimation(color.withOpacity(0.2)),
+            valueColor: AlwaysStoppedAnimation(color.withValues(alpha: 0.2)),
           ),
           // Progress circle
           CircularProgressIndicator(
@@ -359,7 +359,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
+                  color: AppColors.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -435,7 +435,7 @@ class _FactorRow extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _color.withOpacity(0.1),
+              color: _color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: _color, size: 20),
@@ -466,7 +466,7 @@ class _FactorRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _color.withOpacity(0.1),
+              color: _color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

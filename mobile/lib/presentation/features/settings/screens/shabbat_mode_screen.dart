@@ -57,7 +57,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                 Text(
                   'Profite d\'une pause automatique',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -77,7 +77,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
               onChanged: (value) {
                 setState(() => _isEnabled = value);
               },
-              activeColor: AppColors.accentGold,
+              activeThumbColor: AppColors.accentGold,
             ),
           ),
 
@@ -118,7 +118,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -128,7 +128,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                           ),
                         ),
                         const Spacer(),
@@ -160,7 +160,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     onChanged: (value) {
                       setState(() => _includeHolidays = value);
                     },
-                    activeColor: AppColors.accentGold,
+                    activeThumbColor: AppColors.accentGold,
                   ),
                   const Divider(height: 1),
                   ListTile(
@@ -191,7 +191,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.1),
+                color: AppColors.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -217,7 +217,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     '• Tu recevras tout après la fin de Shabbat\n'
                     '• Ton statut sera affiché comme "Mode Shabbat"',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                       height: 1.5,
                     ),
                   ),
@@ -258,7 +258,7 @@ class _InfoRow extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 Text(

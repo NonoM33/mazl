@@ -29,7 +29,7 @@ class CoupleNavigationScreen extends StatelessWidget {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -97,7 +97,7 @@ class _CoupleNavBarItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? CoupleNavigationScreen.coupleAccent.withOpacity(0.1)
+              ? CoupleNavigationScreen.coupleAccent.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
@@ -108,7 +108,7 @@ class _CoupleNavBarItem extends StatelessWidget {
               icon,
               color: isSelected
                   ? CoupleNavigationScreen.coupleAccent
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -119,7 +119,7 @@ class _CoupleNavBarItem extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
                     ? CoupleNavigationScreen.coupleAccent
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],

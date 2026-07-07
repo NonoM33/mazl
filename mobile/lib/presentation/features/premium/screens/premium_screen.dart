@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -19,7 +20,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
   int _selectedPlanIndex = 1; // Default to 6 months (best value)
   bool _isLoading = true;
   bool _isPurchasing = false;
-  String? _error;
 
   // Default pricing when App Store Connect isn't configured
   final List<_SubscriptionPlan> _defaultPlans = [
@@ -206,6 +206,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
   }
 
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final plans = _plans;
@@ -235,7 +242,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       icon: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(LucideIcons.x, color: Colors.white, size: 20),
@@ -247,7 +254,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       onPressed: () async {
                         try {
                           await _revenueCat.restorePurchases();
-                          if (mounted && _revenueCat.isMazlPro) {
+                          if (context.mounted && _revenueCat.isMazlPro) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Abonnement restaure !'),
@@ -255,7 +262,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               ),
                             );
                             context.pop(true);
-                          } else if (mounted) {
+                          } else if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Aucun abonnement trouve'),
@@ -263,7 +270,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             );
                           }
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Erreur: $e')),
                             );
@@ -273,7 +280,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       child: Text(
                         'Restaurer',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -313,7 +320,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               'Multiplie tes chances de trouver l\'amour',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 16,
                               ),
                             ),
@@ -352,8 +359,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                Colors.white.withOpacity(0.3),
-                Colors.white.withOpacity(0.1),
+                Colors.white.withValues(alpha: 0.3),
+                Colors.white.withValues(alpha: 0.1),
                 Colors.transparent,
               ],
               stops: const [0.3, 0.6, 1.0],
@@ -364,15 +371,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
         Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 blurRadius: 30,
                 spreadRadius: 10,
               ),
@@ -403,18 +410,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
             decoration: BoxDecoration(
               color: isSelected
                   ? Colors.white
-                  : Colors.white.withOpacity(0.15),
+                  : Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withOpacity(0.3),
+                    : Colors.white.withValues(alpha: 0.3),
                 width: isSelected ? 0 : 1,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -432,7 +439,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     border: Border.all(
                       color: isSelected
                           ? const Color(0xFF8B5CF6)
-                          : Colors.white.withOpacity(0.6),
+                          : Colors.white.withValues(alpha: 0.6),
                       width: 2,
                     ),
                     color: isSelected ? const Color(0xFF8B5CF6) : Colors.transparent,
@@ -498,7 +505,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         style: TextStyle(
                           color: isSelected
                               ? const Color(0xFF6B7280)
-                              : Colors.white.withOpacity(0.7),
+                              : Colors.white.withValues(alpha: 0.7),
                           fontSize: 13,
                         ),
                       ),
@@ -529,8 +536,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF10B981).withOpacity(0.15)
-                              : const Color(0xFF10B981).withOpacity(0.3),
+                              ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                              : const Color(0xFF10B981).withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -559,10 +566,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -586,7 +593,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: Colors.white, size: 18),
@@ -604,7 +611,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           ),
           Icon(
             LucideIcons.check,
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             size: 20,
           ),
         ],
@@ -629,7 +636,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -698,9 +705,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextButton(
-                onPressed: () {
-                  // TODO: Open terms
-                },
+                onPressed: () => _openUrl('https://mazl.app/terms'),
                 child: Text(
                   'Conditions',
                   style: TextStyle(
@@ -711,9 +716,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ),
               Text('•', style: TextStyle(color: Colors.grey[400])),
               TextButton(
-                onPressed: () {
-                  // TODO: Open privacy
-                },
+                onPressed: () => _openUrl('https://mazl.app/privacy'),
                 child: Text(
                   'Confidentialite',
                   style: TextStyle(

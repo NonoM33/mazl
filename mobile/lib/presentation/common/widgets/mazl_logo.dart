@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../core/theme/app_colors.dart';
 
 /// MAZL Logo widget with customizable size and color
 class MazlLogo extends StatelessWidget {
@@ -56,7 +55,7 @@ class MazlLogoContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: elevation * 2,
             offset: Offset(0, elevation),
           ),

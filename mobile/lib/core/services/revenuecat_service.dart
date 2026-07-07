@@ -1,9 +1,31 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+
+/// Outcome of a purchase attempt.
+///
+/// A user-initiated cancellation is a normal, expected outcome and is
+/// surfaced as [PurchaseStatus.cancelled] rather than thrown as an error,
+/// so callers never present it as a failure.
+enum PurchaseStatus { success, cancelled }
+
+/// Result of [RevenueCatService.purchasePackage].
+///
+/// On [PurchaseStatus.success], [customerInfo] holds the updated entitlements.
+/// On [PurchaseStatus.cancelled], [customerInfo] is the last known info (may be
+/// null if none was ever fetched).
+class PurchaseResult {
+  const PurchaseResult(this.status, this.customerInfo);
+
+  final PurchaseStatus status;
+  final CustomerInfo? customerInfo;
+
+  bool get isCancelled => status == PurchaseStatus.cancelled;
+  bool get isSuccess => status == PurchaseStatus.success;
+}
 
 /// RevenueCat API Configuration
 class RevenueCatConfig {
@@ -70,8 +92,10 @@ class RevenueCatService {
       _isInitialized = true;
       debugPrint('RevenueCat: Initialized successfully');
     } catch (e) {
-      debugPrint('RevenueCat: Initialization error - $e');
-      rethrow;
+      // Never let RevenueCat init failures block app startup: an invalid key
+      // or an unavailable store must not crash the app before runApp(). The
+      // user simply stays non-premium until initialization can succeed.
+      debugPrint('RevenueCat: Initialization error (continuing non-premium) - $e');
     }
   }
 
@@ -125,18 +149,23 @@ class RevenueCatService {
     return offerings.current;
   }
 
-  /// Purchase a package
-  Future<CustomerInfo> purchasePackage(Package package) async {
+  /// Purchase a package.
+  ///
+  /// Returns a [PurchaseResult] describing the outcome. A user-initiated
+  /// cancellation is NOT an error: it is reported as
+  /// [PurchaseStatus.cancelled] so callers can abandon silently. Any other
+  /// failure is rethrown for the caller to handle.
+  Future<PurchaseResult> purchasePackage(Package package) async {
     try {
       final result = await Purchases.purchasePackage(package);
       _customerInfo = result;
       debugPrint('RevenueCat: Purchase successful');
-      return result;
-    } catch (e) {
-      if (e is PurchasesErrorCode) {
-        if (e == PurchasesErrorCode.purchaseCancelledError) {
-          debugPrint('RevenueCat: Purchase cancelled by user');
-        }
+      return PurchaseResult(PurchaseStatus.success, result);
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        debugPrint('RevenueCat: Purchase cancelled by user');
+        return PurchaseResult(PurchaseStatus.cancelled, _customerInfo);
       }
       rethrow;
     }

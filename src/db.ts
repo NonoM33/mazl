@@ -124,6 +124,46 @@ export async function initDb() {
     )
   `;
 
+  // Profile prompts (question/answer cards on a user's profile, max 3)
+  await sql`
+    CREATE TABLE IF NOT EXISTS profile_prompts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      prompt_id VARCHAR(50) NOT NULL,
+      answer TEXT NOT NULL,
+      position INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Selfie verification attempts (US-TS-03).
+  // Each row is one selfie-verification attempt. The 3-per-day quota is
+  // enforced server-side by counting today's rows for the user (see
+  // startVerification / submitVerification below). NOTE: the base64 selfie is
+  // intentionally NOT persisted here and is never added to profile_photos /
+  // profiles.photos — it is only used transiently to decide pass/fail.
+  await sql`
+    CREATE TABLE IF NOT EXISTS verification_attempts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      gesture_id VARCHAR(30) NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // Boosts table (profile boost: temporarily prioritized in discover feed)
+  await sql`
+    CREATE TABLE IF NOT EXISTS boosts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      activated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
@@ -246,6 +286,39 @@ export async function initDb() {
     )
   `;
 
+  // Couple requests (demande / acceptation de couple)
+  await sql`
+    CREATE TABLE IF NOT EXISTS couple_requests (
+      id SERIAL PRIMARY KEY,
+      requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      target_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couple_requests_target ON couple_requests(target_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couple_requests_requester ON couple_requests(requester_id)`;
+  // Prevent duplicate pending requests between the same ordered pair.
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS uniq_couple_requests_pending
+    ON couple_requests(requester_id, target_id)
+    WHERE status = 'pending'
+  `;
+
+  // Per-user conversation archiving (couple mode hides other convos).
+  // Scoped to the archiving user only; never mutates the shared conversation row.
+  await sql`
+    CREATE TABLE IF NOT EXISTS archived_conversations (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(user_id, conversation_id)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_archived_conversations_user ON archived_conversations(user_id)`;
+
   // ============ ADMIN BACK-OFFICE TABLES ============
 
   // User bans
@@ -287,6 +360,17 @@ export async function initDb() {
       handled_at TIMESTAMP,
       action_taken VARCHAR(100),
       created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
+  // Blocked users (user-to-user blocking)
+  await sql`
+    CREATE TABLE IF NOT EXISTS blocked_users (
+      id SERIAL PRIMARY KEY,
+      blocker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      blocked_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (blocker_id, blocked_id)
     )
   `;
 
@@ -588,6 +672,28 @@ export async function initDb() {
       UNIQUE(couple_id, achievement_type)
     )
   `;
+
+  // ============ PERFORMANCE INDEXES ============
+  // Hot paths: swipe exclusion, conversation messages, match lookups,
+  // profile joins, event RSVPs, couple lookups, subscription lookups.
+  await sql`CREATE INDEX IF NOT EXISTS idx_swipes_user_target ON swipes (user_id, target_user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_swipes_target_user ON swipes (target_user_id, user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_matches_user1 ON matches (user1_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_matches_user2 ON matches (user2_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_event_rsvps_event ON event_rsvps (event_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couples_user1 ON couples (user1_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_couples_user2 ON couples (user2_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocker ON blocked_users (blocker_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_blocked_users_blocked ON blocked_users (blocked_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_profile_prompts_user ON profile_prompts (user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_boosts_user ON boosts (user_id)`;
+  // Speeds up "currently boosted?" lookups and the active-boost prioritization.
+  await sql`CREATE INDEX IF NOT EXISTS idx_boosts_expires_at ON boosts (expires_at)`;
+  // Speeds up the daily-quota count in the selfie verification flow.
+  await sql`CREATE INDEX IF NOT EXISTS idx_verification_attempts_user_created ON verification_attempts (user_id, created_at)`;
 
   console.log("Database initialized");
 
@@ -1085,9 +1191,307 @@ export async function upsertProfile(userId: number, params: {
 
 // ============ DISCOVER & SWIPES ============
 
+// ============ BOOST ============
+
+export interface BoostRecord {
+  id: number;
+  user_id: number;
+  activated_at: Date;
+  expires_at: Date;
+  created_at: Date;
+}
+
+/**
+ * Activate a boost for a user: inserts a boost row expiring in
+ * `durationMinutes` (default 30). Returns the created record.
+ */
+export async function activateBoost(
+  userId: number,
+  durationMinutes = 30,
+): Promise<BoostRecord> {
+  const rows = await sql<BoostRecord[]>`
+    INSERT INTO boosts (user_id, activated_at, expires_at)
+    VALUES (
+      ${userId},
+      NOW(),
+      NOW() + (${durationMinutes} * INTERVAL '1 minute')
+    )
+    RETURNING id, user_id, activated_at, expires_at, created_at
+  `;
+  return rows[0]!;
+}
+
+/**
+ * Return the user's currently-active boost (expires_at in the future),
+ * or null if none is active. Picks the one expiring latest.
+ */
+export async function getActiveBoost(userId: number): Promise<BoostRecord | null> {
+  const rows = await sql<BoostRecord[]>`
+    SELECT id, user_id, activated_at, expires_at, created_at
+    FROM boosts
+    WHERE user_id = ${userId}
+      AND expires_at > NOW()
+    ORDER BY expires_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ?? null;
+}
+
+/**
+ * Count how many boosts the user activated today (server-local calendar day).
+ * Useful for quota enforcement / display.
+ */
+export async function getBoostsUsedToday(userId: number): Promise<number> {
+  const rows = await sql<{ count: string }[]>`
+    SELECT COUNT(*)::int AS count
+    FROM boosts
+    WHERE user_id = ${userId}
+      AND activated_at >= DATE_TRUNC('day', NOW())
+  `;
+  return Number(rows[0]?.count ?? 0);
+}
+
+/**
+ * Set of user IDs that currently have an active boost.
+ * Used to prioritize boosted profiles in the discover feed.
+ */
+export async function getActiveBoostedUserIds(): Promise<Set<number>> {
+  const rows = await sql<{ user_id: number }[]>`
+    SELECT DISTINCT user_id
+    FROM boosts
+    WHERE expires_at > NOW()
+  `;
+  return new Set(rows.map((r) => r.user_id));
+}
+
+// ============ SELFIE VERIFICATION (US-TS-03) ============
+//
+// IMPORTANT — NO REAL FACE MATCHING IS PERFORMED HERE.
+// This flow deliberately does NOT run any facial recognition / ML comparison
+// between the submitted selfie and the profile photos (out of scope: no ML in
+// this codebase). A submission that provides an image simply "passes". This is
+// the natural place to branch in a real face-match service or an admin review
+// step (a documentary-verification admin flow already exists elsewhere in this
+// app and could gate `is_verified` the same way). The selfie itself is never
+// stored in profile_photos / profiles.photos — it is only used transiently.
+
+/** Maximum selfie-verification attempts a user may make per calendar day. */
+export const VERIFICATION_DAILY_LIMIT = 3;
+
+/** Gestures a user may be asked to perform. IDs must match the mobile client. */
+export const VERIFICATION_GESTURES = [
+  "hand_up",
+  "smile",
+  "thumbs_up",
+] as const;
+
+export type VerificationGestureId = (typeof VERIFICATION_GESTURES)[number];
+
+export interface StartVerificationResult {
+  ok: boolean;
+  gestureId?: VerificationGestureId;
+  attemptId?: number;
+  /** ISO timestamp of the next allowed attempt when the quota is exhausted. */
+  nextAttemptTime?: string;
+  message?: string;
+}
+
+export interface SubmitVerificationResult {
+  verified: boolean;
+  attemptsRemaining: number;
+  message: string;
+  /** Set when the daily quota was already exhausted (no attempt consumed). */
+  nextAttemptTime?: string;
+}
+
+export interface VerificationStatus {
+  isVerified: boolean;
+  attemptsToday: number;
+  nextAttemptTime?: string;
+}
+
+/** Count verification attempts made by the user during the current server day. */
+async function countVerificationAttemptsToday(userId: number): Promise<number> {
+  const rows = await sql<{ count: string }[]>`
+    SELECT COUNT(*)::int AS count
+    FROM verification_attempts
+    WHERE user_id = ${userId}
+      AND created_at >= DATE_TRUNC('day', NOW())
+  `;
+  return Number(rows[0]?.count ?? 0);
+}
+
+/** ISO timestamp of the next midnight (start of tomorrow), server-local. */
+async function nextMidnightIso(): Promise<string> {
+  const rows = await sql<{ next_midnight: Date }[]>`
+    SELECT (DATE_TRUNC('day', NOW()) + INTERVAL '1 day') AS next_midnight
+  `;
+  return (rows[0]?.next_midnight ?? new Date()).toISOString();
+}
+
+/**
+ * Start a selfie verification: enforce the per-day quota, pick a random
+ * gesture, and record a `pending` attempt. Returns the gesture + attempt id,
+ * or an unsuccessful result carrying `nextAttemptTime` when the quota is hit.
+ * The quota is enforced HERE (server-side), not trusted from the client.
+ */
+export async function startVerification(
+  userId: number,
+): Promise<StartVerificationResult> {
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+  if (attemptsToday >= VERIFICATION_DAILY_LIMIT) {
+    return {
+      ok: false,
+      nextAttemptTime: await nextMidnightIso(),
+      message: "Limite de tentatives atteinte (3/jour). Réessayez demain.",
+    };
+  }
+
+  const gestureId =
+    VERIFICATION_GESTURES[
+      Math.floor(Math.random() * VERIFICATION_GESTURES.length)
+    ]!;
+
+  const rows = await sql<{ id: number }[]>`
+    INSERT INTO verification_attempts (user_id, gesture_id, status)
+    VALUES (${userId}, ${gestureId}, 'pending')
+    RETURNING id
+  `;
+
+  return { ok: true, gestureId, attemptId: rows[0]!.id };
+}
+
+/**
+ * Submit a selfie for the given gesture. Re-checks the daily quota server-side
+ * (the pending row from `startVerification` counts toward it), then marks the
+ * latest pending attempt as passed/failed and, on success, flips the profile
+ * to verified. Returns `{ verified, attemptsRemaining, message }`.
+ *
+ * `imageProvided` is the only signal used to decide pass/fail — see the module
+ * note above: NO real face matching is done.
+ */
+export async function submitVerification(
+  userId: number,
+  gestureId: string,
+  imageProvided: boolean,
+): Promise<SubmitVerificationResult> {
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+  if (attemptsToday > VERIFICATION_DAILY_LIMIT) {
+    return {
+      verified: false,
+      attemptsRemaining: 0,
+      message: "Limite de tentatives atteinte (3/jour). Réessayez demain.",
+      nextAttemptTime: await nextMidnightIso(),
+    };
+  }
+
+  // Find the most recent pending attempt to resolve. If none exists (client
+  // called submit without start), create a resolved row so the attempt is
+  // still counted against the daily quota.
+  const pending = await sql<{ id: number }[]>`
+    SELECT id
+    FROM verification_attempts
+    WHERE user_id = ${userId}
+      AND status = 'pending'
+      AND created_at >= DATE_TRUNC('day', NOW())
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+
+  // Passes iff an image was provided. NO facial comparison is performed.
+  const passed = imageProvided;
+  const newStatus = passed ? "passed" : "failed";
+
+  if (pending[0]) {
+    await sql`
+      UPDATE verification_attempts
+      SET status = ${newStatus}, gesture_id = ${gestureId}
+      WHERE id = ${pending[0].id}
+    `;
+  } else {
+    await sql`
+      INSERT INTO verification_attempts (user_id, gesture_id, status)
+      VALUES (${userId}, ${gestureId}, ${newStatus})
+    `;
+  }
+
+  if (passed) {
+    await sql`
+      UPDATE profiles
+      SET is_verified = true,
+          verification_level = 'photo',
+          updated_at = NOW()
+      WHERE user_id = ${userId}
+    `;
+    return {
+      verified: true,
+      attemptsRemaining: Math.max(
+        0,
+        VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
+      ),
+      message: "Vérification réussie. Ton profil affiche le badge vérifié.",
+    };
+  }
+
+  const attemptsRemaining = Math.max(
+    0,
+    VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
+  );
+  return {
+    verified: false,
+    attemptsRemaining,
+    message:
+      attemptsRemaining > 0
+        ? "Le selfie n'a pas pu être validé. Réessaie en suivant bien le geste demandé."
+        : "Le selfie n'a pas pu être validé. Limite atteinte, réessaie demain.",
+  };
+}
+
+/**
+ * Current verification status for the user: whether the profile is verified,
+ * how many attempts were made today, and — if the daily quota is exhausted —
+ * the ISO timestamp of the next allowed attempt (next midnight).
+ */
+export async function getVerificationStatus(
+  userId: number,
+): Promise<VerificationStatus> {
+  const profileRows = await sql<{ is_verified: boolean }[]>`
+    SELECT is_verified
+    FROM profiles
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `;
+  const isVerified = Boolean(profileRows[0]?.is_verified);
+  const attemptsToday = await countVerificationAttemptsToday(userId);
+
+  const status: VerificationStatus = { isVerified, attemptsToday };
+  if (!isVerified && attemptsToday >= VERIFICATION_DAILY_LIMIT) {
+    status.nextAttemptTime = await nextMidnightIso();
+  }
+  return status;
+}
+
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
-  // Get profiles that the user hasn't swiped on yet
+  // Fetch candidate profiles filtered against the CALLER's own preferences.
+  // Criteria are read directly from the caller's profile row (CTE `me`) so
+  // the public signature stays (userId, limit, offset).
+  //
+  // Filtering rules (all null-tolerant: a missing criterion never excludes):
+  //  - gender/orientation: bidirectional. The candidate's gender must match the
+  //    caller's `looking_for`, AND the candidate's `looking_for` must match the
+  //    caller's gender. `looking_for = 'all'`/'any'/'everyone' disables that side.
+  //  - age: candidate age within the caller's [age_min, age_max].
+  //  - distance: when both parties have lat/long and the caller has distance_max,
+  //    haversine distance (km) must be <= distance_max.
+  //
+  // Ordering: religious-compatibility score first (denomination / kashrut /
+  // shabbat matches with the caller weighted), then recency.
   const profiles = await sql`
+    WITH me AS (
+      SELECT gender, looking_for, age_min, age_max, distance_max,
+             latitude, longitude, denomination, kashrut_level, shabbat_observance
+      FROM profiles WHERE user_id = ${userId}
+    )
     SELECT
       p.id,
       p.user_id,
@@ -1104,12 +1508,69 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
       u.picture
     FROM profiles p
     JOIN users u ON u.id = p.user_id
+    CROSS JOIN me
     WHERE p.user_id != ${userId}
       AND p.is_complete = true
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
       )
-    ORDER BY p.created_at DESC
+      -- exclude users blocked in either direction
+      AND p.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
+      -- caller wants candidate's gender (skip when either side unset or open)
+      AND (
+        me.looking_for IS NULL
+        OR LOWER(me.looking_for) IN ('all', 'any', 'everyone', 'both')
+        OR p.gender IS NULL
+        OR LOWER(p.gender) = LOWER(me.looking_for)
+      )
+      -- candidate wants caller's gender (skip when either side unset or open)
+      AND (
+        p.looking_for IS NULL
+        OR LOWER(p.looking_for) IN ('all', 'any', 'everyone', 'both')
+        OR me.gender IS NULL
+        OR LOWER(me.gender) = LOWER(p.looking_for)
+      )
+      -- candidate age within caller's range (skip when birthdate unknown)
+      AND (
+        p.birthdate IS NULL
+        OR (
+          DATE_PART('year', AGE(p.birthdate)) >= COALESCE(me.age_min, 18)
+          AND DATE_PART('year', AGE(p.birthdate)) <= COALESCE(me.age_max, 99)
+        )
+      )
+      -- distance filter (only when both have coords and caller set distance_max)
+      AND (
+        me.distance_max IS NULL
+        OR me.latitude IS NULL OR me.longitude IS NULL
+        OR p.latitude IS NULL OR p.longitude IS NULL
+        OR (
+          6371 * ACOS(
+            LEAST(1.0, GREATEST(-1.0,
+              COS(RADIANS(me.latitude)) * COS(RADIANS(p.latitude))
+              * COS(RADIANS(p.longitude) - RADIANS(me.longitude))
+              + SIN(RADIANS(me.latitude)) * SIN(RADIANS(p.latitude))
+            ))
+          ) <= me.distance_max
+        )
+      )
+    ORDER BY
+      -- boosted candidates float to the top of the feed
+      (
+        CASE WHEN EXISTS (
+          SELECT 1 FROM boosts b
+          WHERE b.user_id = p.user_id AND b.expires_at > NOW()
+        ) THEN 1 ELSE 0 END
+      ) DESC,
+      (
+        CASE WHEN me.denomination IS NOT NULL AND p.denomination = me.denomination THEN 3 ELSE 0 END
+        + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
+        + CASE WHEN me.shabbat_observance IS NOT NULL AND p.shabbat_observance = me.shabbat_observance THEN 2 ELSE 0 END
+      ) DESC,
+      p.created_at DESC
     LIMIT ${limit}
     OFFSET ${offset}
   `;
@@ -1189,7 +1650,13 @@ export async function getMatches(userId: number) {
       END as other_user_id
     FROM matches m
     LEFT JOIN conversations c ON c.match_id = m.id
-    WHERE m.user1_id = ${userId} OR m.user2_id = ${userId}
+    WHERE (m.user1_id = ${userId} OR m.user2_id = ${userId})
+      -- exclude matches with a user blocked in either direction
+      AND (CASE WHEN m.user1_id = ${userId} THEN m.user2_id ELSE m.user1_id END) NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
     ORDER BY m.created_at DESC
   `;
 
@@ -1221,6 +1688,184 @@ export async function getMatches(userId: number) {
     conversationId: m.conversation_id,
     profile: profileMap.get(m.other_user_id),
   }));
+}
+
+// ============ RECEIVED LIKES ============
+
+// Profiles of users who liked/super-liked the caller but with whom no match
+// exists yet, excluding users blocked in either direction. Shape mirrors
+// getMatches profile rows plus liked_at.
+export async function getReceivedLikes(userId: number): Promise<Array<{
+  user_id: number;
+  display_name: string | null;
+  age: number | null;
+  location: string | null;
+  is_verified: boolean | null;
+  picture: string | null;
+  liked_at: Date;
+}>> {
+  const rows = await sql`
+    SELECT
+      s.user_id AS user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) AS age,
+      p.location,
+      p.is_verified,
+      u.picture,
+      s.created_at AS liked_at
+    FROM swipes s
+    JOIN users u ON u.id = s.user_id
+    LEFT JOIN profiles p ON p.user_id = s.user_id
+    WHERE s.target_user_id = ${userId}
+      AND s.action IN ('like', 'super_like')
+      -- not already matched
+      AND NOT EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.user1_id = ${userId} AND m.user2_id = s.user_id)
+           OR (m.user2_id = ${userId} AND m.user1_id = s.user_id)
+      )
+      -- exclude users blocked in either direction
+      AND s.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
+    ORDER BY s.created_at DESC
+  `;
+  return rows as unknown as Array<{
+    user_id: number;
+    display_name: string | null;
+    age: number | null;
+    location: string | null;
+    is_verified: boolean | null;
+    picture: string | null;
+    liked_at: Date;
+  }>;
+}
+
+export async function getReceivedLikesCount(userId: number): Promise<number> {
+  const rows = await sql`
+    SELECT COUNT(*) AS count
+    FROM swipes s
+    WHERE s.target_user_id = ${userId}
+      AND s.action IN ('like', 'super_like')
+      AND NOT EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.user1_id = ${userId} AND m.user2_id = s.user_id)
+           OR (m.user2_id = ${userId} AND m.user1_id = s.user_id)
+      )
+      AND s.user_id NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
+  `;
+  const row = rows[0] as { count: string } | undefined;
+  return row ? parseInt(row.count) : 0;
+}
+
+// ============ PROFILE PROMPTS ============
+
+export interface ProfilePromptRow {
+  id: number;
+  prompt_id: string;
+  answer: string;
+  position: number;
+}
+
+export const PROMPT_CATALOG: ReadonlyArray<{ id: string; text: string; category: string }> = [
+  // Personnalité
+  { id: 'perfect_sunday', text: 'Mon dimanche parfait...', category: 'personality' },
+  { id: 'fun_fact', text: 'Un fait surprenant sur moi...', category: 'personality' },
+  { id: 'life_goal', text: 'Un de mes objectifs dans la vie...', category: 'personality' },
+  { id: 'pet_peeve', text: "Ce qui m'énerve le plus...", category: 'personality' },
+  { id: 'proud_of', text: 'Je suis fier(e) de...', category: 'personality' },
+  { id: 'looking_for', text: 'Je cherche quelqu\'un qui...', category: 'personality' },
+  // Lifestyle
+  { id: 'ideal_vacation', text: 'Mes vacances idéales...', category: 'lifestyle' },
+  { id: 'favorite_food', text: 'Mon plat préféré...', category: 'lifestyle' },
+  { id: 'hidden_talent', text: 'Mon talent caché...', category: 'lifestyle' },
+  { id: 'binge_watching', text: 'En ce moment je regarde...', category: 'lifestyle' },
+  // Judaïsme
+  { id: 'shabbat_ideal', text: 'Mon Shabbat idéal...', category: 'jewish' },
+  { id: 'family_tradition', text: "Une tradition familiale que j'adore...", category: 'jewish' },
+  { id: 'favorite_holiday', text: 'Ma fête juive préférée...', category: 'jewish' },
+  { id: 'friday_night', text: 'Le vendredi soir chez moi...', category: 'jewish' },
+  { id: 'israel_memory', text: 'Mon meilleur souvenir en Israël...', category: 'jewish' },
+  { id: 'jewish_value', text: 'Une valeur juive qui me guide...', category: 'jewish' },
+  // Conversation starters
+  { id: 'debate_me', text: 'Débats moi sur...', category: 'conversation' },
+  { id: 'teach_me', text: 'Apprends-moi quelque chose sur...', category: 'conversation' },
+  { id: 'together_we_could', text: 'Ensemble on pourrait...', category: 'conversation' },
+  { id: 'first_date', text: 'Premier date idéal...', category: 'conversation' },
+];
+
+const PROMPT_TEXT_BY_ID = new Map(PROMPT_CATALOG.map((p) => [p.id, p.text]));
+
+export function getPromptText(promptId: string): string {
+  return PROMPT_TEXT_BY_ID.get(promptId) ?? '';
+}
+
+export class ProfilePromptLimitError extends Error {
+  constructor() {
+    super('Maximum of 3 prompts reached');
+    this.name = 'ProfilePromptLimitError';
+  }
+}
+
+export async function getProfilePrompts(userId: number): Promise<ProfilePromptRow[]> {
+  const rows = await sql`
+    SELECT id, prompt_id, answer, position
+    FROM profile_prompts
+    WHERE user_id = ${userId}
+    ORDER BY position ASC, id ASC
+  `;
+  return rows as unknown as ProfilePromptRow[];
+}
+
+export async function addProfilePrompt(
+  userId: number,
+  promptId: string,
+  answer: string,
+  position: number,
+): Promise<ProfilePromptRow> {
+  const countRows = await sql`
+    SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
+  `;
+  const existing = parseInt((countRows[0] as { count: string }).count);
+  if (existing >= 3) {
+    throw new ProfilePromptLimitError();
+  }
+
+  const rows = await sql`
+    INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
+    VALUES (${userId}, ${promptId}, ${answer}, ${position})
+    RETURNING id, prompt_id, answer, position
+  `;
+  return rows[0] as unknown as ProfilePromptRow;
+}
+
+export async function updateProfilePrompt(
+  userId: number,
+  promptId: number,
+  answer: string,
+): Promise<ProfilePromptRow | null> {
+  const rows = await sql`
+    UPDATE profile_prompts
+    SET answer = ${answer}, updated_at = NOW()
+    WHERE id = ${promptId} AND user_id = ${userId}
+    RETURNING id, prompt_id, answer, position
+  `;
+  return rows.length ? (rows[0] as unknown as ProfilePromptRow) : null;
+}
+
+export async function deleteProfilePrompt(userId: number, promptId: number): Promise<boolean> {
+  const rows = await sql`
+    DELETE FROM profile_prompts
+    WHERE id = ${promptId} AND user_id = ${userId}
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 // ============ SEED FAKE PROFILES ============
@@ -1264,8 +1909,10 @@ export async function seedFakeProfiles(force = false) {
   // Create users and profiles for women
   for (let i = 0; i < femaleProfiles.length; i++) {
     const p = femaleProfiles[i];
+    if (!p) continue;
     const birthYear = new Date().getFullYear() - p.age;
     const birthdate = `${birthYear}-06-15`;
+    const firstName = p.name.split(' ')[0] ?? p.name;
 
     const userResult = await sql`
       INSERT INTO users (email, name, picture, provider, provider_id)
@@ -1285,7 +1932,7 @@ export async function seedFakeProfiles(force = false) {
       INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
       VALUES (
         ${userId},
-        ${p.name.split(' ')[0]},
+        ${firstName},
         ${birthdate},
         'female',
         ${p.bio},
@@ -1312,8 +1959,10 @@ export async function seedFakeProfiles(force = false) {
   // Create users and profiles for men
   for (let i = 0; i < maleProfiles.length; i++) {
     const p = maleProfiles[i];
+    if (!p) continue;
     const birthYear = new Date().getFullYear() - p.age;
     const birthdate = `${birthYear}-06-15`;
+    const firstName = p.name.split(' ')[0] ?? p.name;
 
     const userResult = await sql`
       INSERT INTO users (email, name, picture, provider, provider_id)
@@ -1333,7 +1982,7 @@ export async function seedFakeProfiles(force = false) {
       INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance, looking_for, is_complete, is_verified, verification_level)
       VALUES (
         ${userId},
-        ${p.name.split(' ')[0]},
+        ${firstName},
         ${birthdate},
         'male',
         ${p.bio},
@@ -1396,7 +2045,13 @@ export async function getConversations(userId: number) {
         AND is_read = false
       ) as unread_count
     FROM conversations c
-    WHERE c.user1_id = ${userId} OR c.user2_id = ${userId}
+    WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
+      -- hide conversations with a user blocked in either direction
+      AND (CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END) NOT IN (
+        SELECT blocked_id FROM blocked_users WHERE blocker_id = ${userId}
+        UNION
+        SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
+      )
     ORDER BY COALESCE(c.last_message_at, c.created_at) DESC
   `;
 
@@ -1989,6 +2644,277 @@ export async function deleteCouple(coupleId: number) {
   `;
 }
 
+// ============ COUPLE REQUESTS (demande / acceptation de couple) ============
+
+export type CoupleRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+
+export interface CoupleRequestRow {
+  id: number;
+  requester_id: number;
+  target_id: number;
+  status: CoupleRequestStatus;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type CreateCoupleRequestResult =
+  | { ok: true; request: CoupleRequestRow }
+  | { ok: false; error: string };
+
+export type CoupleStatusWith =
+  | 'none'
+  | 'pending_sent'
+  | 'pending_received'
+  | 'coupled';
+
+export interface CoupleRequestView {
+  id: number;
+  requester_id: number;
+  target_id: number;
+  status: CoupleRequestStatus;
+  created_at: Date;
+  requester_name: string | null;
+  requester_picture: string | null;
+  target_name: string | null;
+  target_picture: string | null;
+}
+
+/**
+ * Create a pending couple request. Refuses self-targeting, blocked pairs,
+ * an existing pending request in either direction, or an already-active couple.
+ */
+export async function createCoupleRequest(
+  requesterId: number,
+  targetId: number
+): Promise<CreateCoupleRequestResult> {
+  if (requesterId === targetId) {
+    return { ok: false, error: 'Cannot send a couple request to yourself' };
+  }
+
+  if (await isBlockedBetween(requesterId, targetId)) {
+    return { ok: false, error: 'User is unavailable' };
+  }
+
+  // Refuse if either user is already in an active couple.
+  const existingCouple = await sql`
+    SELECT 1 FROM couples
+    WHERE status = 'active'
+      AND (user1_id IN (${requesterId}, ${targetId})
+           OR user2_id IN (${requesterId}, ${targetId}))
+    LIMIT 1
+  `;
+  if (existingCouple.length > 0) {
+    return { ok: false, error: 'One of the users is already in a couple' };
+  }
+
+  // Refuse if a pending request already exists in either direction.
+  const existingPending = await sql`
+    SELECT 1 FROM couple_requests
+    WHERE status = 'pending'
+      AND ((requester_id = ${requesterId} AND target_id = ${targetId})
+        OR (requester_id = ${targetId} AND target_id = ${requesterId}))
+    LIMIT 1
+  `;
+  if (existingPending.length > 0) {
+    return { ok: false, error: 'A pending couple request already exists' };
+  }
+
+  const rows = await sql`
+    INSERT INTO couple_requests (requester_id, target_id, status)
+    VALUES (${requesterId}, ${targetId}, 'pending')
+    RETURNING *
+  `;
+  return { ok: true, request: rows[0] as CoupleRequestRow };
+}
+
+export async function getCoupleRequestById(
+  id: number
+): Promise<CoupleRequestRow | null> {
+  const rows = await sql`
+    SELECT * FROM couple_requests WHERE id = ${id} LIMIT 1
+  `;
+  return rows.length ? (rows[0] as CoupleRequestRow) : null;
+}
+
+export type RespondToCoupleRequestResult =
+  | { ok: true; action: 'accepted'; couple: Record<string, unknown> }
+  | { ok: true; action: 'rejected' }
+  | { ok: false; status: number; error: string };
+
+/**
+ * Accept or reject a couple request. Only the target may respond (IDOR guard).
+ * On accept, the existing createCouple() is reused to build the couple.
+ */
+export async function respondToCoupleRequest(
+  requestId: number,
+  userId: number,
+  action: 'accept' | 'reject'
+): Promise<RespondToCoupleRequestResult> {
+  const request = await getCoupleRequestById(requestId);
+  if (!request) {
+    return { ok: false, status: 404, error: 'Couple request not found' };
+  }
+  if (request.target_id !== userId) {
+    return { ok: false, status: 403, error: 'Forbidden' };
+  }
+  if (request.status !== 'pending') {
+    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
+  }
+
+  if (action === 'reject') {
+    await sql`
+      UPDATE couple_requests
+      SET status = 'rejected', updated_at = NOW()
+      WHERE id = ${requestId}
+    `;
+    return { ok: true, action: 'rejected' };
+  }
+
+  const couple = await createCouple(request.requester_id, request.target_id);
+  await sql`
+    UPDATE couple_requests
+    SET status = 'accepted', updated_at = NOW()
+    WHERE id = ${requestId}
+  `;
+  return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> };
+}
+
+export type CancelCoupleRequestResult =
+  | { ok: true }
+  | { ok: false; status: number; error: string };
+
+/**
+ * Cancel a pending couple request. Only the requester may cancel (IDOR guard).
+ */
+export async function cancelCoupleRequest(
+  requestId: number,
+  userId: number
+): Promise<CancelCoupleRequestResult> {
+  const request = await getCoupleRequestById(requestId);
+  if (!request) {
+    return { ok: false, status: 404, error: 'Couple request not found' };
+  }
+  if (request.requester_id !== userId) {
+    return { ok: false, status: 403, error: 'Forbidden' };
+  }
+  if (request.status !== 'pending') {
+    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
+  }
+
+  await sql`
+    UPDATE couple_requests
+    SET status = 'cancelled', updated_at = NOW()
+    WHERE id = ${requestId}
+  `;
+  return { ok: true };
+}
+
+/** Pending requests sent by AND received by the user, with names/photos on both sides. */
+export async function getCoupleRequestsForUser(
+  userId: number
+): Promise<{ sent: CoupleRequestView[]; received: CoupleRequestView[] }> {
+  const rows = await sql`
+    SELECT
+      cr.id,
+      cr.requester_id,
+      cr.target_id,
+      cr.status,
+      cr.created_at,
+      rp.display_name AS requester_name,
+      ru.picture AS requester_picture,
+      tp.display_name AS target_name,
+      tu.picture AS target_picture
+    FROM couple_requests cr
+    LEFT JOIN profiles rp ON rp.user_id = cr.requester_id
+    LEFT JOIN users ru ON ru.id = cr.requester_id
+    LEFT JOIN profiles tp ON tp.user_id = cr.target_id
+    LEFT JOIN users tu ON tu.id = cr.target_id
+    WHERE cr.status = 'pending'
+      AND (cr.requester_id = ${userId} OR cr.target_id = ${userId})
+    ORDER BY cr.created_at DESC
+  `;
+
+  const sent: CoupleRequestView[] = [];
+  const received: CoupleRequestView[] = [];
+  for (const row of rows as unknown as CoupleRequestView[]) {
+    if (row.requester_id === userId) {
+      sent.push(row);
+    } else {
+      received.push(row);
+    }
+  }
+  return { sent, received };
+}
+
+/** Relationship state between two users: none / pending_sent / pending_received / coupled. */
+export async function getCoupleStatusWith(
+  userId: number,
+  otherUserId: number
+): Promise<CoupleStatusWith> {
+  const coupled = await sql`
+    SELECT 1 FROM couples
+    WHERE status = 'active'
+      AND ((user1_id = ${userId} AND user2_id = ${otherUserId})
+        OR (user1_id = ${otherUserId} AND user2_id = ${userId}))
+    LIMIT 1
+  `;
+  if (coupled.length > 0) return 'coupled';
+
+  const pending = await sql`
+    SELECT requester_id, target_id FROM couple_requests
+    WHERE status = 'pending'
+      AND ((requester_id = ${userId} AND target_id = ${otherUserId})
+        OR (requester_id = ${otherUserId} AND target_id = ${userId}))
+    LIMIT 1
+  `;
+  if (pending.length > 0) {
+    const row = pending[0] as { requester_id: number; target_id: number };
+    return row.requester_id === userId ? 'pending_sent' : 'pending_received';
+  }
+
+  return 'none';
+}
+
+/**
+ * Archive (per-user) all of the user's conversations except the one(s) with the
+ * given partner. Purely additive: getConversations is untouched, callers opt in.
+ * Optionally posts a farewell message into each archived conversation.
+ */
+export async function archiveConversationsExceptPartner(
+  userId: number,
+  partnerUserId: number | null,
+  message?: string
+): Promise<{ archived: number }> {
+  const conversations = await sql`
+    SELECT
+      c.id,
+      CASE WHEN c.user1_id = ${userId} THEN c.user2_id ELSE c.user1_id END AS other_user_id
+    FROM conversations c
+    WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
+  `;
+
+  let archived = 0;
+  for (const conv of conversations as unknown as Array<{ id: number; other_user_id: number }>) {
+    if (partnerUserId !== null && conv.other_user_id === partnerUserId) continue;
+
+    await sql`
+      INSERT INTO archived_conversations (user_id, conversation_id)
+      VALUES (${userId}, ${conv.id})
+      ON CONFLICT (user_id, conversation_id) DO NOTHING
+    `;
+    archived += 1;
+
+    if (message && message.trim().length > 0) {
+      await sql`
+        INSERT INTO messages (conversation_id, sender_id, content)
+        VALUES (${conv.id}, ${userId}, ${message})
+      `;
+    }
+  }
+
+  return { archived };
+}
+
 // Daily questions for couples
 const DAILY_QUESTIONS = [
   { question: "Quel est ton moment prefere de la semaine ensemble ?", category: "Connection" },
@@ -2018,6 +2944,7 @@ export async function getDailyQuestion(coupleId: number) {
   // Pick a random question
   const randomIndex = Math.floor(Math.random() * DAILY_QUESTIONS.length);
   const questionData = DAILY_QUESTIONS[randomIndex];
+  if (!questionData) throw new Error("No daily question available");
 
   // Create new question for today
   const result = await sql`
@@ -2399,14 +3326,15 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
     SELECT * FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}
   `;
 
-  if (photo.length === 0) {
+  const deletedPhoto = photo[0];
+  if (!deletedPhoto) {
     throw new Error("Photo not found");
   }
 
   await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
 
   // If deleted photo was primary, set the first remaining as primary
-  if (photo[0].is_primary) {
+  if (deletedPhoto.is_primary) {
     await sql`
       UPDATE profile_photos
       SET is_primary = true
@@ -2421,7 +3349,9 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
   `;
 
   for (let i = 0; i < remaining.length; i++) {
-    await sql`UPDATE profile_photos SET position = ${i} WHERE id = ${remaining[i].id}`;
+    const row = remaining[i];
+    if (!row) continue;
+    await sql`UPDATE profile_photos SET position = ${i} WHERE id = ${row.id}`;
   }
 }
 
@@ -2441,10 +3371,12 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
 
   // Update positions
   for (let i = 0; i < photoIds.length; i++) {
+    const photoId = photoIds[i];
+    if (photoId === undefined) continue;
     await sql`
       UPDATE profile_photos
       SET position = ${i}, is_primary = ${i === 0}
-      WHERE id = ${photoIds[i]} AND user_id = ${userId}
+      WHERE id = ${photoId} AND user_id = ${userId}
     `;
   }
 
@@ -2841,6 +3773,84 @@ export async function createReport(params: {
     RETURNING *
   `;
   return result[0];
+}
+
+// ============ USER BLOCKING ============
+
+// Block a user (idempotent). Returns nothing meaningful; conflict is ignored.
+export async function blockUser(blockerId: number, blockedId: number): Promise<void> {
+  await sql`
+    INSERT INTO blocked_users (blocker_id, blocked_id)
+    VALUES (${blockerId}, ${blockedId})
+    ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+  `;
+}
+
+// Unblock a user (idempotent).
+export async function unblockUser(blockerId: number, blockedId: number): Promise<void> {
+  await sql`
+    DELETE FROM blocked_users
+    WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+  `;
+}
+
+// Return the set of user ids that `userId` has blocked OR that have blocked
+// `userId` (bidirectional). Used to filter listings both ways.
+export async function getBlockedUserIds(userId: number): Promise<Set<number>> {
+  const rows = await sql`
+    SELECT blocked_id AS other_id FROM blocked_users WHERE blocker_id = ${userId}
+    UNION
+    SELECT blocker_id AS other_id FROM blocked_users WHERE blocked_id = ${userId}
+  `;
+  return new Set((rows as unknown as Array<{ other_id: number }>).map((r) => r.other_id));
+}
+
+// True when either user has blocked the other.
+export async function isBlockedBetween(userA: number, userB: number): Promise<boolean> {
+  const rows = await sql`
+    SELECT 1 FROM blocked_users
+    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
+       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    LIMIT 1
+  `;
+  return rows.length > 0;
+}
+
+// Profiles blocked BY userId (the outgoing block list shown to the user).
+// Shape mirrors getMatches/getConversations profile rows.
+export async function getBlockedUsers(userId: number): Promise<Array<{
+  user_id: number;
+  display_name: string | null;
+  age: number | null;
+  location: string | null;
+  is_verified: boolean | null;
+  picture: string | null;
+  blocked_at: Date;
+}>> {
+  const rows = await sql`
+    SELECT
+      b.blocked_id AS user_id,
+      p.display_name,
+      DATE_PART('year', AGE(p.birthdate)) AS age,
+      p.location,
+      p.is_verified,
+      u.picture,
+      b.created_at AS blocked_at
+    FROM blocked_users b
+    JOIN users u ON u.id = b.blocked_id
+    LEFT JOIN profiles p ON p.user_id = b.blocked_id
+    WHERE b.blocker_id = ${userId}
+    ORDER BY b.created_at DESC
+  `;
+  return rows as unknown as Array<{
+    user_id: number;
+    display_name: string | null;
+    age: number | null;
+    location: string | null;
+    is_verified: boolean | null;
+    picture: string | null;
+    blocked_at: Date;
+  }>;
 }
 
 // Get reports

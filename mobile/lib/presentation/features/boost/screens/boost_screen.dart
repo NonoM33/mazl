@@ -178,7 +178,7 @@ class _BoostScreenState extends State<BoostScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isActive
-              ? [AppColors.success, AppColors.success.withOpacity(0.7)]
+              ? [AppColors.success, AppColors.success.withValues(alpha: 0.7)]
               : [const Color(0xFF6C5CE7), const Color(0xFFa29bfe)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -187,7 +187,7 @@ class _BoostScreenState extends State<BoostScreen> {
         boxShadow: [
           BoxShadow(
             color: (isActive ? AppColors.success : const Color(0xFF6C5CE7))
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -200,7 +200,7 @@ class _BoostScreenState extends State<BoostScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -225,7 +225,7 @@ class _BoostScreenState extends State<BoostScreen> {
             Text(
               '${_boostStatus!.minutesRemaining} min restantes',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 18,
               ),
             ),
@@ -235,7 +235,7 @@ class _BoostScreenState extends State<BoostScreen> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: _boostStatus!.minutesRemaining / 30,
-                backgroundColor: Colors.white.withOpacity(0.3),
+                backgroundColor: Colors.white.withValues(alpha: 0.3),
                 valueColor: const AlwaysStoppedAnimation(Colors.white),
                 minHeight: 6,
               ),
@@ -244,7 +244,7 @@ class _BoostScreenState extends State<BoostScreen> {
             Text(
               'Sois vu par 10x plus de personnes !',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
               ),
             ),
@@ -402,9 +402,9 @@ class _BoostScreenState extends State<BoostScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withOpacity(0.1),
+        color: AppColors.accentGold.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+        border: Border.all(color: AppColors.accentGold.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -453,7 +453,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -501,7 +501,7 @@ class _BenefitRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 18),

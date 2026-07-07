@@ -228,13 +228,13 @@ class _LikesScreenState extends State<LikesScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
+                color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 LucideIcons.heart,
                 size: 48,
-                color: AppColors.secondary.withOpacity(0.5),
+                color: AppColors.secondary.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -279,7 +279,7 @@ class _LikesScreenState extends State<LikesScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6C5CE7).withOpacity(0.3),
+            color: const Color(0xFF6C5CE7).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -290,7 +290,7 @@ class _LikesScreenState extends State<LikesScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -316,7 +316,7 @@ class _LikesScreenState extends State<LikesScreen> {
                 Text(
                   '${_formatLikesCount(_likesData!.totalCount)} personnes attendent ta reponse',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
                   ),
                 ),
@@ -472,7 +472,7 @@ class _LikeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -492,7 +492,7 @@ class _LikeCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -567,7 +567,7 @@ class _LikeCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -612,7 +612,7 @@ class _LikeCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -635,7 +635,7 @@ class _LikeCard extends StatelessWidget {
   Widget _buildPhoto() {
     if (profile.photoUrl == null) {
       return Container(
-        color: AppColors.primary.withOpacity(0.3),
+        color: AppColors.primary.withValues(alpha: 0.3),
         child: Center(
           child: Text(
             (profile.displayName?.isNotEmpty ?? false) ? profile.displayName![0].toUpperCase() : '?',
@@ -653,11 +653,11 @@ class _LikeCard extends StatelessWidget {
       imageUrl: profile.photoUrl!,
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
-        color: AppColors.primary.withOpacity(0.3),
+        color: AppColors.primary.withValues(alpha: 0.3),
         child: const Center(child: CircularProgressIndicator(color: Colors.white)),
       ),
       errorWidget: (context, url, error) => Container(
-        color: AppColors.primary.withOpacity(0.3),
+        color: AppColors.primary.withValues(alpha: 0.3),
         child: const Icon(LucideIcons.user, color: Colors.white, size: 48),
       ),
     );
@@ -766,7 +766,7 @@ class _ProfilePreviewSheet extends StatelessWidget {
                       )
                     else
                       Container(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         child: Center(
                           child: Text(
                             (profile.displayName?.isNotEmpty ?? false)
@@ -786,7 +786,7 @@ class _ProfilePreviewSheet extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.7),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,

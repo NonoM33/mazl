@@ -107,8 +107,8 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.1),
-                          AppColors.secondary.withOpacity(0.1),
+                          AppColors.primary.withValues(alpha: 0.1),
+                          AppColors.secondary.withValues(alpha: 0.1),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -288,7 +288,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                       boxShadow: _selectedMatch != null
                           ? [
                               BoxShadow(
-                                color: AppColors.secondary.withOpacity(0.4),
+                                color: AppColors.secondary.withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -347,7 +347,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 20, color: AppColors.primary),
@@ -389,7 +389,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : null,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : null,
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
@@ -400,7 +400,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: AppColors.primary.withOpacity(0.2),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
               backgroundImage: profile['picture'] != null
                   ? CachedNetworkImageProvider(profile['picture'])
                   : null,

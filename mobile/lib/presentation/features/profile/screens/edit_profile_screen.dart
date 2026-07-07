@@ -215,7 +215,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -394,7 +394,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     decoration: InputDecoration(
                       hintText: 'Entrez votre ${title.toLowerCase()}',
                       filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
+                      fillColor: Colors.grey.withValues(alpha: 0.1),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -489,8 +489,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.grey.withOpacity(0.05),
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : Colors.grey.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
                       border: isSelected
                           ? Border.all(color: AppColors.primary, width: 2)
@@ -784,7 +784,7 @@ class _PhotoSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: hasPhoto
               ? AppColors.primary
-              : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: isPrimary
               ? Border.all(color: AppColors.accentGold, width: 3)
@@ -885,7 +885,7 @@ class _EditField extends StatelessWidget {
       title: Text(
         label,
         style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           fontSize: 14,
         ),
       ),

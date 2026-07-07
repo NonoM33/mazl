@@ -1,4 +1,7 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
+import { z } from "zod";
+import { createMiddleware } from "hono/factory";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
@@ -31,8 +34,23 @@ import {
   getFullProfile,
   upsertProfile,
   getDiscoverProfiles,
+  // Boost
+  activateBoost,
+  getActiveBoost,
+  getBoostsUsedToday,
   recordSwipe,
   getMatches,
+  // Received likes
+  getReceivedLikes,
+  getReceivedLikesCount,
+  // Profile prompts
+  PROMPT_CATALOG,
+  getPromptText,
+  getProfilePrompts,
+  addProfilePrompt,
+  updateProfilePrompt,
+  deleteProfilePrompt,
+  ProfilePromptLimitError,
   // Chat
   getConversations,
   getConversationById,
@@ -61,6 +79,12 @@ import {
   // Couple Mode
   createCouple,
   getCouple,
+  createCoupleRequest,
+  respondToCoupleRequest,
+  cancelCoupleRequest,
+  getCoupleRequestsForUser,
+  getCoupleStatusWith,
+  archiveConversationsExceptPartner,
   updateCoupleStatus,
   updateRelationshipStatus,
   deleteCouple,
@@ -81,6 +105,10 @@ import {
   getUserActivity,
   deleteUserCompletely,
   setUserVerificationLevel,
+  // Selfie verification (US-TS-03)
+  startVerification,
+  submitVerification,
+  getVerificationStatus,
   // Profile Photos
   getProfilePhotos,
   addProfilePhoto,
@@ -107,6 +135,10 @@ import {
   unsubscribeEmail,
   // Module 4: Modération
   createReport,
+  blockUser,
+  unblockUser,
+  getBlockedUsers,
+  isBlockedBetween,
   getReports,
   handleReport,
   getPendingPhotos,
@@ -149,12 +181,152 @@ import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationR
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
 
-const app = new Hono();
+type AppVariables = {
+  userId: number;
+};
+
+const app = new Hono<{ Variables: AppVariables }>();
+
+// ============ INPUT VALIDATION (permissive safety net) ============
+// These schemas only guard the TYPES of fields actually read by each handler
+// and the presence of fields the handler logic already requires. They use
+// `.passthrough()` so extra fields from the mobile app are never rejected, and
+// keep optional anything the handler already treats as optional. On failure the
+// caller returns the same `{ success: false, error }` 400 shape as the rest of
+// the file — business logic and success responses are unchanged.
+
+type BodyParseResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string };
+
+async function parseBody<T>(
+  schema: z.ZodType<T>,
+  c: Context<{ Variables: AppVariables }>,
+): Promise<BodyParseResult<T>> {
+  let raw: unknown;
+  try {
+    raw = await c.req.json();
+  } catch {
+    return { ok: false, error: "Invalid JSON body" };
+  }
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    const path = first?.path.join(".");
+    const message = first
+      ? path
+        ? `${path}: ${first.message}`
+        : first.message
+      : "Invalid request body";
+    return { ok: false, error: message };
+  }
+  return { ok: true, data: parsed.data };
+}
+
+const swipeBodySchema = z
+  .object({
+    target_user_id: z.number(),
+    action: z.enum(["like", "pass", "super_like"]),
+  })
+  .passthrough();
+
+const reportUserBodySchema = z
+  .object({
+    category: z.string().optional(),
+    comment: z.string().optional(),
+    block_user: z.boolean().optional(),
+  })
+  .passthrough();
+
+const coupleRequestBodySchema = z
+  .object({
+    target_user_id: z.number(),
+  })
+  .passthrough();
+
+const coupleRespondBodySchema = z
+  .object({
+    action: z.enum(["accept", "reject"]),
+  })
+  .passthrough();
+
+const addPromptBodySchema = z
+  .object({
+    prompt_id: z.string(),
+    answer: z.string(),
+    position: z.number().optional(),
+  })
+  .passthrough();
+
+const updatePromptBodySchema = z
+  .object({
+    answer: z.string(),
+  })
+  .passthrough();
+
+const sendMessageBodySchema = z
+  .object({
+    content: z.string().min(1),
+  })
+  .passthrough();
+
+// PUT /api/profile: guard the numeric field TYPES (ageMin/ageMax/distanceMax,
+// lat/long) and declare the string fields the handler reads so they stay
+// well-typed. Everything is optional and `.passthrough()` keeps any other
+// field the mobile app may send — nothing legitimate is rejected.
+const updateProfileBodySchema = z
+  .object({
+    displayName: z.string().optional(),
+    birthdate: z.string().optional(),
+    gender: z.string().optional(),
+    bio: z.string().optional(),
+    location: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    denomination: z.string().optional(),
+    kashrutLevel: z.string().optional(),
+    shabbatObservance: z.string().optional(),
+    lookingFor: z.string().optional(),
+    ageMin: z.number().optional(),
+    ageMax: z.number().optional(),
+    distanceMax: z.number().optional(),
+  })
+  .passthrough();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 
-// CORS
-app.use("/api/*", cors());
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+// CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)
+const DEFAULT_CORS_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:8080",
+  "capacitor://localhost",
+  "ionic://localhost",
+  "http://localhost",
+];
+
+const ALLOWED_ORIGINS: readonly string[] = (() => {
+  const fromEnv = process.env.CORS_ORIGINS;
+  if (fromEnv) {
+    return fromEnv
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0);
+  }
+  return DEFAULT_CORS_ORIGINS;
+})();
+
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin) => (ALLOWED_ORIGINS.includes(origin) ? origin : null),
+    allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "x-admin-password"],
+    credentials: true,
+  }),
+);
 
 // Pretty routes (must be before static)
 app.get("/verify", async (c) => {
@@ -178,12 +350,23 @@ app.use("/uploads/*", async (c) => {
 // Static files
 app.use("/*", serveStatic({ root: "./public" }));
 
-function getAdminPassword(c: any) {
-  return c.req.query("password") || c.req.header("x-admin-password") || "";
+function getAdminPassword(c: Context): string {
+  // Only accept the admin password via header, never via query string
+  // (query strings leak into logs, browser history and Referer headers).
+  return c.req.header("x-admin-password") || "";
 }
 
-// Admin JWT secret (use a different secret than user JWT)
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || "admin-secret-key";
+// Admin JWT secret (use a different secret than user JWT).
+// Fail fast at boot rather than silently falling back to a hard-coded secret.
+const ADMIN_JWT_SECRET: string = (() => {
+  const secret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "ADMIN_JWT_SECRET (or JWT_SECRET) must be set; refusing to start with a hard-coded admin secret",
+    );
+  }
+  return secret;
+})();
 
 // Generate admin JWT token
 function generateAdminJWT(email: string): string {
@@ -219,6 +402,7 @@ function verifyAdminJWT(token: string): { valid: boolean; email?: string; error?
     if (parts.length !== 3) return { valid: false, error: "Invalid token format" };
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) return { valid: false, error: "Invalid token format" };
     const data = `${header}.${payload}`;
 
     // Verify signature
@@ -248,8 +432,11 @@ function verifyAdminJWT(token: string): { valid: boolean; email?: string; error?
   }
 }
 
-function assertAdmin(c: any) {
-  // First try JWT token from Authorization header
+type AdminAuthResult = { ok: true; email?: string } | { ok: false; error: string };
+
+function assertAdmin(c: Context): AdminAuthResult {
+  // Admin JWT token from the Authorization header only (no query-string tokens:
+  // they leak into logs, history and Referer headers).
   const authHeader = c.req.header("Authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
     const token = authHeader.substring(7);
@@ -259,7 +446,20 @@ function assertAdmin(c: any) {
     }
   }
 
-  // Try JWT token from query parameter (for file downloads)
+  // Fallback to password method via header only (for backward compatibility).
+  const required = process.env.ADMIN_PASSWORD;
+  if (!required) return { ok: false, error: "ADMIN_PASSWORD not set" };
+  if (getAdminPassword(c) !== required) return { ok: false, error: "Unauthorized" };
+  return { ok: true };
+}
+
+// Admin auth for browser file downloads only. An <a href> navigation cannot set
+// an Authorization header, so this single read-only endpoint additionally accepts
+// a signed admin JWT via the `token` query param. No password is ever accepted here.
+function assertAdminFileDownload(c: Context): AdminAuthResult {
+  const headerResult = assertAdmin(c);
+  if (headerResult.ok) return headerResult;
+
   const tokenParam = c.req.query("token");
   if (tokenParam) {
     const result = verifyAdminJWT(tokenParam);
@@ -268,12 +468,40 @@ function assertAdmin(c: any) {
     }
   }
 
-  // Fallback to old password method (for backward compatibility)
-  const required = process.env.ADMIN_PASSWORD;
-  if (!required) return { ok: false, error: "ADMIN_PASSWORD not set" };
-  if (getAdminPassword(c) !== required) return { ok: false, error: "Unauthorized" };
-  return { ok: true };
+  return { ok: false, error: "Unauthorized" };
 }
+
+// IDOR guard: confirm the authenticated user is a member of the target couple.
+// getCouple(userId) returns only the caller's own active couple (with its id),
+// so a matching id proves membership.
+async function assertCoupleMembership(
+  userId: number,
+  coupleId: number,
+): Promise<boolean> {
+  if (Number.isNaN(coupleId)) return false;
+  const couple = await getCouple(userId);
+  if (!couple) return false;
+  const ownedId = Number((couple as { id: number }).id);
+  return ownedId === coupleId;
+}
+
+// User authentication middleware. Reads the Bearer token, verifies the JWT, and
+// stores the resolved user id in the context for downstream handlers. On failure
+// it returns exactly the same 401 responses the handlers used to return inline.
+const requireAuth = createMiddleware<{ Variables: AppVariables }>(async (c, next) => {
+  const token = extractBearerToken(c.req.header("Authorization"));
+  if (!token) {
+    return c.json({ success: false, error: "No token provided" }, 401);
+  }
+
+  const payload = verifyJWT(token);
+  if (!payload) {
+    return c.json({ success: false, error: "Invalid token" }, 401);
+  }
+
+  c.set("userId", parseInt(payload.sub));
+  await next();
+});
 
 function getFileExtension(file: File) {
   const byType: Record<string, string> = {
@@ -714,7 +942,7 @@ app.post("/api/admin/documents/:id/reject", async (c) => {
 });
 
 app.get("/api/admin/documents/:id/file", async (c) => {
-  const auth = assertAdmin(c);
+  const auth = assertAdminFileDownload(c);
   if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
   const documentId = Number.parseInt(c.req.param("id"), 10);
@@ -848,19 +1076,11 @@ app.post("/api/auth/apple", async (c) => {
 });
 
 // Get current user
-app.get("/api/auth/me", async (c) => {
+app.get("/api/auth/me", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
+    const userId = c.get("userId");
 
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const user = await findUserById(parseInt(payload.sub));
+    const user = await findUserById(userId);
     if (!user) {
       return c.json({ success: false, error: "User not found" }, 404);
     }
@@ -886,20 +1106,14 @@ app.get("/api/auth/me", async (c) => {
 });
 
 // Update user profile
-app.put("/api/profile", async (c) => {
+app.put("/api/profile", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
+    const userId = c.get("userId");
+    const parsed = await parseBody(updateProfileBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
     }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
-    const body = await c.req.json();
+    const body = parsed.data;
 
     const profile = await upsertProfile(userId, {
       displayName: body.displayName,
@@ -928,19 +1142,96 @@ app.put("/api/profile", async (c) => {
 // ============ PROFILE PHOTOS ============
 
 // Get profile photos
-app.get("/api/profile/photos", async (c) => {
+// ============ SELFIE VERIFICATION (US-TS-03) ============
+// Distinct from the WEB email-token flow at /api/verify/* — do not conflate.
+// These literal /api/verification/* routes are registered before any
+// parameterized route that could otherwise capture them.
+
+// Start a selfie verification: returns a random gesture to perform.
+app.post("/api/verification/start", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
+    const userId = c.get("userId");
+
+    const result = await startVerification(userId);
+    if (!result.ok) {
+      // Daily quota exhausted — enforced server-side.
+      return c.json(
+        {
+          success: false,
+          error: result.message ?? "Daily verification limit reached",
+          next_attempt_time: result.nextAttemptTime,
+        },
+        429,
+      );
     }
 
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
+    return c.json({ success: true, gesture_id: result.gestureId });
+  } catch (error: unknown) {
+    console.error("Verification start error:", error);
+    return c.json({ success: false, error: "Failed to start verification" }, 500);
+  }
+});
+
+// Submit a selfie (base64) for the given gesture.
+app.post("/api/verification/submit", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+
+    const body = await c.req.json().catch(() => null);
+    const rawGesture =
+      body && typeof body.gesture_id === "string" ? body.gesture_id : "";
+    const selfie =
+      body && typeof body.selfie === "string" ? body.selfie : "";
+    // The base64 selfie is used transiently only; it is never persisted to
+    // profile_photos / profiles.photos. We just check that one was provided.
+    const imageProvided = selfie.length > 0;
+
+    const result = await submitVerification(userId, rawGesture, imageProvided);
+    if (result.nextAttemptTime && !result.verified && result.attemptsRemaining === 0) {
+      // Quota was already exhausted before this call — refuse.
+      return c.json(
+        {
+          success: false,
+          error: result.message,
+          next_attempt_time: result.nextAttemptTime,
+        },
+        429,
+      );
     }
 
-    const userId = parseInt(payload.sub);
+    return c.json({
+      success: true,
+      verified: result.verified,
+      message: result.message,
+      attempts_remaining: result.attemptsRemaining,
+    });
+  } catch (error: unknown) {
+    console.error("Verification submit error:", error);
+    return c.json({ success: false, error: "Failed to submit verification" }, 500);
+  }
+});
+
+// Current verification status (verified flag + daily quota).
+app.get("/api/verification/status", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+
+    const status = await getVerificationStatus(userId);
+    return c.json({
+      success: true,
+      is_verified: status.isVerified,
+      attempts_today: status.attemptsToday,
+      next_attempt_time: status.nextAttemptTime ?? null,
+    });
+  } catch (error: unknown) {
+    console.error("Verification status error:", error);
+    return c.json({ success: false, error: "Failed to get verification status" }, 500);
+  }
+});
+
+app.get("/api/profile/photos", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
     const photos = await getProfilePhotos(userId);
 
     return c.json({ success: true, photos });
@@ -951,19 +1242,9 @@ app.get("/api/profile/photos", async (c) => {
 });
 
 // Upload profile photo
-app.post("/api/profile/photos", async (c) => {
+app.post("/api/profile/photos", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
 
     // Check if multipart/form-data
     const contentType = c.req.header("Content-Type") || "";
@@ -1033,19 +1314,9 @@ app.post("/api/profile/photos", async (c) => {
 });
 
 // Delete profile photo
-app.delete("/api/profile/photos/:photoId", async (c) => {
+app.delete("/api/profile/photos/:photoId", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const photoId = parseInt(c.req.param("photoId"));
 
     if (isNaN(photoId)) {
@@ -1062,19 +1333,9 @@ app.delete("/api/profile/photos/:photoId", async (c) => {
 });
 
 // Reorder profile photos
-app.put("/api/profile/photos/reorder", async (c) => {
+app.put("/api/profile/photos/reorder", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const body = await c.req.json();
 
     if (!Array.isArray(body.photoIds)) {
@@ -1091,19 +1352,9 @@ app.put("/api/profile/photos/reorder", async (c) => {
 });
 
 // Set photo as primary
-app.put("/api/profile/photos/:photoId/primary", async (c) => {
+app.put("/api/profile/photos/:photoId/primary", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const photoId = parseInt(c.req.param("photoId"));
 
     if (isNaN(photoId)) {
@@ -1143,17 +1394,131 @@ app.get("/uploads/profiles/:userId/:filename", async (c) => {
 });
 
 // Get user profile by ID (for viewing other users)
-app.get("/api/profile/:userId", async (c) => {
+// ============ PROFILE PROMPTS ============
+// NOTE: these /api/profile/prompts routes MUST be declared BEFORE
+// /api/profile/:userId, otherwise "prompts" is captured as :userId
+// (parseInt("prompts") = NaN) and returns 400 instead of the prompts.
+
+// Public prompt catalog (available questions). Shape aligns with PromptTemplate.
+app.get("/api/prompts", (c) => {
+  return c.json({ success: true, prompts: PROMPT_CATALOG });
+});
+
+// Get the caller's own prompts
+app.get("/api/profile/prompts", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
+    const userId = c.get("userId");
+    const rows = await getProfilePrompts(userId);
+    const prompts = rows.map((r) => ({
+      id: r.id,
+      prompt_id: r.prompt_id,
+      prompt_text: getPromptText(r.prompt_id),
+      answer: r.answer,
+      position: r.position,
+    }));
+    return c.json({ success: true, prompts });
+  } catch (error: unknown) {
+    console.error("Get prompts error:", error);
+    return c.json({ success: false, error: "Failed to get prompts" }, 500);
+  }
+});
+
+// Add a prompt to the caller's profile (max 3)
+app.post("/api/profile/prompts", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const parsed = await parseBody(addPromptBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const body = parsed.data;
+    const promptId = body.prompt_id;
+    const answer = body.answer;
+    if (!promptId || !answer || !answer.trim()) {
+      return c.json({ success: false, error: "Missing prompt_id or answer" }, 400);
+    }
+    const position = typeof body.position === "number" ? body.position : 0;
+
+    const row = await addProfilePrompt(userId, promptId, answer, position);
+    return c.json({
+      success: true,
+      prompt: {
+        id: row.id,
+        prompt_id: row.prompt_id,
+        prompt_text: getPromptText(row.prompt_id),
+        answer: row.answer,
+        position: row.position,
+      },
+    }, 201);
+  } catch (error: unknown) {
+    if (error instanceof ProfilePromptLimitError) {
+      return c.json({ success: false, error: error.message }, 400);
+    }
+    console.error("Add prompt error:", error);
+    return c.json({ success: false, error: "Failed to add prompt" }, 500);
+  }
+});
+
+// Update one of the caller's prompts
+app.put("/api/profile/prompts/:id", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const promptId = parseInt(c.req.param("id"));
+    if (isNaN(promptId)) {
+      return c.json({ success: false, error: "Invalid prompt ID" }, 400);
+    }
+    const parsed = await parseBody(updatePromptBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const answer = parsed.data.answer;
+    if (!answer || !answer.trim()) {
+      return c.json({ success: false, error: "Missing answer" }, 400);
     }
 
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
+    const row = await updateProfilePrompt(userId, promptId, answer);
+    if (!row) {
+      return c.json({ success: false, error: "Prompt not found" }, 404);
     }
+    return c.json({
+      success: true,
+      prompt: {
+        id: row.id,
+        prompt_id: row.prompt_id,
+        prompt_text: getPromptText(row.prompt_id),
+        answer: row.answer,
+        position: row.position,
+      },
+    });
+  } catch (error: unknown) {
+    console.error("Update prompt error:", error);
+    return c.json({ success: false, error: "Failed to update prompt" }, 500);
+  }
+});
+
+// Delete one of the caller's prompts
+app.delete("/api/profile/prompts/:id", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const promptId = parseInt(c.req.param("id"));
+    if (isNaN(promptId)) {
+      return c.json({ success: false, error: "Invalid prompt ID" }, 400);
+    }
+
+    const deleted = await deleteProfilePrompt(userId, promptId);
+    if (!deleted) {
+      return c.json({ success: false, error: "Prompt not found" }, 404);
+    }
+    return c.json({ success: true });
+  } catch (error: unknown) {
+    console.error("Delete prompt error:", error);
+    return c.json({ success: false, error: "Failed to delete prompt" }, 500);
+  }
+});
+
+app.get("/api/profile/:userId", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
 
     const targetUserId = parseInt(c.req.param("userId"));
     if (isNaN(targetUserId)) {
@@ -1175,19 +1540,9 @@ app.get("/api/profile/:userId", async (c) => {
 // ============ DISCOVER & MATCHING ============
 
 // Get profiles for discovery
-app.get("/api/discover", async (c) => {
+app.get("/api/discover", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const limit = parseInt(c.req.query("limit") || "20");
     const offset = parseInt(c.req.query("offset") || "0");
 
@@ -1201,19 +1556,9 @@ app.get("/api/discover", async (c) => {
 });
 
 // Get daily picks (curated selection of profiles)
-app.get("/api/daily-picks", async (c) => {
+app.get("/api/daily-picks", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
 
     // Get profiles and return top 5 as daily picks
     const profiles = await getDiscoverProfiles(userId, 5, 0);
@@ -1233,31 +1578,76 @@ app.get("/api/daily-picks", async (c) => {
   }
 });
 
-// Record swipe action
-app.post("/api/swipes", async (c) => {
+// ============ BOOST ============
+
+// Free-tier daily boost allowance. Premium (unlimited) enforcement lives
+// on the client for now; the server just reports a sensible remaining count.
+const FREE_DAILY_BOOSTS = 3;
+
+async function buildBoostStatus(userId: number) {
+  const [activeBoost, boostsUsedToday] = await Promise.all([
+    getActiveBoost(userId),
+    getBoostsUsedToday(userId),
+  ]);
+
+  const remainingBoosts = Math.max(0, FREE_DAILY_BOOSTS - boostsUsedToday);
+  const expiresAt = activeBoost ? activeBoost.expires_at.toISOString() : null;
+
+  // Keys are snake_case to match the mobile BoostStatus.fromJson parser.
+  return {
+    is_active: activeBoost !== null,
+    expires_at: expiresAt,
+    active_until: expiresAt,
+    remaining_boosts: remainingBoosts,
+    boosts_used_today: boostsUsedToday,
+    views_during_boost: 0,
+    likes_during_boost: 0,
+  };
+}
+
+// Get current boost status
+app.get("/api/boost/status", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
+    const userId = c.get("userId");
+    const status = await buildBoostStatus(userId);
 
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
+    return c.json({ success: true, ...status });
+  } catch (error: any) {
+    console.error("Boost status error:", error);
+    return c.json({ success: false, error: "Failed to get boost status" }, 500);
+  }
+});
 
-    const userId = parseInt(payload.sub);
-    const { target_user_id, action } = await c.req.json();
+// Activate a boost (30 minutes)
+app.post("/api/boost/activate", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const boost = await activateBoost(userId, 30);
+    const status = await buildBoostStatus(userId);
 
-    if (!target_user_id || !action) {
-      return c.json({ success: false, error: "Missing target_user_id or action" }, 400);
-    }
+    return c.json({ success: true, boost, status, ...status }, 201);
+  } catch (error: any) {
+    console.error("Boost activate error:", error);
+    return c.json({ success: false, error: "Failed to activate boost" }, 500);
+  }
+});
 
-    if (!['like', 'pass', 'super_like'].includes(action)) {
-      return c.json({ success: false, error: "Invalid action" }, 400);
+// Record swipe action
+app.post("/api/swipes", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const parsed = await parseBody(swipeBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
     }
+    const { target_user_id, action } = parsed.data;
 
     const result = await recordSwipe(userId, target_user_id, action);
+
+    // On a reciprocal match, notify both users over WebSocket if connected.
+    if (result.match) {
+      await emitNewMatch(userId, target_user_id);
+    }
 
     return c.json({ success: true, ...result });
   } catch (error: any) {
@@ -1267,19 +1657,9 @@ app.post("/api/swipes", async (c) => {
 });
 
 // Get user's matches
-app.get("/api/matches", async (c) => {
+app.get("/api/matches", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const matches = await getMatches(userId);
 
     return c.json({ success: true, matches });
@@ -1289,22 +1669,49 @@ app.get("/api/matches", async (c) => {
   }
 });
 
+// ============ RECEIVED LIKES ============
+
+// Profiles of users who liked me but with whom I have not matched yet.
+app.get("/api/likes/received", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+
+    const rows = await getReceivedLikes(userId);
+    const likes = rows.map((r) => ({
+      user_id: r.user_id,
+      display_name: r.display_name,
+      picture: r.picture,
+      age: r.age !== null ? Math.trunc(r.age) : null,
+      is_verified: r.is_verified === true,
+      liked_at: r.liked_at,
+    }));
+
+    return c.json({ success: true, count: likes.length, likes });
+  } catch (error: unknown) {
+    console.error("Received likes error:", error);
+    return c.json({ success: false, error: "Failed to get received likes" }, 500);
+  }
+});
+
+// Count of received likes.
+app.get("/api/likes/received/count", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+
+    const count = await getReceivedLikesCount(userId);
+    return c.json({ success: true, count });
+  } catch (error: unknown) {
+    console.error("Received likes count error:", error);
+    return c.json({ success: false, error: "Failed to get likes count" }, 500);
+  }
+});
+
 // ============ CHAT ENDPOINTS ============
 
 // Get user's conversations
-app.get("/api/conversations", async (c) => {
+app.get("/api/conversations", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const conversations = await getConversations(userId);
 
     return c.json({ success: true, conversations });
@@ -1315,19 +1722,9 @@ app.get("/api/conversations", async (c) => {
 });
 
 // Get conversation details
-app.get("/api/conversations/:id", async (c) => {
+app.get("/api/conversations/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const conversationId = parseInt(c.req.param("id"));
 
     const conversation = await getConversationById(conversationId);
@@ -1348,19 +1745,9 @@ app.get("/api/conversations/:id", async (c) => {
 });
 
 // Get messages for a conversation
-app.get("/api/conversations/:id/messages", async (c) => {
+app.get("/api/conversations/:id/messages", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const conversationId = parseInt(c.req.param("id"));
     const limit = parseInt(c.req.query("limit") || "50");
     const offset = parseInt(c.req.query("offset") || "0");
@@ -1385,21 +1772,15 @@ app.get("/api/conversations/:id/messages", async (c) => {
 });
 
 // Send a message
-app.post("/api/conversations/:id/messages", async (c) => {
+app.post("/api/conversations/:id/messages", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const conversationId = parseInt(c.req.param("id"));
-    const { content } = await c.req.json();
+    const parsed = await parseBody(sendMessageBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const content = parsed.data.content;
 
     if (!content || typeof content !== "string" || content.trim().length === 0) {
       return c.json({ success: false, error: "Message content required" }, 400);
@@ -1441,19 +1822,9 @@ app.post("/api/conversations/:id/messages", async (c) => {
 });
 
 // Mark messages as read
-app.put("/api/conversations/:id/read", async (c) => {
+app.put("/api/conversations/:id/read", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const conversationId = parseInt(c.req.param("id"));
 
     const conversation = await getConversationById(conversationId);
@@ -1540,19 +1911,9 @@ app.get("/api/events/:id", async (c) => {
 });
 
 // RSVP to event
-app.post("/api/events/:id/rsvp", async (c) => {
+app.post("/api/events/:id/rsvp", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const eventId = parseInt(c.req.param("id"));
     const { status } = await c.req.json().catch(() => ({ status: "going" }));
 
@@ -1576,19 +1937,9 @@ app.post("/api/events/:id/rsvp", async (c) => {
 });
 
 // Cancel RSVP
-app.delete("/api/events/:id/rsvp", async (c) => {
+app.delete("/api/events/:id/rsvp", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const eventId = parseInt(c.req.param("id"));
 
     await deleteRsvp(eventId, userId);
@@ -1788,19 +2139,9 @@ app.put("/api/admin/users/:id/status", async (c) => {
 // ============ SUBSCRIPTIONS ENDPOINTS ============
 
 // Get user subscription
-app.get("/api/subscription", async (c) => {
+app.get("/api/subscription", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
-
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const subscription = await getSubscription(userId);
 
     return c.json({ success: true, subscription });
@@ -1810,65 +2151,100 @@ app.get("/api/subscription", async (c) => {
   }
 });
 
-// Sync subscription (from mobile app)
-app.post("/api/subscription/sync", async (c) => {
-  try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) {
-      return c.json({ success: false, error: "No token provided" }, 401);
-    }
+// NOTE: The former POST /api/subscription/sync route has been REMOVED.
+// It upserted planType/status/expiresAt straight from the client body, which
+// let any authenticated user declare themselves premium. A grep of mobile/lib
+// confirms the app never called it: premium status is driven client-side by
+// RevenueCat entitlements, and the server is informed only via the
+// authenticated RevenueCat webhook below (option (a): delete the route).
 
-    const payload = verifyJWT(token);
-    if (!payload) {
-      return c.json({ success: false, error: "Invalid token" }, 401);
-    }
+// Map a RevenueCat product identifier to our stored plan_type.
+// Product identifiers are declared in mobile/lib/core/services/revenuecat_service.dart
+// (monthly, yearly, two_month, six_month, consumable). We also accept the
+// common aliases RevenueCat/stores may surface (annual, three_month, lifetime).
+function mapProductIdToPlanType(rawProductId: string): string {
+  const productId = rawProductId.toLowerCase();
 
-    const userId = parseInt(payload.sub);
-    const body = await c.req.json();
-
-    const subscription = await syncSubscription(userId, {
-      planType: body.planType,
-      status: body.status,
-      revenuecatId: body.revenuecatId,
-      startsAt: body.startsAt,
-      expiresAt: body.expiresAt,
-    });
-
-    return c.json({ success: true, subscription });
-  } catch (error: any) {
-    console.error("Sync subscription error:", error);
-    return c.json({ success: false, error: "Failed to sync subscription" }, 500);
+  // Order matters: match the most specific tokens first.
+  if (productId.includes("lifetime") || productId.includes("consumable")) {
+    return "lifetime";
   }
-});
+  if (productId.includes("six_month") || productId.includes("6_month") || productId.includes("6month")) {
+    return "six_month";
+  }
+  if (productId.includes("three_month") || productId.includes("3_month") || productId.includes("3month")) {
+    return "three_month";
+  }
+  if (productId.includes("two_month") || productId.includes("2_month") || productId.includes("2month")) {
+    return "two_month";
+  }
+  if (productId.includes("yearly") || productId.includes("annual")) {
+    return "yearly";
+  }
+  if (productId.includes("monthly")) {
+    return "monthly";
+  }
+  return "unknown";
+}
 
 // RevenueCat webhook
+//
+// Authentication: RevenueCat is configured (dashboard > Integrations > Webhooks)
+// to send a shared secret in the `Authorization` header. We compare it against
+// REVENUECAT_WEBHOOK_SECRET using a constant-time comparison to avoid timing
+// side-channels. Without valid auth an attacker could forge events to grant or
+// revoke any user's subscription.
 app.post("/api/subscriptions/webhook", async (c) => {
   try {
+    const crypto = require("crypto");
+
+    const configuredSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
+    if (!configuredSecret) {
+      // Fail closed: refuse to process events if the shared secret is not set.
+      console.error("RevenueCat webhook: REVENUECAT_WEBHOOK_SECRET is not configured; rejecting event.");
+      return c.json({ success: false, error: "Webhook not configured" }, 503);
+    }
+
+    const providedAuth = c.req.header("Authorization") ?? "";
+    const expectedBuf = Buffer.from(configuredSecret);
+    const providedBuf = Buffer.from(providedAuth);
+    const authorized =
+      expectedBuf.length === providedBuf.length &&
+      crypto.timingSafeEqual(expectedBuf, providedBuf);
+    if (!authorized) {
+      return c.json({ success: false, error: "Unauthorized" }, 401);
+    }
+
     const body = await c.req.json();
 
     // RevenueCat sends events with app_user_id
-    const appUserId = body?.event?.app_user_id;
-    if (!appUserId) {
+    const appUserId: unknown = body?.event?.app_user_id;
+    if (typeof appUserId !== "string" || appUserId.length === 0) {
       return c.json({ success: false, error: "No user ID" }, 400);
     }
 
-    // Parse user ID (assuming format is "user_123")
-    const userId = parseInt(appUserId.replace("user_", ""));
-    if (isNaN(userId)) {
+    // Ignore anonymous RevenueCat identities ($RCAnonymousID:...): they are not
+    // tied to one of our users, so there is nothing to sync. Acknowledge with
+    // 200 so RevenueCat does not retry.
+    if (appUserId.startsWith("$RCAnonymousID:")) {
+      console.warn(`RevenueCat webhook: ignoring anonymous app_user_id ${appUserId}`);
+      return c.json({ success: true, ignored: "anonymous" });
+    }
+
+    // Parse user ID (expected format is "user_123", but tolerate a bare id).
+    const userId = parseInt(appUserId.replace("user_", ""), 10);
+    if (Number.isNaN(userId)) {
+      console.warn(`RevenueCat webhook: unparsable app_user_id ${appUserId}`);
       return c.json({ success: false, error: "Invalid user ID format" }, 400);
     }
 
     const event = body?.event;
-    const productId = event?.product_id || "";
+    const productId: string = typeof event?.product_id === "string" ? event.product_id : "";
     const expiresAt = event?.expiration_at_ms
       ? new Date(event.expiration_at_ms).toISOString()
       : null;
 
-    // Determine plan type from product ID
-    let planType = "unknown";
-    if (productId.includes("monthly")) planType = "monthly";
-    else if (productId.includes("yearly") || productId.includes("annual")) planType = "yearly";
-    else if (productId.includes("lifetime")) planType = "lifetime";
+    const planType = mapProductIdToPlanType(productId);
 
     // Determine status from event type
     let status = "active";
@@ -2023,6 +2399,7 @@ app.post("/api/admin/reset-swipes", async (c) => {
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email, password, name } = body;
@@ -2077,6 +2454,7 @@ app.post("/api/dev/test-user", async (c) => {
 
 // Login test user (dev only)
 app.post("/api/dev/test-login", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email } = body;
@@ -2107,6 +2485,7 @@ app.post("/api/dev/test-login", async (c) => {
 
 // Enable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/enable", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId, partnerId } = body;
@@ -2182,6 +2561,7 @@ app.post("/api/dev/couple/enable", async (c) => {
 
 // Disable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/disable", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId } = body;
@@ -2211,6 +2591,7 @@ app.post("/api/dev/couple/disable", async (c) => {
 
 // Get couple status for debugging (dev endpoint)
 app.get("/api/dev/couple/status/:userId", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   try {
     const userId = parseInt(c.req.param("userId"));
 
@@ -2239,6 +2620,7 @@ app.get("/api/dev/couple/status/:userId", async (c) => {
 
 // Reset swipes by email (dev endpoint)
 app.get("/api/dev/reset-swipes/:email", async (c) => {
+  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
   const email = c.req.param("email");
   if (!email) {
     return c.json({ success: false, error: "email required" }, 400);
@@ -2334,15 +2716,9 @@ app.post("/api/admin/test-message", async (c) => {
 // ============ COUPLE MODE ENDPOINTS ============
 
 // Create or activate couple mode
-app.post("/api/couple", async (c) => {
+app.post("/api/couple", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const body = await c.req.json();
     const { partnerId, relationshipStatus, startedAt } = body;
 
@@ -2365,15 +2741,11 @@ app.post("/api/couple", async (c) => {
 });
 
 // Get current user's couple
-app.get("/api/couple", async (c) => {
+app.get("/api/couple", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+    const userId = c.get("userId");
 
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const couple = await getCouple(parseInt(payload.sub));
+    const couple = await getCouple(userId);
 
     if (!couple) {
       return c.json({ success: true, couple: null });
@@ -2405,16 +2777,160 @@ app.get("/api/couple", async (c) => {
   }
 });
 
-// Update relationship status
-app.patch("/api/couple/:coupleId/status", async (c) => {
-  try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+// ============ COUPLE REQUESTS (demande / acceptation de couple) ============
+// NOTE: registered before /api/couple/:coupleId so literal "request(s)"/"check"
+// segments are not captured by the :coupleId param.
 
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+// Send a couple request
+app.post("/api/couple/request", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const parsed = await parseBody(coupleRequestBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const targetUserId = Number(parsed.data.target_user_id);
+
+    if (!Number.isInteger(targetUserId) || targetUserId <= 0) {
+      return c.json({ success: false, error: "target_user_id required" }, 400);
+    }
+
+    const result = await createCoupleRequest(userId, targetUserId);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, 400);
+    }
+
+    return c.json({ success: true, request: result.request });
+  } catch (error) {
+    console.error("Create couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Respond to a couple request (accept / reject) — only the target may respond
+app.put("/api/couple/request/:id", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const requestId = parseInt(c.req.param("id"));
+    if (!Number.isInteger(requestId)) {
+      return c.json({ success: false, error: "Invalid request id" }, 400);
+    }
+
+    const parsed = await parseBody(coupleRespondBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const action = parsed.data.action;
+
+    const result = await respondToCoupleRequest(requestId, userId, action);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, result.status as 403 | 404 | 409);
+    }
+
+    if (result.action === "accepted") {
+      return c.json({ success: true, action: "accepted", couple: result.couple });
+    }
+    return c.json({ success: true, action: "rejected" });
+  } catch (error) {
+    console.error("Respond couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Cancel a sent couple request — only the requester may cancel
+app.delete("/api/couple/request/:id", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const requestId = parseInt(c.req.param("id"));
+    if (!Number.isInteger(requestId)) {
+      return c.json({ success: false, error: "Invalid request id" }, 400);
+    }
+
+    const result = await cancelCoupleRequest(requestId, userId);
+    if (!result.ok) {
+      return c.json({ success: false, error: result.error }, result.status as 403 | 404 | 409);
+    }
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Cancel couple request error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// List pending couple requests (sent + received)
+app.get("/api/couple/requests", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const { sent, received } = await getCoupleRequestsForUser(userId);
+
+    return c.json({ success: true, sent, received });
+  } catch (error) {
+    console.error("Get couple requests error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Check couple/request status with a specific user
+app.get("/api/couple/check/:userId", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const otherUserId = parseInt(c.req.param("userId"));
+    if (!Number.isInteger(otherUserId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    const status = await getCoupleStatusWith(userId, otherUserId);
+
+    return c.json({
+      success: true,
+      status,
+      in_couple_mode: status === "coupled",
+    });
+  } catch (error) {
+    console.error("Check couple status error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Archive the user's conversations except with the partner
+app.post("/api/couple/archive-conversations", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const body = await c.req.json().catch(() => ({}));
+    const rawPartner = (body as { partner_user_id?: unknown }).partner_user_id;
+    const partnerUserId =
+      rawPartner === undefined || rawPartner === null
+        ? null
+        : Number(rawPartner);
+    if (partnerUserId !== null && !Number.isInteger(partnerUserId)) {
+      return c.json({ success: false, error: "Invalid partner_user_id" }, 400);
+    }
+    const rawMessage = (body as { message?: unknown }).message;
+    const message = typeof rawMessage === "string" ? rawMessage : undefined;
+
+    const { archived } = await archiveConversationsExceptPartner(
+      userId,
+      partnerUserId,
+      message
+    );
+
+    return c.json({ success: true, archived });
+  } catch (error) {
+    console.error("Archive conversations error:", error);
+    return c.json({ success: false, error: (error as Error).message }, 500);
+  }
+});
+
+// Update relationship status
+app.patch("/api/couple/:coupleId/status", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const { relationshipStatus } = await c.req.json();
 
     await updateRelationshipStatus(coupleId, relationshipStatus);
@@ -2427,15 +2943,14 @@ app.patch("/api/couple/:coupleId/status", async (c) => {
 });
 
 // End couple mode (soft delete)
-app.delete("/api/couple/:coupleId", async (c) => {
+app.delete("/api/couple/:coupleId", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     await deleteCouple(coupleId);
 
     return c.json({ success: true });
@@ -2446,15 +2961,14 @@ app.delete("/api/couple/:coupleId", async (c) => {
 });
 
 // Get daily question
-app.get("/api/couple/:coupleId/question", async (c) => {
+app.get("/api/couple/:coupleId/question", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const question = await getDailyQuestion(coupleId);
 
     return c.json({ success: true, question });
@@ -2465,19 +2979,18 @@ app.get("/api/couple/:coupleId/question", async (c) => {
 });
 
 // Answer daily question
-app.post("/api/couple/:coupleId/question/:questionId/answer", async (c) => {
+app.post("/api/couple/:coupleId/question/:questionId/answer", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const questionId = parseInt(c.req.param("questionId"));
     const { answer } = await c.req.json();
 
-    await answerDailyQuestion(coupleId, questionId, parseInt(payload.sub), answer);
+    await answerDailyQuestion(coupleId, questionId, userId, answer);
 
     return c.json({ success: true });
   } catch (error: any) {
@@ -2487,15 +3000,14 @@ app.post("/api/couple/:coupleId/question/:questionId/answer", async (c) => {
 });
 
 // Get question history
-app.get("/api/couple/:coupleId/questions", async (c) => {
+app.get("/api/couple/:coupleId/questions", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const questions = await getCoupleQuestionHistory(coupleId);
 
     return c.json({ success: true, questions });
@@ -2506,15 +3018,14 @@ app.get("/api/couple/:coupleId/questions", async (c) => {
 });
 
 // Get milestones
-app.get("/api/couple/:coupleId/milestones", async (c) => {
+app.get("/api/couple/:coupleId/milestones", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const coupleId = parseInt(c.req.param("coupleId"));
+    if (!(await assertCoupleMembership(userId, coupleId))) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
     const milestones = await getCoupleMilestones(coupleId);
 
     return c.json({ success: true, milestones });
@@ -2527,15 +3038,9 @@ app.get("/api/couple/:coupleId/milestones", async (c) => {
 // ============ COUPLE MODE - ACTIVITIES FEED ============
 
 // Get couple activities feed
-app.get("/api/couple/activities", async (c) => {
+app.get("/api/couple/activities", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2553,13 +3058,9 @@ app.get("/api/couple/activities", async (c) => {
 });
 
 // Get single activity detail
-app.get("/api/couple/activities/:id", async (c) => {
+app.get("/api/couple/activities/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const activityId = parseInt(c.req.param("id"));
     const activity = await getCoupleActivity(activityId);
@@ -2574,15 +3075,9 @@ app.get("/api/couple/activities/:id", async (c) => {
 });
 
 // Save activity (swipe up / bookmark)
-app.post("/api/couple/activities/:id/save", async (c) => {
+app.post("/api/couple/activities/:id/save", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2599,15 +3094,9 @@ app.post("/api/couple/activities/:id/save", async (c) => {
 });
 
 // Pass activity (swipe left)
-app.post("/api/couple/activities/:id/pass", async (c) => {
+app.post("/api/couple/activities/:id/pass", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2622,15 +3111,9 @@ app.post("/api/couple/activities/:id/pass", async (c) => {
 });
 
 // Get saved activities
-app.get("/api/couple/saved", async (c) => {
+app.get("/api/couple/saved", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2644,15 +3127,9 @@ app.get("/api/couple/saved", async (c) => {
 });
 
 // Remove saved activity
-app.delete("/api/couple/saved/:id", async (c) => {
+app.delete("/api/couple/saved/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2667,15 +3144,9 @@ app.delete("/api/couple/saved/:id", async (c) => {
 });
 
 // Create booking
-app.post("/api/couple/bookings", async (c) => {
+app.post("/api/couple/bookings", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2697,15 +3168,9 @@ app.post("/api/couple/bookings", async (c) => {
 });
 
 // Get bookings
-app.get("/api/couple/bookings", async (c) => {
+app.get("/api/couple/bookings", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2721,13 +3186,9 @@ app.get("/api/couple/bookings", async (c) => {
 // ============ COUPLE MODE - EVENTS ============
 
 // Get couple events
-app.get("/api/couple/events", async (c) => {
+app.get("/api/couple/events", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const limit = parseInt(c.req.query("limit") || "20");
     const offset = parseInt(c.req.query("offset") || "0");
@@ -2743,15 +3204,9 @@ app.get("/api/couple/events", async (c) => {
 });
 
 // Get registered events (must be before :id route)
-app.get("/api/couple/events/registered", async (c) => {
+app.get("/api/couple/events/registered", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2765,13 +3220,9 @@ app.get("/api/couple/events/registered", async (c) => {
 });
 
 // Get single event
-app.get("/api/couple/events/:id", async (c) => {
+app.get("/api/couple/events/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    const userId = c.get("userId");
 
     const eventId = parseInt(c.req.param("id"));
     const event = await getCoupleEvent(eventId);
@@ -2786,15 +3237,9 @@ app.get("/api/couple/events/:id", async (c) => {
 });
 
 // Register for event
-app.post("/api/couple/events/:id/register", async (c) => {
+app.post("/api/couple/events/:id/register", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2809,15 +3254,9 @@ app.post("/api/couple/events/:id/register", async (c) => {
 });
 
 // Cancel registration
-app.delete("/api/couple/events/:id/register", async (c) => {
+app.delete("/api/couple/events/:id/register", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2833,15 +3272,9 @@ app.delete("/api/couple/events/:id/register", async (c) => {
 // ============ COUPLE MODE - MEMORIES ============
 
 // Get memories
-app.get("/api/couple/memories", async (c) => {
+app.get("/api/couple/memories", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2855,15 +3288,9 @@ app.get("/api/couple/memories", async (c) => {
 });
 
 // Add memory
-app.post("/api/couple/memories", async (c) => {
+app.post("/api/couple/memories", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2887,15 +3314,9 @@ app.post("/api/couple/memories", async (c) => {
 });
 
 // Delete memory
-app.delete("/api/couple/memories/:id", async (c) => {
+app.delete("/api/couple/memories/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2912,15 +3333,9 @@ app.delete("/api/couple/memories/:id", async (c) => {
 // ============ COUPLE MODE - DATES ============
 
 // Get dates
-app.get("/api/couple/dates", async (c) => {
+app.get("/api/couple/dates", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2934,15 +3349,9 @@ app.get("/api/couple/dates", async (c) => {
 });
 
 // Add date
-app.post("/api/couple/dates", async (c) => {
+app.post("/api/couple/dates", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2965,15 +3374,9 @@ app.post("/api/couple/dates", async (c) => {
 });
 
 // Update date
-app.put("/api/couple/dates/:id", async (c) => {
+app.put("/api/couple/dates/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -2990,15 +3393,9 @@ app.put("/api/couple/dates/:id", async (c) => {
 });
 
 // Delete date
-app.delete("/api/couple/dates/:id", async (c) => {
+app.delete("/api/couple/dates/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3015,15 +3412,9 @@ app.delete("/api/couple/dates/:id", async (c) => {
 // ============ COUPLE MODE - BUCKET LIST ============
 
 // Get bucket list
-app.get("/api/couple/bucket-list", async (c) => {
+app.get("/api/couple/bucket-list", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3037,15 +3428,9 @@ app.get("/api/couple/bucket-list", async (c) => {
 });
 
 // Add bucket list item
-app.post("/api/couple/bucket-list", async (c) => {
+app.post("/api/couple/bucket-list", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3066,15 +3451,9 @@ app.post("/api/couple/bucket-list", async (c) => {
 });
 
 // Complete bucket list item
-app.post("/api/couple/bucket-list/:id/complete", async (c) => {
+app.post("/api/couple/bucket-list/:id/complete", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3089,15 +3468,9 @@ app.post("/api/couple/bucket-list/:id/complete", async (c) => {
 });
 
 // Delete bucket list item
-app.delete("/api/couple/bucket-list/:id", async (c) => {
+app.delete("/api/couple/bucket-list/:id", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3114,15 +3487,9 @@ app.delete("/api/couple/bucket-list/:id", async (c) => {
 // ============ COUPLE MODE - STATS & ACHIEVEMENTS ============
 
 // Get couple stats
-app.get("/api/couple/stats", async (c) => {
+app.get("/api/couple/stats", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
-
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
-
-    const userId = parseInt(payload.sub);
+    const userId = c.get("userId");
     const couple = await getCoupleByUserId(userId);
     if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
@@ -3688,14 +4055,99 @@ app.get("/api/unsubscribe", async (c) => {
 
 // ============ MODULE 4: MODÉRATION & SIGNALEMENTS ============
 
-// Report user (from mobile app)
-app.post("/api/report", async (c) => {
+// Block a user
+app.post("/api/users/:id/block", requireAuth, async (c) => {
   try {
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (!token) return c.json({ success: false, error: "No token provided" }, 401);
+    const userId = c.get("userId");
+    const blockedId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(blockedId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+    if (blockedId === userId) {
+      return c.json({ success: false, error: "Cannot block yourself" }, 400);
+    }
 
-    const payload = verifyJWT(token);
-    if (!payload) return c.json({ success: false, error: "Invalid token" }, 401);
+    await blockUser(userId, blockedId);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Block user error:", error);
+    return c.json({ success: false, error: "Failed to block user" }, 500);
+  }
+});
+
+// Unblock a user
+app.delete("/api/users/:id/block", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const blockedId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(blockedId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    await unblockUser(userId, blockedId);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Unblock user error:", error);
+    return c.json({ success: false, error: "Failed to unblock user" }, 500);
+  }
+});
+
+// List profiles blocked by the current user
+app.get("/api/users/blocked", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const blocked = await getBlockedUsers(userId);
+    return c.json({ success: true, blocked });
+  } catch (error) {
+    console.error("Get blocked users error:", error);
+    return c.json({ success: false, error: "Failed to get blocked users" }, 500);
+  }
+});
+
+// Report a user (mobile alias for POST /api/report, with optional block)
+app.post("/api/users/:id/report", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const reportedUserId = Number.parseInt(c.req.param("id"), 10);
+    if (Number.isNaN(reportedUserId)) {
+      return c.json({ success: false, error: "Invalid user id" }, 400);
+    }
+
+    const parsed = await parseBody(reportUserBodySchema, c);
+    if (!parsed.ok) {
+      return c.json({ success: false, error: parsed.error }, 400);
+    }
+    const body = parsed.data;
+    const category = body.category;
+    const comment = body.comment;
+    const blockUserFlag = body.block_user === true;
+
+    if (!category) {
+      return c.json({ success: false, error: "Category required" }, 400);
+    }
+
+    const report = await createReport({
+      reporterId: userId,
+      reportedUserId,
+      reason: category,
+      details: comment,
+    });
+
+    if (blockUserFlag && reportedUserId !== userId) {
+      await blockUser(userId, reportedUserId);
+    }
+
+    return c.json({ success: true, report, blocked: blockUserFlag && reportedUserId !== userId });
+  } catch (error) {
+    console.error("Report user error:", error);
+    return c.json({ success: false, error: "Failed to create report" }, 500);
+  }
+});
+
+// Report user (from mobile app)
+app.post("/api/report", requireAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
 
     const { reportedUserId, reason, details } = await c.req.json();
 
@@ -3704,7 +4156,7 @@ app.post("/api/report", async (c) => {
     }
 
     const report = await createReport({
-      reporterId: parseInt(payload.sub),
+      reporterId: userId,
       reportedUserId,
       reason,
       details,
@@ -3889,8 +4341,77 @@ function sendToUser(userId: number, data: any) {
   }
 }
 
+interface MatchNewPayload {
+  matchId: number;
+  conversationId: number;
+  userId: number;
+  userName: string;
+  userPicture: string | null;
+}
+
+// Emit a `match:new` event to both freshly-matched users (if connected).
+// Each user receives the *other* person's identity, matching the shape the
+// mobile client expects (see websocket_service.dart:193-203).
+async function emitNewMatch(userAId: number, userBId: number): Promise<void> {
+  const rows = await sql`
+    SELECT
+      m.id as match_id,
+      c.id as conversation_id,
+      pa.display_name as user_a_name,
+      ua.picture as user_a_picture,
+      pb.display_name as user_b_name,
+      ub.picture as user_b_picture
+    FROM matches m
+    LEFT JOIN conversations c ON c.match_id = m.id
+    JOIN users ua ON ua.id = ${userAId}
+    JOIN users ub ON ub.id = ${userBId}
+    LEFT JOIN profiles pa ON pa.user_id = ${userAId}
+    LEFT JOIN profiles pb ON pb.user_id = ${userBId}
+    WHERE (m.user1_id = ${userAId} AND m.user2_id = ${userBId})
+       OR (m.user1_id = ${userBId} AND m.user2_id = ${userAId})
+    LIMIT 1
+  `;
+
+  const row = rows[0] as
+    | {
+        match_id: number;
+        conversation_id: number | null;
+        user_a_name: string | null;
+        user_a_picture: string | null;
+        user_b_name: string | null;
+        user_b_picture: string | null;
+      }
+    | undefined;
+  if (!row || row.conversation_id === null) return;
+
+  const matchId = row.match_id;
+  const conversationId = row.conversation_id;
+
+  const toUserA: MatchNewPayload = {
+    matchId,
+    conversationId,
+    userId: userBId,
+    userName: row.user_b_name ?? "",
+    userPicture: row.user_b_picture,
+  };
+  const toUserB: MatchNewPayload = {
+    matchId,
+    conversationId,
+    userId: userAId,
+    userName: row.user_a_name ?? "",
+    userPicture: row.user_a_picture,
+  };
+
+  sendToUser(userAId, { type: "match:new", payload: toUserA });
+  sendToUser(userBId, { type: "match:new", payload: toUserB });
+}
+
 // Bun.serve with WebSocket support
-const server = Bun.serve({
+interface WebSocketData {
+  userId: number;
+}
+
+const server = Bun.serve<WebSocketData>({
   port,
   fetch(req, server) {
     const url = new URL(req.url);
@@ -3941,9 +4462,15 @@ const server = Bun.serve({
 
         switch (data.type) {
           case "chat:send": {
-            // Send message via API and broadcast
-            const { conversationId, content } = data;
-            if (!conversationId || !content) return;
+            // Send message via API and broadcast.
+            // The mobile client wraps fields inside `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:247-255).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            const content = (payload as Record<string, unknown>).content;
+            if (typeof conversationId !== "number" || typeof content !== "string") return;
+            if (content.length === 0) return;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;
@@ -3952,10 +4479,13 @@ const server = Bun.serve({
             const conv = conversation as any;
             if (conv.user1_id !== userId && conv.user2_id !== userId) return;
 
-            const msg = await createMessage(conversationId, userId, content);
-
             // Determine other user
             const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+
+            // Refuse silently if either party has blocked the other
+            if (await isBlockedBetween(userId, otherUserId)) return;
+
+            const msg = await createMessage(conversationId, userId, content);
 
             // Send to both users
             const messageData = {
@@ -3974,9 +4504,15 @@ const server = Bun.serve({
           }
 
           case "chat:typing": {
-            // Broadcast typing indicator
-            const { conversationId } = data;
-            if (!conversationId) return;
+            // Broadcast typing indicator.
+            // Fields are nested under `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:258-265).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            const isTypingRaw = (payload as Record<string, unknown>).isTyping;
+            if (typeof conversationId !== "number") return;
+            const isTyping = typeof isTypingRaw === "boolean" ? isTypingRaw : true;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;
@@ -3990,16 +4526,20 @@ const server = Bun.serve({
               payload: {
                 conversationId,
                 userId,
-                isTyping: true,
+                isTyping,
               },
             });
             break;
           }
 
           case "chat:read": {
-            // Mark messages as read and notify
-            const { conversationId } = data;
-            if (!conversationId) return;
+            // Mark messages as read and notify.
+            // Fields are nested under `payload` (see
+            // mobile/lib/core/services/websocket_service.dart:269-275).
+            const payload = data.payload;
+            if (typeof payload !== "object" || payload === null) return;
+            const conversationId = (payload as Record<string, unknown>).conversationId;
+            if (typeof conversationId !== "number") return;
 
             const conversation = await getConversationById(conversationId);
             if (!conversation) return;

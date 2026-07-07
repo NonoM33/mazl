@@ -14,10 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # State Management & DI
-  flutter_bloc: ^8.1.6
-  bloc: ^8.1.4
   flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
 
   # Navigation
   go_router: ^14.2.0
@@ -25,7 +22,7 @@ dependencies:
   # Networking
   http: ^1.2.1
   dio: ^5.5.0
-  web_socket_channel: ^3.0.0
+  web_socket_channel: ^2.4.0
   connectivity_plus: ^6.0.3
 
   # Authentication
@@ -62,8 +59,6 @@ dependencies:
   geocoding: ^3.0.0
 
   # Local Storage
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
   shared_preferences: ^2.2.3
 
   # Calendar & Events
@@ -83,8 +78,6 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.4.2
   equatable: ^2.0.5
-  freezed_annotation: ^2.4.4
-  json_annotation: ^4.9.0
   dartz: ^0.10.1
   logger: ^2.4.0
   url_launcher: ^6.3.0
@@ -97,13 +90,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.11
-  freezed: ^2.5.2
-  json_serializable: ^6.8.0
-  riverpod_generator: ^2.4.0
-  bloc_test: ^9.1.7
   mocktail: ^1.0.4
-  hive_generator: ^2.0.1
 
 flutter:
   uses-material-design: true

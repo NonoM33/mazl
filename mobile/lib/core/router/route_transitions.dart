@@ -135,7 +135,13 @@ Widget sharedAxisTransition(
     opacity: animation.drive(primaryFadeTween),
     child: ScaleTransition(
       scale: animation.drive(primaryScaleTween),
-      child: child,
+      child: FadeTransition(
+        opacity: secondaryAnimation.drive(secondaryFadeTween),
+        child: ScaleTransition(
+          scale: secondaryAnimation.drive(secondaryScaleTween),
+          child: child,
+        ),
+      ),
     ),
   );
 }

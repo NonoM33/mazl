@@ -7,11 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/block_report_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
@@ -181,7 +183,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (content.isEmpty || _isSending) return;
 
     setState(() => _isSending = true);
-    _messageController.clear();
 
     // Send via WebSocket for real-time
     _wsService.sendMessage(_conversationId, content);
@@ -189,18 +190,28 @@ class _ChatScreenState extends State<ChatScreen> {
     // Also send via API for persistence
     final response = await _apiService.sendMessage(_conversationId, content);
 
-    if (mounted) {
-      setState(() => _isSending = false);
+    if (!mounted) return;
 
-      if (response.success && response.data != null) {
-        // Add to messages if not already there from WebSocket
-        final exists = _messages.any((m) => m.id == response.data!.id);
-        if (!exists) {
-          setState(() {
-            _messages.insert(0, response.data!);
-          });
-        }
+    setState(() => _isSending = false);
+
+    if (response.success && response.data != null) {
+      // Clear the field only after a confirmed successful send
+      _messageController.clear();
+      // Add to messages if not already there from WebSocket
+      final exists = _messages.any((m) => m.id == response.data!.id);
+      if (!exists) {
+        setState(() {
+          _messages.insert(0, response.data!);
+        });
       }
+    } else {
+      // Keep the text so the user does not lose their message, and surface the error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.error ?? 'Erreur lors de l\'envoi du message'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -219,7 +230,7 @@ class _ChatScreenState extends State<ChatScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(LucideIcons.camera, color: AppColors.primary),
@@ -234,7 +245,7 @@ class _ChatScreenState extends State<ChatScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
+                  color: AppColors.secondary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(LucideIcons.image, color: AppColors.secondary),
@@ -464,7 +475,7 @@ class _ChatScreenState extends State<ChatScreen> {
               color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -494,7 +505,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         fillColor: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.05),
+                            .withValues(alpha: 0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -542,7 +553,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
+              color: AppColors.secondary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -564,10 +575,43 @@ class _ChatScreenState extends State<ChatScreen> {
             'Envoyez le premier message\npour briser la glace',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openOtherUserProfile() {
+    final otherUser = _otherUser;
+    if (otherUser == null) return;
+    context.push(RoutePaths.matchProfilePath(otherUser.userId.toString()));
+  }
+
+  void _openBlockReportDialog() {
+    final otherUser = _otherUser;
+    if (otherUser == null) return;
+    BlockReportDialog.show(
+      context,
+      userId: otherUser.userId,
+      userName: otherUser.displayName ?? 'Cet utilisateur',
+      onBlocked: () {
+        // Leave the conversation once the user is blocked
+        if (mounted) context.pop();
+      },
+    );
+  }
+
+  Future<void> _toggleMuteConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'muted_conversation_$_conversationId';
+    await prefs.setBool(key, true);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notifications coupées pour cette conversation'),
       ),
     );
   }
@@ -584,7 +628,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Voir le profil'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to profile
+                _openOtherUserProfile();
               },
             ),
             ListTile(
@@ -592,6 +636,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Couper les notifications'),
               onTap: () {
                 Navigator.pop(context);
+                _toggleMuteConversation();
               },
             ),
             ListTile(
@@ -599,7 +644,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: Text('Signaler', style: TextStyle(color: Colors.orange[700])),
               onTap: () {
                 Navigator.pop(context);
-                // Show report dialog
+                _openBlockReportDialog();
               },
             ),
             ListTile(
@@ -607,7 +652,7 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text('Bloquer', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
-                // Show block confirmation
+                _openBlockReportDialog();
               },
             ),
           ],
@@ -649,7 +694,7 @@ class _MessageBubble extends StatelessWidget {
             decoration: BoxDecoration(
               color: isMe
                   ? AppColors.primary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(20),
                 topRight: const Radius.circular(20),
@@ -674,7 +719,7 @@ class _MessageBubble extends StatelessWidget {
                         placeholder: (context, url) => Container(
                           width: 200,
                           height: 200,
-                          color: Colors.grey.withOpacity(0.3),
+                          color: Colors.grey.withValues(alpha: 0.3),
                           child: const Center(
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
@@ -682,7 +727,7 @@ class _MessageBubble extends StatelessWidget {
                         errorWidget: (context, url, error) => Container(
                           width: 200,
                           height: 200,
-                          color: Colors.grey.withOpacity(0.3),
+                          color: Colors.grey.withValues(alpha: 0.3),
                           child: const Icon(LucideIcons.imageOff),
                         ),
                       ),
@@ -711,11 +756,11 @@ class _MessageBubble extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           color: isMe
-                              ? Colors.white.withOpacity(0.7)
+                              ? Colors.white.withValues(alpha: 0.7)
                               : Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                         ),
                       ),
                       if (isMe) ...[
@@ -725,7 +770,7 @@ class _MessageBubble extends StatelessWidget {
                           size: 12,
                           color: message.isRead
                               ? Colors.white
-                              : Colors.white.withOpacity(0.7),
+                              : Colors.white.withValues(alpha: 0.7),
                         ),
                       ],
                     ],

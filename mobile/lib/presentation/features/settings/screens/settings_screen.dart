@@ -131,9 +131,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
@@ -155,9 +155,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.1),
+                        color: AppColors.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                        border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
@@ -189,7 +189,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       decoration: InputDecoration(
                         hintText: 'Rechercher une ville...',
                         filled: true,
-                        fillColor: Colors.grey.withOpacity(0.1),
+                        fillColor: Colors.grey.withValues(alpha: 0.1),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -586,8 +586,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppColors.error.withOpacity(0.1)
-                                  : Colors.grey.withOpacity(0.1),
+                                  ? AppColors.error.withValues(alpha: 0.1)
+                                  : Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
@@ -680,7 +680,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -799,7 +799,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: (isDestructive ? Colors.red : AppColors.primary).withOpacity(0.1),
+                  color: (isDestructive ? Colors.red : AppColors.primary).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -883,7 +883,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(LucideIcons.heartHandshake, color: Colors.white, size: 24),
@@ -907,7 +907,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -960,17 +960,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.secondary.withOpacity(0.1), AppColors.primary.withOpacity(0.1)],
+          colors: [AppColors.secondary.withValues(alpha: 0.1), AppColors.primary.withValues(alpha: 0.1)],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.2),
+              color: AppColors.secondary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(LucideIcons.heartHandshake, color: AppColors.secondary),
@@ -1024,6 +1024,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         final coupleService = CoupleService();
         await coupleService.initialize();
 
+        if (!mounted) return;
+
         // Navigate to couple activities (main couple mode screen)
         if (coupleService.isCoupleModeEnabled) {
           context.go('/couple/activities');
@@ -1058,6 +1060,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         // Clear local couple data
         final coupleService = CoupleService();
         await coupleService.disableCoupleMode();
+
+        if (!mounted) return;
 
         // Go back to discover
         context.go('/discover');
@@ -1162,7 +1166,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final subscriptionStatus = revenueCat.subscriptionStatusText;
     final currentUser = ref.watch(currentUserProvider);
 
-    final profile = _userProfile?.profile;
     final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecte';
     final userName = _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
@@ -1192,7 +1195,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: AppColors.primary.withOpacity(0.2),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                       backgroundImage: userPicture != null ? CachedNetworkImageProvider(userPicture) : null,
                       child: userPicture == null
                           ? Icon(LucideIcons.user, size: 40, color: AppColors.primary)
@@ -1265,7 +1268,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Switch(
                   value: _notifHolidays,
                   onChanged: (value) => setState(() => _notifHolidays = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifHolidays = !_notifHolidays),
               ),
@@ -1278,7 +1281,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Switch(
                   value: _notifMatches,
                   onChanged: (value) => setState(() => _notifMatches = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifMatches = !_notifMatches),
               ),
@@ -1288,7 +1291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Switch(
                   value: _notifMessages,
                   onChanged: (value) => setState(() => _notifMessages = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifMessages = !_notifMessages),
               ),
@@ -1298,7 +1301,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Switch(
                   value: _notifSuperLikes,
                   onChanged: (value) => setState(() => _notifSuperLikes = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
               ),
@@ -1339,7 +1342,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Text('Actif', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
@@ -1451,9 +1454,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1545,7 +1548,7 @@ class _SectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           letterSpacing: 1,
         ),
       ),

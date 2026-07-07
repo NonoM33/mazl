@@ -116,7 +116,7 @@ class CoupleActivity {
   String get formattedPrice {
     if (priceCents == null || priceCents == 0) return 'Gratuit';
     final euros = priceCents! ~/ 100;
-    return '${euros}€';
+    return '$euros€';
   }
 
   String get formattedDuration {

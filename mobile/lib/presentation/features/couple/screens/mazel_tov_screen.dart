@@ -259,7 +259,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
             .fadeIn(delay: 400.ms, duration: 600.ms)
             .scale(begin: const Offset(0.5, 0.5), end: const Offset(1, 1))
             .then()
-            .shimmer(duration: 2000.ms, color: Colors.white.withOpacity(0.3)),
+            .shimmer(duration: 2000.ms, color: Colors.white.withValues(alpha: 0.3)),
       ],
     );
   }
@@ -278,7 +278,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFFFF6B9D).withOpacity(0.3),
+                  const Color(0xFFFF6B9D).withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -313,7 +313,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF6B9D).withOpacity(0.5),
+                        color: const Color(0xFFFF6B9D).withValues(alpha: 0.5),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -371,7 +371,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
           ),
         ],
@@ -382,11 +382,11 @@ class _MazelTovContentState extends State<_MazelTovContent>
                 imageUrl: picture,
                 fit: BoxFit.cover,
                 placeholder: (_, __) => Container(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                 ),
               )
             : Container(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primary.withValues(alpha: 0.3),
                 child: Center(
                   child: fallbackIcon != null
                       ? Icon(fallbackIcon, color: Colors.white, size: 36)
@@ -433,7 +433,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
             'Vous commencez une belle aventure ensemble.\nMAZL vous accompagne dans cette nouvelle etape.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: 16,
               height: 1.5,
             ),
@@ -447,10 +447,10 @@ class _MazelTovContentState extends State<_MazelTovContent>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFD700).withOpacity(0.15),
+              color: const Color(0xFFFFD700).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFFFFD700).withOpacity(0.3),
+                color: const Color(0xFFFFD700).withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -465,7 +465,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
                 Text(
                   'Que votre amour grandisse de jour en jour',
                   style: TextStyle(
-                    color: const Color(0xFFFFD700).withOpacity(0.9),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.9),
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
                   ),
@@ -496,7 +496,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: 8,
-            shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5),
+            shadowColor: const Color(0xFFFF6B9D).withValues(alpha: 0.5),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -589,7 +589,7 @@ class _ConfettiPainter extends CustomPainter {
           : 1.0 - ((effectiveProgress - 0.8) / 0.2);
 
       final paint = Paint()
-        ..color = particle.color.withOpacity(opacity)
+        ..color = particle.color.withValues(alpha: opacity)
         ..style = PaintingStyle.fill;
 
       canvas.save();

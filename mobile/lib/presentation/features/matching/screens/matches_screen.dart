@@ -287,14 +287,14 @@ class _CoupleModePromoBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.secondary.withOpacity(0.15),
-            AppColors.primary.withOpacity(0.15),
+            AppColors.secondary.withValues(alpha: 0.15),
+            AppColors.primary.withValues(alpha: 0.15),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
       ),
       child: Stack(
         children: [
@@ -307,7 +307,7 @@ class _CoupleModePromoBanner extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -421,7 +421,7 @@ class _MatchCard extends StatelessWidget {
               // Avatar
               CircleAvatar(
                   radius: 32,
-                  backgroundColor: AppColors.primary.withOpacity(0.2),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                   backgroundImage: picture != null
                       ? CachedNetworkImageProvider(picture!)
                       : null,

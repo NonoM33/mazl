@@ -8,7 +8,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
 import '../../../common/widgets/mazl_logo.dart';
@@ -173,9 +172,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.red.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.withOpacity(0.5)),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
@@ -236,15 +235,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       // Divider
                       Row(
                         children: [
-                          Expanded(child: Divider(color: Colors.white.withOpacity(0.3))),
+                          Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               'ou',
-                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
                             ),
                           ),
-                          Expanded(child: Divider(color: Colors.white.withOpacity(0.3))),
+                          Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
                         ],
                       ),
 
@@ -255,7 +254,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onPressed: _isLoading ? null : () => _navigateToEmailAuth(isLogin: true),
                         icon: '@',
                         label: 'Continuer avec Email',
-                        backgroundColor: Colors.white.withOpacity(0.15),
+                        backgroundColor: Colors.white.withValues(alpha: 0.15),
                         textColor: Colors.white,
                         isLoading: false,
                       ),
@@ -268,7 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(
                           'Pas encore de compte ? Inscris-toi',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -280,7 +279,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Text(
                         'En continuant, tu acceptes nos Conditions d\'utilisation et notre Politique de confidentialité',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 12,
                         ),
                         textAlign: TextAlign.center,

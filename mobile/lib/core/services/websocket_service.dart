@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../config/env.dart';
 import 'auth_service.dart';
 
 /// Events emitted by the WebSocket service
@@ -81,7 +82,7 @@ class WebSocketService {
   bool _isConnecting = false;
   bool _shouldReconnect = true;
 
-  static const String _wsUrl = 'wss://api.mazl.app/ws';
+  static const String _wsUrl = Env.wsUrl;
   static const Duration _reconnectDelay = Duration(seconds: 3);
   static const Duration _pingInterval = Duration(seconds: 30);
 

@@ -3,6 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
 
+/// Domain error raised when a couple mode operation fails (activation or
+/// deactivation). Carries a human-readable message for the presentation layer.
+class CoupleModeException implements Exception {
+  final String message;
+  const CoupleModeException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// Couple request status
 enum CoupleRequestStatus {
   none,
@@ -97,6 +107,8 @@ extension RelationshipStatusExtension on RelationshipStatus {
 
 /// Model for couple data
 class CoupleData {
+  /// Backend couple row id (required to end the couple via DELETE /api/couple/:coupleId).
+  final int? coupleId;
   final int? partnerId;
   final String? partnerName;
   final String? partnerPicture;
@@ -107,6 +119,7 @@ class CoupleData {
   final List<CoupleMilestone> milestones;
 
   CoupleData({
+    this.coupleId,
     this.partnerId,
     this.partnerName,
     this.partnerPicture,
@@ -123,6 +136,7 @@ class CoupleData {
   }
 
   Map<String, dynamic> toJson() => {
+        'coupleId': coupleId,
         'partnerId': partnerId,
         'partnerName': partnerName,
         'partnerPicture': partnerPicture,
@@ -133,6 +147,7 @@ class CoupleData {
       };
 
   factory CoupleData.fromJson(Map<String, dynamic> json) => CoupleData(
+        coupleId: json['coupleId'],
         partnerId: json['partnerId'],
         partnerName: json['partnerName'],
         partnerPicture: json['partnerPicture'],
@@ -224,82 +239,163 @@ class CoupleService {
     await _syncWithBackend();
   }
 
-  /// Sync couple status with backend
+  /// Sync couple status with backend.
+  ///
+  /// Important distinction:
+  /// - A *successful* response with `couple == null` means the couple really
+  ///   ended (or never existed) server-side: we clear the local state.
+  /// - A failed response or a thrown exception (network error, timeout, 5xx)
+  ///   is treated as "unknown": we KEEP the local state so a transient outage
+  ///   never silently disables an active couple mode.
   Future<void> _syncWithBackend() async {
     try {
-      final apiService = ApiService();
-      final response = await apiService.getCoupleData();
+      final response = await _apiService.getCoupleData();
 
-      if (response.success && response.data != null) {
-        final data = response.data!;
-        final couple = data['couple'];
+      if (!response.success || response.data == null) {
+        // Could not determine server truth: keep whatever we have locally.
+        debugPrint(
+          'CoupleService: Sync skipped - backend unavailable (${response.error ?? 'no data'}), keeping local state',
+        );
+        return;
+      }
 
-        if (couple != null) {
-          // User is in couple mode
-          _coupleData = CoupleData(
-            partnerId: couple['partner_id'] as int? ?? 0,
-            partnerName: couple['partner_name'] as String? ?? 'Partenaire',
-            partnerPicture: couple['partner_picture'] as String?,
-            relationshipStartDate: DateTime.tryParse(couple['started_at']?.toString() ?? '') ?? DateTime.now(),
-            metOnMazlDate: DateTime.tryParse(couple['created_at']?.toString() ?? '') ?? DateTime.now(),
-            status: RelationshipStatus.inRelationship,
-          );
-          _isCoupleModeEnabled = true;
-          await _saveData();
-          debugPrint('CoupleService: Synced - couple mode enabled');
-        } else {
-          // User is NOT in couple mode - clear local data if inconsistent
-          if (_isCoupleModeEnabled) {
-            _isCoupleModeEnabled = false;
-            _coupleData = null;
-            await _saveData();
-            debugPrint('CoupleService: Synced - couple mode disabled (was inconsistent)');
-          }
+      final couple = response.data!['couple'];
+
+      if (couple != null) {
+        // User is in couple mode server-side.
+        final coupleMap = couple as Map<String, dynamic>;
+        _coupleData = CoupleData(
+          coupleId: _parseId(coupleMap['id']),
+          partnerId: _parseId(coupleMap['partner_id']) ?? 0,
+          partnerName: coupleMap['partner_name'] as String? ?? 'Partenaire',
+          partnerPicture: coupleMap['partner_picture'] as String?,
+          relationshipStartDate:
+              DateTime.tryParse(coupleMap['started_at']?.toString() ?? '') ??
+                  DateTime.now(),
+          metOnMazlDate:
+              DateTime.tryParse(coupleMap['met_on_mazl_at']?.toString() ?? '') ??
+                  DateTime.now(),
+          status: RelationshipStatus.inRelationship,
+        );
+        _isCoupleModeEnabled = true;
+        await _saveData();
+        debugPrint('CoupleService: Synced - couple mode enabled');
+      } else {
+        // Confirmed by the server: no active couple. Clear stale local state.
+        if (_isCoupleModeEnabled || _coupleData != null) {
+          _isCoupleModeEnabled = false;
+          _coupleData = null;
+          await _clearData();
+          debugPrint('CoupleService: Synced - couple mode ended server-side');
         }
       }
     } catch (e) {
       debugPrint('CoupleService: Error syncing with backend: $e');
-      // Keep local data on error
+      // Network/parse error: keep local data, do NOT clear.
     }
   }
 
-  /// Enable couple mode
+  /// Parse an id that may arrive as an int or a numeric string.
+  static int? _parseId(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  /// Enable couple mode.
+  ///
+  /// Creates the couple server-side first (POST /api/couple). The local state
+  /// is only persisted from the server response on success; on failure nothing
+  /// is enabled locally and the error is rethrown so the caller can react.
   Future<void> enableCoupleMode({
     required int partnerId,
     required String partnerName,
     String? partnerPicture,
     DateTime? relationshipStartDate,
   }) async {
+    final startedAt = relationshipStartDate ?? DateTime.now();
+
+    Map<String, dynamic> response;
+    try {
+      response = await _apiService.post('/api/couple', {
+        'partnerId': partnerId,
+        'relationshipStatus': 'in_relationship',
+        'startedAt': startedAt.toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint('CoupleService: Error enabling couple mode: $e');
+      throw CoupleModeException('Impossible d\'activer le mode couple: $e');
+    }
+
+    if (response['success'] != true) {
+      final error = response['error']?.toString() ?? 'Erreur inconnue';
+      debugPrint('CoupleService: Backend refused couple activation: $error');
+      throw CoupleModeException(error);
+    }
+
+    // Persist local state from the server truth.
+    final couple = response['couple'] as Map<String, dynamic>?;
     _coupleData = CoupleData(
-      partnerId: partnerId,
-      partnerName: partnerName,
-      partnerPicture: partnerPicture,
-      relationshipStartDate: relationshipStartDate ?? DateTime.now(),
-      metOnMazlDate: DateTime.now(),
+      coupleId: _parseId(couple?['id']),
+      partnerId: _parseId(couple?['partner_id']) ?? partnerId,
+      partnerName: couple?['partner_name'] as String? ?? partnerName,
+      partnerPicture:
+          couple?['partner_picture'] as String? ?? partnerPicture,
+      relationshipStartDate:
+          DateTime.tryParse(couple?['started_at']?.toString() ?? '') ??
+              startedAt,
+      metOnMazlDate:
+          DateTime.tryParse(couple?['met_on_mazl_at']?.toString() ?? '') ??
+              DateTime.now(),
       status: RelationshipStatus.inRelationship,
     );
     _isCoupleModeEnabled = true;
 
     await _saveData();
-
-    // Notify backend
-    // await _apiService.enableCoupleMode(partnerId);
   }
 
-  /// Disable couple mode
+  /// Disable couple mode.
+  ///
+  /// Ends the couple server-side first (DELETE /api/couple/:coupleId) so the
+  /// backend no longer re-activates it on the next sync. The local state is
+  /// only cleared once the backend confirms (or when there is no known
+  /// server-side couple id to delete). If the backend call fails, the error is
+  /// rethrown and the local state is left intact.
   Future<void> disableCoupleMode() async {
+    final coupleId = _coupleData?.coupleId;
+
+    if (coupleId != null) {
+      Map<String, dynamic> response;
+      try {
+        response = await _apiService.delete('/api/couple/$coupleId');
+      } catch (e) {
+        debugPrint('CoupleService: Error disabling couple mode: $e');
+        throw CoupleModeException('Impossible de quitter le mode couple: $e');
+      }
+
+      if (response['success'] != true) {
+        final error = response['error']?.toString() ?? 'Erreur inconnue';
+        debugPrint('CoupleService: Backend refused couple deletion: $error');
+        throw CoupleModeException(error);
+      }
+    } else {
+      debugPrint(
+        'CoupleService: No server-side couple id known, clearing local state only',
+      );
+    }
+
     _isCoupleModeEnabled = false;
     _coupleData = null;
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_coupleDataKey);
-    await prefs.setBool(_coupleModeEnabledKey, false);
+    await _clearData();
   }
 
   /// Update relationship status
   Future<void> updateStatus(RelationshipStatus status) async {
     if (_coupleData != null) {
       _coupleData = CoupleData(
+        coupleId: _coupleData!.coupleId,
         partnerId: _coupleData!.partnerId,
         partnerName: _coupleData!.partnerName,
         partnerPicture: _coupleData!.partnerPicture,
@@ -319,6 +415,13 @@ class CoupleService {
     if (_coupleData != null) {
       await prefs.setString(_coupleDataKey, jsonEncode(_coupleData!.toJson()));
     }
+  }
+
+  /// Clear all persisted couple state from preferences.
+  Future<void> _clearData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_coupleDataKey);
+    await prefs.setBool(_coupleModeEnabledKey, false);
   }
 
   /// Get daily questions for couple

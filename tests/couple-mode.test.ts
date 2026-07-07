@@ -2,6 +2,51 @@ import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 
 const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
 
+interface ApiResponse {
+  success?: boolean;
+  error?: string;
+  [k: string]: unknown;
+}
+
+interface TestUserResponse extends ApiResponse {
+  token: string;
+  user?: { id: number };
+}
+
+interface EnableCoupleResponse extends ApiResponse {
+  coupleId: number;
+}
+
+interface ActivitiesResponse extends ApiResponse {
+  activities?: Array<{ id: number; category?: string }>;
+  activity?: { id: number };
+}
+
+interface EventsResponse extends ApiResponse {
+  events?: Array<{ id: number }>;
+  event?: { id: number };
+}
+
+interface DatesResponse extends ApiResponse {
+  dates?: Array<{ id: number }>;
+  date?: { id: number };
+}
+
+interface BucketListResponse extends ApiResponse {
+  items?: Array<{ id: number }>;
+  item?: { id: number };
+}
+
+interface MemoriesResponse extends ApiResponse {
+  memories?: Array<{ id: number }>;
+  memory?: { id: number };
+}
+
+interface StatsResponse extends ApiResponse {
+  stats?: unknown;
+  achievements?: unknown;
+}
+
 // Test user credentials (these should be seeded test users)
 let authToken: string = "";
 let userId: number = 0;
@@ -41,13 +86,13 @@ describe("Couple Mode API Tests", () => {
       throw new Error(`Failed to create test user: ${createRes.status}`);
     }
 
-    const createData = await createRes.json();
+    const createData = (await createRes.json()) as TestUserResponse;
     if (!createData.success) {
       throw new Error(`Test user creation failed: ${createData.error}`);
     }
 
     authToken = createData.token;
-    userId = createData.user?.id;
+    userId = createData.user?.id ?? 0;
     console.log(`Test user created: userId=${userId}`);
 
     // Enable couple mode for test user
@@ -65,7 +110,7 @@ describe("Couple Mode API Tests", () => {
       throw new Error(`Failed to enable couple mode: ${enableRes.status}`);
     }
 
-    const enableData = await enableRes.json();
+    const enableData = (await enableRes.json()) as EnableCoupleResponse;
     if (!enableData.success) {
       throw new Error(`Couple mode enable failed: ${enableData.error}`);
     }
@@ -93,7 +138,7 @@ describe("Couple Mode API Tests", () => {
   describe("Activities API", () => {
     test("GET /api/couple/activities - should return activities list", async () => {
       const res = await authFetch("/api/couple/activities");
-      const data = await res.json();
+      const data = (await res.json()) as ActivitiesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -102,14 +147,14 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/activities?category=wellness - should filter by category", async () => {
       const res = await authFetch("/api/couple/activities?category=wellness");
-      const data = await res.json();
+      const data = (await res.json()) as ActivitiesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
       expect(Array.isArray(data.activities)).toBe(true);
 
       // All activities should be wellness category
-      data.activities.forEach((activity: any) => {
+      data.activities!.forEach((activity) => {
         expect(activity.category).toBe("wellness");
       });
     });
@@ -117,31 +162,31 @@ describe("Couple Mode API Tests", () => {
     test("GET /api/couple/activities/:id - should return activity detail", async () => {
       // First get list to get a valid ID
       const listRes = await authFetch("/api/couple/activities");
-      const listData = await listRes.json();
+      const listData = (await listRes.json()) as ActivitiesResponse;
 
-      if (listData.activities?.length > 0) {
-        const activityId = listData.activities[0].id;
+      if ((listData.activities?.length ?? 0) > 0) {
+        const activityId = listData.activities![0]!.id;
         const res = await authFetch(`/api/couple/activities/${activityId}`);
-        const data = await res.json();
+        const data = (await res.json()) as ActivitiesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
         expect(data.activity).toBeDefined();
-        expect(data.activity.id).toBe(activityId);
+        expect(data.activity!.id).toBe(activityId);
       }
     });
 
     test("POST /api/couple/activities/:id/save - should save activity", async () => {
       const listRes = await authFetch("/api/couple/activities");
-      const listData = await listRes.json();
+      const listData = (await listRes.json()) as ActivitiesResponse;
 
-      if (listData.activities?.length > 0) {
-        const activityId = listData.activities[0].id;
+      if ((listData.activities?.length ?? 0) > 0) {
+        const activityId = listData.activities![0]!.id;
         const res = await authFetch(`/api/couple/activities/${activityId}/save`, {
           method: "POST",
           body: JSON.stringify({ notes: "Test note" }),
         });
-        const data = await res.json();
+        const data = (await res.json()) as ActivitiesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -150,7 +195,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/saved - should return saved activities", async () => {
       const res = await authFetch("/api/couple/saved");
-      const data = await res.json();
+      const data = (await res.json()) as ActivitiesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -159,14 +204,14 @@ describe("Couple Mode API Tests", () => {
 
     test("POST /api/couple/activities/:id/pass - should mark activity as passed", async () => {
       const listRes = await authFetch("/api/couple/activities");
-      const listData = await listRes.json();
+      const listData = (await listRes.json()) as ActivitiesResponse;
 
-      if (listData.activities?.length > 1) {
-        const activityId = listData.activities[1].id;
+      if ((listData.activities?.length ?? 0) > 1) {
+        const activityId = listData.activities![1]!.id;
         const res = await authFetch(`/api/couple/activities/${activityId}/pass`, {
           method: "POST",
         });
-        const data = await res.json();
+        const data = (await res.json()) as ActivitiesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -175,14 +220,14 @@ describe("Couple Mode API Tests", () => {
 
     test("DELETE /api/couple/saved/:id - should remove saved activity", async () => {
       const savedRes = await authFetch("/api/couple/saved");
-      const savedData = await savedRes.json();
+      const savedData = (await savedRes.json()) as ActivitiesResponse;
 
-      if (savedData.activities?.length > 0) {
-        const activityId = savedData.activities[0].id;
+      if ((savedData.activities?.length ?? 0) > 0) {
+        const activityId = savedData.activities![0]!.id;
         const res = await authFetch(`/api/couple/saved/${activityId}`, {
           method: "DELETE",
         });
-        const data = await res.json();
+        const data = (await res.json()) as ActivitiesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -195,7 +240,7 @@ describe("Couple Mode API Tests", () => {
   describe("Events API", () => {
     test("GET /api/couple/events - should return events list", async () => {
       const res = await authFetch("/api/couple/events");
-      const data = await res.json();
+      const data = (await res.json()) as EventsResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -204,7 +249,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/events?category=dinner - should filter by category", async () => {
       const res = await authFetch("/api/couple/events?category=dinner");
-      const data = await res.json();
+      const data = (await res.json()) as EventsResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -213,12 +258,12 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/events/:id - should return event detail", async () => {
       const listRes = await authFetch("/api/couple/events");
-      const listData = await listRes.json();
+      const listData = (await listRes.json()) as EventsResponse;
 
-      if (listData.events?.length > 0) {
-        const eventId = listData.events[0].id;
+      if ((listData.events?.length ?? 0) > 0) {
+        const eventId = listData.events![0]!.id;
         const res = await authFetch(`/api/couple/events/${eventId}`);
-        const data = await res.json();
+        const data = (await res.json()) as EventsResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -228,14 +273,14 @@ describe("Couple Mode API Tests", () => {
 
     test("POST /api/couple/events/:id/register - should register for event", async () => {
       const listRes = await authFetch("/api/couple/events");
-      const listData = await listRes.json();
+      const listData = (await listRes.json()) as EventsResponse;
 
-      if (listData.events?.length > 0) {
-        const eventId = listData.events[0].id;
+      if ((listData.events?.length ?? 0) > 0) {
+        const eventId = listData.events![0]!.id;
         const res = await authFetch(`/api/couple/events/${eventId}/register`, {
           method: "POST",
         });
-        const data = await res.json();
+        const data = (await res.json()) as EventsResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -244,7 +289,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/events/registered - should return registered events", async () => {
       const res = await authFetch("/api/couple/events/registered");
-      const data = await res.json();
+      const data = (await res.json()) as EventsResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -253,14 +298,14 @@ describe("Couple Mode API Tests", () => {
 
     test("DELETE /api/couple/events/:id/register - should cancel registration", async () => {
       const regRes = await authFetch("/api/couple/events/registered");
-      const regData = await regRes.json();
+      const regData = (await regRes.json()) as EventsResponse;
 
-      if (regData.events?.length > 0) {
-        const eventId = regData.events[0].id;
+      if ((regData.events?.length ?? 0) > 0) {
+        const eventId = regData.events![0]!.id;
         const res = await authFetch(`/api/couple/events/${eventId}/register`, {
           method: "DELETE",
         });
-        const data = await res.json();
+        const data = (await res.json()) as EventsResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -284,7 +329,7 @@ describe("Couple Mode API Tests", () => {
           remindDaysBefore: 7,
         }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as DatesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -295,7 +340,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/dates - should return dates list", async () => {
       const res = await authFetch("/api/couple/dates");
-      const data = await res.json();
+      const data = (await res.json()) as DatesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -310,7 +355,7 @@ describe("Couple Mode API Tests", () => {
             title: "Updated Anniversary",
           }),
         });
-        const data = await res.json();
+        const data = (await res.json()) as DatesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -322,7 +367,7 @@ describe("Couple Mode API Tests", () => {
         const res = await authFetch(`/api/couple/dates/${createdDateId}`, {
           method: "DELETE",
         });
-        const data = await res.json();
+        const data = (await res.json()) as DatesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -344,7 +389,7 @@ describe("Couple Mode API Tests", () => {
           category: "travel",
         }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as BucketListResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -355,7 +400,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/bucket-list - should return bucket list", async () => {
       const res = await authFetch("/api/couple/bucket-list");
-      const data = await res.json();
+      const data = (await res.json()) as BucketListResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -367,7 +412,7 @@ describe("Couple Mode API Tests", () => {
         const res = await authFetch(`/api/couple/bucket-list/${createdItemId}/complete`, {
           method: "POST",
         });
-        const data = await res.json();
+        const data = (await res.json()) as BucketListResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -379,7 +424,7 @@ describe("Couple Mode API Tests", () => {
         const res = await authFetch(`/api/couple/bucket-list/${createdItemId}`, {
           method: "DELETE",
         });
-        const data = await res.json();
+        const data = (await res.json()) as BucketListResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -402,7 +447,7 @@ describe("Couple Mode API Tests", () => {
           memoryDate: "2024-01-15",
         }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as MemoriesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -413,7 +458,7 @@ describe("Couple Mode API Tests", () => {
 
     test("GET /api/couple/memories - should return memories list", async () => {
       const res = await authFetch("/api/couple/memories");
-      const data = await res.json();
+      const data = (await res.json()) as MemoriesResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -425,7 +470,7 @@ describe("Couple Mode API Tests", () => {
         const res = await authFetch(`/api/couple/memories/${createdMemoryId}`, {
           method: "DELETE",
         });
-        const data = await res.json();
+        const data = (await res.json()) as MemoriesResponse;
 
         expect(res.status).toBe(200);
         expect(data.success).toBe(true);
@@ -438,7 +483,7 @@ describe("Couple Mode API Tests", () => {
   describe("Stats API", () => {
     test("GET /api/couple/stats - should return couple stats", async () => {
       const res = await authFetch("/api/couple/stats");
-      const data = await res.json();
+      const data = (await res.json()) as StatsResponse;
 
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
@@ -452,7 +497,7 @@ describe("Couple Mode API Tests", () => {
   describe("Error Handling", () => {
     test("Should return 401 without auth token", async () => {
       const res = await fetch(`${BASE_URL}/api/couple/activities`);
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
 
       expect(res.status).toBe(401);
       expect(data.success).toBe(false);
@@ -462,7 +507,7 @@ describe("Couple Mode API Tests", () => {
       const res = await fetch(`${BASE_URL}/api/couple/activities`, {
         headers: { Authorization: "Bearer invalid_token" },
       });
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
 
       expect(res.status).toBe(401);
       expect(data.success).toBe(false);
@@ -470,7 +515,7 @@ describe("Couple Mode API Tests", () => {
 
     test("Should return 404 for non-existent activity", async () => {
       const res = await authFetch("/api/couple/activities/99999999");
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
 
       expect(res.status).toBe(404);
       expect(data.success).toBe(false);
@@ -484,7 +529,7 @@ describe("Couple Mode API Tests", () => {
       // This would be tested via direct DB access in a real scenario
       // For now we verify via API
       const res = await authFetch("/api/couple/activities?limit=1");
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
 
       expect(data.success).toBe(true);
       // If seeded correctly, there should be activities
@@ -492,7 +537,7 @@ describe("Couple Mode API Tests", () => {
 
     test("Should have couple_events table with data", async () => {
       const res = await authFetch("/api/couple/events?limit=1");
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
 
       expect(data.success).toBe(true);
     });

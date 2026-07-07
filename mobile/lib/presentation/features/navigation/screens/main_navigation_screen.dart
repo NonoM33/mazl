@@ -94,7 +94,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -178,7 +178,7 @@ class _NavBarItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity(0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
@@ -192,7 +192,7 @@ class _NavBarItem extends StatelessWidget {
                   isSelected ? activeIcon : icon,
                   color: isSelected
                       ? AppColors.primary
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   size: 24,
                 ),
                 if (badge != null && badge! > 0)
@@ -230,7 +230,7 @@ class _NavBarItem extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
                     ? AppColors.primary
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],
