@@ -29,16 +29,10 @@ import {
   findUserByEmail,
   getFullProfile,
   upsertProfile,
-  getDiscoverProfiles,
   // Boost
   activateBoost,
   getActiveBoost,
   getBoostsUsedToday,
-  recordSwipe,
-  getMatches,
-  // Received likes
-  getReceivedLikes,
-  getReceivedLikesCount,
   // Profile prompts
   PROMPT_CATALOG,
   getPromptText,
@@ -175,6 +169,7 @@ import { requireAuth, type AppVariables } from "./shared/http/middleware";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { registerSubscriptionsRoutes } from "./features/subscriptions/subscriptions.routes";
+import { registerMatchingRoutes } from "./features/matching/matching.routes";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -190,7 +185,7 @@ type BodyParseResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
-async function parseBody<T>(
+export async function parseBody<T>(
   schema: z.ZodType<T>,
   c: Context<{ Variables: AppVariables }>,
 ): Promise<BodyParseResult<T>> {
@@ -214,7 +209,7 @@ async function parseBody<T>(
   return { ok: true, data: parsed.data };
 }
 
-const swipeBodySchema = z
+export const swipeBodySchema = z
   .object({
     target_user_id: z.number(),
     action: z.enum(["like", "pass", "super_like"]),
@@ -1373,44 +1368,11 @@ app.get("/api/profile/:userId", requireAuth, async (c) => {
 
 // ============ DISCOVER & MATCHING ============
 
-// Get profiles for discovery
-app.get("/api/discover", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const limit = parseInt(c.req.query("limit") || "20");
-    const offset = parseInt(c.req.query("offset") || "0");
-
-    const profiles = await getDiscoverProfiles(userId, limit, offset);
-
-    return c.json({ success: true, profiles });
-  } catch (error: any) {
-    console.error("Discover error:", error);
-    return c.json({ success: false, error: "Failed to get profiles" }, 500);
-  }
-});
-
-// Get daily picks (curated selection of profiles)
-app.get("/api/daily-picks", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-
-    // Get profiles and return top 5 as daily picks
-    const profiles = await getDiscoverProfiles(userId, 5, 0);
-
-    // Add "picked today" timestamp
-    const today = new Date().toISOString().split('T')[0];
-
-    return c.json({
-      success: true,
-      picks: profiles,
-      date: today,
-      refreshesAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
-    });
-  } catch (error: any) {
-    console.error("Daily picks error:", error);
-    return c.json({ success: false, error: "Failed to get daily picks" }, 500);
-  }
-});
+// Core matching feature routes (GET /api/discover, GET /api/daily-picks,
+// POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
+// Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
+// emits `match:new` via the exported `emitNewMatch` helper below.
+registerMatchingRoutes(app);
 
 // ============ BOOST ============
 
@@ -1463,80 +1425,6 @@ app.post("/api/boost/activate", requireAuth, async (c) => {
   } catch (error: any) {
     console.error("Boost activate error:", error);
     return c.json({ success: false, error: "Failed to activate boost" }, 500);
-  }
-});
-
-// Record swipe action
-app.post("/api/swipes", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const parsed = await parseBody(swipeBodySchema, c);
-    if (!parsed.ok) {
-      return c.json({ success: false, error: parsed.error }, 400);
-    }
-    const { target_user_id, action } = parsed.data;
-
-    const result = await recordSwipe(userId, target_user_id, action);
-
-    // On a reciprocal match, notify both users over WebSocket if connected.
-    if (result.match) {
-      await emitNewMatch(userId, target_user_id);
-    }
-
-    return c.json({ success: true, ...result });
-  } catch (error: any) {
-    console.error("Swipe error:", error);
-    return c.json({ success: false, error: "Failed to record swipe" }, 500);
-  }
-});
-
-// Get user's matches
-app.get("/api/matches", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const matches = await getMatches(userId);
-
-    return c.json({ success: true, matches });
-  } catch (error: any) {
-    console.error("Matches error:", error);
-    return c.json({ success: false, error: "Failed to get matches" }, 500);
-  }
-});
-
-// ============ RECEIVED LIKES ============
-
-// Profiles of users who liked me but with whom I have not matched yet.
-app.get("/api/likes/received", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-
-    const rows = await getReceivedLikes(userId);
-    const likes = rows.map((r) => ({
-      user_id: r.user_id,
-      display_name: r.display_name,
-      picture: r.picture,
-      age: r.age !== null ? Math.trunc(r.age) : null,
-      is_verified: r.is_verified === true,
-      liked_at: r.liked_at,
-    }));
-
-    return c.json({ success: true, count: likes.length, likes });
-  } catch (error: unknown) {
-    console.error("Received likes error:", error);
-    return c.json({ success: false, error: "Failed to get received likes" }, 500);
-  }
-});
-
-// Count of received likes.
-app.get("/api/likes/received/count", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-
-    const count = await getReceivedLikesCount(userId);
-    return c.json({ success: true, count });
-  } catch (error: unknown) {
-    console.error("Received likes count error:", error);
-    return c.json({ success: false, error: "Failed to get likes count" }, 500);
   }
 });
 
@@ -3975,7 +3863,7 @@ interface MatchNewPayload {
 // Emit a `match:new` event to both freshly-matched users (if connected).
 // Each user receives the *other* person's identity, matching the shape the
 // mobile client expects (see websocket_service.dart:193-203).
-async function emitNewMatch(userAId: number, userBId: number): Promise<void> {
+export async function emitNewMatch(userAId: number, userBId: number): Promise<void> {
   const rows = await sql`
     SELECT
       m.id as match_id,
