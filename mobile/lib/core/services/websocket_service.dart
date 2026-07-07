@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -81,10 +82,20 @@ class WebSocketService {
   Timer? _pingTimer;
   bool _isConnecting = false;
   bool _shouldReconnect = true;
+  int _reconnectAttempts = 0;
+  final Random _random = Random();
 
   static const String _wsUrl = Env.wsUrl;
-  static const Duration _reconnectDelay = Duration(seconds: 3);
   static const Duration _pingInterval = Duration(seconds: 30);
+
+  /// Base delay for the exponential backoff (doubles each consecutive failure).
+  static const Duration _reconnectBaseDelay = Duration(seconds: 2);
+
+  /// Upper bound for the exponential backoff, before jitter is applied.
+  static const Duration _reconnectMaxDelay = Duration(seconds: 60);
+
+  /// Maximum random jitter added to each reconnect delay, in milliseconds.
+  static const int _reconnectMaxJitterMs = 1000;
 
   Stream<ChatEvent> get events => _eventController.stream;
 
@@ -109,6 +120,10 @@ class WebSocketService {
       _channel = WebSocketChannel.connect(uri);
 
       await _channel!.ready;
+
+      // Connection succeeded: reset the backoff so the next disconnect
+      // starts again from the base delay.
+      _reconnectAttempts = 0;
 
       debugPrint('WebSocket: Connected');
       _eventController.add(ConnectionStatusEvent(isConnected: true));
@@ -234,9 +249,32 @@ class WebSocketService {
     if (!_shouldReconnect) return;
 
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(_reconnectDelay, () {
+
+    final delay = _nextReconnectDelay();
+    _reconnectAttempts++;
+    debugPrint(
+      'WebSocket: Reconnecting in ${delay.inMilliseconds}ms '
+      '(attempt $_reconnectAttempts)',
+    );
+
+    _reconnectTimer = Timer(delay, () {
       connect();
     });
+  }
+
+  /// Computes the next reconnect delay using exponential backoff capped at
+  /// [_reconnectMaxDelay], plus a small random jitter to avoid a thundering
+  /// herd of clients reconnecting in lockstep.
+  Duration _nextReconnectDelay() {
+    // Exponential: base * 2^attempts (2s, 4s, 8s, 16s, ...).
+    // Guard the exponent so the multiplier never overflows before clamping.
+    final exponent = _reconnectAttempts.clamp(0, 30);
+    final backoffMs = _reconnectBaseDelay.inMilliseconds * (1 << exponent);
+    final cappedMs =
+        backoffMs.clamp(0, _reconnectMaxDelay.inMilliseconds).toInt();
+
+    final jitterMs = _random.nextInt(_reconnectMaxJitterMs + 1);
+    return Duration(milliseconds: cappedMs + jitterMs);
   }
 
   void _send(Map<String, dynamic> message) {
