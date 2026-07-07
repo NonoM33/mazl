@@ -59,10 +59,7 @@ import {
   deleteEvent,
   getEvents,
   getEventById,
-  createRsvp,
-  deleteRsvp,
   getEventAttendees,
-  getUserRsvp,
   // Subscriptions
   syncSubscription,
   getSubscription,
@@ -174,10 +171,11 @@ import {
   getCoupleByUserId,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail, sendCampaignEmail } from "./email";
-import { verifyGoogleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
+import { verifyGoogleIdToken, generateJWT, verifyJWT } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
+import { registerEventsRoutes } from "./features/events/events.routes";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -1696,97 +1694,9 @@ app.put("/api/conversations/:id/read", requireAuth, async (c) => {
 
 // ============ EVENTS ENDPOINTS ============
 
-// Get public events
-app.get("/api/events", async (c) => {
-  try {
-    const type = c.req.query("type");
-    const fromDate = c.req.query("from") || new Date().toISOString().split("T")[0];
-    const limit = parseInt(c.req.query("limit") || "50");
-    const offset = parseInt(c.req.query("offset") || "0");
-
-    const events = await getEvents({
-      type: type || undefined,
-      fromDate,
-      publishedOnly: true,
-      limit,
-      offset,
-    });
-
-    return c.json({ success: true, events });
-  } catch (error: any) {
-    console.error("Events error:", error);
-    return c.json({ success: false, error: "Failed to get events" }, 500);
-  }
-});
-
-// Get event by ID
-app.get("/api/events/:id", async (c) => {
-  try {
-    const eventId = parseInt(c.req.param("id"));
-    const event = await getEventById(eventId);
-
-    if (!event) {
-      return c.json({ success: false, error: "Event not found" }, 404);
-    }
-
-    // Check if user is logged in to get RSVP status
-    let userRsvp = null;
-    const token = extractBearerToken(c.req.header("Authorization"));
-    if (token) {
-      const payload = verifyJWT(token);
-      if (payload) {
-        const userId = parseInt(payload.sub);
-        userRsvp = await getUserRsvp(eventId, userId);
-      }
-    }
-
-    return c.json({ success: true, event, userRsvp });
-  } catch (error: any) {
-    console.error("Event error:", error);
-    return c.json({ success: false, error: "Failed to get event" }, 500);
-  }
-});
-
-// RSVP to event
-app.post("/api/events/:id/rsvp", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const eventId = parseInt(c.req.param("id"));
-    const { status } = await c.req.json().catch(() => ({ status: "going" }));
-
-    const event = await getEventById(eventId);
-    if (!event) {
-      return c.json({ success: false, error: "Event not found" }, 404);
-    }
-
-    // Check max attendees
-    if ((event as any).max_attendees && (event as any).attendee_count >= (event as any).max_attendees) {
-      return c.json({ success: false, error: "Event is full" }, 400);
-    }
-
-    const rsvp = await createRsvp(eventId, userId, status || "going");
-
-    return c.json({ success: true, rsvp });
-  } catch (error: any) {
-    console.error("RSVP error:", error);
-    return c.json({ success: false, error: "Failed to RSVP" }, 500);
-  }
-});
-
-// Cancel RSVP
-app.delete("/api/events/:id/rsvp", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const eventId = parseInt(c.req.param("id"));
-
-    await deleteRsvp(eventId, userId);
-
-    return c.json({ success: true });
-  } catch (error: any) {
-    console.error("Cancel RSVP error:", error);
-    return c.json({ success: false, error: "Failed to cancel RSVP" }, 500);
-  }
-});
+// Classic events feature routes (GET /api/events, GET /api/events/:id,
+// POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp).
+registerEventsRoutes(app);
 
 // ============ ADMIN EVENTS ENDPOINTS ============
 
