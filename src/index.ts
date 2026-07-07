@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { z } from "zod";
-import { createMiddleware } from "hono/factory";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
@@ -27,10 +26,7 @@ import {
   approveAllDocumentsForWaitlist,
   requestReuploadAndRotateToken,
   listVerifiedProfiles,
-  upsertUser,
-  findUserById,
   findUserByEmail,
-  getUserProfile,
   getFullProfile,
   upsertProfile,
   getDiscoverProfiles,
@@ -178,12 +174,10 @@ import {
   getCoupleByUserId,
 } from "./db";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail, sendVerificationRequestEmail, sendCampaignEmail } from "./email";
-import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
+import { verifyGoogleIdToken, generateJWT, verifyJWT, extractBearerToken } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
-
-type AppVariables = {
-  userId: number;
-};
+import { requireAuth, type AppVariables } from "./shared/http/middleware";
+import { registerAuthRoutes } from "./features/auth/auth.routes";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -484,24 +478,6 @@ async function assertCoupleMembership(
   const ownedId = Number((couple as { id: number }).id);
   return ownedId === coupleId;
 }
-
-// User authentication middleware. Reads the Bearer token, verifies the JWT, and
-// stores the resolved user id in the context for downstream handlers. On failure
-// it returns exactly the same 401 responses the handlers used to return inline.
-const requireAuth = createMiddleware<{ Variables: AppVariables }>(async (c, next) => {
-  const token = extractBearerToken(c.req.header("Authorization"));
-  if (!token) {
-    return c.json({ success: false, error: "No token provided" }, 401);
-  }
-
-  const payload = verifyJWT(token);
-  if (!payload) {
-    return c.json({ success: false, error: "Invalid token" }, 401);
-  }
-
-  c.set("userId", parseInt(payload.sub));
-  await next();
-});
 
 function getFileExtension(file: File) {
   const byType: Record<string, string> = {
@@ -963,147 +939,8 @@ app.get("/api/admin/documents/:id/file", async (c) => {
 
 // ============ AUTH ENDPOINTS ============
 
-// Google OAuth - Verify ID token from mobile app
-app.post("/api/auth/google", async (c) => {
-  try {
-    const { idToken, accessToken } = await c.req.json();
-
-    if (!idToken) {
-      return c.json({ success: false, error: "ID token required" }, 400);
-    }
-
-    // Verify the Google ID token
-    const googleUser = await verifyGoogleIdToken(idToken);
-    if (!googleUser) {
-      return c.json({ success: false, error: "Invalid Google token" }, 401);
-    }
-
-    // Create or update user in database
-    const { user, isNew } = await upsertUser({
-      email: googleUser.email,
-      name: googleUser.name,
-      picture: googleUser.picture,
-      provider: "google",
-      providerId: googleUser.sub,
-    });
-
-    // Generate JWT token
-    const token = generateJWT({
-      id: user.id,
-      email: user.email,
-      name: user.name ?? undefined,
-      picture: user.picture ?? undefined,
-      provider: "google",
-      providerId: googleUser.sub,
-    });
-
-    // Get user profile if exists
-    const profile = await getUserProfile(user.id);
-
-    return c.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        picture: user.picture,
-        provider: user.provider,
-        isNew,
-        hasProfile: !!profile?.is_complete,
-      },
-    });
-  } catch (error: any) {
-    console.error("Google auth error:", error);
-    return c.json({ success: false, error: "Authentication failed" }, 500);
-  }
-});
-
-// Apple OAuth - Verify identity token from mobile app
-app.post("/api/auth/apple", async (c) => {
-  try {
-    const { identityToken, authorizationCode, email, fullName } = await c.req.json();
-
-    if (!identityToken) {
-      return c.json({ success: false, error: "Identity token required" }, 400);
-    }
-
-    // Verify the Apple identity token
-    const appleUser = await verifyAppleIdToken(identityToken);
-    if (!appleUser) {
-      return c.json({ success: false, error: "Invalid Apple token" }, 401);
-    }
-
-    // Apple only sends email on first sign-in, use provided email or token email
-    const userEmail = appleUser.email || email || `${appleUser.sub}@privaterelay.appleid.com`;
-
-    // Create or update user in database
-    const { user, isNew } = await upsertUser({
-      email: userEmail,
-      name: fullName,
-      provider: "apple",
-      providerId: appleUser.sub,
-    });
-
-    // Generate JWT token
-    const token = generateJWT({
-      id: user.id,
-      email: user.email,
-      name: user.name ?? undefined,
-      provider: "apple",
-      providerId: appleUser.sub,
-    });
-
-    // Get user profile if exists
-    const profile = await getUserProfile(user.id);
-
-    return c.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        provider: user.provider,
-        isNew,
-        hasProfile: !!profile?.is_complete,
-      },
-    });
-  } catch (error: any) {
-    console.error("Apple auth error:", error);
-    return c.json({ success: false, error: "Authentication failed" }, 500);
-  }
-});
-
-// Get current user
-app.get("/api/auth/me", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-
-    const user = await findUserById(userId);
-    if (!user) {
-      return c.json({ success: false, error: "User not found" }, 404);
-    }
-
-    const profile = await getUserProfile(user.id);
-
-    return c.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        picture: user.picture,
-        provider: user.provider,
-        hasProfile: !!profile?.is_complete,
-      },
-      profile,
-    });
-  } catch (error: any) {
-    console.error("Get user error:", error);
-    return c.json({ success: false, error: "Failed to get user" }, 500);
-  }
-});
+// Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
+registerAuthRoutes(app);
 
 // Update user profile
 app.put("/api/profile", requireAuth, async (c) => {
