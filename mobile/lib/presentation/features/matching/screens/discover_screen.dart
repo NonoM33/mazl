@@ -36,6 +36,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void initState() {
     super.initState();
     _initializeData();
+    // Charge les compteurs quotidiens avant le premier like.
+    PremiumGate.ensureInitialized();
     // Listen to super likes changes to update badge
     PremiumGate.onSuperLikesChanged = () {
       if (mounted) setState(() {});
@@ -328,6 +330,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
     String action;
     if (direction == CardSwiperDirection.right) {
+      // Les likes gratuits du jour sont comptés ici. Un like venu de la fiche
+      // profil a déjà été contrôlé et décompté là-bas.
+      if (!_swipeFromDetail && !PremiumGate.guardLike(context)) {
+        return false; // Limite atteinte : la carte revient, rien n'est envoyé
+      }
       debugPrint('Liked ${profile.displayName}');
       action = 'like';
     } else if (direction == CardSwiperDirection.left) {

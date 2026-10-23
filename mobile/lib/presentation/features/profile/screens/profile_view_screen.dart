@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -351,6 +352,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
 
   Future<void> _handleSwipe(String action) async {
     if (_otherProfile == null) return;
+    if (action == 'like' && !PremiumGate.guardLike(context)) return;
 
     final response = await _apiService.sendSwipe(
       targetUserId: _otherProfile!.userId,

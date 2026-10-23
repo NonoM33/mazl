@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../router/route_names.dart';
+import '../../presentation/features/premium/widgets/plus_widgets.dart';
 import '../theme/app_colors.dart';
 import 'revenuecat_service.dart';
 
-/// Premium features that require Mazl Pro subscription
+/// Fonctions réservées aux abonnés mazl+
 enum PremiumFeature {
   unlimitedLikes,
   seeWhoLikesYou,
@@ -27,13 +29,13 @@ extension PremiumFeatureInfo on PremiumFeature {
       case PremiumFeature.unlimitedLikes:
         return 'Likes illimités';
       case PremiumFeature.seeWhoLikesYou:
-        return 'Voir qui t\'aime';
+        return 'Voir qui vous a aimé';
       case PremiumFeature.superLikes:
         return 'Super Likes';
       case PremiumFeature.boost:
         return 'Boost';
       case PremiumFeature.rewind:
-        return 'Rewind';
+        return 'Revenir en arrière';
       case PremiumFeature.readReceipts:
         return 'Confirmations de lecture';
       case PremiumFeature.advancedFilters:
@@ -46,42 +48,21 @@ extension PremiumFeatureInfo on PremiumFeature {
   String get description {
     switch (this) {
       case PremiumFeature.unlimitedLikes:
-        return 'Swipe autant que tu veux, sans limite quotidienne.';
+        return 'Likez autant que vous voulez, sans limite quotidienne.';
       case PremiumFeature.seeWhoLikesYou:
-        return 'Découvre qui t\'a liké avant de swiper.';
+        return 'Voyez qui vous a aimé avant même de le croiser.';
       case PremiumFeature.superLikes:
-        return 'Fais-toi remarquer avec des Super Likes.';
+        return 'Faites-vous remarquer avec 5 Super Likes par jour.';
       case PremiumFeature.boost:
-        return 'Sois vu en premier pendant 30 minutes.';
+        return 'Soyez en tête de pile pendant 30 minutes.';
       case PremiumFeature.rewind:
-        return 'Annule ton dernier swipe si tu as fait une erreur.';
+        return 'Rattrapez un « Passer » trop rapide.';
       case PremiumFeature.readReceipts:
-        return 'Sache quand tes messages ont été lus.';
+        return 'Sachez quand vos messages ont été lus.';
       case PremiumFeature.advancedFilters:
-        return 'Filtre par niveau religieux, communauté, et plus.';
+        return 'Filtrez par pratique, communauté, et plus.';
       case PremiumFeature.prioritySupport:
-        return 'Obtiens une réponse rapide de notre équipe.';
-    }
-  }
-
-  IconData get icon {
-    switch (this) {
-      case PremiumFeature.unlimitedLikes:
-        return Icons.favorite;
-      case PremiumFeature.seeWhoLikesYou:
-        return Icons.visibility;
-      case PremiumFeature.superLikes:
-        return Icons.star;
-      case PremiumFeature.boost:
-        return Icons.bolt;
-      case PremiumFeature.rewind:
-        return Icons.undo;
-      case PremiumFeature.readReceipts:
-        return Icons.done_all;
-      case PremiumFeature.advancedFilters:
-        return Icons.filter_list;
-      case PremiumFeature.prioritySupport:
-        return Icons.support_agent;
+        return 'Obtenez une réponse rapide de notre équipe.';
     }
   }
 }
@@ -98,7 +79,8 @@ class PremiumGate {
   static const String _kBoostsUsedKey = 'premium_gate_boosts_used';
 
   // Free daily limits (premium users are unlimited and bypass these).
-  static const int _freeLikesPerDay = 10;
+  static const int freeLikesPerDay = 10;
+  static const int _freeLikesPerDay = freeLikesPerDay;
   static const int _freeSuperLikesPerDay = 1;
   static const int _premiumSuperLikesPerDay = 5;
   static const int _premiumBoostsPerDay = 1;
@@ -138,19 +120,27 @@ class PremiumGate {
       final prefs = await SharedPreferences.getInstance();
       final storedDate = prefs.getString(_kDateKey);
       final today = _today();
+      // Les compteurs ne font que croître au sein d'une journée : si un like a
+      // été consommé avant la fin de la lecture, on garde le plus grand des
+      // deux plutôt que d'écraser le compteur par une valeur périmée.
       if (storedDate == today) {
-        _freeLikesUsedToday = prefs.getInt(_kLikesUsedKey) ?? 0;
-        _superLikesUsedToday = prefs.getInt(_kSuperLikesUsedKey) ?? 0;
-        _boostsUsedToday = prefs.getInt(_kBoostsUsedKey) ?? 0;
-        _quotaDate = today;
-      } else {
-        // New day (or first launch): reset and persist the fresh boundary.
-        _freeLikesUsedToday = 0;
-        _superLikesUsedToday = 0;
-        _boostsUsedToday = 0;
-        _quotaDate = today;
-        await _persist();
+        _freeLikesUsedToday = max(
+          _freeLikesUsedToday,
+          prefs.getInt(_kLikesUsedKey) ?? 0,
+        );
+        _superLikesUsedToday = max(
+          _superLikesUsedToday,
+          prefs.getInt(_kSuperLikesUsedKey) ?? 0,
+        );
+        _boostsUsedToday = max(
+          _boostsUsedToday,
+          prefs.getInt(_kBoostsUsedKey) ?? 0,
+        );
       }
+      // Nouveau jour (ou premier lancement) : les compteurs en mémoire, s'il y
+      // en a, datent d'aujourd'hui ; on fixe la nouvelle frontière.
+      _quotaDate = today;
+      await _persist();
     } catch (error, stackTrace) {
       debugPrint('PremiumGate: failed to load quotas: $error\n$stackTrace');
     } finally {
@@ -196,7 +186,24 @@ class PremiumGate {
   }
 
   /// Check if user has premium access
-  static bool get isPremium => _revenueCat.isMazlPro;
+  static bool get isPremium => debugPremiumOverride ?? _revenueCat.isMazlPro;
+
+  /// Force le statut d'abonné dans les tests.
+  @visibleForTesting
+  static bool? debugPremiumOverride;
+
+  /// Remet à zéro compteurs, cache et surcharge entre deux tests.
+  @visibleForTesting
+  static void resetForTest() {
+    debugPremiumOverride = null;
+    _freeLikesUsedToday = 0;
+    _superLikesUsedToday = 0;
+    _boostsUsedToday = 0;
+    _quotaDate = null;
+    _hydrated = false;
+    _hydrating = null;
+    onSuperLikesChanged = null;
+  }
 
   /// Check if a specific feature is available
   static bool isFeatureAvailable(PremiumFeature feature) {
@@ -231,10 +238,12 @@ class PremiumGate {
       return true;
     }
 
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _PremiumFeatureSheet(feature: feature),
+    final result = await _showSheet(
+      context,
+      PremiumFeatureSheet(
+        title: feature.title,
+        description: feature.description,
+      ),
     );
 
     if (result == true) {
@@ -243,6 +252,47 @@ class PremiumGate {
     }
 
     return false;
+  }
+
+  static Future<bool?> _showSheet(BuildContext context, Widget sheet) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: AppColors.ink.withValues(alpha: 0.45),
+      isScrollControlled: true,
+      builder: (_) => sheet,
+    );
+  }
+
+  /// Tente de consommer un like gratuit. Toujours vrai pour un abonné ; pour
+  /// un utilisateur gratuit, faux (sans rien consommer) quand les likes du
+  /// jour sont épuisés.
+  static bool tryConsumeFreeLike() {
+    if (isPremium) return true;
+    if (remainingFreeLikes <= 0) return false;
+    useFreeLike();
+    return true;
+  }
+
+  /// Garde à appeler avant d'envoyer un like. Retourne vrai si le like peut
+  /// partir (et a été décompté). Sinon ouvre la fenêtre de limite du jour et
+  /// retourne faux : l'appelant n'envoie rien et rend la carte.
+  static bool guardLike(BuildContext context) {
+    if (tryConsumeFreeLike()) return true;
+    unawaited(showDailyLimitSheet(context));
+    return false;
+  }
+
+  /// Fenêtre « Vos likes du jour sont partis. », avec compte à rebours.
+  /// « Découvrir mazl+ » ouvre l'offre.
+  static Future<void> showDailyLimitSheet(BuildContext context) async {
+    final wantsOffer = await _showSheet(
+      context,
+      const DailyLimitSheet(freeLikesPerDay: freeLikesPerDay),
+    );
+    if (wantsOffer == true && context.mounted) {
+      await context.push<bool>(RoutePaths.premium);
+    }
   }
 
   /// Get remaining free likes for today (non-premium users).
@@ -254,8 +304,7 @@ class PremiumGate {
     if (isPremium) return -1; // Unlimited
     _hydrateInBackground();
     _resetIfNewDay();
-    return (_freeLikesPerDay - _freeLikesUsedToday)
-        .clamp(0, _freeLikesPerDay);
+    return (_freeLikesPerDay - _freeLikesUsedToday).clamp(0, _freeLikesPerDay);
   }
 
   /// Consume one free like. No-op for premium users (unlimited). Persists the
@@ -270,20 +319,26 @@ class PremiumGate {
     onSuperLikesChanged?.call();
   }
 
+  /// Nombre de Super Likes par jour pour le statut actuel.
+  static int get superLikesPerDay =>
+      isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+
   /// Get remaining super likes for today.
   static int get remainingSuperLikes {
     _hydrateInBackground();
     _resetIfNewDay();
-    final maxSuperLikes =
-        isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+    final maxSuperLikes = isPremium
+        ? _premiumSuperLikesPerDay
+        : _freeSuperLikesPerDay;
     return (maxSuperLikes - _superLikesUsedToday).clamp(0, maxSuperLikes);
   }
 
   /// Use a super like. Persists the updated count and notifies listeners.
   static void useSuperLike() {
     _resetIfNewDay();
-    final maxSuperLikes =
-        isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+    final maxSuperLikes = isPremium
+        ? _premiumSuperLikesPerDay
+        : _freeSuperLikesPerDay;
     if (_superLikesUsedToday < maxSuperLikes) {
       _superLikesUsedToday++;
     }
@@ -296,8 +351,10 @@ class PremiumGate {
     if (!isPremium) return 0;
     _hydrateInBackground();
     _resetIfNewDay();
-    return (_premiumBoostsPerDay - _boostsUsedToday)
-        .clamp(0, _premiumBoostsPerDay);
+    return (_premiumBoostsPerDay - _boostsUsedToday).clamp(
+      0,
+      _premiumBoostsPerDay,
+    );
   }
 
   /// Consume one boost (premium only). Persists and notifies listeners.
@@ -309,134 +366,5 @@ class PremiumGate {
     }
     unawaited(_persist());
     onSuperLikesChanged?.call();
-  }
-}
-
-class _PremiumFeatureSheet extends StatelessWidget {
-  const _PremiumFeatureSheet({required this.feature});
-
-  final PremiumFeature feature;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Icon with app gradient
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.secondary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(
-              feature.icon,
-              size: 32,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Title
-          Text(
-            feature.title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Description
-          Text(
-            feature.description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Upgrade button with gradient
-          Container(
-            width: double.infinity,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.secondary],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.secondary.withValues(alpha: 0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-              ),
-              child: const Text(
-                'Passer à Mazl Pro',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Not now button
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'Pas maintenant',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ),
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
-        ],
-      ),
-    );
   }
 }
