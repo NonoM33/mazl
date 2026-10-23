@@ -37,8 +37,9 @@ abstract final class DemoChatRoutes {
   ) => (r, m) {
     final now = _tick();
     final id = _id(m);
-    if (!DemoStore.hasConversation(id))
+    if (!DemoStore.hasConversation(id)) {
       return _fail(404, 'Conversation not found');
+    }
     return handler(r, id, now);
   };
 
@@ -68,8 +69,9 @@ abstract final class DemoChatRoutes {
   static DemoReply _list(DemoRequest r, int conversationId, DateTime now) {
     final rawBefore = r.query['before'];
     final before = rawBefore == null ? null : int.tryParse(rawBefore);
-    if (rawBefore != null && before == null)
+    if (rawBefore != null && before == null) {
       return _fail(400, 'Invalid before');
+    }
     final limit = (int.tryParse(r.query['limit'] ?? '') ?? 30).clamp(1, 50);
     final result = DemoStore.chat.page(
       conversationId,
@@ -130,8 +132,9 @@ abstract final class DemoChatRoutes {
     DateTime now,
   ) {
     if (bytes.length > maxVoiceBytes) return _fail(413, 'Voice note too large');
-    if (!DemoChatMediaSniffer.isM4a(bytes))
+    if (!DemoChatMediaSniffer.isM4a(bytes)) {
       return _fail(400, 'Unsupported audio');
+    }
     final duration = _int(r.body['duration_ms']);
     if (duration == null || duration < 1 || duration > maxVoiceMs) {
       return _fail(400, 'Invalid duration_ms');
@@ -187,8 +190,9 @@ abstract final class DemoChatRoutes {
     if (type != 'text' && type != 'photo' && type != 'voice') {
       return _fail(400, 'Invalid type');
     }
-    if (type == 'text' && content.trim().isEmpty)
+    if (type == 'text' && content.trim().isEmpty) {
       return _fail(400, 'content required');
+    }
 
     final media = _attachable(
       r.body['media_ids'],
@@ -286,8 +290,9 @@ abstract final class DemoChatRoutes {
     DateTime now,
   ) {
     final reason = r.body['reason'];
-    if (reason is! String || reason.trim().isEmpty)
+    if (reason is! String || reason.trim().isEmpty) {
       return _fail(400, 'reason required');
+    }
     if (message.senderId == DemoFixtures.meId) {
       return _fail(400, 'Cannot report your own message');
     }
