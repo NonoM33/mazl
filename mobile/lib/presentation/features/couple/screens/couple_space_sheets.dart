@@ -15,23 +15,18 @@ class _SheetTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 20),
-    child: Text(
-      text,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    ),
+    child: Text(text, style: Theme.of(context).textTheme.headlineSmall),
   );
 }
 
 class _SheetSubmit extends StatelessWidget {
   const _SheetSubmit({
-    required this.color,
     required this.enabled,
     required this.busy,
     required this.error,
     required this.onPressed,
   });
 
-  final Color color;
   final bool enabled;
   final bool busy;
   final String? error;
@@ -53,15 +48,14 @@ class _SheetSubmit extends StatelessWidget {
           ),
         ElevatedButton(
           onPressed: enabled && !busy ? onPressed : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
           child: busy
-              ? const SizedBox(
+              ? SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
                 )
               : const Text('Ajouter'),
         ),
@@ -123,25 +117,18 @@ class _AddMemorySheetState extends State<AddMemorySheet> {
         const _SheetTitle('Ajouter un souvenir'),
         TextField(
           controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Titre',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Titre'),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _contentController,
           maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Description',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Description'),
         ),
         const SizedBox(height: 20),
         ListenableBuilder(
           listenable: _titleController,
           builder: (context, _) => _SheetSubmit(
-            color: const Color(0xFFFF6B9D),
             enabled: _titleController.text.trim().isNotEmpty,
             busy: _busy,
             error: _error,
@@ -203,7 +190,6 @@ class _AddBucketItemSheetState extends State<AddBucketItemSheet> {
           controller: _titleController,
           decoration: const InputDecoration(
             labelText: 'Que voulez-vous faire ensemble ?',
-            border: OutlineInputBorder(),
             hintText: 'Ex: Voir les aurores boréales',
           ),
         ),
@@ -211,7 +197,6 @@ class _AddBucketItemSheetState extends State<AddBucketItemSheet> {
         ListenableBuilder(
           listenable: _titleController,
           builder: (context, _) => _SheetSubmit(
-            color: AppColors.accentGold,
             enabled: _titleController.text.trim().isNotEmpty,
             busy: _busy,
             error: _error,
@@ -276,17 +261,24 @@ class _AddDateSheetState extends State<AddDateSheet> {
           controller: _titleController,
           decoration: const InputDecoration(
             labelText: 'Titre',
-            border: OutlineInputBorder(),
             hintText: 'Ex: Notre anniversaire',
           ),
         ),
         const SizedBox(height: 16),
         ListTile(
+          tileColor: Theme.of(context).colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
           title: const Text('Date'),
           subtitle: Text(
             '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
           ),
-          trailing: const Icon(LucideIcons.calendar),
+          trailing: Icon(
+            LucideIcons.calendar,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           onTap: () async {
             final date = await showDatePicker(
               context: context,
@@ -301,7 +293,6 @@ class _AddDateSheetState extends State<AddDateSheet> {
         ListenableBuilder(
           listenable: _titleController,
           builder: (context, _) => _SheetSubmit(
-            color: AppColors.info,
             enabled: _titleController.text.trim().isNotEmpty,
             busy: _busy,
             error: _error,
