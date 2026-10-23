@@ -371,10 +371,18 @@ void main() {
       expect(e.status, 401);
     });
 
-    test('404 and 403 do not confirm the conversation exists', () async {
-      for (final status in [403, 404]) {
-        final e = await failing(status, (a) => a.getMessages(1));
-        expect(e.message, 'Cette conversation n’est plus disponible.');
+    test('404: the conversation is gone (or never was ours), without saying which', () async {
+      final e = await failing(404, (a) => a.getMessages(1));
+      expect(e.message, 'Cette conversation n’est plus disponible.');
+    });
+
+    test('403 on a write: the pair is blocked (server CONTRAT §0.1)', () async {
+      for (final call in <Future<Object?> Function(ChatApi)>[
+        (a) => a.sendMessage(1, clientId: 'c', type: ChatMessageType.text, content: 'x'),
+        (a) => a.toggleReaction(1, '❤️'),
+      ]) {
+        final e = await failing(403, call);
+        expect(e.message, 'Vous ne pouvez plus écrire dans cette conversation.');
       }
     });
 

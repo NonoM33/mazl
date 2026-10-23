@@ -254,7 +254,10 @@ String _messageForStatus(int status, {required bool upload, required bool unsend
   if (unsend && (status == 403 || status == 409 || status == 422)) {
     return 'Ce message ne peut plus être retiré.';
   }
-  if (status == 403 || status == 404) return 'Cette conversation n’est plus disponible.';
+  // 404: not a member or gone (the server never says which). 403: the pair
+  // is blocked, the thread stays readable but nobody can write.
+  if (status == 404) return 'Cette conversation n’est plus disponible.';
+  if (status == 403) return 'Vous ne pouvez plus écrire dans cette conversation.';
   if (status == 413) return 'Fichier trop volumineux.';
   if (status == 429) return 'Trop d’envois, patientez un instant.';
   if (status >= 500) return 'Le serveur est indisponible, réessayez.';
