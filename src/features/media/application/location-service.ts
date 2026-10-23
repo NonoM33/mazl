@@ -1,5 +1,5 @@
-import { hmacBase64Url } from "../../../shared/crypto/signer";
 import { fuzzCoordinates, type Coordinates } from "../domain/geo-fuzz";
+import { locationSeedFor } from "./location-seed";
 import type { LocationUpdateLog } from "./ports";
 
 export const MAX_LOCATION_CHANGES = 10;
@@ -10,10 +10,6 @@ export interface LocationService {
   // The position to store for this write, or null to leave the stored one
   // untouched (no coordinates supplied, or the daily quota is used up).
   resolve(userId: number, latitude: number | undefined, longitude: number | undefined): Promise<Coordinates | null>;
-}
-
-function seedFor(userId: number): Uint8Array {
-  return new Uint8Array(Buffer.from(hmacBase64Url("MEDIA_SIGNING_KEY", `geo:${userId}`), "base64url"));
 }
 
 function samePosition(a: Coordinates, b: Coordinates): boolean {
@@ -27,7 +23,7 @@ export function createLocationService(log: LocationUpdateLog): LocationService {
   return {
     async resolve(userId, latitude, longitude) {
       if (latitude === undefined || longitude === undefined) return null;
-      const fuzzed = fuzzCoordinates({ latitude, longitude }, seedFor(userId));
+      const fuzzed = fuzzCoordinates({ latitude, longitude }, locationSeedFor(userId));
       const current = await log.currentPosition(userId);
       // The app re-sends the whole profile on every save: only a real move counts.
       if (current !== null && samePosition(current, fuzzed)) return fuzzed;

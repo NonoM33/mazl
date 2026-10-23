@@ -14,4 +14,6 @@ export async function ensureMediaSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS idx_location_updates_user_time ON location_updates (user_id, created_at)`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS photo_verified_at TIMESTAMP`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS identity_verified_at TIMESTAMP`;
+  // false = the stored position may still be exact (see location-backfill).
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS location_fuzzed BOOLEAN NOT NULL DEFAULT false`;
 }

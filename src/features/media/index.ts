@@ -1,6 +1,9 @@
 import { createPhotoService, type PhotoService } from "./application/photo-service";
 import { createLocationService, type LocationService } from "./application/location-service";
 import { noopPhotoFaceChecker } from "./application/no-op-face-checker";
+import { fuzzStoredLocations } from "./application/location-backfill";
+import { sql } from "../../db";
+import { createPostgresLocationBackfill } from "./infra/postgres-location-backfill";
 import { createDiskPhotoStorage } from "./infra/disk-photo-storage";
 import { googlePictureFetcher } from "./infra/google-picture-fetcher";
 import { postgresLocationLog } from "./infra/postgres-location-log";
@@ -30,3 +33,9 @@ export function createMediaModule(options: {
 
 export { noopPhotoFaceChecker } from "./application/no-op-face-checker";
 export { ensureMediaSchema } from "./infra/schema";
+
+// Boot task, to run right after ensureMediaSchema(): fuzzes once every position
+// stored before the socle. Idempotent. Returns the number of rows changed.
+export function fuzzExistingLocations(): Promise<number> {
+  return fuzzStoredLocations(createPostgresLocationBackfill(sql));
+}

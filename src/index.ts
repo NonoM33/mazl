@@ -101,7 +101,7 @@ import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
-import { createMediaModule, ensureMediaSchema, noopPhotoFaceChecker } from "./features/media";
+import { createMediaModule, ensureMediaSchema, fuzzExistingLocations, noopPhotoFaceChecker } from "./features/media";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { assertKeysConfigured } from "./shared/crypto/keys";
@@ -863,6 +863,8 @@ assertKeysConfigured();
 
 await initDb();
 await ensureMediaSchema();
+const fuzzedAtBoot = await fuzzExistingLocations();
+if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 
 console.log(`Server running on http://localhost:${port}`);
 

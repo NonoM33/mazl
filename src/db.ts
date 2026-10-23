@@ -1156,8 +1156,10 @@ export async function upsertProfile(userId: number, params: {
   ageMax?: number;
   distanceMax?: number;
 }) {
+  // Callers pass coordinates that the media location service already fuzzed.
+  const hasPosition = params.latitude !== undefined && params.longitude !== undefined;
   const result = await sql`
-    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
     VALUES (
       ${userId},
       ${params.displayName ?? null},
@@ -1167,6 +1169,7 @@ export async function upsertProfile(userId: number, params: {
       ${params.location ?? null},
       ${params.latitude ?? null},
       ${params.longitude ?? null},
+      ${hasPosition},
       ${params.denomination ?? null},
       ${params.kashrutLevel ?? null},
       ${params.shabbatObservance ?? null},
@@ -1184,6 +1187,7 @@ export async function upsertProfile(userId: number, params: {
       location = COALESCE(${params.location ?? null}, profiles.location),
       latitude = COALESCE(${params.latitude ?? null}, profiles.latitude),
       longitude = COALESCE(${params.longitude ?? null}, profiles.longitude),
+      location_fuzzed = profiles.location_fuzzed OR ${hasPosition},
       denomination = COALESCE(${params.denomination ?? null}, profiles.denomination),
       kashrut_level = COALESCE(${params.kashrutLevel ?? null}, profiles.kashrut_level),
       shabbat_observance = COALESCE(${params.shabbatObservance ?? null}, profiles.shabbat_observance),

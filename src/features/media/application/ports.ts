@@ -41,3 +41,17 @@ export interface LocationUpdateLog {
   // The position currently stored for the user, if any.
   currentPosition(userId: number): Promise<{ latitude: number; longitude: number } | null>;
 }
+
+export interface UnfuzzedPosition {
+  readonly userId: number;
+  readonly latitude: number;
+  readonly longitude: number;
+}
+
+export interface LocationBackfillRepository {
+  // Positions whose profile still has location_fuzzed = false.
+  listUnfuzzed(limit: number): Promise<UnfuzzedPosition[]>;
+  // Stores the fuzzed point and sets location_fuzzed. Returns false, changing
+  // nothing, when the profile is already flagged.
+  markFuzzed(userId: number, fuzzed: { latitude: number; longitude: number }): Promise<boolean>;
+}
