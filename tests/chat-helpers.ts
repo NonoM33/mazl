@@ -13,6 +13,13 @@ export const WS_URL = process.env.TEST_WS_URL ?? `${BASE_URL.replace(/^http/, "w
 export const VOICE_FIXTURE = new Uint8Array(readFileSync(join(import.meta.dir, "fixtures/chat/voice.m4a")));
 export const WAVEFORM = JSON.stringify(Array.from({ length: 48 }, (_, i) => (i * 2) % 101));
 
+// The only row of a query that must return one.
+export function onlyRow<T>(rows: readonly T[]): T {
+  const row = rows[0];
+  if (row === undefined) throw new Error("expected a row");
+  return row;
+}
+
 export interface Pair {
   readonly a: TestUser;
   readonly b: TestUser;

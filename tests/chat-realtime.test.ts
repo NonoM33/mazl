@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, connect, db, expectNone, json, makeMatch, makeUser, send, sendText, type Pair, type Socket } from "./chat-helpers";
+import { BASE_URL, onlyRow, connect, db, expectNone, json, makeMatch, makeUser, send, sendText, type Pair, type Socket } from "./chat-helpers";
 
 // CONTRAT.md §3: every change of a conversation reaches BOTH members as a
 // {type, payload} frame, over real WebSocket connections.
@@ -49,7 +49,7 @@ describe("chat:message", () => {
     const [forAlice, forBob] = await Promise.all([alice.next("chat:message"), bob.next("chat:message")]);
     expect(messageOf(forAlice)).toMatchObject({ content: "via ws", client_id: "ws-1" });
     expect(messageOf(forBob).id).toBe(messageOf(forAlice).id);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE client_id = 'ws-1' AND sender_id = ${pair.b.id}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE client_id = 'ws-1' AND sender_id = ${pair.b.id}`);
     expect(n).toBe("1");
   });
 
@@ -59,7 +59,7 @@ describe("chat:message", () => {
     await alice.next("chat:message");
     await bob.next("chat:message");
     expect(await expectNone(eve, "chat:message")).toBe(true);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND content = 'intrusion'`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND content = 'intrusion'`);
     expect(n).toBe("0");
   });
 
@@ -80,7 +80,7 @@ describe("chat:message", () => {
     await db`INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (${blocked.b.id}, ${blocked.a.id})`;
     blockedSocket.send({ type: "chat:send", payload: { conversationId: blocked.conversationId, content: "hello?" } });
     await new Promise((r) => setTimeout(r, 500));
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${blocked.conversationId}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${blocked.conversationId}`);
     expect(n).toBe("0");
   });
 });

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, json, makeMatch, send, sendText, uploadOk, WAVEFORM, VOICE_FIXTURE, type ApiMessage, type Pair } from "./chat-helpers";
+import { BASE_URL, onlyRow, auth, db, json, makeMatch, send, sendText, uploadOk, WAVEFORM, VOICE_FIXTURE, type ApiMessage, type Pair } from "./chat-helpers";
 import { jpegWithGps } from "./media-helpers";
 
 // CONTRAT.md §1-§2 over HTTP, against a real server and database.
@@ -63,14 +63,14 @@ describe("sending", () => {
     expect([first.status, second.status]).toEqual([200, 200]);
     expect(second.body.message!.id).toBe(first.body.message!.id);
     expect(first.body.message!.client_id).toBe("c-retry-1");
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND client_id = 'c-retry-1'`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND client_id = 'c-retry-1'`);
     expect(n).toBe("1");
   });
 
   test("two simultaneous sends with the same client_id still make one message", async () => {
     const results = await Promise.all(Array.from({ length: 6 }, () => send(pair.a.token, pair.conversationId, { client_id: "c-race", content: "course" })));
     expect(new Set(results.map((r) => r.body.message!.id)).size).toBe(1);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE client_id = 'c-race' AND conversation_id = ${pair.conversationId}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE client_id = 'c-race' AND conversation_id = ${pair.conversationId}`);
     expect(n).toBe("1");
   });
 
@@ -141,7 +141,7 @@ describe("sending", () => {
     await db`INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (${blocked.b.id}, ${blocked.a.id})`;
     expect((await send(blocked.a.token, blocked.conversationId, { content: "hello" })).status).toBe(403);
     expect((await send(blocked.b.token, blocked.conversationId, { content: "hello" })).status).toBe(403);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${blocked.conversationId}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${blocked.conversationId}`);
     expect(n).toBe("0");
   });
 });
@@ -170,7 +170,7 @@ describe("reactions", () => {
     expect(both).toEqual([{ emoji: "😂", user_ids: [pair.a.id, pair.b.id].sort((x, y) => x - y) }]);
     const swapped = (await react(pair.b.token, "👍")).body.reactions;
     expect(swapped).toEqual([{ emoji: "😂", user_ids: [pair.a.id] }, { emoji: "👍", user_ids: [pair.b.id] }]);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM message_reactions WHERE message_id = ${message.id} AND user_id = ${pair.b.id}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM message_reactions WHERE message_id = ${message.id} AND user_id = ${pair.b.id}`);
     expect(n).toBe("1");
   });
 
@@ -192,7 +192,7 @@ describe("unsend", () => {
     const { body } = await send(pair.a.token, pair.conversationId, { type: "photo", content: "légende secrète", media_ids: [photo.id] });
     const message = body.message!;
     await post(pair.b.token, `/api/messages/${message.id}/reactions`, { emoji: "❤️" });
-    const [{ storage_key }] = await db<{ storage_key: string }[]>`SELECT storage_key FROM message_media WHERE id = ${photo.id}`;
+    const { storage_key } = onlyRow(await db<{ storage_key: string }[]>`SELECT storage_key FROM message_media WHERE id = ${photo.id}`);
     const path = `${process.env.UPLOADS_DIR ?? "uploads"}/${storage_key}`;
     expect(await Bun.file(path).exists()).toBe(true);
 
@@ -202,7 +202,7 @@ describe("unsend", () => {
     expect(view).toMatchObject({ unsent: true, content: "", media: [], voice: null, link_preview: null, reactions: [] });
 
     expect(await Bun.file(path).exists()).toBe(false);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM message_media WHERE message_id = ${message.id}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM message_media WHERE message_id = ${message.id}`);
     expect(n).toBe("0");
     const [stored] = await db<{ content: string }[]>`SELECT content FROM messages WHERE id = ${message.id}`;
     expect(stored?.content).toBe("");
@@ -295,7 +295,7 @@ describe("read receipts", () => {
     await sendText(pair.a.token, pair.conversationId, "2");
     const res = await fetch(`${BASE_URL}/api/conversations/${pair.conversationId}/read`, { method: "PUT", headers: auth(pair.b.token) });
     expect(res.status).toBe(200);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND read_at IS NULL`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND read_at IS NULL`);
     expect(n).toBe("0");
   });
 
@@ -305,7 +305,7 @@ describe("read receipts", () => {
     const bad = await fetch(`${BASE_URL}/api/conversations/${pair.conversationId}/read`, { method: "PUT", headers: json(pair.a.token), body: JSON.stringify({ up_to_id: "abc" }) });
     expect(bad.status).toBe(400);
     await fetch(`${BASE_URL}/api/conversations/${pair.conversationId}/read`, { method: "PUT", headers: json(pair.a.token), body: "{}" });
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND read_at IS NOT NULL`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ${pair.conversationId} AND read_at IS NOT NULL`);
     expect(n).toBe("0");
   });
 });
@@ -318,11 +318,11 @@ describe("report", () => {
     expect(res.status).toBe(200);
     const rows = await db<{ reporter_id: number; reported_user_id: number; reason: string; details: string | null; message_id: number; status: string }[]>`
       SELECT reporter_id, reported_user_id, reason, details, message_id, status FROM reports WHERE message_id = ${message.id}`;
-    expect(rows).toEqual([{ reporter_id: pair.b.id, reported_user_id: pair.a.id, reason: "harassment", details: "il insiste", message_id: message.id, status: "pending" }]);
+    expect([...rows]).toEqual([{ reporter_id: pair.b.id, reported_user_id: pair.a.id, reason: "harassment", details: "il insiste", message_id: message.id, status: "pending" }]);
 
     // the same reporter twice is one report
     expect((await post(pair.b.token, `/api/messages/${message.id}/report`, { reason: "harassment" })).status).toBe(200);
-    const [{ n }] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM reports WHERE message_id = ${message.id}`;
+    const { n } = onlyRow(await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM reports WHERE message_id = ${message.id}`);
     expect(n).toBe("1");
   });
 
