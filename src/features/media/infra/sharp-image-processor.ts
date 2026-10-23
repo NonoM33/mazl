@@ -18,19 +18,32 @@ async function assertRaster(bytes: Uint8Array): Promise<void> {
   }
 }
 
+export interface ReencodedJpeg {
+  readonly data: Buffer;
+  readonly width: number;
+  readonly height: number;
+}
+
+// Shared by profile photos and chat photos: any decodable raster image becomes a
+// metadata-free JPEG whose long side is at most `maxSide` px.
+export async function reencodeJpeg(bytes: Uint8Array, maxSide: number): Promise<ReencodedJpeg> {
+  if (bytes.byteLength === 0) throw new PhotoRejectedError("empty");
+  try {
+    await assertRaster(bytes);
+    const { data, info } = await sharp(bytes, { failOn: "error", limitInputPixels: MAX_INPUT_PIXELS })
+      .rotate()
+      .resize({ width: maxSide, height: maxSide, fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: JPEG_QUALITY })
+      .toBuffer({ resolveWithObject: true });
+    return { data, width: info.width, height: info.height };
+  } catch (error: unknown) {
+    if (error instanceof PhotoRejectedError) throw error;
+    throw new PhotoRejectedError("undecodable");
+  }
+}
+
 export const sharpImageProcessor: ImageProcessor = {
   async toProfileJpeg(bytes: Uint8Array): Promise<Buffer> {
-    if (bytes.byteLength === 0) throw new PhotoRejectedError("empty");
-    try {
-      await assertRaster(bytes);
-      return await sharp(bytes, { failOn: "error", limitInputPixels: MAX_INPUT_PIXELS })
-        .rotate()
-        .resize({ width: MAX_SIDE_PX, height: MAX_SIDE_PX, fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality: JPEG_QUALITY })
-        .toBuffer();
-    } catch (error: unknown) {
-      if (error instanceof PhotoRejectedError) throw error;
-      throw new PhotoRejectedError("undecodable");
-    }
+    return (await reencodeJpeg(bytes, MAX_SIDE_PX)).data;
   },
 };

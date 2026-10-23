@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { z } from "zod";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
@@ -9,12 +8,6 @@ import {
   initDb,
   upsertWaitlistAndGetVerification,
   findUserByEmail,
-  // Chat
-  getConversations,
-  getConversationById,
-  getMessages,
-  createMessage,
-  markMessagesAsRead,
   // Events
   getEventById,
   // Subscriptions
@@ -45,7 +38,6 @@ import {
   // Module 3: Campagnes
   unsubscribeEmail,
   // Module 4: Modération
-  isBlockedBetween,
   // Couple Mode - Activities & Events
   getCoupleActivities,
   getCoupleActivity,
@@ -83,7 +75,6 @@ import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
 import { parseBody, swipeBodySchema } from "./shared/http/validation";
 import {
-  sendToUser,
   emitNewMatch,
   addConnection,
   removeConnection,
@@ -98,6 +89,7 @@ import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
+import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
 import { assertKeysConfigured } from "./shared/crypto/keys";
 import {
   createDocumentsModule,
@@ -125,12 +117,6 @@ const app = new Hono<{ Variables: AppVariables }>();
 // `parseBody` and the shared `swipeBodySchema` now live in
 // `src/shared/http/validation.ts` (imported above). The schemas below are
 // used only by handlers in this file.
-
-const sendMessageBodySchema = z
-  .object({
-    content: z.string().min(1),
-  })
-  .passthrough();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 
@@ -243,6 +229,7 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
+const chat = createChatModule({ uploadsDir: UPLOADS_DIR });
 const documents = createDocumentsModule(UPLOADS_DIR);
 registerDocumentsRoutes(app, documents);
 
@@ -252,7 +239,7 @@ registerDocumentsRoutes(app, documents);
 // preserving the exact relative declaration order of the admin routes.
 // Admin auth (admin JWT + email whitelist via assertAdmin /
 // assertAdminFileDownload) lives in src/features/admin/admin.auth.ts.
-registerAdminRoutes(app, UPLOADS_DIR);
+registerAdminRoutes(app, UPLOADS_DIR, { around: (userId, deletion) => chat.media.eraseUserMedia(userId, deletion) });
 
 // ============ AUTH ENDPOINTS ============
 
@@ -295,154 +282,9 @@ registerVerification(app, verification);
 
 // ============ CHAT ENDPOINTS ============
 
-// Get user's conversations
-app.get("/api/conversations", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const conversations = await getConversations(userId);
-
-    return c.json({ success: true, conversations });
-  } catch (error: any) {
-    console.error("Conversations error:", error);
-    return c.json({ success: false, error: "Failed to get conversations" }, 500);
-  }
-});
-
-// Get conversation details
-app.get("/api/conversations/:id", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const conversationId = parseInt(c.req.param("id"));
-
-    const conversation = await getConversationById(conversationId);
-    if (!conversation) {
-      return c.json({ success: false, error: "Conversation not found" }, 404);
-    }
-
-    // Check user is part of conversation
-    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
-      return c.json({ success: false, error: "Access denied" }, 403);
-    }
-
-    return c.json({ success: true, conversation });
-  } catch (error: any) {
-    console.error("Conversation error:", error);
-    return c.json({ success: false, error: "Failed to get conversation" }, 500);
-  }
-});
-
-// Get messages for a conversation
-app.get("/api/conversations/:id/messages", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const conversationId = parseInt(c.req.param("id"));
-    const limit = parseInt(c.req.query("limit") || "50");
-    const offset = parseInt(c.req.query("offset") || "0");
-
-    const conversation = await getConversationById(conversationId);
-    if (!conversation) {
-      return c.json({ success: false, error: "Conversation not found" }, 404);
-    }
-
-    // Check user is part of conversation
-    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
-      return c.json({ success: false, error: "Access denied" }, 403);
-    }
-
-    const messages = await getMessages(conversationId, limit, offset);
-
-    return c.json({ success: true, messages });
-  } catch (error: any) {
-    console.error("Messages error:", error);
-    return c.json({ success: false, error: "Failed to get messages" }, 500);
-  }
-});
-
-// Send a message
-app.post("/api/conversations/:id/messages", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const conversationId = parseInt(c.req.param("id"));
-    const parsed = await parseBody(sendMessageBodySchema, c);
-    if (!parsed.ok) {
-      return c.json({ success: false, error: parsed.error }, 400);
-    }
-    const content = parsed.data.content;
-
-    if (!content || typeof content !== "string" || content.trim().length === 0) {
-      return c.json({ success: false, error: "Message content required" }, 400);
-    }
-
-    const conversation = await getConversationById(conversationId);
-    if (!conversation) {
-      return c.json({ success: false, error: "Conversation not found" }, 404);
-    }
-
-    // Check user is part of conversation
-    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
-      return c.json({ success: false, error: "Access denied" }, 403);
-    }
-
-    const message = await createMessage(conversationId, userId, content.trim());
-
-    // Broadcast via WebSocket to both users
-    const conv = conversation as any;
-    const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-    const messageData = {
-      type: "chat:message",
-      payload: {
-        conversationId,
-        messageId: (message as any).id,
-        senderId: userId,
-        content: (message as any).content,
-        createdAt: (message as any).created_at,
-      },
-    };
-    sendToUser(userId, messageData);
-    sendToUser(otherUserId, messageData);
-
-    return c.json({ success: true, message });
-  } catch (error: any) {
-    console.error("Send message error:", error);
-    return c.json({ success: false, error: "Failed to send message" }, 500);
-  }
-});
-
-// Mark messages as read
-app.put("/api/conversations/:id/read", requireAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const conversationId = parseInt(c.req.param("id"));
-
-    const conversation = await getConversationById(conversationId);
-    if (!conversation) {
-      return c.json({ success: false, error: "Conversation not found" }, 404);
-    }
-
-    // Check user is part of conversation
-    if ((conversation as any).user1_id !== userId && (conversation as any).user2_id !== userId) {
-      return c.json({ success: false, error: "Access denied" }, 403);
-    }
-
-    await markMessagesAsRead(conversationId, userId);
-
-    // Broadcast via WebSocket to the other user
-    const conv = conversation as any;
-    const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-    sendToUser(otherUserId, {
-      type: "chat:read",
-      payload: {
-        conversationId,
-        userId,
-      },
-    });
-
-    return c.json({ success: true });
-  } catch (error: any) {
-    console.error("Mark read error:", error);
-    return c.json({ success: false, error: "Failed to mark as read" }, 500);
-  }
-});
+// Conversations, messages (text, photos, voice), reactions, unsend, read
+// receipts, reports and signed chat media: src/features/chat (docs/chat/CONTRAT.md).
+registerChat(app, chat);
 
 // ============ EVENTS ENDPOINTS ============
 
@@ -780,6 +622,8 @@ await initDb();
 await ensureDocumentsSchema();
 startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
+await ensureChatSchema();
+startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 await ensureVerificationSchema(sql);
@@ -843,104 +687,20 @@ const server = Bun.serve<WebSocketData>({
         const data = JSON.parse(message.toString());
 
         switch (data.type) {
-          case "chat:send": {
-            // Send message via API and broadcast.
-            // The mobile client wraps fields inside `payload` (see
-            // mobile/lib/core/services/websocket_service.dart:247-255).
-            const payload = data.payload;
-            if (typeof payload !== "object" || payload === null) return;
-            const conversationId = (payload as Record<string, unknown>).conversationId;
-            const content = (payload as Record<string, unknown>).content;
-            if (typeof conversationId !== "number" || typeof content !== "string") return;
-            if (content.length === 0) return;
-
-            const conversation = await getConversationById(conversationId);
-            if (!conversation) return;
-
-            // Verify user is in conversation
-            const conv = conversation as any;
-            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
-
-            // Determine other user
-            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-
-            // Refuse silently if either party has blocked the other
-            if (await isBlockedBetween(userId, otherUserId)) return;
-
-            const msg = await createMessage(conversationId, userId, content);
-
-            // Send to both users
-            const messageData = {
-              type: "chat:message",
-              payload: {
-                conversationId,
-                messageId: (msg as any).id,
-                senderId: userId,
-                content: (msg as any).content,
-                createdAt: (msg as any).created_at,
-              },
-            };
-            sendToUser(userId, messageData);
-            sendToUser(otherUserId, messageData);
+          // The chat:* frames are handled by the chat feature (membership,
+          // blocking, idempotency and fan-out all live there). The mobile
+          // client wraps its fields inside `payload`.
+          case "chat:send":
+            await chat.sockets.send(userId, data.payload);
             break;
-          }
 
-          case "chat:typing": {
-            // Broadcast typing indicator.
-            // Fields are nested under `payload` (see
-            // mobile/lib/core/services/websocket_service.dart:258-265).
-            const payload = data.payload;
-            if (typeof payload !== "object" || payload === null) return;
-            const conversationId = (payload as Record<string, unknown>).conversationId;
-            const isTypingRaw = (payload as Record<string, unknown>).isTyping;
-            if (typeof conversationId !== "number") return;
-            const isTyping = typeof isTypingRaw === "boolean" ? isTypingRaw : true;
-
-            const conversation = await getConversationById(conversationId);
-            if (!conversation) return;
-
-            const conv = conversation as any;
-            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
-
-            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-            sendToUser(otherUserId, {
-              type: "chat:typing",
-              payload: {
-                conversationId,
-                userId,
-                isTyping,
-              },
-            });
+          case "chat:typing":
+            await chat.sockets.typing(userId, data.payload);
             break;
-          }
 
-          case "chat:read": {
-            // Mark messages as read and notify.
-            // Fields are nested under `payload` (see
-            // mobile/lib/core/services/websocket_service.dart:269-275).
-            const payload = data.payload;
-            if (typeof payload !== "object" || payload === null) return;
-            const conversationId = (payload as Record<string, unknown>).conversationId;
-            if (typeof conversationId !== "number") return;
-
-            const conversation = await getConversationById(conversationId);
-            if (!conversation) return;
-
-            const conv = conversation as any;
-            if (conv.user1_id !== userId && conv.user2_id !== userId) return;
-
-            await markMessagesAsRead(conversationId, userId);
-
-            const otherUserId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
-            sendToUser(otherUserId, {
-              type: "chat:read",
-              payload: {
-                conversationId,
-                userId,
-              },
-            });
+          case "chat:read":
+            await chat.sockets.read(userId, data.payload);
             break;
-          }
 
           case "ping": {
             (ws as any).send(JSON.stringify({ type: "pong" }));
