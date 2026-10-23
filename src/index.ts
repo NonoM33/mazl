@@ -103,6 +103,11 @@ import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { assertKeysConfigured } from "./shared/crypto/keys";
+import {
+  createVerificationModule,
+  ensureVerificationSchema,
+  registerVerification,
+} from "./features/verification/verification.module";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -125,6 +130,10 @@ const sendMessageBodySchema = z
   .passthrough();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
+
+// Member verification (selfie): models load lazily, configuration is read now
+// so that a malformed threshold stops the boot.
+const verification = createVerificationModule({ sql, uploadsDir: UPLOADS_DIR });
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
@@ -358,7 +367,7 @@ registerAuthRoutes(app);
 // profile prompts, and GET /api/profile/:userId). Moved to
 // src/features/profile/profile.routes.ts. The prompts routes are declared
 // before /api/profile/:userId inside that file to preserve route ordering.
-// Selfie verification (/api/verification/*) moved to the engagement feature.
+// Selfie verification (/api/verification/*) lives in src/features/verification.
 registerProfileRoutes(app, UPLOADS_DIR);
 
 // ============ DISCOVER & MATCHING ============
@@ -375,6 +384,13 @@ registerMatchingRoutes(app);
 // /api/users/:id/report, /api/report). Moved to
 // src/features/engagement/engagement.routes.ts.
 registerEngagementRoutes(app);
+
+// ============ MEMBER VERIFICATION (level 1: live selfie) ============
+// /api/verification/* (face session + submit, reference deletion, status and
+// the legacy start/submit). Registered next to the engagement routes it was
+// split from. The module is built above, next to UPLOADS_DIR, so that
+// `verification.photoFaceChecker` can be handed to the profile feature.
+registerVerification(app, verification);
 
 // ============ CHAT ENDPOINTS ============
 
@@ -858,6 +874,7 @@ await mkdir(UPLOADS_DIR, { recursive: true });
 assertKeysConfigured();
 
 await initDb();
+await ensureVerificationSchema(sql);
 
 console.log(`Server running on http://localhost:${port}`);
 
