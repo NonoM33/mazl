@@ -66,7 +66,7 @@ void main() {
     expect(find.textContaining('Léa'), findsOneWidget);
     expect(find.textContaining('28'), findsOneWidget);
     expect(find.text('Paris · à 4 km'), findsOneWidget);
-    for (final tag in ['Massorti', 'Kasher a la maison', 'Shabbat en famille', 'Mariage']) {
+    for (final tag in ['Massorti', 'Cacher à la maison', 'Shabbat en famille', 'Mariage']) {
       expect(find.text(tag), findsOneWidget);
     }
   });

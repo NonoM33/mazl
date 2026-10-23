@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+
+import 'push_permission.dart';
 
 class PushNotificationService {
   static const String _appId = '0bad7c7f-4a93-4a6d-84e7-ed77a48532cf';
@@ -12,14 +15,14 @@ class PushNotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Enable verbose logging for debugging (remove in production)
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+    if (kDebugMode) OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
 
-    // Initialize OneSignal
     OneSignal.initialize(_appId);
 
-    // Request push notification permission
-    await OneSignal.Notifications.requestPermission(true);
+    await askPushPermissionIfNeeded(
+      canRequest: OneSignal.Notifications.canRequest,
+      request: OneSignal.Notifications.requestPermission,
+    );
 
     // Handle notification opened
     OneSignal.Notifications.addClickListener((event) {

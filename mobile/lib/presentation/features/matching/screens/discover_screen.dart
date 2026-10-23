@@ -9,6 +9,7 @@ import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
+import '../../chat/conversation_lookup.dart';
 import '../widgets/discover_card.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -291,7 +292,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (response.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
+          content: Text('Boost activé. Vous êtes en tête de pile pendant 30 minutes.'),
         ),
       );
     } else {
@@ -389,7 +390,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('C\'est un match.'),
-        content: Text('Tu as matché avec ${profile.displayName}.'),
+        content: Text('Vous avez matché avec ${profile.displayName}.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -398,12 +399,21 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              context.go(RoutePaths.matches);
+              _openConversationWith(profile.userId);
             },
             child: const Text('Envoyer un message'),
           ),
         ],
       ),
     );
+  }
+
+  /// Le serveur crée la conversation au match sans renvoyer son id : on la
+  /// retrouve par la personne, et à défaut on ouvre Messages.
+  Future<void> _openConversationWith(int userId) async {
+    final response = await _apiService.getConversations();
+    if (!mounted) return;
+    final id = response.success ? conversationIdWith(response.data ?? const [], userId) : null;
+    context.go(id == null ? RoutePaths.chat : '/chat/$id');
   }
 }

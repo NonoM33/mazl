@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
@@ -10,6 +9,8 @@ import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
+import '../conversation_lookup.dart';
+import '../conversation_time.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -115,21 +116,12 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     }
   }
 
-  String _formatTime(DateTime? dateTime) {
-    if (dateTime == null) return '';
+  String _formatTime(DateTime? dateTime) =>
+      dateTime == null ? '' : formatConversationTime(dateTime.toLocal(), DateTime.now());
 
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-
-    if (diff.inDays == 0) {
-      return DateFormat.Hm().format(dateTime);
-    } else if (diff.inDays == 1) {
-      return 'Hier';
-    } else if (diff.inDays < 7) {
-      return DateFormat.E().format(dateTime);
-    } else {
-      return DateFormat.MMMd().format(dateTime);
-    }
+  void _open(Conversation conversation) {
+    setState(() => _conversations = markConversationRead(_conversations, conversation.id));
+    context.go('/chat/${conversation.id}');
   }
 
   /// Filtre local par nom : aucun appel réseau.
@@ -235,7 +227,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
                 return ConversationRow(
                   conversation: conversation,
                   formattedTime: _formatTime(conversation.lastMessageAt),
-                  onTap: () => context.go('/chat/${conversation.id}'),
+                  onTap: () => _open(conversation),
                 );
               },
             ),

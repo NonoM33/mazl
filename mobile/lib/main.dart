@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 import 'app.dart';
 import 'core/dev/demo_http_client.dart';
@@ -30,6 +31,8 @@ Future<void> _start() async {
 
   // Initialize locale data for date formatting
   await initializeDateFormatting('fr_FR', null);
+  // Sans locale explicite, DateFormat écrivait « Tue » ou « Oct 15 ».
+  Intl.defaultLocale = 'fr_FR';
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

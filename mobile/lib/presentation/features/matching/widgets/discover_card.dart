@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/profile.dart' show Profile;
+import '../../../../core/models/profile_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
 
@@ -229,21 +230,14 @@ class _DiscoverCardState extends State<DiscoverCard> {
   }
 
   List<String> _tags() => [
-        for (final value in [
-          _profile.denomination,
-          _profile.kashrut,
-          _profile.shabbatObservance,
-          _profile.relationshipIntention,
-        ])
-          if (_hasText(value)) _humanize(value!),
-      ];
+        ProfileLabels.denomination(_profile.denomination),
+        ProfileLabels.kashrut(_profile.kashrut),
+        ProfileLabels.shabbat(_profile.shabbatObservance),
+        ProfileLabels.intention(_profile.relationshipIntention),
+      ].whereType<String>().toList();
 
   static bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
 
-  static String _humanize(String raw) {
-    final spaced = raw.trim().replaceAll('_', ' ');
-    return spaced[0].toUpperCase() + spaced.substring(1);
-  }
 }
 
 class _PhotoProgress extends StatelessWidget {
@@ -383,7 +377,7 @@ class DiscoverMiniAction extends StatelessWidget {
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: locked
-                    ? Icon(LucideIcons.crown, size: 10, color: scheme.surface)
+                    ? Icon(LucideIcons.lock, size: 10, color: scheme.surface)
                     : Text(
                         badge!,
                         style: TextStyle(

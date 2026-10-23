@@ -1,3 +1,4 @@
+import '../../../../../core/models/profile_labels.dart';
 /// Données d'affichage d'un profil, déjà débarrassées de leur origine
 /// (profil d'un autre ou le sien).
 class ProfileViewData {
@@ -68,9 +69,9 @@ class ProfileViewData {
       _ => null,
     };
     return [
-      _fact('Pratique', denomination),
-      _fact('Cacherout', kashrut),
-      _fact('Shabbat', shabbatObservance),
+      _fact('Pratique', ProfileLabels.denomination(denomination)),
+      _fact('Cacherout', ProfileLabels.kashrut(kashrut)),
+      _fact('Shabbat', ProfileLabels.shabbat(shabbatObservance)),
       _fact('Genre', genderLabel),
     ].whereType<ProfileFact>().toList();
   }
