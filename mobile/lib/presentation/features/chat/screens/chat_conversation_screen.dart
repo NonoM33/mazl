@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/chat/voice.dart';
 import '../../../../core/models/conversation.dart';
+import '../logic/chat_errors.dart';
 import '../logic/scam_flags.dart';
 import '../state/chat_controller_impl.dart';
 import '../state/chat_controller.dart';
@@ -42,15 +43,20 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
   final bool Function(ChatMessage message)? isScamFlagged;
 
   @override
-  ConsumerState<ChatConversationScreen> createState() => _ChatConversationScreenState();
+  ConsumerState<ChatConversationScreen> createState() =>
+      _ChatConversationScreenState();
 }
 
-class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen> {
+class _ChatConversationScreenState
+    extends ConsumerState<ChatConversationScreen> {
   final _text = TextEditingController();
   final _focus = FocusNode();
-  late final ChatActions _actions = ref.read(chatControllerProvider(widget.conversationId).notifier);
+  late final ChatActions _actions = ref.read(
+    chatControllerProvider(widget.conversationId).notifier,
+  );
   final _scam = ScamFlagger();
   ReplyDraft? _reply;
+  bool _blocked = false;
 
   @override
   void initState() {
@@ -66,12 +72,14 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     super.dispose();
   }
 
-  String get _otherName => widget.otherUser?.displayName ?? 'Votre correspondant';
+  String get _otherName =>
+      widget.otherUser?.displayName ?? 'Votre correspondant';
 
   ReplyDraft _draftFor(ChatMessage message, int myUserId) {
     final mine = message.senderId == myUserId;
     final preview = switch (message.type) {
-      ChatMessageType.photo => message.content.isEmpty ? 'Photo' : message.content,
+      ChatMessageType.photo =>
+        message.content.isEmpty ? 'Photo' : message.content,
       ChatMessageType.voice => 'Message vocal',
       ChatMessageType.text => message.content,
     };
@@ -84,7 +92,12 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
 
   void _startReply(ChatMessage message) {
     if (message.isLocal || message.unsent) return;
-    setState(() => _reply = _draftFor(message, ref.read(chatControllerProvider(widget.conversationId)).myUserId));
+    setState(
+      () => _reply = _draftFor(
+        message,
+        ref.read(chatControllerProvider(widget.conversationId)).myUserId,
+      ),
+    );
     _focus.requestFocus();
   }
 
@@ -97,7 +110,12 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
 
   Future<void> _send(Future<String?> Function(int? replyToId) action) async {
     final error = await action(_takeReply());
-    if (mounted) showChatError(context, error);
+    if (!mounted) return;
+    if (isBlockedError(error)) {
+      setState(() => _blocked = true);
+    } else {
+      showChatError(context, error);
+    }
   }
 
   void _sendText(String text) {
@@ -105,16 +123,17 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     _send((replyTo) => _actions.sendText(text, replyToId: replyTo));
   }
 
-  void _sendPhotos(List<Uint8List> photos) => _send((replyTo) => _actions.sendPhotos(photos, replyToId: replyTo));
+  void _sendPhotos(List<Uint8List> photos) =>
+      _send((replyTo) => _actions.sendPhotos(photos, replyToId: replyTo));
 
   void _sendVoice(VoiceRecording recording) => _send(
-        (replyTo) => _actions.sendVoice(
-          recording.aac,
-          durationMs: recording.duration.inMilliseconds,
-          waveform: recording.waveform,
-          replyToId: replyTo,
-        ),
-      );
+    (replyTo) => _actions.sendVoice(
+      recording.aac,
+      durationMs: recording.duration.inMilliseconds,
+      waveform: recording.waveform,
+      replyToId: replyTo,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +162,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
             ),
           ),
           MessageComposer(
+            disabledMessage: _blocked ? blockedConversationMessage : null,
             controller: _text,
             focusNode: _focus,
             reply: _reply,

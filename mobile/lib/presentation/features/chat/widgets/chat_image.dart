@@ -10,8 +10,13 @@ import '../../../../core/theme/app_colors.dart';
 /// The only image widget of the chat: http(s) URLs (cached), `data:` URIs
 /// (demo mode, CONTRACT §4bis) and raw bytes (a photo being sent).
 class ChatImage extends StatelessWidget {
-  const ChatImage({super.key, this.url, this.bytes, this.fit = BoxFit.cover, this.tint = 0})
-      : assert(url != null || bytes != null, 'a ChatImage needs a url or bytes');
+  const ChatImage({
+    super.key,
+    this.url,
+    this.bytes,
+    this.fit = BoxFit.cover,
+    this.tint = 0,
+  }) : assert(url != null || bytes != null, 'a ChatImage needs a url or bytes');
 
   final String? url;
   final Uint8List? bytes;
@@ -38,7 +43,9 @@ class ChatImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final placeholder = _Placeholder(AppColors.photoTints[tint.abs() % AppColors.photoTints.length]);
+    final placeholder = _Placeholder(
+      AppColors.photoTints[tint.abs() % AppColors.photoTints.length],
+    );
     final raw = bytes ?? _memoryBytes();
     if (raw != null) {
       return Image.memory(
@@ -46,7 +53,8 @@ class ChatImage extends StatelessWidget {
         fit: fit,
         gaplessPlayback: true,
         errorBuilder: (_, __, ___) => const _Placeholder(null, broken: true),
-        frameBuilder: (context, child, frame, sync) => frame == null && !sync ? placeholder : child,
+        frameBuilder: (context, child, frame, sync) =>
+            frame == null && !sync ? placeholder : child,
       );
     }
     final address = url!;
@@ -61,7 +69,8 @@ class ChatImage extends StatelessWidget {
     return const _Placeholder(null, broken: true);
   }
 
-  Uint8List? _memoryBytes() => url != null && url!.startsWith('data:') ? decodeDataUri(url!) : null;
+  Uint8List? _memoryBytes() =>
+      url != null && url!.startsWith('data:') ? decodeDataUri(url!) : null;
 }
 
 class _Placeholder extends StatelessWidget {
@@ -75,7 +84,11 @@ class _Placeholder extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return ColoredBox(
       color: tint ?? scheme.surfaceContainer,
-      child: broken ? Center(child: Icon(LucideIcons.imageOff, color: scheme.onSurfaceVariant)) : null,
+      child: broken
+          ? Center(
+              child: Icon(LucideIcons.imageOff, color: scheme.onSurfaceVariant),
+            )
+          : null,
     );
   }
 }

@@ -85,7 +85,12 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     }
     _photoOpen = Timer(_doubleTapWindow, () {
       if (!mounted) return;
-      openPhotoViewer(context, photos: PhotoSource.of(message), initialIndex: index, heroPrefix: 'photo-${messageKey(message)}');
+      openPhotoViewer(
+        context,
+        photos: PhotoSource.of(message),
+        initialIndex: index,
+        heroPrefix: 'photo-${messageKey(message)}',
+      );
     });
   }
 
@@ -94,26 +99,42 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   MessageItem get item => widget.item;
   ChatMessage get message => item.message;
 
-  BubbleContext _thread(ChatScope scope, RowOperations ops, {required bool overlay}) {
+  BubbleContext _thread(
+    ChatScope scope,
+    RowOperations ops, {
+    required bool overlay,
+  }) {
     final revealed = ref.watch(revealedPhotosProvider).contains(message.id);
     return BubbleContext(
       authorOf: scope.authorOf,
       onQuoteTap: overlay ? null : scope.scrollToMessage,
       heroEnabled: !overlay,
-      onPlayFailed: () => ref.read(chatControllerProvider(scope.conversationId).notifier).load(),
-      photosBlurred: !item.mine && !message.isLocal && !revealed && message.type == ChatMessageType.photo,
-      onRevealPhotos: () => ref.read(revealedPhotosProvider.notifier).update((s) => {...s, message.id}),
+      onPlayFailed: () => ref
+          .read(chatControllerProvider(scope.conversationId).notifier)
+          .load(),
+      photosBlurred:
+          !item.mine &&
+          !message.isLocal &&
+          !revealed &&
+          message.type == ChatMessageType.photo,
+      onRevealPhotos: () => ref
+          .read(revealedPhotosProvider.notifier)
+          .update((s) => {...s, message.id}),
       onOpenPhoto: (index) => _photoTap(ops, index),
     );
   }
 
-  MessageBubble _bubble(ChatScope scope, RowOperations ops, {bool overlay = false}) => MessageBubble(
-        message: message,
-        mine: item.mine,
-        first: item.first,
-        last: item.last,
-        thread: _thread(scope, ops, overlay: overlay),
-      );
+  MessageBubble _bubble(
+    ChatScope scope,
+    RowOperations ops, {
+    bool overlay = false,
+  }) => MessageBubble(
+    message: message,
+    mine: item.mine,
+    first: item.first,
+    last: item.last,
+    thread: _thread(scope, ops, overlay: overlay),
+  );
 
   void _longPress(RowOperations ops, ChatScope scope) {
     if (!ops.canMenu) return;
@@ -140,12 +161,20 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     final noMotion = MediaQuery.disableAnimationsOf(context);
 
     Widget bubble = KeyedSubtree(key: _bubbleKey, child: _bubble(scope, ops));
-    if (message.status == MessageStatus.sending) bubble = Opacity(opacity: 0.6, child: bubble);
+    if (message.status == MessageStatus.sending) {
+      bubble = Opacity(opacity: 0.6, child: bubble);
+    }
 
     final gestures = GestureDetector(
       onTap: () => _tap(ops),
       onLongPress: () => _longPress(ops, scope),
-      child: Stack(clipBehavior: Clip.none, children: [bubble, Positioned.fill(child: HeartPop(trigger: _hearts))]),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          bubble,
+          Positioned.fill(child: HeartPop(trigger: _hearts)),
+        ],
+      ),
     );
 
     final hasReactions = message.reactions.any((r) => r.userIds.isNotEmpty);
@@ -155,7 +184,14 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     final bubbleWithPill = Stack(
       clipBehavior: Clip.none,
       children: [
-        Padding(padding: EdgeInsets.only(bottom: hasReactions ? ReactionPill.height + 4 - ReactionPill.bite : 0), child: gestures),
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: hasReactions
+                ? ReactionPill.height + 4 - ReactionPill.bite
+                : 0,
+          ),
+          child: gestures,
+        ),
         if (hasReactions)
           Positioned(
             bottom: 0,
@@ -164,7 +200,11 @@ class _MessageRowState extends ConsumerState<MessageRow> {
             child: ReactionPill(
               reactions: message.reactions,
               myUserId: scope.myUserId,
-              onTap: () => showReactionsSheet(context, reactions: message.reactions, scope: scope),
+              onTap: () => showReactionsSheet(
+                context,
+                reactions: message.reactions,
+                scope: scope,
+              ),
             ),
           ),
       ],
@@ -175,7 +215,9 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          mainAxisAlignment: item.mine ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: item.mine
+              ? MainAxisAlignment.end
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!item.mine) _avatar(scope),
@@ -187,7 +229,9 @@ class _MessageRowState extends ConsumerState<MessageRow> {
           child: Align(
             alignment: item.mine ? Alignment.centerRight : Alignment.centerLeft,
             child: AnimatedSize(
-              duration: noMotion ? Duration.zero : const Duration(milliseconds: 200),
+              duration: noMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 200),
               curve: Curves.easeOutCubic,
               alignment: Alignment.topCenter,
               child: _meta(ops, scheme),
@@ -199,7 +243,9 @@ class _MessageRowState extends ConsumerState<MessageRow> {
 
     return AnimatedContainer(
       duration: noMotion ? Duration.zero : const Duration(milliseconds: 250),
-      color: highlighted ? scheme.primary.withValues(alpha: 0.12) : Colors.transparent,
+      color: highlighted
+          ? scheme.primary.withValues(alpha: 0.12)
+          : Colors.transparent,
       padding: EdgeInsets.only(top: BubbleStyle.gapAbove(first: item.first)),
       child: AppearAnimation(
         enabled: widget.appear,
@@ -230,14 +276,19 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   }
 
   Widget _avatar(ChatScope scope) => Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: SizedBox.square(
-          dimension: 28,
-          child: item.last
-              ? ProfilePhoto(url: scope.otherPicture, seed: scope.otherUserId, radius: 14, iconSize: 14)
-              : null,
-        ),
-      );
+    padding: const EdgeInsets.only(right: 8),
+    child: SizedBox.square(
+      dimension: 28,
+      child: item.last
+          ? ProfilePhoto(
+              url: scope.otherPicture,
+              seed: scope.otherUserId,
+              radius: 14,
+              iconSize: 14,
+            )
+          : null,
+    ),
+  );
 
   /// Time under the last bubble of a group, or « Vu à… », or the failure line.
   Widget _meta(RowOperations ops, ColorScheme scheme) {
@@ -247,7 +298,10 @@ class _MessageRowState extends ConsumerState<MessageRow> {
         child: GestureDetector(
           onTap: ops.failedMenu,
           behavior: HitTestBehavior.opaque,
-          child: const Text('Échec · Réessayer', style: TextStyle(fontSize: 12, color: AppColors.error)),
+          child: const Text(
+            'Échec · Réessayer',
+            style: TextStyle(fontSize: 12, color: AppColors.error),
+          ),
         ),
       );
     }
@@ -255,12 +309,15 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     final text = seenAt != null
         ? 'Vu à ${clock(seenAt)}'
         : (item.last || _timeRevealed) && !message.isLocal
-            ? clock(message.createdAt)
-            : null;
+        ? clock(message.createdAt)
+        : null;
     if (text == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: Text(text, style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+      ),
     );
   }
 }

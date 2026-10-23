@@ -62,8 +62,10 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   String? _newestKey;
   Timer? _highlightTimer;
   Timer? _appearTimer;
+  bool _stickyScheduled = false;
 
-  ChatActions get _actions => ref.read(chatControllerProvider(widget.conversationId).notifier);
+  ChatActions get _actions =>
+      ref.read(chatControllerProvider(widget.conversationId).notifier);
 
   @override
   void initState() {
@@ -84,14 +86,20 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
 
     if (before != null && _newestKey != before) {
       final from = messages.indexWhere((m) => messageKey(m) == before);
-      final arrived = from < 0 ? const <ChatMessage>[] : messages.sublist(from + 1);
+      final arrived = from < 0
+          ? const <ChatMessage>[]
+          : messages.sublist(from + 1);
       final mineSent = arrived.any((m) => m.senderId == widget.state.myUserId);
-      final fromOther = arrived.where((m) => m.senderId != widget.state.myUserId).length;
+      final fromOther = arrived
+          .where((m) => m.senderId != widget.state.myUserId)
+          .length;
       _appearing.addAll(arrived.map(messageKey));
       _appearTimer?.cancel();
       _appearTimer = Timer(const Duration(milliseconds: 400), _appearing.clear);
       if (mineSent || _atBottom) {
-        SchedulerBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) => _scrollToBottom(),
+        );
       } else {
         _unseen += fromOther;
         _keepPlaceWhileGrowing();
@@ -108,9 +116,11 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
     super.dispose();
   }
 
-  String? _lastMessageKey(ChatState s) => s.messages.isEmpty ? null : messageKey(s.messages.last);
+  String? _lastMessageKey(ChatState s) =>
+      s.messages.isEmpty ? null : messageKey(s.messages.last);
 
-  GlobalKey _keyFor(ChatItem item) => _rowKeys.putIfAbsent(item.key, GlobalKey.new);
+  GlobalKey _keyFor(ChatItem item) =>
+      _rowKeys.putIfAbsent(item.key, GlobalKey.new);
 
   void _onScroll() {
     final position = _scroll.position;
@@ -123,20 +133,39 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       if (atBottom) _markRead();
     }
     if (position.pixels >= position.maxScrollExtent - 300) _loadOlder();
-    _updateSticky();
+    _scheduleSticky();
+  }
+
+  /// Row positions are only right after the frame's layout, so the sticky
+  /// label is computed then, once per frame.
+  void _scheduleSticky() {
+    if (_stickyScheduled) return;
+    _stickyScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _stickyScheduled = false;
+      if (mounted) _updateSticky();
+    });
   }
 
   void _afterLayout() {
     if (!mounted || !_scroll.hasClients) return;
     final position = _scroll.position;
-    if (position.maxScrollExtent <= 0 || position.pixels >= position.maxScrollExtent - 300) _loadOlder();
+    if (position.maxScrollExtent <= 0 ||
+        position.pixels >= position.maxScrollExtent - 300) {
+      _loadOlder();
+    }
     _markRead();
     _updateSticky();
   }
 
   void _loadOlder() {
     final s = widget.state;
-    if (!s.hasMore || s.loadingOlder || s.messages.isEmpty || _olderRequestedFor == s.messages.length) return;
+    if (!s.hasMore ||
+        s.loadingOlder ||
+        s.messages.isEmpty ||
+        _olderRequestedFor == s.messages.length) {
+      return;
+    }
     _olderRequestedFor = s.messages.length;
     _actions.loadOlder();
   }
@@ -158,7 +187,11 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
     if (!_scroll.hasClients) return;
     final motion = !MediaQuery.disableAnimationsOf(context);
     if (motion) {
-      _scroll.animateTo(0, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+      _scroll.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+      );
     } else {
       _scroll.jumpTo(0);
     }
@@ -193,24 +226,38 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       best = y;
       topmost = item;
     }
-    final label = topmost is MessageItem ? dayLabel(dayOfItem(topmost)!, DateTime.now()) : null;
+    final label = topmost is MessageItem
+        ? dayLabel(dayOfItem(topmost)!, DateTime.now())
+        : null;
     if (label != _stickyLabel) setState(() => _stickyLabel = label);
   }
 
   Future<void> _scrollToMessage(int id) async {
-    final index = _items.indexWhere((i) => i is MessageItem && i.message.id == id);
+    final index = _items.indexWhere(
+      (i) => i is MessageItem && i.message.id == id,
+    );
     if (index < 0) return;
     for (var attempt = 0; attempt < 8 && mounted; attempt++) {
       final rowContext = _rowKeys[_items[index].key]?.currentContext;
       if (rowContext != null && rowContext.mounted) {
-        await Scrollable.ensureVisible(rowContext, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic, alignment: 0.4);
+        await Scrollable.ensureVisible(
+          rowContext,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          alignment: 0.4,
+        );
         _highlight(id);
         return;
       }
       if (!_scroll.hasClients) return;
       final position = _scroll.position;
-      final average = (position.maxScrollExtent + position.viewportDimension) / _items.length;
-      final target = ((_items.length - 1 - index) * average - position.viewportDimension / 2).clamp(0.0, position.maxScrollExtent);
+      final average =
+          (position.maxScrollExtent + position.viewportDimension) /
+          _items.length;
+      final target =
+          ((_items.length - 1 - index) * average -
+                  position.viewportDimension / 2)
+              .clamp(0.0, position.maxScrollExtent);
       _scroll.jumpTo(target);
       await SchedulerBinding.instance.endOfFrame;
     }
@@ -228,16 +275,24 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   Widget _build(ChatItem item) {
     final child = switch (item) {
       LoadingOlderItem() => const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Center(child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
         ),
+      ),
       StartItem(:final day) => DateSeparator('Match · ${shortDate(day)}'),
       DateItem(:final day) => DateSeparator(dayLabel(day, DateTime.now())),
       TypingItem() => const Padding(
-          padding: EdgeInsets.fromLTRB(16 + 36, 12, 16, 0),
-          child: Align(alignment: Alignment.centerLeft, child: TypingIndicator()),
-        ),
-      MessageItem() => MessageRow(item: item, appear: _appearing.contains(item.key)),
+        padding: EdgeInsets.fromLTRB(16 + 36, 12, 16, 0),
+        child: Align(alignment: Alignment.centerLeft, child: TypingIndicator()),
+      ),
+      MessageItem() => MessageRow(
+        item: item,
+        appear: _appearing.contains(item.key),
+      ),
     };
     return KeyedSubtree(key: _keyFor(item), child: child);
   }
@@ -247,7 +302,9 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
     final s = widget.state;
     if (s.messages.isEmpty) {
       if (s.loading) return const ListSkeleton();
-      if (s.error != null) return ListError(message: s.error!, onRetry: _actions.load);
+      if (s.error != null) {
+        return ListError(message: s.error!, onRetry: _actions.load);
+      }
       return const EmptyConversation();
     }
     final items = _items;
@@ -273,14 +330,23 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
               final index = items.indexWhere((i) => _rowKeys[i.key] == key);
               return index < 0 ? null : items.length - 1 - index;
             },
-            itemBuilder: (context, index) => _build(items[items.length - 1 - index]),
+            itemBuilder: (context, index) =>
+                _build(items[items.length - 1 - index]),
           ),
-          if (_stickyLabel != null) Positioned(top: 0, left: 0, right: 0, child: StickyDateLabel(_stickyLabel!)),
+          if (_stickyLabel != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: StickyDateLabel(_stickyLabel!),
+            ),
           Positioned(
             left: 0,
             right: 0,
             bottom: 4,
-            child: Center(child: NewMessagesPill(count: _unseen, onTap: _scrollToBottom)),
+            child: Center(
+              child: NewMessagesPill(count: _unseen, onTap: _scrollToBottom),
+            ),
           ),
         ],
       ),

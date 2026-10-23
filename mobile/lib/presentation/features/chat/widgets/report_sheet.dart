@@ -21,10 +21,17 @@ Future<String?> pickReportReason(BuildContext context) {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-          child: Text('Signaler ce message', style: Theme.of(context).textTheme.titleMedium),
+          child: Text(
+            'Signaler ce message',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
         for (final (label, icon) in reportReasons)
-          ListTile(leading: Icon(icon), title: Text(label), onTap: () => Navigator.pop(context, label)),
+          ListTile(
+            leading: Icon(icon),
+            title: Text(label),
+            onTap: () => Navigator.pop(context, label),
+          ),
       ],
     ),
   );
@@ -38,7 +45,10 @@ Future<void> showScamAdviceSheet(BuildContext context) {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Se protéger des arnaques', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Se protéger des arnaques',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 12),
         for (final line in const [
           "N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.",

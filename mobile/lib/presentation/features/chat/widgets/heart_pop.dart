@@ -12,18 +12,37 @@ class HeartPop extends StatefulWidget {
   State<HeartPop> createState() => _HeartPopState();
 }
 
-class _HeartPopState extends State<HeartPop> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
+class _HeartPopState extends State<HeartPop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 350),
+  );
 
   static final _scale = TweenSequence<double>([
-    TweenSequenceItem(tween: Tween(begin: 0.6, end: 1.2).chain(CurveTween(curve: Curves.easeOutCubic)), weight: 60),
-    TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)), weight: 40),
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 0.6,
+        end: 1.2,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+      weight: 60,
+    ),
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 1.2,
+        end: 1.0,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+      weight: 40,
+    ),
   ]);
 
   @override
   void didUpdateWidget(HeartPop old) {
     super.didUpdateWidget(old);
-    if (widget.trigger > old.trigger && !MediaQuery.disableAnimationsOf(context)) _controller.forward(from: 0);
+    if (widget.trigger > old.trigger &&
+        !MediaQuery.disableAnimationsOf(context)) {
+      _controller.forward(from: 0);
+    }
   }
 
   @override
@@ -39,12 +58,17 @@ class _HeartPopState extends State<HeartPop> with SingleTickerProviderStateMixin
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          if (_controller.isDismissed || _controller.isCompleted) return const SizedBox.shrink();
+          if (_controller.isDismissed || _controller.isCompleted) {
+            return const SizedBox.shrink();
+          }
           final t = _controller.value;
           return Center(
             child: Opacity(
               opacity: t < 0.7 ? 1 : (1 - (t - 0.7) / 0.3).clamp(0.0, 1.0),
-              child: Transform.scale(scale: _scale.transform(t), child: Icon(Icons.favorite, size: 44, color: color)),
+              child: Transform.scale(
+                scale: _scale.transform(t),
+                child: Icon(Icons.favorite, size: 44, color: color),
+              ),
             ),
           );
         },

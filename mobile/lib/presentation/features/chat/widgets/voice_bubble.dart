@@ -15,7 +15,12 @@ import 'waveform.dart';
 /// fills as it plays, duration and a speed chip. One shared [VoicePlayer]
 /// plays one clip at a time; a bubble follows it only while it is the one loaded.
 class VoiceBubbleContent extends ConsumerStatefulWidget {
-  const VoiceBubbleContent({super.key, required this.voice, required this.mine, this.onPlayFailed});
+  const VoiceBubbleContent({
+    super.key,
+    required this.voice,
+    required this.mine,
+    this.onPlayFailed,
+  });
 
   static const speeds = [1.0, 1.5, 2.0];
 
@@ -27,7 +32,8 @@ class VoiceBubbleContent extends ConsumerStatefulWidget {
   final VoidCallback? onPlayFailed;
 
   /// « 1× », « 1,5× », « 2× » (decimal comma).
-  static String speedLabel(double speed) => '${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll('.', ',')}×';
+  static String speedLabel(double speed) =>
+      '${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll('.', ',')}×';
 
   @override
   ConsumerState<VoiceBubbleContent> createState() => _VoiceBubbleContentState();
@@ -39,18 +45,23 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
   Duration? _position;
   bool _playing = false;
 
-  bool get _current => ref.read(voicePlayerProvider).currentUrl == widget.voice.url;
+  bool get _current =>
+      ref.read(voicePlayerProvider).currentUrl == widget.voice.url;
 
   @override
   void initState() {
     super.initState();
     final player = ref.read(voicePlayerProvider);
-    _subscriptions.add(player.position.listen((p) {
-      if (mounted) setState(() => _position = p);
-    }));
-    _subscriptions.add(player.playing.listen((p) {
-      if (mounted) setState(() => _playing = p);
-    }));
+    _subscriptions.add(
+      player.position.listen((p) {
+        if (mounted) setState(() => _position = p);
+      }),
+    );
+    _subscriptions.add(
+      player.playing.listen((p) {
+        if (mounted) setState(() => _playing = p);
+      }),
+    );
   }
 
   @override
@@ -77,7 +88,10 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
   }
 
   void _cycleSpeed() {
-    final next = VoiceBubbleContent.speeds[(VoiceBubbleContent.speeds.indexOf(_speed) + 1) % VoiceBubbleContent.speeds.length];
+    final next =
+        VoiceBubbleContent.speeds[(VoiceBubbleContent.speeds.indexOf(_speed) +
+                1) %
+            VoiceBubbleContent.speeds.length];
     setState(() => _speed = next);
     if (_current) ref.read(voicePlayerProvider).setSpeed(next);
   }
@@ -90,8 +104,12 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
     final isCurrent = _current;
     final playing = isCurrent && _playing;
     final position = isCurrent ? (_position ?? Duration.zero) : Duration.zero;
-    final progress = total.inMilliseconds == 0 ? 0.0 : (position.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0);
-    final shown = playing || (isCurrent && position > Duration.zero) ? position : total;
+    final progress = total.inMilliseconds == 0
+        ? 0.0
+        : (position.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0);
+    final shown = playing || (isCurrent && position > Duration.zero)
+        ? position
+        : total;
     final buttonFill = widget.mine ? scheme.onPrimary : scheme.onSurface;
     final buttonIcon = widget.mine ? scheme.primary : scheme.surface;
     return Row(
@@ -105,8 +123,15 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
             child: Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: buttonFill, shape: BoxShape.circle),
-              child: Icon(playing ? LucideIcons.pause : LucideIcons.play, size: 16, color: buttonIcon),
+              decoration: BoxDecoration(
+                color: buttonFill,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                playing ? LucideIcons.pause : LucideIcons.play,
+                size: 16,
+                color: buttonIcon,
+              ),
             ),
           ),
         ),
@@ -115,7 +140,11 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Waveform(values: widget.voice.waveform, progress: progress, color: colors.text),
+            Waveform(
+              values: widget.voice.waveform,
+              progress: progress,
+              color: colors.text,
+            ),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -134,11 +163,21 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
                   onTap: _cycleSpeed,
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: colors.inset, borderRadius: BorderRadius.circular(999)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.inset,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
                     child: Text(
                       VoiceBubbleContent.speedLabel(_speed),
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.text),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: colors.text,
+                      ),
                     ),
                   ),
                 ),

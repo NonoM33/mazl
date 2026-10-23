@@ -3,8 +3,18 @@
 
 const _weekdays = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
 const _months = [
-  'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-  'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.',
+  'janv.',
+  'févr.',
+  'mars',
+  'avr.',
+  'mai',
+  'juin',
+  'juil.',
+  'août',
+  'sept.',
+  'oct.',
+  'nov.',
+  'déc.',
 ];
 
 DateTime dayOf(DateTime time) {
@@ -28,7 +38,8 @@ String dayLabel(DateTime day, DateTime now) {
   final days = today.difference(date).inDays;
   if (days == 0) return "Aujourd'hui";
   if (days == 1) return 'Hier';
-  final base = '${_weekdays[date.weekday - 1][0].toUpperCase()}${_weekdays[date.weekday - 1].substring(1)} '
+  final base =
+      '${_weekdays[date.weekday - 1][0].toUpperCase()}${_weekdays[date.weekday - 1].substring(1)} '
       '${date.day} ${_months[date.month - 1]}';
   return date.year == today.year ? base : '$base ${date.year}';
 }

@@ -8,12 +8,26 @@ abstract class BubbleStyle {
 
   /// Within a group the side against the margin is squeezed to 8 so bubbles
   /// stack; the last bubble carries the 6 px tail.
-  static BorderRadius radius({required bool mine, required bool first, required bool last}) {
+  static BorderRadius radius({
+    required bool mine,
+    required bool first,
+    required bool last,
+  }) {
     final top = first ? big : stacked;
     final bottom = last ? tail : stacked;
     return mine
-        ? BorderRadius.only(topLeft: big, topRight: top, bottomLeft: big, bottomRight: bottom)
-        : BorderRadius.only(topLeft: top, topRight: big, bottomLeft: bottom, bottomRight: big);
+        ? BorderRadius.only(
+            topLeft: big,
+            topRight: top,
+            bottomLeft: big,
+            bottomRight: bottom,
+          )
+        : BorderRadius.only(
+            topLeft: top,
+            topRight: big,
+            bottomLeft: bottom,
+            bottomRight: big,
+          );
   }
 
   /// 270 px, or 75 % of the screen when it is wider than 360.
@@ -30,7 +44,12 @@ abstract class BubbleStyle {
 
 /// Colours of the content drawn inside a bubble, from the colour scheme only.
 class BubbleColors {
-  const BubbleColors._({required this.background, required this.text, required this.muted, required this.inset});
+  const BubbleColors._({
+    required this.background,
+    required this.text,
+    required this.muted,
+    required this.inset,
+  });
 
   final Color background;
   final Color text;

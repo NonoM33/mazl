@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,10 +22,76 @@ const conversationId = 40;
 /// A 1x1 PNG as a `data:` URI, the way the demo serves media (CONTRACT §4bis).
 final tinyPngUri = 'data:image/png;base64,${base64Encode(_tinyPng)}';
 const _tinyPng = <int>[
-  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01,
-  0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41,
-  0x54, 0x78, 0x9C, 0x63, 0xF8, 0xCF, 0xC0, 0xF0, 0x1F, 0x00, 0x05, 0x00, 0x01, 0xFF, 0x89, 0x99, 0x3D, 0x1D, 0x00, 0x00,
-  0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x63,
+  0xF8,
+  0xCF,
+  0xC0,
+  0xF0,
+  0x1F,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0xFF,
+  0x89,
+  0x99,
+  0x3D,
+  0x1D,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
 ];
 
 DateTime today(int hour, int minute) {
@@ -49,34 +114,39 @@ ChatMessage msg(
   bool unsent = false,
   MessageStatus? status,
   String? clientId,
-}) =>
-    ChatMessage(
-      id: id,
-      clientId: clientId ?? 'c-$id',
-      conversationId: conversationId,
-      senderId: sender,
-      type: type,
-      content: text,
-      createdAt: at ?? today(10, id),
-      media: media,
-      voice: voice,
-      replyTo: replyTo,
-      reactions: reactions,
-      linkPreview: linkPreview,
-      readAt: readAt,
-      unsent: unsent,
-      status: status ?? (readAt != null ? MessageStatus.seen : MessageStatus.sent),
-    );
+}) => ChatMessage(
+  id: id,
+  clientId: clientId ?? 'c-$id',
+  conversationId: conversationId,
+  senderId: sender,
+  type: type,
+  content: text,
+  createdAt: at ?? today(10, id),
+  media: media,
+  voice: voice,
+  replyTo: replyTo,
+  reactions: reactions,
+  linkPreview: linkPreview,
+  readAt: readAt,
+  unsent: unsent,
+  status: status ?? (readAt != null ? MessageStatus.seen : MessageStatus.sent),
+);
 
-ChatState chatState(List<ChatMessage> messages, {bool hasMore = false, bool typing = false, bool loading = false, String? error}) => ChatState(
-      conversationId: conversationId,
-      myUserId: me,
-      messages: messages,
-      loading: loading,
-      hasMore: hasMore,
-      otherIsTyping: typing,
-      error: error,
-    );
+ChatState chatState(
+  List<ChatMessage> messages, {
+  bool hasMore = false,
+  bool typing = false,
+  bool loading = false,
+  String? error,
+}) => ChatState(
+  conversationId: conversationId,
+  myUserId: me,
+  messages: messages,
+  loading: loading,
+  hasMore: hasMore,
+  otherIsTyping: typing,
+  error: error,
+);
 
 /// The real controller's seat: records every action, returns null (success)
 /// unless [error] is set.
@@ -86,6 +156,7 @@ class FakeChatNotifier extends ChatNotifier {
   /// Pushes a new state to the screen.
   void emit(ChatState next) => state = next;
 
+  ChatState get current => state;
 
   final calls = <String>[];
   final sentTexts = <({String text, int? replyToId})>[];
@@ -112,14 +183,27 @@ class FakeChatNotifier extends ChatNotifier {
   }
 
   @override
-  Future<String?> sendPhotos(List<Uint8List> jpegs, {String caption = '', int? replyToId}) async {
+  Future<String?> sendPhotos(
+    List<Uint8List> jpegs, {
+    String caption = '',
+    int? replyToId,
+  }) async {
     sentPhotos.add(jpegs.length);
     return error;
   }
 
   @override
-  Future<String?> sendVoice(Uint8List aac, {required int durationMs, required List<int> waveform, int? replyToId}) async {
-    sentVoices.add((durationMs: durationMs, waveform: waveform, replyToId: replyToId));
+  Future<String?> sendVoice(
+    Uint8List aac, {
+    required int durationMs,
+    required List<int> waveform,
+    int? replyToId,
+  }) async {
+    sentVoices.add((
+      durationMs: durationMs,
+      waveform: waveform,
+      replyToId: replyToId,
+    ));
     return error;
   }
 
@@ -230,8 +314,13 @@ class FakeVoicePlayer implements VoicePlayer {
 }
 
 class FakePicker implements ChatMediaPicker {
-  List<Uint8List> gallery = [Uint8List.fromList([1]), Uint8List.fromList([2])];
-  List<Uint8List> camera = [Uint8List.fromList([3])];
+  List<Uint8List> gallery = [
+    Uint8List.fromList([1]),
+    Uint8List.fromList([2]),
+  ];
+  List<Uint8List> camera = [
+    Uint8List.fromList([3]),
+  ];
   @override
   Future<List<Uint8List>> fromGallery({int limit = 10}) async => gallery;
   @override
@@ -239,7 +328,8 @@ class FakePicker implements ChatMediaPicker {
 }
 
 class ChatHarness {
-  ChatHarness({ChatState? initial}) : initialState = initial ?? chatState(const []);
+  ChatHarness({ChatState? initial})
+    : initialState = initial ?? chatState(const []);
 
   final ChatState initialState;
   late final FakeChatNotifier actions = FakeChatNotifier(initialState);
@@ -273,7 +363,9 @@ class ChatHarness {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: brightness == Brightness.dark ? AppTheme.darkTheme : AppTheme.lightTheme,
+          theme: brightness == Brightness.dark
+              ? AppTheme.darkTheme
+              : AppTheme.lightTheme,
           home: ChatConversationScreen(
             conversationId: conversationId,
             otherUser: ConversationUser(userId: other, displayName: 'Noémie'),
@@ -286,21 +378,38 @@ class ChatHarness {
   }
 
   void setState(ChatState next) => actions.emit(next);
-  ChatState get state => actions.debugState;
+  ChatState get state => actions.current;
 }
 
 /// Real fonts, so text measures like on a phone (the default test font is
 /// 15 px squares).
 Future<void> loadChatFonts() async {
   final geist = FontLoader('Geist');
-  for (final file in ['Geist-400.ttf', 'Geist-500.ttf', 'Geist-600.ttf', 'Geist-700.ttf']) {
-    geist.addFont(Future.value(ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync())));
+  for (final file in [
+    'Geist-400.ttf',
+    'Geist-500.ttf',
+    'Geist-600.ttf',
+    'Geist-700.ttf',
+  ]) {
+    geist.addFont(
+      Future.value(
+        ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
+      ),
+    );
   }
   await geist.load();
-  final mono = FontLoader('GeistMono')..addFont(Future.value(ByteData.sublistView(File('assets/fonts/GeistMono-400.ttf').readAsBytesSync())));
+  final mono = FontLoader('GeistMono')
+    ..addFont(
+      Future.value(
+        ByteData.sublistView(
+          File('assets/fonts/GeistMono-400.ttf').readAsBytesSync(),
+        ),
+      ),
+    );
   await mono.load();
 }
 
 Rect rectOf(WidgetTester tester, Finder finder) => tester.getRect(finder);
 
-Finder bubbleOf(ChatMessage m) => find.byKey(ValueKey('bubble-${m.clientId ?? 'id-${m.id}'}'));
+Finder bubbleOf(ChatMessage m) =>
+    find.byKey(ValueKey('bubble-${m.clientId ?? 'id-${m.id}'}'));

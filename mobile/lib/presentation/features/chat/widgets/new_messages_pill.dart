@@ -12,7 +12,8 @@ class NewMessagesPill extends StatelessWidget {
   final int count;
   final VoidCallback onTap;
 
-  static String label(int count) => count == 1 ? '1 nouveau message' : '$count nouveaux messages';
+  static String label(int count) =>
+      count == 1 ? '1 nouveau message' : '$count nouveaux messages';
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +40,18 @@ class NewMessagesPill extends StatelessWidget {
                   children: [
                     Text(
                       label(count == 0 ? 1 : count),
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: scheme.surface),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: scheme.surface,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(LucideIcons.arrowDown, size: 16, color: scheme.surface),
+                    Icon(
+                      LucideIcons.arrowDown,
+                      size: 16,
+                      color: scheme.surface,
+                    ),
                   ],
                 ),
               ),

@@ -11,8 +11,12 @@ class TypingIndicator extends StatefulWidget {
   State<TypingIndicator> createState() => _TypingIndicatorState();
 }
 
-class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+class _TypingIndicatorState extends State<TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
 
   @override
   void didChangeDependencies() {
@@ -60,7 +64,10 @@ class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProv
                     child: Container(
                       width: 6,
                       height: 6,
-                      decoration: BoxDecoration(color: scheme.onSurfaceVariant, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: scheme.onSurfaceVariant,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ),

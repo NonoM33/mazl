@@ -6,10 +6,13 @@ import 'chat_dates.dart';
 const groupGap = Duration(minutes: 3);
 
 /// Stable identity of a message across its optimistic and server versions.
-String messageKey(ChatMessage message) => message.clientId ?? 'id-${message.id}';
+String messageKey(ChatMessage message) =>
+    message.clientId ?? 'id-${message.id}';
 
 bool sameGroup(ChatMessage a, ChatMessage b) =>
-    a.senderId == b.senderId && sameDay(a.createdAt, b.createdAt) && b.createdAt.difference(a.createdAt).abs() < groupGap;
+    a.senderId == b.senderId &&
+    sameDay(a.createdAt, b.createdAt) &&
+    b.createdAt.difference(a.createdAt).abs() < groupGap;
 
 /// What the list draws, oldest first. The list view reverses it.
 sealed class ChatItem {
@@ -101,15 +104,19 @@ List<ChatItem> buildChatItems(ChatState state) {
 int _lastSeenIndex(List<ChatMessage> messages, int myUserId) {
   for (var i = messages.length - 1; i >= 0; i--) {
     final m = messages[i];
-    if (m.senderId == myUserId && !m.isLocal && (m.status == MessageStatus.seen || m.readAt != null)) return i;
+    if (m.senderId == myUserId &&
+        !m.isLocal &&
+        (m.status == MessageStatus.seen || m.readAt != null)) {
+      return i;
+    }
   }
   return -1;
 }
 
 /// The day a row belongs to, for the sticky date label.
 DateTime? dayOfItem(ChatItem item) => switch (item) {
-      MessageItem(:final message) => dayOf(message.createdAt),
-      DateItem(:final day) => day,
-      StartItem(:final day) => day,
-      _ => null,
-    };
+  MessageItem(:final message) => dayOf(message.createdAt),
+  DateItem(:final day) => day,
+  StartItem(:final day) => day,
+  _ => null,
+};

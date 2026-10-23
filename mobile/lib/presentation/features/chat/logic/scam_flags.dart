@@ -11,15 +11,25 @@ class ScamFlagger {
   /// when the whole history is loaded and the message is among its first ones;
   /// while older pages exist its true rank is unknown, so it counts as late.
   bool Function(ChatMessage) forState(ChatState state) {
-    final early = state.hasMore ? const <int>{} : {for (final m in state.messages.take(scamEarlyMessageCount)) m.id};
+    final early = state.hasMore
+        ? const <int>{}
+        : {for (final m in state.messages.take(scamEarlyMessageCount)) m.id};
     return (message) {
-      if (message.senderId == state.myUserId || message.unsent || message.type != ChatMessageType.text || message.content.isEmpty) {
+      if (message.senderId == state.myUserId ||
+          message.unsent ||
+          message.type != ChatMessageType.text ||
+          message.content.isEmpty) {
         return false;
       }
       final isEarly = early.contains(message.id);
       return _verdicts.putIfAbsent(
         (message.id, isEarly),
-        () => detectScam(message.content, position: isEarly ? 0 : scamEarlyMessageCount) != null,
+        () =>
+            detectScam(
+              message.content,
+              position: isEarly ? 0 : scamEarlyMessageCount,
+            ) !=
+            null,
       );
     };
   }

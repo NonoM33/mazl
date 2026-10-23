@@ -10,10 +10,21 @@ class ListSkeleton extends StatefulWidget {
   State<ListSkeleton> createState() => _ListSkeletonState();
 }
 
-class _ListSkeletonState extends State<ListSkeleton> with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+class _ListSkeletonState extends State<ListSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  );
 
-  static const _rows = [(false, 0.55), (false, 0.4), (true, 0.5), (false, 0.62), (true, 0.35), (true, 0.58)];
+  static const _rows = [
+    (false, 0.55),
+    (false, 0.4),
+    (true, 0.5),
+    (false, 0.62),
+    (true, 0.35),
+    (true, 0.58),
+  ];
 
   @override
   void didChangeDependencies() {
@@ -46,13 +57,17 @@ class _ListSkeletonState extends State<ListSkeleton> with SingleTickerProviderSt
             children: [
               for (final (mine, factor) in _rows)
                 Align(
-                  alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: mine
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     width: MediaQuery.sizeOf(context).width * factor,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: mine ? scheme.primary.withValues(alpha: 0.18) : scheme.surfaceContainer,
+                      color: mine
+                          ? scheme.primary.withValues(alpha: 0.18)
+                          : scheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(22),
                     ),
                   ),
@@ -74,18 +89,22 @@ class ListError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: onRetry, child: const Text('Réessayer')),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
-        ),
-      );
+          const SizedBox(height: 16),
+          OutlinedButton(onPressed: onRetry, child: const Text('Réessayer')),
+        ],
+      ),
+    ),
+  );
 }
 
 /// A match with no message yet.
@@ -103,9 +122,20 @@ class EmptyConversation extends StatelessWidget {
         children: [
           const SectionLabel('Nouveau match'),
           const SizedBox(height: 12),
-          const Text('Dites bonjour.', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, letterSpacing: -2, height: 1.05)),
+          const Text(
+            'Dites bonjour.',
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -2,
+              height: 1.05,
+            ),
+          ),
           const SizedBox(height: 12),
-          Text('Envoyez le premier message pour briser la glace.', style: TextStyle(fontSize: 16, height: 1.45, color: muted)),
+          Text(
+            'Envoyez le premier message pour briser la glace.',
+            style: TextStyle(fontSize: 16, height: 1.45, color: muted),
+          ),
         ],
       ),
     );

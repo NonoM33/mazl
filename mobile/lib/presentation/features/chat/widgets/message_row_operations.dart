@@ -23,15 +23,18 @@ class RowOperations {
   final MessageItem item;
 
   ChatMessage get message => item.message;
-  ChatActions get _actions => ref.read(chatControllerProvider(scope.conversationId).notifier);
+  ChatActions get _actions =>
+      ref.read(chatControllerProvider(scope.conversationId).notifier);
 
-  bool get canMenu => !message.unsent && (!message.isLocal || message.status == MessageStatus.failed);
+  bool get canMenu =>
+      !message.unsent &&
+      (!message.isLocal || message.status == MessageStatus.failed);
   bool get failed => message.status == MessageStatus.failed;
 
   Set<String> get myReactions => {
-        for (final r in message.reactions)
-          if (r.userIds.contains(scope.myUserId)) r.emoji,
-      };
+    for (final r in message.reactions)
+      if (r.userIds.contains(scope.myUserId)) r.emoji,
+  };
 
   Future<void> react(String emoji) async {
     final error = await _actions.toggleReaction(message.id, emoji);
@@ -49,20 +52,48 @@ class RowOperations {
   }
 
   bool get canUnsend =>
-      item.mine && !message.isLocal && DateTime.now().difference(message.createdAt) < unsendWindow;
+      item.mine &&
+      !message.isLocal &&
+      DateTime.now().difference(message.createdAt) < unsendWindow;
 
   List<MessageMenuAction> menu() {
     if (failed) {
       return [
-        MessageMenuAction(label: 'Réessayer', icon: LucideIcons.rotateCw, onTap: retry),
-        MessageMenuAction(label: 'Supprimer', icon: LucideIcons.trash2, destructive: true, onTap: discard),
+        MessageMenuAction(
+          label: 'Réessayer',
+          icon: LucideIcons.rotateCw,
+          onTap: retry,
+        ),
+        MessageMenuAction(
+          label: 'Supprimer',
+          icon: LucideIcons.trash2,
+          destructive: true,
+          onTap: discard,
+        ),
       ];
     }
     return [
-      MessageMenuAction(label: 'Répondre', icon: MenuIcons.reply, onTap: () => scope.onReply(message)),
-      if (message.content.isNotEmpty) MessageMenuAction(label: 'Copier', icon: MenuIcons.copy, onTap: copy),
-      if (canUnsend) MessageMenuAction(label: 'Retirer', icon: MenuIcons.unsend, destructive: true, onTap: unsend),
-      if (!item.mine) MessageMenuAction(label: 'Signaler', icon: MenuIcons.report, destructive: true, onTap: report),
+      MessageMenuAction(
+        label: 'Répondre',
+        icon: MenuIcons.reply,
+        onTap: () => scope.onReply(message),
+      ),
+      if (message.content.isNotEmpty)
+        MessageMenuAction(label: 'Copier', icon: MenuIcons.copy, onTap: copy),
+      if (canUnsend)
+        MessageMenuAction(
+          label: 'Retirer',
+          icon: MenuIcons.unsend,
+          destructive: true,
+          onTap: unsend,
+        ),
+      if (!item.mine)
+        MessageMenuAction(
+          label: 'Signaler',
+          icon: MenuIcons.report,
+          destructive: true,
+          onTap: report,
+        ),
     ];
   }
 
@@ -113,8 +144,14 @@ class RowOperations {
             },
           ),
           ListTile(
-            leading: Icon(LucideIcons.trash2, color: Theme.of(sheet).colorScheme.error),
-            title: Text('Supprimer', style: TextStyle(color: Theme.of(sheet).colorScheme.error)),
+            leading: Icon(
+              LucideIcons.trash2,
+              color: Theme.of(sheet).colorScheme.error,
+            ),
+            title: Text(
+              'Supprimer',
+              style: TextStyle(color: Theme.of(sheet).colorScheme.error),
+            ),
             onTap: () {
               Navigator.pop(sheet);
               discard();

@@ -44,7 +44,8 @@ class MessageBubble extends StatelessWidget {
   });
 
   /// Key of the coloured box, to measure a bubble in tests.
-  static ValueKey<String> boxKey(ChatMessage message) => ValueKey('bubble-${messageKey(message)}');
+  static ValueKey<String> boxKey(ChatMessage message) =>
+      ValueKey('bubble-${messageKey(message)}');
 
   final ChatMessage message;
   final bool mine;
@@ -64,46 +65,75 @@ class MessageBubble extends StatelessWidget {
         key: boxKey(message),
         constraints: BoxConstraints(maxWidth: maxWidth),
         padding: BubbleStyle.padding,
-        decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: scheme.outline)),
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          border: Border.all(color: scheme.outline),
+        ),
         child: Text(
           'Message retiré',
-          style: TextStyle(fontSize: 15, height: 1.4, fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant),
+          style: TextStyle(
+            fontSize: 15,
+            height: 1.4,
+            fontStyle: FontStyle.italic,
+            color: scheme.onSurfaceVariant,
+          ),
         ),
       );
     }
 
-    final photos = message.type == ChatMessageType.photo ? PhotoSource.of(message) : const <PhotoSource>[];
+    final photos = message.type == ChatMessageType.photo
+        ? PhotoSource.of(message)
+        : const <PhotoSource>[];
     final hasPhotos = photos.isNotEmpty;
     final quote = message.replyTo;
-    final inset = hasPhotos ? const EdgeInsets.symmetric(horizontal: 14) : EdgeInsets.zero;
+    final inset = hasPhotos
+        ? const EdgeInsets.symmetric(horizontal: 14)
+        : EdgeInsets.zero;
     final children = <Widget>[
       if (quote != null)
         Padding(
-          padding: hasPhotos ? const EdgeInsets.fromLTRB(8, 8, 8, 2) : EdgeInsets.zero,
+          padding: hasPhotos
+              ? const EdgeInsets.fromLTRB(8, 8, 8, 2)
+              : EdgeInsets.zero,
           child: QuoteBlock(
             author: thread.authorOf(quote.senderId),
             preview: quote.preview,
             mine: mine,
-            onTap: thread.onQuoteTap == null ? null : () => thread.onQuoteTap!(quote.id),
+            onTap: thread.onQuoteTap == null
+                ? null
+                : () => thread.onQuoteTap!(quote.id),
           ),
         ),
       if (hasPhotos)
         PhotoGrid(
           photos: photos,
           radius: BorderRadius.zero,
-          heroPrefix: thread.heroEnabled ? 'photo-${messageKey(message)}' : null,
+          heroPrefix: thread.heroEnabled
+              ? 'photo-${messageKey(message)}'
+              : null,
           blurred: thread.photosBlurred,
           onReveal: thread.onRevealPhotos,
           onOpen: thread.onOpenPhoto ?? (_) {},
         ),
-      if (message.type == ChatMessageType.voice && message.voice != null) VoiceBubbleContent(voice: message.voice!, mine: mine, onPlayFailed: thread.onPlayFailed),
+      if (message.type == ChatMessageType.voice && message.voice != null)
+        VoiceBubbleContent(
+          voice: message.voice!,
+          mine: mine,
+          onPlayFailed: thread.onPlayFailed,
+        ),
       if (message.content.isNotEmpty)
         Padding(
           padding: inset.add(EdgeInsets.symmetric(vertical: hasPhotos ? 8 : 0)),
-          child: Text(message.content, style: TextStyle(fontSize: 15, height: 1.4, color: colors.text)),
+          child: Text(
+            message.content,
+            style: TextStyle(fontSize: 15, height: 1.4, color: colors.text),
+          ),
         ),
       if (message.linkPreview != null)
-        Padding(padding: inset.add(EdgeInsets.only(bottom: hasPhotos ? 8 : 0)), child: LinkPreviewCard(preview: message.linkPreview!, mine: mine)),
+        Padding(
+          padding: inset.add(EdgeInsets.only(bottom: hasPhotos ? 8 : 0)),
+          child: LinkPreviewCard(preview: message.linkPreview!, mine: mine),
+        ),
     ];
 
     return Container(
@@ -112,7 +142,11 @@ class MessageBubble extends StatelessWidget {
       padding: hasPhotos ? EdgeInsets.zero : BubbleStyle.padding,
       clipBehavior: hasPhotos ? Clip.antiAlias : Clip.none,
       decoration: BoxDecoration(color: colors.background, borderRadius: radius),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: children),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
     );
   }
 }

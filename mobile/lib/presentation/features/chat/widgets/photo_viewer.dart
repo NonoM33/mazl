@@ -19,8 +19,13 @@ Future<void> openPhotoViewer(
       barrierColor: Colors.black,
       transitionDuration: const Duration(milliseconds: 200),
       reverseTransitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (_, __, ___) => PhotoViewer(photos: photos, initialIndex: initialIndex, heroPrefix: heroPrefix),
-      transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+      pageBuilder: (_, __, ___) => PhotoViewer(
+        photos: photos,
+        initialIndex: initialIndex,
+        heroPrefix: heroPrefix,
+      ),
+      transitionsBuilder: (_, animation, __, child) =>
+          FadeTransition(opacity: animation, child: child),
     ),
   );
 }
@@ -30,7 +35,12 @@ Future<void> openPhotoViewer(
 /// Zoom and paging come from photo_view's gallery (a PageView of zoomable
 /// pages): a bare InteractiveViewer inside a PageView swallows the swipe.
 class PhotoViewer extends StatefulWidget {
-  const PhotoViewer({super.key, required this.photos, required this.initialIndex, this.heroPrefix});
+  const PhotoViewer({
+    super.key,
+    required this.photos,
+    required this.initialIndex,
+    this.heroPrefix,
+  });
 
   final List<PhotoSource> photos;
   final int initialIndex;
@@ -41,7 +51,9 @@ class PhotoViewer extends StatefulWidget {
 }
 
 class _PhotoViewerState extends State<PhotoViewer> {
-  late final PageController _pages = PageController(initialPage: widget.initialIndex);
+  late final PageController _pages = PageController(
+    initialPage: widget.initialIndex,
+  );
   late int _index = widget.initialIndex;
   double _dragOffset = 0;
   bool _zoomed = false;
@@ -71,7 +83,12 @@ class _PhotoViewerState extends State<PhotoViewer> {
         body: GestureDetector(
           onVerticalDragUpdate: _zoomed
               ? null
-              : (d) => setState(() => _dragOffset = (_dragOffset + d.delta.dy).clamp(0.0, double.infinity)),
+              : (d) => setState(
+                  () => _dragOffset = (_dragOffset + d.delta.dy).clamp(
+                    0.0,
+                    double.infinity,
+                  ),
+                ),
           onVerticalDragEnd: _zoomed ? null : _endDrag,
           child: Stack(
             fit: StackFit.expand,
@@ -81,14 +98,22 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 child: PhotoViewGallery.builder(
                   pageController: _pages,
                   itemCount: widget.photos.length,
-                  backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+                  backgroundDecoration: const BoxDecoration(
+                    color: Colors.transparent,
+                  ),
                   onPageChanged: (i) => setState(() => _index = i),
-                  scaleStateChangedCallback: (state) => setState(() => _zoomed = state != PhotoViewScaleState.initial),
+                  scaleStateChangedCallback: (state) => setState(
+                    () => _zoomed = state != PhotoViewScaleState.initial,
+                  ),
                   builder: (_, i) => PhotoViewGalleryPageOptions.customChild(
                     child: widget.photos[i].image(fit: BoxFit.contain, tint: i),
                     minScale: PhotoViewComputedScale.contained,
                     maxScale: PhotoViewComputedScale.contained * 4,
-                    heroAttributes: widget.heroPrefix == null ? null : PhotoViewHeroAttributes(tag: '${widget.heroPrefix}-$i'),
+                    heroAttributes: widget.heroPrefix == null
+                        ? null
+                        : PhotoViewHeroAttributes(
+                            tag: '${widget.heroPrefix}-$i',
+                          ),
                   ),
                 ),
               ),
@@ -101,7 +126,11 @@ class _PhotoViewerState extends State<PhotoViewer> {
                     dimension: 44,
                     child: IconButton(
                       tooltip: 'Fermer',
-                      icon: const Icon(LucideIcons.x, size: 24, color: Colors.white),
+                      icon: const Icon(
+                        LucideIcons.x,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -122,7 +151,9 @@ class _PhotoViewerState extends State<PhotoViewer> {
                           margin: const EdgeInsets.symmetric(horizontal: 3),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withValues(alpha: i == _index ? 1 : 0.4),
+                            color: Colors.white.withValues(
+                              alpha: i == _index ? 1 : 0.4,
+                            ),
                           ),
                         ),
                     ],

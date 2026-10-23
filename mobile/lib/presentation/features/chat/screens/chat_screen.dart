@@ -46,7 +46,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _openProfile() {
     final user = _otherUser;
-    if (user != null) context.push(RoutePaths.matchProfilePath(user.userId.toString()));
+    if (user != null) {
+      context.push(RoutePaths.matchProfilePath(user.userId.toString()));
+    }
   }
 
   void _openBlockReportDialog() {
@@ -66,7 +68,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('muted_conversation_$_conversationId', true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notifications coupées pour cette conversation')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notifications coupées pour cette conversation'),
+      ),
+    );
   }
 
   void _showOptions() {
@@ -102,7 +108,10 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           ListTile(
             leading: const Icon(LucideIcons.userX, color: AppColors.error),
-            title: const Text('Bloquer', style: TextStyle(color: AppColors.error)),
+            title: const Text(
+              'Bloquer',
+              style: TextStyle(color: AppColors.error),
+            ),
             onTap: () {
               Navigator.pop(sheet);
               _openBlockReportDialog();
@@ -115,11 +124,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) => ChatConversationScreen(
-        conversationId: _conversationId,
-        otherUser: _otherUser,
-        onBack: () => context.pop(),
-        onOpenProfile: _openProfile,
-        onVideoCall: () => context.go('/chat/${widget.conversationId}/video-call'),
-        onOptions: _showOptions,
-      );
+    conversationId: _conversationId,
+    otherUser: _otherUser,
+    onBack: () => context.pop(),
+    onOpenProfile: _openProfile,
+    onVideoCall: () => context.go('/chat/${widget.conversationId}/video-call'),
+    onOptions: _showOptions,
+  );
 }

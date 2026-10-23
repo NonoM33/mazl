@@ -27,8 +27,15 @@ class ChatHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top, left: 4, right: 12),
-      decoration: BoxDecoration(color: scheme.surface, border: Border(bottom: BorderSide(color: scheme.outline))),
+      padding: EdgeInsets.only(
+        top: MediaQuery.paddingOf(context).top,
+        left: 4,
+        right: 12,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        border: Border(bottom: BorderSide(color: scheme.outline)),
+      ),
       child: SizedBox(
         height: 64,
         child: Row(
@@ -47,7 +54,12 @@ class ChatHeader extends StatelessWidget {
                   children: [
                     SizedBox.square(
                       dimension: 36,
-                      child: ProfilePhoto(url: user?.picture, seed: user?.userId ?? 0, radius: 18, iconSize: 16),
+                      child: ProfilePhoto(
+                        url: user?.picture,
+                        seed: user?.userId ?? 0,
+                        radius: 18,
+                        iconSize: 16,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -59,11 +71,20 @@ class ChatHeader extends StatelessWidget {
                             user?.displayName ?? 'Chargement…',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: -0.2),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
+                            ),
                           ),
                           Text(
                             isTyping ? 'écrit…' : 'En ligne',
-                            style: TextStyle(fontSize: 12, color: isTyping ? scheme.primary : scheme.onSurfaceVariant),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isTyping
+                                  ? scheme.primary
+                                  : scheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -73,7 +94,12 @@ class ChatHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            RoundIconButton(icon: LucideIcons.video, tooltip: 'Appel vidéo', size: 44, onPressed: onVideoCall),
+            RoundIconButton(
+              icon: LucideIcons.video,
+              tooltip: 'Appel vidéo',
+              size: 44,
+              onPressed: onVideoCall,
+            ),
             IconButton(
               tooltip: 'Options',
               constraints: const BoxConstraints.tightFor(width: 44, height: 44),

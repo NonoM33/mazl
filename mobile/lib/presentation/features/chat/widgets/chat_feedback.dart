@@ -5,7 +5,9 @@ void showChatSnack(BuildContext context, String message) {
   final messenger = ScaffoldMessenger.maybeOf(context);
   messenger
     ?..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 3)));
+    ..showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
+    );
 }
 
 /// Shows [error] when an action returned one (null means success).

@@ -7,7 +7,12 @@ import '../state/chat_controller.dart';
 
 /// A line of the long-press menu.
 class MessageMenuAction {
-  const MessageMenuAction({required this.label, required this.icon, required this.onTap, this.destructive = false});
+  const MessageMenuAction({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    this.destructive = false,
+  });
 
   final String label;
   final IconData icon;
@@ -86,7 +91,9 @@ class _ActionsPage extends StatelessWidget {
     final menuHeight = actions.length * rowHeight + (actions.length - 1);
     final barWidth = allowedReactions.length * 44.0 + 16;
 
-    final top = showReactionBar ? bubbleRect.top - barHeight - gap : bubbleRect.top;
+    final top = showReactionBar
+        ? bubbleRect.top - barHeight - gap
+        : bubbleRect.top;
     final bottom = bubbleRect.bottom + gap + menuHeight;
     final minTop = media.padding.top + 8;
     final maxBottom = size.height - media.padding.bottom - 8;
@@ -118,21 +125,24 @@ class _ActionsPage extends StatelessWidget {
             height: bubbleRect.height,
             child: Transform.scale(
               scale: 1.02,
-              child: Align(alignment: mine ? Alignment.topRight : Alignment.topLeft, child: bubble),
+              child: Align(
+                alignment: mine ? Alignment.topRight : Alignment.topLeft,
+                child: bubble,
+              ),
             ),
           ),
           if (showReactionBar)
             Positioned(
-            left: along(barWidth),
-            top: bubbleTop - gap - barHeight,
-            child: _ReactionBar(
-              selected: myReactions,
-              onPick: (emoji) {
-                Navigator.of(context).pop();
-                onReact(emoji);
-              },
+              left: along(barWidth),
+              top: bubbleTop - gap - barHeight,
+              child: _ReactionBar(
+                selected: myReactions,
+                onPick: (emoji) {
+                  Navigator.of(context).pop();
+                  onReact(emoji);
+                },
+              ),
             ),
-          ),
           Positioned(
             left: along(menuWidth),
             top: bubbleTop + bubbleRect.height + gap,
@@ -161,7 +171,9 @@ class _ReactionBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surface,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: dark ? AppColors.dividerDark : AppColors.hairline),
+        border: Border.all(
+          color: dark ? AppColors.dividerDark : AppColors.hairline,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -176,10 +188,15 @@ class _ReactionBar extends StatelessWidget {
                 height: 40,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected.contains(emoji) ? scheme.surfaceContainer : null,
+                  color: selected.contains(emoji)
+                      ? scheme.surfaceContainer
+                      : null,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(emoji, style: const TextStyle(fontSize: 26, height: 1.1)),
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 26, height: 1.1),
+                ),
               ),
             ),
         ],
@@ -204,13 +221,16 @@ class _Menu extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: dark ? AppColors.dividerDark : AppColors.hairline),
+        border: Border.all(
+          color: dark ? AppColors.dividerDark : AppColors.hairline,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < actions.length; i++) ...[
-            if (i > 0) Divider(height: 1, thickness: 1, color: scheme.outlineVariant),
+            if (i > 0)
+              Divider(height: 1, thickness: 1, color: scheme.outlineVariant),
             _MenuRow(action: actions[i]),
           ],
         ],
@@ -226,7 +246,9 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = action.destructive ? AppColors.error : Theme.of(context).colorScheme.onSurface;
+    final color = action.destructive
+        ? AppColors.error
+        : Theme.of(context).colorScheme.onSurface;
     return InkWell(
       onTap: () {
         Navigator.of(context).pop();

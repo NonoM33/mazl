@@ -14,7 +14,7 @@ class VoiceCapture extends ChangeNotifier {
   /// Slide left by this much to cancel, up by this much to lock.
   static const cancelDistance = 80.0;
   static const lockDistance = 64.0;
-  static const visibleLevels = 18;
+  static const visibleLevels = 12;
 
   final VoiceRecorder recorder;
 

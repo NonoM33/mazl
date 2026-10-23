@@ -18,12 +18,16 @@ class PhotoSource {
 
   static List<PhotoSource> of(ChatMessage message) {
     if (message.media.isNotEmpty) {
-      return [for (final m in message.media) PhotoSource(url: m.url, width: m.width, height: m.height)];
+      return [
+        for (final m in message.media)
+          PhotoSource(url: m.url, width: m.width, height: m.height),
+      ];
     }
     return [for (final b in message.localMedia) PhotoSource(bytes: b)];
   }
 
-  Widget image({BoxFit fit = BoxFit.cover, int tint = 0}) => ChatImage(url: url, bytes: bytes, fit: fit, tint: tint);
+  Widget image({BoxFit fit = BoxFit.cover, int tint = 0}) =>
+      ChatImage(url: url, bytes: bytes, fit: fit, tint: tint);
 }
 
 /// Photos of a bubble (docs/design/CHAT.md §7): one photo at its own ratio,
@@ -62,7 +66,10 @@ class PhotoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grid = ClipRRect(borderRadius: radius, child: SizedBox(width: width, child: _layout()));
+    final grid = ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(width: width, child: _layout()),
+    );
     if (!blurred) return grid;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -72,7 +79,14 @@ class PhotoGrid extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24), child: IgnorePointer(child: grid)),
+            ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(
+                sigmaX: 24,
+                sigmaY: 24,
+                tileMode: TileMode.mirror,
+              ),
+              child: IgnorePointer(child: grid),
+            ),
             const _RevealPill(),
           ],
         ),
@@ -82,29 +96,70 @@ class PhotoGrid extends StatelessWidget {
 
   Widget _layout() {
     final total = photos.length;
-    if (total == 1) return SizedBox(height: singleHeight(photos.first), child: _cell(0, double.infinity));
+    if (total == 1) {
+      return SizedBox(
+        height: singleHeight(photos.first),
+        child: _cell(0, double.infinity),
+      );
+    }
     final rows = <Widget>[];
     if (total == 2) {
-      rows.add(SizedBox(height: 160, child: Row(children: [_sized(0, cell), const SizedBox(width: gap), _sized(1, cell)])));
+      rows.add(
+        SizedBox(
+          height: 160,
+          child: Row(
+            children: [
+              _sized(0, cell),
+              const SizedBox(width: gap),
+              _sized(1, cell),
+            ],
+          ),
+        ),
+      );
     } else if (total == 3) {
       rows.add(SizedBox(height: 140, child: _cell(0, double.infinity)));
       rows.add(const SizedBox(height: gap));
-      rows.add(SizedBox(height: cell, child: Row(children: [_sized(1, cell), const SizedBox(width: gap), _sized(2, cell)])));
+      rows.add(
+        SizedBox(
+          height: cell,
+          child: Row(
+            children: [
+              _sized(1, cell),
+              const SizedBox(width: gap),
+              _sized(2, cell),
+            ],
+          ),
+        ),
+      );
     } else {
       for (var r = 0; r < 2; r++) {
         if (r == 1) rows.add(const SizedBox(height: gap));
-        rows.add(SizedBox(height: cell, child: Row(children: [_sized(r * 2, cell), const SizedBox(width: gap), _sized(r * 2 + 1, cell)])));
+        rows.add(
+          SizedBox(
+            height: cell,
+            child: Row(
+              children: [
+                _sized(r * 2, cell),
+                const SizedBox(width: gap),
+                _sized(r * 2 + 1, cell),
+              ],
+            ),
+          ),
+        );
       }
     }
     return Column(mainAxisSize: MainAxisSize.min, children: rows);
   }
 
-  Widget _sized(int index, double w) => SizedBox(width: w, child: _cell(index, w));
+  Widget _sized(int index, double w) =>
+      SizedBox(width: w, child: _cell(index, w));
 
   Widget _cell(int index, double w) {
     final hidden = index == 3 && photos.length > 4 ? photos.length - 4 : 0;
     Widget image = SizedBox.expand(child: photos[index].image(tint: index));
-    if (heroPrefix != null) image = Hero(tag: '$heroPrefix-$index', child: image);
+    if (heroPrefix != null) {
+      image = Hero(tag: '$heroPrefix-$index', child: image);
+    }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onOpen(index),
@@ -113,14 +168,19 @@ class PhotoGrid extends StatelessWidget {
         children: [
           image,
           if (hidden > 0)
-            Builder(builder: (context) {
-              return ColoredBox(
-                color: Colors.black.withValues(alpha: 0.45),
-                child: Center(
-                  child: Text('+$hidden', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white)),
+            ColoredBox(
+              color: Colors.black.withValues(alpha: 0.45),
+              child: Center(
+                child: Text(
+                  '+$hidden',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
-              );
-            }),
+              ),
+            ),
         ],
       ),
     );
@@ -132,16 +192,26 @@ class _RevealPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.45), borderRadius: BorderRadius.circular(18)),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(LucideIcons.eye, size: 16, color: Colors.white),
-            SizedBox(width: 8),
-            Text('Voir la photo', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.white)),
-          ],
+    height: 36,
+    padding: const EdgeInsets.symmetric(horizontal: 14),
+    decoration: BoxDecoration(
+      color: Colors.black.withValues(alpha: 0.45),
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: const Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(LucideIcons.eye, size: 16, color: Colors.white),
+        SizedBox(width: 8),
+        Text(
+          'Voir la photo',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }

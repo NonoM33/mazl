@@ -9,7 +9,11 @@ import 'voice_capture.dart';
 /// The composer while a voice note is recorded (docs/design/CHAT.md §8): a
 /// pulsing red dot, the timer, live level bars and « ‹ Glisser pour annuler ».
 class RecordingStrip extends StatelessWidget {
-  const RecordingStrip({super.key, required this.capture, required this.onCancel});
+  const RecordingStrip({
+    super.key,
+    required this.capture,
+    required this.onCancel,
+  });
 
   final VoiceCapture capture;
 
@@ -26,7 +30,11 @@ class RecordingStrip extends StatelessWidget {
           IconButton(
             tooltip: 'Annuler l\'enregistrement',
             constraints: const BoxConstraints.tightFor(width: 44, height: 44),
-            icon: const Icon(LucideIcons.trash2, size: 20, color: AppColors.error),
+            icon: const Icon(
+              LucideIcons.trash2,
+              size: 20,
+              color: AppColors.error,
+            ),
             onPressed: onCancel,
           )
         else
@@ -42,18 +50,28 @@ class RecordingStrip extends StatelessWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         _LevelBars(levels: capture.levels, color: scheme.onSurfaceVariant),
-        const Spacer(),
-        if (!capture.locked)
-          Flexible(
-            child: Text(
-              cancelling ? 'Relâchez pour annuler' : '‹ Glisser pour annuler',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 13, color: cancelling ? AppColors.error : scheme.onSurfaceVariant),
-            ),
-          ),
+        Expanded(
+          child: capture.locked
+              ? const SizedBox.shrink()
+              : Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    cancelling
+                        ? 'Relâchez pour annuler'
+                        : '‹ Glisser pour annuler',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: cancelling
+                          ? AppColors.error
+                          : scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+        ),
         const SizedBox(width: 8),
       ],
     );
@@ -67,8 +85,12 @@ class _PulsingDot extends StatefulWidget {
   State<_PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+class _PulsingDotState extends State<_PulsingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
 
   @override
   void didChangeDependencies() {
@@ -88,9 +110,16 @@ class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) => FadeTransition(
-        opacity: Tween(begin: 0.35, end: 1.0).animate(_controller),
-        child: Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle)),
-      );
+    opacity: Tween(begin: 0.35, end: 1.0).animate(_controller),
+    child: Container(
+      width: 10,
+      height: 10,
+      decoration: const BoxDecoration(
+        color: AppColors.error,
+        shape: BoxShape.circle,
+      ),
+    ),
+  );
 }
 
 class _LevelBars extends StatelessWidget {
@@ -115,7 +144,10 @@ class _LevelBars extends StatelessWidget {
               margin: const EdgeInsets.only(right: 2),
               width: 3,
               height: 4 + 20 * (level.clamp(0, 100) / 100),
-              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(1.5)),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
             ),
         ],
       ),

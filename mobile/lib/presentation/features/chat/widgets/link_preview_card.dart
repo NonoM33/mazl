@@ -26,8 +26,12 @@ class LinkPreviewCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final colors = BubbleColors.of(context, mine: mine);
-    final fill = mine ? scheme.onPrimary.withValues(alpha: 0.12) : scheme.surface;
-    final domainColor = mine ? scheme.onPrimary.withValues(alpha: 0.7) : scheme.onSurfaceVariant;
+    final fill = mine
+        ? scheme.onPrimary.withValues(alpha: 0.12)
+        : scheme.surface;
+    final domainColor = mine
+        ? scheme.onPrimary.withValues(alpha: 0.7)
+        : scheme.onSurfaceVariant;
     final uri = Uri.tryParse(preview.url);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -45,8 +49,15 @@ class LinkPreviewCard extends ConsumerWidget {
                 AspectRatio(
                   aspectRatio: 16 / 9,
                   child: preview.imageUrl == null
-                      ? ColoredBox(color: AppColors.photoTints[preview.url.length % AppColors.photoTints.length])
-                      : ChatImage(url: preview.imageUrl, tint: preview.url.length),
+                      ? ColoredBox(
+                          color:
+                              AppColors.photoTints[preview.url.length %
+                                  AppColors.photoTints.length],
+                        )
+                      : ChatImage(
+                          url: preview.imageUrl,
+                          tint: preview.url.length,
+                        ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -58,10 +69,18 @@ class LinkPreviewCard extends ConsumerWidget {
                           preview.title!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.3, color: colors.text),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                            color: colors.text,
+                          ),
                         ),
                       const SizedBox(height: 2),
-                      Text(domainOf(preview), style: TextStyle(fontSize: 12, color: domainColor)),
+                      Text(
+                        domainOf(preview),
+                        style: TextStyle(fontSize: 12, color: domainColor),
+                      ),
                     ],
                   ),
                 ),
