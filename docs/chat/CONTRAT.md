@@ -95,6 +95,13 @@ L'ancien `POST …/messages { content }` (sans `client_id`) reste accepté
 - Les feuilles du bas passent par `showMazlSheet`, les menus par la racine
   (`sheet_rules_test`).
 
+## 4bis. URL des médias en démo
+
+Hors ligne, il n'y a pas de serveur pour héberger les fichiers : en démo, les
+`url` des médias (photo, vocal, image d'aperçu) sont des URI `data:`. Le widget
+d'image du chat et le `VoicePlayer` (`lib/core/chat/voice.dart`) acceptent donc
+`http(s)://` ET `data:` ; rien d'autre (pas de `file:`).
+
 ## 5. Démo
 
 Toutes les routes ci-dessus répondent en démo avec les vraies formes ; le
