@@ -69,8 +69,10 @@ alors gratuit. Une valeur écrite en dur dans un fichier du chat est un défaut.
 - La bulle touchée se soulève : le reste de l'écran passe sous un voile `Colors.black` à 40 %
   (pas de flou). La bulle reste à sa place, à 100 %, échelle 1,02.
 - **Barre de réactions** au-dessus de la bulle : capsule `scheme.surface`, contour 1 px
-  `AppColors.hairline` (sombre : `dividerDark`), radius 999, hauteur 48 px, six émojis 26 px
-  (❤️ 😂 😮 😢 🙏 👍) + un « + » Lucide. Haptique `selectionClick` au survol de chaque émoji.
+  `AppColors.hairline` (sombre : `dividerDark`), radius 999, hauteur 48 px, les six émojis 26 px
+  que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à la place de 😡 en attente de la décision de
+  Renaud). Pas de « + » : il n'y a pas de sélecteur complet dans cette version. Haptique
+  `selectionClick` au survol de chaque émoji.
 - **Menu** sous la bulle : carte `scheme.surface`, radius 20, contour filet, largeur 220 px, lignes
   de 48 px : icône Lucide 20 px + libellé 15 px, séparées par un filet 1 px `divider`. Ordre :
   Répondre (`reply`), Copier (`copy`), puis pour mes messages Retirer (`undo2`, en
