@@ -35,6 +35,8 @@ Future<void> showMessageActions(
   required ValueChanged<String> onReact,
   required List<MessageMenuAction> actions,
   bool showReactionBar = true,
+  double? minTop,
+  double? maxBottom,
 }) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder<void>(
@@ -51,6 +53,8 @@ Future<void> showMessageActions(
         onReact: onReact,
         actions: actions,
         showReactionBar: showReactionBar,
+        minTop: minTop,
+        maxBottom: maxBottom,
       ),
       transitionsBuilder: (context, animation, _, child) => FadeTransition(
         opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
@@ -69,6 +73,8 @@ class _ActionsPage extends StatelessWidget {
     required this.onReact,
     required this.actions,
     required this.showReactionBar,
+    required this.minTop,
+    required this.maxBottom,
   });
 
   static const barHeight = 48.0;
@@ -84,22 +90,33 @@ class _ActionsPage extends StatelessWidget {
   final List<MessageMenuAction> actions;
   final bool showReactionBar;
 
+  /// Free band of the screen, in global coordinates: the reaction bar stays
+  /// below [minTop] (the header) and the menu above [maxBottom] (the composer).
+  final double? minTop;
+  final double? maxBottom;
+
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     final size = media.size;
-    final menuHeight = actions.length * rowHeight + (actions.length - 1);
+    // Rows, the hairlines between them, and the 1 px border around the card.
+    final menuHeight = actions.length * rowHeight + (actions.length - 1) + 2;
     final barWidth = allowedReactions.length * 44.0 + 16;
 
-    final top = showReactionBar
-        ? bubbleRect.top - barHeight - gap
-        : bubbleRect.top;
-    final bottom = bubbleRect.bottom + gap + menuHeight;
-    final minTop = media.padding.top + 8;
-    final maxBottom = size.height - media.padding.bottom - 8;
+    final low = minTop ?? media.padding.top + 8;
+    final high = maxBottom ?? size.height - media.padding.bottom - 8;
+    final barSpace = showReactionBar ? barHeight + gap : 0.0;
+    // A bubble taller than what is left is trimmed (clipped) so the bar and
+    // the menu always fit in the free band.
+    final room = high - low - barSpace - gap - menuHeight;
+    final bubbleHeight = bubbleRect.height <= room
+        ? bubbleRect.height
+        : room.clamp(48.0, bubbleRect.height);
+    final top = bubbleRect.top - barSpace;
+    final bottom = bubbleRect.top + bubbleHeight + gap + menuHeight;
     var shift = 0.0;
-    if (bottom > maxBottom) shift = maxBottom - bottom;
-    if (top + shift < minTop) shift = minTop - top;
+    if (bottom > high) shift = high - bottom;
+    if (top + shift < low) shift = low - top;
 
     double along(double width) {
       final left = mine ? bubbleRect.right - width : bubbleRect.left;
@@ -122,12 +139,17 @@ class _ActionsPage extends StatelessWidget {
             left: bubbleRect.left,
             top: bubbleTop,
             width: bubbleRect.width,
-            height: bubbleRect.height,
+            height: bubbleHeight,
             child: Transform.scale(
               scale: 1.02,
-              child: Align(
-                alignment: mine ? Alignment.topRight : Alignment.topLeft,
-                child: bubble,
+              child: ClipRect(
+                child: OverflowBox(
+                  alignment: mine ? Alignment.topRight : Alignment.topLeft,
+                  minHeight: 0,
+                  maxHeight: bubbleRect.height,
+                  maxWidth: bubbleRect.width,
+                  child: bubble,
+                ),
               ),
             ),
           ),
@@ -145,7 +167,7 @@ class _ActionsPage extends StatelessWidget {
             ),
           Positioned(
             left: along(menuWidth),
-            top: bubbleTop + bubbleRect.height + gap,
+            top: bubbleTop + bubbleHeight + gap,
             child: _Menu(actions: actions),
           ),
         ],
