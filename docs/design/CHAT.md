@@ -56,23 +56,42 @@ alors gratuit. Une valeur écrite en dur dans un fichier du chat est un défaut.
 
 ## 4. Réactions
 
-- **Double tap** : cœur. Un cœur Lucide plein en accent grandit au centre de la bulle (0,6 → 1,2
-  → 1, 350 ms) puis disparaît. Retour haptique `HapticFeedback.lightImpact`.
+Référence : iMessage et WhatsApp. Une réaction est un geste léger et rapide ; elle ne doit jamais
+ressembler à un champ de formulaire.
+
+- **Double tap** : un cœur ❤️ de 64 px jaillit au point touché (échelle 0,6 → 1,2, puis fondu sur
+  400 ms), puis la pastille apparaît. Haptique `HapticFeedback.lightImpact`.
 - **Pastille de réaction** : sous la bulle, mordant de 8 px sur son bord inférieur, côté opposé à la
-  queue. Fond `scheme.surface`, contour 2 px `scheme.surface` (elle se détache de la bulle sans
-  ombre), puis `scheme.surfaceContainer` intérieur, radius 999, hauteur 22 px, émoji 13 px +
-  compteur 11 px si plus d'une. Les émojis sont permis ICI SEULEMENT (c'est du contenu, pas de la
-  décoration). Ma réaction : contour intérieur 1 px accent.
+  queue. Hauteur 24 px, radius 999, fond `scheme.surface`, anneau 2 px de la couleur de la PAGE
+  (effet découpé, comme WhatsApp : pas d'ombre, pas de contour accent). Émoji 15 px ; jusqu'à
+  trois émojis distincts, puis le total en Geist 12 px `onSurfaceVariant` si plus d'une réaction.
+  **Ma réaction** : fond `scheme.primary` à 12 % (jamais un contour). Elle apparaît ou change avec
+  un petit rebond (échelle 0,5 → 1,1 → 1, 220 ms).
+- Les émojis sont permis ICI SEULEMENT (réactions, barre, pastille) : c'est du contenu, pas de la
+  décoration.
 
 ## 5. Appui long : menu et barre de réactions
 
-- La bulle touchée se soulève : le reste de l'écran passe sous un voile `Colors.black` à 40 %
-  (pas de flou). La bulle reste à sa place, à 100 %, échelle 1,02.
-- **Barre de réactions** au-dessus de la bulle : capsule `scheme.surface`, contour 1 px
-  `AppColors.hairline` (sombre : `dividerDark`), radius 999, hauteur 48 px, les six émojis 26 px
-  que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à la place de 😡 en attente de la décision de
-  Renaud). Pas de « + » : il n'y a pas de sélecteur complet dans cette version. Haptique
-  `selectionClick` au survol de chaque émoji.
+- **Voile** : le reste de l'écran passe sous un flou d'arrière-plan (`BackdropFilter`, sigma 16)
+  et un voile `Colors.black` à 20 % en clair, 40 % en sombre. C'est la SEULE exception à
+  « pas de flou » dans toute l'application : elle ne s'étend à aucun autre écran. Si
+  `MediaQuery.disableAnimationsOf(context)` est vrai, pas de flou : voile seul à 40 %.
+  La bulle touchée reste à sa place, nette, à 100 %, échelle 1,02.
+- **Barre de réactions** : capsule compacte de 44 px, radius 999, fond `scheme.surface`, contour
+  1 px `AppColors.hairline` (sombre : `dividerDark`), marge intérieure horizontale 6 px. Six cases
+  de 40 px séparées de 2 px, émoji 28 px : les six que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à
+  la place de 😡 si Renaud le décide). Pas de « + » : il n'y a pas de sélecteur complet dans cette
+  version. Elle s'aligne sur le CÔTÉ de la bulle (à gauche pour un message reçu, à droite pour le
+  mien), jamais centrée.
+- **Mouvement** : la barre naît du coin de la bulle (échelle 0,7 → 1, ressort d'environ 260 ms),
+  les émojis apparaissent l'un après l'autre à 20 ms d'écart (échelle 0 → 1,1 → 1). Tout est coupé
+  sous `disableAnimations`.
+- **Appui, glisser, relâcher** (iMessage, WhatsApp) : après l'appui long, le doigt reste posé et
+  glisse sur la barre. L'émoji survolé grossit à 1,35 et monte de 8 px, avec `selectionClick` à
+  chaque changement. Relâcher dessus réagit et ferme ; relâcher ailleurs laisse menu et barre
+  ouverts. Un simple tap sur un émoji marche aussi.
+- **Ma réaction dans la barre** : un disque plein `scheme.surfaceContainerHighest` (brume) derrière
+  l'émoji, sans accent. La toucher de nouveau retire la réaction.
 - **Menu** sous la bulle : carte `scheme.surface`, radius 20, contour filet, largeur 220 px, lignes
   de 48 px : icône Lucide 20 px + libellé 15 px, séparées par un filet 1 px `divider`. Ordre :
   Répondre (`reply`), Copier (`copy`), puis pour mes messages Retirer (`undo2`, en
@@ -165,3 +184,8 @@ conversation actuel (`_ChatHeader`) reste : avatar 36 px, prénom 16 px 600, sta
 - Le menu d'appui long et la feuille des pièces jointes s'ouvrent au-dessus de tout, une seule
   poignée.
 - Aucun émoji hors réactions, aucun dégradé, aucune ombre dans `features/chat`.
+- `BackdropFilter` n'apparaît que dans la surcouche d'appui long (balayage des sources), et pas
+  du tout sous `disableAnimations`.
+- Réactions : la barre est alignée sur le côté de la bulle ; glisser sur un émoji puis relâcher
+  envoie cette réaction ; ma réaction a son disque dans la barre et son fond accent 12 % dans la
+  pastille ; la pastille mord de 8 px sur la bulle.
