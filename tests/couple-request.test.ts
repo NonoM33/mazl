@@ -18,6 +18,13 @@ async function makeUser(label: string): Promise<TestUser> {
   if (!data.success || !data.user || !data.token) throw new Error(`makeUser(${label}): ${JSON.stringify(data)}`);
   return { id: data.user.id, token: data.token };
 }
+const swipe = (t: string, target: number) =>
+  fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: H(t), body: JSON.stringify({ target_user_id: target, action: "like" }) });
+// A couple request needs a mutual match (contract §0.2): like both ways first.
+async function match(a: TestUser, b: TestUser): Promise<void> {
+  await swipe(a.token, b.id);
+  await swipe(b.token, a.id);
+}
 const send = (t: string, target: number) =>
   fetch(`${BASE_URL}/api/couple/request`, { method: "POST", headers: H(t), body: JSON.stringify({ target_user_id: target }) });
 async function checkStatus(t: string, other: number): Promise<string> {
@@ -29,6 +36,7 @@ describe("Couple request flow", () => {
   test("accept creates the couple, with IDOR + duplicate + self-target guards", async () => {
     const a = await makeUser("A");
     const b = await makeUser("B");
+    await match(a, b);
 
     let r = await send(a.token, b.id);
     const sent = (await r.json()) as { success: boolean; request?: { id: number } };
@@ -65,6 +73,7 @@ describe("Couple request flow", () => {
   test("reject clears the pending request", async () => {
     const d = await makeUser("D");
     const e = await makeUser("E");
+    await match(d, e);
     let r = await send(d.token, e.id);
     const reqId = ((await r.json()) as { request: { id: number } }).request.id;
     r = await fetch(`${BASE_URL}/api/couple/request/${reqId}`, { method: "PUT", headers: H(e.token), body: JSON.stringify({ action: "reject" }) });
@@ -75,6 +84,7 @@ describe("Couple request flow", () => {
   test("requester can cancel", async () => {
     const f = await makeUser("F");
     const g = await makeUser("G");
+    await match(f, g);
     let r = await send(f.token, g.id);
     const reqId = ((await r.json()) as { request: { id: number } }).request.id;
     r = await fetch(`${BASE_URL}/api/couple/request/${reqId}`, { method: "DELETE", headers: H(f.token) });
