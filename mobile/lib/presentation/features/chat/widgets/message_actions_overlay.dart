@@ -1,9 +1,12 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../state/chat_controller.dart';
+import 'reaction_bar.dart';
+import 'reaction_drag.dart';
 
 /// A line of the long-press menu.
 class MessageMenuAction {
@@ -22,10 +25,16 @@ class MessageMenuAction {
   final bool destructive;
 }
 
-/// Long press on a bubble (docs/design/CHAT.md §5): the screen goes under a 40 %
-/// black veil, the bubble stays where it is, a reaction bar floats above it and
-/// a menu below. Pushed on the ROOT navigator so it covers the tab bar and the
-/// composer.
+/// Long press on a bubble (docs/design/CHAT.md §5): the screen goes under a
+/// blurred black veil, the bubble stays where it is, sharp, a reaction bar
+/// floats above it and a menu below. Inserted in the ROOT overlay so it covers
+/// the tab bar and the composer.
+///
+/// [drag] carries the finger that is still down from the long press, so it can
+/// slide onto an emoji and lift there. That is why this is not a pushed route:
+/// pushing one cancels every pointer in progress (Navigator does it on
+/// purpose), and the finger would go dead. The system back button still closes
+/// the menu first, through a local history entry of the current route.
 Future<void> showMessageActions(
   BuildContext context, {
   required Rect bubbleRect,
@@ -37,15 +46,37 @@ Future<void> showMessageActions(
   bool showReactionBar = true,
   double? minTop,
   double? maxBottom,
+  ReactionDragController? drag,
 }) {
-  return Navigator.of(context, rootNavigator: true).push(
-    PageRouteBuilder<void>(
-      opaque: false,
-      barrierDismissible: true,
-      barrierLabel: 'Fermer le menu',
-      transitionDuration: const Duration(milliseconds: 150),
-      reverseTransitionDuration: const Duration(milliseconds: 150),
-      pageBuilder: (context, _, __) => _ActionsPage(
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final overlay = navigator.overlay;
+  if (overlay == null) return Future.value();
+  final done = Completer<void>();
+  final host = GlobalKey<_ActionsHostState>();
+  LocalHistoryEntry? history;
+  late final OverlayEntry entry;
+
+  void dismissed() {
+    entry.remove();
+    entry.dispose();
+    if (!done.isCompleted) done.complete();
+  }
+
+  entry = OverlayEntry(
+    builder: (context) => _ActionsHost(
+      key: host,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 150),
+      onDismissed: dismissed,
+      onClosing: () {
+        final pending = history;
+        history = null;
+        pending?.remove();
+      },
+      builder: (animation, close) => _ActionsPage(
+        animation: animation,
+        close: close,
         bubbleRect: bubbleRect,
         bubble: bubble,
         mine: mine,
@@ -55,17 +86,86 @@ Future<void> showMessageActions(
         showReactionBar: showReactionBar,
         minTop: minTop,
         maxBottom: maxBottom,
-      ),
-      transitionsBuilder: (context, animation, _, child) => FadeTransition(
-        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-        child: child,
+        drag: drag,
       ),
     ),
   );
+  overlay.insert(entry);
+
+  // The back button (or the back swipe) closes the menu before it leaves the
+  // screen: the route under it keeps a local history entry while it is up.
+  Route<dynamic>? top;
+  navigator.popUntil((route) {
+    top = route;
+    return true;
+  });
+  final route = top;
+  if (route is LocalHistoryRoute<dynamic>) {
+    history = LocalHistoryEntry(
+      onRemove: () {
+        history = null;
+        host.currentState?.close();
+      },
+    );
+    route.addLocalHistoryEntry(history!);
+  }
+  return done.future;
+}
+
+/// Owns the 150 ms in / out animation of the menu and removes it when done.
+class _ActionsHost extends StatefulWidget {
+  const _ActionsHost({
+    super.key,
+    required this.duration,
+    required this.onDismissed,
+    required this.onClosing,
+    required this.builder,
+  });
+
+  final Duration duration;
+  final VoidCallback onDismissed;
+  final VoidCallback onClosing;
+  final Widget Function(Animation<double> animation, VoidCallback close)
+  builder;
+
+  @override
+  State<_ActionsHost> createState() => _ActionsHostState();
+}
+
+class _ActionsHostState extends State<_ActionsHost>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.duration,
+  )..forward();
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutCubic,
+  );
+  bool _closing = false;
+
+  Future<void> close() async {
+    if (_closing) return;
+    _closing = true;
+    widget.onClosing();
+    await _controller.reverse();
+    widget.onDismissed();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(_animation, close);
 }
 
 class _ActionsPage extends StatelessWidget {
   const _ActionsPage({
+    required this.animation,
+    required this.close,
     required this.bubbleRect,
     required this.bubble,
     required this.mine,
@@ -75,13 +175,17 @@ class _ActionsPage extends StatelessWidget {
     required this.showReactionBar,
     required this.minTop,
     required this.maxBottom,
+    required this.drag,
   });
 
-  static const barHeight = 48.0;
+  static const barHeight = ReactionBar.height;
   static const menuWidth = 220.0;
   static const rowHeight = 48.0;
   static const gap = 8.0;
+  static const blurSigma = 16.0;
 
+  final Animation<double> animation;
+  final VoidCallback close;
   final Rect bubbleRect;
   final Widget bubble;
   final bool mine;
@@ -89,6 +193,7 @@ class _ActionsPage extends StatelessWidget {
   final ValueChanged<String> onReact;
   final List<MessageMenuAction> actions;
   final bool showReactionBar;
+  final ReactionDragController? drag;
 
   /// Free band of the screen, in global coordinates: the reaction bar stays
   /// below [minTop] (the header) and the menu above [maxBottom] (the composer).
@@ -101,7 +206,7 @@ class _ActionsPage extends StatelessWidget {
     final size = media.size;
     // Rows, the hairlines between them, and the 1 px border around the card.
     final menuHeight = actions.length * rowHeight + (actions.length - 1) + 2;
-    final barWidth = allowedReactions.length * 44.0 + 16;
+    final barWidth = ReactionBar.width;
 
     final low = minTop ?? media.padding.top + 8;
     final high = maxBottom ?? size.height - media.padding.bottom - 8;
@@ -131,8 +236,12 @@ class _ActionsPage extends StatelessWidget {
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => Navigator.of(context).pop(),
-              child: ColoredBox(color: Colors.black.withValues(alpha: 0.4)),
+              onTap: close,
+              child: Semantics(
+                label: 'Fermer le menu',
+                button: true,
+                child: _Veil(animation: animation),
+              ),
             ),
           ),
           Positioned(
@@ -140,8 +249,8 @@ class _ActionsPage extends StatelessWidget {
             top: bubbleTop,
             width: bubbleRect.width,
             height: bubbleHeight,
-            child: Transform.scale(
-              scale: 1.02,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 1, end: 1.02).animate(animation),
               child: ClipRect(
                 child: OverflowBox(
                   alignment: mine ? Alignment.topRight : Alignment.topLeft,
@@ -157,18 +266,26 @@ class _ActionsPage extends StatelessWidget {
             Positioned(
               left: along(barWidth),
               top: bubbleTop - gap - barHeight,
-              child: _ReactionBar(
-                selected: myReactions,
-                onPick: (emoji) {
-                  Navigator.of(context).pop();
-                  onReact(emoji);
-                },
+              child: FadeTransition(
+                opacity: animation,
+                child: ReactionBar(
+                  selected: myReactions,
+                  mine: mine,
+                  drag: drag,
+                  onPick: (emoji) {
+                    close();
+                    onReact(emoji);
+                  },
+                ),
               ),
             ),
           Positioned(
             left: along(menuWidth),
             top: bubbleTop + bubbleHeight + gap,
-            child: _Menu(actions: actions),
+            child: FadeTransition(
+              opacity: animation,
+              child: _Menu(actions: actions, close: close),
+            ),
           ),
         ],
       ),
@@ -176,61 +293,46 @@ class _ActionsPage extends StatelessWidget {
   }
 }
 
-class _ReactionBar extends StatelessWidget {
-  const _ReactionBar({required this.selected, required this.onPick});
+/// The black veil (20 % in light, 40 % in dark) over a blur of the screen: the
+/// one blur of the app. Without animations there is no blur, the veil alone at
+/// 40 %.
+class _Veil extends StatelessWidget {
+  const _Veil({required this.animation});
 
-  final Set<String> selected;
-  final ValueChanged<String> onPick;
+  final Animation<double> animation;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final noMotion = MediaQuery.disableAnimationsOf(context);
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      key: const ValueKey('reaction-bar'),
-      height: _ActionsPage.barHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: dark ? AppColors.dividerDark : AppColors.hairline,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final emoji in allowedReactions)
-            GestureDetector(
-              onTapDown: (_) => HapticFeedback.selectionClick(),
-              onTap: () => onPick(emoji),
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                width: 44,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: selected.contains(emoji)
-                      ? scheme.surfaceContainer
-                      : null,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 26, height: 1.1),
-                ),
-              ),
-            ),
-        ],
-      ),
+    final alpha = noMotion || dark ? 0.4 : 0.2;
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) {
+        final veil = ColoredBox(
+          key: const ValueKey('overlay-veil'),
+          color: Colors.black.withValues(
+            alpha: noMotion ? alpha : alpha * animation.value,
+          ),
+        );
+        if (noMotion) return veil;
+        final sigma = _ActionsPage.blurSigma * animation.value;
+        return ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+            child: veil,
+          ),
+        );
+      },
     );
   }
 }
 
 class _Menu extends StatelessWidget {
-  const _Menu({required this.actions});
+  const _Menu({required this.actions, required this.close});
 
   final List<MessageMenuAction> actions;
+  final VoidCallback close;
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +355,7 @@ class _Menu extends StatelessWidget {
           for (var i = 0; i < actions.length; i++) ...[
             if (i > 0)
               Divider(height: 1, thickness: 1, color: scheme.outlineVariant),
-            _MenuRow(action: actions[i]),
+            _MenuRow(action: actions[i], close: close),
           ],
         ],
       ),
@@ -262,9 +364,10 @@ class _Menu extends StatelessWidget {
 }
 
 class _MenuRow extends StatelessWidget {
-  const _MenuRow({required this.action});
+  const _MenuRow({required this.action, required this.close});
 
   final MessageMenuAction action;
+  final VoidCallback close;
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +376,7 @@ class _MenuRow extends StatelessWidget {
         : Theme.of(context).colorScheme.onSurface;
     return InkWell(
       onTap: () {
-        Navigator.of(context).pop();
+        close();
         action.onTap();
       },
       child: SizedBox(

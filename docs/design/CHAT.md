@@ -77,6 +77,9 @@ ressembler à un champ de formulaire.
   « pas de flou » dans toute l'application : elle ne s'étend à aucun autre écran. Si
   `MediaQuery.disableAnimationsOf(context)` est vrai, pas de flou : voile seul à 40 %.
   La bulle touchée reste à sa place, nette, à 100 %, échelle 1,02.
+  La surcouche est insérée dans l'Overlay racine, PAS poussée comme une route : `Navigator.push`
+  annule tous les pointeurs en cours, et le doigt posé ne pourrait plus glisser sur la barre. Le
+  bouton retour la ferme d'abord, par une entrée d'historique local de la route courante.
 - **Barre de réactions** : capsule compacte de 44 px, radius 999, fond `scheme.surface`, contour
   1 px `AppColors.hairline` (sombre : `dividerDark`), marge intérieure horizontale 6 px. Six cases
   de 40 px séparées de 2 px, émoji 28 px : les six que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à
@@ -164,7 +167,7 @@ ressembler à un champ de formulaire.
 ## 12. Mouvement et retours haptiques
 
 - Durées : 150 ms (fondus de contrôle), 200 ms (révélation de l'heure), 250 ms (apparition d'une
-  bulle : glissé de 8 px vers le haut + fondu), 350 ms (cœur du double tap). Courbe
+  bulle : glissé de 8 px vers le haut + fondu), 400 ms (cœur du double tap). Courbe
   `Curves.easeOutCubic`.
 - Toutes coupées sous `MediaQuery.disableAnimationsOf(context)`.
 - Haptiques : `selectionClick` (survol des réactions), `lightImpact` (double tap, seuil de

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
-/// A filled accent heart that grows in the middle of its parent, then fades
-/// (0,6 → 1,2 → 1 over 350 ms). Plays each time [trigger] increases. Lucide
-/// has no filled heart, so this one is the Material glyph.
+import '../../../../core/models/chat_message.dart';
+
+/// The heart of a double tap (docs/design/CHAT.md §4): a 64 px ❤️ that bursts
+/// at the touched point, grows 0,6 → 1,2 → 1 and fades over 400 ms. Plays each
+/// time [trigger] increases, centred on [origin] (in this widget's own
+/// coordinates), or in the middle when there is no point.
 class HeartPop extends StatefulWidget {
-  const HeartPop({super.key, required this.trigger});
+  const HeartPop({super.key, required this.trigger, this.origin});
+
+  static const size = 64.0;
 
   final int trigger;
+  final Offset? origin;
 
   @override
   State<HeartPop> createState() => _HeartPopState();
@@ -16,7 +22,7 @@ class _HeartPopState extends State<HeartPop>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 350),
+    duration: const Duration(milliseconds: 400),
   );
 
   static final _scale = TweenSequence<double>([
@@ -25,14 +31,14 @@ class _HeartPopState extends State<HeartPop>
         begin: 0.6,
         end: 1.2,
       ).chain(CurveTween(curve: Curves.easeOutCubic)),
-      weight: 60,
+      weight: 50,
     ),
     TweenSequenceItem(
       tween: Tween(
         begin: 1.2,
         end: 1.0,
       ).chain(CurveTween(curve: Curves.easeOutCubic)),
-      weight: 40,
+      weight: 50,
     ),
   ]);
 
@@ -53,23 +59,47 @@ class _HeartPopState extends State<HeartPop>
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
     return IgnorePointer(
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          if (_controller.isDismissed || _controller.isCompleted) {
-            return const SizedBox.shrink();
-          }
-          final t = _controller.value;
-          return Center(
-            child: Opacity(
-              opacity: t < 0.7 ? 1 : (1 - (t - 0.7) / 0.3).clamp(0.0, 1.0),
-              child: Transform.scale(
-                scale: _scale.transform(t),
-                child: Icon(Icons.favorite, size: 44, color: color),
-              ),
-            ),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final origin = widget.origin ?? box.biggest.center(Offset.zero);
+          return AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              if (_controller.isDismissed || _controller.isCompleted) {
+                return const SizedBox.shrink();
+              }
+              final t = _controller.value;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: origin.dx,
+                    top: origin.dy,
+                    child: FractionalTranslation(
+                      translation: const Offset(-0.5, -0.5),
+                      child: Opacity(
+                        key: const ValueKey('heart-pop'),
+                        opacity: t < 0.5
+                            ? 1
+                            : (1 - (t - 0.5) / 0.5).clamp(0.0, 1.0),
+                        child: Transform.scale(
+                          scale: _scale.transform(t),
+                          child: Text(
+                            allowedReactions.first,
+                            softWrap: false,
+                            style: const TextStyle(
+                              fontSize: HeartPop.size,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),

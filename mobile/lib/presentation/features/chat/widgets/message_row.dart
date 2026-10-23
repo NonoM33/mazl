@@ -19,6 +19,7 @@ import 'message_bubble.dart';
 import 'message_row_operations.dart';
 import 'photo_grid.dart';
 import 'photo_viewer.dart';
+import 'reaction_drag.dart';
 import 'reaction_pill.dart';
 import 'report_sheet.dart';
 import 'scam_warning_card.dart';
@@ -45,8 +46,21 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   bool _timeRevealed = false;
   bool _revealedBeforeTap = false;
   int _hearts = 0;
+  Offset? _tapPoint;
+  bool _reactionsAppeared = false;
+  ReactionDragController? _drag;
   Timer? _tapWindow;
   Timer? _photoOpen;
+
+  @override
+  void didUpdateWidget(MessageRow old) {
+    super.didUpdateWidget(old);
+    _reactionsAppeared =
+        _hasReactions(widget.item.message) && !_hasReactions(old.item.message);
+  }
+
+  static bool _hasReactions(ChatMessage m) =>
+      m.reactions.any((r) => r.userIds.isNotEmpty);
 
   @override
   void dispose() {
@@ -137,10 +151,13 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   );
 
   void _longPress(RowOperations ops, ChatScope scope) {
+    _drag = null;
     if (!ops.canMenu) return;
     final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final bounds = scope.overlayBounds?.call();
+    // The finger stays down: it slides onto the reaction bar from here.
+    final drag = _drag = ReactionDragController();
     showMessageActions(
       context,
       bubbleRect: box.localToGlobal(Offset.zero) & box.size,
@@ -152,6 +169,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       showReactionBar: !ops.failed,
       minTop: bounds?.top,
       maxBottom: bounds?.bottom,
+      drag: drag,
     );
   }
 
@@ -168,15 +186,24 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       bubble = Opacity(opacity: 0.6, child: bubble);
     }
 
-    final gestures = GestureDetector(
-      onTap: () => _tap(ops),
-      onLongPress: () => _longPress(ops, scope),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          bubble,
-          Positioned.fill(child: HeartPop(trigger: _hearts)),
-        ],
+    final gestures = Listener(
+      // The tap point, whichever recognizer wins the tap (a photo inside).
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (e) => _tapPoint = e.localPosition,
+      child: GestureDetector(
+        onTap: () => _tap(ops),
+        onLongPressStart: (_) => _longPress(ops, scope),
+        onLongPressMoveUpdate: (d) => _drag?.move(d.globalPosition),
+        onLongPressEnd: (d) => _drag?.release(d.globalPosition),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            bubble,
+            Positioned.fill(
+              child: HeartPop(trigger: _hearts, origin: _tapPoint),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -203,6 +230,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
             child: ReactionPill(
               reactions: message.reactions,
               myUserId: scope.myUserId,
+              popOnAppear: _reactionsAppeared,
               onTap: () => showReactionsSheet(
                 context,
                 reactions: message.reactions,
