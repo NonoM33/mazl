@@ -11,6 +11,7 @@ import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../../chat/conversation_lookup.dart';
 import '../widgets/discover_card.dart';
+import '../widgets/match_sheet.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -385,27 +386,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     return true;
   }
 
-  void _showMatchDialog(Profile profile) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('C\'est un match.'),
-        content: Text('Vous avez matché avec ${profile.displayName}.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Continuer à découvrir'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _openConversationWith(profile.userId);
-            },
-            child: const Text('Envoyer un message'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _showMatchDialog(Profile profile) async {
+    final choice = await showMatchSheet(context, matched: profile);
+    if (choice == MatchSheetChoice.message && mounted) {
+      await _openConversationWith(profile.userId);
+    }
   }
 
   /// Le serveur crée la conversation au match sans renvoyer son id : on la
