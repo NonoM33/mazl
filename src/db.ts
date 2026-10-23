@@ -764,27 +764,10 @@ export async function findWaitlistByVerificationToken(token: string) {
   return result.length ? (result[0] as { id: number; email: string; verification_status: string }) : null;
 }
 
-export async function createDocument(params: {
-  waitlistId: number;
-  type: string;
-  filename: string;
-  originalName?: string;
-  mimeType?: string;
-}) {
-  const result = await sql`
-    INSERT INTO documents (waitlist_id, type, filename, original_name, mime_type)
-    VALUES (${params.waitlistId}, ${params.type}, ${params.filename}, ${params.originalName ?? null}, ${params.mimeType ?? null})
-    RETURNING id
-  `;
-  const row = result[0];
-  if (!row) throw new Error("Failed to create document");
-  return row.id as number;
-}
-
 export async function listVerifiedProfiles() {
   const rows = await sql`
     SELECT w.id as waitlist_id, w.email, w.verification_status, w.verified_at, w.os,
-           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
+           d.id as document_id, d.type, d.purged_at, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
     WHERE w.verification_status IN ('verified', 'verified_plus')
@@ -808,7 +791,7 @@ export async function listVerifiedProfiles() {
       grouped.get(id).documents.push({
         id: row.document_id,
         type: row.type,
-        filename: row.filename,
+        purged: row.purged_at !== null,
         mimeType: row.mime_type,
         status: row.document_status,
         createdAt: row.created_at,
@@ -822,7 +805,7 @@ export async function listVerifiedProfiles() {
 export async function listPendingSubmissions() {
   const rows = await sql`
     SELECT w.id as waitlist_id, w.email, w.verification_status, w.documents_submitted_at, w.os,
-           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
+           d.id as document_id, d.type, d.purged_at, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
     WHERE w.verification_status IN ('submitted', 'pending')
@@ -846,7 +829,7 @@ export async function listPendingSubmissions() {
       grouped.get(id).documents.push({
         id: row.document_id,
         type: row.type,
-        filename: row.filename,
+        purged: row.purged_at !== null,
         mimeType: row.mime_type,
         status: row.document_status,
         createdAt: row.created_at,
@@ -857,99 +840,12 @@ export async function listPendingSubmissions() {
   return Array.from(grouped.values());
 }
 
-export async function setDocumentReview(params: { documentId: number; status: 'approved' | 'rejected'; notes?: string }) {
-  await sql`
-    UPDATE documents
-    SET status = ${params.status}, reviewed_at = NOW(), reviewer_notes = ${params.notes ?? null}
-    WHERE id = ${params.documentId}
-  `;
-}
-
-export async function setDocumentsReviewBulk(params: {
-  waitlistId: number;
-  documentIds: number[];
-  status: 'approved' | 'rejected';
-  notes?: string;
-}) {
-  if (!params.documentIds.length) return;
-
-  await sql`
-    UPDATE documents
-    SET status = ${params.status}, reviewed_at = NOW(), reviewer_notes = ${params.notes ?? null}
-    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
-  `;
-}
-
-export async function getDocumentTypesByIds(params: { waitlistId: number; documentIds: number[] }) {
-  if (!params.documentIds.length) return [] as string[];
-
-  const rows = await sql`
-    SELECT id, type
-    FROM documents
-    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
-  `;
-
-  return (rows as any[]).map((r) => r.type as string);
-}
-
 export async function getWaitlistEmailById(waitlistId: number) {
   const rows = await sql`
     SELECT email FROM waitlist WHERE id = ${waitlistId}
   `;
   const row = rows[0];
   return row ? (row.email as string) : null;
-}
-
-export async function getDocumentById(documentId: number) {
-  const result = await sql`
-    SELECT id, waitlist_id, filename, mime_type FROM documents WHERE id = ${documentId}
-  `;
-  return result.length
-    ? (result[0] as { id: number; waitlist_id: number; filename: string; mime_type: string | null })
-    : null;
-}
-
-export async function getLatestDocumentsByType(waitlistId: number) {
-  const rows = await sql`
-    SELECT DISTINCT ON (type)
-      id, type, filename, mime_type, status, created_at
-    FROM documents
-    WHERE waitlist_id = ${waitlistId}
-    ORDER BY type, created_at DESC
-  `;
-
-  const map: Record<
-    string,
-    { id: number; type: string; filename: string; mimeType: string | null; status: string }
-  > = {};
-
-  for (const row of rows as any[]) {
-    map[row.type] = {
-      id: row.id,
-      type: row.type,
-      filename: row.filename,
-      mimeType: row.mime_type ?? null,
-      status: row.status,
-    };
-  }
-
-  return map;
-}
-
-export async function approveAllDocumentsForWaitlist(waitlistId: number) {
-  await sql`
-    UPDATE documents
-    SET status = 'approved', reviewed_at = NOW(), reviewer_notes = NULL
-    WHERE waitlist_id = ${waitlistId} AND status != 'rejected'
-  `;
-}
-
-export async function rejectAllDocumentsForWaitlist(waitlistId: number, notes?: string) {
-  await sql`
-    UPDATE documents
-    SET status = 'rejected', reviewed_at = NOW(), reviewer_notes = ${notes ?? null}
-    WHERE waitlist_id = ${waitlistId}
-  `;
 }
 
 export async function setWaitlistOS(waitlistId: number, os: string) {

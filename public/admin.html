@@ -1321,9 +1321,10 @@
                 <tr>
                   <td>${v.email}</td>
                   <td>
-                    ${v.documents.map(d => `
-                      <a href="/api/admin/documents/${d.id}/file?token=${encodeURIComponent(adminToken)}" target="_blank" class="badge badge-primary" style="margin-right: 4px;">${d.type}</a>
-                    `).join('')}
+                    ${v.documents.map(d => d.purged
+                      ? `<span class="badge" style="margin-right: 4px;" title="Fichier effacé">${d.type} · purgé</span>`
+                      : `<a href="/api/admin/documents/${d.id}/file?token=${encodeURIComponent(adminToken)}" target="_blank" class="badge badge-primary" style="margin-right: 4px;">${d.type}</a>`
+                    ).join('')}
                   </td>
                   <td><span class="badge ${v.verificationStatus === 'verified' || v.verificationStatus === 'verified_plus' ? 'badge-success' : 'badge-warning'}">${v.verificationStatus}</span></td>
                   <td>

@@ -3,17 +3,11 @@ import { z } from "zod";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import {
   sql,
-  createDocument,
-  findWaitlistByVerificationToken,
   getTotalCount,
   initDb,
-  markVerificationSubmitted,
   upsertWaitlistAndGetVerification,
-  getLatestDocumentsByType,
-  setWaitlistOS,
   findUserByEmail,
   // Chat
   getConversations,
@@ -103,6 +97,13 @@ import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { assertKeysConfigured } from "./shared/crypto/keys";
+import {
+  createDocumentsModule,
+  ensureDocumentsSchema,
+  registerDocumentsDevRoutes,
+  registerDocumentsRoutes,
+  startPurgeScheduler,
+} from "./features/documents";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -182,31 +183,6 @@ app.use("/uploads/*", async (c) => {
 app.use("/*", serveStatic({ root: "./public" }));
 
 
-function getFileExtension(file: File) {
-  const byType: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "application/pdf": "pdf",
-    "image/webp": "webp",
-  };
-
-  if (file.type && byType[file.type]) return byType[file.type];
-  const name = (file as any).name as string | undefined;
-  if (!name) return "bin";
-  const ext = name.split(".").pop();
-  return ext ? ext.toLowerCase() : "bin";
-}
-
-function isAllowedUpload(file: File) {
-  const allowed = new Set(["image/jpeg", "image/png", "application/pdf", "image/webp"]);
-  if (file.type && allowed.has(file.type)) return true;
-
-  // Fallback for browsers that do not set mime
-  const name = (file as any).name as string | undefined;
-  if (!name) return false;
-  return /\.(jpe?g|png|pdf|webp)$/i.test(name);
-}
-
 // API Routes
 app.post("/api/subscribe", async (c) => {
   try {
@@ -253,91 +229,11 @@ app.get("/api/count", async (c) => {
   }
 });
 
-app.get("/api/verify", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const latest = await getLatestDocumentsByType(waitlist.id);
-  const required = ["selfie_id", "id_card_front", "id_card_back"];
-  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
-
-  return c.json({
-    success: true,
-    email: waitlist.email,
-    verificationStatus: waitlist.verification_status,
-    os: (waitlist as any).os,
-    requiredReady: missing.length === 0,
-    missing,
-  });
-});
-
-app.post("/api/verify/upload", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const form = await c.req.formData();
-  const type = (form.get("type") || "") as string;
-  const file = form.get("file");
-
-  if (!type) return c.json({ success: false, error: "Type manquant" }, 400);
-  if (!(file instanceof File)) return c.json({ success: false, error: "Fichier manquant" }, 400);
-
-  if (!isAllowedUpload(file)) {
-    return c.json({ success: false, error: "Format non supporté (JPG/PNG/PDF)" }, 400);
-  }
-
-  const maxBytes = 10 * 1024 * 1024;
-  if (file.size > maxBytes) return c.json({ success: false, error: "Fichier trop gros (max 10MB)" }, 400);
-
-  const ext = getFileExtension(file);
-  const safeType = type.replace(/[^a-z0-9_-]/gi, "_").slice(0, 40);
-  const filename = `${waitlist.id}-${safeType}-${crypto.randomUUID()}.${ext}`;
-  const fullPath = join(UPLOADS_DIR, filename);
-
-  await Bun.write(fullPath, file);
-
-  const documentId = await createDocument({
-    waitlistId: waitlist.id,
-    type: safeType,
-    filename,
-    originalName: (file as any).name,
-    mimeType: file.type,
-  });
-
-  return c.json({ success: true, documentId, filename });
-});
-
-app.post("/api/verify/submit", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const { os } = await c.req.json().catch(() => ({}));
-  if (os && ["ios", "android"].includes(os)) {
-    await setWaitlistOS(waitlist.id, os);
-  }
-
-  const latest = await getLatestDocumentsByType(waitlist.id);
-  const required = ["selfie_id", "id_card_front", "id_card_back"];
-  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
-  if (missing.length > 0) {
-    return c.json(
-      { success: false, error: `Documents manquants: ${missing.join(", ")}`, missing },
-      400,
-    );
-  }
-
-  await markVerificationSubmitted(waitlist.id);
-  return c.json({ success: true });
-});
+// Member document flow (GET /api/verify, POST /api/verify/upload, POST
+// /api/verify/submit): src/features/documents. Files are encrypted at rest and
+// purged after the admin decision.
+const documents = createDocumentsModule(UPLOADS_DIR);
+registerDocumentsRoutes(app, documents);
 
 // ============ ADMIN FEATURE ============
 // All `/api/admin/*` endpoints live in src/features/admin/*. They are
@@ -547,6 +443,8 @@ registerSubscriptionsRoutes(app);
 
 
 // ============ DEV/DEBUG ENDPOINTS ============
+
+registerDocumentsDevRoutes(app, documents, IS_PRODUCTION);
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
@@ -858,6 +756,8 @@ await mkdir(UPLOADS_DIR, { recursive: true });
 assertKeysConfigured();
 
 await initDb();
+await ensureDocumentsSchema();
+startPurgeScheduler(() => documents.purger.sweep());
 
 console.log(`Server running on http://localhost:${port}`);
 

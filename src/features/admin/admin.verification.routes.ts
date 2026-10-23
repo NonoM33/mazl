@@ -1,20 +1,13 @@
 import { Hono } from "hono";
-import { join } from "node:path";
 import type { AppVariables } from "../../shared/http/middleware";
 import {
   listPendingSubmissions,
   listVerifiedProfiles,
-  setDocumentReview,
-  getLatestDocumentsByType,
-  approveAllDocumentsForWaitlist,
   setWaitlistVerificationStatus,
   getWaitlistEmailById,
-  rejectAllDocumentsForWaitlist,
   requestReuploadAndRotateToken,
-  setDocumentsReviewBulk,
-  getDocumentTypesByIds,
-  getDocumentById,
 } from "../../db";
+import { createDocumentsModule, findMissingRequired } from "../documents";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail } from "../../email";
 import { verifyGoogleIdToken } from "../../auth";
 import {
@@ -32,6 +25,10 @@ export function registerAdminVerificationRoutes(
   app: Hono<{ Variables: AppVariables }>,
   uploadsDir: string,
 ): void {
+  // Every decision goes through documents.review, which also purges the files
+  // it decides (CONTRAT §2.4); the file endpoint decrypts on the fly.
+  const documents = createDocumentsModule(uploadsDir);
+
   // Admin Authentication
   app.post("/api/admin/login", async (c) => {
     try {
@@ -142,7 +139,7 @@ export function registerAdminVerificationRoutes(
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     const documentId = Number.parseInt(c.req.param("id"), 10);
-    await setDocumentReview({ documentId, status: "approved" });
+    await documents.review.approveDocument(documentId);
     return c.json({ success: true });
   });
 
@@ -151,17 +148,16 @@ export function registerAdminVerificationRoutes(
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     const waitlistId = Number.parseInt(c.req.param("id"), 10);
-    const latest = await getLatestDocumentsByType(waitlistId);
-    const required = ["selfie_id", "id_card_front", "id_card_back"];
-    const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+    const latest = await documents.repo.latestByType(waitlistId);
+    const missing = findMissingRequired(latest);
 
     if (missing.length > 0) {
       return c.json({ success: false, error: `Docs manquants: ${missing.join(", ")}` }, 400);
     }
 
-    await approveAllDocumentsForWaitlist(waitlistId);
+    await documents.review.approveAllForWaitlist(waitlistId);
 
-    const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status === "approved");
+    const hasCommunity = latest["community_doc"]?.status === "approved";
     const level = hasCommunity ? "verified_plus" : "verified";
     await setWaitlistVerificationStatus(waitlistId, level);
 
@@ -189,7 +185,7 @@ export function registerAdminVerificationRoutes(
     const body = await c.req.json().catch(() => ({}));
     const notes = (body?.notes || "").toString();
 
-    await rejectAllDocumentsForWaitlist(waitlistId, notes || "reupload requested");
+    await documents.review.rejectAllForWaitlist(waitlistId, notes || "reupload requested");
 
     // Rotate token so previous links become invalid
     const rotated = await requestReuploadAndRotateToken(waitlistId);
@@ -241,12 +237,12 @@ export function registerAdminVerificationRoutes(
     }
 
     // Apply doc reviews
-    await setDocumentsReviewBulk({ waitlistId, documentIds: approveDocumentIds, status: "approved" });
-    await setDocumentsReviewBulk({ waitlistId, documentIds: rejectDocumentIds, status: "rejected", notes: reason });
+    await documents.review.reviewBulk({ waitlistId, documentIds: approveDocumentIds, status: "approved" });
+    await documents.review.reviewBulk({ waitlistId, documentIds: rejectDocumentIds, status: "rejected", notes: reason });
 
     // If any rejected => reset to pending + rotate token + email
     if (rejectDocumentIds.length > 0) {
-      const rejectedTypes = await getDocumentTypesByIds({ waitlistId, documentIds: rejectDocumentIds });
+      const rejectedTypes = await documents.repo.typesByIds(waitlistId, rejectDocumentIds);
       const rotated = await requestReuploadAndRotateToken(waitlistId);
 
       try {
@@ -270,16 +266,15 @@ export function registerAdminVerificationRoutes(
 
     // Optional: validate profile
     if (approveProfile) {
-      const latest = await getLatestDocumentsByType(waitlistId);
-      const required = ["selfie_id", "id_card_front", "id_card_back"];
-      const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
+      const latest = await documents.repo.latestByType(waitlistId);
+      const missing = findMissingRequired(latest);
       if (missing.length > 0) {
         return c.json({ success: false, error: `Docs manquants: ${missing.join(", ")}` }, 400);
       }
 
-      await approveAllDocumentsForWaitlist(waitlistId);
+      await documents.review.approveAllForWaitlist(waitlistId);
 
-      const hasCommunity = Boolean(latest["community_doc"] && latest["community_doc"].status === "approved");
+      const hasCommunity = latest["community_doc"]?.status === "approved";
       const level = hasCommunity ? "verified_plus" : "verified";
       await setWaitlistVerificationStatus(waitlistId, level);
 
@@ -307,7 +302,8 @@ export function registerAdminVerificationRoutes(
 
     const documentId = Number.parseInt(c.req.param("id"), 10);
     const body = await c.req.json().catch(() => ({}));
-    await setDocumentReview({ documentId, status: "rejected", notes: body?.notes });
+    const notes = typeof body?.notes === "string" ? body.notes : null;
+    await documents.review.rejectDocument(documentId, notes);
     return c.json({ success: true });
   });
 
@@ -316,18 +312,29 @@ export function registerAdminVerificationRoutes(
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     const documentId = Number.parseInt(c.req.param("id"), 10);
-    const doc = await getDocumentById(documentId);
-    if (!doc) return c.json({ success: false, error: "Not found" }, 404);
+    if (!Number.isInteger(documentId)) return c.json({ success: false, error: "Not found" }, 404);
 
-    const path = join(uploadsDir, doc.filename);
-    const file = Bun.file(path);
-    if (!(await file.exists())) return c.json({ success: false, error: "Missing file" }, 404);
-
-    return new Response(file, {
-      headers: {
-        "content-type": doc.mime_type || "application/octet-stream",
-        "cache-control": "no-store",
-      },
-    });
+    try {
+      const result = await documents.readDocument(documentId);
+      switch (result.kind) {
+        case "not_found":
+          return c.json({ success: false, error: "Not found" }, 404);
+        case "purged":
+          return c.json({ success: false, error: "Document purgé" }, 410);
+        case "file_missing":
+          return c.json({ success: false, error: "Missing file" }, 404);
+        case "ok":
+          return new Response(result.bytes, {
+            headers: {
+              "content-type": result.mimeType || "application/octet-stream",
+              "cache-control": "no-store",
+              "x-content-type-options": "nosniff",
+            },
+          });
+      }
+    } catch (error) {
+      console.error(`document ${documentId} unreadable:`, error instanceof Error ? error.name : "unknown error");
+      return c.json({ success: false, error: "Document illisible" }, 500);
+    }
   });
 }
