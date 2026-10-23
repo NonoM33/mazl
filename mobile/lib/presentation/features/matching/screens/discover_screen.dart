@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -7,13 +8,18 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
 import '../../chat/conversation_lookup.dart';
 import '../widgets/discover_card.dart';
 
 class DiscoverScreen extends StatefulWidget {
-  const DiscoverScreen({super.key});
+  const DiscoverScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<DiscoverScreen> createState() => _DiscoverScreenState();
@@ -21,14 +27,17 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen>
     with AutomaticKeepAliveClientMixin {
-  final CardSwiperController _controller = CardSwiperController();
+  final SwipeDeckController _deck = SwipeDeckController();
   final DataPrefetchService _prefetchService = DataPrefetchService();
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
   String? _error;
   bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
+
+  /// Bumped with each new list so the deck starts again from its first card.
+  int _deckGeneration = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -51,6 +60,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (cachedProfiles != null && cachedProfiles.isNotEmpty) {
       setState(() {
         _profiles = cachedProfiles;
+        _deckGeneration++;
         _isLoading = false;
       });
     } else {
@@ -72,6 +82,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (response.success && response.data != null) {
       setState(() {
         _profiles = response.data!;
+        _deckGeneration++;
         _isLoading = false;
       });
     } else {
@@ -84,7 +95,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _deck.dispose();
     PremiumGate.onSuperLikesChanged = null;
     super.dispose();
   }
@@ -214,24 +225,45 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   }
 
   Widget _buildSwiper() {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: CardSwiper(
-        controller: _controller,
-        cardsCount: _profiles.length,
-        numberOfCardsDisplayed: _profiles.length > 2 ? 2 : _profiles.length,
-        backCardOffset: const Offset(0, 20),
-        padding: EdgeInsets.zero,
-        onSwipe: _onSwipe,
-        onUndo: _onUndo,
-        cardBuilder: (context, index, horizontalOffsetPercentage,
-            verticalOffsetPercentage) {
+      child: SwipeDeck(
+        key: ValueKey(_deckGeneration),
+        controller: _deck,
+        itemCount: _profiles.length,
+        allowed: const {
+          SwipeDirection.left,
+          SwipeDirection.right,
+          SwipeDirection.up,
+        },
+        intents: {
+          SwipeDirection.right: SwipeIntent(
+            icon: LucideIcons.heart,
+            color: scheme.primary,
+          ),
+          SwipeDirection.left: const SwipeIntent(
+            icon: LucideIcons.x,
+            color: AppColors.muted,
+          ),
+          SwipeDirection.up: SwipeIntent(
+            icon: LucideIcons.star,
+            color: scheme.primary,
+          ),
+        },
+        heavyHapticOn: const {SwipeDirection.up},
+        onWillSwipe: _willSwipe,
+        onRefused: _onRefused,
+        onSwiped: _onSwiped,
+        onUndone: _onUndone,
+        onEnd: _onDeckEnd,
+        cardBuilder: (context, index, isTop) {
           final profile = _profiles[index];
           return DiscoverCard(
             profile: profile,
-            swipeProgress: horizontalOffsetPercentage.toDouble(),
-            onPass: () => _controller.swipe(CardSwiperDirection.left),
-            onLike: () => _controller.swipe(CardSwiperDirection.right),
+            swipeProgress: isTop ? _deck.progress : null,
+            onPass: () => _deck.swipe(SwipeDirection.left),
+            onLike: () => _deck.swipe(SwipeDirection.right),
             onTapProfile: () async {
               final result = await context
                   .push<String>('/discover/profile/${profile.userId}');
@@ -239,14 +271,21 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                 _handleSwipeFromDetail(result);
               }
             },
-            secondaryActions: _buildSecondaryActions(),
+            secondaryActions: _buildSecondaryActions(followsSwipe: isTop),
           );
         },
       ),
     );
   }
 
-  List<Widget> _buildSecondaryActions() {
+  List<Widget> _buildSecondaryActions({required bool followsSwipe}) {
+    final superLike = DiscoverMiniAction(
+      icon: LucideIcons.star,
+      tooltip: 'Super like',
+      badge: PremiumGate.remainingSuperLikes.toString(),
+      // Refused (none left): the card stays, then the gate opens.
+      onPressed: () => _deck.swipe(SwipeDirection.up),
+    );
     return [
       // Undo (Premium)
       DiscoverMiniAction(
@@ -255,22 +294,19 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         locked: !PremiumGate.isPremium,
         onPressed: () async {
           if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
-            _controller.undo();
+            _deck.undo();
           }
         },
       ),
       // Super Like
-      DiscoverMiniAction(
-        icon: LucideIcons.star,
-        tooltip: 'Super like',
-        badge: PremiumGate.remainingSuperLikes.toString(),
-        onPressed: () async {
-          if (PremiumGate.remainingSuperLikes > 0 ||
-              await PremiumGate.showFeatureGate(context, PremiumFeature.superLikes)) {
-            _controller.swipe(CardSwiperDirection.top);
-          }
-        },
-      ),
+      if (followsSwipe)
+        SwipeProgressScale(
+          progress: _deck.progress,
+          direction: SwipeDirection.up,
+          child: superLike,
+        )
+      else
+        superLike,
       // Boost (Premium)
       DiscoverMiniAction(
         icon: LucideIcons.zap,
@@ -309,57 +345,78 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     _swipeFromDetail = true;
 
     // Trigger the swipe animation based on the action from profile detail
-    switch (action) {
-      case 'like':
-        _controller.swipe(CardSwiperDirection.right);
-        break;
-      case 'pass':
-        _controller.swipe(CardSwiperDirection.left);
-        break;
-      case 'super_like':
-        _controller.swipe(CardSwiperDirection.top);
-        break;
+    final direction = switch (action) {
+      'like' => SwipeDirection.right,
+      'pass' => SwipeDirection.left,
+      'super_like' => SwipeDirection.up,
+      _ => null,
+    };
+    if (direction == null) {
+      _swipeFromDetail = false;
+      return;
+    }
+    _deck.swipe(direction).then((left) {
+      if (!left) _swipeFromDetail = false;
+    });
+  }
+
+  /// Asked before the card moves: a like or a super like that is not allowed
+  /// keeps the card, which springs back, and the gate opens in [_onRefused].
+  bool _willSwipe(int index, SwipeDirection direction) {
+    switch (direction) {
+      case SwipeDirection.right:
+        // Les likes gratuits du jour sont comptés ici. Un like venu de la fiche
+        // profil a déjà été contrôlé et décompté là-bas.
+        return _swipeFromDetail || PremiumGate.tryConsumeFreeLike();
+      case SwipeDirection.up:
+        // Check if user has super likes remaining
+        return PremiumGate.remainingSuperLikes > 0;
+      case SwipeDirection.left:
+        return true;
     }
   }
 
-  bool _onSwipe(
-    int previousIndex,
-    int? currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    final profile = _profiles[previousIndex];
+  /// The card is back in place: now the premium gate may open.
+  void _onRefused(int index, SwipeDirection direction) {
+    _swipeFromDetail = false;
+    if (direction == SwipeDirection.right) {
+      unawaited(PremiumGate.showDailyLimitSheet(context));
+    } else if (direction == SwipeDirection.up) {
+      unawaited(_offerSuperLikes());
+    }
+  }
+
+  Future<void> _offerSuperLikes() async {
+    final granted = await PremiumGate.showFeatureGate(
+      context,
+      PremiumFeature.superLikes,
+    );
+    if (granted && mounted && PremiumGate.remainingSuperLikes > 0) {
+      unawaited(_deck.swipe(SwipeDirection.up));
+    }
+  }
+
+  void _onSwiped(int index, SwipeDirection direction) {
+    final profile = _profiles[index];
 
     String action;
-    if (direction == CardSwiperDirection.right) {
-      // Les likes gratuits du jour sont comptés ici. Un like venu de la fiche
-      // profil a déjà été contrôlé et décompté là-bas.
-      if (!_swipeFromDetail && !PremiumGate.guardLike(context)) {
-        return false; // Limite atteinte : la carte revient, rien n'est envoyé
-      }
+    if (direction == SwipeDirection.right) {
       debugPrint('Liked ${profile.displayName}');
       action = 'like';
-    } else if (direction == CardSwiperDirection.left) {
+    } else if (direction == SwipeDirection.left) {
       debugPrint('Passed ${profile.displayName}');
       action = 'pass';
-    } else if (direction == CardSwiperDirection.top) {
-      // Check if user has super likes remaining
-      if (PremiumGate.remainingSuperLikes <= 0) {
-        // Block swipe and show premium modal
-        PremiumGate.showFeatureGate(context, PremiumFeature.superLikes);
-        return false; // Cancel the swipe - card returns to position
-      }
+    } else {
       debugPrint('Super liked ${profile.displayName}');
       action = 'super_like';
       // Decrement super likes counter
       PremiumGate.useSuperLike();
-    } else {
-      return true;
     }
 
     // Skip API call if swipe came from detail page (already sent)
     if (_swipeFromDetail) {
       _swipeFromDetail = false;
-      return true;
+      return;
     }
 
     // Send swipe to backend
@@ -372,17 +429,16 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         _showMatchDialog(profile);
       }
     });
-
-    return true;
   }
 
-  bool _onUndo(
-    int? previousIndex,
-    int currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    debugPrint('Undo on ${_profiles[currentIndex].displayName}');
-    return true;
+  void _onUndone(int index) {
+    debugPrint('Undo on ${_profiles[index].displayName}');
+  }
+
+  /// Every profile has been seen: the empty state offers to look again.
+  void _onDeckEnd() {
+    if (!mounted) return;
+    setState(() => _profiles = const []);
   }
 
   void _showMatchDialog(Profile profile) {

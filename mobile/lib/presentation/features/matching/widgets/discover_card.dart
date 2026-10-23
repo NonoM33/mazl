@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -5,6 +6,7 @@ import '../../../../core/models/profile.dart' show Profile;
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 
 /// Carte de découverte : la photo, puis le nom, la ville et les puces dessous.
 ///
@@ -18,7 +20,7 @@ class DiscoverCard extends StatefulWidget {
     required this.onPass,
     required this.onLike,
     this.onTapProfile,
-    this.swipeProgress = 0,
+    this.swipeProgress,
     this.secondaryActions = const [],
   });
 
@@ -27,8 +29,9 @@ class DiscoverCard extends StatefulWidget {
   final VoidCallback onLike;
   final VoidCallback? onTapProfile;
 
-  /// Avancement horizontal du balayage : > 0 vers « J'aime », < 0 vers « Passer ».
-  final double swipeProgress;
+  /// Avancement du balayage en cours : les boutons « Passer » et « J'aime »
+  /// grossissent quand la carte va dans leur sens. Absent sur la carte du dessous.
+  final ValueListenable<SwipeProgress>? swipeProgress;
   final List<Widget> secondaryActions;
 
   static const double _actionSize = 60;
@@ -85,7 +88,12 @@ class _DiscoverCardState extends State<DiscoverCard> {
             builder: (context, constraints) => GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTapUp: (details) => _onPhotoTap(details, constraints.maxWidth),
-              child: ProfilePhoto(url: url, seed: _profile.id, radius: 32, iconSize: 72),
+              child: ProfilePhoto(
+                url: url,
+                seed: _profile.id,
+                radius: 32,
+                iconSize: 72,
+              ),
             ),
           ),
         ),
@@ -98,13 +106,6 @@ class _DiscoverCardState extends State<DiscoverCard> {
           ),
         if (_profile.isVerified)
           const Positioned(top: 28, left: 16, child: _VerifiedPill()),
-        if (widget.swipeProgress != 0)
-          Positioned(
-            top: 28,
-            left: 0,
-            right: 0,
-            child: Center(child: _SwipePill(progress: widget.swipeProgress)),
-          ),
         if (widget.secondaryActions.isNotEmpty)
           Positioned(
             left: 16,
@@ -125,26 +126,42 @@ class _DiscoverCardState extends State<DiscoverCard> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RoundIconButton(
-                icon: LucideIcons.x,
-                tooltip: 'Passer',
-                size: DiscoverCard._actionSize,
-                iconSize: 26,
-                onPressed: widget.onPass,
+              _followsSwipe(
+                SwipeDirection.left,
+                RoundIconButton(
+                  icon: LucideIcons.x,
+                  tooltip: 'Passer',
+                  size: DiscoverCard._actionSize,
+                  iconSize: 26,
+                  onPressed: widget.onPass,
+                ),
               ),
               const SizedBox(width: 12),
-              RoundIconButton(
-                icon: LucideIcons.heart,
-                tooltip: "J'aime",
-                size: DiscoverCard._actionSize,
-                iconSize: 26,
-                style: RoundButtonStyle.accent,
-                onPressed: widget.onLike,
+              _followsSwipe(
+                SwipeDirection.right,
+                RoundIconButton(
+                  icon: LucideIcons.heart,
+                  tooltip: "J'aime",
+                  size: DiscoverCard._actionSize,
+                  iconSize: 26,
+                  style: RoundButtonStyle.accent,
+                  onPressed: widget.onLike,
+                ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _followsSwipe(SwipeDirection direction, Widget button) {
+    final progress = widget.swipeProgress;
+    if (progress == null) return button;
+    return SwipeProgressScale(
+      progress: progress,
+      direction: direction,
+      child: button,
     );
   }
 
@@ -230,14 +247,14 @@ class _DiscoverCardState extends State<DiscoverCard> {
   }
 
   List<String> _tags() => [
-        ProfileLabels.denomination(_profile.denomination),
-        ProfileLabels.kashrut(_profile.kashrut),
-        ProfileLabels.shabbat(_profile.shabbatObservance),
-        ProfileLabels.intention(_profile.relationshipIntention),
-      ].whereType<String>().toList();
+    ProfileLabels.denomination(_profile.denomination),
+    ProfileLabels.kashrut(_profile.kashrut),
+    ProfileLabels.shabbat(_profile.shabbatObservance),
+    ProfileLabels.intention(_profile.relationshipIntention),
+  ].whereType<String>().toList();
 
-  static bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
-
+  static bool _hasText(String? value) =>
+      value != null && value.trim().isNotEmpty;
 }
 
 class _PhotoProgress extends StatelessWidget {
@@ -257,7 +274,9 @@ class _PhotoProgress extends StatelessWidget {
               key: Key('photo-bar-$i'),
               height: 3,
               decoration: BoxDecoration(
-                color: i == current ? AppColors.ink : AppColors.ink.withValues(alpha: 0.18),
+                color: i == current
+                    ? AppColors.ink
+                    : AppColors.ink.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -294,39 +313,6 @@ class _VerifiedPill extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SwipePill extends StatelessWidget {
-  const _SwipePill({required this.progress});
-
-  final double progress;
-
-  @override
-  Widget build(BuildContext context) {
-    final liking = progress > 0;
-    final opacity = (progress.abs() * 2).clamp(0.0, 1.0);
-    return Opacity(
-      opacity: opacity,
-      child: Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: liking ? AppColors.tekhelet : AppColors.ink,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Text(
-          liking ? "J'AIME" : 'PASSER',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1,
-            color: Colors.white,
-          ),
-        ),
       ),
     );
   }
