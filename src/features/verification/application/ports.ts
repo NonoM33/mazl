@@ -1,4 +1,4 @@
-import type { ChipFiles, ChipVerification, DetectedFace, Embedding } from "../domain/types";
+import type { Challenge, ChipFiles, ChipVerification, DetectedFace, Embedding, FacePurpose } from "../domain/types";
 
 // Ports of the verification feature. Use cases depend on these interfaces
 // only; adapters live in ../infra. CONTRACT: docs/verification/CONTRAT.md.
@@ -47,4 +47,81 @@ export class InvalidImageError extends Error {
     super(`invalid image: ${reason}`);
     this.name = "InvalidImageError";
   }
+}
+
+// ---------- Level 1 additions: sessions, references, photos ----------
+
+export interface FaceSession {
+  readonly id: string;
+  readonly userId: number;
+  readonly purpose: FacePurpose;
+  readonly challenges: readonly Challenge[];
+  readonly expiresAt: Date;
+}
+
+export type SessionCreation =
+  | { readonly ok: true; readonly session: FaceSession }
+  | { readonly ok: false; readonly nextAttemptTime: Date };
+
+export type SessionConsumption =
+  | { readonly ok: true; readonly session: FaceSession }
+  | { readonly ok: false; readonly reason: "session_not_found" | "session_expired" | "session_used" };
+
+// Time (expiry, "today") is the database's: one clock for every instance.
+export interface FaceSessionRepository {
+  // Atomic: counts the user's sessions of the day for this purpose and
+  // inserts the new one only when below the limit.
+  createWithinDailyQuota(input: {
+    readonly userId: number;
+    readonly purpose: FacePurpose;
+    readonly challenges: readonly Challenge[];
+    readonly ttlSeconds: number;
+    readonly dailyLimit: number;
+  }): Promise<SessionCreation>;
+  // Single use: marks the session consumed even if the submission then fails.
+  consume(sessionId: string, userId: number, purpose: FacePurpose): Promise<SessionConsumption>;
+  recordOutcome(sessionId: string, outcome: string): Promise<void>;
+  countToday(userId: number, purpose: FacePurpose): Promise<number>;
+  nextMidnight(): Promise<Date>;
+}
+
+export interface FaceReferenceStore {
+  save(userId: number, sealed: Uint8Array, model: string): Promise<void>;
+  load(userId: number): Promise<Uint8Array | null>;
+  remove(userId: number): Promise<void>;
+}
+
+// Authenticated encryption at rest (src/shared/crypto/secret-box.ts).
+export interface SecretVault {
+  seal(plaintext: Uint8Array, context: string): Uint8Array;
+  open(sealed: Uint8Array, context: string): Uint8Array;
+}
+
+export interface StoredPhoto {
+  readonly id: number;
+  readonly storageKey: string;
+  readonly isPrimary: boolean;
+}
+
+export interface ProfilePhotoStore {
+  // Primary photo first, then by position.
+  listForUser(userId: number): Promise<readonly StoredPhoto[]>;
+  // Null when the file is missing or is not a local file.
+  readBytes(storageKey: string): Promise<Uint8Array | null>;
+  recordFaceMatch(photoId: number, match: boolean): Promise<void>;
+  clearFaceMatches(userId: number): Promise<void>;
+}
+
+export interface PhotoBadgeState {
+  readonly photoVerifiedAt: Date | null;
+  readonly identityVerifiedAt: Date | null;
+  readonly primaryPhotoMatches: boolean;
+}
+
+export interface VerificationStateRepository {
+  markPhotoVerified(userId: number): Promise<void>;
+  clearPhotoVerified(userId: number): Promise<void>;
+  // Re-derives profiles.is_verified / verification_level after a face_match change.
+  refreshBadge(userId: number): Promise<void>;
+  read(userId: number): Promise<PhotoBadgeState>;
 }
