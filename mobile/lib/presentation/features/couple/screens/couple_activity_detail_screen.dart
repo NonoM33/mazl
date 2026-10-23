@@ -9,14 +9,19 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/couple_message_view.dart';
 
 class CoupleActivityDetailScreen extends StatefulWidget {
   const CoupleActivityDetailScreen({
     super.key,
     required this.activityId,
+    this.apiService,
   });
 
   final String activityId;
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<CoupleActivityDetailScreen> createState() =>
@@ -25,11 +30,13 @@ class CoupleActivityDetailScreen extends StatefulWidget {
 
 class _CoupleActivityDetailScreenState
     extends State<CoupleActivityDetailScreen> {
-  final CoupleApiService _apiService = CoupleApiService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
   CoupleActivity? _activity;
   bool _isLoading = true;
   bool _isSaved = false;
-  String? _error;
+  bool _isSaving = false;
+  CoupleFailure? _failure;
 
   static const coupleAccent = Color(0xFFFF6B9D);
 
@@ -40,60 +47,85 @@ class _CoupleActivityDetailScreenState
   }
 
   Future<void> _loadActivity() async {
+    final id = int.tryParse(widget.activityId);
+    if (id == null) {
+      setState(() {
+        _isLoading = false;
+        _failure = const CoupleFailure(
+          CoupleFailureKind.notFound,
+          'Cette activité n\'existe plus.',
+        );
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
-      _error = null;
+      _failure = null;
     });
 
-    try {
-      final activity =
-          await _apiService.getActivity(int.parse(widget.activityId));
-      setState(() {
-        _activity = activity;
-        _isLoading = false;
-        _isSaved = activity?.savedAt != null;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Erreur de chargement';
-        _isLoading = false;
-      });
-    }
+    // The activity route does not say whether it is saved: ask the saved list.
+    final results = await Future.wait([
+      _apiService.getActivity(id),
+      _apiService.getSavedActivities(),
+    ]);
+    if (!mounted) return;
+
+    final activity = results[0] as CoupleResult<CoupleActivity>;
+    final saved = results[1] as CoupleResult<List<CoupleActivity>>;
+    setState(() {
+      _isLoading = false;
+      switch ((activity, saved)) {
+        case (CoupleFailed(:final failure), _):
+        case (_, CoupleFailed(:final failure)):
+          _failure = failure;
+        case (CoupleOk(value: final a), CoupleOk(value: final list)):
+          _activity = a;
+          _isSaved = list.any((s) => s.id == a.id);
+      }
+    });
   }
 
   Future<void> _toggleSaved() async {
-    if (_activity == null) return;
+    final activity = _activity;
+    if (activity == null || _isSaving) return;
 
-    final wassSaved = _isSaved;
-    setState(() => _isSaved = !_isSaved);
+    final wasSaved = _isSaved;
+    setState(() {
+      _isSaved = !wasSaved;
+      _isSaving = true;
+    });
 
-    final success = _isSaved
-        ? await _apiService.saveActivity(_activity!.id)
-        : await _apiService.removeSavedActivity(_activity!.id);
+    final result = wasSaved
+        ? await _apiService.removeSavedActivity(activity.id)
+        : await _apiService.saveActivity(activity.id);
+    if (!mounted) return;
+    setState(() => _isSaving = false);
 
-    if (!success) {
-      setState(() => _isSaved = wassSaved);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur lors de l\'opération'),
-            backgroundColor: AppColors.error,
-          ),
+    switch (result) {
+      case CoupleFailed():
+        setState(() => _isSaved = wasSaved);
+        showCoupleError(
+          context,
+          wasSaved
+              ? 'Impossible de retirer cette activité. Réessayez.'
+              : 'Impossible de sauvegarder cette activité. Réessayez.',
         );
-      }
-    } else if (_isSaved && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Activité sauvegardée'),
-          backgroundColor: coupleAccent,
-          behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Voir',
-            textColor: Colors.white,
-            onPressed: () => context.push('/couple/activities/saved'),
-          ),
-        ),
-      );
+      case CoupleOk():
+        if (!wasSaved) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Activité sauvegardée'),
+              backgroundColor: coupleAccent,
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Voir',
+                textColor: Colors.white,
+                onPressed: () => context.push('/couple/activities/saved'),
+              ),
+            ),
+          );
+        }
     }
   }
 
@@ -131,27 +163,18 @@ class _CoupleActivityDetailScreenState
       );
     }
 
-    if (_error != null || _activity == null) {
+    final failure = _failure;
+    if (failure != null || _activity == null) {
+      final notFound = failure?.kind == CoupleFailureKind.notFound;
       return Scaffold(
         appBar: AppBar(),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              Text(
-                _error ?? 'Activité introuvable',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => context.pop(),
-                child: const Text('Retour'),
-              ),
-            ],
-          ),
-        ),
+        body: notFound || failure == null
+            ? const CoupleMessageView(
+                icon: LucideIcons.searchX,
+                title: 'Activité introuvable',
+                line: 'Elle n\'est plus proposée.',
+              )
+            : CoupleMessageView.failure(failure, onRetry: _loadActivity),
       );
     }
 
@@ -172,9 +195,8 @@ class _CoupleActivityDetailScreenState
                     CachedNetworkImage(
                       imageUrl: activity.imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: coupleAccent.withValues(alpha: 0.3),
-                      ),
+                      placeholder: (context, url) =>
+                          Container(color: coupleAccent.withValues(alpha: 0.3)),
                       errorWidget: (context, url, error) =>
                           _buildPlaceholder(activity),
                     )
@@ -232,7 +254,9 @@ class _CoupleActivityDetailScreenState
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: coupleAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -248,8 +272,11 @@ class _CoupleActivityDetailScreenState
                       ),
                       const Spacer(),
                       if (activity.rating != null) ...[
-                        const Icon(LucideIcons.star,
-                            color: AppColors.accentGold, size: 18),
+                        const Icon(
+                          LucideIcons.star,
+                          color: AppColors.accentGold,
+                          size: 18,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           activity.rating!.toStringAsFixed(1),
@@ -263,10 +290,9 @@ class _CoupleActivityDetailScreenState
                           Text(
                             '(${activity.reviewCount} avis)',
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontSize: 14,
                             ),
                           ),
@@ -293,20 +319,18 @@ class _CoupleActivityDetailScreenState
                         Icon(
                           LucideIcons.mapPin,
                           size: 18,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           activity.city!,
                           style: TextStyle(
                             fontSize: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.6),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -315,20 +339,18 @@ class _CoupleActivityDetailScreenState
                         Icon(
                           LucideIcons.clock,
                           size: 18,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           activity.formattedDuration,
                           style: TextStyle(
                             fontSize: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.6),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -383,7 +405,9 @@ class _CoupleActivityDetailScreenState
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: AppColors.accentGold.withValues(alpha: 0.2),
+                              color: AppColors.accentGold.withValues(
+                                alpha: 0.2,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -431,10 +455,7 @@ class _CoupleActivityDetailScreenState
                   // Description
                   const Text(
                     'Description',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -442,10 +463,9 @@ class _CoupleActivityDetailScreenState
                     style: TextStyle(
                       fontSize: 16,
                       height: 1.5,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.8),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -464,20 +484,25 @@ class _CoupleActivityDetailScreenState
                       spacing: 8,
                       runSpacing: 8,
                       children: activity.tags
-                          .map((tag) => Chip(
-                                label: Text(
-                                  '#$tag',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                backgroundColor: coupleAccent.withValues(alpha: 0.1),
-                              ))
+                          .map(
+                            (tag) => Chip(
+                              label: Text(
+                                '#$tag',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: coupleAccent.withValues(
+                                alpha: 0.1,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                     const SizedBox(height: 24),
                   ],
 
                   // Address section
-                  if (activity.address != null || activity.location != null) ...[
+                  if (activity.address != null ||
+                      activity.location != null) ...[
                     const Text(
                       'Adresse',
                       style: TextStyle(
@@ -489,10 +514,9 @@ class _CoupleActivityDetailScreenState
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surface
-                            .withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: Theme.of(context).dividerColor,
@@ -515,10 +539,9 @@ class _CoupleActivityDetailScreenState
                             Text(
                               activity.address!,
                               style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.7),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                             ),
                           if (activity.city != null) ...[
@@ -526,10 +549,9 @@ class _CoupleActivityDetailScreenState
                             Text(
                               activity.city!,
                               style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.7),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                             ),
                           ],
@@ -609,10 +631,9 @@ class _CoupleActivityDetailScreenState
                       'À partir de',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -668,10 +689,7 @@ class _CoupleActivityDetailScreenState
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            coupleAccent,
-            coupleAccent.withValues(alpha: 0.7),
-          ],
+          colors: [coupleAccent, coupleAccent.withValues(alpha: 0.7)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -687,11 +705,7 @@ class _CoupleActivityDetailScreenState
 }
 
 class _Badge extends StatelessWidget {
-  const _Badge({
-    required this.label,
-    required this.color,
-    this.icon,
-  });
+  const _Badge({required this.label, required this.color, this.icon});
 
   final IconData? icon;
   final String label;
@@ -745,9 +759,7 @@ class _ContactButton extends StatelessWidget {
       label: Text(label),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

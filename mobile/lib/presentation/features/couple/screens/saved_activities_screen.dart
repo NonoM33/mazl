@@ -4,20 +4,26 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
-import '../../../../core/services/saved_activities_service.dart';
+import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/couple_message_view.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
-  const SavedActivitiesScreen({super.key});
+  const SavedActivitiesScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<SavedActivitiesScreen> createState() => _SavedActivitiesScreenState();
 }
 
 class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
-  final SavedActivitiesService _savedService = SavedActivitiesService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
   List<CoupleActivity> _activities = [];
   bool _isLoading = true;
+  CoupleFailure? _failure;
 
   static const coupleAccent = Color(0xFFFF6B9D);
 
@@ -28,12 +34,22 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
   }
 
   Future<void> _loadActivities() async {
-    setState(() => _isLoading = true);
-
-    await _savedService.initialize();
     setState(() {
-      _activities = _savedService.savedActivities.toList();
+      _isLoading = true;
+      _failure = null;
+    });
+
+    final result = await _apiService.getSavedActivities();
+    if (!mounted) return;
+
+    setState(() {
       _isLoading = false;
+      switch (result) {
+        case CoupleOk(:final value):
+          _activities = value;
+        case CoupleFailed(:final failure):
+          _failure = failure;
+      }
     });
   }
 
@@ -43,7 +59,8 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Retirer de la liste ?'),
         content: Text(
-            'Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?'),
+          'Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -51,30 +68,40 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Retirer'),
           ),
         ],
       ),
     );
+    if (confirmed != true || !mounted) return;
 
-    if (confirmed == true) {
-      final success = await _savedService.removeActivity(activity.id);
-      if (success) {
+    // Optimistic: the row leaves now, and comes back if the server refuses.
+    final position = _activities.indexWhere((a) => a.id == activity.id);
+    if (position < 0) return;
+    setState(() => _activities = [..._activities]..removeAt(position));
+
+    final result = await _apiService.removeSavedActivity(activity.id);
+    if (!mounted) return;
+
+    switch (result) {
+      case CoupleOk():
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Activité retirée'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      case CoupleFailed():
         setState(() {
-          _activities = _savedService.savedActivities.toList();
+          final restored = [..._activities];
+          restored.insert(position.clamp(0, restored.length), activity);
+          _activities = restored;
         });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Activité retirée'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      }
+        showCoupleError(
+          context,
+          'Impossible de retirer « ${activity.title} ». Réessayez.',
+        );
     }
   }
 
@@ -89,8 +116,10 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
               padding: const EdgeInsets.only(right: 16),
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: coupleAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -107,59 +136,41 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _activities.isEmpty
-              ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: _loadActivities,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _activities.length,
-                    itemBuilder: (context, index) {
-                      final activity = _activities[index];
-                      return _SavedActivityCard(
-                        activity: activity,
-                        onTap: () => context.push('/couple/activities/${activity.id}'),
-                        onRemove: () => _removeActivity(activity),
-                      );
-                    },
-                  ),
-                ),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(LucideIcons.bookmark, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'Aucune activité sauvegardée',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Glissez vers le haut pour sauvegarder\ndes activités qui vous plaisent.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => context.pop(),
-            icon: const Icon(LucideIcons.sparkles, size: 18),
-            label: const Text('Découvrir des activités'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: coupleAccent,
-            ),
-          ),
-        ],
+  Widget _buildBody() {
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
+
+    final failure = _failure;
+    if (failure != null) {
+      return CoupleMessageView.failure(failure, onRetry: _loadActivities);
+    }
+
+    if (_activities.isEmpty) {
+      return CoupleMessageView(
+        icon: LucideIcons.bookmark,
+        title: 'Aucune activité sauvegardée',
+        line: 'Glissez une carte vers le haut pour la garder.',
+        actionLabel: 'Découvrir des activités',
+        onAction: () => context.pop(),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadActivities,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _activities.length,
+        itemBuilder: (context, index) {
+          final activity = _activities[index];
+          return _SavedActivityCard(
+            activity: activity,
+            onTap: () => context.push('/couple/activities/${activity.id}'),
+            onRemove: () => _removeActivity(activity),
+          );
+        },
       ),
     );
   }
@@ -183,9 +194,7 @@ class _SavedActivityCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         child: Row(
@@ -199,9 +208,8 @@ class _SavedActivityCard extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: activity.imageUrl!,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: coupleAccent.withValues(alpha: 0.3),
-                      ),
+                      placeholder: (context, url) =>
+                          Container(color: coupleAccent.withValues(alpha: 0.3)),
                       errorWidget: (context, url, error) => _buildPlaceholder(),
                     )
                   : _buildPlaceholder(),
@@ -267,7 +275,9 @@ class _SavedActivityCard extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),

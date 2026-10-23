@@ -3,27 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/couple_space.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../widgets/couple_message_view.dart';
+import 'couple_space_sheets.dart';
 
 class CoupleSpaceScreen extends StatefulWidget {
-  const CoupleSpaceScreen({super.key});
+  const CoupleSpaceScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<CoupleSpaceScreen> createState() => _CoupleSpaceScreenState();
 }
 
 class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
-  final CoupleApiService _apiService = CoupleApiService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
 
-  Map<String, dynamic>? _stats;
-  List<Map<String, dynamic>> _memories = [];
-  List<Map<String, dynamic>> _bucketList = [];
-  List<Map<String, dynamic>> _dates = [];
+  CoupleStatsSnapshot _snapshot = const CoupleStatsSnapshot();
+  List<CoupleMemory> _memories = [];
+  List<BucketListItem> _bucketList = [];
+  List<CoupleDate> _dates = [];
   bool _isLoading = true;
+  CoupleFailure? _failure;
 
   static const coupleAccent = Color(0xFFFF6B9D);
 
@@ -33,27 +41,56 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
     _loadData();
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final results = await Future.wait([
-        _apiService.getStats(),
-        _apiService.getMemories(),
-        _apiService.getBucketList(),
-        _apiService.getDates(),
-      ]);
-
+  /// Reads the four lists. [quiet] keeps the screen as it is while loading
+  /// (after an add) and, on failure, keeps the old data and says so.
+  Future<void> _loadData({bool quiet = false}) async {
+    if (!quiet) {
       setState(() {
-        _stats = results[0] as Map<String, dynamic>?;
-        _memories = results[1] as List<Map<String, dynamic>>;
-        _bucketList = results[2] as List<Map<String, dynamic>>;
-        _dates = results[3] as List<Map<String, dynamic>>;
-        _isLoading = false;
+        _isLoading = true;
+        _failure = null;
       });
-    } catch (e) {
-      setState(() => _isLoading = false);
     }
+
+    final results = await Future.wait([
+      _apiService.getStats(),
+      _apiService.getMemories(),
+      _apiService.getBucketList(),
+      _apiService.getDates(),
+    ]);
+    if (!mounted) return;
+
+    final stats = results[0] as CoupleResult<CoupleStatsSnapshot>;
+    final memories = results[1] as CoupleResult<List<CoupleMemory>>;
+    final bucket = results[2] as CoupleResult<List<BucketListItem>>;
+    final dates = results[3] as CoupleResult<List<CoupleDate>>;
+
+    final failure =
+        stats.failureOrNull ??
+        memories.failureOrNull ??
+        bucket.failureOrNull ??
+        dates.failureOrNull;
+
+    if (failure != null) {
+      if (quiet) {
+        showCoupleError(
+          context,
+          'Actualisation impossible. ${failure.message}',
+        );
+      }
+      setState(() {
+        _isLoading = false;
+        if (!quiet) _failure = failure;
+      });
+      return;
+    }
+
+    setState(() {
+      _snapshot = stats.valueOrNull!;
+      _memories = memories.valueOrNull!;
+      _bucketList = bucket.valueOrNull!;
+      _dates = dates.valueOrNull!;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -76,6 +113,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _failure != null
+          ? CoupleMessageView.failure(_failure!, onRetry: _loadData)
           : RefreshIndicator(
               onRefresh: _loadData,
               child: SingleChildScrollView(
@@ -129,10 +168,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            coupleAccent,
-            coupleAccent.withValues(alpha: 0.7),
-          ],
+          colors: [coupleAccent, coupleAccent.withValues(alpha: 0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -179,11 +215,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                LucideIcons.sparkles,
-                color: Colors.white70,
-                size: 16,
-              ),
+              const Icon(LucideIcons.sparkles, color: Colors.white70, size: 16),
               const SizedBox(width: 6),
               Text(
                 daysTogether > 0
@@ -209,18 +241,12 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10),
         ],
       ),
       child: ClipOval(
         child: imageUrl != null
-            ? CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-              )
+            ? CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
             : Container(
                 color: Colors.white,
                 child: const Icon(
@@ -234,27 +260,27 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildStatsSection() {
-    final statsData = _stats?['stats'] as Map<String, dynamic>? ?? {};
+    final stats = _snapshot.stats;
 
     return Row(
       children: [
         _StatCard(
-          icon: LucideIcons.heartHandshake,
-          value: '${statsData['activitiesDone'] ?? 0}',
-          label: 'Activités\nfaites',
+          icon: LucideIcons.bookmark,
+          value: '${stats.savedActivities}',
+          label: 'Activités\nsauvegardées',
           color: coupleAccent,
         ),
         const SizedBox(width: 12),
         _StatCard(
           icon: LucideIcons.calendar,
-          value: '${statsData['eventsAttended'] ?? 0}',
-          label: 'Événements\nparticipés',
+          value: '${stats.eventsRegistered}',
+          label: 'Événements\nà venir',
           color: AppColors.info,
         ),
         const SizedBox(width: 12),
         _StatCard(
           icon: LucideIcons.camera,
-          value: '${_memories.length}',
+          value: '${stats.memoriesCount}',
           label: 'Souvenirs\ncréés',
           color: AppColors.accentGold,
         ),
@@ -268,10 +294,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       children: [
         const Text(
           'Actions rapides',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -311,10 +334,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           children: [
             const Text(
               'Nos souvenirs',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             IconButton(
               onPressed: _showAddMemorySheet,
@@ -375,9 +395,9 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      if (memory['image_url'] != null)
+                      if (memory.imageUrl != null)
                         CachedNetworkImage(
-                          imageUrl: memory['image_url'],
+                          imageUrl: memory.imageUrl!,
                           fit: BoxFit.cover,
                         )
                       else
@@ -386,15 +406,16 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                _getMemoryTypeEmoji(memory['type']),
+                                _getMemoryTypeEmoji(memory.type),
                                 style: const TextStyle(fontSize: 28),
                               ),
                               const SizedBox(height: 4),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
                                 child: Text(
-                                  memory['title'] ?? '',
+                                  memory.title ?? '',
                                   textAlign: TextAlign.center,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -418,9 +439,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildBucketListSection() {
-    final pending = _bucketList.where((i) => i['completed_at'] == null).toList();
-    final completed =
-        _bucketList.where((i) => i['completed_at'] != null).toList();
+    final pending = _bucketList.where((i) => !i.isCompleted).toList();
+    final completed = _bucketList.where((i) => i.isCompleted).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,15 +452,14 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
               children: [
                 const Text(
                   'Bucket List',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.accentGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -473,8 +492,11 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
             ),
             child: Column(
               children: [
-                const Icon(LucideIcons.target,
-                    size: 40, color: AppColors.accentGold),
+                const Icon(
+                  LucideIcons.target,
+                  size: 40,
+                  color: AppColors.accentGold,
+                ),
                 const SizedBox(height: 12),
                 const Text(
                   'Votre bucket list est vide',
@@ -501,10 +523,10 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Column(
             children: pending.take(3).map((item) {
               return _BucketListItem(
-                title: item['title'] ?? '',
-                category: item['category'],
+                title: item.title,
+                category: item.category,
                 isCompleted: false,
-                onComplete: () => _completeBucketItem(item['id']),
+                onComplete: () => _completeBucketItem(item.id),
               );
             }).toList(),
           ),
@@ -521,10 +543,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           children: [
             const Text(
               'Dates importantes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             TextButton(
               onPressed: () => context.go('/couple/calendar'),
@@ -542,8 +561,11 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
             ),
             child: Column(
               children: [
-                const Icon(LucideIcons.calendarHeart,
-                    size: 40, color: AppColors.info),
+                const Icon(
+                  LucideIcons.calendarHeart,
+                  size: 40,
+                  color: AppColors.info,
+                ),
                 const SizedBox(height: 12),
                 const Text(
                   'Aucune date importante',
@@ -570,9 +592,9 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           Column(
             children: _dates.take(3).map((date) {
               return _DateItem(
-                title: date['title'] ?? '',
-                date: date['date'] ?? '',
-                type: date['type'] ?? '',
+                title: date.title,
+                date: _formatDate(date.date),
+                type: date.type,
               );
             }).toList(),
           ),
@@ -581,18 +603,14 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildAchievementsSection() {
-    final achievements =
-        _stats?['achievements'] as List<dynamic>? ?? [];
+    final achievements = _snapshot.achievements;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Nos badges',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         if (achievements.isEmpty)
@@ -625,9 +643,9 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
             runSpacing: 12,
             children: achievements.map((a) {
               return _AchievementBadge(
-                icon: _getAchievementIcon(a['type']),
-                name: a['title'] ?? '',
-                color: _getAchievementColor(a['type']),
+                icon: _getAchievementIcon(a.type),
+                name: a.name,
+                color: _getAchievementColor(a.type),
               );
             }).toList(),
           ),
@@ -635,64 +653,63 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
     );
   }
 
-  void _showAddMemorySheet() {
-    showMazlSheet<bool>(
+  Future<void> _showAddSheet(Widget Function(BuildContext) builder) async {
+    final added = await showMazlSheet<bool>(
       context,
       isScrollControlled: true,
-      builder: (context) => const _AddMemorySheet(),
-    ).then((added) {
-      if (added == true) _refreshMemories();
-    });
+      builder: builder,
+    );
+    if (added == true && mounted) await _loadData(quiet: true);
   }
 
-  void _showAddBucketItemSheet() {
-    showMazlSheet<bool>(
-      context,
-      isScrollControlled: true,
-      builder: (context) => const _AddBucketItemSheet(),
-    ).then((added) {
-      if (added == true) _refreshBucketList();
-    });
-  }
+  void _showAddMemorySheet() =>
+      _showAddSheet((_) => AddMemorySheet(apiService: _apiService));
 
-  void _showAddDateSheet() {
-    showMazlSheet<bool>(
-      context,
-      isScrollControlled: true,
-      builder: (context) => const _AddDateSheet(),
-    ).then((added) {
-      if (added == true) _refreshDates();
-    });
-  }
+  void _showAddBucketItemSheet() =>
+      _showAddSheet((_) => AddBucketItemSheet(apiService: _apiService));
 
-  Future<void> _refreshMemories() async {
-    final memories = await _apiService.getMemories();
-    setState(() => _memories = memories);
-  }
-
-  Future<void> _refreshBucketList() async {
-    final bucketList = await _apiService.getBucketList();
-    setState(() => _bucketList = bucketList);
-  }
-
-  Future<void> _refreshDates() async {
-    final dates = await _apiService.getDates();
-    setState(() => _dates = dates);
-  }
+  void _showAddDateSheet() =>
+      _showAddSheet((_) => AddDateSheet(apiService: _apiService));
 
   Future<void> _completeBucketItem(int itemId) async {
-    final success = await _apiService.completeBucketListItem(itemId);
-    if (success) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Objectif accompli'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      _refreshBucketList();
+    final result = await _apiService.completeBucketListItem(itemId);
+    if (!mounted) return;
+    switch (result) {
+      case CoupleOk():
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Objectif accompli'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        await _loadData(quiet: true);
+      case CoupleFailed():
+        showCoupleError(
+          context,
+          'Impossible de valider cet objectif. Réessayez.',
+        );
     }
+  }
+
+  static const _months = [
+    'janv.',
+    'févr.',
+    'mars',
+    'avr.',
+    'mai',
+    'juin',
+    'juil.',
+    'août',
+    'sept.',
+    'oct.',
+    'nov.',
+    'déc.',
+  ];
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+    return '${date.day} ${_months[date.month - 1]} ${date.year}';
   }
 
   String _getMemoryTypeEmoji(String? type) {
@@ -777,7 +794,9 @@ class _StatCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -829,7 +848,9 @@ class _QuickActionButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -861,9 +882,7 @@ class _BucketListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -894,8 +913,7 @@ class _BucketListItem extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    decoration:
-                        isCompleted ? TextDecoration.lineThrough : null,
+                    decoration: isCompleted ? TextDecoration.lineThrough : null,
                   ),
                 ),
                 if (category != null) ...[
@@ -904,21 +922,16 @@ class _BucketListItem extends StatelessWidget {
                     category!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
               ],
             ),
           ),
-          Icon(
-            LucideIcons.chevronRight,
-            size: 20,
-            color: Colors.grey[400],
-          ),
+          Icon(LucideIcons.chevronRight, size: 20, color: Colors.grey[400]),
         ],
       ),
     );
@@ -957,9 +970,7 @@ class _DateItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -978,10 +989,9 @@ class _DateItem extends StatelessWidget {
                   date,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -1027,195 +1037,3 @@ class _AchievementBadge extends StatelessWidget {
 }
 
 // Bottom sheets for adding content
-class _AddMemorySheet extends StatefulWidget {
-  const _AddMemorySheet();
-
-  @override
-  State<_AddMemorySheet> createState() => _AddMemorySheetState();
-}
-
-class _AddMemorySheetState extends State<_AddMemorySheet> {
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  final String _selectedType = 'note';
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ajouter un souvenir',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Titre',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _contentController,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Description',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () async {
-              if (_titleController.text.isEmpty) return;
-              final api = CoupleApiService();
-              final success = await api.addMemory(
-                type: _selectedType,
-                title: _titleController.text,
-                content: _contentController.text,
-              );
-              if (context.mounted) Navigator.pop(context, success);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B9D),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Text('Ajouter'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AddBucketItemSheet extends StatefulWidget {
-  const _AddBucketItemSheet();
-
-  @override
-  State<_AddBucketItemSheet> createState() => _AddBucketItemSheetState();
-}
-
-class _AddBucketItemSheetState extends State<_AddBucketItemSheet> {
-  final _titleController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ajouter à la bucket list',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Que voulez-vous faire ensemble ?',
-            border: OutlineInputBorder(),
-            hintText: 'Ex: Voir les aurores boréales',
-          ),
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () async {
-              if (_titleController.text.isEmpty) return;
-              final api = CoupleApiService();
-              final success = await api.addBucketListItem(
-                title: _titleController.text,
-              );
-              if (context.mounted) Navigator.pop(context, success);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentGold,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Text('Ajouter'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AddDateSheet extends StatefulWidget {
-  const _AddDateSheet();
-
-  @override
-  State<_AddDateSheet> createState() => _AddDateSheetState();
-}
-
-class _AddDateSheetState extends State<_AddDateSheet> {
-  final _titleController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  final String _selectedType = 'anniversary';
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ajouter une date importante',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        TextField(
-          controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Titre',
-            border: OutlineInputBorder(),
-            hintText: 'Ex: Notre anniversaire',
-          ),
-        ),
-        const SizedBox(height: 16),
-        ListTile(
-          title: const Text('Date'),
-          subtitle:
-              Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
-          trailing: const Icon(LucideIcons.calendar),
-          onTap: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: _selectedDate,
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (date != null) {
-              setState(() => _selectedDate = date);
-            }
-          },
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () async {
-              if (_titleController.text.isEmpty) return;
-              final api = CoupleApiService();
-              final success = await api.addDate(
-                title: _titleController.text,
-                date: _selectedDate.toIso8601String().split('T')[0],
-                type: _selectedType,
-              );
-              if (context.mounted) Navigator.pop(context, success);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.info,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Text('Ajouter'),
-          ),
-        ),
-      ],
-    );
-  }
-}

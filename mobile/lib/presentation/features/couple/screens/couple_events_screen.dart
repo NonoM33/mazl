@@ -6,9 +6,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/couple_message_view.dart';
 
 class CoupleEventsScreen extends StatefulWidget {
-  const CoupleEventsScreen({super.key});
+  const CoupleEventsScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<CoupleEventsScreen> createState() => _CoupleEventsScreenState();
@@ -16,12 +20,15 @@ class CoupleEventsScreen extends StatefulWidget {
 
 class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     with SingleTickerProviderStateMixin {
-  final CoupleApiService _apiService = CoupleApiService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
   late TabController _tabController;
 
   List<CoupleEvent> _allEvents = [];
   List<CoupleEvent> _registeredEvents = [];
   bool _isLoading = true;
+  CoupleFailure? _failure;
+  int _loadToken = 0;
   String? _selectedCategory;
 
   static const coupleAccent = Color(0xFFFF6B9D);
@@ -52,22 +59,30 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
   }
 
   Future<void> _loadEvents() async {
-    setState(() => _isLoading = true);
+    final token = ++_loadToken;
+    setState(() {
+      _isLoading = true;
+      _failure = null;
+    });
 
-    try {
-      final results = await Future.wait([
-        _apiService.getEvents(limit: 50, category: _selectedCategory),
-        _apiService.getRegisteredEvents(),
-      ]);
+    final results = await Future.wait([
+      _apiService.getEvents(limit: 50, category: _selectedCategory),
+      _apiService.getRegisteredEvents(),
+    ]);
+    if (!mounted || token != _loadToken) return;
 
-      setState(() {
-        _allEvents = results[0];
-        _registeredEvents = results[1];
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
+    final all = results[0];
+    final registered = results[1];
+    setState(() {
+      _isLoading = false;
+      if (all is CoupleOk<List<CoupleEvent>> &&
+          registered is CoupleOk<List<CoupleEvent>>) {
+        _allEvents = all.value;
+        _registeredEvents = registered.value;
+      } else {
+        _failure = all.failureOrNull ?? registered.failureOrNull;
+      }
+    });
   }
 
   @override
@@ -180,10 +195,17 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     );
   }
 
-  Widget _buildEventsList(List<CoupleEvent> events,
-      {required bool showRegisterButton}) {
+  Widget _buildEventsList(
+    List<CoupleEvent> events, {
+    required bool showRegisterButton,
+  }) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    final failure = _failure;
+    if (failure != null) {
+      return CoupleMessageView.failure(failure, onRetry: _loadEvents);
     }
 
     if (events.isEmpty) {
@@ -224,8 +246,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
             onTap: () => context.push('/couple/events/${event.id}'),
             onRegister: () => _registerForEvent(event),
             onCancel: () => _cancelRegistration(event),
-            isRegistered:
-                _registeredEvents.any((e) => e.id == event.id),
+            isRegistered: _registeredEvents.any((e) => e.id == event.id),
           );
         },
       ),
@@ -233,24 +254,25 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
   }
 
   Future<void> _registerForEvent(CoupleEvent event) async {
-    final success = await _apiService.registerForEvent(event.id);
+    final result = await _apiService.registerForEvent(event.id);
     if (!mounted) return;
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Inscrit à "${event.title}"'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      _loadEvents();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erreur lors de l\'inscription'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+    switch (result) {
+      case CoupleOk():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Inscrits à "${event.title}"'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _loadEvents();
+      case CoupleFailed(:final failure):
+        showCoupleError(
+          context,
+          failure.kind == CoupleFailureKind.full
+              ? failure.message
+              : 'Inscription impossible. Réessayez.',
+        );
     }
   }
 
@@ -260,7 +282,8 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
       builder: (context) => AlertDialog(
         title: const Text('Annuler l\'inscription ?'),
         content: Text(
-            'Voulez-vous vraiment annuler votre inscription à "${event.title}" ?'),
+          'Voulez-vous vraiment annuler votre inscription à "${event.title}" ?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -268,9 +291,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Oui, annuler'),
           ),
         ],
@@ -278,16 +299,22 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     );
 
     if (confirmed == true) {
-      final success = await _apiService.cancelEventRegistration(event.id);
+      final result = await _apiService.cancelEventRegistration(event.id);
       if (!mounted) return;
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inscription annulée'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        _loadEvents();
+      switch (result) {
+        case CoupleOk():
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Inscription annulée'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          _loadEvents();
+        case CoupleFailed():
+          showCoupleError(
+            context,
+            'Impossible d\'annuler l\'inscription. Réessayez.',
+          );
       }
     }
   }
@@ -317,9 +344,7 @@ class _EventCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -338,7 +363,8 @@ class _EventCard extends StatelessWidget {
                             color: coupleAccent.withValues(alpha: 0.3),
                             child: const Center(
                               child: CircularProgressIndicator(
-                                  color: Colors.white),
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           errorWidget: (context, url, error) =>
@@ -393,7 +419,9 @@ class _EventCard extends StatelessWidget {
                     right: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.accentGold,
                         borderRadius: BorderRadius.circular(20),
@@ -423,7 +451,9 @@ class _EventCard extends StatelessWidget {
                     left: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
@@ -480,10 +510,7 @@ class _EventCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${event.formattedDate} ${event.formattedTime}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       ),
                       const SizedBox(width: 16),
                       if (event.city != null) ...[
@@ -517,7 +544,9 @@ class _EventCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -552,8 +581,9 @@ class _EventCard extends StatelessWidget {
                                     ? AppColors.error
                                     : Colors.grey[600],
                                 fontSize: 13,
-                                fontWeight:
-                                    event.isFull ? FontWeight.w600 : FontWeight.normal,
+                                fontWeight: event.isFull
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                           ],
@@ -605,10 +635,7 @@ class _EventCard extends StatelessWidget {
     return Container(
       color: coupleAccent.withValues(alpha: 0.3),
       child: Center(
-        child: Text(
-          event.categoryEmoji,
-          style: const TextStyle(fontSize: 48),
-        ),
+        child: Text(event.categoryEmoji, style: const TextStyle(fontSize: 48)),
       ),
     );
   }
@@ -626,7 +653,7 @@ class _EventCard extends StatelessWidget {
       'Sep',
       'Oct',
       'Nov',
-      'Déc'
+      'Déc',
     ];
     return months[month - 1];
   }
