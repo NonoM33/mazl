@@ -29,6 +29,7 @@ recopie que pour être lu. En cas d'écart, c'est `MazlMotion` qui fait foi, et 
 |---|---|---|
 | retour en ressort | amortissement 0,7, léger dépassement, ≈ 350 ms | `spring` |
 | rebond « c'est acquis » | 1 → 1,15 → 1 en 220 ms | `popDuration`, `popScale` |
+| apparition d'une pastille de réaction | 0,5 → 1,15 → 1 en 220 ms | `reactionPopFrom`, `popScale`, `popDuration` |
 | fondu, animations réduites | 150 ms | `reducedFade` |
 | retour, animations réduites | 120 ms | `reducedReturn` |
 
@@ -80,8 +81,8 @@ Le match ne s'affiche plus dans une boîte de dialogue système. Il s'ouvre dans
 du couple.
 
 - Les deux photos (cercles à filet, composition des avatars de Mazal Tov) glissent l'une vers
-  l'autre et se touchent, puis un seul anneau accent pulse une fois autour de la pastille cœur.
-  `mediumImpact` au contact.
+  l'autre en 420 ms et se touchent (`matchMeet`, `matchMeetCurve`), puis un seul anneau accent
+  pulse une fois autour de la pastille cœur, en 600 ms (`matchPulse`). `mediumImpact` au contact.
 - Titre « C'est un match », une phrase, puis les deux actions : « Envoyer un message » (bouton
   principal encre, ouvre la conversation) et « Continuer à découvrir » (bouton texte).
 - Animations réduites : les photos sont déjà en place, sans pulsation.
