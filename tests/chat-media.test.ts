@@ -202,12 +202,13 @@ describe("signed URLs", () => {
 
   test("a signed profile-photo URL pattern does not open chat media either way", async () => {
     const future = Math.floor(Date.now() / 1000) + 600;
-    // /media/photos/<chat media id>: profile photos and chat media are numbered
-    // separately, so in a shared database a PROFILE photo may carry this id and
-    // be served (that is correct). What must never happen is the chat file
-    // coming out through the profile-photo route.
-    const chatBytes = new Uint8Array(await (await fetch(absolute(media.url))).arrayBuffer());
-    const res = await fetch(craftSignedUrl(media.id, future));
+    // Profile photos and chat media are numbered separately: in a shared
+    // database a PROFILE photo may carry this id and be served (correct). What
+    // must never happen is the chat file coming out through the profile route,
+    // so the chat photo has dimensions no other test uses (unique bytes).
+    const unique = await uploadOk(pair.a.token, pair.conversationId, { kind: "photo", file: await jpegWithGps(97, 53, 1) });
+    const chatBytes = new Uint8Array(await (await fetch(absolute(unique.url))).arrayBuffer());
+    const res = await fetch(craftSignedUrl(unique.id, future));
     const body = new Uint8Array(await res.arrayBuffer());
     expect(res.status === 404 || !Buffer.from(body).equals(Buffer.from(chatBytes))).toBe(true);
   });
