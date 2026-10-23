@@ -21,6 +21,7 @@ abstract class RouteNames {
   static const settings = 'settings';
   static const aiShadchan = 'aiShadchan';
   static const verification = 'verification';
+  static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
 
   // Couple mode
@@ -71,6 +72,7 @@ abstract class RoutePaths {
   static const settings = '/profile/settings';
   static const aiShadchan = '/profile/ai-shadchan';
   static const verification = '/profile/verification';
+  static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
 
   // Couple mode
