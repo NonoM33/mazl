@@ -13,6 +13,7 @@ abstract final class MazlMotion {
 
   static const reducedFade = Duration(milliseconds: 150);
   static const reducedReturn = Duration(milliseconds: 120);
+  static const reducedReturnCurve = Curves.easeOut;
 
   /// Snap-back of anything released before its threshold. Damping 0.7: a
   /// slight overshoot, settled in about 350 ms.
@@ -21,6 +22,10 @@ abstract final class MazlMotion {
     stiffness: 320,
     ratio: 0.7,
   );
+
+  /// When a spring is considered settled: closer than this to its target (px)
+  /// and slower than this (px per second).
+  static const springTolerance = Tolerance(distance: 0.2, velocity: 2);
 
   /// The little bounce of something that becomes true (intent disc at the
   /// threshold, reaction pill appearing): 1 → [popScale] → 1.
@@ -58,9 +63,26 @@ abstract final class MazlMotion {
   static const deckExit = Duration(milliseconds: 240);
   static const deckExitCurve = Curves.easeOutCubic;
 
+  /// A card grabbed below this share of its height pivots the other way.
+  static const deckGrabLowerHalf = 0.5;
+
+  /// A committed card travels this many card sizes from its resting place
+  /// (width for left / right, height for up): always fully off screen.
+  static const deckExitDistance = 1.6;
+
+  /// Seconds of the release velocity added to the travel across the exit axis,
+  /// so the card keeps the direction of the flick.
+  static const deckExitVelocityCarry = 0.18;
+
+  /// Extra turn during the exit, as a share of [deckMaxRotationDegrees].
+  static const deckExitExtraRotationShare = 0.8;
+
   /// Corner intent disc: white, opacity and scale follow progress 0 → 1.
   static const intentDiscSize = 56.0;
   static const intentDiscMinScale = 0.8;
+
+  /// Distance of the disc from the card's top and side edges.
+  static const intentDiscInset = 20.0;
 
   /// The matching action button under the card grows up to this scale.
   static const deckButtonMaxScale = 1.1;
