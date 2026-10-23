@@ -229,6 +229,7 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
+const chat = createChatModule({ uploadsDir: UPLOADS_DIR });
 const documents = createDocumentsModule(UPLOADS_DIR);
 registerDocumentsRoutes(app, documents);
 
@@ -238,7 +239,7 @@ registerDocumentsRoutes(app, documents);
 // preserving the exact relative declaration order of the admin routes.
 // Admin auth (admin JWT + email whitelist via assertAdmin /
 // assertAdminFileDownload) lives in src/features/admin/admin.auth.ts.
-registerAdminRoutes(app, UPLOADS_DIR);
+registerAdminRoutes(app, UPLOADS_DIR, { around: (userId, deletion) => chat.media.eraseUserMedia(userId, deletion) });
 
 // ============ AUTH ENDPOINTS ============
 
@@ -256,7 +257,6 @@ registerAuthRoutes(app);
 const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
 registerMediaRoutes(app, media.photos);
 registerProfileRoutes(app, { media });
-const chat = createChatModule({ uploadsDir: UPLOADS_DIR });
 
 // ============ DISCOVER & MATCHING ============
 

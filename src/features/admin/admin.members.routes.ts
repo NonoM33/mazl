@@ -13,6 +13,7 @@ import {
   setUserVerificationLevel,
 } from "../../db";
 import { assertAdmin } from "./admin.auth";
+import type { UserErasure } from "./admin.erasure";
 
 // Admin members routes, moved verbatim from the monolith (src/index.ts). Two
 // original blocks are preserved in order: the "ADMIN USERS" block (stats, users
@@ -79,7 +80,7 @@ export function registerAdminUsersOverviewRoutes(app: Hono<{ Variables: AppVaria
   });
 }
 
-export function registerAdminMembersModuleRoutes(app: Hono<{ Variables: AppVariables }>): void {
+export function registerAdminMembersModuleRoutes(app: Hono<{ Variables: AppVariables }>, erasure: UserErasure): void {
   // Get user detail (admin)
   app.get("/api/admin/users/:id", async (c) => {
     const auth = assertAdmin(c);
@@ -191,7 +192,7 @@ export function registerAdminMembersModuleRoutes(app: Hono<{ Variables: AppVaria
 
     try {
       const userId = parseInt(c.req.param("id"));
-      await deleteUserCompletely(userId, auth.email || "admin");
+      await erasure.around(userId, () => deleteUserCompletely(userId, auth.email || "admin"));
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete user error:", error);

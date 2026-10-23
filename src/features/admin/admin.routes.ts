@@ -1,3 +1,4 @@
+import type { UserErasure } from "./admin.erasure";
 import { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import { registerAdminVerificationRoutes } from "./admin.verification.routes";
@@ -45,6 +46,7 @@ import { registerAdminModerationRoutes } from "./admin.moderation.routes";
 export function registerAdminRoutes(
   app: Hono<{ Variables: AppVariables }>,
   uploadsDir: string,
+  erasure: UserErasure,
 ): void {
   registerAdminVerificationRoutes(app, uploadsDir);
   registerAdminEventsCrudRoutes(app);
@@ -52,7 +54,7 @@ export function registerAdminRoutes(
   registerAdminSubscriptionsRoutes(app);
   registerAdminTestingRoutes(app);
   registerAdminTestMessageRoute(app);
-  registerAdminMembersModuleRoutes(app);
+  registerAdminMembersModuleRoutes(app, erasure);
   registerAdminEventsModuleRoutes(app);
   registerAdminCampaignsRoutes(app);
   registerAdminModerationRoutes(app);

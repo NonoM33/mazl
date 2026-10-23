@@ -143,7 +143,11 @@ export const postgresMessageRepository: MessageRepository = {
   async unsend(messageId, at): Promise<MediaRecord[] | null> {
     return sql.begin(async (transaction) => {
       const tx = asSql(transaction);
-      // A reported message keeps its text for moderation; the app never sees it.
+      // RETENTION CHOICE: a message that a report points at keeps its text, so that
+      // unsending cannot destroy the evidence. The only reader is the admin
+      // moderation list (db.ts getReports, `reported_message_content`); the
+      // presenter hides the text of every unsent message from members. It is
+      // deleted with the conversation (account deletion).
       const marked = await tx`
         UPDATE messages SET unsent_at = ${at}, link_preview = NULL,
           content = CASE WHEN EXISTS (SELECT 1 FROM reports r WHERE r.message_id = messages.id) THEN content ELSE '' END

@@ -3030,15 +3030,24 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     targetId: userId,
   });
 
-  // Delete in order (respecting foreign keys)
-  await sql`DELETE FROM admin_notes WHERE user_id = ${userId}`;
-  await sql`DELETE FROM user_bans WHERE user_id = ${userId}`;
-  await sql`DELETE FROM profile_photos WHERE user_id = ${userId}`;
-  await sql`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
-  await sql`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
-  await sql`DELETE FROM subscriptions WHERE user_id = ${userId}`;
-  await sql`DELETE FROM profiles WHERE user_id = ${userId}`;
-  await sql`DELETE FROM users WHERE id = ${userId}`;
+  // One transaction: the chat files are removed from disk only once it has
+  // committed (see the erasure guard around this call in the admin routes).
+  await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    // The user's conversations first (their messages, reactions and media rows
+    // cascade): conversations.user*_id and messages.sender_id have no cascade,
+    // so a conversation that no match owns would otherwise block the deletion.
+    await tx`DELETE FROM conversations WHERE user1_id = ${userId} OR user2_id = ${userId}`;
+    // Then the rest, in order (respecting foreign keys)
+    await tx`DELETE FROM admin_notes WHERE user_id = ${userId}`;
+    await tx`DELETE FROM user_bans WHERE user_id = ${userId}`;
+    await tx`DELETE FROM profile_photos WHERE user_id = ${userId}`;
+    await tx`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
+    await tx`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
+    await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
+    await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
+    await tx`DELETE FROM users WHERE id = ${userId}`;
+  });
 
   return { deleted: true };
 }
@@ -3627,7 +3636,15 @@ export async function getBlockedUsers(userId: number): Promise<Array<{
   }>;
 }
 
-// Get reports
+// Get reports (admin moderation).
+//
+// RETENTION CHOICE: `reported_message_content` is the ONLY place where the text
+// of a reported message can be read after its author unsent it. Unsending
+// normally empties the text in the database; when a report points at the
+// message the text is kept, so that a harasser cannot erase the evidence by
+// unsending. Every route used by members (history, conversation list, WebSocket
+// events, the unsend answer) hides it behind `unsent: true`. The text lives as
+// long as its conversation: deleting the account or the conversation removes it.
 export async function getReports(filters?: {
   status?: string;
   limit?: number;
@@ -3643,11 +3660,14 @@ export async function getReports(filters?: {
         reporter.name as reporter_name,
         reported.email as reported_email,
         reported.name as reported_name,
-        p.display_name as reported_display_name
+        p.display_name as reported_display_name,
+        rm.content as reported_message_content,
+        (rm.unsent_at IS NOT NULL) as reported_message_unsent
       FROM reports r
       LEFT JOIN users reporter ON reporter.id = r.reporter_id
       LEFT JOIN users reported ON reported.id = r.reported_user_id
       LEFT JOIN profiles p ON p.user_id = r.reported_user_id
+      LEFT JOIN messages rm ON rm.id = r.message_id
       WHERE r.status = ${filters.status}
       ORDER BY r.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -3660,11 +3680,14 @@ export async function getReports(filters?: {
       reporter.name as reporter_name,
       reported.email as reported_email,
       reported.name as reported_name,
-      p.display_name as reported_display_name
+      p.display_name as reported_display_name,
+      rm.content as reported_message_content,
+      (rm.unsent_at IS NOT NULL) as reported_message_unsent
     FROM reports r
     LEFT JOIN users reporter ON reporter.id = r.reporter_id
     LEFT JOIN users reported ON reported.id = r.reported_user_id
     LEFT JOIN profiles p ON p.user_id = r.reported_user_id
+    LEFT JOIN messages rm ON rm.id = r.message_id
     ORDER BY r.created_at DESC
     LIMIT ${limit} OFFSET ${offset}
   `;
