@@ -1,3 +1,4 @@
+import 'demo_couple_state.dart';
 import 'demo_fixtures.dart';
 
 /// État mutable du mode démo, en mémoire seulement : un message envoyé reste
@@ -14,6 +15,12 @@ abstract final class DemoStore {
   static bool _identityVerified = false;
   static int _nextId = 9000;
 
+  /// Horloge de la démo : les tests l'avancent au lieu d'attendre.
+  static DateTime Function() clock = DateTime.now;
+
+  /// Mode couple de la session (demandes, couple, contenus).
+  static DemoCoupleState couple = DemoCoupleState();
+
   /// Conversations ouvertes par un match pendant la session, comme le fait
   /// le serveur (`createConversationForMatch`).
   static final List<Map<String, dynamic>> _matched = [];
@@ -29,6 +36,7 @@ abstract final class DemoStore {
     _identityVerified = false;
     _nextId = 9000;
     _matched.clear();
+    couple = DemoCoupleState();
   }
 
   /// Crée (une seule fois) la conversation d'un nouveau match.
@@ -50,6 +58,12 @@ abstract final class DemoStore {
       },
     });
   }
+
+  /// Vrai si [userId] est un match (liste de départ ou match ouvert pendant
+  /// la session).
+  static bool isMatch(int userId) =>
+      DemoFixtures.matches().any((m) => m['id'] == userId) ||
+      _matched.any((c) => c['otherUser']['user_id'] == userId);
 
   static int nextId() => _nextId++;
 

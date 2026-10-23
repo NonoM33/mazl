@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'demo_couple_routes.dart';
 import 'demo_fixtures.dart';
 import 'demo_store.dart';
 
@@ -24,15 +25,16 @@ class DemoRequest {
   final Map<String, dynamic> body;
 }
 
-typedef _Handler = DemoReply Function(DemoRequest request, RegExpMatch match);
+typedef DemoHandler = DemoReply Function(DemoRequest request, RegExpMatch match);
 
-class _Route {
-  _Route(this.method, String pattern, this.handler)
+/// Une route du routeur fictif. La méthode `*` répond à toutes les méthodes.
+class DemoRoute {
+  DemoRoute(this.method, String pattern, this.handler)
     : pattern = RegExp('^$pattern\$');
 
   final String method;
   final RegExp pattern;
-  final _Handler handler;
+  final DemoHandler handler;
 }
 
 /// Route une requête vers ses données fictives. Toute route inconnue rend un
@@ -48,7 +50,7 @@ abstract final class DemoRoutes {
         ? request.path.substring(0, request.path.length - 1)
         : request.path;
     for (final route in _routes) {
-      if (route.method != request.method) continue;
+      if (route.method != '*' && route.method != request.method) continue;
       final match = route.pattern.firstMatch(path);
       if (match != null) return route.handler(request, match);
     }
@@ -105,9 +107,9 @@ abstract final class DemoRoutes {
     'likes_during_boost': 0,
   };
 
-  static final List<_Route> _routes = [
+  static final List<DemoRoute> _routes = [
     // --- Compte et profil ---
-    _Route(
+    DemoRoute(
       'GET',
       '/api/auth/me',
       (r, m) => _json({
@@ -116,26 +118,26 @@ abstract final class DemoRoutes {
         'profile': DemoStore.myProfile(),
       }),
     ),
-    _Route('PUT', '/api/profile', (r, m) {
+    DemoRoute('PUT', '/api/profile', (r, m) {
       DemoStore.patchProfile(r.body);
       return _json({'success': true, 'profile': DemoStore.myProfile()});
     }),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/profile/photos',
       (r, m) => _json({'success': true, 'photos': <Object>[]}),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/profile/prompts',
       (r, m) => _json({'success': true, 'prompts': DemoStore.prompts()}),
     ),
-    _Route(
+    DemoRoute(
       'POST',
       '/api/profile/prompts',
       (r, m) => _json({'success': true, 'prompt': DemoStore.addPrompt(r.body)}),
     ),
-    _Route('PUT', '/api/profile/prompts/(\\d+)', (r, m) {
+    DemoRoute('PUT', '/api/profile/prompts/(\\d+)', (r, m) {
       final prompt = DemoStore.updatePrompt(
         _id(m),
         '${r.body['answer'] ?? ''}',
@@ -144,27 +146,27 @@ abstract final class DemoRoutes {
           ? unavailable()
           : _json({'success': true, 'prompt': prompt});
     }),
-    _Route('DELETE', '/api/profile/prompts/(\\d+)', (r, m) {
+    DemoRoute('DELETE', '/api/profile/prompts/(\\d+)', (r, m) {
       DemoStore.deletePrompt(_id(m));
       return _ok;
     }),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/prompts',
       (r, m) =>
           _json({'success': true, 'prompts': DemoFixtures.promptTemplates()}),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/profile/visitors',
       (r, m) => _json({'success': true, ...DemoFixtures.visitors()}),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/profile/visitors/count',
       (r, m) => _json({'success': true, 'count': 2}),
     ),
-    _Route('GET', '/api/profile/(\\d+)', (r, m) {
+    DemoRoute('GET', '/api/profile/(\\d+)', (r, m) {
       final profile = DemoFixtures.profileById(_id(m));
       return profile == null
           ? const DemoReply({
@@ -173,11 +175,11 @@ abstract final class DemoRoutes {
             }, status: 404)
           : _json({'success': true, 'profile': profile});
     }),
-    _Route('DELETE', '/api/users/me', (r, m) => _ok),
+    DemoRoute('DELETE', '/api/users/me', (r, m) => _ok),
     // Vérification : mêmes formes que le serveur (docs/verification/CONTRAT.md).
     // Le mode démo n'analyse rien : toute capture est acceptée.
-    _Route('GET', '/api/verification/status', (r, m) => _json(_verificationStatus())),
-    _Route(
+    DemoRoute('GET', '/api/verification/status', (r, m) => _json(_verificationStatus())),
+    DemoRoute(
       'POST',
       '/api/verification/face/session',
       (r, m) => _json({
@@ -187,43 +189,43 @@ abstract final class DemoRoutes {
         'expires_at': DateTime.now().toUtc().add(const Duration(minutes: 2)).toIso8601String(),
       }),
     ),
-    _Route('POST', '/api/verification/face/submit', (r, m) {
+    DemoRoute('POST', '/api/verification/face/submit', (r, m) {
       DemoStore.setPhotoVerified(true);
       return _json({'success': true, 'verified': true, 'photo_matches': const []});
     }),
-    _Route('POST', '/api/verification/identity', (r, m) {
+    DemoRoute('POST', '/api/verification/identity', (r, m) {
       DemoStore.markIdentityVerified();
       return _json({'success': true, 'verified': true});
     }),
-    _Route('DELETE', '/api/verification/face/reference', (r, m) {
+    DemoRoute('DELETE', '/api/verification/face/reference', (r, m) {
       DemoStore.setPhotoVerified(false);
       return _ok;
     }),
 
     // --- Découverte, matchs, likes ---
-    _Route(
+    DemoRoute(
       'GET',
       '/api/discover',
       (r, m) => _page(DemoFixtures.discoverProfiles(), 'profiles', r),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/daily-picks',
       (r, m) => _json({'success': true, 'picks': DemoFixtures.dailyPicks()}),
     ),
-    _Route('POST', '/api/swipes', _swipe),
-    _Route('POST', '/api/swipes/like-prompt', _swipe),
-    _Route(
+    DemoRoute('POST', '/api/swipes', _swipe),
+    DemoRoute('POST', '/api/swipes/like-prompt', _swipe),
+    DemoRoute(
       'GET',
       '/api/matches',
       (r, m) => _json({'success': true, 'matches': DemoFixtures.matches()}),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/likes/received',
       (r, m) => _json(DemoFixtures.likesReceived()),
     ),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/likes/received/count',
       (r, m) => _json({
@@ -231,35 +233,35 @@ abstract final class DemoRoutes {
         'count': DemoFixtures.likesReceived()['count'] as int,
       }),
     ),
-    _Route('GET', '/api/boost/status', (r, m) => _json(_boost())),
-    _Route('POST', '/api/boost/activate', (r, m) {
+    DemoRoute('GET', '/api/boost/status', (r, m) => _json(_boost())),
+    DemoRoute('POST', '/api/boost/activate', (r, m) {
       DemoStore.activateBoost();
       return _json(_boost());
     }),
-    _Route(
+    DemoRoute(
       'GET',
       '/api/users/blocked',
       (r, m) => _json({'success': true, 'blocked_users': <Object>[]}),
     ),
-    _Route('POST', '/api/users/(\\d+)/block', (r, m) => _ok),
-    _Route('DELETE', '/api/users/(\\d+)/block', (r, m) => _ok),
-    _Route('POST', '/api/users/(\\d+)/report', (r, m) => _ok),
+    DemoRoute('POST', '/api/users/(\\d+)/block', (r, m) => _ok),
+    DemoRoute('DELETE', '/api/users/(\\d+)/block', (r, m) => _ok),
+    DemoRoute('POST', '/api/users/(\\d+)/report', (r, m) => _ok),
 
     // --- Messagerie ---
-    _Route(
+    DemoRoute(
       'GET',
       '/api/conversations',
       (r, m) =>
           _json({'success': true, 'conversations': DemoStore.conversations()}),
     ),
-    _Route('GET', '/api/conversations/(\\d+)/messages', (r, m) {
+    DemoRoute('GET', '/api/conversations/(\\d+)/messages', (r, m) {
       final offset = int.tryParse(r.query['offset'] ?? '') ?? 0;
       return _json({
         'success': true,
         'messages': offset > 0 ? <Object>[] : DemoStore.messages(_id(m)),
       });
     }),
-    _Route(
+    DemoRoute(
       'POST',
       '/api/conversations/(\\d+)/messages',
       (r, m) => _json({
@@ -267,82 +269,43 @@ abstract final class DemoRoutes {
         'message': DemoStore.sendMessage(_id(m), '${r.body['content'] ?? ''}'),
       }),
     ),
-    _Route('PUT', '/api/conversations/(\\d+)/read', (r, m) {
+    DemoRoute('PUT', '/api/conversations/(\\d+)/read', (r, m) {
       DemoStore.markRead(_id(m));
       return _ok;
     }),
 
     // --- Évènements ---
-    _Route(
+    DemoRoute(
       'GET',
       '/api/events',
       (r, m) => _json({'success': true, 'events': DemoStore.events()}),
     ),
-    _Route('GET', '/api/events/(\\d+)', (r, m) {
+    DemoRoute('GET', '/api/events/(\\d+)', (r, m) {
       final event = DemoStore.events().where((e) => e['id'] == _id(m));
       return event.isEmpty
           ? unavailable()
           : _json({'success': true, 'event': event.first});
     }),
-    _Route('POST', '/api/events/(\\d+)/rsvp', (r, m) {
+    DemoRoute('POST', '/api/events/(\\d+)/rsvp', (r, m) {
       DemoStore.setRsvp(_id(m), '${r.body['status'] ?? 'going'}');
       return _ok;
     }),
-    _Route('DELETE', '/api/events/(\\d+)/rsvp', (r, m) {
+    DemoRoute('DELETE', '/api/events/(\\d+)/rsvp', (r, m) {
       DemoStore.setRsvp(_id(m), null);
       return _ok;
     }),
 
     // --- Histoires de couples ---
-    _Route(
+    DemoRoute(
       'GET',
       '/api/success-stories',
       (r, m) =>
           _json({'success': true, 'stories': DemoFixtures.successStories()}),
     ),
-    _Route('POST', '/api/success-stories', (r, m) => _ok),
-    _Route('POST', '/api/success-stories/(\\d+)/like', (r, m) => _ok),
+    DemoRoute('POST', '/api/success-stories', (r, m) => _ok),
+    DemoRoute('POST', '/api/success-stories/(\\d+)/like', (r, m) => _ok),
 
-    // --- Mode couple : l'utilisateur fictif n'est pas en couple ---
-    _Route(
-      'GET',
-      '/api/couple',
-      (r, m) => _json({'success': true, 'couple': null}),
-    ),
-    _Route(
-      'GET',
-      '/api/couple/requests',
-      (r, m) =>
-          _json({'success': true, 'sent': <Object>[], 'received': <Object>[]}),
-    ),
-    _Route(
-      'GET',
-      '/api/couple/check/(\\d+)',
-      (r, m) => _json({'success': true, 'in_couple_mode': false}),
-    ),
-    _Route(
-      'GET',
-      '/api/couple/milestones',
-      (r, m) => _json({'success': true, 'milestones': <Object>[]}),
-    ),
-    _Route(
-      'GET',
-      '/api/couple/success-story',
-      (r, m) => _json({'success': true, 'story': null}),
-    ),
-    for (final entry in const {
-      '/api/couple/activities': 'activities',
-      '/api/couple/saved': 'activities',
-      '/api/couple/events': 'events',
-      '/api/couple/events/registered': 'events',
-      '/api/couple/dates': 'dates',
-      '/api/couple/bucket-list': 'items',
-      '/api/couple/memories': 'memories',
-    }.entries)
-      _Route(
-        'GET',
-        entry.key,
-        (r, m) => _json({'success': true, entry.value: <Object>[]}),
-      ),
+    // --- Mode couple (demo_couple_routes.dart) ---
+    ...DemoCoupleRoutes.routes,
   ];
 }
