@@ -43,3 +43,4 @@ key.properties
 
 # Face models (fetched by bun run models:fetch, checksums pinned)
 /models/
+.uploads-test/

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { createPhotoService } from "../../src/features/media/application/photo-service";
 import type {
   ImageProcessor,
@@ -93,7 +93,9 @@ describe("photo service: upload", () => {
 
   test("a face checker failure does not lose the upload", async () => {
     const h = harness({ checkerFails: true });
+    const log = spyOn(console, "error").mockImplementation(() => {});
     const photo = await h.service.upload(5, new Uint8Array([1]), false);
+    log.mockRestore();
     expect(photo.id).toBe(77);
     expect(h.saved.size).toBe(1);
   });
