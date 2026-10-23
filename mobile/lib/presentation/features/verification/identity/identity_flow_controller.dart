@@ -60,7 +60,8 @@ class IdentityFlowController extends StateNotifier<IdentityFlowState> {
   /// The MRZ was scanned or typed. A document that is expired, or whose
   /// holder is under 18, can never pass: say so before touching the chip.
   void submitMrz(MrzData mrz) {
-    if (state is! IdentityMrz) return;
+    final current = state;
+    if (current is! IdentityMrz) return;
     final now = _clock();
     if (mrz.expiryDate().isBefore(DateTime(now.year, now.month, now.day))) {
       state = IdentityFailed(describeIdentityRejection('document_expired'));
@@ -70,8 +71,30 @@ class IdentityFlowController extends StateNotifier<IdentityFlowState> {
       state = IdentityFailed(describeIdentityRejection('underage'));
       return;
     }
-    _mrz = mrz;
-    state = IdentityNfc(mrz);
+    state = IdentityMrzReview(mrz, manual: current.manual);
+  }
+
+  /// "C'est bien moi": the reviewed data opens the chip.
+  void confirmMrz() {
+    final current = state;
+    if (current is! IdentityMrzReview) return;
+    _mrz = current.mrz;
+    state = IdentityNfc(current.mrz);
+  }
+
+  /// The reviewed data is wrong: back to the scanner or the form it came from.
+  void rejectMrz() {
+    final current = state;
+    if (current is IdentityMrzReview) state = IdentityMrz(manual: current.manual);
+  }
+
+  /// After a failed chip read: start again from the photo page, with nothing
+  /// kept from the previous attempt. Ignored while a read is in progress.
+  void rereadPhotoPage() {
+    final current = state;
+    if (current is! IdentityNfc || current.reading || _busy) return;
+    _forget();
+    state = const IdentityMrz();
   }
 
   /// Reads the chip once the user has put the document against the phone.

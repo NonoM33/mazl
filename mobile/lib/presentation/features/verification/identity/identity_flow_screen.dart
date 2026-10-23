@@ -8,6 +8,7 @@ import 'identity_intro_view.dart';
 import 'identity_messages.dart';
 import 'identity_status_views.dart';
 import 'mrz_manual_view.dart';
+import 'mrz_review_view.dart';
 import 'mrz_scanner_view.dart';
 import 'nfc_read_view.dart';
 
@@ -49,9 +50,12 @@ class _IdentityFlowScreenState extends ConsumerState<IdentityFlowScreen> {
       IdentityMrz(manual: false) =>
         MrzScannerView(onScanned: flow.submitMrz, onManual: flow.useManualEntry, onClose: close),
       IdentityMrz(manual: true) => MrzManualView(onSubmit: flow.submitMrz, onUseCamera: flow.useCamera, onClose: close),
+      IdentityMrzReview(:final mrz) =>
+        MrzReviewView(mrz: mrz, onConfirm: flow.confirmMrz, onReject: flow.rejectMrz, onClose: close),
       IdentityNfc() => NfcReadView(
           state: state,
           onRead: flow.readChip,
+          onRereadPhotoPage: flow.rereadPhotoPage,
           onRecover: () => _recover(context, flow, state.failure),
           onClose: close,
         ),

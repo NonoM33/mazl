@@ -17,6 +17,8 @@ import 'package:mazl/presentation/features/verification/identity/identity_intro_
 import 'package:mazl/presentation/features/verification/identity/identity_messages.dart';
 import 'package:mazl/presentation/features/verification/identity/identity_status_views.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_manual_view.dart';
+import 'package:mazl/presentation/features/verification/identity/mrz_review_format.dart';
+import 'package:mazl/presentation/features/verification/identity/mrz_review_view.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_scanner_view.dart';
 import 'package:mazl/presentation/features/verification/identity/nfc_read_view.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
@@ -175,8 +177,10 @@ void main() {
   });
 
   group('lecture de la puce', () {
-    Future<void> pumpNfc(WidgetTester tester, IdentityNfc state) =>
-        _pump(tester, NfcReadView(state: state, onRead: () {}, onRecover: () {}, onClose: () {}));
+    Future<void> pumpNfc(WidgetTester tester, IdentityNfc state, {VoidCallback? onReread}) => _pump(
+      tester,
+      NfcReadView(state: state, onRead: () {}, onRecover: () {}, onRereadPhotoPage: onReread ?? () {}, onClose: () {}),
+    );
 
     testWidgets('avant la lecture : où poser le document', (tester) async {
       await pumpNfc(tester, const IdentityNfc(_mrz));
@@ -222,11 +226,23 @@ void main() {
       _expectTouchTargets(tester);
     });
 
+    testWidgets('puce muette : « Relire la page photo » repart de la page photo', (tester) async {
+      var reread = false;
+      await pumpNfc(
+        tester,
+        IdentityNfc(_mrz, failure: describeChipFailure(ChipFailureKind.timeout)),
+        onReread: () => reread = true,
+      );
+      await tester.tap(find.text('Relire la page photo'));
+      expect(reread, isTrue);
+    });
+
     testWidgets('NFC désactivé : pas de conseils sur la coque', (tester) async {
       await pumpNfc(tester, IdentityNfc(_mrz, failure: describeChipFailure(ChipFailureKind.nfcDisabled)));
 
       expect(find.text('Activez le NFC dans les réglages du téléphone.'), findsOneWidget);
       expect(find.text('Retirez la coque du téléphone.'), findsNothing);
+      expect(find.text('Relire la page photo'), findsNothing, reason: 'un réglage du téléphone, pas une mauvaise lecture');
     });
 
     testWidgets('mauvaise saisie : propose de relire la page photo', (tester) async {
@@ -234,6 +250,29 @@ void main() {
 
       expect(find.text('Les informations saisies ne correspondent pas à la puce.'), findsOneWidget);
       expect(find.widgetWithText(ElevatedButton, 'Scanner à nouveau'), findsOneWidget);
+    });
+  });
+
+  group('confirmation de la page photo', () {
+    testWidgets('numéro masqué, dates lisibles, « C\'est bien moi » et « Scanner à nouveau »', (tester) async {
+      var confirmed = false;
+      var rejected = false;
+      await _pump(
+        tester,
+        MrzReviewView(mrz: _mrz, onConfirm: () => confirmed = true, onReject: () => rejected = true, onClose: () {}),
+      );
+
+      expect(find.text('Vérifiez ces informations.'), findsOneWidget);
+      expect(find.text(_mrz.documentNumber), findsNothing, reason: 'le numéro complet ne s\'affiche jamais');
+      expect(find.text(maskDocumentNumber(_mrz.documentNumber)), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.birthDate())), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.expiryDate())), findsOneWidget);
+      _expectTouchTargets(tester);
+
+      await tester.tap(find.text('C\'est bien moi'));
+      await tester.tap(find.text('Scanner à nouveau'));
+      expect(confirmed, isTrue);
+      expect(rejected, isTrue);
     });
   });
 

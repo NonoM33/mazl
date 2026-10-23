@@ -32,6 +32,15 @@ final class IdentityMrz extends IdentityFlowState {
   final bool manual;
 }
 
+/// The data read from the photo page, shown back to the user before the chip
+/// is opened with it: a misread MRZ is the main cause of a refused chip.
+/// [manual] remembers how it was entered, to go back to the same screen.
+final class IdentityMrzReview extends IdentityFlowState {
+  const IdentityMrzReview(this.mrz, {this.manual = false});
+  final MrzData mrz;
+  final bool manual;
+}
+
 /// Waiting for, or reading, the chip.
 final class IdentityNfc extends IdentityFlowState {
   const IdentityNfc(this.mrz, {this.reading = false, this.progress, this.failure});

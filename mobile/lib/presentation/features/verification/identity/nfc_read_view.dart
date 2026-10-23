@@ -16,12 +16,14 @@ class NfcReadView extends StatelessWidget {
     required this.state,
     required this.onRead,
     required this.onRecover,
+    required this.onRereadPhotoPage,
     required this.onClose,
   });
 
   final IdentityNfc state;
   final VoidCallback onRead;
   final VoidCallback onRecover;
+  final VoidCallback onRereadPhotoPage;
   final VoidCallback onClose;
 
   static const _eyebrow = 'Étape 2 / 3';
@@ -95,6 +97,8 @@ class NfcReadView extends StatelessWidget {
       onClose: onClose,
       actions: [
         IdentityPrimaryButton(failure.actionLabel, onPressed: onRecover),
+        // The chip answered nothing or badly: the photo page may have been misread.
+        if (silent) IdentityLinkButton('Relire la page photo', onPressed: onRereadPhotoPage),
         if (failure.offerManualReview) const ManualReviewButton(),
       ],
     );

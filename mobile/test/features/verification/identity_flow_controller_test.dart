@@ -30,11 +30,12 @@ final _now = DateTime(2026, 10, 23);
   return (flow: flow, chip: c, api: a, liveness: l);
 }
 
-/// Intro -> MRZ -> NFC, ready to read.
+/// Intro -> MRZ -> review -> NFC, ready to read. Stops early when the MRZ is refused.
 Future<void> _toNfc(IdentityFlowController flow, [MrzData mrz = futureDoc]) async {
   await flow.initialize();
   flow.begin();
   flow.submitMrz(mrz);
+  if (flow.state is IdentityMrzReview) flow.confirmMrz();
 }
 
 void main() {
@@ -87,10 +88,38 @@ void main() {
   });
 
   group('MRZ', () {
-    test('valid data moves to the NFC step', () async {
+    test('valid data is shown for confirmation before the chip is touched', () async {
+      final t = _make();
+      await t.flow.initialize();
+      t.flow.begin();
+      t.flow.submitMrz(futureDoc);
+      expect((t.flow.state as IdentityMrzReview).mrz, futureDoc);
+      expect(t.chip.reads, 0);
+    });
+
+    test('"C\'est bien moi" moves to the NFC step with the reviewed data', () async {
       final t = _make();
       await _toNfc(t.flow);
       expect((t.flow.state as IdentityNfc).mrz, futureDoc);
+    });
+
+    test('rejecting the review goes back to the same entry mode', () async {
+      final t = _make();
+      await t.flow.initialize();
+      t.flow.begin();
+      t.flow.useManualEntry();
+      t.flow.submitMrz(futureDoc);
+      t.flow.rejectMrz();
+      expect((t.flow.state as IdentityMrz).manual, isTrue);
+      t.flow.confirmMrz(); // no longer under review: ignored
+      expect(t.flow.state, isA<IdentityMrz>());
+    });
+
+    test('the review cannot be confirmed from another step', () async {
+      final t = _make();
+      await t.flow.initialize();
+      t.flow.confirmMrz();
+      expect(t.flow.state, isA<IdentityIntro>());
     });
 
     test('expired document is refused before any NFC read', () async {
@@ -168,6 +197,25 @@ void main() {
         expect(nfc.failure!.recovery, recovery);
         expect(nfc.failure!.message, isNotEmpty);
       });
+    });
+
+    test('"Relire la page photo" after a chip failure forgets the MRZ and goes back to the scan', () async {
+      final t = _make(chip: FakeChipReader(failure: ChipFailureKind.timeout));
+      await _toNfc(t.flow);
+      await t.flow.readChip();
+      t.flow.rereadPhotoPage();
+      expect((t.flow.state as IdentityMrz).manual, isFalse);
+      await t.flow.readChip(); // the old MRZ is gone: nothing to read with
+      expect(t.chip.reads, 1);
+    });
+
+    test('"Relire la page photo" is ignored while the chip is being read', () async {
+      final t = _make();
+      await _toNfc(t.flow);
+      final reading = t.flow.readChip();
+      t.flow.rereadPhotoPage();
+      await reading;
+      expect(t.flow.state, isA<IdentityFace>());
     });
 
     test('closing the system sheet leaves the step quiet, without an error', () async {

@@ -115,6 +115,9 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Date d\'expiration'), '15042090');
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
+      expect(find.text('Vérifiez ces informations.'), findsOneWidget);
+      await tester.tap(find.text('C\'est bien moi'));
+      await tester.pumpAndSettle();
 
       expect(find.text('Posez votre document sur le téléphone.'), findsOneWidget);
       await tester.tap(find.text('Lire le document'));
@@ -166,6 +169,9 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Date d\'expiration'), '15042090');
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
+      expect(find.text('Vérifiez ces informations.'), findsOneWidget);
+      await tester.tap(find.text('C\'est bien moi'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Lire le document'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Prendre le selfie'));
@@ -189,6 +195,9 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Date de naissance'), '12081974');
       await tester.enterText(find.widgetWithText(TextField, 'Date d\'expiration'), '15042090');
       await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Vérifiez ces informations.'), findsOneWidget);
+      await tester.tap(find.text('C\'est bien moi'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Lire le document'));
       await tester.pumpAndSettle();
