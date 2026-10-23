@@ -212,7 +212,7 @@ void main() {
     });
 
     test('fromDates formats YYMMDD', () {
-      final mrz = MrzData.fromDates(format: MrzFormat.td3, documentNumber: 'X', birthDate: DateTime(1974, 8, 12), expiryDate: DateTime(2031, 4, 5));
+      final mrz = MrzData.fromDates(documentNumber: 'X', birthDate: DateTime(1974, 8, 12), expiryDate: DateTime(2031, 4, 5));
       expect(mrz.birthYymmdd, '740812');
       expect(mrz.expiryYymmdd, '310405');
     });

@@ -21,13 +21,14 @@ enum MrzFormat {
 /// not part of the key.
 class MrzData {
   const MrzData({
-    required this.format,
+    this.format,
     required this.documentNumber,
     required this.birthYymmdd,
     required this.expiryYymmdd,
   });
 
-  final MrzFormat format;
+  /// Layout the data was read from; null when typed by hand.
+  final MrzFormat? format;
 
   /// Document number without trailing `<` fillers (may exceed 9 characters).
   final String documentNumber;
@@ -52,13 +53,11 @@ class MrzData {
 
   /// Builds the key data from calendar dates (manual entry).
   factory MrzData.fromDates({
-    required MrzFormat format,
     required String documentNumber,
     required DateTime birthDate,
     required DateTime expiryDate,
   }) =>
       MrzData(
-        format: format,
         documentNumber: documentNumber,
         birthYymmdd: yymmdd(birthDate),
         expiryYymmdd: yymmdd(expiryDate),
@@ -82,5 +81,5 @@ class MrzData {
 
   /// Never prints the data: it identifies a person.
   @override
-  String toString() => 'MrzData(${format.name})';
+  String toString() => 'MrzData(${format?.name ?? 'manual'})';
 }
