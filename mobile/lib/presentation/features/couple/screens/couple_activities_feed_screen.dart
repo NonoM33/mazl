@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
 import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
@@ -25,12 +24,13 @@ class CoupleActivitiesFeedScreen extends StatefulWidget {
 
 class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     with AutomaticKeepAliveClientMixin {
-  final CardSwiperController _controller = CardSwiperController();
+  final SwipeDeckController _swipeDeck = SwipeDeckController();
   late final CoupleApiService _apiService =
       widget.apiService ?? CoupleApiService();
 
-  /// The deck as the swiper sees it. Only replaced by a (re)load or a rollback,
-  /// together with [_deckGeneration], so the swiper never sees its count change.
+  /// The deck as the swipe deck sees it. Only replaced by a (re)load or a
+  /// rollback, together with [_deckGeneration], so the deck never sees its
+  /// count change.
   List<CoupleActivity> _deck = [];
   int _deckGeneration = 0;
 
@@ -93,7 +93,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _swipeDeck.dispose();
     super.dispose();
   }
 
@@ -182,39 +182,35 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            child: CardSwiper(
+            child: SwipeDeck(
               key: ValueKey(_deckGeneration),
-              controller: _controller,
-              cardsCount: _deck.length,
-              numberOfCardsDisplayed: _deck.length > 3 ? 3 : _deck.length,
-              backCardOffset: const Offset(0, 40),
-              padding: EdgeInsets.zero,
-              isLoop: false,
+              controller: _swipeDeck,
+              itemCount: _deck.length,
               // Left = pass, up = save. A right swipe has no meaning here.
-              allowedSwipeDirection: const AllowedSwipeDirection.only(
-                left: true,
-                up: true,
-              ),
-              onSwipe: _onSwipe,
-              cardBuilder:
-                  (
-                    context,
-                    index,
-                    horizontalOffsetPercentage,
-                    verticalOffsetPercentage,
-                  ) {
-                    // Only the card on top carries text: the ones stacked
-                    // behind are bare, opaque shells.
-                    if (index != _topIndex) return const _CardBack();
-                    final activity = _deck[index];
-                    return _ActivityCard(
-                      activity: activity,
-                      swipeProgress: horizontalOffsetPercentage.toDouble(),
-                      verticalProgress: verticalOffsetPercentage.toDouble(),
-                      onTapDetails: () =>
-                          context.push('/couple/activities/${activity.id}'),
-                    );
-                  },
+              allowed: const {SwipeDirection.left, SwipeDirection.up},
+              intents: {
+                SwipeDirection.left: const SwipeIntent(
+                  icon: LucideIcons.x,
+                  color: AppColors.muted,
+                ),
+                SwipeDirection.up: SwipeIntent(
+                  icon: LucideIcons.bookmark,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              },
+              onSwiped: _onSwiped,
+              onEnd: _onDeckEnd,
+              cardBuilder: (context, index, isTop) {
+                // Only the card on top carries text: the one behind is a bare,
+                // opaque shell.
+                if (!isTop) return const _CardBack();
+                final activity = _deck[index];
+                return _ActivityCard(
+                  activity: activity,
+                  onTapDetails: () =>
+                      context.push('/couple/activities/${activity.id}'),
+                );
+              },
             ),
           ),
         ),
@@ -223,20 +219,28 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              RoundIconButton(
-                icon: LucideIcons.x,
-                tooltip: 'Passer',
-                size: 60,
-                iconSize: 26,
-                onPressed: () => _controller.swipe(CardSwiperDirection.left),
+              SwipeProgressScale(
+                progress: _swipeDeck.progress,
+                direction: SwipeDirection.left,
+                child: RoundIconButton(
+                  icon: LucideIcons.x,
+                  tooltip: 'Passer',
+                  size: 60,
+                  iconSize: 26,
+                  onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
+                ),
               ),
-              RoundIconButton(
-                icon: LucideIcons.bookmark,
-                tooltip: 'Enregistrer',
-                size: 72,
-                iconSize: 30,
-                style: RoundButtonStyle.ink,
-                onPressed: () => _controller.swipe(CardSwiperDirection.top),
+              SwipeProgressScale(
+                progress: _swipeDeck.progress,
+                direction: SwipeDirection.up,
+                child: RoundIconButton(
+                  icon: LucideIcons.bookmark,
+                  tooltip: 'Enregistrer',
+                  size: 72,
+                  iconSize: 30,
+                  style: RoundButtonStyle.ink,
+                  onPressed: () => _swipeDeck.swipe(SwipeDirection.up),
+                ),
               ),
               RoundIconButton(
                 icon: LucideIcons.info,
@@ -256,31 +260,15 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     );
   }
 
-  bool _onSwipe(
-    int previousIndex,
-    int? currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    final activity = _deck[previousIndex];
-    _topIndex = currentIndex ?? _deck.length;
+  void _onSwiped(int index, SwipeDirection direction) {
+    _topIndex = index + 1;
+    _commit(_deck[index], save: direction == SwipeDirection.up);
+  }
 
-    if (direction == CardSwiperDirection.left) {
-      _commit(activity, save: false);
-    } else if (direction == CardSwiperDirection.top) {
-      _commit(activity, save: true);
-    } else {
-      return false;
+  void _onDeckEnd() {
+    if (mounted && _topIndex >= _deck.length) {
+      setState(() => _deckDone = true);
     }
-
-    if (currentIndex == null) {
-      // After the swiper finished its own bookkeeping for this swipe.
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _topIndex >= _deck.length) {
-          setState(() => _deckDone = true);
-        }
-      });
-    }
-    return true;
   }
 
   /// The card is already gone (optimistic); the server decides if it stays so.
@@ -407,14 +395,10 @@ class _CardBack extends StatelessWidget {
 class _ActivityCard extends StatelessWidget {
   const _ActivityCard({
     required this.activity,
-    required this.swipeProgress,
-    required this.verticalProgress,
     this.onTapDetails,
   });
 
   final CoupleActivity activity;
-  final double swipeProgress;
-  final double verticalProgress;
   final VoidCallback? onTapDetails;
 
   @override
@@ -459,28 +443,6 @@ class _ActivityCard extends StatelessWidget {
                       onPressed: onTapDetails,
                     ),
                   ),
-                  if (swipeProgress < -10)
-                    Positioned(
-                      top: 64,
-                      right: 24,
-                      child: Transform.rotate(
-                        angle: 0.3,
-                        child: _Stamp(label: 'PASSER', color: scheme.onSurface),
-                      ).animate().fadeIn(duration: 100.ms),
-                    ),
-                  if (verticalProgress < -10)
-                    Positioned(
-                      top: 64,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: _Stamp(
-                          label: 'GARDER',
-                          color: scheme.primary,
-                          icon: LucideIcons.bookmark,
-                        ),
-                      ).animate().fadeIn(duration: 100.ms),
-                    ),
                 ],
               ),
             ),
@@ -573,42 +535,5 @@ class _ActivityCard extends StatelessWidget {
     final rating = activity.rating!.toStringAsFixed(1);
     final count = activity.reviewCount;
     return count == null ? rating : '$rating ($count)';
-  }
-}
-
-class _Stamp extends StatelessWidget {
-  const _Stamp({required this.label, required this.color, this.icon});
-
-  final String label;
-  final Color color;
-  final IconData? icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: color, width: 3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(color: color),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
