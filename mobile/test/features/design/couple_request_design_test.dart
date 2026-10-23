@@ -200,7 +200,7 @@ void main() {
           await tester.pumpAndSettle();
 
           expect(find.text('Myriam souhaite activer le mode couple avec vous'), findsOneWidget);
-          expect(find.widgetWithText(FilledButton, 'Accepter'), findsOneWidget);
+          expect(find.widgetWithText(ElevatedButton, 'Accepter'), findsOneWidget);
           expect(tester.takeException(), isNull);
         });
 
@@ -218,7 +218,7 @@ void main() {
             ),
           );
 
-          expect(find.widgetWithText(FilledButton, 'Réessayer'), findsOneWidget);
+          expect(find.widgetWithText(ElevatedButton, 'Réessayer'), findsOneWidget);
           expect(tester.takeException(), isNull);
         });
       }

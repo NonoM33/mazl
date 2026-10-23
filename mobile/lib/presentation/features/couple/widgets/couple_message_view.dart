@@ -72,7 +72,7 @@ class CoupleMessageView extends StatelessWidget {
             ],
             if (actionLabel != null) ...[
               const SizedBox(height: 24),
-              FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+              ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
         ),

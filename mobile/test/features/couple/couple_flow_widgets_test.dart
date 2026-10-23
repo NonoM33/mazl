@@ -132,7 +132,7 @@ void main() {
       expect(api.calls, contains('send:45'));
       expect(find.text('Demande envoyée'), findsOneWidget);
       expect(find.text('Myriam doit accepter. Nous vous préviendrons dès sa réponse.'), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, 'Compris'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Compris'), findsOneWidget);
       expect(find.text('Annuler la demande'), findsNothing);
       expect(service.isCoupleModeEnabled, isFalse);
       await service.cancelCoupleRequest(); // stops the polling timer
@@ -211,7 +211,7 @@ void main() {
 
     testWidgets('l\'envoi est sans bouton actif tant qu\'aucun match n\'est choisi', (tester) async {
       await pumpSetup(tester);
-      final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Envoyer la demande'));
+      final button = tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Envoyer la demande'));
       expect(button.onPressed, isNull);
     });
   });

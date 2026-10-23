@@ -443,7 +443,7 @@ class _CoupleActivityDetailScreenState
               ),
               Expanded(
                 flex: 2,
-                child: FilledButton.icon(
+                child: ElevatedButton.icon(
                   onPressed: activity.bookingUrl != null
                       ? () => _openUrl(activity.bookingUrl!)
                       : null,

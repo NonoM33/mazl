@@ -161,7 +161,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           const Spacer(),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: ElevatedButton(
               onPressed: _isBusy ? null : _done,
               child: const Text('Compris'),
             ),
@@ -230,7 +230,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
               ],
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: ElevatedButton(
                   onPressed: _selectedProfile == null || _isBusy ? null : _send,
                   child: _isBusy ? const _Spinner() : const Text('Envoyer la demande'),
                 ),

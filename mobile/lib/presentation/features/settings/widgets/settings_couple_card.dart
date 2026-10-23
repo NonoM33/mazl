@@ -140,9 +140,9 @@ class _ActiveCouple extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: FilledButton(
+              child: ElevatedButton(
                 onPressed: onOpenSpace,
-                style: FilledButton.styleFrom(
+                style: ElevatedButton.styleFrom(
                   padding: compact,
                   minimumSize: const Size(0, 48),
                 ),
@@ -227,9 +227,9 @@ class _Invitation extends StatelessWidget {
       children: [
         const Expanded(child: _CardTitle(title: "Vous avez trouvé l'amour ?")),
         const SizedBox(width: 12),
-        FilledButton(
+        ElevatedButton(
           onPressed: onActivate,
-          style: FilledButton.styleFrom(
+          style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             minimumSize: const Size(0, 44),
           ),

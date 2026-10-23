@@ -281,7 +281,7 @@ void main() {
           await _scrollThrough(tester);
 
           expect(tester.takeException(), isNull);
-          expect(find.widgetWithText(FilledButton, 'Complet'), findsOneWidget);
+          expect(find.widgetWithText(ElevatedButton, 'Complet'), findsOneWidget);
         });
       });
     }
@@ -417,7 +417,7 @@ void main() {
     });
 
     testWidgets(
-      'l\'inscription est un FilledButton, l\'annulation un OutlinedButton',
+      'l\'inscription est un ElevatedButton (encre), l\'annulation un OutlinedButton',
       (tester) async {
         await _pumpEvents(
           tester,
@@ -426,7 +426,7 @@ void main() {
         );
 
         expect(
-          find.widgetWithText(FilledButton, 'S\'inscrire'),
+          find.widgetWithText(ElevatedButton, 'S\'inscrire'),
           findsOneWidget,
         );
         expect(find.widgetWithText(OutlinedButton, 'Annuler'), findsOneWidget);
@@ -483,7 +483,7 @@ void main() {
         registered: false,
       );
 
-      final button = find.widgetWithText(FilledButton, 'S\'inscrire');
+      final button = find.widgetWithText(ElevatedButton, 'S\'inscrire');
       expect(button, findsOneWidget);
       final rect = tester.getRect(button);
       expect(rect.width, 390 - 48);
@@ -521,7 +521,7 @@ void main() {
       await tester.pump();
 
       final rect = tester.getRect(
-        find.widgetWithText(FilledButton, 'S\'inscrire'),
+        find.widgetWithText(ElevatedButton, 'S\'inscrire'),
       );
       expect(844 - 96 - rect.bottom, greaterThanOrEqualTo(12));
     });

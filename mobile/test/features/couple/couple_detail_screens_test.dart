@@ -283,7 +283,7 @@ void main() {
       );
 
       expect(find.text('Complet'), findsWidgets);
-      await tester.tap(find.widgetWithText(FilledButton, 'Complet'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Complet'));
       await tester.pump();
 
       expect(transport.calls.where((c) => c.startsWith('POST')), isEmpty);

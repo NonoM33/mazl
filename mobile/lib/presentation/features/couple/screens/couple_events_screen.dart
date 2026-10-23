@@ -472,7 +472,7 @@ class _EventCard extends StatelessWidget {
   List<Widget> _buildAction() {
     final Widget button;
     if (showRegisterButton && !isRegistered && !event.isFull) {
-      button = FilledButton(
+      button = ElevatedButton(
         onPressed: onRegister,
         child: const Text('S\'inscrire'),
       );

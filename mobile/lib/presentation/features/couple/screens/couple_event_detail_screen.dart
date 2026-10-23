@@ -188,7 +188,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 onPressed: canTap ? _toggleRegistration : null,
                 child: Text(label),
               )
-            : FilledButton(
+            : ElevatedButton(
                 onPressed: canTap ? _toggleRegistration : null,
                 child: Text(label),
               ),

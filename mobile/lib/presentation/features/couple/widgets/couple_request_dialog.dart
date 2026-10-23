@@ -130,7 +130,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
             else ...[
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: ElevatedButton(
                   onPressed: () => _answer(accept: true),
                   child: const Text('Accepter'),
                 ),
