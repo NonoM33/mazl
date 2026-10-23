@@ -101,6 +101,8 @@ import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
+import { createMediaModule, ensureMediaSchema, noopPhotoFaceChecker } from "./features/media";
+import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { assertKeysConfigured } from "./shared/crypto/keys";
 
@@ -359,7 +361,9 @@ registerAuthRoutes(app);
 // src/features/profile/profile.routes.ts. The prompts routes are declared
 // before /api/profile/:userId inside that file to preserve route ordering.
 // Selfie verification (/api/verification/*) moved to the engagement feature.
-registerProfileRoutes(app, UPLOADS_DIR);
+const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: noopPhotoFaceChecker });
+registerMediaRoutes(app, media.photos);
+registerProfileRoutes(app, { media });
 
 // ============ DISCOVER & MATCHING ============
 
@@ -858,6 +862,7 @@ await mkdir(UPLOADS_DIR, { recursive: true });
 assertKeysConfigured();
 
 await initDb();
+await ensureMediaSchema();
 
 console.log(`Server running on http://localhost:${port}`);
 

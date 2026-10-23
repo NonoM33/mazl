@@ -1,15 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import {
   upsertProfile,
   getFullProfile,
-  getProfilePhotos,
-  addProfilePhoto,
-  deleteProfilePhoto,
-  reorderProfilePhotos,
-  setProfilePhotoPrimary,
   PROMPT_CATALOG,
   getPromptText,
   getProfilePrompts,
@@ -20,14 +13,16 @@ import {
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody } from "../../shared/http/validation";
+import { createRateLimiter } from "../../shared/http/rate-limit";
+import { clampDistanceMax } from "../media/domain/geo-fuzz";
+import type { MediaModule } from "../media";
+import { registerPhotoRoutes } from "../media/presentation/photo.routes";
 
-// Presentation layer for the PROFILE feature. These routes are moved verbatim
-// from the monolith (src/index.ts): behaviour, payloads, status codes and
-// relative ordering are identical to the original inline handlers.
-//
-// Covers: PUT /api/profile, the profile-photos routes (list/upload/delete/
-// reorder/set-primary), the protected upload serving route, the public prompt
-// catalog and the caller's profile prompts, and GET /api/profile/:userId.
+// Presentation layer for the PROFILE feature: PUT /api/profile, the public
+// prompt catalog, the caller's profile prompts and GET /api/profile/:userId.
+// The profile-photos routes live in the media feature (registered here so that
+// they stay ahead of /api/profile/:userId); photos and positions are handled
+// by the media module passed in `deps`.
 //
 // ORDERING NOTE: the /api/profile/prompts routes and GET /api/prompts MUST be
 // declared BEFORE /api/profile/:userId, otherwise "prompts" is captured as
@@ -45,8 +40,8 @@ const updateProfileBodySchema = z
     gender: z.string().optional(),
     bio: z.string().optional(),
     location: z.string().optional(),
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
     denomination: z.string().optional(),
     kashrutLevel: z.string().optional(),
     shabbatObservance: z.string().optional(),
@@ -71,10 +66,20 @@ const updatePromptBodySchema = z
   })
   .passthrough();
 
+export interface ProfileRouteDeps {
+  readonly media: MediaModule;
+}
+
+// CONTRAT.md §2.3: at most 120 other-member profile views per hour and user.
+const PROFILE_VIEWS_PER_HOUR = 120;
+const HOUR_MS = 60 * 60 * 1000;
+
 export function registerProfileRoutes(
   app: Hono<{ Variables: AppVariables }>,
-  UPLOADS_DIR: string,
+  deps: ProfileRouteDeps,
 ): void {
+  const profileViewLimiter = createRateLimiter({ max: PROFILE_VIEWS_PER_HOUR, windowMs: HOUR_MS });
+
   // Update user profile
   app.put("/api/profile", requireAuth, async (c) => {
     try {
@@ -85,21 +90,24 @@ export function registerProfileRoutes(
       }
       const body = parsed.data;
 
+      // Exact coordinates are never stored (CONTRAT.md §2.2).
+      const position = await deps.media.location.resolve(userId, body.latitude, body.longitude);
+
       const profile = await upsertProfile(userId, {
         displayName: body.displayName,
         birthdate: body.birthdate,
         gender: body.gender,
         bio: body.bio,
         location: body.location,
-        latitude: body.latitude,
-        longitude: body.longitude,
+        latitude: position?.latitude,
+        longitude: position?.longitude,
         denomination: body.denomination,
         kashrutLevel: body.kashrutLevel,
         shabbatObservance: body.shabbatObservance,
         lookingFor: body.lookingFor,
         ageMin: body.ageMin,
         ageMax: body.ageMax,
-        distanceMax: body.distanceMax,
+        distanceMax: body.distanceMax === undefined ? undefined : clampDistanceMax(body.distanceMax),
       });
 
       return c.json({ success: true, profile });
@@ -109,173 +117,7 @@ export function registerProfileRoutes(
     }
   });
 
-  // ============ PROFILE PHOTOS ============
-
-  app.get("/api/profile/photos", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const photos = await getProfilePhotos(userId);
-
-      return c.json({ success: true, photos });
-    } catch (error: unknown) {
-      console.error("Get photos error:", error);
-      return c.json({ success: false, error: "Failed to get photos" }, 500);
-    }
-  });
-
-  // Upload profile photo
-  app.post("/api/profile/photos", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      // Check if multipart/form-data
-      const contentType = c.req.header("Content-Type") || "";
-
-      if (contentType.includes("multipart/form-data")) {
-        // Handle file upload
-        const formData = await c.req.formData();
-        const file = formData.get("photo") as File;
-
-        if (!file) {
-          return c.json({ success: false, error: "No photo provided" }, 400);
-        }
-
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          return c.json({ success: false, error: "Invalid file type" }, 400);
-        }
-
-        // Validate file size (max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          return c.json({ success: false, error: "File too large (max 10MB)" }, 400);
-        }
-
-        // Create uploads directory if not exists
-        const uploadDir = join(UPLOADS_DIR, "profiles", userId.toString());
-        await mkdir(uploadDir, { recursive: true });
-
-        // Generate unique filename
-        const ext = file.name.split(".").pop() || "jpg";
-        const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const filepath = join(uploadDir, filename);
-
-        // Save file
-        const buffer = await file.arrayBuffer();
-        await Bun.write(filepath, buffer);
-
-        // Generate URL (relative path for serving)
-        const url = `/uploads/profiles/${userId}/${filename}`;
-
-        // Add to database
-        const photo = await addProfilePhoto({
-          userId,
-          url,
-          isPrimary: formData.get("is_primary") === "true",
-        });
-
-        return c.json({ success: true, photo });
-      } else {
-        // Handle JSON with URL (for external URLs like Google profile pictures)
-        const body = await c.req.json();
-        if (!body.url) {
-          return c.json({ success: false, error: "No URL provided" }, 400);
-        }
-
-        const photo = await addProfilePhoto({
-          userId,
-          url: body.url,
-          isPrimary: body.is_primary || false,
-        });
-
-        return c.json({ success: true, photo });
-      }
-    } catch (error: unknown) {
-      console.error("Upload photo error:", error);
-      return c.json({ success: false, error: "Failed to upload photo" }, 500);
-    }
-  });
-
-  // Delete profile photo
-  app.delete("/api/profile/photos/:photoId", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const photoId = parseInt(c.req.param("photoId"));
-
-      if (isNaN(photoId)) {
-        return c.json({ success: false, error: "Invalid photo ID" }, 400);
-      }
-
-      await deleteProfilePhoto(photoId, userId);
-
-      return c.json({ success: true });
-    } catch (error: unknown) {
-      console.error("Delete photo error:", error);
-      const message = error instanceof Error ? error.message : undefined;
-      return c.json({ success: false, error: message || "Failed to delete photo" }, 500);
-    }
-  });
-
-  // Reorder profile photos
-  app.put("/api/profile/photos/reorder", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const body = await c.req.json();
-
-      if (!Array.isArray(body.photoIds)) {
-        return c.json({ success: false, error: "photoIds must be an array" }, 400);
-      }
-
-      const photos = await reorderProfilePhotos(userId, body.photoIds);
-
-      return c.json({ success: true, photos });
-    } catch (error: unknown) {
-      console.error("Reorder photos error:", error);
-      const message = error instanceof Error ? error.message : undefined;
-      return c.json({ success: false, error: message || "Failed to reorder photos" }, 500);
-    }
-  });
-
-  // Set photo as primary
-  app.put("/api/profile/photos/:photoId/primary", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const photoId = parseInt(c.req.param("photoId"));
-
-      if (isNaN(photoId)) {
-        return c.json({ success: false, error: "Invalid photo ID" }, 400);
-      }
-
-      const photos = await setProfilePhotoPrimary(photoId, userId);
-
-      return c.json({ success: true, photos });
-    } catch (error: unknown) {
-      console.error("Set primary photo error:", error);
-      return c.json({ success: false, error: "Failed to set primary photo" }, 500);
-    }
-  });
-
-  // Serve profile photos (protected)
-  app.get("/uploads/profiles/:userId/:filename", async (c) => {
-    try {
-      const requestedUserId = c.req.param("userId");
-      const filename = c.req.param("filename");
-      const filepath = join(UPLOADS_DIR, "profiles", requestedUserId, filename);
-
-      const file = Bun.file(filepath);
-      if (!await file.exists()) {
-        return c.json({ error: "File not found" }, 404);
-      }
-
-      return new Response(file, {
-        headers: {
-          "Content-Type": file.type || "image/jpeg",
-          "Cache-Control": "public, max-age=31536000",
-        },
-      });
-    } catch (error) {
-      return c.json({ error: "File not found" }, 404);
-    }
-  });
+  registerPhotoRoutes(app, deps.media.photos);
 
   // ============ PROFILE PROMPTS ============
   // NOTE: these /api/profile/prompts routes MUST be declared BEFORE
@@ -400,7 +242,7 @@ export function registerProfileRoutes(
   });
 
   // Get user profile by ID (for viewing other users)
-  app.get("/api/profile/:userId", requireAuth, async (c) => {
+  app.get("/api/profile/:userId", requireAuth, profileViewLimiter, async (c) => {
     try {
       const targetUserId = parseInt(c.req.param("userId"));
       if (isNaN(targetUserId)) {

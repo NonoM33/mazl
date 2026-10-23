@@ -9,6 +9,7 @@ import {
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody, swipeBodySchema } from "../../shared/http/validation";
 import { emitNewMatch } from "../../shared/realtime/connections";
+import { createRateLimiter } from "../../shared/http/rate-limit";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
 // received likes). These routes are moved verbatim from the monolith
@@ -20,8 +21,12 @@ import { emitNewMatch } from "../../shared/realtime/connections";
 // `emitNewMatch`, now imported from `src/shared/realtime/connections.ts` (it
 // depends on the shared `sql`/`sendToUser` helpers) with identical behaviour.
 export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>): void {
+  // CONTRAT.md §2.3: one shared budget of 300 feed requests per hour and user
+  // for /api/discover and /api/daily-picks, against profile scraping.
+  const feedLimiter = createRateLimiter({ max: 300, windowMs: 60 * 60 * 1000 });
+
   // Get profiles for discovery
-  app.get("/api/discover", requireAuth, async (c) => {
+  app.get("/api/discover", requireAuth, feedLimiter, async (c) => {
     try {
       const userId = c.get("userId");
       const limit = parseInt(c.req.query("limit") || "20");
@@ -37,7 +42,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>): 
   });
 
   // Get daily picks (curated selection of profiles)
-  app.get("/api/daily-picks", requireAuth, async (c) => {
+  app.get("/api/daily-picks", requireAuth, feedLimiter, async (c) => {
     try {
       const userId = c.get("userId");
 
