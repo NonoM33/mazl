@@ -14,6 +14,7 @@ import '../../../widgets/skeletons.dart';
 import '../widgets/profile_view/profile_action_bar.dart';
 import '../widgets/profile_view/profile_compatibility_section.dart';
 import '../widgets/profile_view/profile_completion_card.dart';
+import '../../couple/widgets/couple_request_dialog.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
 import '../widgets/profile_view/profile_match_dialog.dart';
 import '../widgets/profile_view/profile_top_bar.dart';
@@ -46,34 +47,32 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   final ApiService _apiService = ApiService();
   final CoupleService _coupleService = CoupleService();
 
-  // Couple mode state
-  bool _isInCoupleMode = false;
-  bool _hasPendingRequest = false;
+  // Couple mode: what links the viewer to THIS member (never a global flag).
   bool _isSendingRequest = false;
-  CoupleRequestStatus _coupleRequestStatus = CoupleRequestStatus.none;
+
+  int? get _viewedUserId => int.tryParse(widget.userId ?? '');
+
+  CoupleRelation get _relation {
+    final userId = _viewedUserId;
+    return userId == null ? CoupleRelation.none : _coupleService.relationWithUser(userId);
+  }
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
     if (widget.isFromMatch) {
-      _loadCoupleStatus();
+      _coupleService.addListener(_onCoupleChanged);
     }
   }
 
-  Future<void> _loadCoupleStatus() async {
-    // Check if we're already in couple mode
-    _isInCoupleMode = _coupleService.isCoupleModeEnabled;
+  @override
+  void dispose() {
+    _coupleService.removeListener(_onCoupleChanged);
+    super.dispose();
+  }
 
-    // Check couple request status with this user
-    if (widget.userId != null) {
-      final userId = int.tryParse(widget.userId!);
-      if (userId != null) {
-        _coupleRequestStatus = _coupleService.getRequestStatusWithUser(userId);
-        _hasPendingRequest = _coupleRequestStatus == CoupleRequestStatus.pending;
-      }
-    }
-
+  void _onCoupleChanged() {
     if (mounted) setState(() {});
   }
 
@@ -280,18 +279,20 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   Widget _buildCoupleSection(String userName) {
-    final state = _isInCoupleMode
-        ? CoupleEntryState.inCouple
-        : _hasPendingRequest
-            ? CoupleEntryState.pending
-            : CoupleEntryState.available;
+    final state = switch (_relation) {
+      CoupleRelation.partner => CoupleEntryState.inCouple,
+      CoupleRelation.coupleWithSomeoneElse => CoupleEntryState.coupleWithSomeoneElse,
+      CoupleRelation.requestSent => CoupleEntryState.pending,
+      CoupleRelation.requestReceived => CoupleEntryState.received,
+      CoupleRelation.none => CoupleEntryState.available,
+    };
     return ProfileCoupleSection(
       state: state,
       userName: userName,
-      partnerName: _coupleService.coupleData?.partnerName,
       isSending: _isSendingRequest,
       onActivate: () => _sendCoupleRequest(userName),
       onCancel: _cancelCoupleRequest,
+      onRespond: _respondToCoupleRequest,
     );
   }
 
@@ -307,47 +308,47 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   Future<void> _sendCoupleRequest(String userName) async {
-    if (widget.userId == null) return;
-    final userId = int.tryParse(widget.userId!);
+    final userId = _viewedUserId;
     if (userId == null) return;
 
     setState(() => _isSendingRequest = true);
-
-    final success = await _coupleService.sendCoupleRequest(
+    final result = await _coupleService.sendCoupleRequest(
       targetUserId: userId,
       targetName: userName,
       targetPicture: _otherProfile?.photos.isNotEmpty == true
           ? _otherProfile!.photos.first
           : null,
     );
-
     if (!mounted) return;
-    setState(() {
-      _isSendingRequest = false;
-      if (success) {
-        _hasPendingRequest = true;
-        _coupleRequestStatus = CoupleRequestStatus.pending;
-      }
-    });
+    setState(() => _isSendingRequest = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(success ? 'Demande envoyée à $userName.' : "Erreur lors de l'envoi de la demande"),
-        backgroundColor: success ? AppColors.success : AppColors.error,
-        behavior: SnackBarBehavior.floating,
-      ),
+    _showMessage(
+      result.ok ? 'Demande envoyée à $userName.' : result.message ?? '',
+      isError: !result.ok,
     );
   }
 
   Future<void> _cancelCoupleRequest() async {
-    final success = await _coupleService.cancelCoupleRequest();
+    final result = await _coupleService.cancelCoupleRequest();
+    if (mounted && !result.ok) _showMessage(result.message ?? '', isError: true);
+  }
 
-    if (mounted && success) {
-      setState(() {
-        _hasPendingRequest = false;
-        _coupleRequestStatus = CoupleRequestStatus.none;
-      });
-    }
+  /// The member asked first: the answer goes through the same dialog as
+  /// anywhere else.
+  void _respondToCoupleRequest() {
+    final request = _coupleService.receivedRequest;
+    if (request == null) return;
+    CoupleRequestDialog.show(context, request: request, service: _coupleService);
+  }
+
+  void _showMessage(String message, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _handleSwipe(String action) async {

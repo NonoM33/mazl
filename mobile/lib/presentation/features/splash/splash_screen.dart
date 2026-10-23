@@ -27,21 +27,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check auth state and navigate accordingly
     final authService = AuthService();
     if (authService.isAuthenticated) {
-      // Initialize couple service and check couple mode status
-      final coupleService = CoupleService();
-      await coupleService.initialize();
-
+      // The couple state must be known before the router decides: the guard
+      // then sends a member in a couple to /couple/activities by itself.
+      await CoupleService().initialize();
       if (!mounted) return;
-
-      if (coupleService.isCoupleModeEnabled) {
-        // User is in couple mode - go to couple activities
-        debugPrint('SplashScreen: Navigating to couple mode');
-        context.go('/couple/activities');
-      } else {
-        // User is in dating mode - go to discover
-        debugPrint('SplashScreen: Navigating to discover');
-        context.go(RoutePaths.discover);
-      }
+      context.go(RoutePaths.discover);
     } else {
       // User is not logged in - go to onboarding
       context.go(RoutePaths.onboarding);

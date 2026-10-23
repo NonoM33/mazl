@@ -21,6 +21,7 @@ import '../models/profile_prompt.dart';
 import '../models/boost_status.dart';
 import '../models/visitors.dart';
 import '../models/couple_anniversary.dart';
+import 'couple_api.dart';
 import '../models/success_story.dart';
 
 export '../models/profile.dart';
@@ -109,7 +110,7 @@ int? _parseIntSafe(dynamic value) {
 }
 
 /// API Service for backend communication
-class ApiService {
+class ApiService implements CoupleApi {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
@@ -693,7 +694,25 @@ class ApiService {
 
   // ============ COUPLE MODE ============
 
+  /// Failure of a couple route: keeps the server's `error` (e.g. `not_matched`)
+  /// even on a 4xx, so the screens can say what really happened.
+  ApiResponse<T> _coupleFailure<T>(http.Response response, String fallback) {
+    try {
+      final data = jsonDecode(response.body);
+      if (data is Map && data['error'] is String) {
+        return ApiResponse.failure(
+          data['error'] as String,
+          ApiErrorKind.server,
+        );
+      }
+    } catch (_) {
+      // Body is not JSON: fall back to the generic message below.
+    }
+    return ApiResponse.failure(fallback, ApiErrorKind.server);
+  }
+
   /// Send a couple mode request to a user
+  @override
   Future<ApiResponse<Map<String, dynamic>>> sendCoupleRequest(int targetUserId) async {
     try {
       final response = await _post('/api/couple/request', {
@@ -701,7 +720,7 @@ class ApiService {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to send couple request');
+        return _coupleFailure(response, 'Failed to send couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -717,6 +736,7 @@ class ApiService {
   }
 
   /// Respond to a couple request (accept or reject)
+  @override
   Future<ApiResponse<Map<String, dynamic>>> respondToCoupleRequest({
     required int requestId,
     required bool accept,
@@ -727,7 +747,7 @@ class ApiService {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to respond to couple request');
+        return _coupleFailure(response, 'Failed to respond to couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -743,12 +763,13 @@ class ApiService {
   }
 
   /// Cancel a pending couple request
+  @override
   Future<ApiResponse<void>> cancelCoupleRequest(int requestId) async {
     try {
       final response = await _delete('/api/couple/request/$requestId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to cancel couple request');
+        return _coupleFailure(response, 'Failed to cancel couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -764,6 +785,7 @@ class ApiService {
   }
 
   /// Get all couple requests (sent and received)
+  @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleRequests() async {
     try {
       final response = await _get('/api/couple/requests');
@@ -785,6 +807,7 @@ class ApiService {
   }
 
   /// Archive all conversations except with partner
+  @override
   Future<ApiResponse<void>> archiveAllConversationsExcept(
     int partnerUserId, {
     required String message,
@@ -811,13 +834,14 @@ class ApiService {
     }
   }
 
-  /// Exit couple mode
-  Future<ApiResponse<void>> exitCoupleMode() async {
+  /// End the couple for both members.
+  @override
+  Future<ApiResponse<void>> endCouple(int coupleId) async {
     try {
-      final response = await _delete('/api/couple');
+      final response = await _delete('/api/couple/$coupleId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to exit couple mode');
+        return _coupleFailure(response, 'Failed to end couple');
       }
 
       final data = jsonDecode(response.body);
@@ -833,6 +857,7 @@ class ApiService {
   }
 
   /// Get couple data
+  @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleData() async {
     try {
       final response = await _get('/api/couple');

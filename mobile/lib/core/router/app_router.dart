@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'couple_guard.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
@@ -47,6 +48,9 @@ import '../../presentation/features/navigation/screens/couple_navigation_screen.
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// The root navigator, for the screens that open dialogs from outside the tree.
+final GlobalKey<NavigatorState> rootNavigatorKey = _rootNavigatorKey;
+
 /// Shell navigator keys for each tab
 final GlobalKey<NavigatorState> _shellNavigatorKeyDiscover =
     GlobalKey<NavigatorState>(debugLabel: 'shellDiscover');
@@ -75,12 +79,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   // refreshListenable so the redirect/guard is re-evaluated whenever the
   // authentication state changes (login / logout / init / user refresh).
   final authService = ref.watch(authServiceProvider.notifier);
+  // Same for the couple state: the guard below re-runs when a couple forms or ends.
+  final coupleService = ref.watch(coupleServiceProvider.notifier);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
-    refreshListenable: authService,
+    refreshListenable: Listenable.merge([authService, coupleService]),
     redirect: (context, state) {
       final location = state.matchedLocation;
 
@@ -93,6 +99,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuthenticated = ref.read(isAuthenticatedProvider);
       if (!isAuthenticated && !_publicRoutes.contains(location)) {
         return RoutePaths.onboarding;
+      }
+
+      // One navigation at a time: dating or couple, never both.
+      if (isAuthenticated) {
+        return coupleRedirect(
+          location: location,
+          inCouple: coupleService.isCoupleModeEnabled,
+        );
       }
 
       return null;

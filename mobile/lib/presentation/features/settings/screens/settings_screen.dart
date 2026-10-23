@@ -703,13 +703,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       isDestructive: true,
     );
 
-    if (confirmed == true && mounted) {
-      CoupleService().disableCoupleMode();
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mode couple désactivé')),
-      );
-    }
+    if (confirmed != true || !mounted) return;
+
+    // The server answers first: on failure nothing changes. On success the
+    // router guard brings the member back to the dating screens.
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await CoupleService().leaveCouple();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? ''),
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Future<bool?> _showConfirmSheet({
@@ -930,33 +935,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   // ============ DEBUG METHODS ============
 
-  Future<void> _debugEnableCoupleMode() async {
+  /// Runs a /api/dev/couple/* call and reports what really happened: a refused
+  /// call (503 outside dev, no success flag) is an error, never a green message.
+  Future<void> _debugCoupleCall(String route, String fallbackMessage) async {
     setState(() => _isLoading = true);
 
     try {
       final userId = _userProfile?.id ?? 22; // Default to user 22 if not loaded
-      final response = await _apiService.post('/api/dev/couple/enable', {
-        'userId': userId,
-      });
+      final response = await _apiService.post(route, {'userId': userId});
+      final succeeded = response['success'] == true;
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final message = response['message'] ?? 'Couple mode enabled';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: AppColors.success),
-        );
-
-        // Refresh couple service
-        final coupleService = CoupleService();
-        await coupleService.initialize();
-
-        if (!mounted) return;
-
-        // Navigate to couple activities (main couple mode screen)
-        if (coupleService.isCoupleModeEnabled) {
-          context.go('/couple/activities');
-        }
+      if (succeeded) {
+        // Align on the server; the router guard moves to the right mode.
+        await CoupleService().refresh();
       }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      final message = succeeded
+          ? (response['message'] as String? ?? fallbackMessage)
+          : (response['error'] as String? ?? 'Refusé par le serveur');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: succeeded ? AppColors.success : AppColors.error,
+        ),
+      );
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -967,40 +970,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _debugDisableCoupleMode() async {
-    setState(() => _isLoading = true);
+  Future<void> _debugEnableCoupleMode() =>
+      _debugCoupleCall('/api/dev/couple/enable', 'Mode couple activé');
 
-    try {
-      final userId = _userProfile?.id ?? 22;
-      final response = await _apiService.post('/api/dev/couple/disable', {
-        'userId': userId,
-      });
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final message = response['message'] ?? 'Couple mode disabled';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: AppColors.success),
-        );
-
-        // Clear local couple data
-        final coupleService = CoupleService();
-        await coupleService.disableCoupleMode();
-
-        if (!mounted) return;
-
-        // Go back to discover
-        context.go('/discover');
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
-        );
-      }
-    }
-  }
+  Future<void> _debugDisableCoupleMode() =>
+      _debugCoupleCall('/api/dev/couple/disable', 'Mode couple désactivé');
 
   Future<void> _debugResetSwipes() async {
     setState(() => _isLoading = true);
