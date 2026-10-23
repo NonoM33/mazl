@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'demo_chat_routes.dart';
 import 'demo_couple_routes.dart';
 import 'demo_fixtures.dart';
 import 'demo_store.dart';
@@ -17,12 +19,32 @@ class DemoReply {
 /// Ce que le routeur sait d'une requête : la méthode, le chemin (hôte
 /// ignoré), la requête et le corps JSON éventuel.
 class DemoRequest {
-  const DemoRequest(this.method, this.path, this.query, this.body);
+  const DemoRequest(
+    this.method,
+    this.path,
+    this.query,
+    this.body, {
+    this.files = const [],
+  });
 
   final String method;
   final String path;
   final Map<String, String> query;
+
+  /// Corps JSON ; pour un envoi multipart, les champs texte.
   final Map<String, dynamic> body;
+
+  /// Fichiers d'un envoi multipart, octets lus.
+  final List<DemoUpload> files;
+}
+
+/// Un fichier reçu dans un envoi multipart.
+class DemoUpload {
+  const DemoUpload(this.field, this.filename, this.bytes);
+
+  final String field;
+  final String? filename;
+  final Uint8List bytes;
 }
 
 typedef DemoHandler = DemoReply Function(DemoRequest request, RegExpMatch match);
@@ -254,25 +276,6 @@ abstract final class DemoRoutes {
       (r, m) =>
           _json({'success': true, 'conversations': DemoStore.conversations()}),
     ),
-    DemoRoute('GET', '/api/conversations/(\\d+)/messages', (r, m) {
-      final offset = int.tryParse(r.query['offset'] ?? '') ?? 0;
-      return _json({
-        'success': true,
-        'messages': offset > 0 ? <Object>[] : DemoStore.messages(_id(m)),
-      });
-    }),
-    DemoRoute(
-      'POST',
-      '/api/conversations/(\\d+)/messages',
-      (r, m) => _json({
-        'success': true,
-        'message': DemoStore.sendMessage(_id(m), '${r.body['content'] ?? ''}'),
-      }),
-    ),
-    DemoRoute('PUT', '/api/conversations/(\\d+)/read', (r, m) {
-      DemoStore.markRead(_id(m));
-      return _ok;
-    }),
 
     // --- Évènements ---
     DemoRoute(
@@ -307,5 +310,8 @@ abstract final class DemoRoutes {
 
     // --- Mode couple (demo_couple_routes.dart) ---
     ...DemoCoupleRoutes.routes,
+
+    // --- Messagerie : messages, médias, réactions (demo_chat_routes.dart) ---
+    ...DemoChatRoutes.routes,
   ];
 }
