@@ -84,4 +84,8 @@ abstract final class MazlMotion {
   static const viewerMinScale = 0.85;
   static const viewerMaxFade = 0.7;
   static const viewerReturnToThumbnail = Duration(milliseconds: 260);
+
+  /// Fade-in of the viewer page when a thumbnail is opened (the photo itself
+  /// flies in with the Hero).
+  static const viewerOpen = Duration(milliseconds: 200);
 }
