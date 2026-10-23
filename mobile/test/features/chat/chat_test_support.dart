@@ -252,8 +252,21 @@ class FakeVoiceRecorder implements VoiceRecorder {
     waveform: List.filled(waveformBars, 40),
   );
 
+  /// Number of start() calls, and failure modes seen on devices: the plugin
+  /// throws (encoder unavailable…) or never answers.
+  int startCalls = 0;
+  int throwOnStarts = 0;
+  Completer<bool>? hang;
+
   @override
   Future<bool> start() async {
+    startCalls++;
+    if (throwOnStarts > 0) {
+      throwOnStarts--;
+      throw StateError('encoder unavailable');
+    }
+    final pending = hang;
+    if (pending != null) return pending.future;
     started = permission;
     return permission;
   }

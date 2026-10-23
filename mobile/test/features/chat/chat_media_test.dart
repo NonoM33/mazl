@@ -1,12 +1,13 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 import 'package:mazl/presentation/features/chat/widgets/chat_image.dart';
+import 'package:mazl/presentation/features/chat/widgets/photo_grid.dart';
 import 'package:mazl/presentation/features/chat/widgets/photo_viewer.dart';
 import 'package:mazl/presentation/features/chat/widgets/voice_bubble.dart';
 import 'package:mazl/presentation/features/chat/widgets/waveform.dart';
@@ -86,6 +87,24 @@ void main() {
       );
       expect(b.left - a.right, 2);
       expect(a.top, b.top);
+    });
+
+    // Review 2026-10-24: the 2 px gap showed the sent bubble's blue. CHAT.md:
+    // « la bulle EST la photo » — the gap shows the page.
+    testWidgets('the gap between photos shows the page, not the bubble colour', (tester) async {
+      final m = _photoMessage(1, me, 2);
+      await ChatHarness(initial: chatState([m])).pump(tester);
+      final grid = find.byType(PhotoGrid);
+      final page = Theme.of(tester.element(grid)).colorScheme.surface;
+      final backing = find.descendant(
+        of: grid,
+        matching: find.byWidgetPredicate((w) => w is ColoredBox && w.color == page),
+      );
+      expect(backing, findsOneWidget);
+      final a = tester.getRect(find.byWidgetPredicate((w) => w is Hero && w.tag == 'photo-c-1-0'));
+      final b = tester.getRect(find.byWidgetPredicate((w) => w is Hero && w.tag == 'photo-c-1-1'));
+      final back = tester.getRect(backing);
+      expect(back.left <= a.left && back.right >= b.right && back.top <= a.top && back.bottom >= a.bottom, isTrue);
     });
 
     testWidgets('three photos: one wide on top, two below', (tester) async {
@@ -239,6 +258,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(PhotoViewer), findsNothing);
+    });
+
+    // Regression (simulator, 2026-10-24): after closing the viewer, the
+    // status bar stayed white on the white conversation (time invisible).
+    testWidgets('closing it gives the conversation back its dark status bar icons', (tester) async {
+      await openViewer(tester);
+      await tester.pump();
+      expect(SystemChrome.latestStyle?.statusBarIconBrightness, Brightness.light, reason: 'viewer: light icons on black');
+      await tester.tap(find.byTooltip('Fermer'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+      expect(SystemChrome.latestStyle?.statusBarIconBrightness, Brightness.dark, reason: 'light theme: dark icons on white');
+      expect(SystemChrome.latestStyle?.statusBarBrightness, Brightness.light, reason: 'iOS: dark text on a light bar');
     });
 
     testWidgets('dragging down closes it', (tester) async {

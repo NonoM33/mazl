@@ -131,11 +131,15 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
   Future<void> _startRecording() async {
     final capture = _ensureCapture();
     HapticFeedback.mediumImpact();
-    if (!await capture.start() && mounted) {
-      showChatSnack(
-        context,
-        'Autorisez le micro dans les réglages pour envoyer un vocal.',
-      );
+    final result = await capture.start();
+    if (!mounted) return;
+    switch (result) {
+      case VoiceStartResult.started:
+        break;
+      case VoiceStartResult.denied:
+        showChatSnack(context, 'Autorisez le micro dans les réglages pour envoyer un vocal.');
+      case VoiceStartResult.failed:
+        showChatSnack(context, 'Impossible d\'enregistrer pour le moment. Réessayez.');
     }
   }
 
@@ -170,7 +174,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
     // Watched so the autoDispose recorder lives as long as the composer.
     ref.watch(voiceRecorderProvider);
     final capture = _capture;
-    final recording = capture != null && capture.recording;
+    final recording = capture != null && capture.visible;
     final reply = widget.reply;
     final disabled = widget.disabledMessage;
     if (disabled != null) return _disabled(scheme, safeBottom, disabled);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -240,6 +241,69 @@ void main() {
       expect(harness.actions.sentVoices, hasLength(1));
     });
 
+    // A message (snackbar) used to cover the composer for 3 s: nothing could
+    // be typed or retried. Same rule as the tab bar: it floats 12 px above.
+    testWidgets('a chat message floats above the composer, never over it', (tester) async {
+      final harness = ChatHarness();
+      await harness.pump(tester, safeBottom: 34);
+      await tester.tap(_mic);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      // The visible block (its Material), not the SnackBar's frame, which
+      // spans its margins down to the bottom of the screen.
+      final snack = tester.getRect(find.descendant(of: find.byType(SnackBar), matching: find.byType(Material)).first);
+      final composer = tester.getRect(find.byType(MessageComposer));
+      expect(snack.bottom, lessThanOrEqualTo(composer.top - 12));
+      expect(snack.top, greaterThan(0));
+    });
+
+    // Regression (simulator, 2026-10-24): holding the mic did nothing at all.
+    // The strip waited for the recorder to confirm, and a start that threw
+    // stayed cached, so every later press failed silently.
+    testWidgets('the strip shows as soon as the finger is down, before the recorder answers', (tester) async {
+      final harness = ChatHarness();
+      harness.recorder.hang = Completer<bool>();
+      await harness.pump(tester);
+      final gesture = await _hold(tester);
+      expect(find.text('‹ Glisser pour annuler'), findsOneWidget);
+      harness.recorder.hang!.complete(true);
+      await gesture.up();
+      await tester.pump();
+    });
+
+    testWidgets('a recorder that throws: readable message, and the next press tries again', (tester) async {
+      final harness = ChatHarness();
+      harness.recorder.throwOnStarts = 1;
+      await harness.pump(tester);
+      var gesture = await _hold(tester);
+      await tester.pump();
+      expect(find.text('Impossible d\'enregistrer pour le moment. Réessayez.'), findsOneWidget);
+      expect(find.text('‹ Glisser pour annuler'), findsNothing);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      gesture = await _hold(tester);
+      expect(harness.recorder.startCalls, 2, reason: 'the failed start is not cached');
+      expect(find.text('‹ Glisser pour annuler'), findsOneWidget);
+      await gesture.up();
+      await tester.pump();
+      await tester.pump();
+      expect(harness.actions.sentVoices, hasLength(1));
+    });
+
+    testWidgets('a recorder that never answers gives up after 4 s with a message', (tester) async {
+      final harness = ChatHarness();
+      harness.recorder.hang = Completer<bool>();
+      await harness.pump(tester);
+      final gesture = await _hold(tester);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump();
+      expect(find.text('Impossible d\'enregistrer pour le moment. Réessayez.'), findsOneWidget);
+      expect(find.text('‹ Glisser pour annuler'), findsNothing);
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('slide up to lock: release keeps recording, the arrow sends', (
       tester,
     ) async {
@@ -378,7 +442,7 @@ void main() {
       final capture = VoiceCapture(recorder);
       final started = capture.start();
       final recording = capture.finish();
-      expect(await started, isTrue);
+      expect(await started, VoiceStartResult.started);
       expect(await recording, isNotNull);
     });
   });

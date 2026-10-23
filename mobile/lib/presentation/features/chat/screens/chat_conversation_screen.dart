@@ -1,6 +1,6 @@
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/chat/voice.dart';
@@ -161,44 +161,63 @@ class _ChatConversationScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider(widget.conversationId));
     final other = widget.otherUser;
-    return Scaffold(
-      body: Column(
-        children: [
-          ChatHeader(
-            key: _headerKey,
-            user: other,
-            isTyping: state.otherIsTyping,
-            onBack: widget.onBack ?? () => Navigator.of(context).maybePop(),
-            onOpenProfile: other == null ? null : widget.onOpenProfile,
-            onVideoCall: widget.onVideoCall ?? () {},
-            onOptions: widget.onOptions ?? () {},
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    // The header is not an AppBar, so nothing else sets the status bar here:
+    // without this, the photo viewer's light icons stayed on the white thread.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: ChatSnackAnchor(
+          bottomGap: _snackGap,
+          child: Column(
+            children: [
+              ChatHeader(
+                key: _headerKey,
+                user: other,
+                isTyping: state.otherIsTyping,
+                onBack: widget.onBack ?? () => Navigator.of(context).maybePop(),
+                onOpenProfile: other == null ? null : widget.onOpenProfile,
+                onVideoCall: widget.onVideoCall ?? () {},
+                onOptions: widget.onOptions ?? () {},
+              ),
+              Expanded(
+                child: ChatMessageList(
+                  conversationId: widget.conversationId,
+                  state: state,
+                  otherName: _otherName,
+                  otherUserId: other?.userId ?? 0,
+                  otherPicture: other?.picture,
+                  onReply: _startReply,
+                  isScamFlagged: widget.isScamFlagged ?? _scam.forState(state),
+                  overlayBounds: _overlayBounds,
+                ),
+              ),
+              MessageComposer(
+                key: _composerKey,
+                disabledMessage: _blocked ? blockedConversationMessage : null,
+                controller: _text,
+                focusNode: _focus,
+                reply: _reply,
+                onCancelReply: () => setState(() => _reply = null),
+                onSendText: _sendText,
+                onSendPhotos: _sendPhotos,
+                onSendVoice: _sendVoice,
+                onTyping: _actions.setTyping,
+              ),
+            ],
           ),
-          Expanded(
-            child: ChatMessageList(
-              conversationId: widget.conversationId,
-              state: state,
-              otherName: _otherName,
-              otherUserId: other?.userId ?? 0,
-              otherPicture: other?.picture,
-              onReply: _startReply,
-              isScamFlagged: widget.isScamFlagged ?? _scam.forState(state),
-              overlayBounds: _overlayBounds,
-            ),
-          ),
-          MessageComposer(
-            key: _composerKey,
-            disabledMessage: _blocked ? blockedConversationMessage : null,
-            controller: _text,
-            focusNode: _focus,
-            reply: _reply,
-            onCancelReply: () => setState(() => _reply = null),
-            onSendText: _sendText,
-            onSendPhotos: _sendPhotos,
-            onSendVoice: _sendVoice,
-            onTyping: _actions.setTyping,
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  /// Space a chat message keeps from the bottom of the screen: the composer's
+  /// height plus 12 px, so the message floats above it.
+  double _snackGap() {
+    final composer = _composerKey.currentContext?.findRenderObject();
+    final screen = MediaQuery.sizeOf(context).height;
+    if (composer is! RenderBox || !composer.hasSize) return 12;
+    final top = composer.localToGlobal(Offset.zero).dy;
+    return (screen - top + 12).clamp(12, screen).toDouble();
   }
 }

@@ -66,9 +66,14 @@ class PhotoGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The 2 px gaps show the page, never the bubble behind (CHAT.md: « la
+    // bulle EST la photo »).
     final grid = ClipRRect(
       borderRadius: radius,
-      child: SizedBox(width: width, child: _layout()),
+      child: ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: SizedBox(width: width, child: _layout()),
+      ),
     );
     if (!blurred) return grid;
     return GestureDetector(

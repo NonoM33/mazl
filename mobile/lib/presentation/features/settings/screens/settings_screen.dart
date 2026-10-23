@@ -497,7 +497,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'Je n\'utilise plus l\'application',
       'Je souhaite faire une pause',
       'Problèmes techniques',
-      'Je ne suis pas satisfait(e) du service',
+      'Le service ne me convient pas',
       'Autre raison',
     ];
 
