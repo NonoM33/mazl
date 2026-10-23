@@ -5,7 +5,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../chat/chat_realtime.dart';
 import '../config/env.dart';
+import '../models/_json_parsing.dart';
 import 'auth_service.dart';
 
 /// Events emitted by the WebSocket service
@@ -72,6 +74,14 @@ class CoupleRealtimeEvent extends ChatEvent {
   final Map<String, dynamic> payload;
 
   CoupleRealtimeEvent({required this.type, required this.payload});
+}
+
+/// A chat event decoded against docs/chat/CONTRAT.md §3. The legacy events
+/// above are still emitted next to it for the conversation list.
+class ChatContractEvent extends ChatEvent {
+  final ChatRealtimeEvent event;
+
+  ChatContractEvent(this.event);
 }
 
 class ConnectionStatusEvent extends ChatEvent {
@@ -185,34 +195,10 @@ class WebSocketService {
 
       switch (type) {
         case 'chat:message':
-          if (payload != null) {
-            _eventController.add(NewMessageEvent(
-              conversationId: payload['conversationId'] as int,
-              messageId: payload['messageId'] as int,
-              senderId: payload['senderId'] as int,
-              content: payload['content'] as String,
-              createdAt: DateTime.parse(payload['createdAt'] as String),
-            ));
-          }
-          break;
-
+        case 'chat:updated':
         case 'chat:typing':
-          if (payload != null) {
-            _eventController.add(TypingEvent(
-              conversationId: payload['conversationId'] as int,
-              userId: payload['userId'] as int,
-              isTyping: payload['isTyping'] as bool? ?? true,
-            ));
-          }
-          break;
-
         case 'chat:read':
-          if (payload != null) {
-            _eventController.add(MessagesReadEvent(
-              conversationId: payload['conversationId'] as int,
-              userId: payload['userId'] as int,
-            ));
-          }
+          if (payload != null) _handleChatPayload(type!, payload);
           break;
 
         case 'match:new':
@@ -246,6 +232,57 @@ class WebSocketService {
       }
     } catch (e) {
       debugPrint('WebSocket: Error parsing message: $e');
+    }
+  }
+
+  @visibleForTesting
+  void debugHandleMessage(String raw) => _handleMessage(raw);
+
+  /// Emits the contract event (when the payload follows the contract) and the
+  /// legacy event the conversation list and the old screen still read.
+  void _handleChatPayload(String type, Map<String, dynamic> payload) {
+    final contract = parseChatEnvelope(type, payload);
+    if (contract != null) _eventController.add(ChatContractEvent(contract));
+
+    switch (type) {
+      case 'chat:message':
+        if (contract is ChatMessageArrived) {
+          final m = contract.message;
+          _eventController.add(NewMessageEvent(
+            conversationId: m.conversationId,
+            messageId: m.id,
+            senderId: m.senderId,
+            content: chatPreviewText(m),
+            createdAt: m.createdAt,
+          ));
+        } else if (payload['messageId'] != null) {
+          _eventController.add(NewMessageEvent(
+            conversationId: payload['conversationId'] as int,
+            messageId: payload['messageId'] as int,
+            senderId: payload['senderId'] as int,
+            content: payload['content'] as String,
+            createdAt: DateTime.parse(payload['createdAt'] as String),
+          ));
+        }
+        break;
+      case 'chat:typing':
+        final conversationId = parseIntSafe(payload['conversationId'] ?? payload['conversation_id']);
+        final userId = parseIntSafe(payload['userId'] ?? payload['user_id']);
+        if (conversationId != null && userId != null) {
+          _eventController.add(TypingEvent(
+            conversationId: conversationId,
+            userId: userId,
+            isTyping: (payload['isTyping'] ?? payload['is_typing']) as bool? ?? true,
+          ));
+        }
+        break;
+      case 'chat:read':
+        final conversationId = parseIntSafe(payload['conversationId'] ?? payload['conversation_id']);
+        final userId = parseIntSafe(payload['userId'] ?? payload['user_id']);
+        if (conversationId != null && userId != null) {
+          _eventController.add(MessagesReadEvent(conversationId: conversationId, userId: userId));
+        }
+        break;
     }
   }
 

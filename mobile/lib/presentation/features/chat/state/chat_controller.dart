@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show StateNotifier;
 
 import '../../../../core/models/chat_message.dart';
 
@@ -32,6 +33,7 @@ class ChatState {
   final String? error;
 
   ChatState copyWith({
+    int? myUserId,
     List<ChatMessage>? messages,
     bool? loading,
     bool? loadingOlder,
@@ -42,7 +44,7 @@ class ChatState {
   }) =>
       ChatState(
         conversationId: conversationId,
-        myUserId: myUserId,
+        myUserId: myUserId ?? this.myUserId,
         messages: messages ?? this.messages,
         loading: loading ?? this.loading,
         loadingOlder: loadingOlder ?? this.loadingOlder,
@@ -78,4 +80,11 @@ abstract class ChatActions {
 
   /// The screen shows messages up to [messageId]: mark them read.
   void markReadUpTo(int messageId);
+}
+
+/// What `chatControllerProvider(conversationId)` exposes: the state to render
+/// and the actions to call. Widget tests override the provider with a fake that
+/// extends this class.
+abstract class ChatNotifier extends StateNotifier<ChatState> implements ChatActions {
+  ChatNotifier(super.state);
 }
