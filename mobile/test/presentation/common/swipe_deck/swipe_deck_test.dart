@@ -646,6 +646,19 @@ void main() {
       expect(haptics.calls, ['selectionClick', 'mediumImpact']);
     });
 
+    testWidgets('a super like by its button gets the same medium impact', (
+      tester,
+    ) async {
+      final haptics = HapticLog(tester);
+      final rig = _Rig(heavyHapticOn: {SwipeDirection.up});
+      await _pump(tester, rig: rig);
+
+      unawaited(rig.controller.swipe(SwipeDirection.up));
+      await settle(tester);
+
+      expect(haptics.calls, ['mediumImpact']);
+    });
+
     testWidgets('a refused super like gets no medium impact', (tester) async {
       final haptics = HapticLog(tester);
       final rig = _Rig(heavyHapticOn: {SwipeDirection.up})

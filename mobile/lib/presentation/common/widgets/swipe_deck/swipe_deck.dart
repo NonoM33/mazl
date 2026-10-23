@@ -254,7 +254,7 @@ class _SwipeDeckState extends State<SwipeDeck>
     );
     final velocity = details.velocity.pixelsPerSecond;
     if (direction != null) {
-      unawaited(_commit(direction, velocity: velocity, byFinger: true));
+      unawaited(_commit(direction, velocity: velocity));
     } else {
       unawaited(_springBack(velocity));
     }
@@ -366,7 +366,6 @@ class _SwipeDeckState extends State<SwipeDeck>
   Future<bool> _commit(
     SwipeDirection direction, {
     required Offset velocity,
-    required bool byFinger,
   }) async {
     if (_phase == _Phase.deciding || _phase == _Phase.exiting) return false;
     _animator.stop();
@@ -385,7 +384,9 @@ class _SwipeDeckState extends State<SwipeDeck>
       return false;
     }
 
-    if (byFinger && widget.heavyHapticOn.contains(direction)) {
+    // A super like is acquired the same way by finger or by its button: the
+    // one reward of the gesture (docs/design/MOUVEMENT.md, haptics table).
+    if (widget.heavyHapticOn.contains(direction)) {
       unawaited(HapticFeedback.mediumImpact());
     }
     _phase = _Phase.exiting;
@@ -455,7 +456,7 @@ class _SwipeDeckState extends State<SwipeDeck>
     _animator.stop();
     _pivot = _size.center(Offset.zero);
     _grabbedLower = false;
-    return _commit(direction, velocity: Offset.zero, byFinger: false);
+    return _commit(direction, velocity: Offset.zero);
   }
 
   @override
