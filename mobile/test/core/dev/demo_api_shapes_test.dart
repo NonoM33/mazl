@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mazl/core/dev/demo_http_client.dart';
 import 'package:mazl/core/dev/dev_session.dart';
+import 'package:mazl/core/dev/demo_fixtures.dart';
 import 'package:mazl/core/services/api_service.dart';
+import 'package:mazl/presentation/features/chat/conversation_lookup.dart';
 
 /// Rejoue les VRAIES méthodes d'`ApiService` (donc les vrais décodeurs) contre
 /// les données fictives : si une forme JSON diverge, le décodeur le dit ici.
@@ -175,5 +177,20 @@ void main() {
     );
     expect(match['match'], true);
     expect(match['matched'], true);
+  });
+
+  test('un match ouvre une conversation, retrouvée par « Envoyer un message »', () async {
+    final match = _ok(await _demo(
+      (a) => a.sendSwipe(targetUserId: DemoFixtures.matchOnLikeUserId, action: 'like'),
+    ));
+    expect(match['match'], isTrue);
+    final conversations = _ok(await _demo((a) => a.getConversations()));
+    final id = conversationIdWith(conversations, DemoFixtures.matchOnLikeUserId);
+    expect(id, isNotNull);
+    expect(_ok(await _demo((a) => a.getMessages(id!))), isEmpty);
+    // Un second like ne crée pas de doublon.
+    await _demo((a) => a.sendSwipe(targetUserId: DemoFixtures.matchOnLikeUserId, action: 'like'));
+    final again = _ok(await _demo((a) => a.getConversations()));
+    expect(again.where((c) => c.otherUser?.userId == DemoFixtures.matchOnLikeUserId), hasLength(1));
   });
 }

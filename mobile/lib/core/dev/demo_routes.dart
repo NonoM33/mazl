@@ -63,6 +63,9 @@ abstract final class DemoRoutes {
     final matched =
         r.body['target_user_id'] == DemoFixtures.matchOnLikeUserId &&
         r.body['action'] != 'pass';
+    if (matched) {
+      DemoStore.openMatchConversation(DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!);
+    }
     // `match` (découverte, sélection du jour) et `matched` (likes, profil).
     return _json({'success': true, 'match': matched, 'matched': matched});
   }

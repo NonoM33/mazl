@@ -12,6 +12,10 @@ abstract final class DemoStore {
   static bool _boostActive = false;
   static int _nextId = 9000;
 
+  /// Conversations ouvertes par un match pendant la session, comme le fait
+  /// le serveur (`createConversationForMatch`).
+  static final List<Map<String, dynamic>> _matched = [];
+
   static void reset() {
     _sent.clear();
     _read.clear();
@@ -20,6 +24,27 @@ abstract final class DemoStore {
     _prompts = DemoFixtures.myPrompts();
     _boostActive = false;
     _nextId = 9000;
+    _matched.clear();
+  }
+
+  /// Crée (une seule fois) la conversation d'un nouveau match.
+  static void openMatchConversation(Map<String, dynamic> profile) {
+    final userId = profile['user_id'];
+    if (_matched.any((c) => c['otherUser']['user_id'] == userId)) return;
+    final id = nextId();
+    _matched.add({
+      'id': id,
+      'matchId': id,
+      'lastMessage': null,
+      'lastMessageAt': DemoFixtures.isoAgo(Duration.zero),
+      'unreadCount': 0,
+      'otherUser': {
+        'user_id': userId,
+        'display_name': profile['display_name'],
+        'picture': null,
+        'is_verified': profile['is_verified'],
+      },
+    });
   }
 
   static int nextId() => _nextId++;
@@ -45,6 +70,14 @@ abstract final class DemoStore {
   }
 
   static List<Map<String, dynamic>> conversations() => [
+    for (final c in _matched)
+      {
+        ...c,
+        if (_sent[c['id']]?.isNotEmpty ?? false) ...{
+          'lastMessage': _sent[c['id']]!.first['content'],
+          'lastMessageAt': _sent[c['id']]!.first['created_at'],
+        },
+      },
     for (final c in DemoFixtures.conversations())
       {
         ...c,
@@ -58,7 +91,8 @@ abstract final class DemoStore {
 
   static List<Map<String, dynamic>> messages(int conversationId) => [
     ...?_sent[conversationId],
-    ...DemoFixtures.messages(conversationId),
+    if (!_matched.any((c) => c['id'] == conversationId))
+      ...DemoFixtures.messages(conversationId),
   ];
 
   static Map<String, dynamic> sendMessage(int conversationId, String content) {

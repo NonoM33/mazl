@@ -394,7 +394,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continuer à swiper'),
+            child: const Text('Continuer à découvrir'),
           ),
           ElevatedButton(
             onPressed: () {
