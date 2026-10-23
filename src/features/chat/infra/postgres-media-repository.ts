@@ -40,4 +40,24 @@ export const postgresMediaRepository: MediaRepository = {
     if (ids.length === 0) return;
     await sql`DELETE FROM message_media WHERE id = ANY(${sql.array([...ids], 23)})`;
   },
+
+  async storageKeysOfUser(userId) {
+    const rows = await sql<Array<{ storage_key: string }>>`
+      SELECT mm.storage_key FROM message_media mm
+      JOIN conversations c ON c.id = mm.conversation_id
+      WHERE c.user1_id = ${userId} OR c.user2_id = ${userId}
+    `;
+    return rows.map((row) => row.storage_key);
+  },
+
+  async referencedKeys(keys) {
+    if (keys.length === 0) return new Set<string>();
+    const media = await sql<Array<{ key: string }>>`
+      SELECT storage_key AS key FROM message_media WHERE storage_key IN ${sql([...keys])}
+    `;
+    const cache = await sql<Array<{ key: string }>>`
+      SELECT data->>'imageKey' AS key FROM link_preview_cache WHERE data->>'imageKey' IN ${sql([...keys])}
+    `;
+    return new Set([...media, ...cache].map((row) => row.key));
+  },
 };

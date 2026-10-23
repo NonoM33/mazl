@@ -137,8 +137,18 @@ export class FakeMessageRepository implements MessageRepository {
 
 export class FakeStorage implements FileStorage {
   readonly files = new Map<string, Uint8Array>();
+  readonly modified = new Map<string, Date>();
   failRemoveFor = new Set<string>();
-  async save(key: string, bytes: Uint8Array) { this.files.set(key, bytes); }
+  savedAt: Date = T0;
+  async save(key: string, bytes: Uint8Array) {
+    this.files.set(key, bytes);
+    this.modified.set(key, this.savedAt);
+  }
+  async list(prefix: string) {
+    return [...this.files.keys()]
+      .filter((key) => key.startsWith(`${prefix}/`))
+      .map((key) => ({ key, modifiedAt: this.modified.get(key) ?? T0 }));
+  }
   async read(key: string) { return this.files.get(key) ?? null; }
   async remove(key: string) {
     if (this.failRemoveFor.has(key)) throw new Error("disk error");
@@ -217,6 +227,19 @@ import type { MediaRepository } from "../../src/features/chat/application/ports"
 
 export class FakeMediaRepository implements MediaRepository {
   readonly rows: MediaRecord[] = [];
+  // conversation id -> its two members, for storageKeysOfUser
+  readonly members = new Map<number, number[]>();
+  // image keys owned by the preview cache
+  readonly cacheKeys = new Set<string>();
+  readonly referenceLookups: number[] = [];
+  async storageKeysOfUser(userId: number) {
+    return this.rows.filter((r) => this.members.get(r.conversationId)?.includes(userId)).map((r) => r.storageKey);
+  }
+  async referencedKeys(keys: readonly string[]) {
+    this.referenceLookups.push(keys.length);
+    const owned = new Set([...this.rows.map((r) => r.storageKey), ...this.cacheKeys]);
+    return new Set(keys.filter((key) => owned.has(key)));
+  }
   private nextId = 1;
   async insert(media: NewMedia) {
     const row: MediaRecord = { id: this.nextId++, messageId: null, role: "attachment", createdAt: T0, ...media };

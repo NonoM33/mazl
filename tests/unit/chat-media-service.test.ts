@@ -158,3 +158,120 @@ describe("orphan purge", () => {
     expect(mediaRepo.rows).toHaveLength(1);
   });
 });
+
+
+describe("erasure of a user's chat files (GDPR)", () => {
+  const key = (conversation: number, name: string) => `chat/${conversation}/${name}`;
+
+  async function seed() {
+    messages.addConversation(11, ALICE, EVE);
+    mediaRepo.members.set(CONV, [ALICE, BOB]);
+    mediaRepo.members.set(11, [ALICE, EVE]);
+    const files: Array<[number, string, number, "photo" | "voice", "attachment" | "preview", number | null]> = [
+      [CONV, "alice.jpg", ALICE, "photo", "attachment", 1],
+      [CONV, "bob.m4a", BOB, "voice", "attachment", 2],
+      [CONV, "unsent-yet.jpg", ALICE, "photo", "attachment", null],
+      [CONV, "preview.jpg", ALICE, "photo", "preview", 3],
+      [11, "with-eve.jpg", ALICE, "photo", "attachment", 4],
+    ];
+    for (const [conversationId, name, uploaderId, kind, role, messageId] of files) {
+      await storage.save(key(conversationId, name), new Uint8Array([1]));
+      await mediaRepo.insert({ conversationId, uploaderId, kind, role, storageKey: key(conversationId, name), width: null, height: null, durationMs: null, waveform: null });
+      if (messageId !== null) mediaRepo.rows[mediaRepo.rows.length - 1] = { ...mediaRepo.rows.at(-1)!, messageId };
+    }
+    messages.addConversation(12, BOB, EVE);
+    mediaRepo.members.set(12, [BOB, EVE]);
+    await storage.save(key(12, "not-alices.jpg"), new Uint8Array([1]));
+    await mediaRepo.insert({ conversationId: 12, uploaderId: BOB, kind: "photo", storageKey: key(12, "not-alices.jpg"), width: null, height: null, durationMs: null, waveform: null });
+  }
+
+  test("every file of every conversation of the user goes, whoever uploaded it, sent or not; other people's files stay", async () => {
+    await seed();
+    await service.eraseUserMedia(ALICE, async () => { mediaRepo.rows.length = 0; });
+    expect([...storage.files.keys()]).toEqual([key(12, "not-alices.jpg")]);
+  });
+
+  test("the keys are collected BEFORE the deletion runs (the cascade would hide them) and files go only AFTER it", async () => {
+    await seed();
+    const seenDuringDeletion: number[] = [];
+    await service.eraseUserMedia(ALICE, async () => {
+      seenDuringDeletion.push(storage.files.size); // files still there while the database is being cleaned
+      mediaRepo.rows.length = 0; // the cascade: the rows can no longer tell us the keys
+    });
+    expect(seenDuringDeletion).toEqual([6]);
+    expect(storage.files.size).toBe(1);
+  });
+
+  test("when the deletion fails nothing is removed from disk and the error is passed on", async () => {
+    await seed();
+    await expect(service.eraseUserMedia(ALICE, async () => { throw new Error("fk violation"); })).rejects.toThrow("fk violation");
+    expect(storage.files.size).toBe(6);
+  });
+
+  test("returns the deletion's own result", async () => {
+    expect(await service.eraseUserMedia(ALICE, async () => ({ deleted: true }))).toEqual({ deleted: true });
+  });
+
+  test("a file that cannot be removed does not undo the deletion; the others still go", async () => {
+    await seed();
+    storage.failRemoveFor.add(key(CONV, "alice.jpg"));
+    await service.eraseUserMedia(ALICE, async () => { mediaRepo.rows.length = 0; });
+    expect([...storage.files.keys()].sort()).toEqual([key(CONV, "alice.jpg"), key(12, "not-alices.jpg")].sort());
+  });
+});
+
+describe("sweep of stray files (safety net)", () => {
+  const HOUR = 3_600_000;
+  const stray = async (name: string, ageMs: number) => {
+    storage.savedAt = new Date(clock.getTime() - ageMs);
+    await storage.save(name, new Uint8Array([1]));
+  };
+
+  test("deletes files without a row older than 1 hour; keeps younger ones (an upload in flight), referenced ones and files outside chat/", async () => {
+    clock = new Date(T0.getTime() + 10 * HOUR);
+    await stray("chat/10/stray-old.jpg", 2 * HOUR);
+    await stray("chat/10/stray-just-over.jpg", HOUR + 1000);
+    await stray("chat/10/in-flight.jpg", HOUR - 1000);
+    await stray("chat/10/brand-new.jpg", 0);
+    await stray("chat/10/owned.jpg", 5 * HOUR);
+    await mediaRepo.insert({ conversationId: CONV, uploaderId: ALICE, kind: "photo", storageKey: "chat/10/owned.jpg", width: null, height: null, durationMs: null, waveform: null });
+    await stray("chat/preview-cache/cached.jpg", 5 * HOUR);
+    mediaRepo.cacheKeys.add("chat/preview-cache/cached.jpg");
+    await stray("chat/preview-cache/expired.jpg", 5 * HOUR);
+    await stray("photos/profile-of-someone.jpg", 9 * HOUR);
+    await stray("chat-lookalike/x.jpg", 9 * HOUR);
+
+    expect(await service.sweepStrayFiles()).toBe(3);
+    expect([...storage.files.keys()].sort()).toEqual([
+      "chat-lookalike/x.jpg", "chat/10/brand-new.jpg", "chat/10/in-flight.jpg", "chat/10/owned.jpg",
+      "chat/preview-cache/cached.jpg", "photos/profile-of-someone.jpg",
+    ].sort());
+  });
+
+  test("exactly one hour old is still left alone", async () => {
+    clock = new Date(T0.getTime() + 10 * HOUR);
+    await stray("chat/10/edge.jpg", HOUR);
+    expect(await service.sweepStrayFiles()).toBe(0);
+  });
+
+  test("a failing removal does not stop the sweep", async () => {
+    clock = new Date(T0.getTime() + 10 * HOUR);
+    await stray("chat/10/a.jpg", 2 * HOUR);
+    await stray("chat/10/b.jpg", 2 * HOUR);
+    storage.failRemoveFor.add("chat/10/a.jpg");
+    expect(await service.sweepStrayFiles()).toBe(1);
+    expect([...storage.files.keys()]).toEqual(["chat/10/a.jpg"]);
+  });
+
+  test("ownership is looked up in bounded batches", async () => {
+    clock = new Date(T0.getTime() + 10 * HOUR);
+    for (let i = 0; i < 1200; i++) storage.files.set(`chat/10/f${i}.jpg`, new Uint8Array([1])), storage.modified.set(`chat/10/f${i}.jpg`, new Date(0));
+    expect(await service.sweepStrayFiles()).toBe(1200);
+    expect(mediaRepo.referenceLookups.every((n) => n <= 500)).toBe(true);
+    expect(mediaRepo.referenceLookups.reduce((a, b) => a + b, 0)).toBe(1200);
+  });
+
+  test("an empty store is fine", async () => {
+    expect(await service.sweepStrayFiles()).toBe(0);
+  });
+});

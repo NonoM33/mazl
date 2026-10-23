@@ -1,6 +1,5 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
-import { createDiskPhotoStorage } from "../media/infra/disk-photo-storage";
 import { createChatMediaService, type ChatMediaService } from "./application/chat-media-service";
 import { createChatService, type ChatService } from "./application/chat-service";
 import { createGuardedFetcher } from "./application/guarded-fetch";
@@ -8,6 +7,7 @@ import { createLinkPreviewService, type LinkPreviewService } from "./application
 import { createMessagePresenter } from "./application/message-presenter";
 import { signChatMediaUrl } from "./application/media-signer";
 import { createPinnedHttpTransport } from "./infra/pinned-http-transport";
+import { createChatDiskStorage } from "./infra/disk-chat-storage";
 import { postgresMediaRepository } from "./infra/postgres-media-repository";
 import { postgresMessageRepository } from "./infra/postgres-message-repository";
 import { postgresPreviewCache } from "./infra/postgres-preview-cache";
@@ -29,7 +29,7 @@ export interface ChatModule {
 }
 
 export function createChatModule(options: { uploadsDir: string }): ChatModule {
-  const storage = createDiskPhotoStorage(options.uploadsDir);
+  const storage = createChatDiskStorage(options.uploadsDir);
   const now = (): Date => new Date();
   const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
 
@@ -64,14 +64,18 @@ export function registerChat(app: Hono<{ Variables: AppVariables }>, module: Cha
 
 const MAINTENANCE_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
-// Orphan uploads (older than 24 h and never sent) and expired preview cache
-// entries are removed at boot and every six hours.
+// Orphan uploads (older than 24 h and never sent), expired preview cache entries
+// and files that no row owns any more (older than 1 h) are removed at boot and
+// every six hours.
 export function startChatMaintenance(module: ChatModule): () => void {
   return startPeriodically(
     async () => {
       const orphans = await module.media.purgeOrphans();
       const expired = await module.previews.purgeExpired();
-      if (orphans + expired > 0) console.log(`Chat maintenance: ${orphans} orphan uploads, ${expired} preview cache entries removed`);
+      const strays = await module.media.sweepStrayFiles();
+      if (orphans + expired + strays > 0) {
+        console.log(`Chat maintenance: ${orphans} orphan uploads, ${expired} preview cache entries, ${strays} stray files removed`);
+      }
     },
     MAINTENANCE_INTERVAL_MS,
   );

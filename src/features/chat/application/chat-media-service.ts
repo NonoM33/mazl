@@ -13,6 +13,9 @@ export const MAX_VOICE_MS = 120_000;
 export const MAX_PENDING_PER_USER = 40;
 export const ORPHAN_AGE_MS = 24 * 60 * 60 * 1000;
 const PURGE_BATCH = 200;
+export const STRAY_MIN_AGE_MS = 60 * 60 * 1000;
+const LOOKUP_BATCH = 500;
+const CHAT_PREFIX = "chat";
 
 export interface ServedMedia {
   readonly bytes: Uint8Array;
@@ -32,6 +35,13 @@ export interface ChatMediaService {
   serve(mediaId: number): Promise<ServedMedia | null>;
   // Deletes attachments nobody used for 24 h (files first, then rows).
   purgeOrphans(): Promise<number>;
+  // GDPR erasure: lists every chat file of the user's conversations BEFORE
+  // `deletion` runs (the cascade would hide them), and removes them from disk
+  // only AFTER it succeeded. If `deletion` throws, no file is touched.
+  eraseUserMedia<T>(userId: number, deletion: () => Promise<T>): Promise<T>;
+  // Safety net: removes files under chat/ that no row owns and that are older
+  // than an hour, so an upload in flight is never touched.
+  sweepStrayFiles(): Promise<number>;
 }
 
 export interface ChatMediaDeps {
@@ -129,5 +139,36 @@ export function createChatMediaService(deps: ChatMediaDeps): ChatMediaService {
     }
   }
 
-  return { uploadPhoto, uploadVoice, serve, purgeOrphans };
+  async function removeQuietly(key: string): Promise<boolean> {
+    try {
+      await storage.remove(key);
+      return true;
+    } catch (error: unknown) {
+      console.error("Chat file removal failed:", error instanceof Error ? error.name : "unknown");
+      return false;
+    }
+  }
+
+  async function eraseUserMedia<T>(userId: number, deletion: () => Promise<T>): Promise<T> {
+    const keys = await media.storageKeysOfUser(userId);
+    const result = await deletion();
+    for (const key of keys) await removeQuietly(key);
+    return result;
+  }
+
+  async function sweepStrayFiles(): Promise<number> {
+    const cutoff = now().getTime() - STRAY_MIN_AGE_MS;
+    const candidates = (await storage.list(CHAT_PREFIX)).filter((file) => file.modifiedAt.getTime() < cutoff);
+    let removed = 0;
+    for (let from = 0; from < candidates.length; from += LOOKUP_BATCH) {
+      const batch = candidates.slice(from, from + LOOKUP_BATCH).map((file) => file.key);
+      const owned = await media.referencedKeys(batch);
+      for (const key of batch) {
+        if (!owned.has(key) && (await removeQuietly(key))) removed += 1;
+      }
+    }
+    return removed;
+  }
+
+  return { uploadPhoto, uploadVoice, serve, purgeOrphans, eraseUserMedia, sweepStrayFiles };
 }

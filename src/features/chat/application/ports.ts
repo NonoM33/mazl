@@ -77,6 +77,11 @@ export interface MediaRepository {
   // Attachments nobody used, uploaded before `olderThan`.
   listOrphans(olderThan: Date, limit: number): Promise<MediaRecord[]>;
   delete(ids: readonly number[]): Promise<void>;
+  // Storage keys of every file in the conversations `userId` belongs to
+  // (both members' uploads, unattached ones and link-preview images included).
+  storageKeysOfUser(userId: number): Promise<string[]>;
+  // Which of these keys some row still owns (message media or preview cache).
+  referencedKeys(keys: readonly string[]): Promise<Set<string>>;
 }
 
 export type CachedPreview =
@@ -101,10 +106,18 @@ export interface PreviewCache {
   deleteExpired(olderThan: Date): Promise<string[]>;
 }
 
+export interface StoredFile {
+  readonly key: string;
+  readonly modifiedAt: Date;
+}
+
 export interface FileStorage {
   save(key: string, bytes: Uint8Array): Promise<void>;
   read(key: string): Promise<Uint8Array | null>;
   remove(key: string): Promise<void>;
+  // Every regular file under `prefix` (symbolic links are never followed).
+  // Rejects when the prefix escapes the storage root; empty when it does not exist.
+  list(prefix: string): Promise<StoredFile[]>;
 }
 
 export interface ProcessedImage {
