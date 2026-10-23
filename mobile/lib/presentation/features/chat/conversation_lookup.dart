@@ -1,4 +1,5 @@
 import '../../../core/models/conversation.dart';
+import '../../../core/router/route_names.dart';
 
 /// La conversation ouverte avec [userId], ou `null` si elle n'existe pas
 /// encore (le serveur la crée au match mais ne renvoie pas son id).
@@ -24,3 +25,9 @@ List<Conversation> markConversationRead(List<Conversation> conversations, int co
         else
           c,
     ];
+
+/// Vrai quand la liste Messages redevient visible : retour sur l'onglet ou
+/// sortie d'une conversation. L'écran reste vivant dans son onglet, il doit
+/// donc se recharger lui-même (un nouveau match n'y apparaissait pas).
+bool conversationListBecameVisible(String? previousPath, String currentPath) =>
+    currentPath == RoutePaths.chat && previousPath != RoutePaths.chat;

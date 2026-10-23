@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -31,6 +32,8 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   bool _isLoading = true;
   bool _hasError = false;
   StreamSubscription<ChatEvent>? _wsSubscription;
+  ValueListenable<RouteInformation>? _routeInformation;
+  String? _lastPath;
 
   @override
   bool get wantKeepAlive => true;
@@ -57,7 +60,25 @@ class _ConversationsScreenState extends State<ConversationsScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_routeInformation != null) return;
+    final provider = GoRouter.of(context).routeInformationProvider;
+    _routeInformation = provider;
+    _lastPath = provider.value.uri.path;
+    provider.addListener(_onRouteChanged);
+  }
+
+  void _onRouteChanged() {
+    final path = _routeInformation!.value.uri.path;
+    final becameVisible = conversationListBecameVisible(_lastPath, path);
+    _lastPath = path;
+    if (becameVisible && mounted) _loadConversations(isRefresh: true);
+  }
+
+  @override
   void dispose() {
+    _routeInformation?.removeListener(_onRouteChanged);
     _wsSubscription?.cancel();
     _searchController.dispose();
     super.dispose();
@@ -335,7 +356,7 @@ class ConversationRow extends StatelessWidget {
     final hasUnread = conversation.unreadCount > 0;
     final user = conversation.otherUser;
     final name = user?.displayName ?? 'Utilisateur';
-    final preview = conversation.lastMessage ?? 'Nouveau match !';
+    final preview = conversation.lastMessage ?? 'Nouveau match';
 
     return Semantics(
       button: true,

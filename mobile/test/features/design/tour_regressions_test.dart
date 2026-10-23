@@ -114,4 +114,20 @@ void main() {
       expect(asked, isFalse);
     });
   });
+
+  group('la liste Messages se recharge quand elle redevient visible', () {
+    test('retour sur l\'onglet Messages depuis un autre onglet', () {
+      expect(conversationListBecameVisible('/discover', '/chat'), isTrue);
+    });
+
+    test('retour depuis une conversation', () {
+      expect(conversationListBecameVisible('/chat/106', '/chat'), isTrue);
+    });
+
+    test('déjà sur la liste, ou ailleurs : pas de rechargement', () {
+      expect(conversationListBecameVisible('/chat', '/chat'), isFalse);
+      expect(conversationListBecameVisible('/chat', '/chat/106'), isFalse);
+      expect(conversationListBecameVisible('/chat', '/matches'), isFalse);
+    });
+  });
 }
