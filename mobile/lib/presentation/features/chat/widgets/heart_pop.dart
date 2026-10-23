@@ -39,7 +39,7 @@ class _HeartPopState extends State<HeartPop> with SingleTickerProviderStateMixin
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          if (_controller.isDismissed) return const SizedBox.shrink();
+          if (_controller.isDismissed || _controller.isCompleted) return const SizedBox.shrink();
           final t = _controller.value;
           return Center(
             child: Opacity(
