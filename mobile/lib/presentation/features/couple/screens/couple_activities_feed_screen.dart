@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +8,15 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
-import '../../../../core/services/saved_activities_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../widgets/skeletons.dart';
+import '../widgets/couple_message_view.dart';
 
 class CoupleActivitiesFeedScreen extends StatefulWidget {
-  const CoupleActivitiesFeedScreen({super.key});
+  const CoupleActivitiesFeedScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<CoupleActivitiesFeedScreen> createState() =>
@@ -22,13 +26,22 @@ class CoupleActivitiesFeedScreen extends StatefulWidget {
 class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     with AutomaticKeepAliveClientMixin {
   final CardSwiperController _controller = CardSwiperController();
-  final CoupleApiService _apiService = CoupleApiService();
-  final SavedActivitiesService _savedService = SavedActivitiesService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
 
-  List<CoupleActivity> _activities = [];
+  /// The deck as the swiper sees it. Only replaced by a (re)load or a rollback,
+  /// together with [_deckGeneration], so the swiper never sees its count change.
+  List<CoupleActivity> _deck = [];
+  int _deckGeneration = 0;
+
+  /// Index in [_deck] of the card on top.
+  int _topIndex = 0;
+  bool _deckDone = false;
+
   bool _isLoading = true;
-  String? _error;
+  CoupleFailure? _failure;
   String? _selectedCategory;
+  int _loadToken = 0;
 
   // Couple mode accent color
   static const coupleAccent = Color(0xFFFF6B9D);
@@ -54,98 +67,32 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     _loadActivities();
   }
 
-  Future<void> _loadActivities({bool isRefresh = false}) async {
-    if (!isRefresh) {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
-    }
+  Future<void> _loadActivities() async {
+    final token = ++_loadToken;
+    setState(() {
+      _isLoading = true;
+      _failure = null;
+    });
 
-    try {
-      final activities = await _apiService.getActivities(
-        limit: 50,
-        category: _selectedCategory,
-      );
+    final result = await _apiService.getActivities(
+      limit: 50,
+      category: _selectedCategory,
+    );
+    // A newer load (another category) owns the screen now.
+    if (!mounted || token != _loadToken) return;
 
-      setState(() {
-        _activities = activities.isNotEmpty ? activities : _getDemoActivities();
-        _isLoading = false;
-      });
-    } catch (e) {
-      // Use demo activities when API fails
-      debugPrint('CoupleActivities: Using demo data - $e');
-      setState(() {
-        _activities = _getDemoActivities();
-        _isLoading = false;
-      });
-    }
-  }
-
-  List<CoupleActivity> _getDemoActivities() {
-    final allActivities = [
-      CoupleActivity(
-        id: 1,
-        title: 'Spa en duo',
-        description: 'Moment de détente à deux avec massage, hammam et jacuzzi dans un cadre luxueux. Parfait pour se ressourcer ensemble.',
-        category: 'wellness',
-        imageUrl: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800',
-        priceCents: 12000,
-        city: 'Paris',
-        rating: 4.8,
-        reviewCount: 124,
-        isKosher: true,
-        isPartner: true,
-        discountPercent: 15,
-        durationMinutes: 120,
-      ),
-      CoupleActivity(
-        id: 2,
-        title: 'Cours de cuisine casher',
-        description: 'Apprenez à préparer un repas gastronomique casher ensemble avec un chef professionnel.',
-        category: 'gastronomy',
-        imageUrl: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800',
-        priceCents: 8500,
-        city: 'Paris',
-        rating: 4.9,
-        reviewCount: 89,
-        isKosher: true,
-        durationMinutes: 180,
-      ),
-      CoupleActivity(
-        id: 3,
-        title: 'Visite guidée du Marais juif',
-        description: 'Découvrez l\'histoire et les secrets du quartier juif de Paris avec un guide passionné.',
-        category: 'culture',
-        imageUrl: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800',
-        priceCents: 3500,
-        city: 'Paris',
-        rating: 4.7,
-        reviewCount: 256,
-        isKosher: true,
-        durationMinutes: 120,
-      ),
-      CoupleActivity(
-        id: 4,
-        title: 'Dîner romantique casher',
-        description: 'Savourez un dîner gastronomique dans un restaurant casher étoilé avec vue sur la Tour Eiffel.',
-        category: 'romantic',
-        imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
-        priceCents: 15000,
-        city: 'Paris',
-        rating: 4.9,
-        reviewCount: 312,
-        isKosher: true,
-        isPartner: true,
-        discountPercent: 10,
-        durationMinutes: 150,
-      ),
-    ];
-
-    if (_selectedCategory != null) {
-      return allActivities.where((a) => a.category == _selectedCategory).toList();
-    }
-    return allActivities;
+    setState(() {
+      _isLoading = false;
+      switch (result) {
+        case CoupleOk(:final value):
+          _deck = value;
+          _deckGeneration++;
+          _topIndex = 0;
+          _deckDone = value.isEmpty;
+        case CoupleFailed(:final failure):
+          _failure = failure;
+      }
+    });
   }
 
   @override
@@ -181,14 +128,8 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
           ],
         ),
         actions: [
-          // Saved activities button
           IconButton(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(LucideIcons.bookmark),
-              ],
-            ),
+            icon: const Icon(LucideIcons.bookmark),
             tooltip: 'Activités sauvegardées',
             onPressed: () => context.push('/couple/activities/saved'),
           ),
@@ -197,10 +138,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Category filter chips
             _buildCategoryFilter(),
-
-            // Main content
             Expanded(child: _buildBody()),
           ],
         ),
@@ -233,10 +171,8 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
               selectedColor: coupleAccent,
               checkmarkColor: Colors.white,
               onSelected: (selected) {
-                setState(() {
-                  _selectedCategory = cat['key'];
-                });
-                _loadActivities(isRefresh: true);
+                setState(() => _selectedCategory = cat['key']);
+                _loadActivities();
               },
             ),
           );
@@ -250,112 +186,82 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       return const ProfileCardSkeleton();
     }
 
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              _error!,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadActivities,
-              child: const Text('Réessayer'),
-            ),
-          ],
-        ),
-      );
+    final failure = _failure;
+    if (failure != null) {
+      return CoupleMessageView.failure(failure, onRetry: _loadActivities);
     }
 
-    if (_activities.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.sparkles, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'Plus d\'activités disponibles',
-              style: TextStyle(color: Colors.grey[600], fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'De nouvelles activités arrivent bientôt.',
-              style: TextStyle(color: Colors.grey[500]),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadActivities,
-              child: const Text('Actualiser'),
-            ),
-          ],
-        ),
+    if (_deckDone) {
+      return CoupleMessageView(
+        title: 'Aucune activité pour le moment',
+        line: 'De nouvelles idées arrivent bientôt.',
+        actionLabel: 'Actualiser',
+        onAction: _loadActivities,
       );
     }
 
     return Column(
       children: [
-        // Cards
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: CardSwiper(
+              key: ValueKey(_deckGeneration),
               controller: _controller,
-              cardsCount: _activities.length,
-              numberOfCardsDisplayed:
-                  _activities.length > 3 ? 3 : _activities.length,
+              cardsCount: _deck.length,
+              numberOfCardsDisplayed: _deck.length > 3 ? 3 : _deck.length,
               backCardOffset: const Offset(0, 40),
               padding: EdgeInsets.zero,
+              isLoop: false,
+              // Left = pass, up = save. A right swipe has no meaning here.
+              allowedSwipeDirection: const AllowedSwipeDirection.only(
+                left: true,
+                up: true,
+              ),
               onSwipe: _onSwipe,
-              cardBuilder: (context, index, horizontalOffsetPercentage,
-                  verticalOffsetPercentage) {
-                final activity = _activities[index];
-                return _ActivityCard(
-                  activity: activity,
-                  swipeProgress: horizontalOffsetPercentage.toDouble(),
-                  verticalProgress: verticalOffsetPercentage.toDouble(),
-                  onTapDetails: () =>
-                      context.push('/couple/activities/${activity.id}'),
-                );
-              },
+              cardBuilder:
+                  (
+                    context,
+                    index,
+                    horizontalOffsetPercentage,
+                    verticalOffsetPercentage,
+                  ) {
+                    final activity = _deck[index];
+                    return _ActivityCard(
+                      activity: activity,
+                      swipeProgress: horizontalOffsetPercentage.toDouble(),
+                      verticalProgress: verticalOffsetPercentage.toDouble(),
+                      onTapDetails: () =>
+                          context.push('/couple/activities/${activity.id}'),
+                    );
+                  },
             ),
           ),
         ),
-
-        // Action buttons
         Padding(
           padding: const EdgeInsets.all(24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Pass
               _ActionButton(
                 icon: LucideIcons.x,
                 color: AppColors.passRed,
                 size: 60,
                 onPressed: () => _controller.swipe(CardSwiperDirection.left),
               ),
-
-              // Save/Bookmark
               _ActionButton(
                 icon: LucideIcons.bookmark,
                 color: coupleAccent,
                 size: 70,
                 onPressed: () => _controller.swipe(CardSwiperDirection.top),
               ),
-
-              // Info/Details
               _ActionButton(
                 icon: LucideIcons.info,
                 color: AppColors.info,
                 size: 60,
                 onPressed: () {
-                  if (_activities.isNotEmpty) {
-                    context.push('/couple/activities/${_activities.first.id}');
+                  if (_topIndex < _deck.length) {
+                    context.push('/couple/activities/${_deck[_topIndex].id}');
                   }
                 },
               ),
@@ -371,22 +277,57 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     int? currentIndex,
     CardSwiperDirection direction,
   ) {
-    final activity = _activities[previousIndex];
+    final activity = _deck[previousIndex];
+    _topIndex = currentIndex ?? _deck.length;
 
     if (direction == CardSwiperDirection.left) {
-      debugPrint('Passed ${activity.title}');
-      // _apiService.passActivity(activity.id); // API not ready yet
+      _commit(activity, save: false);
     } else if (direction == CardSwiperDirection.top) {
-      debugPrint('Saved ${activity.title}');
-      // Save locally since API is not ready yet
-      _savedService.saveActivity(activity);
-      _showSavedSnackbar(activity);
-    } else if (direction == CardSwiperDirection.right) {
-      // Swipe right = show details (don't remove card)
+      _commit(activity, save: true);
+    } else {
       return false;
     }
 
+    if (currentIndex == null) {
+      // After the swiper finished its own bookkeeping for this swipe.
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _topIndex >= _deck.length) {
+          setState(() => _deckDone = true);
+        }
+      });
+    }
     return true;
+  }
+
+  /// The card is already gone (optimistic); the server decides if it stays so.
+  Future<void> _commit(CoupleActivity activity, {required bool save}) async {
+    final result = save
+        ? await _apiService.saveActivity(activity.id)
+        : await _apiService.passActivity(activity.id);
+    if (!mounted) return;
+
+    switch (result) {
+      case CoupleOk():
+        if (save) _showSavedSnackbar(activity);
+      case CoupleFailed():
+        _restore(activity);
+        showCoupleError(
+          context,
+          save
+              ? 'Impossible de sauvegarder « ${activity.title} ». Réessayez.'
+              : 'Impossible de passer « ${activity.title} ». Réessayez.',
+        );
+    }
+  }
+
+  /// Puts a card back on top of the deck after a failed call.
+  void _restore(CoupleActivity activity) {
+    setState(() {
+      _deck = [activity, ..._deck.sublist(_topIndex.clamp(0, _deck.length))];
+      _deckGeneration++;
+      _topIndex = 0;
+      _deckDone = false;
+    });
   }
 
   void _showSavedSnackbar(CoupleActivity activity) {
@@ -497,8 +438,10 @@ class _ActivityCard extends StatelessWidget {
                 children: [
                   // Category badge
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: coupleAccent,
                       borderRadius: BorderRadius.circular(20),
@@ -551,7 +494,9 @@ class _ActivityCard extends StatelessWidget {
                       ],
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
@@ -572,10 +517,7 @@ class _ActivityCard extends StatelessWidget {
                   // Description preview
                   Text(
                     activity.description,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -585,7 +527,9 @@ class _ActivityCard extends StatelessWidget {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.accentGold.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(8),
@@ -619,7 +563,9 @@ class _ActivityCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
@@ -672,8 +618,10 @@ class _ActivityCard extends StatelessWidget {
                 top: 16,
                 left: 16,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(12),
@@ -723,10 +671,7 @@ class _ActivityCard extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColors.passRed,
-                        width: 4,
-                      ),
+                      border: Border.all(color: AppColors.passRed, width: 4),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
@@ -753,17 +698,17 @@ class _ActivityCard extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: coupleAccent,
-                        width: 4,
-                      ),
+                      border: Border.all(color: coupleAccent, width: 4),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(LucideIcons.bookmark,
-                            color: coupleAccent, size: 28),
+                        Icon(
+                          LucideIcons.bookmark,
+                          color: coupleAccent,
+                          size: 28,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'SAVE',
@@ -788,10 +733,7 @@ class _ActivityCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            coupleAccent,
-            coupleAccent.withValues(alpha: 0.7),
-          ],
+          colors: [coupleAccent, coupleAccent.withValues(alpha: 0.7)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -837,11 +779,7 @@ class _ActionButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(
-          icon,
-          color: color,
-          size: size * 0.5,
-        ),
+        child: Icon(icon, color: color, size: size * 0.5),
       ),
     );
   }

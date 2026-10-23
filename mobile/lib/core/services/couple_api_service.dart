@@ -1,304 +1,387 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
-import 'api_service.dart';
+import 'package:http/http.dart' as http;
+
 import '../models/couple_activity.dart';
 import '../models/couple_event.dart';
+import '../models/couple_space.dart';
+import 'api_service.dart';
 
+/// Why a couple content call failed. The UI reads [CoupleFailure.message]
+/// (already user-facing, in French) and [CoupleFailure.kind] to choose a state.
+enum CoupleFailureKind {
+  /// No connection, timeout or unreachable server.
+  network,
+
+  /// The activity or event does not exist (any more).
+  notFound,
+
+  /// The caller is not in a couple (server answers "Not in a couple").
+  notInCouple,
+
+  /// The event has no seat left.
+  full,
+
+  /// The server refused or failed.
+  server,
+
+  /// The answer did not have the documented shape.
+  malformed,
+}
+
+class CoupleFailure implements Exception {
+  const CoupleFailure(this.kind, this.message, {this.detail});
+
+  final CoupleFailureKind kind;
+  final String message;
+
+  /// Technical detail for the logs, never shown.
+  final String? detail;
+
+  @override
+  String toString() => 'CoupleFailure(${kind.name}): $message ${detail ?? ''}';
+}
+
+/// Outcome of a call: a value or a [CoupleFailure], never a swallowed error.
+sealed class CoupleResult<T> {
+  const CoupleResult();
+
+  bool get isOk => this is CoupleOk<T>;
+
+  T? get valueOrNull => switch (this) {
+    CoupleOk<T>(:final value) => value,
+    CoupleFailed<T>() => null,
+  };
+
+  CoupleFailure? get failureOrNull => switch (this) {
+    CoupleOk<T>() => null,
+    CoupleFailed<T>(:final failure) => failure,
+  };
+}
+
+final class CoupleOk<T> extends CoupleResult<T> {
+  const CoupleOk(this.value);
+  final T value;
+}
+
+final class CoupleFailed<T> extends CoupleResult<T> {
+  const CoupleFailed(this.failure);
+  final CoupleFailure failure;
+}
+
+/// The three verbs the couple content routes use. Lets tests feed the service
+/// the JSON shapes of the backend without any network.
+abstract class CoupleTransport {
+  Future<Map<String, dynamic>> get(String path);
+  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body);
+  Future<Map<String, dynamic>> delete(String path);
+}
+
+class _ApiServiceTransport implements CoupleTransport {
+  ApiService get _api => ApiService();
+
+  @override
+  Future<Map<String, dynamic>> get(String path) => _api.get(path);
+
+  @override
+  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) =>
+      _api.post(path, body);
+
+  @override
+  Future<Map<String, dynamic>> delete(String path) => _api.delete(path);
+}
+
+/// Couple content: activities feed, saved activities, events and the couple
+/// space (stats, dates, bucket list, memories). The server is the truth
+/// (docs/couple/CONTRAT.md section 0.3): a failure is reported, it never
+/// becomes an empty list.
 class CoupleApiService {
-  final ApiService _apiService = ApiService();
+  CoupleApiService({CoupleTransport? transport})
+    : _transport = transport ?? _ApiServiceTransport();
+
+  final CoupleTransport _transport;
 
   // ============ ACTIVITIES ============
 
-  Future<List<CoupleActivity>> getActivities({
+  Future<CoupleResult<List<CoupleActivity>>> getActivities({
     int limit = 20,
     int offset = 0,
     String? category,
-  }) async {
-    try {
-      String endpoint = '/api/couple/activities?limit=$limit&offset=$offset';
-      if (category != null) endpoint += '&category=$category';
-
-      final response = await _apiService.get(endpoint);
-      if (response['success'] == true && response['activities'] != null) {
-        return (response['activities'] as List)
-            .map((json) => CoupleActivity.fromJson(json))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting activities: $e');
-      return [];
+  }) {
+    var path = '/api/couple/activities?limit=$limit&offset=$offset';
+    if (category != null) {
+      path += '&category=${Uri.encodeQueryComponent(category)}';
     }
+    return _call(
+      () => _transport.get(path),
+      (r) => _list(r, 'activities', CoupleActivity.fromJson),
+    );
   }
 
-  Future<CoupleActivity?> getActivity(int id) async {
-    try {
-      final response = await _apiService.get('/api/couple/activities/$id');
-      if (response['success'] == true && response['activity'] != null) {
-        return CoupleActivity.fromJson(response['activity']);
-      }
-      return null;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting activity: $e');
-      return null;
-    }
-  }
+  Future<CoupleResult<CoupleActivity>> getActivity(int id) => _call(
+    () => _transport.get('/api/couple/activities/$id'),
+    (r) => _object(r, 'activity', CoupleActivity.fromJson),
+  );
 
-  Future<bool> saveActivity(int activityId, {String? notes}) async {
-    try {
-      final body = notes != null ? {'notes': notes} : <String, dynamic>{};
-      final response = await _apiService.post('/api/couple/activities/$activityId/save', body);
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error saving activity: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> saveActivity(int activityId, {String? notes}) =>
+      _call(
+        () => _transport.post('/api/couple/activities/$activityId/save', {
+          if (notes != null) 'notes': notes,
+        }),
+        (_) {},
+      );
 
-  Future<bool> passActivity(int activityId) async {
-    try {
-      final response = await _apiService.post('/api/couple/activities/$activityId/pass', {});
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error passing activity: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> passActivity(int activityId) => _call(
+    () => _transport.post('/api/couple/activities/$activityId/pass', {}),
+    (_) {},
+  );
 
-  Future<List<CoupleActivity>> getSavedActivities() async {
-    try {
-      final response = await _apiService.get('/api/couple/saved');
-      if (response['success'] == true && response['activities'] != null) {
-        return (response['activities'] as List)
-            .map((json) => CoupleActivity.fromJson(json))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting saved activities: $e');
-      return [];
-    }
-  }
+  Future<CoupleResult<List<CoupleActivity>>> getSavedActivities() => _call(
+    () => _transport.get('/api/couple/saved'),
+    (r) => _list(r, 'activities', CoupleActivity.fromJson),
+  );
 
-  Future<bool> removeSavedActivity(int activityId) async {
-    try {
-      final response = await _apiService.delete('/api/couple/saved/$activityId');
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error removing saved activity: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> removeSavedActivity(int activityId) =>
+      _call(() => _transport.delete('/api/couple/saved/$activityId'), (_) {});
 
   // ============ EVENTS ============
 
-  Future<List<CoupleEvent>> getEvents({
+  Future<CoupleResult<List<CoupleEvent>>> getEvents({
     int limit = 20,
     int offset = 0,
     String? category,
-  }) async {
-    try {
-      String endpoint = '/api/couple/events?limit=$limit&offset=$offset';
-      if (category != null) endpoint += '&category=$category';
-
-      final response = await _apiService.get(endpoint);
-      if (response['success'] == true && response['events'] != null) {
-        return (response['events'] as List)
-            .map((json) => CoupleEvent.fromJson(json))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting events: $e');
-      return [];
+  }) {
+    var path = '/api/couple/events?limit=$limit&offset=$offset';
+    if (category != null) {
+      path += '&category=${Uri.encodeQueryComponent(category)}';
     }
+    return _call(
+      () => _transport.get(path),
+      (r) => _list(r, 'events', CoupleEvent.fromJson),
+    );
   }
 
-  Future<CoupleEvent?> getEvent(int id) async {
-    try {
-      final response = await _apiService.get('/api/couple/events/$id');
-      if (response['success'] == true && response['event'] != null) {
-        return CoupleEvent.fromJson(response['event']);
-      }
-      return null;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting event: $e');
-      return null;
-    }
-  }
+  Future<CoupleResult<CoupleEvent>> getEvent(int id) => _call(
+    () => _transport.get('/api/couple/events/$id'),
+    (r) => _object(r, 'event', CoupleEvent.fromJson),
+  );
 
-  Future<bool> registerForEvent(int eventId) async {
-    try {
-      final response = await _apiService.post('/api/couple/events/$eventId/register', {});
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error registering for event: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> registerForEvent(int eventId) => _call(
+    () => _transport.post('/api/couple/events/$eventId/register', {}),
+    (_) {},
+  );
 
-  Future<bool> cancelEventRegistration(int eventId) async {
-    try {
-      final response = await _apiService.delete('/api/couple/events/$eventId/register');
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error cancelling registration: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> cancelEventRegistration(int eventId) => _call(
+    () => _transport.delete('/api/couple/events/$eventId/register'),
+    (_) {},
+  );
 
-  Future<List<CoupleEvent>> getRegisteredEvents() async {
-    try {
-      final response = await _apiService.get('/api/couple/events/registered');
-      if (response['success'] == true && response['events'] != null) {
-        return (response['events'] as List)
-            .map((json) => CoupleEvent.fromJson(json))
-            .toList();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting registered events: $e');
-      return [];
-    }
-  }
+  Future<CoupleResult<List<CoupleEvent>>> getRegisteredEvents() => _call(
+    () => _transport.get('/api/couple/events/registered'),
+    (r) => _list(r, 'events', CoupleEvent.fromJson),
+  );
 
   // ============ STATS ============
 
-  Future<Map<String, dynamic>?> getStats() async {
-    try {
-      final response = await _apiService.get('/api/couple/stats');
-      if (response['success'] == true) {
-        return {
-          'stats': response['stats'],
-          'achievements': response['achievements'],
-        };
-      }
-      return null;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting stats: $e');
-      return null;
-    }
-  }
+  Future<CoupleResult<CoupleStatsSnapshot>> getStats() =>
+      _call(() => _transport.get('/api/couple/stats'), (r) {
+        final stats = r['stats'];
+        if (stats is! Map<String, dynamic>) {
+          throw const FormatException('stats is not an object');
+        }
+        return CoupleStatsSnapshot(
+          stats: CoupleStats.fromJson(stats),
+          achievements: _list(r, 'achievements', CoupleAchievement.fromJson),
+        );
+      });
 
   // ============ DATES ============
 
-  Future<List<Map<String, dynamic>>> getDates() async {
-    try {
-      final response = await _apiService.get('/api/couple/dates');
-      if (response['success'] == true && response['dates'] != null) {
-        return (response['dates'] as List).cast<Map<String, dynamic>>();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting dates: $e');
-      return [];
-    }
-  }
+  Future<CoupleResult<List<CoupleDate>>> getDates() => _call(
+    () => _transport.get('/api/couple/dates'),
+    (r) => _list(r, 'dates', CoupleDate.fromJson),
+  );
 
-  Future<bool> addDate({
+  Future<CoupleResult<void>> addDate({
     required String title,
     required String date,
     required String type,
     bool isRecurring = true,
     int remindDaysBefore = 7,
     String? notes,
-  }) async {
-    try {
-      final response = await _apiService.post('/api/couple/dates', {
-        'title': title,
-        'date': date,
-        'type': type,
-        'isRecurring': isRecurring,
-        'remindDaysBefore': remindDaysBefore,
-        if (notes != null) 'notes': notes,
-      });
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error adding date: $e');
-      return false;
-    }
-  }
+  }) => _call(
+    () => _transport.post('/api/couple/dates', {
+      'title': title,
+      'date': date,
+      'type': type,
+      'isRecurring': isRecurring,
+      'remindDaysBefore': remindDaysBefore,
+      if (notes != null) 'notes': notes,
+    }),
+    (_) {},
+  );
 
   // ============ BUCKET LIST ============
 
-  Future<List<Map<String, dynamic>>> getBucketList() async {
-    try {
-      final response = await _apiService.get('/api/couple/bucket-list');
-      if (response['success'] == true && response['items'] != null) {
-        return (response['items'] as List).cast<Map<String, dynamic>>();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting bucket list: $e');
-      return [];
-    }
-  }
+  Future<CoupleResult<List<BucketListItem>>> getBucketList() => _call(
+    () => _transport.get('/api/couple/bucket-list'),
+    (r) => _list(r, 'items', BucketListItem.fromJson),
+  );
 
-  Future<bool> addBucketListItem({
+  Future<CoupleResult<void>> addBucketListItem({
     required String title,
     String? description,
     String? category,
     String? targetDate,
-  }) async {
-    try {
-      final response = await _apiService.post('/api/couple/bucket-list', {
-        'title': title,
-        if (description != null) 'description': description,
-        if (category != null) 'category': category,
-        if (targetDate != null) 'targetDate': targetDate,
-      });
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error adding bucket list item: $e');
-      return false;
-    }
-  }
+  }) => _call(
+    () => _transport.post('/api/couple/bucket-list', {
+      'title': title,
+      if (description != null) 'description': description,
+      if (category != null) 'category': category,
+      if (targetDate != null) 'targetDate': targetDate,
+    }),
+    (_) {},
+  );
 
-  Future<bool> completeBucketListItem(int itemId) async {
-    try {
-      final response = await _apiService.post('/api/couple/bucket-list/$itemId/complete', {});
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error completing bucket list item: $e');
-      return false;
-    }
-  }
+  Future<CoupleResult<void>> completeBucketListItem(int itemId) => _call(
+    () => _transport.post('/api/couple/bucket-list/$itemId/complete', {}),
+    (_) {},
+  );
 
   // ============ MEMORIES ============
 
-  Future<List<Map<String, dynamic>>> getMemories() async {
-    try {
-      final response = await _apiService.get('/api/couple/memories');
-      if (response['success'] == true && response['memories'] != null) {
-        return (response['memories'] as List).cast<Map<String, dynamic>>();
-      }
-      return [];
-    } catch (e) {
-      debugPrint('CoupleApiService: Error getting memories: $e');
-      return [];
-    }
-  }
+  Future<CoupleResult<List<CoupleMemory>>> getMemories() => _call(
+    () => _transport.get('/api/couple/memories'),
+    (r) => _list(r, 'memories', CoupleMemory.fromJson),
+  );
 
-  Future<bool> addMemory({
+  Future<CoupleResult<void>> addMemory({
     required String type,
     String? title,
     String? content,
     String? imageUrl,
     String? memoryDate,
     String? location,
-  }) async {
+  }) => _call(
+    () => _transport.post('/api/couple/memories', {
+      'type': type,
+      if (title != null) 'title': title,
+      if (content != null) 'content': content,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (memoryDate != null) 'memoryDate': memoryDate,
+      if (location != null) 'location': location,
+    }),
+    (_) {},
+  );
+
+  // ============ INTERNALS ============
+
+  Future<CoupleResult<T>> _call<T>(
+    Future<Map<String, dynamic>> Function() request,
+    T Function(Map<String, dynamic> response) decode,
+  ) async {
+    final Map<String, dynamic> response;
     try {
-      final response = await _apiService.post('/api/couple/memories', {
-        'type': type,
-        if (title != null) 'title': title,
-        if (content != null) 'content': content,
-        if (imageUrl != null) 'imageUrl': imageUrl,
-        if (memoryDate != null) 'memoryDate': memoryDate,
-        if (location != null) 'location': location,
-      });
-      return response['success'] == true;
-    } catch (e) {
-      debugPrint('CoupleApiService: Error adding memory: $e');
-      return false;
+      response = await request();
+    } on TimeoutException catch (e) {
+      return _failed(
+        CoupleFailureKind.network,
+        'Délai dépassé. Vérifiez votre connexion.',
+        e,
+      );
+    } on SocketException catch (e) {
+      return _failed(
+        CoupleFailureKind.network,
+        'Pas de connexion. Réessayez.',
+        e,
+      );
+    } on http.ClientException catch (e) {
+      return _failed(
+        CoupleFailureKind.network,
+        'Serveur injoignable. Réessayez.',
+        e,
+      );
+    } on FormatException catch (e) {
+      return _failed(
+        CoupleFailureKind.malformed,
+        'Réponse inattendue du serveur.',
+        e,
+      );
     }
+
+    if (response['success'] != true) {
+      final error = response['error'];
+      return _failed(_kindOf(error), _messageOf(error), error);
+    }
+    try {
+      return CoupleOk(decode(response));
+    } on FormatException catch (e) {
+      return _failed(
+        CoupleFailureKind.malformed,
+        'Réponse inattendue du serveur.',
+        e,
+      );
+    } on TypeError catch (e) {
+      return _failed(
+        CoupleFailureKind.malformed,
+        'Réponse inattendue du serveur.',
+        e,
+      );
+    }
+  }
+
+  CoupleFailed<T> _failed<T>(
+    CoupleFailureKind kind,
+    String message,
+    Object? detail,
+  ) {
+    debugPrint('CoupleApiService: ${kind.name} - $detail');
+    return CoupleFailed(CoupleFailure(kind, message, detail: '$detail'));
+  }
+
+  // The routes answer `{ success: false, error: "<english text>" }`; that text
+  // is the only discriminator the shared HTTP client keeps.
+  CoupleFailureKind _kindOf(Object? error) => switch (error) {
+    'Not in a couple' => CoupleFailureKind.notInCouple,
+    'Activity not found' || 'Event not found' => CoupleFailureKind.notFound,
+    'Event is full' => CoupleFailureKind.full,
+    _ => CoupleFailureKind.server,
+  };
+
+  String _messageOf(Object? error) => switch (_kindOf(error)) {
+    CoupleFailureKind.notInCouple => 'Le mode couple n\'est pas actif.',
+    CoupleFailureKind.notFound => 'Introuvable.',
+    CoupleFailureKind.full => 'Cet événement est complet.',
+    _ => 'Le serveur n\'a pas pu répondre. Réessayez.',
+  };
+
+  List<T> _list<T>(
+    Map<String, dynamic> response,
+    String key,
+    T Function(Map<String, dynamic>) fromJson,
+  ) {
+    final raw = response[key];
+    if (raw is! List) throw FormatException('$key is not a list');
+    return [
+      for (final item in raw)
+        if (item is Map<String, dynamic>)
+          fromJson(item)
+        else
+          throw FormatException('$key holds a non-object item'),
+    ];
+  }
+
+  T _object<T>(
+    Map<String, dynamic> response,
+    String key,
+    T Function(Map<String, dynamic>) fromJson,
+  ) {
+    final raw = response[key];
+    if (raw is! Map<String, dynamic>) {
+      throw FormatException('$key is not an object');
+    }
+    return fromJson(raw);
   }
 }

@@ -6,29 +6,36 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../widgets/couple_message_view.dart';
 
 class CoupleEventDetailScreen extends StatefulWidget {
   const CoupleEventDetailScreen({
     super.key,
     required this.eventId,
+    this.apiService,
   });
 
   final String eventId;
 
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
+
   @override
-  State<CoupleEventDetailScreen> createState() => _CoupleEventDetailScreenState();
+  State<CoupleEventDetailScreen> createState() =>
+      _CoupleEventDetailScreenState();
 }
 
 class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
-  final CoupleApiService _apiService = CoupleApiService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
 
   CoupleEvent? _event;
+  bool _isRegistered = false;
   bool _isLoading = true;
-  bool _hasError = false;
+  bool _isUpdatingRegistration = false;
+  CoupleFailure? _failure;
 
   static const coupleAccent = Color(0xFFFF6B9D);
-
-  int get _eventId => int.tryParse(widget.eventId) ?? 0;
 
   @override
   void initState() {
@@ -37,59 +44,150 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
   }
 
   Future<void> _loadEvent() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
-
-    final event = await _apiService.getEvent(_eventId);
-
-    if (mounted) {
+    final id = int.tryParse(widget.eventId);
+    if (id == null) {
       setState(() {
         _isLoading = false;
-        if (event != null) {
-          _event = event;
-        } else {
-          _hasError = true;
-        }
+        _failure = const CoupleFailure(
+          CoupleFailureKind.notFound,
+          'Cet événement n\'existe plus.',
+        );
       });
+      return;
     }
+
+    setState(() {
+      _isLoading = true;
+      _failure = null;
+    });
+
+    final results = await Future.wait([
+      _apiService.getEvent(id),
+      _apiService.getRegisteredEvents(),
+    ]);
+    if (!mounted) return;
+
+    final event = results[0] as CoupleResult<CoupleEvent>;
+    final registered = results[1] as CoupleResult<List<CoupleEvent>>;
+    setState(() {
+      _isLoading = false;
+      switch ((event, registered)) {
+        case (CoupleFailed(:final failure), _):
+        case (_, CoupleFailed(:final failure)):
+          _failure = failure;
+        case (CoupleOk(value: final e), CoupleOk(value: final list)):
+          _event = e;
+          _isRegistered = list.any((r) => r.id == e.id);
+      }
+    });
+  }
+
+  Future<void> _toggleRegistration() async {
+    final event = _event;
+    if (event == null || _isUpdatingRegistration) return;
+
+    final wasRegistered = _isRegistered;
+    setState(() => _isUpdatingRegistration = true);
+
+    final result = wasRegistered
+        ? await _apiService.cancelEventRegistration(event.id)
+        : await _apiService.registerForEvent(event.id);
+    if (!mounted) return;
+
+    switch (result) {
+      case CoupleFailed(:final failure):
+        setState(() => _isUpdatingRegistration = false);
+        showCoupleError(
+          context,
+          failure.kind == CoupleFailureKind.full
+              ? failure.message
+              : wasRegistered
+              ? 'Impossible d\'annuler l\'inscription. Réessayez.'
+              : 'Inscription impossible. Réessayez.',
+        );
+      case CoupleOk():
+        setState(() {
+          _isUpdatingRegistration = false;
+          _isRegistered = !wasRegistered;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              wasRegistered
+                  ? 'Inscription annulée'
+                  : 'Inscrits à « ${event.title} »',
+            ),
+            backgroundColor: wasRegistered ? null : AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        await _refreshEvent(event.id);
+    }
+  }
+
+  /// Seats left changed: re-read the event; a failure keeps what is shown.
+  Future<void> _refreshEvent(int id) async {
+    final result = await _apiService.getEvent(id);
+    if (!mounted) return;
+    if (result case CoupleOk(:final value)) setState(() => _event = value);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final failure = _failure;
+    final event = _event;
+    if (failure != null || event == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: failure == null || failure.kind == CoupleFailureKind.notFound
+            ? const CoupleMessageView(
+                icon: LucideIcons.calendarX,
+                title: 'Événement introuvable',
+                line: 'Il n\'est plus proposé.',
+              )
+            : CoupleMessageView.failure(failure, onRetry: _loadEvent),
+      );
+    }
+
     return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _hasError || _event == null
-              ? _buildErrorState()
-              : _buildContent(),
+      body: _buildContent(),
+      bottomNavigationBar: _buildRegistrationBar(event),
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(LucideIcons.alertTriangle, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'Événement introuvable',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => context.pop(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: coupleAccent,
-            ),
-            child: const Text('Retour'),
-          ),
-        ],
+  Widget _buildRegistrationBar(CoupleEvent event) {
+    final label = _isRegistered
+        ? 'Annuler mon inscription'
+        : event.isFull
+        ? 'Complet'
+        : 'S\'inscrire';
+    final canTap = !_isUpdatingRegistration && (_isRegistered || !event.isFull);
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+        child: SizedBox(
+          width: double.infinity,
+          child: _isRegistered
+              ? OutlinedButton(
+                  onPressed: canTap ? _toggleRegistration : null,
+                  child: Text(label),
+                )
+              : ElevatedButton(
+                  onPressed: canTap ? _toggleRegistration : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: coupleAccent,
+                  ),
+                  child: Text(label),
+                ),
+        ),
       ),
     );
   }
@@ -108,9 +206,8 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 ? CachedNetworkImage(
                     imageUrl: event.imageUrl!,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: coupleAccent.withValues(alpha: 0.3),
-                    ),
+                    placeholder: (context, url) =>
+                        Container(color: coupleAccent.withValues(alpha: 0.3)),
                     errorWidget: (context, url, error) => _buildPlaceholder(),
                   )
                 : _buildPlaceholder(),
@@ -141,7 +238,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   runSpacing: 8,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: coupleAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -156,7 +256,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                     ),
                     if (event.isKosher)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accentGold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -171,7 +274,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                       ),
                     if (event.isFeatured)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accentGold,
                           borderRadius: BorderRadius.circular(20),
@@ -179,7 +285,11 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(LucideIcons.star, size: 14, color: Colors.white),
+                            Icon(
+                              LucideIcons.star,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 4),
                             Text(
                               'À la une',
@@ -206,15 +316,9 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 const SizedBox(height: 20),
 
                 // Date & Time
-                _buildInfoRow(
-                  LucideIcons.calendar,
-                  event.formattedDate,
-                ),
+                _buildInfoRow(LucideIcons.calendar, event.formattedDate),
                 if (event.eventTime != null)
-                  _buildInfoRow(
-                    LucideIcons.clock,
-                    event.formattedTime,
-                  ),
+                  _buildInfoRow(LucideIcons.clock, event.formattedTime),
 
                 // Location
                 if (event.location != null || event.city != null)
@@ -225,10 +329,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
 
                 // Address
                 if (event.address != null)
-                  _buildInfoRow(
-                    LucideIcons.navigation,
-                    event.address!,
-                  ),
+                  _buildInfoRow(LucideIcons.navigation, event.address!),
 
                 const SizedBox(height: 20),
 
@@ -258,8 +359,12 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                               ? 'Complet'
                               : '${event.spotsLeft} places restantes',
                           style: TextStyle(
-                            color: event.isFull ? AppColors.error : Colors.grey[600],
-                            fontWeight: event.isFull ? FontWeight.bold : FontWeight.normal,
+                            color: event.isFull
+                                ? AppColors.error
+                                : Colors.grey[600],
+                            fontWeight: event.isFull
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                     ],
@@ -270,10 +375,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 // Description
                 const Text(
                   'Description',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -290,10 +392,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   const SizedBox(height: 20),
                   const Text(
                     'Ce qui est inclus',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -324,7 +423,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   ),
                 ],
 
-                const SizedBox(height: 100), // Space for bottom button
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -343,10 +442,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 15, color: Colors.grey[700]),
             ),
           ),
         ],
