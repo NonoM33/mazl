@@ -41,9 +41,13 @@ class ChatReconnected extends ChatRealtimeEvent {
   const ChatReconnected();
 }
 
-/// What the chat controller needs from the socket. A fake in tests.
-abstract class ChatRealtime {
-  Stream<ChatRealtimeEvent> get events;
+/// Where the chat controller gets its real-time input: the WebSocket in the
+/// app, a polling source in the demo, a fake in tests.
+abstract class ChatRealtimeSource {
+  /// Events of one conversation (plus [ChatReconnected]). Listening starts the
+  /// source for that conversation, cancelling stops it.
+  Stream<ChatRealtimeEvent> events(int conversationId);
+
   void sendTyping(int conversationId, bool typing);
 }
 

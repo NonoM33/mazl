@@ -203,12 +203,12 @@ class FakeChatApi implements ChatApi {
   }
 }
 
-class FakeChatRealtime implements ChatRealtime {
+class FakeChatRealtime implements ChatRealtimeSource {
   final _controller = StreamController<ChatRealtimeEvent>.broadcast(sync: true);
   final typingSent = <bool>[];
 
   @override
-  Stream<ChatRealtimeEvent> get events => _controller.stream;
+  Stream<ChatRealtimeEvent> events(int conversationId) => _controller.stream;
 
   @override
   void sendTyping(int conversationId, bool typing) => typingSent.add(typing);
