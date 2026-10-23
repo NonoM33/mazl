@@ -55,6 +55,8 @@ class _ChatConversationScreenState
     chatControllerProvider(widget.conversationId).notifier,
   );
   final _scam = ScamFlagger();
+  final _headerKey = GlobalKey();
+  final _composerKey = GlobalKey();
   ReplyDraft? _reply;
   bool _blocked = false;
 
@@ -135,6 +137,26 @@ class _ChatConversationScreenState
     ),
   );
 
+  /// The part of the screen the long-press overlay may use: 8 px under the
+  /// header, 12 px above the composer.
+  ({double top, double bottom}) _overlayBounds() {
+    double? edge(GlobalKey key, {required bool bottom}) {
+      final box = key.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.attached) return null;
+      final origin = box.localToGlobal(Offset.zero);
+      return bottom ? origin.dy + box.size.height : origin.dy;
+    }
+
+    final media = MediaQuery.of(context);
+    return (
+      top: (edge(_headerKey, bottom: true) ?? media.padding.top) + 8,
+      bottom:
+          (edge(_composerKey, bottom: false) ??
+              media.size.height - media.padding.bottom) -
+          12,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatControllerProvider(widget.conversationId));
@@ -143,6 +165,7 @@ class _ChatConversationScreenState
       body: Column(
         children: [
           ChatHeader(
+            key: _headerKey,
             user: other,
             isTyping: state.otherIsTyping,
             onBack: widget.onBack ?? () => Navigator.of(context).maybePop(),
@@ -159,9 +182,11 @@ class _ChatConversationScreenState
               otherPicture: other?.picture,
               onReply: _startReply,
               isScamFlagged: widget.isScamFlagged ?? _scam.forState(state),
+              overlayBounds: _overlayBounds,
             ),
           ),
           MessageComposer(
+            key: _composerKey,
             disabledMessage: _blocked ? blockedConversationMessage : null,
             controller: _text,
             focusNode: _focus,

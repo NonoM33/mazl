@@ -28,6 +28,7 @@ class ChatMessageList extends ConsumerStatefulWidget {
     required this.onReply,
     this.otherPicture,
     this.isScamFlagged,
+    this.overlayBounds,
   });
 
   final int conversationId;
@@ -39,6 +40,7 @@ class ChatMessageList extends ConsumerStatefulWidget {
 
   /// Set by the scam rules once they exist; nothing is flagged until then.
   final bool Function(ChatMessage message)? isScamFlagged;
+  final ({double top, double bottom}) Function()? overlayBounds;
 
   @override
   ConsumerState<ChatMessageList> createState() => _ChatMessageListState();
@@ -318,28 +320,34 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       scrollToMessage: _scrollToMessage,
       isScamFlagged: widget.isScamFlagged ?? (_) => false,
       highlightedMessageId: _highlighted,
+      overlayBounds: widget.overlayBounds,
       child: Stack(
         children: [
-          ListView.builder(
-            key: _listKey,
-            controller: _scroll,
-            reverse: true,
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
-            itemCount: items.length,
-            findChildIndexCallback: (key) {
-              final index = items.indexWhere((i) => _rowKeys[i.key] == key);
-              return index < 0 ? null : items.length - 1 - index;
-            },
-            itemBuilder: (context, index) =>
-                _build(items[items.length - 1 - index]),
+          // The sticky label is a real band above the list, not an overlay:
+          // what scrolls is clipped at its bottom edge, so nothing shows
+          // through it (a translucent overlay let times and cut avatars ghost).
+          Column(
+            children: [
+              StickyDateBand(label: _stickyLabel),
+              Expanded(
+                child: ListView.builder(
+                  key: _listKey,
+                  controller: _scroll,
+                  reverse: true,
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  itemCount: items.length,
+                  findChildIndexCallback: (key) {
+                    final index = items.indexWhere(
+                      (i) => _rowKeys[i.key] == key,
+                    );
+                    return index < 0 ? null : items.length - 1 - index;
+                  },
+                  itemBuilder: (context, index) =>
+                      _build(items[items.length - 1 - index]),
+                ),
+              ),
+            ],
           ),
-          if (_stickyLabel != null)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: StickyDateLabel(_stickyLabel!),
-            ),
           Positioned(
             left: 0,
             right: 0,

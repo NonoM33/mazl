@@ -16,6 +16,7 @@ class ChatScope extends InheritedWidget {
     required this.scrollToMessage,
     required this.isScamFlagged,
     required this.highlightedMessageId,
+    this.overlayBounds,
     required super.child,
   });
 
@@ -28,6 +29,9 @@ class ChatScope extends InheritedWidget {
   final void Function(int messageId) scrollToMessage;
   final bool Function(ChatMessage message) isScamFlagged;
   final int? highlightedMessageId;
+
+  /// Free band for the long-press overlay, in global coordinates.
+  final ({double top, double bottom}) Function()? overlayBounds;
 
   /// « Vous » or the other member's name.
   String authorOf(int userId) => userId == myUserId ? 'Vous' : otherName;

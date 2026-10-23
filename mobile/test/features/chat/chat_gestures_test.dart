@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
+import 'package:mazl/presentation/features/chat/widgets/chat_header.dart';
+import 'package:mazl/presentation/features/chat/widgets/message_composer.dart';
 import 'package:mazl/presentation/features/chat/widgets/swipe_to_reply.dart';
 
 import 'chat_test_support.dart';
@@ -16,6 +18,7 @@ Future<void> _longPress(WidgetTester tester, ChatMessage m) async {
 
 void main() {
   setUpAll(loadChatFonts);
+  placementTests();
 
   group('long press', () {
     testWidgets(
@@ -446,6 +449,145 @@ void main() {
         await tester.pump(const Duration(seconds: 2));
         await tester.pumpAndSettle();
         expect(fill()!.a, 0);
+      },
+    );
+  });
+}
+
+// --- design review fixes: overlay placement, reaction pill ------------------
+
+List<ChatMessage> _thread(int count) => [
+  for (var i = 1; i <= count; i++)
+    msg(
+      i,
+      i.isEven ? me : other,
+      'Message numéro $i',
+      at: today(8, 0).add(Duration(minutes: i * 10)),
+    ),
+];
+
+void placementTests() {
+  group('long press placement', () {
+    Future<void> check(WidgetTester tester, ChatMessage target) async {
+      await _longPress(tester, target);
+      final header = tester.getRect(find.byType(ChatHeader));
+      final composer = tester.getRect(find.byType(MessageComposer));
+      final bar = tester.getRect(find.byKey(_barKey));
+      final menu = tester.getRect(find.byKey(_menuKey));
+      expect(bar.top, greaterThanOrEqualTo(header.bottom + 8));
+      expect(menu.bottom, lessThanOrEqualTo(composer.top - 12));
+      final lifted = tester.getRect(find.text(target.content).last);
+      expect(lifted.top, greaterThanOrEqualTo(bar.bottom));
+      expect(lifted.bottom, lessThanOrEqualTo(menu.top));
+    }
+
+    testWidgets(
+      'a message at the bottom: the menu stays 12 px above the composer',
+      (tester) async {
+        final messages = _thread(40);
+        await ChatHarness(
+          initial: chatState(messages),
+        ).pump(tester, safeBottom: 34);
+        await check(tester, messages.last);
+      },
+    );
+
+    testWidgets(
+      'a message at the very top: the bar stays 8 px under the header',
+      (tester) async {
+        final messages = _thread(40);
+        await ChatHarness(
+          initial: chatState(messages),
+        ).pump(tester, safeBottom: 34);
+        await tester.fling(
+          find.byType(ListView).first,
+          const Offset(0, 6000),
+          8000,
+        );
+        await tester.pumpAndSettle();
+        await check(tester, messages.first);
+      },
+    );
+
+    testWidgets(
+      'a tall bubble is trimmed rather than pushing the menu under the composer',
+      (tester) async {
+        final tall = msg(
+          1,
+          other,
+          List.filled(60, 'beaucoup de texte').join(' '),
+          at: today(9, 0),
+        );
+        await ChatHarness(
+          initial: chatState([tall]),
+        ).pump(tester, safeBottom: 34);
+        await tester.longPress(find.byKey(ValueKey('bubble-${tall.clientId}')));
+        await tester.pumpAndSettle();
+        final composer = tester.getRect(find.byType(MessageComposer));
+        final header = tester.getRect(find.byType(ChatHeader));
+        expect(
+          tester.getRect(find.byKey(_menuKey)).bottom,
+          lessThanOrEqualTo(composer.top - 12),
+        );
+        expect(
+          tester.getRect(find.byKey(_barKey)).top,
+          greaterThanOrEqualTo(header.bottom + 8),
+        );
+      },
+    );
+  });
+
+  group('reaction bar', () {
+    testWidgets('six emojis and nothing else: no « + », no dead button', (
+      tester,
+    ) async {
+      final m = msg(5, other, 'Salut', at: today(10, 0));
+      await ChatHarness(initial: chatState([m])).pump(tester);
+      await _longPress(tester, m);
+      final bar = find.byKey(_barKey);
+      expect(
+        find.descendant(of: bar, matching: find.byType(GestureDetector)),
+        findsNWidgets(allowedReactions.length),
+      );
+      expect(
+        find.descendant(of: bar, matching: find.byType(Icon)),
+        findsNothing,
+      );
+    });
+  });
+
+  group('reaction pill', () {
+    testWidgets(
+      'overlaps the bubble bottom by 8 px, inside a 2 px page-coloured outline',
+      (tester) async {
+        final m = msg(
+          5,
+          me,
+          'Salut',
+          at: today(10, 0),
+          reactions: const [
+            Reaction(emoji: '❤️', userIds: [other]),
+          ],
+        );
+        await ChatHarness(initial: chatState([m])).pump(tester);
+        final bubble = tester.getRect(bubbleOf(m));
+        final pill = tester.getRect(
+          find.byKey(const ValueKey('reaction-pill')),
+        );
+        final fill = tester.getRect(
+          find.byKey(const ValueKey('reaction-pill-fill')),
+        );
+        expect(bubble.bottom - pill.top, 8);
+        expect(fill.top - pill.top, 2);
+        expect(pill.bottom - fill.bottom, 2);
+        expect(fill.left - pill.left, 2);
+        final scheme = Theme.of(
+          tester.element(find.byKey(const ValueKey('reaction-pill'))),
+        ).colorScheme;
+        final ring = tester.widget<Container>(
+          find.byKey(const ValueKey('reaction-pill')),
+        );
+        expect((ring.decoration! as BoxDecoration).color, scheme.surface);
       },
     );
   });

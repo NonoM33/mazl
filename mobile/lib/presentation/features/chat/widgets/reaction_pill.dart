@@ -35,6 +35,7 @@ class ReactionPill extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
+        key: const ValueKey('reaction-pill'),
         height: height + 4,
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
@@ -42,6 +43,7 @@ class ReactionPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
         ),
         child: Container(
+          key: const ValueKey('reaction-pill-fill'),
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: scheme.surfaceContainer,

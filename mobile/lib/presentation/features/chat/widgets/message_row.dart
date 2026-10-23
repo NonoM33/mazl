@@ -140,6 +140,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     if (!ops.canMenu) return;
     final box = _bubbleKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
+    final bounds = scope.overlayBounds?.call();
     showMessageActions(
       context,
       bubbleRect: box.localToGlobal(Offset.zero) & box.size,
@@ -149,6 +150,8 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       onReact: ops.react,
       actions: ops.menu(),
       showReactionBar: !ops.failed,
+      minTop: bounds?.top,
+      maxBottom: bounds?.bottom,
     );
   }
 
