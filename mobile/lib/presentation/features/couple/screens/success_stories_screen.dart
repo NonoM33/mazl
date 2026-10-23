@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen displaying success stories from MAZL couples
 class SuccessStoriesScreen extends StatefulWidget {
@@ -515,12 +516,9 @@ class SubmitSuccessStoryDialog extends StatefulWidget {
   const SubmitSuccessStoryDialog({super.key});
 
   static Future<bool?> show(BuildContext context) {
-    return showModalBottomSheet<bool>(
-      context: context,
+    return showMazlSheet<bool>(
+      context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (context) => const SubmitSuccessStoryDialog(),
     );
   }
@@ -589,148 +587,127 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        24,
-        24,
-        MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          const Row(
+            children: [
+              Icon(LucideIcons.heart, color: AppColors.secondary),
+              SizedBox(width: 8),
+              Text(
+                'Partagez votre histoire',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Inspirez la communauté MAZL en partageant votre histoire.',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 24),
 
-            // Title
-            const Row(
-              children: [
-                Icon(LucideIcons.heart, color: AppColors.secondary),
-                SizedBox(width: 8),
-                Text(
-                  'Partagez votre histoire',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          // Status selection
+          const Text(
+            'Votre statut',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _buildStatusChip('dating', 'En couple', '❤️'),
+              _buildStatusChip('engaged', 'Fiancés', '💍'),
+              _buildStatusChip('married', 'Mariés', '👰'),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Story text
+          const Text(
+            'Votre histoire (min. 100 caractères)',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _storyController,
+            maxLines: 5,
+            maxLength: 1000,
+            decoration: InputDecoration(
+              hintText:
+                  'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Photo upload (placeholder)
+          const Text(
+            'Photos (optionnel)',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(LucideIcons.camera, color: Colors.grey[400], size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Ajoutez des photos de couple',
+                    style: TextStyle(color: Colors.grey[500]),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Inspirez la communauté MAZL en partageant votre histoire.',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 24),
 
-            // Status selection
-            const Text(
-              'Votre statut',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _buildStatusChip('dating', 'En couple', '❤️'),
-                _buildStatusChip('engaged', 'Fiancés', '💍'),
-                _buildStatusChip('married', 'Mariés', '👰'),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Story text
-            const Text(
-              'Votre histoire (min. 100 caractères)',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _storyController,
-              maxLines: 5,
-              maxLength: 1000,
-              decoration: InputDecoration(
-                hintText:
-                    'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…',
-                border: OutlineInputBorder(
+          // Submit button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isSubmitting ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Photo upload (placeholder)
-            const Text(
-              'Photos (optionnel)',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(LucideIcons.camera, color: Colors.grey[400], size: 32),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Ajoutez des photos de couple',
-                      style: TextStyle(color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Submit button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Soumettre notre histoire',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
                       ),
-              ),
+                    )
+                  : const Text(
+                      'Soumettre notre histoire',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

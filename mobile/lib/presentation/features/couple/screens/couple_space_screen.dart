@@ -7,6 +7,7 @@ import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 class CoupleSpaceScreen extends StatefulWidget {
   const CoupleSpaceScreen({super.key});
@@ -635,8 +636,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   void _showAddMemorySheet() {
-    showModalBottomSheet<bool>(
-      context: context,
+    showMazlSheet<bool>(
+      context,
       isScrollControlled: true,
       builder: (context) => const _AddMemorySheet(),
     ).then((added) {
@@ -645,8 +646,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   void _showAddBucketItemSheet() {
-    showModalBottomSheet<bool>(
-      context: context,
+    showMazlSheet<bool>(
+      context,
       isScrollControlled: true,
       builder: (context) => const _AddBucketItemSheet(),
     ).then((added) {
@@ -655,8 +656,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   void _showAddDateSheet() {
-    showModalBottomSheet<bool>(
-      context: context,
+    showMazlSheet<bool>(
+      context,
       isScrollControlled: true,
       builder: (context) => const _AddDateSheet(),
     ).then((added) {
@@ -1040,61 +1041,53 @@ class _AddMemorySheetState extends State<_AddMemorySheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ajouter un souvenir',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Titre',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _contentController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_titleController.text.isEmpty) return;
-                  final api = CoupleApiService();
-                  final success = await api.addMemory(
-                    type: _selectedType,
-                    title: _titleController.text,
-                    content: _contentController.text,
-                  );
-                  if (context.mounted) Navigator.pop(context, success);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF6B9D),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Ajouter'),
-              ),
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Ajouter un souvenir',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-      ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _titleController,
+          decoration: const InputDecoration(
+            labelText: 'Titre',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _contentController,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            labelText: 'Description',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              if (_titleController.text.isEmpty) return;
+              final api = CoupleApiService();
+              final success = await api.addMemory(
+                type: _selectedType,
+                title: _titleController.text,
+                content: _contentController.text,
+              );
+              if (context.mounted) Navigator.pop(context, success);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6B9D),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text('Ajouter'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1111,51 +1104,43 @@ class _AddBucketItemSheetState extends State<_AddBucketItemSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ajouter à la bucket list',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Que voulez-vous faire ensemble ?',
-                border: OutlineInputBorder(),
-                hintText: 'Ex: Voir les aurores boréales',
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_titleController.text.isEmpty) return;
-                  final api = CoupleApiService();
-                  final success = await api.addBucketListItem(
-                    title: _titleController.text,
-                  );
-                  if (context.mounted) Navigator.pop(context, success);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentGold,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Ajouter'),
-              ),
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Ajouter à la bucket list',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-      ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _titleController,
+          decoration: const InputDecoration(
+            labelText: 'Que voulez-vous faire ensemble ?',
+            border: OutlineInputBorder(),
+            hintText: 'Ex: Voir les aurores boréales',
+          ),
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              if (_titleController.text.isEmpty) return;
+              final api = CoupleApiService();
+              final success = await api.addBucketListItem(
+                title: _titleController.text,
+              );
+              if (context.mounted) Navigator.pop(context, success);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentGold,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text('Ajouter'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1174,71 +1159,63 @@ class _AddDateSheetState extends State<_AddDateSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ajouter une date importante',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Titre',
-                border: OutlineInputBorder(),
-                hintText: 'Ex: Notre anniversaire',
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Date'),
-              subtitle:
-                  Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
-              trailing: const Icon(LucideIcons.calendar),
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (date != null) {
-                  setState(() => _selectedDate = date);
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_titleController.text.isEmpty) return;
-                  final api = CoupleApiService();
-                  final success = await api.addDate(
-                    title: _titleController.text,
-                    date: _selectedDate.toIso8601String().split('T')[0],
-                    type: _selectedType,
-                  );
-                  if (context.mounted) Navigator.pop(context, success);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.info,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Ajouter'),
-              ),
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Ajouter une date importante',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-      ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _titleController,
+          decoration: const InputDecoration(
+            labelText: 'Titre',
+            border: OutlineInputBorder(),
+            hintText: 'Ex: Notre anniversaire',
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListTile(
+          title: const Text('Date'),
+          subtitle:
+              Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+          trailing: const Icon(LucideIcons.calendar),
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+            );
+            if (date != null) {
+              setState(() => _selectedDate = date);
+            }
+          },
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              if (_titleController.text.isEmpty) return;
+              final api = CoupleApiService();
+              final success = await api.addDate(
+                title: _titleController.text,
+                date: _selectedDate.toIso8601String().split('T')[0],
+                type: _selectedType,
+              );
+              if (context.mounted) Navigator.pop(context, success);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.info,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text('Ajouter'),
+          ),
+        ),
+      ],
     );
   }
 }

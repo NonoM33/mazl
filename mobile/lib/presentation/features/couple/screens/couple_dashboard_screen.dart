@@ -7,6 +7,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'success_stories_screen.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 class CoupleDashboardScreen extends StatefulWidget {
   const CoupleDashboardScreen({super.key});
@@ -689,99 +690,75 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
   void _showAnswerDialog(DailyQuestion question) {
     final controller = TextEditingController();
 
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          24,
-          24,
-          MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question.question,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 24),
-            Text(
-              question.question,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (question.options != null) ...[
-              ...question.options!.map(
-                (option) => Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showAnswerSentSnackbar();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Text(option, textAlign: TextAlign.left),
-                    ),
-                  ),
-                ),
-              ),
-            ] else ...[
-              TextField(
-                controller: controller,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Votre réponse…',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+          ),
+          const SizedBox(height: 16),
+          if (question.options != null) ...[
+            ...question.options!.map(
+              (option) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: OutlinedButton(
                   onPressed: () {
                     Navigator.pop(context);
                     _showAnswerSentSnackbar();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Envoyer'),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(option, textAlign: TextAlign.left),
+                  ),
                 ),
               ),
-            ],
+            ),
+          ] else ...[
+            TextField(
+              controller: controller,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Votre réponse…',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showAnswerSentSnackbar();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Envoyer'),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
