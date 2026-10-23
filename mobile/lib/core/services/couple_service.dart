@@ -1,3 +1,4 @@
+import '../dev/dev_session.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -84,6 +85,12 @@ class CoupleService extends ChangeNotifier {
 
   final CoupleApi _api;
   final Duration _pollInterval;
+
+  /// How often a pending request is re-read while the app is in front. The
+  /// demo has no realtime channel (no WebSocket), so it re-reads faster: its
+  /// fictitious partner accepts 3 s after the request.
+  @visibleForTesting
+  Duration get pollInterval => DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
   final StreamController<CoupleFlowEvent> _events =
       StreamController<CoupleFlowEvent>.broadcast();
 
@@ -146,8 +153,14 @@ class CoupleService extends ChangeNotifier {
     _coupleData = null;
     _pendingRequest = null;
     _receivedRequest = null;
-    await _clearData();
     notifyListeners();
+    // Memory is the source of truth for this session; a storage failure must
+    // not block a sign-in or a sign-out.
+    try {
+      await _clearData();
+    } on Exception catch (e) {
+      debugPrint('CoupleService: could not clear the couple cache: ${e.runtimeType}');
+    }
   }
 
   void onPaused() {
@@ -500,7 +513,7 @@ class CoupleService extends ChangeNotifier {
   void _updatePolling() {
     final shouldPoll = _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
     if (shouldPoll && _pollTimer == null) {
-      _pollTimer = Timer.periodic(_pollInterval, (_) => refresh());
+      _pollTimer = Timer.periodic(pollInterval, (_) => refresh());
     } else if (!shouldPoll) {
       _stopPolling();
     }

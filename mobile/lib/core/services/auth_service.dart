@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../dev/dev_login.dart';
+import 'couple_service.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'push_notification_service.dart';
@@ -172,6 +173,9 @@ class AuthService extends ChangeNotifier {
       provider: AuthProvider.email,
     );
     DevSession.start();
+    // A demo session always starts empty: drop the couple cached by a previous
+    // run, or the first sync would announce « Le mode couple a pris fin ».
+    await CoupleService().reset();
     _currentUser = user;
     debugPrint('AuthService: session fictive démarrée');
     notifyListeners();
