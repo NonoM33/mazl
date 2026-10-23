@@ -34,11 +34,30 @@ class VerificationOutcome {
   final bool verified;
   final String? reason;
 
-  const VerificationOutcome({required this.verified, this.reason});
+  /// Per profile photo comparison, only present on a successful level 1 selfie.
+  final List<PhotoMatch> photoMatches;
+
+  const VerificationOutcome({required this.verified, this.reason, this.photoMatches = const []});
 
   factory VerificationOutcome.fromJson(Map<String, dynamic> json) => VerificationOutcome(
         verified: json['verified'] == true,
         reason: json['reason'] as String?,
+        photoMatches: (json['photo_matches'] as List<dynamic>? ?? const [])
+            .map((m) => PhotoMatch.fromJson(m as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// Whether one profile photo shows the person who took the live selfie.
+class PhotoMatch {
+  final int photoId;
+  final bool match;
+
+  const PhotoMatch({required this.photoId, required this.match});
+
+  factory PhotoMatch.fromJson(Map<String, dynamic> json) => PhotoMatch(
+        photoId: (json['photo_id'] as num).toInt(),
+        match: json['match'] == true,
       );
 }
 
@@ -63,12 +82,27 @@ class VerificationStatus {
   /// `none`, `photo` or `identity`.
   final String level;
 
-  const VerificationStatus({required this.photo, required this.identity, required this.level});
+  /// Legacy flags, still sent by the server: any level counts.
+  final bool isVerified;
+
+  /// Set when the daily attempt quota is used up.
+  final DateTime? nextAttemptTime;
+
+  const VerificationStatus({
+    required this.photo,
+    required this.identity,
+    required this.level,
+    this.isVerified = false,
+    this.nextAttemptTime,
+  });
 
   factory VerificationStatus.fromJson(Map<String, dynamic> json) => VerificationStatus(
         photo: VerificationStep.fromJson(json['photo'] as Map<String, dynamic>?),
         identity: VerificationStep.fromJson(json['identity'] as Map<String, dynamic>?),
         level: json['level'] as String? ?? 'none',
+        isVerified: json['is_verified'] == true,
+        nextAttemptTime:
+            json['next_attempt_time'] == null ? null : DateTime.tryParse(json['next_attempt_time'] as String),
       );
 }
 
