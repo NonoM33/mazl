@@ -87,4 +87,19 @@ abstract final class MazlMotion {
   static const viewerMinScale = 0.85;
   static const viewerMaxFade = 0.7;
   static const viewerReturnToThumbnail = Duration(milliseconds: 260);
+
+  // --- Match sheet ---------------------------------------------------------
+
+  /// The two photos slide toward each other until they touch.
+  static const matchMeet = Duration(milliseconds: 420);
+  static const matchMeetCurve = Curves.easeOutCubic;
+
+  /// How far each photo starts from its resting place, on its own side.
+  static const matchApartOffset = 28.0;
+
+  /// The single accent ring that pulses around the pair once they touch:
+  /// it grows to [matchPulseMaxScale] while its opacity goes 1 → 0.
+  static const matchPulse = Duration(milliseconds: 600);
+  static const matchPulseCurve = Curves.easeOut;
+  static const matchPulseMaxScale = 1.3;
 }
