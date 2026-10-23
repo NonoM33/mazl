@@ -37,16 +37,22 @@ abstract final class DemoChatRoutes {
   ) => (r, m) {
     final now = _tick();
     final id = _id(m);
-    if (!DemoStore.hasConversation(id)) return _fail(404, 'Conversation not found');
+    if (!DemoStore.hasConversation(id))
+      return _fail(404, 'Conversation not found');
     return handler(r, id, now);
   };
 
   /// Message d'une de MES conversations (sinon 404, jamais 403).
   static DemoHandler _onMessage(
-    DemoReply Function(DemoRequest r, DemoChatMessage message, DateTime now) handler,
+    DemoReply Function(DemoRequest r, DemoChatMessage message, DateTime now)
+    handler,
   ) => (r, m) {
     final now = _tick();
-    final message = DemoStore.chat.find(_id(m), DemoStore.conversationIds(), now);
+    final message = DemoStore.chat.find(
+      _id(m),
+      DemoStore.conversationIds(),
+      now,
+    );
     if (message == null) return _fail(404, 'Message not found');
     return handler(r, message, now);
   };
@@ -62,9 +68,15 @@ abstract final class DemoChatRoutes {
   static DemoReply _list(DemoRequest r, int conversationId, DateTime now) {
     final rawBefore = r.query['before'];
     final before = rawBefore == null ? null : int.tryParse(rawBefore);
-    if (rawBefore != null && before == null) return _fail(400, 'Invalid before');
+    if (rawBefore != null && before == null)
+      return _fail(400, 'Invalid before');
     final limit = (int.tryParse(r.query['limit'] ?? '') ?? 30).clamp(1, 50);
-    final result = DemoStore.chat.page(conversationId, now, before: before, limit: limit);
+    final result = DemoStore.chat.page(
+      conversationId,
+      now,
+      before: before,
+      limit: limit,
+    );
     return _ok({
       'messages': [for (final m in result.page) _json(m, now)],
       'has_more': result.hasMore,
@@ -91,7 +103,11 @@ abstract final class DemoChatRoutes {
         : _uploadVoice(r, conversationId, file.bytes, now);
   }
 
-  static DemoReply _uploadPhoto(int conversationId, Uint8List bytes, DateTime now) {
+  static DemoReply _uploadPhoto(
+    int conversationId,
+    Uint8List bytes,
+    DateTime now,
+  ) {
     if (bytes.length > maxPhotoBytes) return _fail(413, 'Photo too large');
     final image = DemoChatMediaSniffer.image(bytes);
     if (image == null) return _fail(400, 'Unsupported image');
@@ -114,7 +130,8 @@ abstract final class DemoChatRoutes {
     DateTime now,
   ) {
     if (bytes.length > maxVoiceBytes) return _fail(413, 'Voice note too large');
-    if (!DemoChatMediaSniffer.isM4a(bytes)) return _fail(400, 'Unsupported audio');
+    if (!DemoChatMediaSniffer.isM4a(bytes))
+      return _fail(400, 'Unsupported audio');
     final duration = _int(r.body['duration_ms']);
     if (duration == null || duration < 1 || duration > maxVoiceMs) {
       return _fail(400, 'Invalid duration_ms');
@@ -164,13 +181,21 @@ abstract final class DemoChatRoutes {
       if (existing != null) return _ok({'message': _json(existing, now)});
     }
     final type = r.body['type'] ?? 'text';
-    final content = r.body['content'] is String ? r.body['content'] as String : '';
+    final content = r.body['content'] is String
+        ? r.body['content'] as String
+        : '';
     if (type != 'text' && type != 'photo' && type != 'voice') {
       return _fail(400, 'Invalid type');
     }
-    if (type == 'text' && content.trim().isEmpty) return _fail(400, 'content required');
+    if (type == 'text' && content.trim().isEmpty)
+      return _fail(400, 'content required');
 
-    final media = _attachable(r.body['media_ids'], type as String, conversationId, now);
+    final media = _attachable(
+      r.body['media_ids'],
+      type as String,
+      conversationId,
+      now,
+    );
     if (media == null) return _fail(400, 'Invalid media_ids');
 
     final replyRaw = r.body['reply_to_id'];
@@ -215,7 +240,10 @@ abstract final class DemoChatRoutes {
     if (media.contains(null)) return null;
     final found = media.cast<DemoChatMedia>();
     if (type == 'photo') {
-      final ok = found.isNotEmpty && found.length <= maxPhotos && found.every((m) => m.isPhoto);
+      final ok =
+          found.isNotEmpty &&
+          found.length <= maxPhotos &&
+          found.every((m) => m.isPhoto);
       return ok ? found : null;
     }
     return found.length == 1 && !found.first.isPhoto ? found : null;
@@ -223,7 +251,11 @@ abstract final class DemoChatRoutes {
 
   // --- Sur un message ---
 
-  static DemoReply _react(DemoRequest r, DemoChatMessage message, DateTime now) {
+  static DemoReply _react(
+    DemoRequest r,
+    DemoChatMessage message,
+    DateTime now,
+  ) {
     final emoji = r.body['emoji'];
     if (emoji is! String || !demoReactions.contains(emoji)) {
       return _fail(400, 'Invalid emoji');
@@ -233,7 +265,11 @@ abstract final class DemoChatRoutes {
     return _ok({'reactions': _json(message, now)['reactions']});
   }
 
-  static DemoReply _unsend(DemoRequest r, DemoChatMessage message, DateTime now) {
+  static DemoReply _unsend(
+    DemoRequest r,
+    DemoChatMessage message,
+    DateTime now,
+  ) {
     if (message.senderId != DemoFixtures.meId) return _fail(403, 'Forbidden');
     if (!message.unsent) {
       if (now.difference(message.createdAt) > demoUnsendWindow) {
@@ -244,9 +280,14 @@ abstract final class DemoChatRoutes {
     return _ok({'message': _json(message, now)});
   }
 
-  static DemoReply _report(DemoRequest r, DemoChatMessage message, DateTime now) {
+  static DemoReply _report(
+    DemoRequest r,
+    DemoChatMessage message,
+    DateTime now,
+  ) {
     final reason = r.body['reason'];
-    if (reason is! String || reason.trim().isEmpty) return _fail(400, 'reason required');
+    if (reason is! String || reason.trim().isEmpty)
+      return _fail(400, 'reason required');
     if (message.senderId == DemoFixtures.meId) {
       return _fail(400, 'Cannot report your own message');
     }
@@ -254,9 +295,21 @@ abstract final class DemoChatRoutes {
   }
 
   static final List<DemoRoute> routes = [
-    DemoRoute('GET', '/api/conversations/(\\d+)/messages', _inConversation(_list)),
-    DemoRoute('POST', '/api/conversations/(\\d+)/messages', _inConversation(_send)),
-    DemoRoute('POST', '/api/conversations/(\\d+)/media', _inConversation(_upload)),
+    DemoRoute(
+      'GET',
+      '/api/conversations/(\\d+)/messages',
+      _inConversation(_list),
+    ),
+    DemoRoute(
+      'POST',
+      '/api/conversations/(\\d+)/messages',
+      _inConversation(_send),
+    ),
+    DemoRoute(
+      'POST',
+      '/api/conversations/(\\d+)/media',
+      _inConversation(_upload),
+    ),
     DemoRoute('PUT', '/api/conversations/(\\d+)/read', _inConversation(_read)),
     DemoRoute('POST', '/api/messages/(\\d+)/reactions', _onMessage(_react)),
     DemoRoute('POST', '/api/messages/(\\d+)/unsend', _onMessage(_unsend)),

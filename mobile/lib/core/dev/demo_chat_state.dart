@@ -109,7 +109,9 @@ class DemoChatState {
     final all = _list(conversationId, now);
     final other = otherUserOf(conversationId);
     for (final m in all) {
-      if (m.senderId == myId && m.readAt == null && !m.createdAt.isAfter(effect.due)) {
+      if (m.senderId == myId &&
+          m.readAt == null &&
+          !m.createdAt.isAfter(effect.due)) {
         m.readAt = effect.due;
       }
     }
@@ -141,7 +143,9 @@ class DemoChatState {
   /// Le correspondant « écrit » : un message à moi attend sa lecture.
   bool isTyping(int conversationId, DateTime now) =>
       (_effects[conversationId] ?? const []).any((e) {
-        final own = _byConversation[conversationId]?.where((m) => m.id == e.ownMessageId);
+        final own = _byConversation[conversationId]?.where(
+          (m) => m.id == e.ownMessageId,
+        );
         final sentAt = own?.firstOrNull?.createdAt;
         return sentAt != null && !now.isBefore(sentAt) && now.isBefore(e.due);
       });
@@ -154,9 +158,10 @@ class DemoChatState {
     int? before,
     required int limit,
   }) {
-    final newestFirst = _list(conversationId, now).reversed
-        .where((m) => before == null || m.id < before)
-        .toList();
+    final newestFirst = _list(
+      conversationId,
+      now,
+    ).reversed.where((m) => before == null || m.id < before).toList();
     return (
       page: newestFirst.take(limit).toList(),
       hasMore: newestFirst.length > limit,
@@ -182,9 +187,10 @@ class DemoChatState {
   DemoChatMessage? latest(int conversationId, DateTime now) =>
       _list(conversationId, now).lastOrNull;
 
-  int unreadCount(int conversationId, DateTime now) => _list(conversationId, now)
-      .where((m) => m.senderId != myId && m.readAt == null && !m.unsent)
-      .length;
+  int unreadCount(int conversationId, DateTime now) => _list(
+    conversationId,
+    now,
+  ).where((m) => m.senderId != myId && m.readAt == null && !m.unsent).length;
 
   // --- Médias ---
 
@@ -226,10 +232,14 @@ class DemoChatState {
 
   // --- Messages ---
 
-  DemoChatMessage? byClientId(int conversationId, String clientId, DateTime now) =>
-      _list(conversationId, now)
-          .where((m) => m.clientId == clientId)
-          .firstOrNull;
+  DemoChatMessage? byClientId(
+    int conversationId,
+    String clientId,
+    DateTime now,
+  ) => _list(
+    conversationId,
+    now,
+  ).where((m) => m.clientId == clientId).firstOrNull;
 
   DemoChatMessage send({
     required int conversationId,
@@ -261,7 +271,11 @@ class DemoChatState {
       message.linkReadyAt = now.add(linkPreviewDelay);
     }
     _list(conversationId, now).add(message);
-    final ordinal = _sentCount.update(conversationId, (n) => n + 1, ifAbsent: () => 1);
+    final ordinal = _sentCount.update(
+      conversationId,
+      (n) => n + 1,
+      ifAbsent: () => 1,
+    );
     _effects
         .putIfAbsent(conversationId, () => [])
         .add(_Effect(now.add(typingDelay), message.id, ordinal));
@@ -281,7 +295,10 @@ class DemoChatState {
   void unsend(DemoChatMessage message) {
     message.unsent = true;
     message.content = '';
-    for (final m in [...message.media, if (message.voice != null) message.voice!]) {
+    for (final m in [
+      ...message.media,
+      if (message.voice != null) message.voice!,
+    ]) {
       _media.remove(m.id);
     }
     message.media = const [];
@@ -292,7 +309,9 @@ class DemoChatState {
   /// Marque comme lus les messages de l'autre membre jusqu'à [upToId].
   void markRead(int conversationId, DateTime now, {int? upToId}) {
     for (final m in _list(conversationId, now)) {
-      if (m.senderId != myId && m.readAt == null && (upToId == null || m.id <= upToId)) {
+      if (m.senderId != myId &&
+          m.readAt == null &&
+          (upToId == null || m.id <= upToId)) {
         m.readAt = now;
       }
     }
@@ -303,7 +322,9 @@ class DemoChatState {
   Map<String, dynamic> toJson(DemoChatMessage m, DateTime now) {
     final reply = m.replyToId == null ? null : _loaded(m.replyToId!);
     final linkReady =
-        m.linkUrl != null && m.linkReadyAt != null && !m.linkReadyAt!.isAfter(now);
+        m.linkUrl != null &&
+        m.linkReadyAt != null &&
+        !m.linkReadyAt!.isAfter(now);
     return {
       'id': m.id,
       'conversation_id': m.conversationId,
@@ -325,7 +346,9 @@ class DemoChatState {
         for (final e in m.reactions.entries)
           {'emoji': e.key, 'user_ids': List<int>.of(e.value)},
       ],
-      'link_preview': m.unsent || !linkReady ? null : DemoChatSeed.linkPreview(m.linkUrl!),
+      'link_preview': m.unsent || !linkReady
+          ? null
+          : DemoChatSeed.linkPreview(m.linkUrl!),
       'created_at': m.createdAt.toUtc().toIso8601String(),
       'read_at': m.readAt?.toUtc().toIso8601String(),
       'unsent': m.unsent,
@@ -335,6 +358,8 @@ class DemoChatState {
   static String _preview(DemoChatMessage m) {
     final text = m.summary;
     final runes = text.runes.toList();
-    return runes.length <= 80 ? text : '${String.fromCharCodes(runes.take(79))}…';
+    return runes.length <= 80
+        ? text
+        : '${String.fromCharCodes(runes.take(79))}…';
   }
 }

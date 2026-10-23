@@ -21,7 +21,9 @@ abstract final class DemoChatSeed {
     final newestFirst = DemoFixtures.messages(conversationId);
     final result = <DemoChatMessage>[];
     for (final raw in newestFirst) {
-      final age = realNow.difference(DateTime.parse(raw['created_at'] as String));
+      final age = realNow.difference(
+        DateTime.parse(raw['created_at'] as String),
+      );
       final createdAt = now.subtract(age);
       final mine = raw['sender_id'] == myId;
       final isUnread = !mine && unread > 0;

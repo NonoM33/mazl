@@ -39,7 +39,8 @@ class DemoChatMedia {
 
   /// Orphelin depuis plus de 24 h : le serveur l'a purgé.
   bool isPurged(DateTime now) =>
-      attachedTo == null && now.difference(createdAt) > const Duration(hours: 24);
+      attachedTo == null &&
+      now.difference(createdAt) > const Duration(hours: 24);
 
   Map<String, dynamic> toJson() => isPhoto
       ? {'id': id, 'kind': kind, 'url': url, 'width': width, 'height': height}
@@ -63,7 +64,14 @@ class SniffedImage {
 
 abstract final class DemoChatMediaSniffer {
   static const _heicBrands = {
-    'heic', 'heix', 'hevc', 'hevx', 'heim', 'heis', 'mif1', 'msf1',
+    'heic',
+    'heix',
+    'hevc',
+    'hevx',
+    'heim',
+    'heis',
+    'mif1',
+    'msf1',
   };
 
   static String? _brand(Uint8List b) {
@@ -113,13 +121,19 @@ abstract final class DemoChatMediaSniffer {
         i++;
         continue;
       }
-      if (marker == 0xD8 || (marker >= 0xD0 && marker <= 0xD7) || marker == 0x01) {
+      if (marker == 0xD8 ||
+          (marker >= 0xD0 && marker <= 0xD7) ||
+          marker == 0x01) {
         i += 2;
         continue;
       }
       final length = (b[i + 2] << 8) | b[i + 3];
       final isFrame =
-          marker >= 0xC0 && marker <= 0xCF && marker != 0xC4 && marker != 0xC8 && marker != 0xCC;
+          marker >= 0xC0 &&
+          marker <= 0xCF &&
+          marker != 0xC4 &&
+          marker != 0xC8 &&
+          marker != 0xCC;
       if (isFrame) {
         return SniffedImage(
           'image/jpeg',
