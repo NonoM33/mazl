@@ -119,7 +119,7 @@ describe("passive authentication: garbage never crashes", () => {
     expect(reference.ok).toBe(true);
     for (let i = 0; i < files.sod.length; i++) {
       const result = await verifier.verify({ ...files, sod: mutate(files.sod, i) }, NOW);
-      if (result.ok) expect(result).toEqual(reference);
+      if (result.ok) expect<unknown>(result).toEqual(reference);
     }
   });
 
