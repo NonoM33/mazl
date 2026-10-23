@@ -81,8 +81,14 @@ dependencies:
   dartz: ^0.10.1
   logger: ^2.4.0
   url_launcher: ^6.3.0
-  lucide_icons: ^0.257.0
   share_plus: ^10.0.0
+  lucide_icons_flutter: ^4.0.1
+  google_mlkit_face_detection: ^0.15.1
+  google_mlkit_text_recognition: ^0.17.1
+  dmrtd:
+    git:
+      url: https://github.com/ZeroPass/dmrtd.git
+      ref: f8d3f88e12efa22f91fbc0c345dbad25826c2ea6
 
 dev_dependencies:
   flutter_test:
