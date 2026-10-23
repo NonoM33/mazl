@@ -32,7 +32,7 @@
 | `CSCA_BUNDLE_PATH` | certificats racines des États (PEM concaténés) | `data/csca/csca.pem` |
 | `OPJ_DECOMPRESS` | binaire OpenJPEG pour le JPEG 2000 du DG2 | `opj_decompress` |
 | `FACE_MATCH_THRESHOLD` | cosinus SFace minimal, même personne | `0.363` (valeur publiée par OpenCV) |
-| `FACE_CONSISTENCY_THRESHOLD` | cosinus minimal entre les images d'une même session | `0.5` |
+| `FACE_CONSISTENCY_THRESHOLD` | cosinus minimal entre les images d'une même session | `0.363` (une tête tournée fait baisser le cosinus : 0,39 mesuré à 60°) |
 
 Modèles : `bun run models:fetch` (script `scripts/fetch-face-models.ts`, empreintes
 SHA-256 figées). YuNet 2023mar (MIT) et SFace 2021dec (Apache 2.0), OpenCV Zoo.

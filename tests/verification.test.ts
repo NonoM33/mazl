@@ -2,8 +2,8 @@ import { test, expect, describe, beforeAll } from "bun:test";
 
 // Integration test for selfie verification endpoints (flow + server-side 3/day
 // limit). Requires a running server (TEST_API_URL) with Postgres and dev on.
-// Note: no real face-matching is performed server-side (out of scope) — the flow
-// and the daily quota are what this test locks in.
+// The legacy gesture flow is kept for old app versions but verifies nobody; the
+// real selfie verification is covered by tests/verification-face.test.ts.
 const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
 
 interface TestUser { id: number; token: string }
@@ -23,7 +23,7 @@ async function makeUser(label: string): Promise<TestUser> {
 }
 
 describe("Selfie verification", () => {
-  test("start → submit marks verified", async () => {
+  test("legacy submit no longer verifies anybody (it used to accept any base64 string)", async () => {
     const u = await makeUser("verify");
     let r = await fetch(`${BASE_URL}/api/verification/status`, { headers: H(u.token) });
     expect(r.status).toBe(200);
@@ -43,12 +43,11 @@ describe("Selfie verification", () => {
       body: JSON.stringify({ selfie: "data:image/png;base64,AAAA", gesture_id: st.gesture_id }),
     });
     expect(r.status).toBe(200);
-    const sub = (await r.json()) as { verified: boolean };
-    expect(sub.verified).toBe(true);
+    expect(await r.json()).toEqual({ success: true, verified: false, reason: "app_update_required" });
 
     r = await fetch(`${BASE_URL}/api/verification/status`, { headers: H(u.token) });
     s = (await r.json()) as { is_verified: boolean; attempts_today: number };
-    expect(s.is_verified).toBe(true);
+    expect(s.is_verified).toBe(false);
   });
 
   test("server enforces 3 attempts per day", async () => {
