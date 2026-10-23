@@ -66,7 +66,8 @@ ressembler à un champ de formulaire.
   (effet découpé, comme WhatsApp : pas d'ombre, pas de contour accent). Émoji 15 px ; jusqu'à
   trois émojis distincts, puis le total en Geist 12 px `onSurfaceVariant` si plus d'une réaction.
   **Ma réaction** : fond `scheme.primary` à 12 % (jamais un contour). Elle apparaît ou change avec
-  un petit rebond (échelle 0,5 → 1,1 → 1, 220 ms).
+  un petit rebond (échelle 0,5 → 1,15 → 1 en 220 ms : `MazlMotion.reactionPopFrom`,
+  `popScale`, `popDuration`, voir `MOUVEMENT.md`).
 - Les émojis sont permis ICI SEULEMENT (réactions, barre, pastille) : c'est du contenu, pas de la
   décoration.
 
@@ -77,6 +78,9 @@ ressembler à un champ de formulaire.
   « pas de flou » dans toute l'application : elle ne s'étend à aucun autre écran. Si
   `MediaQuery.disableAnimationsOf(context)` est vrai, pas de flou : voile seul à 40 %.
   La bulle touchée reste à sa place, nette, à 100 %, échelle 1,02.
+  La surcouche est insérée dans l'Overlay racine, PAS poussée comme une route : `Navigator.push`
+  annule tous les pointeurs en cours, et le doigt posé ne pourrait plus glisser sur la barre. Le
+  bouton retour la ferme d'abord, par une entrée d'historique local de la route courante.
 - **Barre de réactions** : capsule compacte de 44 px, radius 999, fond `scheme.surface`, contour
   1 px `AppColors.hairline` (sombre : `dividerDark`), marge intérieure horizontale 6 px. Six cases
   de 40 px séparées de 2 px, émoji 28 px : les six que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à
@@ -97,6 +101,9 @@ ressembler à un champ de formulaire.
   Répondre (`reply`), Copier (`copy`), puis pour mes messages Retirer (`undo2`, en
   `AppColors.error`), pour les siens Signaler (`flag`, en `AppColors.error`). Libellés vouvoyés,
   pas de majuscules partout.
+- **Retirer** n'est proposé que pour MES messages de moins de 15 minutes (`unsendWindow`, contrat
+  `docs/chat/CONTRAT.md` §2 ; le serveur refuse aussi au-delà). Passé ce délai, la ligne n'apparaît
+  pas : pas de ligne grisée ni d'explication dans le menu.
 - Le menu et la barre ne passent jamais sous la barre système ni sous le composer : on décale
   la bulle si besoin.
 
@@ -164,7 +171,7 @@ ressembler à un champ de formulaire.
 ## 12. Mouvement et retours haptiques
 
 - Durées : 150 ms (fondus de contrôle), 200 ms (révélation de l'heure), 250 ms (apparition d'une
-  bulle : glissé de 8 px vers le haut + fondu), 350 ms (cœur du double tap). Courbe
+  bulle : glissé de 8 px vers le haut + fondu), 400 ms (cœur du double tap). Courbe
   `Curves.easeOutCubic`.
 - Toutes coupées sous `MediaQuery.disableAnimationsOf(context)`.
 - Haptiques : `selectionClick` (survol des réactions), `lightImpact` (double tap, seuil de

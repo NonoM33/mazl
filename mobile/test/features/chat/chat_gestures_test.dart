@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 import 'package:mazl/presentation/features/chat/widgets/chat_header.dart';
 import 'package:mazl/presentation/features/chat/widgets/message_composer.dart';
-import 'package:mazl/presentation/features/chat/widgets/swipe_to_reply.dart';
 
 import 'chat_test_support.dart';
 
@@ -35,7 +35,7 @@ void main() {
         expect(bar.bottom, lessThanOrEqualTo(lifted.top));
         expect(menu.top, greaterThanOrEqualTo(lifted.bottom));
         expect(menu.width, 220);
-        expect(bar.height, 48);
+        expect(bar.height, 44);
         for (final emoji in allowedReactions) {
           expect(
             find.descendant(
@@ -230,9 +230,9 @@ void main() {
       await tester.tap(bubbleOf(m));
       await tester.pump(const Duration(milliseconds: 100));
       expect(harness.actions.reactions, [(messageId: 5, emoji: '❤️')]);
-      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byKey(const ValueKey('heart-pop')), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 600));
-      expect(find.byIcon(Icons.favorite), findsNothing);
+      expect(find.byKey(const ValueKey('heart-pop')), findsNothing);
     });
 
     testWidgets(
@@ -254,7 +254,7 @@ void main() {
         await tester.tap(bubbleOf(m));
         await tester.pump(const Duration(milliseconds: 100));
         expect(harness.actions.reactions, [(messageId: 5, emoji: '❤️')]);
-        expect(find.byIcon(Icons.favorite), findsNothing);
+        expect(find.byKey(const ValueKey('heart-pop')), findsNothing);
       },
     );
   });
@@ -275,7 +275,8 @@ void main() {
         );
         await ChatHarness(initial: chatState([m])).pump(tester);
         expect(find.text('❤️'), findsOneWidget);
-        expect(find.text('2'), findsOneWidget);
+        // Three reactions in all: the pill shows the total.
+        expect(find.text('3'), findsOneWidget);
         // It bites into the bubble's bottom edge by 8 px.
         final pill = tester.getRect(find.text('❤️'));
         expect(
@@ -283,7 +284,7 @@ void main() {
           greaterThan(rectOf(tester, bubbleOf(m)).bottom - 8),
         );
 
-        await tester.tap(find.text('2'));
+        await tester.tap(find.text('3'));
         await tester.pumpAndSettle();
         expect(find.text('Réactions'), findsOneWidget);
         expect(find.text('Noémie'), findsWidgets);
@@ -346,7 +347,7 @@ void main() {
       await tester.pump();
       expect(
         rectOf(tester, bubbleOf(m)).left - home,
-        lessThanOrEqualTo(SwipeToReply.threshold + 24),
+        lessThanOrEqualTo(MazlMotion.replyMaxOffset),
       );
       await gesture.up();
       await tester.pumpAndSettle();
@@ -581,13 +582,16 @@ void placementTests() {
         expect(fill.top - pill.top, 2);
         expect(pill.bottom - fill.bottom, 2);
         expect(fill.left - pill.left, 2);
-        final scheme = Theme.of(
+        final theme = Theme.of(
           tester.element(find.byKey(const ValueKey('reaction-pill'))),
-        ).colorScheme;
+        );
         final ring = tester.widget<Container>(
           find.byKey(const ValueKey('reaction-pill')),
         );
-        expect((ring.decoration! as BoxDecoration).color, scheme.surface);
+        expect(
+          (ring.decoration! as BoxDecoration).color,
+          theme.scaffoldBackgroundColor,
+        );
       },
     );
   });

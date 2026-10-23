@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/paired_avatars.dart';
 
 /// Beautiful celebration screen shown when couple mode is activated
 class MazelTovScreen extends StatefulWidget {
@@ -184,41 +185,26 @@ class _MazelTovContentState extends State<_MazelTovContent>
   Widget _buildCoupleVisual() {
     // The two avatars start slightly apart and settle next to the heart.
     final approach = CurvedAnimation(parent: _entrance, curve: Curves.easeOutCubic);
-    return AnimatedBuilder(
-      animation: approach,
-      builder: (context, _) {
-        final gap = 24 * (1 - approach.value);
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Transform.translate(
-              offset: Offset(-gap, 0),
-              child: _buildProfileCircle(
-                picture: widget.myPicture,
-                fallbackIcon: LucideIcons.user,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                color: AppColors.tekhelet,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(LucideIcons.heart, color: Colors.white, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Transform.translate(
-              offset: Offset(gap, 0),
-              child: _buildProfileCircle(
-                picture: widget.partnerPicture,
-                fallbackText: widget.partnerName,
-              ),
-            ),
-          ],
-        );
-      },
+    return PairedAvatars(
+      progress: approach,
+      startOffset: 24,
+      first: _buildProfileCircle(
+        picture: widget.myPicture,
+        fallbackIcon: LucideIcons.user,
+      ),
+      second: _buildProfileCircle(
+        picture: widget.partnerPicture,
+        fallbackText: widget.partnerName,
+      ),
+      badge: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+          color: AppColors.tekhelet,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(LucideIcons.heart, color: Colors.white, size: 22),
+      ),
     );
   }
 

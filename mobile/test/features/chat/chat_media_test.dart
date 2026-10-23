@@ -420,6 +420,8 @@ void main() {
         await tester.tap(find.bySemanticsLabel('Lire le message vocal'));
         await tester.pump();
         harness.player.positionController.add(const Duration(seconds: 4));
+        // One pump delivers the stream event, the next one draws it.
+        await tester.pump();
         await tester.pump();
         expect(find.text('0:04'), findsOneWidget);
         expect(find.bySemanticsLabel('Mettre en pause'), findsOneWidget);

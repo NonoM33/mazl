@@ -27,6 +27,9 @@ abstract final class MazlMotion {
   static const popDuration = Duration(milliseconds: 220);
   static const popScale = 1.15;
 
+  /// A chat reaction pill pops in from this scale (0.5 → [popScale] → 1).
+  static const reactionPopFrom = 0.5;
+
   // --- Card decks (Discover, couple activities) ---------------------------
 
   /// Rotation at a drag of one card width, pivoting on the grab point: a card
@@ -88,4 +91,19 @@ abstract final class MazlMotion {
   /// Fade-in of the viewer page when a thumbnail is opened (the photo itself
   /// flies in with the Hero).
   static const viewerOpen = Duration(milliseconds: 200);
+
+  // --- Match sheet ---------------------------------------------------------
+
+  /// The two photos slide toward each other until they touch.
+  static const matchMeet = Duration(milliseconds: 420);
+  static const matchMeetCurve = Curves.easeOutCubic;
+
+  /// How far each photo starts from its resting place, on its own side.
+  static const matchApartOffset = 28.0;
+
+  /// The single accent ring that pulses around the pair once they touch:
+  /// it grows to [matchPulseMaxScale] while its opacity goes 1 → 0.
+  static const matchPulse = Duration(milliseconds: 600);
+  static const matchPulseCurve = Curves.easeOut;
+  static const matchPulseMaxScale = 1.3;
 }
