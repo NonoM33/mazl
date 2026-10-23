@@ -1815,9 +1815,15 @@ export async function getConversations(userId: number) {
         ELSE c.user1_id
       END as other_user_id,
       (
-        SELECT content FROM messages
+        SELECT CASE
+                 WHEN unsent_at IS NOT NULL THEN 'Message retiré'
+                 WHEN type = 'photo' THEN 'Photo'
+                 WHEN type = 'voice' THEN 'Message vocal'
+                 ELSE content
+               END
+        FROM messages
         WHERE conversation_id = c.id
-        ORDER BY created_at DESC
+        ORDER BY id DESC
         LIMIT 1
       ) as last_message,
       (
@@ -1866,51 +1872,6 @@ export async function getConversations(userId: number) {
     unreadCount: parseInt(c.unread_count),
     otherUser: profileMap.get(c.other_user_id),
   }));
-}
-
-export async function getMessages(conversationId: number, limit = 50, offset = 0) {
-  const messages = await sql`
-    SELECT
-      m.id,
-      m.sender_id,
-      m.content,
-      m.is_read,
-      m.created_at
-    FROM messages m
-    WHERE m.conversation_id = ${conversationId}
-    ORDER BY m.created_at DESC
-    LIMIT ${limit}
-    OFFSET ${offset}
-  `;
-  // Return in DESC order (newest first) for Flutter's reverse ListView
-  return messages;
-}
-
-export async function createMessage(conversationId: number, senderId: number, content: string) {
-  const result = await sql`
-    INSERT INTO messages (conversation_id, sender_id, content)
-    VALUES (${conversationId}, ${senderId}, ${content})
-    RETURNING *
-  `;
-
-  // Update last_message_at
-  await sql`
-    UPDATE conversations
-    SET last_message_at = NOW()
-    WHERE id = ${conversationId}
-  `;
-
-  return result[0];
-}
-
-export async function markMessagesAsRead(conversationId: number, userId: number) {
-  await sql`
-    UPDATE messages
-    SET is_read = true
-    WHERE conversation_id = ${conversationId}
-    AND sender_id != ${userId}
-    AND is_read = false
-  `;
 }
 
 export async function getConversationById(conversationId: number) {
