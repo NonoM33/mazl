@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Every gesture reads its motion values from `core/motion/mazl_motion.dart`.
-/// One file per line, so that each gesture adds its own lines when it lands.
-
-/// Files that animate: they import MazlMotion themselves.
-const _animatingFiles = <String>[
+// Every gesture reads its motion values from MazlMotion: no duration literal,
+// no spring of its own. One file per line; add the new gestures here.
+const _gestureFiles = <String>[
+  'lib/presentation/features/chat/widgets/swipe_to_reply.dart',
+  'lib/presentation/features/chat/widgets/photo_viewer.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_pose.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_physics.dart',
@@ -14,55 +14,53 @@ const _animatingFiles = <String>[
   'lib/presentation/common/widgets/swipe_deck/swipe_progress_scale.dart',
 ];
 
-/// Screens that only wire a gesture widget: they reach MazlMotion through it.
+// Screens that only wire a gesture widget: they reach MazlMotion through the
+// shared deck, and must not animate on their own.
 const _wiringFiles = <String>[
   'lib/presentation/features/matching/screens/discover_screen.dart',
   'lib/presentation/features/couple/screens/couple_activities_feed_screen.dart',
 ];
 
-String _read(String path) => File(path).readAsStringSync();
+String _code(String path) => File(path)
+    .readAsStringSync()
+    .split('\n')
+    .where((l) => !l.trimLeft().startsWith('//'))
+    .join('\n');
 
 void main() {
-  test('the files that animate import MazlMotion', () {
-    for (final path in _animatingFiles) {
-      expect(
-        _read(path),
-        contains('core/motion/mazl_motion.dart'),
-        reason: '$path must read its values from MazlMotion',
-      );
-    }
-  });
+  for (final path in _gestureFiles) {
+    group(path, () {
+      test('imports core/motion/mazl_motion.dart', () {
+        expect(_code(path), contains('core/motion/mazl_motion.dart'));
+      });
 
-  test('the screens that wire a gesture use the shared widget', () {
-    for (final path in _wiringFiles) {
-      expect(
-        _read(path),
-        contains('swipe_deck/swipe_deck.dart'),
-        reason: '$path must use the shared deck, not its own animation',
-      );
-    }
-  });
+      test('has no Duration(milliseconds: …) literal', () {
+        expect(_code(path), isNot(contains('Duration(milliseconds:')));
+      });
 
-  test('no gesture file writes a duration or a spring of its own', () {
-    for (final path in [..._animatingFiles, ..._wiringFiles]) {
-      final source = _read(path);
-      expect(
-        source,
-        isNot(contains('Duration(milliseconds:')),
-        reason: '$path has a Duration literal: add it to MazlMotion',
-      );
-      expect(
-        source,
-        isNot(contains('SpringDescription(')),
-        reason: '$path builds its own spring: use MazlMotion.spring',
-      );
-    }
-  });
+      test('has no SpringDescription of its own', () {
+        expect(_code(path), isNot(contains('SpringDescription(')));
+        expect(_code(path), isNot(contains('SpringDescription.')));
+      });
+    });
+  }
 
-  test('flutter_card_swiper is gone', () {
-    for (final path in [..._animatingFiles, ..._wiringFiles]) {
-      expect(_read(path), isNot(contains('flutter_card_swiper')), reason: path);
-    }
-    expect(_read('pubspec.yaml'), isNot(contains('flutter_card_swiper')));
+  for (final path in _wiringFiles) {
+    group(path, () {
+      test('uses the shared deck, with no animation of its own', () {
+        final code = _code(path);
+        expect(code, contains('swipe_deck/swipe_deck.dart'));
+        expect(code, isNot(contains('Duration(milliseconds:')));
+        expect(code, isNot(contains('SpringDescription')));
+        expect(code, isNot(contains('flutter_card_swiper')));
+      });
+    });
+  }
+
+  test('flutter_card_swiper is gone from the project', () {
+    expect(
+      File('pubspec.yaml').readAsStringSync(),
+      isNot(contains('flutter_card_swiper')),
+    );
   });
 }

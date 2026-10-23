@@ -91,4 +91,21 @@ void main() {
       isEmpty,
     );
   });
+
+  test('BackdropFilter only lives in the long-press overlay', () {
+    // CHAT.md §5 and §14: the one blur of the app. The legacy glass widgets of
+    // the not-yet-redesigned screens are listed so the list can only shrink.
+    const legacy = {'lib/presentation/common/widgets/glass_container.dart'};
+    const overlay =
+        'lib/presentation/features/chat/widgets/message_actions_overlay.dart';
+    final users = {
+      for (final f in Directory('lib').listSync(recursive: true))
+        if (f is File &&
+            f.path.endsWith('.dart') &&
+            _code(f).contains('BackdropFilter'))
+          f.path,
+    };
+    expect(users.difference(legacy), {overlay});
+    expect(legacy.difference(users), isEmpty, reason: 'drop it from the list');
+  });
 }
