@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import sharp from "sharp";
 import { InvalidImageError } from "../../src/features/verification/application/ports";
-import { OpjJp2Decoder } from "../../src/features/verification/infra/opj-jp2-decoder";
+import { Jp2DecoderUnavailableError, OpjJp2Decoder } from "../../src/features/verification/infra/opj-jp2-decoder";
 
 const compressor = Bun.which("opj_compress");
 const decoder = new OpjJp2Decoder(Bun.which("opj_decompress") ?? "opj_decompress");
@@ -57,9 +57,9 @@ describe("OpjJp2Decoder (OpenJPEG opj_decompress)", () => {
     expect(leftovers().length).toBe(before);
   });
 
-  test("a missing binary is an InvalidImageError, not a crash", async () => {
+  test("a missing binary is a deployment error, distinct from a bad image", async () => {
     const missing = new OpjJp2Decoder("/nonexistent/opj_decompress");
     const jp2 = Uint8Array.of(0, 0, 0, 0x0c, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a, 1, 2, 3, 4);
-    await expect(missing.decode(jp2)).rejects.toBeInstanceOf(InvalidImageError);
+    await expect(missing.decode(jp2)).rejects.toBeInstanceOf(Jp2DecoderUnavailableError);
   });
 });

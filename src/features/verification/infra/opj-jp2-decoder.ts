@@ -10,6 +10,15 @@ const TIMEOUT_MS = 15_000;
 const MAX_INPUT_BYTES = 8 * 1024 * 1024;
 const MAX_PIXELS = 16_000_000;
 
+// A missing decoder is a deployment fault, not a bad image: it must surface as
+// a server error instead of refusing every JPEG 2000 passport as a mismatch.
+export class Jp2DecoderUnavailableError extends Error {
+  constructor() {
+    super("opj_decompress is not installed or not executable");
+    this.name = "Jp2DecoderUnavailableError";
+  }
+}
+
 // JPEG 2000 (passport DG2) through OpenJPEG's opj_decompress. The face image
 // is personal data: it lives only in a private, 0700 temp directory that is
 // removed in `finally`, and never in a log line.
@@ -37,7 +46,7 @@ export class OpjJp2Decoder implements Jp2Decoder {
     try {
       proc = Bun.spawn([this.binary, "-i", input, "-o", output], { stdout: "ignore", stderr: "ignore", timeout: TIMEOUT_MS, killSignal: "SIGKILL" });
     } catch {
-      throw new InvalidImageError("opj_decompress unavailable");
+      throw new Jp2DecoderUnavailableError();
     }
     const code = await proc.exited;
     if (code !== 0) throw new InvalidImageError("jp2 decode failed");
