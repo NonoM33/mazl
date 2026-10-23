@@ -23,7 +23,9 @@ import '../../presentation/features/settings/screens/settings_screen.dart';
 import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
+import '../../presentation/features/premium/screens/plus_welcome_screen.dart';
 import '../../presentation/features/premium/screens/premium_screen.dart';
+import '../../presentation/features/premium/screens/subscription_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
 import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
@@ -141,6 +143,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const PremiumScreen(),
           transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // mazl+ : bienvenue après l'achat
+      GoRoute(
+        path: RoutePaths.plusWelcome,
+        name: RouteNames.plusWelcome,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PlusWelcomeScreen(),
+          transitionsBuilder: fadeTransition,
+        ),
+      ),
+
+      // mazl+ : gestion de l'abonnement
+      GoRoute(
+        path: RoutePaths.subscription,
+        name: RouteNames.subscription,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SubscriptionScreen(),
+          transitionsBuilder: slideLeftTransition,
         ),
       ),
 
