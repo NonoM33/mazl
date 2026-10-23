@@ -34,7 +34,7 @@ List<String> _buildTd3(String doc, String dob, String exp, {String personal = ''
   final docField = _pad(doc, 9);
   final personalField = _pad(personal, 14);
   final personalCd = personal.isEmpty ? '<' : '${_spec(personalField)}';
-  final body = '$docField${_spec(docField)}UTO${dob}${_spec(dob)}M$exp${_spec(exp)}$personalField$personalCd';
+  final body = '$docField${_spec(docField)}UTO$dob${_spec(dob)}M$exp${_spec(exp)}$personalField$personalCd';
   final composite = _spec(body.substring(0, 10) + body.substring(13, 20) + body.substring(21, 43));
   return [_td3Line1, '$body$composite'];
 }
