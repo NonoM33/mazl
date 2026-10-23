@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../router/route_names.dart';
+import '../../presentation/common/widgets/mazl_sheet.dart';
 import '../../presentation/features/premium/widgets/plus_widgets.dart';
 import '../theme/app_colors.dart';
 import 'revenuecat_service.dart';
@@ -255,9 +256,8 @@ class PremiumGate {
   }
 
   static Future<bool?> _showSheet(BuildContext context, Widget sheet) {
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
+    return showMazlSheet<bool>(
+      context,
       barrierColor: AppColors.ink.withValues(alpha: 0.45),
       isScrollControlled: true,
       builder: (_) => sheet,

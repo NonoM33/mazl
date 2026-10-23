@@ -6,6 +6,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/like_widgets.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
@@ -267,10 +268,9 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   void _showProfilePreview(LikeProfile profile) {
-    showModalBottomSheet<void>(
-      context: context,
+    showMazlSheet<void>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => _ProfilePreviewSheet(
         profile: profile,
         onLike: () {
@@ -290,67 +290,55 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   void _showPremiumPrompt() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    showMazlSheet<void>(
+      context,
       builder: (context) {
         final scheme = Theme.of(context).colorScheme;
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            32,
-            24,
-            24 + MediaQuery.paddingOf(context).bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text.rich(
-                TextSpan(
-                  text: 'mazl',
-                  children: [
-                    TextSpan(
-                      text: '+',
-                      style: TextStyle(color: scheme.primary),
-                    ),
-                  ],
-                ),
-                style: Theme.of(context).textTheme.displaySmall,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text.rich(
+              TextSpan(
+                text: 'mazl',
+                children: [
+                  TextSpan(
+                    text: '+',
+                    style: TextStyle(color: scheme.primary),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.45,
-                  color: scheme.onSurfaceVariant,
-                ),
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.45,
+                color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    context.push(RoutePaths.premium);
-                  },
-                  child: const Text('Voir les offres'),
-                ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push(RoutePaths.premium);
+                },
+                child: const Text('Voir les offres'),
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Plus tard'),
-                ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Plus tard'),
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -375,79 +363,58 @@ class _ProfilePreviewSheet extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final name = profile.displayName ?? 'Anonyme';
     final title = profile.age != null ? '$name, ${profile.age}' : name;
-    return Container(
+    return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.75,
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: scheme.outline,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ProfilePhoto(
-                        url: profile.photoUrl,
-                        seed: profile.userId,
-                        radius: 24,
-                        iconSize: 64,
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ProfilePhoto(
+                      url: profile.photoUrl,
+                      seed: profile.userId,
+                      radius: 24,
+                      iconSize: 64,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
-                      if (profile.isVerified) ...[
-                        const SizedBox(width: 8),
-                        Icon(
-                          LucideIcons.badgeCheck,
-                          size: 22,
-                          color: scheme.primary,
-                        ),
-                      ],
+                    ),
+                    if (profile.isVerified) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        LucideIcons.badgeCheck,
+                        size: 22,
+                        color: scheme.primary,
+                      ),
                     ],
-                  ),
-                  if (profile.distance != null) ...[
-                    const SizedBox(height: 8),
-                    TagPill(
-                      '${profile.distance!.round()} km',
-                      icon: LucideIcons.mapPin,
-                    ),
                   ],
+                ),
+                if (profile.distance != null) ...[
+                  const SizedBox(height: 8),
+                  TagPill(
+                    '${profile.distance!.round()} km',
+                    icon: LucideIcons.mapPin,
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              24,
-              16,
-              24,
-              16 + MediaQuery.paddingOf(context).bottom,
-            ),
+            padding: const EdgeInsets.only(top: 16),
             child: Row(
               children: [
                 Expanded(

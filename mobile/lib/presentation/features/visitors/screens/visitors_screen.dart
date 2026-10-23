@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen showing users who visited my profile (Premium feature)
 class VisitorsScreen extends StatefulWidget {
@@ -321,86 +322,71 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   }
 
   void _showPremiumPrompt() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 50,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+    showMazlSheet(
+      context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                LucideIcons.lock,
-                color: AppColors.primary,
-                size: 40,
-              ),
+            child: Icon(
+              LucideIcons.lock,
+              color: AppColors.primary,
+              size: 40,
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Réservé à mazl+',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Réservé à mazl+',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.push(RoutePaths.premium);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Découvrir mazl+',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.push(RoutePaths.premium);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Plus tard',
-                style: TextStyle(color: Colors.grey[600]),
+              child: const Text(
+                'Découvrir mazl+',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Plus tard',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ],
       ),
     );
   }

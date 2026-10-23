@@ -97,7 +97,8 @@ class PlusCtaButton extends StatelessWidget {
   }
 }
 
-/// Cadre commun des fenêtres du bas : poignée, coins hauts arrondis, 24 px.
+/// Contenu commun des fenêtres du bas. Le fond, la poignée et le 24 px
+/// viennent de `showMazlSheet`.
 class PlusSheetFrame extends StatelessWidget {
   const PlusSheetFrame({super.key, required this.children});
 
@@ -105,31 +106,12 @@ class PlusSheetFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottomInset),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 36,
-              height: 5,
-              decoration: BoxDecoration(
-                color: scheme.outline,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-          ...children,
-        ],
+        children: children,
       ),
     );
   }
@@ -203,7 +185,6 @@ class DailyLimitSheet extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return PlusSheetFrame(
       children: [
-        const SizedBox(height: 28),
         SectionLabel('Limite du jour · $freeLikesPerDay / $freeLikesPerDay'),
         const SizedBox(height: 10),
         Text('Vos likes du jour sont partis.', style: _sheetTitle(context)),
@@ -277,7 +258,6 @@ class PremiumFeatureSheet extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return PlusSheetFrame(
       children: [
-        const SizedBox(height: 28),
         const SectionLabel('Réservé à mazl+'),
         const SizedBox(height: 10),
         Text(title, style: _sheetTitle(context)),

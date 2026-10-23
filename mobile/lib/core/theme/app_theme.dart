@@ -163,8 +163,11 @@ class AppTheme {
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: p.background,
         surfaceTintColor: Colors.transparent,
+        // The only drag handle of the app (design system: 36x5, hairline).
+        // Sheets never draw their own: see showMazlSheet.
         showDragHandle: true,
         dragHandleColor: p.hairline,
+        dragHandleSize: const Size(36, 5),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),

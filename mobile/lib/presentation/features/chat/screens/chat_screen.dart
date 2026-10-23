@@ -16,6 +16,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../common/widgets/block_report_dialog.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
@@ -222,30 +223,29 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showAttachmentOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(LucideIcons.camera),
-              title: const Text('Prendre une photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickAndSendImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.image),
-              title: const Text('Choisir depuis la galerie'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickAndSendImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
+    showMazlSheet(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(LucideIcons.camera),
+            title: const Text('Prendre une photo'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickAndSendImage(ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.image),
+            title: const Text('Choisir depuis la galerie'),
+            onTap: () {
+              Navigator.pop(context);
+              _pickAndSendImage(ImageSource.gallery);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -488,46 +488,45 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showOptionsMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(LucideIcons.user),
-              title: const Text('Voir le profil'),
-              onTap: () {
-                Navigator.pop(context);
-                _openOtherUserProfile();
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.bellOff),
-              title: const Text('Couper les notifications'),
-              onTap: () {
-                Navigator.pop(context);
-                _toggleMuteConversation();
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.flag),
-              title: const Text('Signaler'),
-              onTap: () {
-                Navigator.pop(context);
-                _openBlockReportDialog();
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.userX, color: AppColors.error),
-              title: const Text('Bloquer', style: TextStyle(color: AppColors.error)),
-              onTap: () {
-                Navigator.pop(context);
-                _openBlockReportDialog();
-              },
-            ),
-          ],
-        ),
+    showMazlSheet(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(LucideIcons.user),
+            title: const Text('Voir le profil'),
+            onTap: () {
+              Navigator.pop(context);
+              _openOtherUserProfile();
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.bellOff),
+            title: const Text('Couper les notifications'),
+            onTap: () {
+              Navigator.pop(context);
+              _toggleMuteConversation();
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.flag),
+            title: const Text('Signaler'),
+            onTap: () {
+              Navigator.pop(context);
+              _openBlockReportDialog();
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.userX, color: AppColors.error),
+            title: const Text('Bloquer', style: TextStyle(color: AppColors.error)),
+            onTap: () {
+              Navigator.pop(context);
+              _openBlockReportDialog();
+            },
+          ),
+        ],
       ),
     );
   }
