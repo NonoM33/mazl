@@ -338,18 +338,19 @@ void main() {
       expect(find.text('Compatibilité indisponible pour le moment.'), findsOneWidget);
     });
 
-    testWidgets('mode couple : trois états, activation et annulation', (tester) async {
+    testWidgets('mode couple : cinq états, activation, annulation et réponse', (tester) async {
       var activated = 0;
       var cancelled = 0;
+      var responded = 0;
       Future<void> show(CoupleEntryState state) => _pump(
             tester,
             SingleChildScrollView(
               child: ProfileCoupleSection(
                 state: state,
                 userName: 'Sarah',
-                partnerName: 'Noa',
                 onActivate: () => activated++,
                 onCancel: () => cancelled++,
+                onRespond: () => responded++,
               ),
             ),
           );
@@ -362,8 +363,16 @@ void main() {
       await tester.tap(find.text('Annuler la demande'));
       expect(cancelled, 1);
 
+      await show(CoupleEntryState.received);
+      await tester.tap(find.text('Répondre'));
+      expect(responded, 1);
+
+      // En couple AVEC cette personne, et non « déjà en couple » partout.
       await show(CoupleEntryState.inCouple);
-      expect(find.textContaining('Noa'), findsOneWidget);
+      expect(find.text('Vous êtes en mode couple avec Sarah.'), findsOneWidget);
+      await show(CoupleEntryState.coupleWithSomeoneElse);
+      expect(find.textContaining('Sarah'), findsNothing);
+      expect(find.text('Déjà en mode couple'), findsOneWidget);
       _expectNoGradient(tester);
     });
 

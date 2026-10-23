@@ -65,6 +65,15 @@ class NewMatchEvent extends ChatEvent {
   });
 }
 
+/// A `couple:*` message (contract §3): `couple:request`, `couple:accepted`,
+/// `couple:rejected` or `couple:ended`, with its raw payload.
+class CoupleRealtimeEvent extends ChatEvent {
+  final String type;
+  final Map<String, dynamic> payload;
+
+  CoupleRealtimeEvent({required this.type, required this.payload});
+}
+
 class ConnectionStatusEvent extends ChatEvent {
   final bool isConnected;
 
@@ -216,6 +225,16 @@ class WebSocketService {
               userPicture: payload['userPicture'] as String?,
             ));
           }
+          break;
+
+        case 'couple:request':
+        case 'couple:accepted':
+        case 'couple:rejected':
+        case 'couple:ended':
+          _eventController.add(CoupleRealtimeEvent(
+            type: type!,
+            payload: payload ?? const <String, dynamic>{},
+          ));
           break;
 
         case 'pong':

@@ -3,7 +3,22 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'profile_sections.dart';
 
-enum CoupleEntryState { inCouple, pending, available }
+enum CoupleEntryState {
+  /// In a couple with THIS member.
+  inCouple,
+
+  /// In a couple with somebody else.
+  coupleWithSomeoneElse,
+
+  /// A request to this member is waiting for their answer.
+  pending,
+
+  /// This member asked to activate the couple mode.
+  received,
+
+  /// Nothing yet: a request can be sent.
+  available,
+}
 
 /// Entrée du mode couple, affichée sur le profil d'un match.
 class ProfileCoupleSection extends StatelessWidget {
@@ -11,20 +26,19 @@ class ProfileCoupleSection extends StatelessWidget {
     super.key,
     required this.state,
     required this.userName,
-    this.partnerName,
     this.isSending = false,
     this.onActivate,
     this.onCancel,
+    this.onRespond,
   });
 
   final CoupleEntryState state;
   final String userName;
 
-  /// Nom de la personne avec qui l'on est déjà en couple (état [CoupleEntryState.inCouple]).
-  final String? partnerName;
   final bool isSending;
   final VoidCallback? onActivate;
   final VoidCallback? onCancel;
+  final VoidCallback? onRespond;
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +56,21 @@ class ProfileCoupleSection extends StatelessWidget {
           CoupleEntryState.inCouple => _info(
               context,
               icon: LucideIcons.heartHandshake,
-              title: 'Déjà en couple',
-              body: 'Vous êtes en mode couple avec ${partnerName ?? 'quelqu\'un'}.',
+              title: 'En couple',
+              body: 'Vous êtes en mode couple avec $userName.',
+            ),
+          CoupleEntryState.coupleWithSomeoneElse => _info(
+              context,
+              icon: LucideIcons.heartHandshake,
+              title: 'Déjà en mode couple',
+              body: 'Vous êtes déjà en mode couple avec quelqu\'un d\'autre.',
+            ),
+          CoupleEntryState.received => _info(
+              context,
+              icon: LucideIcons.heartHandshake,
+              title: 'Demande reçue',
+              body: '$userName souhaite activer le mode couple avec vous.',
+              action: ElevatedButton(onPressed: onRespond, child: const Text('Répondre')),
             ),
           CoupleEntryState.pending => _info(
               context,

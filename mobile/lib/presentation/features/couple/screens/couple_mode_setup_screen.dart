@@ -3,25 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/couple_service.dart';
-import '../../../../core/theme/app_colors.dart';
 
+/// Loads the member's matches (the real API in production).
+typedef MatchesLoader = Future<ApiResponse<List<Map<String, dynamic>>>> Function();
+
+/// Choose a match and ask them to activate the couple mode. Nothing is
+/// activated here: the other member has to accept (contract §0.1).
 class CoupleModeSetupScreen extends StatefulWidget {
-  const CoupleModeSetupScreen({super.key});
+  const CoupleModeSetupScreen({super.key, this.service, this.loadMatches});
+
+  final CoupleService? service;
+  final MatchesLoader? loadMatches;
 
   @override
   State<CoupleModeSetupScreen> createState() => _CoupleModeSetupScreenState();
 }
 
 class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
-  final ApiService _apiService = ApiService();
-  final CoupleService _coupleService = CoupleService();
+  late final CoupleService _service = widget.service ?? CoupleService();
 
   List<Map<String, dynamic>> _matches = [];
   bool _isLoading = true;
-  Map<String, dynamic>? _selectedMatch;
-  DateTime _relationshipDate = DateTime.now();
+  bool _loadFailed = false;
+  bool _isBusy = false;
+  Map<String, dynamic>? _selectedProfile;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -30,51 +39,59 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   }
 
   Future<void> _loadMatches() async {
-    final response = await _apiService.getMatches();
-    if (response.success && response.data != null && mounted) {
-      setState(() {
-        _matches = response.data!;
-        _isLoading = false;
-      });
-    } else if (mounted) {
-      setState(() => _isLoading = false);
-    }
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
+    final load = widget.loadMatches ?? ApiService().getMatches;
+    final response = await load();
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      _loadFailed = !response.success;
+      _matches = response.data ?? [];
+    });
   }
 
-  Future<void> _activateCoupleMode() async {
-    if (_selectedMatch == null) return;
+  Future<void> _send() async {
+    final profile = _selectedProfile;
+    final userId = parseCoupleId(profile?['user_id']);
+    if (profile == null || userId == null) return;
 
-    final profile = _selectedMatch!['profile'] as Map<String, dynamic>?;
-    if (profile == null) return;
-
-    await _coupleService.enableCoupleMode(
-      partnerId: profile['user_id'] as int,
-      partnerName: profile['display_name'] as String? ?? 'Partenaire',
-      partnerPicture: profile['picture'] as String?,
-      relationshipStartDate: _relationshipDate,
+    setState(() {
+      _isBusy = true;
+      _errorMessage = null;
+    });
+    final result = await _service.sendCoupleRequest(
+      targetUserId: userId,
+      targetName: profile['display_name'] as String? ?? '',
+      targetPicture: profile['picture'] as String?,
     );
+    if (!mounted) return;
+    setState(() {
+      _isBusy = false;
+      _errorMessage = result.message;
+    });
+  }
 
-    if (mounted) {
-      // Show success and navigate to dashboard
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(LucideIcons.heart, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Mode couple activé. Mazal tov !'),
-            ],
-          ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-      // Navigate back then push couple activities
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-      context.push('/couple/activities');
+  Future<void> _cancel() async {
+    setState(() {
+      _isBusy = true;
+      _errorMessage = null;
+    });
+    final result = await _service.cancelCoupleRequest();
+    if (!mounted) return;
+    setState(() {
+      _isBusy = false;
+      _errorMessage = result.message;
+    });
+  }
+
+  void _back() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(RoutePaths.discover);
     }
   }
 
@@ -82,293 +99,47 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mode Couple'),
+        title: const Text('Mode couple'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              context.go('/profile');
-            }
-          },
+          onPressed: _back,
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.1),
-                          AppColors.secondary.withValues(alpha: 0.1),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.secondary],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            LucideIcons.heartHandshake,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Félicitations',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Vous avez trouvé quelqu\'un de spécial sur MAZL.\nActivez le mode couple pour profiter de fonctionnalités exclusives.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Benefits
-                  const Text(
-                    'Avantages du mode couple',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildBenefit(
-                    icon: LucideIcons.messageCircle,
-                    title: 'Questions quotidiennes',
-                    description: 'Apprenez à mieux vous connaître chaque jour',
-                  ),
-                  _buildBenefit(
-                    icon: LucideIcons.trophy,
-                    title: 'Milestones de couple',
-                    description: 'Célébrez vos étapes importantes ensemble',
-                  ),
-                  _buildBenefit(
-                    icon: LucideIcons.calendarHeart,
-                    title: 'Événements pour couples',
-                    description: 'Accès aux événements exclusifs de la communauté',
-                  ),
-                  _buildBenefit(
-                    icon: LucideIcons.moonStar,
-                    title: 'Calendrier juif partagé',
-                    description: 'Préparez les fêtes et Shabbat ensemble',
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Select partner
-                  const Text(
-                    'Sélectionnez votre partenaire',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_matches.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            LucideIcons.userX,
-                            size: 48,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Aucun match pour l\'instant',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    ...(_matches.map((match) {
-                      final profile = match['profile'] as Map<String, dynamic>?;
-                      if (profile == null) {
-                        return const SizedBox.shrink();
-                      }
-                      final isSelected = _selectedMatch == match;
-                      return _buildMatchOption(match, profile, isSelected);
-                    })),
-
-                  if (_selectedMatch != null) ...[
-                    const SizedBox(height: 24),
-
-                    // Relationship start date
-                    const Text(
-                      'Depuis quand êtes-vous ensemble ?',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: _selectDate,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              LucideIcons.calendar,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              '${_relationshipDate.day}/${_relationshipDate.month}/${_relationshipDate.year}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              LucideIcons.chevronRight,
-                              color: Colors.grey[400],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 32),
-
-                  // Activate button
-                  Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: _selectedMatch != null
-                          ? const LinearGradient(
-                              colors: [AppColors.primary, AppColors.secondary],
-                            )
-                          : null,
-                      color: _selectedMatch == null ? Colors.grey[300] : null,
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: _selectedMatch != null
-                          ? [
-                              BoxShadow(
-                                color: AppColors.secondary.withValues(alpha: 0.4),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _selectedMatch != null ? _activateCoupleMode : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                      ),
-                      child: const Text(
-                        'Activer le mode couple',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Skip option
-                  Center(
-                    child: TextButton(
-                      onPressed: () => context.pop(),
-                      child: Text(
-                        'Plus tard',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
+      body: ListenableBuilder(
+        listenable: _service,
+        builder: (context, _) {
+          final pending = _service.pendingRequest;
+          if (pending != null) return _buildPending(context, pending);
+          return _buildChooser(context);
+        },
+      ),
     );
   }
 
-  Widget _buildBenefit({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
+  Widget _buildPending(BuildContext context, CoupleRequest request) {
+    final name = request.targetName;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
+      padding: const EdgeInsets.all(24),
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 20, color: AppColors.primary),
+          const Spacer(),
+          _Avatar(name: name ?? '', picture: request.targetPicture, radius: 40),
+          const SizedBox(height: 20),
+          Text(
+            name == null || name.isEmpty ? 'Demande envoyée' : 'Demande envoyée à $name',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 12),
+            _ErrorText(_errorMessage!),
+          ],
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: _isBusy ? null : _cancel,
+              child: _isBusy ? const _Spinner() : const Text('Annuler la demande'),
             ),
           ),
         ],
@@ -376,116 +147,141 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     );
   }
 
-  Widget _buildMatchOption(
-    Map<String, dynamic> match,
-    Map<String, dynamic> profile,
-    bool isSelected,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        setState(() => _selectedMatch = match);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : null,
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
+  Widget _buildChooser(BuildContext context) {
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_loadFailed) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              backgroundImage: profile['picture'] != null
-                  ? CachedNetworkImageProvider(profile['picture'])
-                  : null,
-              child: profile['picture'] == null
-                  ? Text(
-                      (profile['display_name'] as String? ?? '?')[0].toUpperCase(),
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile['display_name'] as String? ?? 'Inconnu',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  if (profile['location'] != null)
-                    Text(
-                      profile['location'] as String,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.check,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              )
-            else
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-              ),
+            const Text('Impossible de charger vos matchs.'),
+            const SizedBox(height: 12),
+            TextButton(onPressed: _loadMatches, child: const Text('Réessayer')),
           ],
+        ),
+      );
+    }
+
+    final profiles = [
+      for (final match in _matches)
+        if (match['profile'] is Map<String, dynamic>) match['profile'] as Map<String, dynamic>,
+    ];
+    if (profiles.isEmpty) {
+      return const Center(child: Text('Aucun match pour l\'instant.'));
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+            children: [
+              const Text(
+                'Avec qui ?',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              for (final profile in profiles) _buildOption(context, profile),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            children: [
+              if (_errorMessage != null) ...[
+                _ErrorText(_errorMessage!),
+                const SizedBox(height: 12),
+              ],
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _selectedProfile == null || _isBusy ? null : _send,
+                  child: _isBusy ? const _Spinner() : const Text('Envoyer la demande'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOption(BuildContext context, Map<String, dynamic> profile) {
+    final scheme = Theme.of(context).colorScheme;
+    final selected = identical(_selectedProfile, profile) ||
+        (_selectedProfile != null && _selectedProfile!['user_id'] == profile['user_id']);
+    final name = profile['display_name'] as String? ?? '';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: selected ? scheme.primaryContainer : scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => setState(() {
+            _selectedProfile = profile;
+            _errorMessage = null;
+          }),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                _Avatar(name: name, picture: profile['picture'] as String?, radius: 26),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (selected) const Icon(LucideIcons.check, size: 20),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
 
-  Future<void> _selectDate() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _relationshipDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppColors.primary,
-                ),
-          ),
-          child: child!,
-        );
-      },
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.name, required this.picture, required this.radius});
+
+  final String name;
+  final String? picture;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      backgroundImage: picture != null ? CachedNetworkImageProvider(picture!) : null,
+      child: picture == null && name.isNotEmpty
+          ? Text(name.characters.first.toUpperCase(),
+              style: TextStyle(fontSize: radius * 0.7, fontWeight: FontWeight.w600))
+          : null,
     );
-
-    if (date != null) {
-      setState(() => _relationshipDate = date);
-    }
   }
+}
+
+class _ErrorText extends StatelessWidget {
+  const _ErrorText(this.message);
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13),
+      );
+}
+
+class _Spinner extends StatelessWidget {
+  const _Spinner();
+
+  @override
+  Widget build(BuildContext context) =>
+      const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2));
 }
