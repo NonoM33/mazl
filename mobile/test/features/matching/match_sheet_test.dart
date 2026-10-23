@@ -120,7 +120,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_handles(tester), 1);
       expect(find.text('C\'est un match'), findsOneWidget);
-      expect(find.text('Vous et Myriam vous êtes plu.'), findsOneWidget);
+      expect(find.text('Myriam et vous vous êtes plu.'), findsOneWidget);
       expect(find.byKey(_meKey), findsOneWidget);
       expect(find.byKey(_themKey), findsOneWidget);
       final bar = tester.renderObject(find.byKey(const Key('mazl-nav-bar')));
@@ -137,10 +137,29 @@ void main() {
       );
     });
 
+    testWidgets('each photo has a 3 px paper ring; the main button is the ink one', (tester) async {
+      await _open(tester);
+      await tester.pumpAndSettle();
+      final ctx = tester.element(find.byKey(_meKey));
+      final paper = Theme.of(ctx).colorScheme.surface;
+      for (final key in [_meKey, _themKey]) {
+        final ring = tester.widget<Container>(
+          find.descendant(of: find.byKey(key), matching: find.byType(Container)).first,
+        );
+        final box = ring.decoration! as BoxDecoration;
+        expect(box.shape, BoxShape.circle);
+        expect(box.color, paper);
+        expect(ring.padding, const EdgeInsets.all(3));
+        expect(tester.getSize(find.byKey(key)), const Size(_avatar, _avatar));
+      }
+      expect(find.widgetWithText(FilledButton, 'Envoyer un message'), findsNothing);
+      expect(find.widgetWithText(ElevatedButton, 'Envoyer un message'), findsOneWidget);
+    });
+
     testWidgets('both buttons are full width and aligned', (tester) async {
       await _open(tester);
       await tester.pumpAndSettle();
-      final primary = tester.getRect(find.widgetWithText(FilledButton, 'Envoyer un message'));
+      final primary = tester.getRect(find.widgetWithText(ElevatedButton, 'Envoyer un message'));
       final secondary = tester.getRect(find.widgetWithText(TextButton, 'Continuer à découvrir'));
       expect(primary.left, secondary.left);
       expect(primary.right, secondary.right);

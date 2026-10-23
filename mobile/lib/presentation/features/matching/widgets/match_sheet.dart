@@ -41,6 +41,9 @@ class MatchSheetContent extends StatefulWidget {
 
   static const avatarSize = 80.0;
   static const badgeSize = 32.0;
+
+  /// Paper ring around each photo, so the two stay distinct where they touch.
+  static const paperRing = 3.0;
   static const ringKey = Key('match-ring');
   static const myAvatarKey = Key('match-avatar-me');
   static const theirAvatarKey = Key('match-avatar-them');
@@ -125,7 +128,7 @@ class _MatchSheetContentState extends State<MatchSheetContent> with TickerProvid
     final name = widget.matched.displayName?.trim();
     final line = name == null || name.isEmpty
         ? 'Vous vous êtes plu.'
-        : 'Vous et $name vous êtes plu.';
+        : '$name et vous vous êtes plu.';
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,7 +143,7 @@ class _MatchSheetContentState extends State<MatchSheetContent> with TickerProvid
           style: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 28),
-        FilledButton(
+        ElevatedButton(
           onPressed: () => _choose(MatchSheetChoice.message),
           child: const Text('Envoyer un message'),
         ),
@@ -233,8 +236,11 @@ class _MatchAvatar extends StatelessWidget {
         ),
       ),
     );
-    return SizedBox.square(
-      dimension: MatchSheetContent.avatarSize,
+    return Container(
+      width: MatchSheetContent.avatarSize,
+      height: MatchSheetContent.avatarSize,
+      padding: const EdgeInsets.all(MatchSheetContent.paperRing),
+      decoration: BoxDecoration(color: scheme.surface, shape: BoxShape.circle),
       child: ClipOval(
         child: url == null || url!.isEmpty
             ? fallback
