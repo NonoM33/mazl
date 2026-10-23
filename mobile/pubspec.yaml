@@ -93,6 +93,7 @@ dependencies:
   just_audio: 0.10.6
   audio_session: 0.2.4
   path_provider: ^2.1.5
+  clock: ^1.1.1
 
 dev_dependencies:
   flutter_test:

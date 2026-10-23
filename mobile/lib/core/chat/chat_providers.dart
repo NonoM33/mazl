@@ -22,7 +22,7 @@ final chatApiProvider = Provider<ChatApi>(
 /// My numeric user id (the one messages carry as `sender_id`). Recomputed when
 /// another account signs in.
 final chatMyUserIdProvider = FutureProvider<int>((ref) async {
-  ref.watch(_signedInUserProvider);
+  ref.watch(chatSessionProvider);
   final response = await ApiService().getCurrentUser();
   final user = response.data;
   if (!response.success || user == null) {
@@ -32,16 +32,14 @@ final chatMyUserIdProvider = FutureProvider<int>((ref) async {
 });
 
 /// Changes when another account signs in or out, so chat state is rebuilt.
-final chatSessionProvider = Provider<String?>((ref) => ref.watch(_signedInUserProvider));
-
-final _signedInUserProvider = Provider<String?>(
+final chatSessionProvider = Provider<String?>(
   (ref) => ref.watch(currentUserProvider.select((user) => user?.id)),
 );
 
 /// Real-time input of the chat: the WebSocket, or in the demo session a source
 /// that polls the same [ChatApi] (the demo has no socket).
 final chatRealtimeSourceProvider = Provider<ChatRealtimeSource>((ref) {
-  ref.watch(_signedInUserProvider);
+  ref.watch(chatSessionProvider);
   if (DevSession.isActive) {
     return DemoChatRealtimeSource(
       api: ref.watch(chatApiProvider),
