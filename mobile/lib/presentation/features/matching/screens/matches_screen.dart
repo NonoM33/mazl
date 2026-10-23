@@ -215,17 +215,26 @@ class _MatchesScreenState extends State<MatchesScreen>
     final newCount = matches
         .where((m) => _isNewMatch(m['matchedAt'] as String?))
         .length;
-    final showBanner =
-        !CoupleService().isCoupleModeEnabled && !_coupleModeBannerDismissed;
-
     return [
-      if (showBanner) ...[
-        _CoupleModePromoBanner(
-          onActivate: () => context.push('/couple/setup'),
-          onDismiss: _dismissCoupleBanner,
-        ),
-        const SizedBox(height: 24),
-      ],
+      ListenableBuilder(
+        listenable: CoupleService(),
+        builder: (context, _) {
+          final couple = CoupleService();
+          final show = shouldShowCouplePromo(
+            coupleModeEnabled: couple.isCoupleModeEnabled,
+            hasPendingRequest: couple.pendingRequest != null,
+            dismissed: _coupleModeBannerDismissed,
+          );
+          if (!show) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: _CoupleModePromoBanner(
+              onActivate: () => context.push('/couple/setup'),
+              onDismiss: _dismissCoupleBanner,
+            ),
+          );
+        },
+      ),
       SectionLabel('Nouveaux · $newCount'),
       const SizedBox(height: 16),
       SizedBox(
@@ -378,6 +387,14 @@ class _MatchesScreenState extends State<MatchesScreen>
     ];
   }
 }
+
+/// The « Activer le mode couple » banner only invites people who can act on
+/// it: not already a couple, no request waiting for an answer, not dismissed.
+bool shouldShowCouplePromo({
+  required bool coupleModeEnabled,
+  required bool hasPendingRequest,
+  required bool dismissed,
+}) => !coupleModeEnabled && !hasPendingRequest && !dismissed;
 
 class _CoupleModePromoBanner extends StatelessWidget {
   const _CoupleModePromoBanner({

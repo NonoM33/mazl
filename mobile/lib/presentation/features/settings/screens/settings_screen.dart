@@ -724,7 +724,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final result = await _coupleService.leaveCouple();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? ''),
+        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? 'Impossible de quitter le mode couple. Réessayez.'),
       ),
     );
     if (mounted) setState(() {});
@@ -817,7 +817,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final result = await _coupleService.cancelCoupleRequest();
     if (!result.ok) {
-      messenger.showSnackBar(SnackBar(content: Text(result.message ?? '')));
+      messenger.showSnackBar(SnackBar(content: Text(result.message ?? "Impossible d'annuler la demande. Réessayez.")));
     }
     if (mounted) setState(() {});
   }
