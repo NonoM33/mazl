@@ -43,16 +43,7 @@ const _allowedFiles = <String, String>{
 };
 
 /// Littéraux précis tolérés pour l'instant.
-const _allowedLiterals = <String, String>{
-  // discover_screen.dart est en cours de modification par une autre
-  // personne : ces deux messages seront vouvoyés dans sa livraison. Retirer
-  // ces entrées dès que c'est fait (le test les signalera alors comme
-  // périmées).
-  'Boost activé ! Tu seras visible en priorité pendant 30 minutes.':
-      'discover_screen.dart, à vouvoyer par l\'autre chantier',
-  'Tu as matché avec ':
-      'discover_screen.dart, à vouvoyer par l\'autre chantier',
-};
+const _allowedLiterals = <String, String>{};
 
 /// Violations d'un texte : liste des fragments fautifs.
 List<String> tutoiementsDans(String literal) {
