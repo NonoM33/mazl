@@ -61,6 +61,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   int _markedUpTo = 0;
   String? _newestKey;
   Timer? _highlightTimer;
+  Timer? _appearTimer;
 
   ChatActions get _actions => ref.read(chatActionsProvider(widget.conversationId));
 
@@ -86,10 +87,9 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       final arrived = from < 0 ? const <ChatMessage>[] : messages.sublist(from + 1);
       final mineSent = arrived.any((m) => m.senderId == widget.state.myUserId);
       final fromOther = arrived.where((m) => m.senderId != widget.state.myUserId).length;
-      for (final m in arrived) {
-        _appearing.add(messageKey(m));
-        Timer(const Duration(milliseconds: 400), () => _appearing.remove(messageKey(m)));
-      }
+      _appearing.addAll(arrived.map(messageKey));
+      _appearTimer?.cancel();
+      _appearTimer = Timer(const Duration(milliseconds: 400), _appearing.clear);
       if (mineSent || _atBottom) {
         SchedulerBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
       } else {
@@ -103,6 +103,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   @override
   void dispose() {
     _highlightTimer?.cancel();
+    _appearTimer?.cancel();
     _scroll.dispose();
     super.dispose();
   }

@@ -40,6 +40,8 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   bool _timeRevealed = false;
   int _hearts = 0;
 
+  static const _avatarSlot = 36.0;
+
   MessageItem get item => widget.item;
   ChatMessage get message => item.message;
 
@@ -105,35 +107,50 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     );
 
     final hasReactions = message.reactions.any((r) => r.userIds.isNotEmpty);
+    // The pill bites 8 px into the bubble's bottom edge, on the side opposite
+    // the tail; the padding below keeps it inside the Stack so the whole pill
+    // can be tapped.
+    final bubbleWithPill = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(padding: EdgeInsets.only(bottom: hasReactions ? ReactionPill.height + 4 - ReactionPill.bite : 0), child: gestures),
+        if (hasReactions)
+          Positioned(
+            bottom: 0,
+            left: item.mine ? 12 : null,
+            right: item.mine ? null : 12,
+            child: ReactionPill(
+              reactions: message.reactions,
+              myUserId: scope.myUserId,
+              onTap: () => showReactionsSheet(context, reactions: message.reactions, scope: scope),
+            ),
+          ),
+      ],
+    );
+
     final column = Column(
-      crossAxisAlignment: item.mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // The pill bites 8 px into the bubble's bottom edge, on the side
-        // opposite the tail; the padding below keeps it inside the Stack so
-        // the whole pill can be tapped.
-        Stack(
-          clipBehavior: Clip.none,
+        Row(
+          mainAxisAlignment: item.mine ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Padding(padding: EdgeInsets.only(bottom: hasReactions ? ReactionPill.height + 4 - ReactionPill.bite : 0), child: gestures),
-            if (hasReactions)
-              Positioned(
-                bottom: 0,
-                left: item.mine ? 12 : null,
-                right: item.mine ? null : 12,
-                child: ReactionPill(
-                  reactions: message.reactions,
-                  myUserId: scope.myUserId,
-                  onTap: () => showReactionsSheet(context, reactions: message.reactions, scope: scope),
-                ),
-              ),
+            if (!item.mine) _avatar(scope),
+            Flexible(child: bubbleWithPill),
           ],
         ),
-        AnimatedSize(
-          duration: noMotion ? Duration.zero : const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topCenter,
-          child: _meta(ops, scheme),
+        Padding(
+          padding: EdgeInsets.only(left: item.mine ? 0 : _avatarSlot),
+          child: Align(
+            alignment: item.mine ? Alignment.centerRight : Alignment.centerLeft,
+            child: AnimatedSize(
+              duration: noMotion ? Duration.zero : const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: _meta(ops, scheme),
+            ),
+          ),
         ),
       ],
     );
@@ -152,14 +169,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
               child: SwipeToReply(
                 enabled: !message.isLocal && !message.unsent,
                 onReply: () => scope.onReply(message),
-                child: Row(
-                  mainAxisAlignment: item.mine ? MainAxisAlignment.end : MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (!item.mine) _avatar(scope),
-                    Flexible(child: column),
-                  ],
-                ),
+                child: column,
               ),
             ),
             if (!item.mine)
