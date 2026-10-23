@@ -31,22 +31,22 @@ List<CompletionStep> buildCompletionSteps({
     CompletionStep(
       target: CompletionTarget.editProfile,
       isComplete: photos.length >= 2,
-      description: photos.length >= 2 ? 'Photos ajoutées' : 'Ajoute au moins 2 photos',
+      description: photos.length >= 2 ? 'Photos ajoutées' : 'Ajoutez au moins 2 photos',
     ),
     CompletionStep(
       target: CompletionTarget.editProfile,
       isComplete: hasBio,
-      description: hasBio ? 'Bio complétée' : 'Décris-toi en quelques lignes',
+      description: hasBio ? 'Bio complétée' : 'Décrivez-vous en quelques lignes',
     ),
     CompletionStep(
       target: CompletionTarget.settings,
       isComplete: hasLocation,
-      description: hasLocation ? 'Ville renseignée' : 'Indique ta ville',
+      description: hasLocation ? 'Ville renseignée' : 'Indiquez votre ville',
     ),
     CompletionStep(
       target: CompletionTarget.verification,
       isComplete: isVerified,
-      description: isVerified ? 'Profil vérifié' : 'Fais vérifier ton profil',
+      description: isVerified ? 'Profil vérifié' : 'Faites vérifier votre profil',
     ),
   ];
 }
@@ -79,7 +79,7 @@ class ProfileCompletionCard extends StatelessWidget {
           SectionLabel('Profil · $done/${steps.length}'),
           const SizedBox(height: 10),
           const Text(
-            'Complète ton profil',
+            'Complétez votre profil',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.6),
           ),
           const SizedBox(height: 4),

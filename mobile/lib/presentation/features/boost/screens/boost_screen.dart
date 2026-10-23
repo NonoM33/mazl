@@ -88,7 +88,7 @@ class _BoostScreenState extends State<BoostScreen> {
         _startTimer();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Boost active ! Ton profil est maintenant en avant.'),
+            content: Text('Boost activé. Votre profil est maintenant en avant.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -132,7 +132,7 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadBoostStatus,
-            child: const Text('Reessayer'),
+            child: const Text('Réessayer'),
           ),
         ],
       ),
@@ -212,7 +212,7 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 16),
 
           Text(
-            isActive ? 'Boost Actif !' : 'Boost ton Profil',
+            isActive ? 'Boost actif' : 'Boostez votre profil',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -242,7 +242,7 @@ class _BoostScreenState extends State<BoostScreen> {
             ),
           ] else
             Text(
-              'Sois vu par 10x plus de personnes !',
+              'Soyez vu par 10x plus de personnes.',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
@@ -318,12 +318,12 @@ class _BoostScreenState extends State<BoostScreen> {
             const SizedBox(height: 16),
             _BenefitRow(
               icon: LucideIcons.trendingUp,
-              text: 'Apparais en premier dans les suggestions',
+              text: 'Apparaissez en premier dans les suggestions',
               color: Colors.purple,
             ),
             _BenefitRow(
               icon: LucideIcons.eye,
-              text: '10x plus de visibilite pendant 30 min',
+              text: '10x plus de visibilité pendant 30 min',
               color: Colors.blue,
             ),
             _BenefitRow(
@@ -333,7 +333,7 @@ class _BoostScreenState extends State<BoostScreen> {
             ),
             _BenefitRow(
               icon: LucideIcons.barChart2,
-              text: 'Stats en temps reel pendant le boost',
+              text: 'Stats en temps réel pendant le boost',
               color: AppColors.success,
             ),
           ],
@@ -402,24 +402,24 @@ class _BoostScreenState extends State<BoostScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGold.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.crown, color: AppColors.accentGold),
+          Icon(LucideIcons.plus, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Boosts illimites',
+                  'Boosts illimités',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Passe Premium pour booster sans limite',
+                  'Boostez sans limite avec mazl+',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],

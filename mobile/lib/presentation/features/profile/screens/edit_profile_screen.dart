@@ -113,7 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Profil mis a jour !'),
+            content: Text('Profil mis à jour'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -159,7 +159,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Photo ajoutee !'),
+              content: Text('Photo ajoutée'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -168,7 +168,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(response.error ?? 'Erreur d\'upload'),
+              content: Text(response.error ?? 'Erreur d\'envoi'),
               backgroundColor: Colors.red,
             ),
           );
@@ -234,7 +234,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Cette action est irreversible',
+                'Cette action est irréversible',
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 14,
@@ -294,7 +294,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo supprimee')),
+            const SnackBar(content: Text('Photo supprimée')),
           );
         }
       } else {
@@ -329,7 +329,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo principale mise a jour')),
+            const SnackBar(content: Text('Photo principale mise à jour')),
           );
         }
       }
@@ -574,7 +574,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadProfile,
-              child: const Text('Reessayer'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -605,7 +605,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Maintiens appuye pour definir comme principale',
+          'Maintenez appuyé pour définir comme principale',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -618,7 +618,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         // Bio
         const Text(
-          'A propos',
+          'À propos',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -630,7 +630,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           maxLines: 4,
           maxLength: 500,
           decoration: const InputDecoration(
-            hintText: 'Parle de toi...',
+            hintText: 'Parlez de vous…',
             border: OutlineInputBorder(),
           ),
         ),
@@ -660,13 +660,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Prenom',
-          value: _displayName ?? 'Non renseigne',
-          onTap: () => _showEditSheet('Prenom', _displayName, (v) => setState(() => _displayName = v)),
+          label: 'Prénom',
+          value: _displayName ?? 'Non renseigné',
+          onTap: () => _showEditSheet('Prénom', _displayName, (v) => setState(() => _displayName = v)),
         ),
         _EditField(
           label: 'Ville',
-          value: _location ?? 'Non renseigne',
+          value: _location ?? 'Non renseigné',
           onTap: () => _showEditSheet('Ville', _location, (v) => setState(() => _location = v)),
         ),
 
@@ -682,10 +682,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Denomination',
-          value: _denomination ?? 'Non renseigne',
+          label: 'Dénomination',
+          value: _denomination ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
-            'Denomination',
+            'Dénomination',
             _denomination,
             ['Laique', 'Traditionaliste', 'Massorti', 'Modern Orthodox', 'Orthodox', 'Habad', 'Autre'],
             (v) => setState(() => _denomination = v),
@@ -693,7 +693,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         _EditField(
           label: 'Kashrout',
-          value: _kashrut ?? 'Non renseigne',
+          value: _kashrut ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
             'Kashrout',
             _kashrut,
@@ -703,7 +703,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         _EditField(
           label: 'Shabbat',
-          value: _shabbatObservance ?? 'Non renseigne',
+          value: _shabbatObservance ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
             'Shabbat',
             _shabbatObservance,

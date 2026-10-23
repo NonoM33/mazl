@@ -62,7 +62,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
             children: [
               Icon(LucideIcons.heart, color: Colors.white),
               SizedBox(width: 12),
-              Text('Mode Couple active ! Mazl Tov !'),
+              Text('Mode couple activé. Mazal tov !'),
             ],
           ),
           backgroundColor: AppColors.success,
@@ -131,7 +131,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Felicitations !',
+                          'Félicitations',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -139,7 +139,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tu as trouve quelqu\'un de special sur MAZL.\nActive le mode couple pour profiter de fonctionnalites exclusives.',
+                          'Vous avez trouvé quelqu\'un de spécial sur MAZL.\nActivez le mode couple pour profiter de fonctionnalités exclusives.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey[600],
@@ -164,29 +164,29 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                   _buildBenefit(
                     icon: LucideIcons.messageCircle,
                     title: 'Questions quotidiennes',
-                    description: 'Apprenez a mieux vous connaitre chaque jour',
+                    description: 'Apprenez à mieux vous connaître chaque jour',
                   ),
                   _buildBenefit(
                     icon: LucideIcons.trophy,
                     title: 'Milestones de couple',
-                    description: 'Celebrez vos etapes importantes ensemble',
+                    description: 'Célébrez vos étapes importantes ensemble',
                   ),
                   _buildBenefit(
                     icon: LucideIcons.calendarHeart,
-                    title: 'Evenements pour couples',
-                    description: 'Acces aux events exclusifs de la communaute',
+                    title: 'Événements pour couples',
+                    description: 'Accès aux événements exclusifs de la communauté',
                   ),
                   _buildBenefit(
                     icon: LucideIcons.moonStar,
-                    title: 'Calendrier juif partage',
-                    description: 'Preparez les fetes et Shabbat ensemble',
+                    title: 'Calendrier juif partagé',
+                    description: 'Préparez les fêtes et Shabbat ensemble',
                   ),
 
                   const SizedBox(height: 32),
 
                   // Select partner
                   const Text(
-                    'Selectionne ton/ta partenaire',
+                    'Sélectionnez votre partenaire',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -230,7 +230,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
 
                     // Relationship start date
                     const Text(
-                      'Depuis quand etes-vous ensemble ?',
+                      'Depuis quand êtes-vous ensemble ?',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

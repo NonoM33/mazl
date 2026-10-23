@@ -90,7 +90,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (response.success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Parametres sauvegardes'),
+          content: Text('Paramètres sauvegardés'),
           backgroundColor: AppColors.success,
         ),
       );
@@ -229,7 +229,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      'Tape le nom de ta ville et selectionne une suggestion',
+                      'Saisissez le nom de votre ville et sélectionnez une suggestion',
                       style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                   ),
@@ -368,7 +368,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildSheetHandle(),
                 const Padding(
                   padding: EdgeInsets.all(20),
-                  child: Text('Tranche d\'age', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text('Tranche d\'âge', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -458,7 +458,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await RevenueCatService().restorePurchases();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Achats restaures avec succes!')),
+          const SnackBar(content: Text('Achats restaurés avec succès.')),
         );
         setState(() {});
       }
@@ -473,9 +473,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _handleLogout() async {
     final confirmed = await _showConfirmSheet(
-      title: 'Se deconnecter',
-      message: 'Es-tu sur de vouloir te deconnecter ?',
-      confirmText: 'Se deconnecter',
+      title: 'Se déconnecter',
+      message: 'Voulez-vous vraiment vous déconnecter ?',
+      confirmText: 'Se déconnecter',
       isDestructive: false,
     );
 
@@ -556,7 +556,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
-                    'Pourquoi souhaites-tu nous quitter ?',
+                    'Pourquoi souhaitez-vous nous quitter ?',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
@@ -693,7 +693,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      'Cette action est irréversible !',
+                      'Cette action est irréversible.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.error,
@@ -702,7 +702,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Toutes tes données seront supprimées :\n• Ton profil et tes photos\n• Tes matchs et conversations\n• Ton historique de likes\n• Tes paramètres',
+                      'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
@@ -755,7 +755,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _handleDeactivateCoupleMode() async {
     final confirmed = await _showConfirmSheet(
       title: 'Quitter le mode couple',
-      message: 'Tu pourras le reactiver plus tard si tu le souhaites.',
+      message: 'Vous pourrez le réactiver plus tard si vous le souhaitez.',
       confirmText: 'Quitter',
       isDestructive: true,
     );
@@ -764,7 +764,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       CoupleService().disableCoupleMode();
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mode couple desactive')),
+        const SnackBar(content: Text('Mode couple désactivé')),
       );
     }
   }
@@ -891,7 +891,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Text(
-                        'Avec ${coupleData.partnerName ?? 'ton/ta partenaire'}',
+                        'Avec ${coupleData.partnerName ?? 'votre partenaire'}',
                         style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
@@ -973,9 +973,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tu as trouve l\'amour ?', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Vous avez trouvé l\'amour ?', style: TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  'Active le mode couple pour des features exclusives',
+                  'Activez le mode couple pour des fonctionnalités exclusives',
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
@@ -1164,13 +1164,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
 
-    final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecte';
+    final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecté';
     final userName = _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Parametres'),
+        title: const Text('Paramètres'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () {
@@ -1230,11 +1230,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               // Discovery section
-              _SectionHeader(title: 'Decouverte'),
+              _SectionHeader(title: 'Découverte'),
               _SettingTile(
                 icon: LucideIcons.mapPin,
                 title: 'Localisation',
-                subtitle: _location ?? 'Non defini',
+                subtitle: _location ?? 'Non défini',
                 onTap: _showLocationSheet,
               ),
               _SettingTile(
@@ -1245,13 +1245,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.users,
-                title: 'Tranche d\'age',
+                title: 'Tranche d\'âge',
                 subtitle: '$_ageMin - $_ageMax ans',
                 onTap: _showAgeRangeSheet,
               ),
 
               // Jewish settings
-              _SectionHeader(title: 'Parametres juifs'),
+              _SectionHeader(title: 'Paramètres juifs'),
               _SettingTile(
                 icon: LucideIcons.moonStar,
                 iconColor: AppColors.accentGold,
@@ -1261,8 +1261,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.calendarHeart,
-                title: 'Alertes fetes',
-                subtitle: 'Notifications avant les fetes',
+                title: 'Alertes fêtes',
+                subtitle: 'Notifications avant les fêtes',
                 trailing: Switch(
                   value: _notifHolidays,
                   onChanged: (value) => setState(() => _notifHolidays = value),
@@ -1322,11 +1322,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               // Privacy & Safety
-              _SectionHeader(title: 'Confidentialite & Securite'),
+              _SectionHeader(title: 'Confidentialité et sécurité'),
               _SettingTile(
                 icon: LucideIcons.ban,
-                title: 'Utilisateurs bloques',
-                subtitle: 'Gerer les personnes bloquees',
+                title: 'Utilisateurs bloqués',
+                subtitle: 'Gérer les personnes bloquées',
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const BlockedUsersScreen()),
@@ -1334,16 +1334,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.shieldCheck,
-                title: 'Verification du profil',
-                subtitle: _userProfile?.profile?.isVerified == true ? 'Verifie' : 'Non verifie',
+                title: 'Vérification du profil',
+                subtitle: _userProfile?.profile?.isVerified == true ? 'Vérifié' : 'Non vérifié',
                 onTap: () => context.push(RoutePaths.verification),
               ),
 
               // About
-              _SectionHeader(title: 'A propos'),
+              _SectionHeader(title: 'À propos'),
               _SettingTile(
                 icon: LucideIcons.helpCircle,
-                title: 'Aide & Support',
+                title: 'Aide et support',
                 onTap: () {},
               ),
               _SettingTile(
@@ -1353,7 +1353,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.shield,
-                title: 'Politique de confidentialite',
+                title: 'Politique de confidentialité',
                 onTap: () {},
               ),
               _SettingTile(
@@ -1396,7 +1396,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onPressed: _debugEnableCoupleMode,
                           ),
                           _DebugButton(
-                            label: 'Desactiver Couple',
+                            label: 'Désactiver Couple',
                             icon: LucideIcons.heartOff,
                             onPressed: _debugDisableCoupleMode,
                           ),
@@ -1427,7 +1427,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),
                   ),
-                  child: const Text('Se deconnecter'),
+                  child: const Text('Se déconnecter'),
                 ),
               ),
               const SizedBox(height: 8),

@@ -23,7 +23,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
       compatibilityScore: 95,
       reasons: [
         'Même niveau de pratique',
-        'Intérêts communs: voyages, cuisine',
+        'Intérêts communs : voyages, cuisine',
         'Objectifs similaires',
       ],
       color: AppColors.secondary,
@@ -65,7 +65,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
     setState(() => _suggestions.remove(suggestion));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${suggestion.name} ajoutée à tes likes'),
+        content: Text('${suggestion.name} ajoutée à vos likes'),
         backgroundColor: AppColors.likeGreen,
       ),
     );
@@ -98,7 +98,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                     ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Ton Shadchan Personnel',
+                  'Votre Shadchan personnel',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -107,7 +107,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Notre IA analyse tes préférences pour te proposer des profils ultra-compatibles',
+                  'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
@@ -190,7 +190,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                   const SizedBox(height: 12),
                   _HowItWorksStep(
                     number: '1',
-                    text: 'Notre IA analyse ton profil et tes préférences',
+                    text: 'Notre IA analyse votre profil et vos préférences',
                   ),
                   _HowItWorksStep(
                     number: '2',
@@ -198,7 +198,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                   ),
                   _HowItWorksStep(
                     number: '3',
-                    text: 'Tu reçois des suggestions personnalisées chaque jour',
+                    text: 'Vous recevez des suggestions personnalisées chaque jour',
                   ),
                 ],
               ),
@@ -243,13 +243,13 @@ class _EmptySuggestions extends StatelessWidget {
             const Icon(LucideIcons.sparkles, size: 40, color: AppColors.accent),
             const SizedBox(height: 12),
             const Text(
-              'Tu as parcouru toutes tes suggestions !',
+              'Vous avez parcouru toutes vos suggestions.',
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
-              'Reviens demain pour de nouvelles propositions de ton Shadchan.',
+              'Revenez demain pour de nouvelles propositions de votre Shadchan.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),

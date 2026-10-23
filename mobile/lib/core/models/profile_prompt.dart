@@ -42,8 +42,8 @@ class PromptTemplate {
     {'id': 'israel_memory', 'text': 'Mon meilleur souvenir en Israël...', 'category': 'jewish'},
     {'id': 'jewish_value', 'text': 'Une valeur juive qui me guide...', 'category': 'jewish'},
     // Conversation starters
-    {'id': 'debate_me', 'text': 'Débats moi sur...', 'category': 'conversation'},
-    {'id': 'teach_me', 'text': 'Apprends-moi quelque chose sur...', 'category': 'conversation'},
+    {'id': 'debate_me', 'text': 'Débattez avec moi sur…', 'category': 'conversation'},
+    {'id': 'teach_me', 'text': 'Apprenez-moi quelque chose sur…', 'category': 'conversation'},
     {'id': 'together_we_could', 'text': 'Ensemble on pourrait...', 'category': 'conversation'},
     {'id': 'first_date', 'text': 'Premier date idéal...', 'category': 'conversation'},
   ];

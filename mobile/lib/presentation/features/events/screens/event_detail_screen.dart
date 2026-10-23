@@ -126,7 +126,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             );
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Inscription confirmée !'),
+                content: Text('Inscription confirmée'),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -278,7 +278,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   final event = _event;
                   if (event == null) return;
                   Share.share(
-                    'Rejoins-moi à "${event.title}" sur MAZL ! 🎉',
+                    'Rejoignez-moi à "${event.title}" sur MAZL',
                     subject: event.title,
                   );
                 },

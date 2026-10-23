@@ -85,7 +85,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '💑 Couples',
+                'Couples',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -238,7 +238,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Inscrit à "${event.title}" !'),
+          content: Text('Inscrit à "${event.title}"'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -429,7 +429,7 @@ class _EventCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
-                        '✡️ Casher',
+                        'Casher',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

@@ -23,7 +23,7 @@ void main() {
 
       expect(milestones, isNotEmpty);
       expect(milestones.length, equals(5));
-      expect(milestones.first.title, equals('Premiere semaine'));
+      expect(milestones.first.title, equals('Première semaine'));
     });
 
     test('getCoupleActivities returns list of activities', () {
@@ -46,11 +46,11 @@ void main() {
     });
 
     test('RelationshipStatus has correct display names', () {
-      expect(RelationshipStatus.single.displayName, equals('Celibataire'));
+      expect(RelationshipStatus.single.displayName, equals('Célibataire'));
       expect(RelationshipStatus.dating.displayName, equals('En train de dater'));
       expect(RelationshipStatus.inRelationship.displayName, equals('En couple'));
-      expect(RelationshipStatus.engaged.displayName, equals('Fiance(e)'));
-      expect(RelationshipStatus.married.displayName, equals('Marie(e)'));
+      expect(RelationshipStatus.engaged.displayName, equals('Fiancé(e)'));
+      expect(RelationshipStatus.married.displayName, equals('Marié(e)'));
     });
 
     test('RelationshipStatus.isInCouple returns correct values', () {

@@ -34,7 +34,7 @@ class ProfilePromptsDisplay extends StatelessWidget {
               Icon(LucideIcons.messageCircle, size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
               const Text(
-                'Apprends a me connaitre',
+                'Apprenez à me connaître',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

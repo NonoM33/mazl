@@ -340,7 +340,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ajoutez vos premiers souvenirs ensemble !',
+                  'Ajoutez vos premiers souvenirs ensemble.',
                   style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -481,7 +481,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ajoutez des expériences à vivre ensemble !',
+                  'Ajoutez des expériences à vivre ensemble.',
                   style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -611,7 +611,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Faites des activités ensemble pour débloquer des badges !',
+                  'Faites des activités ensemble pour débloquer des badges.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
@@ -685,7 +685,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Objectif accompli ! 🎉'),
+          content: Text('Objectif accompli'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),

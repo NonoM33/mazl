@@ -69,7 +69,7 @@ class IcebreakersWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Voici quelques idees pour briser la glace',
+                      'Voici quelques idées pour briser la glace',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey,

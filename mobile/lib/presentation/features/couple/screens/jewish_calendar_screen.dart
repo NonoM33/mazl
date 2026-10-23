@@ -35,7 +35,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '✡️ Juif',
+                'Juif',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -57,7 +57,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
 
           // Shabbat activities for couples
           const Text(
-            'Idees pour ce Shabbat',
+            'Idées pour ce Shabbat',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -70,7 +70,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
 
           // Upcoming holidays
           const Text(
-            'Prochaines fetes',
+            'Prochaines fêtes',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -182,7 +182,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Astuce : Preparez votre diner de Shabbat ensemble pour un moment de complicite',
+                    'Astuce : préparez votre dîner de Shabbat ensemble pour un moment de complicité',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[700],
@@ -447,7 +447,7 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
                 ),
                 const SizedBox(width: 8),
                 const Text(
-                  'Idees couple :',
+                  'Idées en couple :',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

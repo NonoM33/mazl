@@ -146,7 +146,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Swipez vers le haut pour sauvegarder\ndes activités qui vous plaisent !',
+            'Glissez vers le haut pour sauvegarder\ndes activités qui vous plaisent.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey[500]),
           ),

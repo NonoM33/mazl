@@ -200,7 +200,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       // Products not configured - show message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Les abonnements seront disponibles prochainement !'),
+          content: Text('Les abonnements seront disponibles prochainement.'),
         ),
       );
     }
@@ -213,7 +213,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       if (_revenueCat.isMazlPro) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Abonnement restauré !'),
+            content: Text('Abonnement restauré'),
             backgroundColor: AppColors.success,
           ),
         );

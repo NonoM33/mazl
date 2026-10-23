@@ -84,7 +84,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Etape ${_currentStep + 1}/$_totalSteps'),
+        title: Text('Étape ${_currentStep + 1}/$_totalSteps'),
         leading: _currentStep > 0
             ? IconButton(
                 icon: const Icon(LucideIcons.arrowLeft),
@@ -169,13 +169,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   bool _validateCurrentStep() {
     if (_currentStep == 0) {
       if (_nameController.text.trim().isEmpty) {
-        return _fail('Indique ton prenom pour continuer');
+        return _fail('Indiquez votre prénom pour continuer');
       }
       if (_birthDate == null) {
-        return _fail('Indique ta date de naissance');
+        return _fail('Indiquez votre date de naissance');
       }
       if (_gender == null) {
-        return _fail('Indique ton genre');
+        return _fail('Indiquez votre genre');
       }
     }
     return true;
@@ -231,7 +231,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (response.success && response.data != null) {
         setState(() => _photos.add(response.data!));
       } else {
-        _fail(response.error ?? 'Erreur d\'upload');
+        _fail(response.error ?? 'Erreur d\'envoi');
       }
     } catch (e) {
       if (!mounted) return;
@@ -289,8 +289,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Parle-nous de toi',
-          subtitle: 'Ces informations seront visibles sur ton profil',
+          title: 'Parlez-nous de vous',
+          subtitle: 'Ces informations seront visibles sur votre profil',
         ),
         const SizedBox(height: 32),
 
@@ -298,8 +298,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           controller: _nameController,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
-            labelText: 'Prenom',
-            hintText: 'Comment tu t\'appelles ?',
+            labelText: 'Prénom',
+            hintText: 'Comment vous appelez-vous ?',
           ),
         ),
         const SizedBox(height: 16),
@@ -350,7 +350,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
             labelText: 'Ville',
-            hintText: 'Ou habites-tu ?',
+            hintText: 'Où habitez-vous ?',
             prefixIcon: Icon(LucideIcons.mapPin),
           ),
         ),
@@ -363,8 +363,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Ajoute des photos',
-          subtitle: 'Ajoute au moins 2 photos pour continuer',
+          title: 'Ajoutez des photos',
+          subtitle: 'Ajoutez au moins 2 photos pour continuer',
           trailing: _isUploadingPhoto
               ? const SizedBox(
                   width: 20,
@@ -404,7 +404,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Les profils avec des photos de bonne qualite recoivent 3x plus de matchs !',
+                  'Les profils avec des photos de bonne qualité reçoivent 3x plus de matchs.',
                   style: TextStyle(fontSize: 13),
                 ),
               ),
@@ -420,12 +420,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Ta pratique',
-          subtitle: 'Aide-nous a trouver quelqu\'un qui te correspond',
+          title: 'Votre pratique',
+          subtitle: 'Aidez-nous à trouver quelqu\'un qui vous correspond',
         ),
         const SizedBox(height: 32),
 
-        const Text('Denomination', style: TextStyle(fontWeight: FontWeight.w500)),
+        const Text('Dénomination', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         _ChoiceChips(
           options: _denominationOptions,
@@ -471,8 +471,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Ce que tu recherches',
-          subtitle: 'Aide-nous a te montrer les bons profils',
+          title: 'Ce que vous recherchez',
+          subtitle: 'Aidez-nous à vous montrer les bons profils',
         ),
         const SizedBox(height: 32),
 
@@ -500,7 +500,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        const Text('Tranche d\'age', style: TextStyle(fontWeight: FontWeight.w500)),
+        const Text('Tranche d\'âge', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         RangeSlider(
           values: _ageRange,
@@ -516,7 +516,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        const Text('Distance maximum', style: TextStyle(fontWeight: FontWeight.w500)),
+        const Text('Distance maximale', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Slider(
           value: _maxDistance,
@@ -551,7 +551,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Notre AI Shadchan utilisera ces preferences pour te proposer des profils compatibles !',
+                  'Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.',
                   style: TextStyle(color: Colors.white, fontSize: 13),
                 ),
               ),

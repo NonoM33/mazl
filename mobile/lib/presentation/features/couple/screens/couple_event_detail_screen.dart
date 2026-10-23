@@ -75,7 +75,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
           Icon(LucideIcons.alertTriangle, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Evenement introuvable',
+            'Événement introuvable',
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -147,7 +147,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${event.categoryEmoji} ${event.category ?? "Evenement"}',
+                        '${event.categoryEmoji} ${event.category ?? "Événement"}',
                         style: const TextStyle(
                           color: coupleAccent,
                           fontWeight: FontWeight.w600,
@@ -182,7 +182,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                             Icon(LucideIcons.star, size: 14, color: Colors.white),
                             SizedBox(width: 4),
                             Text(
-                              'A la une',
+                              'À la une',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   const SizedBox(height: 20),
                   _buildInfoRow(
                     LucideIcons.shirt,
-                    'Dress code: ${event.dressCode}',
+                    'Dress code : ${event.dressCode}',
                   ),
                 ],
 
@@ -320,7 +320,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   const SizedBox(height: 20),
                   _buildInfoRow(
                     LucideIcons.user,
-                    'Organise par ${event.organizerName}',
+                    'Organisé par ${event.organizerName}',
                   ),
                 ],
 

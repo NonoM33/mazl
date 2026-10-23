@@ -240,16 +240,16 @@ class RevenueCatService {
 
   /// Get subscription status string for UI
   String get subscriptionStatusText {
-    if (!isMazlPro) return 'Free';
+    if (!isMazlPro) return 'Gratuit';
 
     final entitlement =
         _customerInfo?.entitlements.active[RevenueCatConfig.entitlementMazlPro];
-    if (entitlement == null) return 'Free';
+    if (entitlement == null) return 'Gratuit';
 
     if (entitlement.willRenew) {
-      return 'Mazl Pro (Active)';
+      return 'mazl+ (actif)';
     } else {
-      return 'Mazl Pro (Expires soon)';
+      return 'mazl+ (expire bientôt)';
     }
   }
 

@@ -157,7 +157,7 @@ class _BufferRow extends StatelessWidget {
                 children: [
                   const Expanded(
                     child: Text(
-                      'Buffer avant allumage',
+                      'Marge avant l\'allumage',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
