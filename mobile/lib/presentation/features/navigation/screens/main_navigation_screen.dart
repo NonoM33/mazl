@@ -6,6 +6,7 @@ import '../../../../core/services/couple_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../couple/widgets/couple_request_dialog.dart';
 import '../widgets/mazl_nav_bar.dart';
+import '../widgets/nav_bar_collapse.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({
@@ -22,6 +23,7 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final DataPrefetchService _prefetchService = DataPrefetchService();
   final CoupleService _coupleService = CoupleService();
+  final NavBarCollapseController _navBar = NavBarCollapseController();
   bool _hasShownRequest = false;
 
   @override
@@ -78,7 +80,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _navBar.dispose();
+    super.dispose();
+  }
+
   void _onTap(BuildContext context, int index) {
+    _navBar.expand();
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
@@ -97,11 +106,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: widget.navigationShell,
-      bottomNavigationBar: MazlNavBar(
-        items: _items,
-        currentIndex: widget.navigationShell.currentIndex,
-        onTap: (index) => _onTap(context, index),
+      // Scrolling down a tab folds the bar into its icon; a fast scroll up,
+      // the top of the page or a tap on the icon unfolds it.
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _navBar.handleNotification,
+        child: widget.navigationShell,
+      ),
+      bottomNavigationBar: ListenableBuilder(
+        listenable: _navBar,
+        builder: (context, _) => MazlNavBar(
+          items: _items,
+          currentIndex: widget.navigationShell.currentIndex,
+          onTap: (index) => _onTap(context, index),
+          collapsed: _navBar.collapsed,
+          onExpand: _navBar.expand,
+        ),
       ),
     );
   }
