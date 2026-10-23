@@ -17,6 +17,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -30,6 +31,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _isSaving = false;
   UserProfile? _userProfile;
   final ApiService _apiService = ApiService();
+  final CoupleService _coupleService = CoupleService();
 
   // Settings values
   String? _location;
@@ -49,7 +51,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _coupleService.addListener(_onCoupleChanged);
     _loadUserProfile();
+  }
+
+  @override
+  void dispose() {
+    _coupleService.removeListener(_onCoupleChanged);
+    super.dispose();
+  }
+
+  void _onCoupleChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadUserProfile() async {
@@ -708,10 +721,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // The server answers first: on failure nothing changes. On success the
     // router guard brings the member back to the dating screens.
     final messenger = ScaffoldMessenger.of(context);
-    final result = await CoupleService().leaveCouple();
+    final result = await _coupleService.leaveCouple();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? ''),
+        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? 'Impossible de quitter le mode couple. Réessayez.'),
       ),
     );
     if (mounted) setState(() {});
@@ -732,12 +745,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: (isDestructive ? Colors.red : AppColors.primary).withValues(alpha: 0.1),
+              color: (isDestructive ? AppColors.error : AppColors.primary).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-              color: isDestructive ? Colors.red : AppColors.primary,
+              color: isDestructive ? AppColors.error : AppColors.primary,
               size: 32,
             ),
           ),
@@ -749,7 +762,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 24),
@@ -772,7 +785,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDestructive ? Colors.red : AppColors.primary,
+                      backgroundColor: isDestructive ? AppColors.error : AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -790,147 +803,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildCoupleModeCard(BuildContext context) {
-    final coupleService = CoupleService();
-    final isCoupleModeEnabled = coupleService.isCoupleModeEnabled;
-    final coupleData = coupleService.coupleData;
-
-    if (isCoupleModeEnabled && coupleData != null) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(LucideIcons.heartHandshake, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Mode Couple Actif',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        'Avec ${coupleData.partnerName ?? 'votre partenaire'}',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${coupleData.daysTogether} jours',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context.push(RoutePaths.coupleActivities),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
-                    ),
-                    child: const Text('Mode Couple'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context.push(RoutePaths.jewishCalendar),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
-                    ),
-                    child: const Text('Calendrier'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _handleDeactivateCoupleMode,
-                  icon: const Icon(LucideIcons.logOut, color: Colors.white70, size: 20),
-                  tooltip: 'Quitter le mode couple',
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Show activate couple mode card
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.secondary.withValues(alpha: 0.1), AppColors.primary.withValues(alpha: 0.1)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(LucideIcons.heartHandshake, color: AppColors.secondary),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Vous avez trouvé l\'amour ?', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  'Activez le mode couple pour des fonctionnalités exclusives',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => context.push(RoutePaths.coupleSetup),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(80, 36),
-            ),
-            child: const Text('Activer'),
-          ),
-        ],
-      ),
+    return SettingsCoupleCard(
+      service: _coupleService,
+      onOpenSpace: () => context.push(RoutePaths.coupleActivities),
+      onOpenCalendar: () => context.push(RoutePaths.jewishCalendar),
+      onActivate: () => context.push(RoutePaths.coupleSetup),
+      onLeave: _handleDeactivateCoupleMode,
+      onCancelRequest: _handleCancelCoupleRequest,
     );
+  }
+
+  Future<void> _handleCancelCoupleRequest() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await _coupleService.cancelCoupleRequest();
+    if (!result.ok) {
+      messenger.showSnackBar(SnackBar(content: Text(result.message ?? "Impossible d'annuler la demande. Réessayez.")));
+    }
+    if (mounted) setState(() {});
   }
 
   // ============ DEBUG METHODS ============
@@ -1070,6 +959,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         '${revenueCat.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
     ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
+    final inCouple = _coupleService.isCoupleModeEnabled;
 
     final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecté';
     final userName = _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
@@ -1136,26 +1026,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {},
               ),
 
-              // Discovery section
-              _SectionHeader(title: 'Découverte'),
-              _SettingTile(
-                icon: LucideIcons.mapPin,
-                title: 'Localisation',
-                subtitle: _location ?? 'Non défini',
-                onTap: _showLocationSheet,
-              ),
-              _SettingTile(
-                icon: LucideIcons.radar,
-                title: 'Distance maximale',
-                subtitle: '$_distanceMax km',
-                onTap: _showDistanceSheet,
-              ),
-              _SettingTile(
-                icon: LucideIcons.users,
-                title: 'Tranche d\'âge',
-                subtitle: '$_ageMin - $_ageMax ans',
-                onTap: _showAgeRangeSheet,
-              ),
+              // Discovery section (meaningless once the member is in a couple)
+              if (!inCouple) ...[
+                _SectionHeader(title: 'Découverte'),
+                _SettingTile(
+                  icon: LucideIcons.mapPin,
+                  title: 'Localisation',
+                  subtitle: _location ?? 'Non défini',
+                  onTap: _showLocationSheet,
+                ),
+                _SettingTile(
+                  icon: LucideIcons.radar,
+                  title: 'Distance maximale',
+                  subtitle: '$_distanceMax km',
+                  onTap: _showDistanceSheet,
+                ),
+                _SettingTile(
+                  icon: LucideIcons.users,
+                  title: 'Tranche d\'âge',
+                  subtitle: '$_ageMin - $_ageMax ans',
+                  onTap: _showAgeRangeSheet,
+                ),
+              ],
 
               // Jewish settings
               _SectionHeader(title: 'Paramètres juifs'),
@@ -1180,16 +1072,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // Notifications
               _SectionHeader(title: 'Notifications'),
-              _SettingTile(
-                icon: LucideIcons.heartHandshake,
-                title: 'Nouveaux matchs',
-                trailing: Switch(
-                  value: _notifMatches,
-                  onChanged: (value) => setState(() => _notifMatches = value),
-                  activeThumbColor: AppColors.primary,
+              if (!inCouple)
+                _SettingTile(
+                  icon: LucideIcons.heartHandshake,
+                  title: 'Nouveaux matchs',
+                  trailing: Switch(
+                    value: _notifMatches,
+                    onChanged: (value) => setState(() => _notifMatches = value),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                  onTap: () => setState(() => _notifMatches = !_notifMatches),
                 ),
-                onTap: () => setState(() => _notifMatches = !_notifMatches),
-              ),
               _SettingTile(
                 icon: LucideIcons.messageCircle,
                 title: 'Messages',
@@ -1200,16 +1093,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 onTap: () => setState(() => _notifMessages = !_notifMessages),
               ),
-              _SettingTile(
-                icon: LucideIcons.star,
-                title: 'Super Likes',
-                trailing: Switch(
-                  value: _notifSuperLikes,
-                  onChanged: (value) => setState(() => _notifSuperLikes = value),
-                  activeThumbColor: AppColors.primary,
+              if (!inCouple)
+                _SettingTile(
+                  icon: LucideIcons.star,
+                  title: 'Super Likes',
+                  trailing: Switch(
+                    value: _notifSuperLikes,
+                    onChanged: (value) => setState(() => _notifSuperLikes = value),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                  onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
                 ),
-                onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
-              ),
 
               // Couple Mode Section
               _SectionHeader(title: 'Mode Couple'),

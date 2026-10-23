@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mazl/core/dev/dev_session.dart';
 import 'package:mazl/core/router/route_names.dart';
@@ -107,6 +108,9 @@ void main() {
   group('connexion fictive (dev, debug uniquement)', () {
     // Le ProviderScope dispose le singleton AuthService en fin de test : on
     // ne peut donc que fermer la session fictive, pas appeler signOut().
+    // A real phone always has local storage; the demo sign-in clears the
+    // couple cache in it.
+    setUp(() => SharedPreferences.setMockInitialValues({}));
     tearDown(DevSession.stop);
 
     testWidgets('le bouton « Connexion fictive (dev) » est présent et actif', (tester) async {

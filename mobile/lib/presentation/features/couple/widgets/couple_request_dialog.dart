@@ -1,7 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/couple_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
 
 /// Shown to the member who receives a couple request. Accepting hands the rest
 /// (celebration, navigation) to the couple flow host, which hears the
@@ -72,7 +73,10 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final picture = widget.request.requesterPicture;
+    final hairline =
+        Theme.of(context).brightness == Brightness.dark ? AppColors.glassBorderDark : AppColors.hairline;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
@@ -81,27 +85,40 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: scheme.surfaceContainerHigh,
-              backgroundImage: picture != null ? CachedNetworkImageProvider(picture) : null,
-              child: picture == null
-                  ? Text(_name.characters.first.toUpperCase(),
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600))
-                  : null,
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: scheme.surfaceContainer,
+                border: Border.all(color: hairline),
+              ),
+              child: ClipOval(
+                child: picture != null && picture.isNotEmpty
+                    ? ProfilePhoto(url: picture, seed: widget.request.requesterId, radius: 36)
+                    : Center(
+                        child: Text(
+                          _name.characters.first.toUpperCase(),
+                          style: textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                      ),
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               '$_name souhaite activer le mode couple avec vous',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, height: 1.3),
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
             ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.error, fontSize: 13),
+                style: const TextStyle(color: AppColors.error, fontSize: 13),
               ),
             ],
             const SizedBox(height: 24),
@@ -118,7 +135,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
                   child: const Text('Accepter'),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(

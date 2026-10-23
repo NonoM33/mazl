@@ -120,7 +120,7 @@ void main() {
       await tester.pump();
     }
 
-    testWidgets('envoie une demande et montre l\'attente, puis l\'annulation', (tester) async {
+    testWidgets('envoie une demande et montre la confirmation, sans annulation', (tester) async {
       await pumpSetup(tester);
 
       await tester.tap(find.text('Myriam'));
@@ -130,15 +130,67 @@ void main() {
       await tester.pump();
 
       expect(api.calls, contains('send:45'));
-      expect(find.text('Demande envoyée à Myriam'), findsOneWidget);
-      expect(find.text('Annuler la demande'), findsOneWidget);
+      expect(find.text('Demande envoyée'), findsOneWidget);
+      expect(find.text('Myriam doit accepter. Nous vous préviendrons dès sa réponse.'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Compris'), findsOneWidget);
+      expect(find.text('Annuler la demande'), findsNothing);
       expect(service.isCoupleModeEnabled, isFalse);
+      await service.cancelCoupleRequest(); // stops the polling timer
+    });
+
+    testWidgets('« Compris » ferme l\'écran et ramène à la page précédente', (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, _) => Scaffold(
+              body: TextButton(
+                onPressed: () => context.push('/setup'),
+                child: const Text('PAGE PRECEDENTE'),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/setup',
+            builder: (_, __) => CoupleModeSetupScreen(service: service, loadMatches: _oneMatch),
+          ),
+        ],
+      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pump();
+      await tester.tap(find.text('PAGE PRECEDENTE'));
+      await _pumpFor(tester, const Duration(milliseconds: 400));
+
+      await tester.tap(find.text('Myriam'));
+      await tester.pump();
+      await tester.tap(find.text('Envoyer la demande'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('Demande envoyée'), findsOneWidget);
+
+      await tester.tap(find.text('Compris'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Demande envoyée'), findsNothing);
+      expect(find.text('PAGE PRECEDENTE'), findsOneWidget);
+      await service.cancelCoupleRequest(); // stops the polling timer
+    });
+
+    testWidgets('rouvrir avec une demande en attente : confirmation et annulation', (tester) async {
+      await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam');
+      await pumpSetup(tester);
+
+      expect(find.text('Demande envoyée'), findsOneWidget);
+      expect(find.text('Myriam doit accepter. Nous vous préviendrons dès sa réponse.'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'Annuler la demande'), findsOneWidget);
 
       await tester.tap(find.text('Annuler la demande'));
       await tester.pump();
       await tester.pump();
 
       expect(api.calls, contains('cancel:77'));
+      expect(service.pendingRequest, isNull);
+      expect(find.text('Avec qui ?'), findsOneWidget);
       expect(find.text('Envoyer la demande'), findsOneWidget);
     });
 
@@ -281,7 +333,7 @@ void main() {
     testWidgets('confirmer : DELETE attendu puis retour aux rencontres', (tester) async {
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Quitter'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
@@ -295,7 +347,7 @@ void main() {
       api.endError = 'boom';
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Quitter'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
@@ -309,7 +361,7 @@ void main() {
     testWidgets('annuler la confirmation n\'appelle rien', (tester) async {
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Annuler'));
       await _pumpFor(tester, const Duration(milliseconds: 400));

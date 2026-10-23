@@ -88,16 +88,20 @@ class ProfilePhoto extends StatelessWidget {
 
 /// Puce d'information : « Massorti », « Shabbat en famille ».
 class TagPill extends StatelessWidget {
-  const TagPill(this.label, {super.key, this.icon, this.onDark = false});
+  const TagPill(this.label, {super.key, this.icon, this.onDark = false, this.onCard = false});
 
   final String label;
   final IconData? icon;
   final bool onDark;
 
+  /// Posée sur une carte brume : la puce prend le fond de page pour rester
+  /// visible (brume sur brume ne se voit pas).
+  final bool onCard;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final background = onDark ? Colors.white : scheme.surfaceContainer;
+    final background = onDark ? Colors.white : (onCard ? scheme.surface : scheme.surfaceContainer);
     final foreground = onDark ? AppColors.ink : scheme.onSurface;
     return Container(
       height: 30,

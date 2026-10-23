@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
 
 class CoupleActivityDetailScreen extends StatefulWidget {
@@ -37,8 +37,6 @@ class _CoupleActivityDetailScreenState
   bool _isSaved = false;
   bool _isSaving = false;
   CoupleFailure? _failure;
-
-  static const coupleAccent = Color(0xFFFF6B9D);
 
   @override
   void initState() {
@@ -116,11 +114,9 @@ class _CoupleActivityDetailScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Activité sauvegardée'),
-              backgroundColor: coupleAccent,
-              behavior: SnackBarBehavior.floating,
               action: SnackBarAction(
                 label: 'Voir',
-                textColor: Colors.white,
+                textColor: Theme.of(context).colorScheme.onInverseSurface,
                 onPressed: () => context.push('/couple/activities/saved'),
               ),
             ),
@@ -145,13 +141,9 @@ class _CoupleActivityDetailScreenState
 
   void _copyDiscountCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Code $code copié'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Code $code copié')));
   }
 
   @override
@@ -179,49 +171,38 @@ class _CoupleActivityDetailScreenState
     }
 
     final activity = _activity!;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final city = activity.city;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App bar with image
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (activity.imageUrl != null)
-                    CachedNetworkImage(
-                      imageUrl: activity.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          Container(color: coupleAccent.withValues(alpha: 0.3)),
-                      errorWidget: (context, url, error) =>
-                          _buildPlaceholder(activity),
-                    )
-                  else
-                    _buildPlaceholder(activity),
-                  // Gradient overlay
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.7),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ],
+            leadingWidth: 72,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: Center(
+                child: RoundIconButton(
+                  icon: LucideIcons.arrowLeft,
+                  tooltip: 'Retour',
+                  size: 40,
+                  iconSize: 18,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
               ),
             ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: ActivityVisual(activity: activity, iconSize: 48),
+            ),
             actions: [
-              // Share button
-              IconButton(
-                icon: const Icon(LucideIcons.share2, color: Colors.white),
+              RoundIconButton(
+                icon: LucideIcons.share2,
+                tooltip: 'Partager',
+                size: 40,
+                iconSize: 18,
                 onPressed: () {
                   final activity = _activity;
                   if (activity == null) return;
@@ -231,218 +212,121 @@ class _CoupleActivityDetailScreenState
                   );
                 },
               ),
-              // Save button
-              IconButton(
-                icon: Icon(
-                  _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,
-                  color: _isSaved ? coupleAccent : Colors.white,
-                ),
+              const SizedBox(width: 8),
+              RoundIconButton(
+                icon: _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,
+                tooltip: _isSaved
+                    ? 'Retirer des activités sauvegardées'
+                    : 'Enregistrer',
+                size: 40,
+                iconSize: 18,
+                style: _isSaved
+                    ? RoundButtonStyle.ink
+                    : RoundButtonStyle.outline,
                 onPressed: _toggleSaved,
               ),
+              const SizedBox(width: 24),
             ],
           ),
-
-          // Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category badge
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: coupleAccent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${activity.categoryEmoji} ${activity.categoryLabel}',
-                          style: TextStyle(
-                            color: coupleAccent,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                      TagPill(
+                        activity.categoryLabel,
+                        icon: activityCategoryIcon(activity.category),
                       ),
-                      const Spacer(),
-                      if (activity.rating != null) ...[
-                        const Icon(
-                          LucideIcons.star,
-                          color: AppColors.accentGold,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          activity.rating!.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                      const SizedBox(width: 12),
+                      if (activity.rating != null)
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Icon(
+                                LucideIcons.star,
+                                color: scheme.onSurface,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  _ratingLabel(activity),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textTheme.titleSmall,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        if (activity.reviewCount != null) ...[
-                          const SizedBox(width: 4),
-                          Text(
-                            '(${activity.reviewCount} avis)',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.6),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ],
                     ],
                   ),
                   const SizedBox(height: 16),
-
-                  // Title
-                  Text(
-                    activity.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(activity.title, style: textTheme.headlineMedium),
                   const SizedBox(height: 8),
-
-                  // Subtitle (location + price)
-                  Row(
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 4,
                     children: [
-                      if (activity.city != null) ...[
-                        Icon(
-                          LucideIcons.mapPin,
-                          size: 18,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      if (city != null)
+                        _MetaItem(icon: LucideIcons.mapPin, label: city),
+                      if (activity.durationMinutes != null)
+                        _MetaItem(
+                          icon: LucideIcons.clock,
+                          label: activity.formattedDuration,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          activity.city!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                      ],
-                      if (activity.durationMinutes != null) ...[
-                        Icon(
-                          LucideIcons.clock,
-                          size: 18,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          activity.formattedDuration,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  // Badges row
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      // Partner badge
                       if (activity.isPartner)
-                        _Badge(
-                          icon: LucideIcons.badgePercent,
-                          label: activity.discountPercent != null
-                              ? '-${activity.discountPercent}% Partenaire'
+                        AccentPill(
+                          activity.discountPercent != null
+                              ? '-${activity.discountPercent} % Partenaire'
                               : 'Partenaire MAZL',
-                          color: AppColors.accentGold,
+                          icon: LucideIcons.badgePercent,
                         ),
-                      // Kosher badge
-                      if (activity.isKosher)
-                        const _Badge(
-                          icon: null,
-                          label: 'Casher',
-                          color: AppColors.info,
-                        ),
-                      // Price badge
-                      _Badge(
-                        icon: LucideIcons.euro,
-                        label: activity.formattedPrice,
-                        color: AppColors.success,
-                      ),
+                      if (activity.isKosher) const TagPill('Casher'),
+                      TagPill(activity.formattedPrice, icon: LucideIcons.euro),
                     ],
                   ),
                   const SizedBox(height: 24),
-
-                  // Partner discount code
                   if (activity.isPartner && activity.discountCode != null) ...[
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
                       decoration: BoxDecoration(
-                        color: AppColors.accentGold.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.accentGold.withValues(alpha: 0.3),
-                        ),
+                        color: scheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentGold.withValues(
-                                alpha: 0.2,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              LucideIcons.gift,
-                              color: AppColors.accentGold,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Code promo MAZL',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
+                                const SectionLabel('Code promo MAZL'),
+                                const SizedBox(height: 6),
                                 Text(
                                   activity.discountCode!,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: AppColors.accentGold,
+                                  style: textTheme.titleLarge?.copyWith(
                                     letterSpacing: 2,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(LucideIcons.copy),
-                            color: AppColors.accentGold,
+                          RoundIconButton(
+                            icon: LucideIcons.copy,
+                            tooltip: 'Copier le code',
+                            size: 40,
+                            iconSize: 18,
                             onPressed: () =>
                                 _copyDiscountCode(activity.discountCode!),
                           ),
@@ -451,125 +335,62 @@ class _CoupleActivityDetailScreenState
                     ),
                     const SizedBox(height: 24),
                   ],
-
-                  // Description
-                  const Text(
-                    'Description',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  const SectionLabel('Description'),
                   const SizedBox(height: 8),
-                  Text(
-                    activity.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
+                  Text(activity.description, style: textTheme.bodyLarge),
                   const SizedBox(height: 24),
-
-                  // Tags
                   if (activity.tags.isNotEmpty) ...[
-                    const Text(
-                      'Tags',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SectionLabel('Tags'),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: activity.tags
-                          .map(
-                            (tag) => Chip(
-                              label: Text(
-                                '#$tag',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              backgroundColor: coupleAccent.withValues(
-                                alpha: 0.1,
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      children: [
+                        for (final tag in activity.tags) TagPill('#$tag'),
+                      ],
                     ),
                     const SizedBox(height: 24),
                   ],
-
-                  // Address section
                   if (activity.address != null ||
                       activity.location != null) ...[
-                    const Text(
-                      'Adresse',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SectionLabel('Adresse'),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Theme.of(context).dividerColor,
-                        ),
+                        color: scheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (activity.location != null) ...[
+                          if (activity.location != null)
                             Text(
                               activity.location!,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                              style: textTheme.titleMedium,
                             ),
-                            const SizedBox(height: 4),
-                          ],
                           if (activity.address != null)
                             Text(
                               activity.address!,
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSurfaceVariant,
                               ),
                             ),
-                          if (activity.city != null) ...[
-                            const SizedBox(height: 4),
+                          if (city != null)
                             Text(
-                              activity.city!,
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              city,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSurfaceVariant,
                               ),
                             ),
-                          ],
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
                   ],
-
-                  // Contact section
                   if (activity.phone != null || activity.website != null) ...[
-                    const Text(
-                      'Contact',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SectionLabel('Contact'),
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -595,87 +416,39 @@ class _CoupleActivityDetailScreenState
                     ),
                     const SizedBox(height: 24),
                   ],
-
-                  // Bottom spacing for button
-                  const SizedBox(height: 80),
                 ],
               ),
             ),
           ),
         ],
       ),
-
-      // Bottom action button
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
+          color: scheme.surface,
+          border: Border(top: BorderSide(color: scheme.outlineVariant)),
         ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
         child: SafeArea(
           child: Row(
             children: [
-              // Price
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'À partir de',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      activity.formattedPrice,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('À partir de', style: textTheme.bodySmall),
+                    Text(activity.formattedPrice, style: textTheme.titleLarge),
                   ],
                 ),
               ),
-              // Book button
               Expanded(
                 flex: 2,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: activity.bookingUrl != null
                       ? () => _openUrl(activity.bookingUrl!)
                       : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: coupleAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.externalLink, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        'Réserver',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                  icon: const Icon(LucideIcons.externalLink, size: 18),
+                  label: const Text('Réserver'),
                 ),
               ),
             ],
@@ -684,58 +457,33 @@ class _CoupleActivityDetailScreenState
       ),
     );
   }
-
-  Widget _buildPlaceholder(CoupleActivity activity) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [coupleAccent, coupleAccent.withValues(alpha: 0.7)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          activity.categoryEmoji,
-          style: const TextStyle(fontSize: 80),
-        ),
-      ),
-    );
-  }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge({required this.label, required this.color, this.icon});
+String _ratingLabel(CoupleActivity activity) {
+  final rating = activity.rating!.toStringAsFixed(1);
+  final count = activity.reviewCount;
+  return count == null ? rating : '$rating ($count avis)';
+}
 
-  final IconData? icon;
+class _MetaItem extends StatelessWidget {
+  const _MetaItem({required this.icon, required this.label});
+
+  final IconData icon;
   final String label;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: muted),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: muted),
+        ),
+      ],
     );
   }
 }
@@ -757,10 +505,6 @@ class _ContactButton extends StatelessWidget {
       onPressed: onPressed,
       icon: Icon(icon, size: 18),
       label: Text(label),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
     );
   }
 }
