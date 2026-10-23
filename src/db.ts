@@ -3038,6 +3038,10 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     // cascade): conversations.user*_id and messages.sender_id have no cascade,
     // so a conversation that no match owns would otherwise block the deletion.
     await tx`DELETE FROM conversations WHERE user1_id = ${userId} OR user2_id = ${userId}`;
+    // Events they organised stay (others registered for them), without an organiser.
+    await tx`UPDATE events SET organizer_id = NULL WHERE organizer_id = ${userId}`;
+    // Couple memories they wrote reference users without ON DELETE.
+    await tx`DELETE FROM couple_memories WHERE created_by = ${userId}`;
     // Then the rest, in order (respecting foreign keys)
     await tx`DELETE FROM admin_notes WHERE user_id = ${userId}`;
     await tx`DELETE FROM user_bans WHERE user_id = ${userId}`;

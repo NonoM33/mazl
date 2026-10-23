@@ -27,6 +27,9 @@ export interface PhotoService {
   remove(userId: number, photoId: number): Promise<void>;
   // Sanitised JPEG bytes of a stored photo, or null when there is none.
   serve(photoId: number): Promise<Uint8Array | null>;
+  // GDPR erasure: runs [deletion] (which removes the rows), then deletes the
+  // user's photo files. If [deletion] throws, no file is touched.
+  eraseUserPhotos<T>(userId: number, deletion: () => Promise<T>): Promise<T>;
 }
 
 // Legacy rows hold "/uploads/profiles/<user>/<file>"; the file lives under the
@@ -90,5 +93,21 @@ export function createPhotoService(deps: PhotoServiceDeps): PhotoService {
     return classifyStoredUrl(url) === "legacy" ? processor.toProfileJpeg(bytes) : bytes;
   }
 
-  return { upload, importOauthPicture, remove, serve };
+  async function eraseUserPhotos<T>(userId: number, deletion: () => Promise<T>): Promise<T> {
+    const keys = (await repository.listUserKeys(userId))
+      .map(storageKeyOf)
+      .filter((key): key is string => key !== null);
+    const result = await deletion();
+    for (const key of keys) {
+      try {
+        await storage.remove(key);
+      } catch (error: unknown) {
+        // One unreadable file must not keep the others: the name only, never the key.
+        console.error("Erase photo file failed:", error instanceof Error ? error.name : "unknown");
+      }
+    }
+    return result;
+  }
+
+  return { upload, importOauthPicture, remove, serve, eraseUserPhotos };
 }

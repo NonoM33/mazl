@@ -27,6 +27,8 @@ export interface PhotoRepository {
   // Deletes the row and returns its storage key; throws when it is not the user's.
   deletePhoto(photoId: number, userId: number): Promise<string | null>;
   findUserPicture(userId: number): Promise<string | null>;
+  // Storage keys (url column) of every profile photo of the user.
+  listUserKeys(userId: number): Promise<string[]>;
 }
 
 export interface RemoteImageFetcher {

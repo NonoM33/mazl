@@ -21,6 +21,11 @@ export const postgresPhotoRepository: PhotoRepository = {
     return rows[0]?.url ?? null;
   },
 
+  async listUserKeys(userId) {
+    const rows = await sql<{ url: string }[]>`SELECT url FROM profile_photos WHERE user_id = ${userId}`;
+    return rows.map((r) => r.url);
+  },
+
   async findUserPicture(userId) {
     const rows = await sql<{ picture: string | null }[]>`SELECT picture FROM users WHERE id = ${userId}`;
     return rows[0]?.picture ?? null;

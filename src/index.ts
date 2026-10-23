@@ -87,6 +87,7 @@ import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
+import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
@@ -239,7 +240,15 @@ registerDocumentsRoutes(app, documents);
 // preserving the exact relative declaration order of the admin routes.
 // Admin auth (admin JWT + email whitelist via assertAdmin /
 // assertAdminFileDownload) lives in src/features/admin/admin.auth.ts.
-registerAdminRoutes(app, UPLOADS_DIR, { around: (userId, deletion) => chat.media.eraseUserMedia(userId, deletion) });
+const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
+// GDPR erasure of a member: rows first (inside `deletion`), then their profile
+// photo files, then their chat files. A failed deletion touches no file.
+const userErasure = {
+  around: <T,>(userId: number, deletion: () => Promise<T>): Promise<T> =>
+    chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion)),
+};
+registerAdminRoutes(app, UPLOADS_DIR, userErasure);
+registerAccountRoutes(app, sql, userErasure);
 
 // ============ AUTH ENDPOINTS ============
 
@@ -254,7 +263,6 @@ registerAuthRoutes(app);
 // before /api/profile/:userId inside that file to preserve route ordering.
 // Selfie verification (/api/verification/*) lives in src/features/verification.
 // Photos added after verification are compared with the member's face reference.
-const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
 registerMediaRoutes(app, media.photos);
 registerProfileRoutes(app, { media });
 
@@ -623,6 +631,7 @@ await ensureDocumentsSchema();
 startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
+await ensureAccountSchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);

@@ -17,7 +17,7 @@ import { PhotoRejectedError, PictureImportError } from "../../src/features/media
 const PROCESSED = Buffer.from("processed-jpeg");
 const KEY_PATTERN = /^photos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/;
 
-function harness(options: { storedUrl?: string | null; picture?: string | null; processorFails?: boolean; checkerFails?: boolean; repoFails?: boolean } = {}) {
+function harness(options: { storedUrl?: string | null; picture?: string | null; processorFails?: boolean; checkerFails?: boolean; repoFails?: boolean; userKeys?: string[] } = {}) {
   const saved = new Map<string, Uint8Array>();
   const removed: string[] = [];
   const checked: Array<{ userId: number; photoId: number; bytes: Uint8Array }> = [];
@@ -45,6 +45,7 @@ function harness(options: { storedUrl?: string | null; picture?: string | null; 
     async findKey() { return options.storedUrl === undefined ? null : options.storedUrl; },
     async findUserPicture() { return options.picture === undefined ? null : options.picture; },
     async deletePhoto() { return options.storedUrl === undefined ? null : options.storedUrl; },
+    async listUserKeys() { return options.userKeys ?? []; },
   };
   const fetcher: RemoteImageFetcher = {
     async fetch(url, limits) {
@@ -170,5 +171,25 @@ describe("photo service: serve and remove", () => {
     h.saved.set(KEY, new Uint8Array([1]));
     await h.service.remove(5, 1);
     expect(h.removed).toEqual([KEY]);
+  });
+});
+
+describe("photo service: GDPR erasure of a user's photos", () => {
+  const keys = ["photos/11111111-1111-1111-1111-111111111111.jpg", "/uploads/profiles/5/old.jpg", "https://lh3.googleusercontent.com/a/x"];
+
+  test("deletes the files after the rows, legacy paths mapped, external URLs left alone", async () => {
+    const h = harness({ userKeys: keys });
+    const order: string[] = [];
+    await h.service.eraseUserPhotos(5, async () => {
+      order.push(`rows-deleted, files removed so far: ${h.removed.length}`);
+    });
+    expect(order).toEqual(["rows-deleted, files removed so far: 0"]);
+    expect(h.removed).toEqual(["photos/11111111-1111-1111-1111-111111111111.jpg", "profiles/5/old.jpg"]);
+  });
+
+  test("a failing deletion leaves every file in place", async () => {
+    const h = harness({ userKeys: keys });
+    await expect(h.service.eraseUserPhotos(5, async () => { throw new Error("db down"); })).rejects.toThrow("db down");
+    expect(h.removed).toEqual([]);
   });
 });
