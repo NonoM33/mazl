@@ -4,12 +4,14 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/identity_providers.dart';
 import '../../../../core/verification/mrz/mrz_data.dart';
 import '../../../../core/verification/mrz/mrz_parser.dart';
 import '../../../../core/vision/text_line_recognizer.dart';
 import 'identity_layout.dart';
+import 'identity_parts.dart';
 import 'mrz_scan_filter.dart';
 
 /// Camera preview that reads the MRZ. Accepts it only when every check digit
@@ -109,46 +111,70 @@ class _MrzScannerViewState extends ConsumerState<MrzScannerView> {
   Widget build(BuildContext context) {
     final camera = _camera;
     if (_failed || (camera != null && !camera.value.isInitialized)) {
-      return IdentityPage(
+      return IdentityNotice(
+        dark: true,
+        eyebrow: 'Étape 1 / 3',
+        icon: LucideIcons.cameraOff,
+        title: 'La caméra n\'est pas disponible.',
+        body: 'Vous pouvez saisir les informations de la page photo à la main.',
         onClose: widget.onClose,
-        actions: [FilledButton(onPressed: widget.onManual, child: const Text('Saisir les informations'))],
-        child: const CenteredMessage(icon: Icons.no_photography_outlined, message: 'La caméra n\'est pas disponible.'),
+        actions: [IdentityPrimaryButton('Saisir les informations', onPressed: widget.onManual)],
       );
     }
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (camera != null && camera.value.isInitialized) _Preview(controller: camera) else const SizedBox.shrink(),
-          const IgnorePointer(child: CustomPaint(painter: _FramePainter())),
-          SafeArea(
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(icon: const Icon(Icons.close, color: Colors.white), tooltip: 'Fermer', onPressed: widget.onClose),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Cadre les lignes de « < » en bas du document.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
-                  ),
-                ),
-                TextButton(
-                  onPressed: widget.onManual,
-                  style: TextButton.styleFrom(foregroundColor: Colors.white),
-                  child: const Text('Saisir à la main'),
-                ),
-                const SizedBox(height: 8),
-              ],
+    return IdentityPage(
+      dark: true,
+      eyebrow: 'Étape 1 / 3',
+      onClose: widget.onClose,
+      title: 'Cadrez la page photo.',
+      subtitle: 'Les deux lignes de « < » du bas suffisent. Évitez les reflets.',
+      actions: [IdentityLinkButton('Saisir à la main', onPressed: widget.onManual)],
+      child: _ScanFrame(camera: camera),
+    );
+  }
+}
+
+/// The camera in a rounded window with corner ticks; the band where the two
+/// MRZ lines must sit is outlined in the accent colour.
+class _ScanFrame extends StatelessWidget {
+  const _ScanFrame({required this.camera});
+
+  final CameraController? camera;
+
+  static const _radius = 20.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final controller = camera;
+    return Semantics(
+      label: 'Aperçu de la caméra : placez les deux lignes du bas du document dans le cadre mis en évidence',
+      child: AspectRatio(
+        aspectRatio: 1.45,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(_radius),
+              child: ColoredBox(
+                color: scheme.surfaceContainer,
+                child: controller != null && controller.value.isInitialized ? _Preview(controller: controller) : null,
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: 12,
+              height: 58,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: scheme.primary, width: 1.5),
+                ),
+              ),
+            ),
+            IgnorePointer(child: CustomPaint(painter: _CornerTicksPainter(scheme.onSurface))),
+          ],
+        ),
       ),
     );
   }
@@ -173,31 +199,60 @@ class _Preview extends StatelessWidget {
   }
 }
 
-/// Dims everything but a document-shaped window.
-class _FramePainter extends CustomPainter {
-  const _FramePainter();
+/// Four L-shaped ticks hugging the rounded corners of the window.
+class _CornerTicksPainter extends CustomPainter {
+  const _CornerTicksPainter(this.color);
+
+  final Color color;
+
+  static const _r = _ScanFrame._radius;
+  static const _len = 22.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final width = size.width - 32;
-    final window = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: Offset(size.width / 2, size.height * 0.45), width: width, height: width * 0.64),
-      const Radius.circular(16),
-    );
-    final dim = Path()
-      ..addRect(Offset.zero & size)
-      ..addRRect(window)
-      ..fillType = PathFillType.evenOdd;
-    canvas.drawPath(dim, Paint()..color = Colors.black54);
-    canvas.drawRRect(
-      window,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    const radius = Radius.circular(_r);
+    final w = size.width;
+    final h = size.height;
+    canvas
+      ..drawPath(
+        Path()
+          ..moveTo(0, _len)
+          ..lineTo(0, _r)
+          ..arcToPoint(const Offset(_r, 0), radius: radius)
+          ..lineTo(_len, 0),
+        paint,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(w - _len, 0)
+          ..lineTo(w - _r, 0)
+          ..arcToPoint(Offset(w, _r), radius: radius)
+          ..lineTo(w, _len),
+        paint,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(w, h - _len)
+          ..lineTo(w, h - _r)
+          ..arcToPoint(Offset(w - _r, h), radius: radius)
+          ..lineTo(w - _len, h),
+        paint,
+      )
+      ..drawPath(
+        Path()
+          ..moveTo(_len, h)
+          ..lineTo(_r, h)
+          ..arcToPoint(Offset(0, h - _r), radius: radius)
+          ..lineTo(0, h - _len),
+        paint,
+      );
   }
 
   @override
-  bool shouldRepaint(_FramePainter old) => false;
+  bool shouldRepaint(_CornerTicksPainter old) => old.color != color;
 }

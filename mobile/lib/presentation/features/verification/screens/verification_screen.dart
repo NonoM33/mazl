@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/verification_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/verification_api.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../identity/identity_parts.dart';
 import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
+import 'verification_sections.dart';
 
-const String consentText =
-    'Nous comparons ton visage à tes photos. Les images ne sont pas conservées ; '
-    'seule une empreinte chiffrée l\'est, supprimable à tout moment.';
+export 'verification_sections.dart' show consentText;
 
 enum _Stage { loading, ready, working }
 
@@ -89,8 +89,8 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     _note = mismatches == 0
         ? null
         : mismatches == 1
-            ? 'Une de tes photos ne te ressemble pas : elle ne compte pas.'
-            : '$mismatches de tes photos ne te ressemblent pas : elles ne comptent pas.';
+        ? 'Une de vos photos ne vous ressemble pas : elle ne compte pas.'
+        : '$mismatches de vos photos ne vous ressemblent pas : elles ne comptent pas.';
     await _loadStatus();
   }
 
@@ -107,10 +107,10 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Retirer ma vérification ?'),
-        content: const Text('Ton badge et l\'empreinte de ton visage seront supprimés.'),
+        content: const Text('Votre badge et l\'empreinte de votre visage seront supprimés.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Retirer')),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Retirer')),
         ],
       ),
     );
@@ -134,15 +134,20 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vérification'),
-        leading: IconButton(
-          tooltip: 'Retour',
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: RoundIconButton(icon: LucideIcons.arrowLeft, tooltip: 'Retour', onPressed: () => context.pop()),
+              ),
+            ),
+            Expanded(child: _body(context)),
+          ],
         ),
       ),
-      body: _body(context),
     );
   }
 
@@ -150,163 +155,27 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     if (_stage == _Stage.loading) return const Center(child: CircularProgressIndicator());
     final status = _status;
     if (status == null) {
-      return _Retry(message: _loadError ?? verificationReasonText(null), onRetry: _loadStatus);
+      return VerificationRetry(message: _loadError ?? verificationReasonText(null), onRetry: _loadStatus);
     }
     final busy = _stage == _Stage.working;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       children: [
-        if (_problem != null) _Banner(text: _problem!, error: true),
-        if (_note != null) _Banner(text: _note!, error: false),
-        _PhotoCard(status: status, busy: busy, onVerify: _verifyPhoto, onRemove: _removeVerification),
-        const SizedBox(height: 12),
-        _IdentityCard(verified: status.identity.verified, enabled: !busy, onVerify: _verifyIdentity),
+        const SectionLabel('Votre profil'),
+        const SizedBox(height: 10),
+        const IdentityHeadline('Vérification', size: 34),
+        const SizedBox(height: 24),
+        if (_problem != null) VerificationNotice(text: _problem!, error: true),
+        if (_note != null) VerificationNotice(text: _note!, error: false),
+        PhotoLevel(
+          step: status.photo,
+          nextAttempt: status.nextAttemptTime,
+          busy: busy,
+          onVerify: _verifyPhoto,
+          onRemove: _removeVerification,
+        ),
+        IdentityLevel(step: status.identity, enabled: !busy, onVerify: _verifyIdentity),
       ],
-    );
-  }
-}
-
-class _PhotoCard extends StatelessWidget {
-  const _PhotoCard({required this.status, required this.busy, required this.onVerify, required this.onRemove});
-
-  final VerificationStatus status;
-  final bool busy;
-  final VoidCallback onVerify;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final verified = status.photo.verified;
-    final blockedUntil = status.nextAttemptTime;
-    final blocked = !verified && blockedUntil != null && blockedUntil.isAfter(DateTime.now());
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(verified ? LucideIcons.badgeCheck : LucideIcons.camera, color: theme.colorScheme.primary),
-                const SizedBox(width: 12),
-                Expanded(child: Text('Photo vérifiée', style: theme.textTheme.titleMedium)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (verified) ...[
-              Text(_verifiedLine(status.photo.verifiedAt)),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: busy ? null : onRemove,
-                child: const Text('Retirer ma vérification'),
-              ),
-            ] else ...[
-              const Text(consentText),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: busy || blocked ? null : onVerify,
-                  child: busy
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Vérifier ma photo'),
-                ),
-              ),
-              if (blocked) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Limite atteinte, nouvel essai possible ${_whenText(blockedUntil)}.',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  static String _verifiedLine(DateTime? at) =>
-      at == null ? 'Ton visage correspond à tes photos.' : 'Vérifiée le ${DateFormat('dd/MM/yyyy').format(at.toLocal())}.';
-
-  static String _whenText(DateTime at) {
-    final local = at.toLocal();
-    final now = DateTime.now();
-    final sameDay = local.year == now.year && local.month == now.month && local.day == now.day;
-    final time = DateFormat('HH:mm').format(local);
-    return sameDay ? 'à $time' : 'le ${DateFormat('dd/MM').format(local)} à $time';
-  }
-}
-
-class _IdentityCard extends StatelessWidget {
-  const _IdentityCard({required this.verified, required this.enabled, required this.onVerify});
-
-  final bool verified;
-  final bool enabled;
-  final VoidCallback onVerify;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: ListTile(
-        enabled: enabled && !verified,
-        leading: Icon(verified ? LucideIcons.badgeCheck : LucideIcons.idCard),
-        title: const Text('Vérifier mon identité (passeport / CNI)'),
-        trailing: verified
-            ? Text('Vérifiée', style: theme.textTheme.labelMedium)
-            : const Icon(LucideIcons.chevronRight),
-        onTap: verified ? null : onVerify,
-      ),
-    );
-  }
-}
-
-class _Banner extends StatelessWidget {
-  const _Banner({required this.text, required this.error});
-
-  final String text;
-  final bool error;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final color = error ? scheme.error : scheme.primary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(text, style: TextStyle(color: color)),
-    );
-  }
-}
-
-class _Retry extends StatelessWidget {
-  const _Retry({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            OutlinedButton(onPressed: onRetry, child: const Text('Réessayer')),
-          ],
-        ),
-      ),
     );
   }
 }

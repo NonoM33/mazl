@@ -33,12 +33,12 @@ void main() {
       var started = false;
       await tester.pumpWidget(MaterialApp(home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
 
-      expect(find.text('Vérifie ton identité'), findsOneWidget);
+      expect(find.text('Vérifiez votre identité.'), findsOneWidget);
       for (final step in IdentityIntroView.steps) {
         expect(find.text(step), findsOneWidget);
       }
       expect(find.text('Rien n\'est conservé : nous ne gardons que le résultat.'), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsOneWidget);
 
       await tester.tap(find.text('Commencer'));
       expect(started, isTrue);
@@ -101,12 +101,12 @@ void main() {
         identityLivenessCaptureProvider.overrideWithValue(liveness),
       ]));
       await tester.pumpAndSettle();
-      expect(find.text('Vérifie ton identité'), findsOneWidget);
+      expect(find.text('Vérifiez votre identité.'), findsOneWidget);
 
       await tester.tap(find.text('Commencer'));
       await tester.pumpAndSettle();
       // The scanner always offers typing the data (no camera in tests).
-      expect(find.text('Cadre les lignes de « < » en bas du document.'), findsOneWidget);
+      expect(find.text('Cadrez la page photo.'), findsOneWidget);
       await tester.tap(find.text('Saisir à la main'));
       await tester.pumpAndSettle();
 
@@ -116,17 +116,17 @@ void main() {
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Pose ton document sur le téléphone'), findsOneWidget);
+      expect(find.text('Posez votre document sur le téléphone.'), findsOneWidget);
       await tester.tap(find.text('Lire le document'));
       await tester.pumpAndSettle();
       expect(chip.lastMrz!.documentNumber, 'L898902C3');
       expect(chip.lastMrz!.birthYymmdd, '740812');
 
-      expect(find.text('Document lu'), findsOneWidget);
+      expect(find.text('Puce lue.'), findsOneWidget);
       await tester.tap(find.text('Prendre le selfie'));
       await tester.pumpAndSettle();
       expect(liveness.captures, 1);
-      expect(find.text('Identité vérifiée'), findsOneWidget);
+      expect(find.text('Identité vérifiée.'), findsOneWidget);
     });
 
     testWidgets('manual entry shows errors and does not advance', (tester) async {
@@ -145,7 +145,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Date invalide.'), findsNWidgets(2));
       expect(find.text('Entre 5 et 12 lettres ou chiffres.'), findsOneWidget);
-      expect(find.text('Saisis les informations'), findsOneWidget);
+      expect(find.text('Saisissez les informations.'), findsOneWidget);
     });
 
     testWidgets('server rejection is shown in French on screen', (tester) async {

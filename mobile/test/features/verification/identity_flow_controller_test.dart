@@ -289,7 +289,7 @@ void main() {
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
       final failed = t.flow.state as IdentityFailed;
-      expect(failed.info.message, 'Ton visage ne correspond pas à la photo du document.');
+      expect(failed.info.message, 'Votre visage ne correspond pas à la photo du document.');
       expect(failed.info.recovery, IdentityRecovery.retryFace);
     });
 

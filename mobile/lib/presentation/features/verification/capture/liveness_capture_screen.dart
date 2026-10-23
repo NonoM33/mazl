@@ -5,11 +5,15 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/services/verification_api.dart';
 import '../../../../core/vision/face_pose_detector.dart';
+import '../identity/identity_layout.dart';
+import '../identity/identity_parts.dart';
 import 'liveness_controller.dart';
+import 'liveness_stage.dart';
 import 'liveness_texts.dart';
 
 enum _Stage { starting, permissionDenied, cameraUnavailable, running }
@@ -211,40 +215,47 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _cancel();
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(child: _body(context)),
-      ),
+      child: _screen(context),
     );
   }
 
-  Widget _body(BuildContext context) {
+  Widget _screen(BuildContext context) {
     if (_liveness.phase == LivenessPhase.expired) {
-      return _Message(
+      return IdentityNotice(
+        dark: true,
+        icon: LucideIcons.clock,
         title: 'Session expirée',
-        body: 'Le temps imparti est écoulé. Tu peux recommencer.',
-        action: 'Fermer',
-        onAction: _cancel,
+        body: 'Le temps imparti est écoulé. Vous pouvez recommencer.',
+        onClose: _cancel,
+        actions: [IdentityPrimaryButton('Fermer', onPressed: _cancel)],
       );
     }
     switch (_stage) {
       case _Stage.starting:
-        return const Center(child: CircularProgressIndicator(color: Colors.white));
+        return IdentityPage(dark: true, onClose: _cancel, centerBody: true, child: const CircularProgressIndicator());
       case _Stage.permissionDenied:
-        return _Message(
+        return IdentityNotice(
+          dark: true,
+          icon: LucideIcons.camera,
           title: 'Caméra nécessaire',
-          body: 'MAZL utilise la caméra frontale pour vérifier que tu es bien la personne de tes photos.',
-          action: _permanentlyDenied ? 'Ouvrir les réglages' : 'Autoriser la caméra',
-          onAction: () => _permanentlyDenied ? openAppSettings() : _start(),
-          secondary: 'Annuler',
-          onSecondary: _cancel,
+          body: 'MAZL utilise la caméra frontale pour vérifier que vous êtes bien la personne de vos photos.',
+          onClose: _cancel,
+          actions: [
+            IdentityPrimaryButton(
+              _permanentlyDenied ? 'Ouvrir les réglages' : 'Autoriser la caméra',
+              onPressed: () => _permanentlyDenied ? openAppSettings() : _start(),
+            ),
+            IdentityLinkButton('Annuler', onPressed: _cancel),
+          ],
         );
       case _Stage.cameraUnavailable:
-        return _Message(
+        return IdentityNotice(
+          dark: true,
+          icon: LucideIcons.cameraOff,
           title: 'Caméra indisponible',
           body: 'Impossible de démarrer la caméra frontale.',
-          action: 'Fermer',
-          onAction: _cancel,
+          onClose: _cancel,
+          actions: [IdentityPrimaryButton('Fermer', onPressed: _cancel)],
         );
       case _Stage.running:
         return _preview(context);
@@ -254,57 +265,20 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
   Widget _preview(BuildContext context) {
     final camera = _camera;
     if (camera == null) return const SizedBox.shrink();
-    final now = DateTime.now();
-    final hint = poseFeedbackText(_liveness.feedback);
-    final progress = _liveness.holdProgress(now);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _CoverPreview(camera: camera),
-        CustomPaint(painter: _OvalGuidePainter(progress: progress)),
-        Positioned(
-          top: 4,
-          left: 4,
-          child: IconButton(
-            tooltip: 'Annuler',
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: _cancel,
-          ),
-        ),
-        Positioned(
-          left: 24,
-          right: 24,
-          top: 56,
-          child: Text(
-            challengeInstruction(_liveness.current),
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600),
-          ),
-        ),
-        Positioned(
-          left: 24,
-          right: 24,
-          bottom: 28,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 24,
-                child: hint == null
-                    ? null
-                    : Text(hint, style: const TextStyle(color: Colors.white70, fontSize: 15)),
-              ),
-              const SizedBox(height: 12),
-              _ProgressDots(total: widget.challenges.length, done: _liveness.captured),
-            ],
-          ),
-        ),
-      ],
+    final total = widget.challenges.length;
+    return LivenessStage(
+      camera: _CoverPreview(camera: camera),
+      instruction: challengeInstruction(_liveness.current),
+      hint: poseFeedbackText(_liveness.feedback),
+      holdProgress: _liveness.holdProgress(DateTime.now()),
+      total: total,
+      done: _liveness.captured,
+      onCancel: _cancel,
     );
   }
 }
 
-/// Camera preview scaled to cover the whole screen, without distortion.
+/// Camera preview scaled to cover its box, without distortion.
 class _CoverPreview extends StatelessWidget {
   const _CoverPreview({required this.camera});
 
@@ -319,114 +293,6 @@ class _CoverPreview extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(width: size.height, height: size.width, child: CameraPreview(camera)),
-      ),
-    );
-  }
-}
-
-class _OvalGuidePainter extends CustomPainter {
-  const _OvalGuidePainter({required this.progress});
-
-  final double progress;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final oval = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height * 0.47),
-      width: size.width * 0.72,
-      height: size.width * 0.72 * 1.3,
-    );
-    final scrim = Path()
-      ..fillType = PathFillType.evenOdd
-      ..addRect(Offset.zero & size)
-      ..addOval(oval);
-    canvas.drawPath(scrim, Paint()..color = Colors.black.withValues(alpha: 0.55));
-    canvas.drawOval(
-      oval,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
-        ..color = Colors.white.withValues(alpha: 0.7),
-    );
-    if (progress > 0) {
-      canvas.drawArc(
-        oval,
-        -1.5708,
-        6.28318 * progress,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 5
-          ..strokeCap = StrokeCap.round
-          ..color = const Color(0xFF22C55E),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_OvalGuidePainter old) => old.progress != progress;
-}
-
-class _ProgressDots extends StatelessWidget {
-  const _ProgressDots({required this.total, required this.done});
-
-  final int total;
-  final int done;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < total; i++)
-          Container(
-            width: 10,
-            height: 10,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: i < done ? Colors.white : Colors.white24,
-              border: i == done ? Border.all(color: Colors.white, width: 1.5) : null,
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _Message extends StatelessWidget {
-  const _Message({
-    required this.title,
-    required this.body,
-    required this.action,
-    required this.onAction,
-    this.secondary,
-    this.onSecondary,
-  });
-
-  final String title;
-  final String body;
-  final String action;
-  final VoidCallback onAction;
-  final String? secondary;
-  final VoidCallback? onSecondary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            Text(body, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 15)),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: onAction, child: Text(action)),
-            if (secondary != null) TextButton(onPressed: onSecondary, child: Text(secondary!)),
-          ],
-        ),
       ),
     );
   }
