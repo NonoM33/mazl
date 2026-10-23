@@ -117,9 +117,11 @@ function render(items) {
         if (password) fileUrl.searchParams.set('password', password);
 
         const isImage = (d.mimeType || '').startsWith('image/');
-        const preview = isImage
-          ? `<img class="doc-thumb" src="${fileUrl.toString()}" alt="${d.type}" onclick="window.open('${fileUrl.toString()}')" style="cursor:zoom-in" />`
-          : `<a class="doc-link" href="${fileUrl.toString()}" target="_blank">📄 ${d.type}</a>`;
+        const preview = d.purged
+          ? '<span class="muted" title="Fichier effacé après la décision ou au bout de 30 jours">purgé</span>'
+          : isImage
+            ? `<img class="doc-thumb" src="${fileUrl.toString()}" alt="${d.type}" onclick="window.open('${fileUrl.toString()}')" style="cursor:zoom-in" />`
+            : `<a class="doc-link" href="${fileUrl.toString()}" target="_blank">📄 ${d.type}</a>`;
 
         return `
           <div class="doc-item ${d.status}" data-doc-id="${d.id}" data-doc-type="${d.type}">
