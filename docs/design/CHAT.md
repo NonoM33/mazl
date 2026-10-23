@@ -101,6 +101,9 @@ ressembler à un champ de formulaire.
   Répondre (`reply`), Copier (`copy`), puis pour mes messages Retirer (`undo2`, en
   `AppColors.error`), pour les siens Signaler (`flag`, en `AppColors.error`). Libellés vouvoyés,
   pas de majuscules partout.
+- **Retirer** n'est proposé que pour MES messages de moins de 15 minutes (`unsendWindow`, contrat
+  `docs/chat/CONTRAT.md` §2 ; le serveur refuse aussi au-delà). Passé ce délai, la ligne n'apparaît
+  pas : pas de ligne grisée ni d'explication dans le menu.
 - Le menu et la barre ne passent jamais sous la barre système ni sous le composer : on décale
   la bulle si besoin.
 
