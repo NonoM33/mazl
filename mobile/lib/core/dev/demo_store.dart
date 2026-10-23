@@ -1,3 +1,4 @@
+import 'demo_chat_state.dart';
 import 'demo_couple_state.dart';
 import 'demo_fixtures.dart';
 
@@ -5,8 +6,6 @@ import 'demo_fixtures.dart';
 /// visible quand on rouvre la conversation, une lecture vide le compteur…
 /// Il est remis à zéro à chaque démarrage de session fictive.
 abstract final class DemoStore {
-  static final Map<int, List<Map<String, dynamic>>> _sent = {};
-  static final Set<int> _read = {};
   static final Map<int, String?> _rsvp = {};
   static Map<String, dynamic> _profilePatch = {};
   static List<Map<String, dynamic>> _prompts = DemoFixtures.myPrompts();
@@ -18,6 +17,16 @@ abstract final class DemoStore {
   /// Horloge de la démo : les tests l'avancent au lieu d'attendre.
   static DateTime Function() clock = DateTime.now;
 
+  /// Messagerie de la session (messages, médias, correspondant fictif).
+  static DemoChatState chat = _newChat();
+
+  static DemoChatState _newChat() => DemoChatState()
+    ..myId = DemoFixtures.meId
+    ..otherUserOf = _otherUserOf;
+
+  static int _otherUserOf(int conversationId) =>
+      conversationHeader(conversationId)?['otherUser']['user_id'] as int;
+
   /// Mode couple de la session (demandes, couple, contenus).
   static DemoCoupleState couple = DemoCoupleState();
 
@@ -26,8 +35,7 @@ abstract final class DemoStore {
   static final List<Map<String, dynamic>> _matched = [];
 
   static void reset() {
-    _sent.clear();
-    _read.clear();
+    chat = _newChat();
     _rsvp.clear();
     _profilePatch = {};
     _prompts = DemoFixtures.myPrompts();
@@ -103,47 +111,41 @@ abstract final class DemoStore {
     });
   }
 
-  static List<Map<String, dynamic>> conversations() => [
-    for (final c in _matched)
-      {
-        ...c,
-        if (_sent[c['id']]?.isNotEmpty ?? false) ...{
-          'lastMessage': _sent[c['id']]!.first['content'],
-          'lastMessageAt': _sent[c['id']]!.first['created_at'],
-        },
-      },
-    for (final c in DemoFixtures.conversations())
-      {
-        ...c,
-        if (_read.contains(c['id'])) 'unreadCount': 0,
-        if (_sent[c['id']]?.isNotEmpty ?? false) ...{
-          'lastMessage': _sent[c['id']]!.first['content'],
-          'lastMessageAt': _sent[c['id']]!.first['created_at'],
-        },
-      },
+  /// La conversation telle que les données de départ la décrivent (sans les
+  /// messages de la session).
+  static Map<String, dynamic>? conversationHeader(int id) =>
+      [..._matched, ...DemoFixtures.conversations()]
+          .where((c) => c['id'] == id)
+          .firstOrNull;
+
+  static bool hasConversation(int id) => conversationHeader(id) != null;
+
+  static Iterable<int> conversationIds() => [
+    for (final c in [..._matched, ...DemoFixtures.conversations()]) c['id'] as int,
   ];
 
-  static List<Map<String, dynamic>> messages(int conversationId) => [
-    ...?_sent[conversationId],
-    if (!_matched.any((c) => c['id'] == conversationId))
-      ...DemoFixtures.messages(conversationId),
-  ];
-
-  static Map<String, dynamic> sendMessage(int conversationId, String content) {
-    final message = {
-      'id': nextId(),
-      'sender_id': DemoFixtures.meId,
-      'content': content,
-      'image_url': null,
-      'message_type': 'text',
-      'is_read': false,
-      'created_at': DemoFixtures.isoAgo(Duration.zero),
-    };
-    _sent.putIfAbsent(conversationId, () => []).insert(0, message);
-    return message;
+  static List<Map<String, dynamic>> conversations() {
+    final now = clock();
+    chat.settle(now);
+    return [
+      for (final c in [..._matched, ...DemoFixtures.conversations()])
+        _withMessages(c, now),
+    ];
   }
 
-  static void markRead(int conversationId) => _read.add(conversationId);
+  /// Dernier message et non-lus tels que la messagerie les voit.
+  static Map<String, dynamic> _withMessages(Map<String, dynamic> c, DateTime now) {
+    final id = c['id'] as int;
+    final last = chat.latest(id, now);
+    return {
+      ...c,
+      'unreadCount': chat.unreadCount(id, now),
+      if (last != null) ...{
+        'lastMessage': last.summary,
+        'lastMessageAt': last.createdAt.toUtc().toIso8601String(),
+      },
+    };
+  }
 
   static List<Map<String, dynamic>> events() => [
     for (final e in DemoFixtures.events())

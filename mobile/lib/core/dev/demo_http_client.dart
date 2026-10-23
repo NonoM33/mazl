@@ -24,12 +24,14 @@ class DemoHttpClient extends http.BaseClient {
     if (!DevSession.isActive) return _inner.send(request);
 
     await Future<void>.delayed(latency);
+    final files = await _files(request);
     final reply = DemoRoutes.respond(
       DemoRequest(
         request.method,
         request.url.path,
         request.url.queryParameters,
         _jsonBody(request),
+        files: files,
       ),
     );
     return http.StreamedResponse(
@@ -40,7 +42,19 @@ class DemoHttpClient extends http.BaseClient {
     );
   }
 
+  /// Octets des fichiers d'un envoi multipart (rien n'est transmis plus loin).
+  Future<List<DemoUpload>> _files(http.BaseRequest request) async => [
+    if (request is http.MultipartRequest)
+      for (final file in request.files)
+        DemoUpload(
+          file.field,
+          file.filename,
+          await file.finalize().toBytes(),
+        ),
+  ];
+
   Map<String, dynamic> _jsonBody(http.BaseRequest request) {
+    if (request is http.MultipartRequest) return {...request.fields};
     if (request is! http.Request || request.body.isEmpty) return const {};
     try {
       final decoded = jsonDecode(request.body);
