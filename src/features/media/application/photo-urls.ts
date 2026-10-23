@@ -32,3 +32,22 @@ export function publicPhotoUrls(photos: readonly PhotoRef[]): string[] {
   }
   return urls;
 }
+
+export interface PrimaryPhotoColumns {
+  readonly primary_photo_id: number | null;
+  readonly primary_photo_url: string | null;
+  readonly picture: string | null;
+}
+
+// Replaces the raw `picture` column by what may be exposed and drops the helper
+// columns selected by primaryPhotoColumns().
+export function withPublicPicture<T extends PrimaryPhotoColumns>(
+  row: T,
+): Omit<T, "primary_photo_id" | "primary_photo_url"> {
+  const { primary_photo_id, primary_photo_url, ...rest } = row;
+  const primary =
+    primary_photo_id !== null && primary_photo_url !== null
+      ? { id: primary_photo_id, url: primary_photo_url }
+      : null;
+  return { ...rest, picture: publicPicture(primary, row.picture) };
+}
