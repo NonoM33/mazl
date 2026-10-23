@@ -357,6 +357,7 @@ class ChatHarness {
     bool Function(ChatMessage)? isScamFlagged,
     double safeBottom = 0,
     Size size = const Size(390, 844),
+    bool disableAnimations = false,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -376,6 +377,14 @@ class ChatHarness {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
+          builder: disableAnimations
+              ? (context, child) => MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(disableAnimations: true),
+                  child: child!,
+                )
+              : null,
           theme: brightness == Brightness.dark
               ? AppTheme.darkTheme
               : AppTheme.lightTheme,

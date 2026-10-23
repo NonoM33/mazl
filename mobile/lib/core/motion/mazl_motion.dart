@@ -27,6 +27,9 @@ abstract final class MazlMotion {
   static const popDuration = Duration(milliseconds: 220);
   static const popScale = 1.15;
 
+  /// A chat reaction pill pops in from this scale (0.5 → [popScale] → 1).
+  static const reactionPopFrom = 0.5;
+
   // --- Card decks (Discover, couple activities) ---------------------------
 
   /// Rotation at a drag of one card width, pivoting on the grab point: a card
