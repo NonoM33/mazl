@@ -72,20 +72,20 @@ class VoiceCapture extends ChangeNotifier {
   /// Stops and returns the note, or null when it was too short or never began.
   Future<VoiceRecording?> finish() async {
     if (!await (_starting ?? Future.value(false))) return null;
-    await _release();
+    _release();
     return recorder.stop();
   }
 
   Future<void> cancel() async {
     final starting = _starting;
     if (starting == null || !await starting) return;
-    await _release();
+    _release();
     await recorder.cancel();
   }
 
-  Future<void> _release() async {
-    await _levelSub?.cancel();
-    await _elapsedSub?.cancel();
+  void _release() {
+    unawaited(_levelSub?.cancel());
+    unawaited(_elapsedSub?.cancel());
     _levelSub = _elapsedSub = null;
     _starting = null;
     recording = false;
