@@ -140,11 +140,8 @@ void main() {
     test('CoupleService relit le couple accepté au recalage', () async {
       await _demo(() async {
         final service = CoupleService();
-        expect(
-          await service.sendCoupleRequest(targetUserId: 302, targetName: 'Léa'),
-          isTrue,
-        );
-        await service.fetchPendingRequests();
+        expect((await service.sendCoupleRequest(targetUserId: 302, targetName: 'Léa')).ok, isTrue);
+        await service.refresh();
         expect(service.pendingRequest?.targetId, 302);
 
         _advance(const Duration(seconds: 3));
@@ -154,7 +151,7 @@ void main() {
         expect(service.coupleData?.partnerName, isNotEmpty);
         expect(service.coupleData?.coupleId, isNotNull);
 
-        await service.disableCoupleMode();
+        expect((await service.leaveCouple()).ok, isTrue);
         expect(service.isCoupleModeEnabled, isFalse);
         expect(_call('GET', '/api/couple').json['couple'], isNull);
       });
@@ -312,9 +309,9 @@ void main() {
     test('sans couple, le catalogue public répond quand même', () async {
       await _demo(() async {
         final content = CoupleApiService();
-        expect(await content.getEvents(), hasLength(3));
-        expect(await content.getEvent(1), isNotNull);
-        expect(await content.getActivity(1), isNotNull);
+        expect(_okValue(await content.getEvents()), hasLength(3));
+        expect((await content.getEvent(1)).isOk, isTrue);
+        expect((await content.getActivity(1)).isOk, isTrue);
       });
     });
 
@@ -322,34 +319,28 @@ void main() {
       _enterCouple();
       await _demo(() async {
         final content = CoupleApiService();
-        final feed = await content.getActivities();
+        final feed = _okValue(await content.getActivities());
         expect(feed, hasLength(6));
         expect(feed.every((a) => a.title.isNotEmpty), isTrue);
         expect(feed.every((a) => a.imageUrl == null), isTrue);
         expect(feed.first.formattedPrice, isNotEmpty);
-        expect(
-          await content.getActivities(category: 'gastronomy'),
-          hasLength(1),
-        );
-        expect(await content.getActivities(limit: 2, offset: 4), hasLength(2));
+        expect(_okValue(await content.getActivities(category: 'gastronomy')), hasLength(1));
+        expect(_okValue(await content.getActivities(limit: 2, offset: 4)), hasLength(2));
 
-        expect(
-          await content.saveActivity(1, notes: 'Pour notre anniversaire'),
-          isTrue,
-        );
-        expect(await content.passActivity(2), isTrue);
-        expect((await content.getActivities()).map((a) => a.id), [3, 4, 5, 6]);
+        expect((await content.saveActivity(1, notes: 'Pour notre anniversaire')).isOk, isTrue);
+        expect((await content.passActivity(2)).isOk, isTrue);
+        expect(_okValue(await content.getActivities()).map((a) => a.id), [3, 4, 5, 6]);
 
-        final saved = await content.getSavedActivities();
+        final saved = _okValue(await content.getSavedActivities());
         expect(saved.map((a) => a.id), [1]);
         expect(saved.first.savedAt, isNotNull);
         expect(saved.first.userNotes, 'Pour notre anniversaire');
 
-        expect(await content.removeSavedActivity(1), isTrue);
-        expect(await content.getSavedActivities(), isEmpty);
-        expect(await content.getActivity(3), isNotNull);
-        expect(await content.getActivity(999), isNull);
-        expect(await content.saveActivity(999), isFalse);
+        expect((await content.removeSavedActivity(1)).isOk, isTrue);
+        expect(_okValue(await content.getSavedActivities()), isEmpty);
+        expect((await content.getActivity(3)).isOk, isTrue);
+        expect((await content.getActivity(999)).failureOrNull?.kind, CoupleFailureKind.notFound);
+        expect((await content.saveActivity(999)).isOk, isFalse);
       });
     });
 
@@ -357,27 +348,21 @@ void main() {
       _enterCouple();
       await _demo(() async {
         final content = CoupleApiService();
-        final before = await content.getEvent(1);
-        expect(before!.eventDate.isAfter(DateTime.now()), isTrue);
-        expect(await content.getRegisteredEvents(), isEmpty);
+        final before = _okValue(await content.getEvent(1));
+        expect(before.eventDate.isAfter(DateTime.now()), isTrue);
+        expect(_okValue(await content.getRegisteredEvents()), isEmpty);
 
-        expect(await content.registerForEvent(1), isTrue);
-        final registered = await content.getRegisteredEvents();
+        expect((await content.registerForEvent(1)).isOk, isTrue);
+        final registered = _okValue(await content.getRegisteredEvents());
         expect(registered.map((e) => e.id), [1]);
         expect(registered.first.registrationStatus, 'registered');
         expect(registered.first.registeredAt, isNotNull);
-        expect(
-          (await content.getEvent(1))!.currentCouples,
-          before.currentCouples + 1,
-        );
+        expect(_okValue(await content.getEvent(1)).currentCouples, before.currentCouples + 1);
 
-        expect(await content.cancelEventRegistration(1), isTrue);
-        expect(await content.getRegisteredEvents(), isEmpty);
-        expect(
-          (await content.getEvent(1))!.currentCouples,
-          before.currentCouples,
-        );
-        expect(await content.registerForEvent(999), isFalse);
+        expect((await content.cancelEventRegistration(1)).isOk, isTrue);
+        expect(_okValue(await content.getRegisteredEvents()), isEmpty);
+        expect(_okValue(await content.getEvent(1)).currentCouples, before.currentCouples);
+        expect((await content.registerForEvent(999)).isOk, isFalse);
       });
     });
 
@@ -387,62 +372,35 @@ void main() {
         _enterCouple();
         await _demo(() async {
           final content = CoupleApiService();
-          expect(await content.getDates(), isEmpty);
-          expect(await content.getBucketList(), isEmpty);
-          expect(await content.getMemories(), isEmpty);
+          expect(_okValue(await content.getDates()), isEmpty);
+          expect(_okValue(await content.getBucketList()), isEmpty);
+          expect(_okValue(await content.getMemories()), isEmpty);
 
-          expect(
-            await content.addDate(
-              title: 'Notre anniversaire',
-              date: '2026-12-01',
-              type: 'anniversary',
-            ),
-            isTrue,
-          );
-          final dates = await content.getDates();
+          expect((await content.addDate(title: 'Notre anniversaire', date: '2026-12-01', type: 'anniversary')).isOk, isTrue);
+          final dates = _okValue(await content.getDates());
           expect(dates, hasLength(1));
-          expect(dates.first['title'], 'Notre anniversaire');
-          expect(dates.first['date'], '2026-12-01');
-          expect(dates.first['type'], 'anniversary');
-          expect(dates.first['remind_days_before'], 7);
+          expect(dates.first.title, 'Notre anniversaire');
+          expect(dates.first.date, DateTime(2026, 12, 1));
+          expect(dates.first.type, 'anniversary');
 
-          expect(
-            await content.addBucketListItem(
-              title: 'Voir Rome',
-              category: 'travel',
-            ),
-            isTrue,
-          );
-          var items = await content.getBucketList();
+          expect((await content.addBucketListItem(title: 'Voir Rome', category: 'travel')).isOk, isTrue);
+          var items = _okValue(await content.getBucketList());
           expect(items, hasLength(1));
-          expect(items.first['completed_at'], isNull);
-          expect(
-            await content.completeBucketListItem(items.first['id'] as int),
-            isTrue,
-          );
-          items = await content.getBucketList();
-          expect(items.first['completed_at'], isNotNull);
-          expect(items.first['is_completed'], isTrue);
+          expect(items.first.isCompleted, isFalse);
+          expect((await content.completeBucketListItem(items.first.id)).isOk, isTrue);
+          items = _okValue(await content.getBucketList());
+          expect(items.first.isCompleted, isTrue);
 
-          expect(
-            await content.addMemory(
-              type: 'note',
-              title: 'Premier café',
-              content: 'Un souvenir inventé.',
-            ),
-            isTrue,
-          );
-          final memories = await content.getMemories();
-          expect(memories.single['title'], 'Premier café');
-          expect(memories.single['image_url'], isNull);
+          expect((await content.addMemory(type: 'note', title: 'Premier café', content: 'Un souvenir inventé.')).isOk, isTrue);
+          final memories = _okValue(await content.getMemories());
+          expect(memories.single.title, 'Premier café');
+          expect(memories.single.imageUrl, isNull);
 
-          final stats = await content.getStats();
-          final counts = stats!['stats'] as Map<String, dynamic>;
-          expect(counts['memories_count'], 1);
-          expect(counts['bucket_total'], 1);
-          expect(counts['bucket_completed'], 1);
-          expect(counts['activitiesDone'], 1);
-          expect(stats['achievements'], isA<List<dynamic>>());
+          final snapshot = _okValue(await content.getStats());
+          expect(snapshot.stats.memoriesCount, 1);
+          expect(snapshot.stats.bucketTotal, 1);
+          expect(snapshot.stats.bucketCompleted, 1);
+          expect(snapshot.achievements, isEmpty);
         });
       },
     );
@@ -457,7 +415,7 @@ void main() {
           final content = CoupleApiService();
           await content.saveActivity(1);
           await content.addMemory(type: 'note', title: 'À effacer');
-          expect((await content.getSavedActivities()), hasLength(1));
+          expect(_okValue(await content.getSavedActivities()), hasLength(1));
         });
 
         final wrong = _call('DELETE', '/api/couple/424242');
@@ -525,3 +483,9 @@ void main() {
     sweep('en couple');
   });
 }
+
+/// The value of a successful call; fails the test with the failure otherwise.
+T _okValue<T>(CoupleResult<T> result) => switch (result) {
+  CoupleOk<T>(:final value) => value,
+  CoupleFailed<T>(:final failure) => fail('expected success, got $failure'),
+};

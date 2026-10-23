@@ -10,7 +10,7 @@ import 'couple_api.dart';
 import 'couple_messages.dart';
 
 export '../models/couple_models.dart';
-export 'couple_messages.dart' show CoupleResult;
+export 'couple_messages.dart' show CoupleActionResult;
 
 /// What the couple flow tells the rest of the app (screens subscribe through
 /// the host widget, never through the service's internals).
@@ -243,14 +243,14 @@ class CoupleService extends ChangeNotifier {
   // ===== Actions =====
 
   /// Sends a couple request to a match. Nothing is pending on failure.
-  Future<CoupleResult> sendCoupleRequest({
+  Future<CoupleActionResult> sendCoupleRequest({
     required int targetUserId,
     required String targetName,
     String? targetPicture,
   }) async {
     final response = await _api.sendCoupleRequest(targetUserId);
     if (!response.success) {
-      return CoupleResult.failure(
+      return CoupleActionResult.failure(
         coupleErrorMessage(response.error, response.errorKind),
       );
     }
@@ -260,8 +260,8 @@ class CoupleService extends ChangeNotifier {
     if (raw is! Map<String, dynamic>) {
       await refresh();
       return _pendingRequest != null
-          ? const CoupleResult.ok()
-          : const CoupleResult.failure(
+          ? const CoupleActionResult.ok()
+          : const CoupleActionResult.failure(
               'Une erreur est survenue, réessayez dans un instant.');
     }
 
@@ -279,37 +279,37 @@ class CoupleService extends ChangeNotifier {
       received: _receivedRequest,
     );
     _updatePolling();
-    return const CoupleResult.ok();
+    return const CoupleActionResult.ok();
   }
 
   /// Cancels the request this member sent, using its real server id.
-  Future<CoupleResult> cancelCoupleRequest() async {
+  Future<CoupleActionResult> cancelCoupleRequest() async {
     final pending = _pendingRequest;
-    if (pending == null) return const CoupleResult.ok();
+    if (pending == null) return const CoupleActionResult.ok();
 
     final response = await _api.cancelCoupleRequest(pending.id);
     if (!response.success) {
       // It may have been answered meanwhile: re-align before reporting.
       await refresh();
-      return CoupleResult.failure(
+      return CoupleActionResult.failure(
         coupleErrorMessage(response.error, response.errorKind),
       );
     }
     await _setRequests(pending: null, received: _receivedRequest);
     _updatePolling();
-    return const CoupleResult.ok();
+    return const CoupleActionResult.ok();
   }
 
   /// Accepts a received request. The couple comes from the response itself
   /// (no second call), then the other conversations are archived.
-  Future<CoupleResult> acceptCoupleRequest(CoupleRequest request) async {
+  Future<CoupleActionResult> acceptCoupleRequest(CoupleRequest request) async {
     final response = await _api.respondToCoupleRequest(
       requestId: request.id,
       accept: true,
     );
     if (!response.success) {
       await refresh();
-      return CoupleResult.failure(
+      return CoupleActionResult.failure(
         coupleErrorMessage(response.error, response.errorKind),
       );
     }
@@ -318,8 +318,8 @@ class CoupleService extends ChangeNotifier {
     if (raw is! Map<String, dynamic>) {
       await refresh();
       return _isCoupleModeEnabled
-          ? const CoupleResult.ok()
-          : const CoupleResult.failure(
+          ? const CoupleActionResult.ok()
+          : const CoupleActionResult.failure(
               'Une erreur est survenue, réessayez dans un instant.');
     }
 
@@ -327,42 +327,42 @@ class CoupleService extends ChangeNotifier {
     await _enterCouple(couple);
     await _archiveOtherConversations();
     _events.add(CoupleFormed(couple, asRequester: false));
-    return const CoupleResult.ok();
+    return const CoupleActionResult.ok();
   }
 
   /// Declines a received request.
-  Future<CoupleResult> rejectCoupleRequest(CoupleRequest request) async {
+  Future<CoupleActionResult> rejectCoupleRequest(CoupleRequest request) async {
     final response = await _api.respondToCoupleRequest(
       requestId: request.id,
       accept: false,
     );
     if (!response.success) {
       await refresh();
-      return CoupleResult.failure(
+      return CoupleActionResult.failure(
         coupleErrorMessage(response.error, response.errorKind),
       );
     }
     await _setRequests(pending: _pendingRequest, received: null);
-    return const CoupleResult.ok();
+    return const CoupleActionResult.ok();
   }
 
   /// Ends the couple for both members. Awaits the server: on failure nothing
   /// changes locally.
-  Future<CoupleResult> leaveCouple() async {
+  Future<CoupleActionResult> leaveCouple() async {
     final coupleId = _coupleData?.coupleId;
     if (coupleId == null) {
-      return const CoupleResult.failure(
+      return const CoupleActionResult.failure(
         'Impossible de quitter le mode couple pour le moment.',
       );
     }
     final response = await _api.endCouple(coupleId);
     if (!response.success) {
-      return CoupleResult.failure(
+      return CoupleActionResult.failure(
         coupleErrorMessage(response.error, response.errorKind),
       );
     }
     await _leaveLocally();
-    return const CoupleResult.ok();
+    return const CoupleActionResult.ok();
   }
 
   // ===== Real time (contract §3): an accelerator, the sync stays the truth =====

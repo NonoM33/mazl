@@ -2,15 +2,15 @@ import 'api_service.dart';
 
 /// Result of a couple action: either it worked, or it carries a French
 /// sentence the screen can show as is.
-class CoupleResult {
+class CoupleActionResult {
   final bool ok;
   final String? message;
 
-  const CoupleResult.ok()
+  const CoupleActionResult.ok()
       : ok = true,
         message = null;
 
-  const CoupleResult.failure(String this.message) : ok = false;
+  const CoupleActionResult.failure(String this.message) : ok = false;
 }
 
 /// Turns what the server (or the network layer) answered into one sentence the

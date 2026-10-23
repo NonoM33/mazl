@@ -4003,45 +4003,56 @@ export async function getCoupleEvent(eventId: number) {
 
 // Register for couple event
 export async function registerForCoupleEvent(coupleId: number, eventId: number) {
-  // Check availability
   const event = await getCoupleEvent(eventId);
   if (!event) throw new Error("Event not found");
-  if ((event as any).max_couples && (event as any).current_couples >= (event as any).max_couples) {
-    throw new Error("Event is full");
-  }
 
-  // Register
-  const registration = await sql`
-    INSERT INTO couple_event_registrations (couple_id, event_id)
-    VALUES (${coupleId}, ${eventId})
-    ON CONFLICT (couple_id, event_id) DO UPDATE SET status = 'registered', cancelled_at = NULL
-    RETURNING *
-  `;
-
-  // Update count
-  await sql`
-    UPDATE couple_events SET current_couples = current_couples + 1 WHERE id = ${eventId}
-  `;
-
-  return registration[0];
+  // The count moves only when the registration actually changes state: a
+  // second "register" (or a second "cancel") must not count the couple twice.
+  // Capacity is checked in the same UPDATE, so two couples cannot both take
+  // the last place.
+  return await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const [existing] = await tx<{ status: string }[]>`
+      SELECT status FROM couple_event_registrations
+      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+      FOR UPDATE
+    `;
+    if (existing?.status !== "registered") {
+      const seat = await tx`
+        UPDATE couple_events SET current_couples = current_couples + 1
+        WHERE id = ${eventId} AND (max_couples IS NULL OR current_couples < max_couples)
+        RETURNING id
+      `;
+      if (seat.length === 0) throw new Error("Event is full");
+    }
+    const registration = await tx`
+      INSERT INTO couple_event_registrations (couple_id, event_id)
+      VALUES (${coupleId}, ${eventId})
+      ON CONFLICT (couple_id, event_id) DO UPDATE SET status = 'registered', cancelled_at = NULL
+      RETURNING *
+    `;
+    return registration[0];
+  });
 }
 
 // Cancel registration
 export async function cancelCoupleEventRegistration(coupleId: number, eventId: number) {
-  const result = await sql`
-    UPDATE couple_event_registrations
-    SET status = 'cancelled', cancelled_at = NOW()
-    WHERE couple_id = ${coupleId} AND event_id = ${eventId}
-    RETURNING *
-  `;
-
-  if (result.length > 0) {
-    await sql`
-      UPDATE couple_events SET current_couples = GREATEST(0, current_couples - 1) WHERE id = ${eventId}
+  return await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    // Only a registration that is still active frees a place.
+    const result = await tx`
+      UPDATE couple_event_registrations
+      SET status = 'cancelled', cancelled_at = NOW()
+      WHERE couple_id = ${coupleId} AND event_id = ${eventId} AND status = 'registered'
+      RETURNING *
     `;
-  }
-
-  return result[0];
+    if (result.length > 0) {
+      await tx`
+        UPDATE couple_events SET current_couples = GREATEST(0, current_couples - 1) WHERE id = ${eventId}
+      `;
+    }
+    return result[0];
+  });
 }
 
 // Get couple's registered events
