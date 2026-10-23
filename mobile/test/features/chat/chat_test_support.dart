@@ -198,8 +198,14 @@ class FakeVoicePlayer implements VoicePlayer {
   final playingController = StreamController<bool>.broadcast();
   String? _current;
 
+  bool failNextPlay = false;
+
   @override
   Future<void> play(String url, {double speed = 1}) async {
+    if (failNextPlay) {
+      failNextPlay = false;
+      throw StateError('expired');
+    }
     _current = url;
     played.add((url: url, speed: speed));
     playingController.add(true);

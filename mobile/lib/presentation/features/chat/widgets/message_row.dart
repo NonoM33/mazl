@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,15 +40,61 @@ class MessageRow extends ConsumerStatefulWidget {
 
 class _MessageRowState extends ConsumerState<MessageRow> {
   final _bubbleKey = GlobalKey();
+  static const _doubleTapWindow = Duration(milliseconds: 300);
+
   bool _timeRevealed = false;
+  bool _revealedBeforeTap = false;
   int _hearts = 0;
+  Timer? _tapWindow;
+  Timer? _photoOpen;
+
+  @override
+  void dispose() {
+    _tapWindow?.cancel();
+    _photoOpen?.cancel();
+    super.dispose();
+  }
+
+  /// Taps are counted here rather than with a double-tap recognizer, which
+  /// would hold every tap on a button inside the bubble (play, speed) for
+  /// 300 ms. First tap: reveal / hide the time. A second one within the
+  /// window: undo that and heart the message.
+  void _tap(RowOperations ops) {
+    if (_tapWindow?.isActive ?? false) {
+      _tapWindow!.cancel();
+      setState(() => _timeRevealed = _revealedBeforeTap);
+      _doubleTap(ops);
+      return;
+    }
+    _revealedBeforeTap = _timeRevealed;
+    setState(() => _timeRevealed = !_timeRevealed);
+    _tapWindow = Timer(_doubleTapWindow, () {});
+  }
+
+  void _doubleTap(RowOperations ops) {
+    if (ops.heart()) setState(() => _hearts++);
+  }
+
+  /// A tap on a photo opens the viewer, unless a second tap follows at once:
+  /// that one is a heart, as on any other bubble.
+  void _photoTap(RowOperations ops, int index) {
+    if (_photoOpen?.isActive ?? false) {
+      _photoOpen!.cancel();
+      _doubleTap(ops);
+      return;
+    }
+    _photoOpen = Timer(_doubleTapWindow, () {
+      if (!mounted) return;
+      openPhotoViewer(context, photos: PhotoSource.of(message), initialIndex: index, heroPrefix: 'photo-${messageKey(message)}');
+    });
+  }
 
   static const _avatarSlot = 36.0;
 
   MessageItem get item => widget.item;
   ChatMessage get message => item.message;
 
-  BubbleContext _thread(ChatScope scope, {required bool overlay}) {
+  BubbleContext _thread(ChatScope scope, RowOperations ops, {required bool overlay}) {
     final revealed = ref.watch(revealedPhotosProvider).contains(message.id);
     return BubbleContext(
       authorOf: scope.authorOf,
@@ -55,21 +103,16 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       onPlayFailed: () => ref.read(chatControllerProvider(scope.conversationId).notifier).load(),
       photosBlurred: !item.mine && !message.isLocal && !revealed && message.type == ChatMessageType.photo,
       onRevealPhotos: () => ref.read(revealedPhotosProvider.notifier).update((s) => {...s, message.id}),
-      onOpenPhoto: (index) => openPhotoViewer(
-        context,
-        photos: PhotoSource.of(message),
-        initialIndex: index,
-        heroPrefix: 'photo-${messageKey(message)}',
-      ),
+      onOpenPhoto: (index) => _photoTap(ops, index),
     );
   }
 
-  MessageBubble _bubble(ChatScope scope, {bool overlay = false}) => MessageBubble(
+  MessageBubble _bubble(ChatScope scope, RowOperations ops, {bool overlay = false}) => MessageBubble(
         message: message,
         mine: item.mine,
         first: item.first,
         last: item.last,
-        thread: _thread(scope, overlay: overlay),
+        thread: _thread(scope, ops, overlay: overlay),
       );
 
   void _longPress(RowOperations ops, ChatScope scope) {
@@ -79,7 +122,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     showMessageActions(
       context,
       bubbleRect: box.localToGlobal(Offset.zero) & box.size,
-      bubble: _bubble(scope, overlay: true),
+      bubble: _bubble(scope, ops, overlay: true),
       mine: item.mine,
       myReactions: ops.myReactions,
       onReact: ops.react,
@@ -96,14 +139,11 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     final highlighted = scope.highlightedMessageId == message.id;
     final noMotion = MediaQuery.disableAnimationsOf(context);
 
-    Widget bubble = KeyedSubtree(key: _bubbleKey, child: _bubble(scope));
+    Widget bubble = KeyedSubtree(key: _bubbleKey, child: _bubble(scope, ops));
     if (message.status == MessageStatus.sending) bubble = Opacity(opacity: 0.6, child: bubble);
 
     final gestures = GestureDetector(
-      onTap: () => setState(() => _timeRevealed = !_timeRevealed),
-      onDoubleTap: () {
-        if (ops.heart()) setState(() => _hearts++);
-      },
+      onTap: () => _tap(ops),
       onLongPress: () => _longPress(ops, scope),
       child: Stack(clipBehavior: Clip.none, children: [bubble, Positioned.fill(child: HeartPop(trigger: _hearts))]),
     );

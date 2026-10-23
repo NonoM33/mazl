@@ -42,8 +42,9 @@ class RowOperations {
   bool heart() {
     if (message.isLocal || message.unsent) return false;
     HapticFeedback.lightImpact();
-    final added = !myReactions.contains('❤️');
-    react('❤️');
+    final heart = allowedReactions.first;
+    final added = !myReactions.contains(heart);
+    react(heart);
     return added;
   }
 
