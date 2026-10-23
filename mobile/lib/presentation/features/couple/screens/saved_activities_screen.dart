@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -6,6 +5,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
@@ -24,8 +25,6 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
   List<CoupleActivity> _activities = [];
   bool _isLoading = true;
   CoupleFailure? _failure;
-
-  static const coupleAccent = Color(0xFFFF6B9D);
 
   @override
   void initState() {
@@ -66,9 +65,9 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Annuler'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Retirer'),
           ),
         ],
@@ -113,26 +112,8 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
         actions: [
           if (_activities.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: coupleAccent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${_activities.length}',
-                    style: const TextStyle(
-                      color: coupleAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              padding: const EdgeInsets.only(right: 24),
+              child: Center(child: TagPill('${_activities.length}')),
             ),
         ],
       ),
@@ -161,7 +142,12 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
     return RefreshIndicator(
       onRefresh: _loadActivities,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          8,
+          24,
+          24 + MediaQuery.paddingOf(context).bottom,
+        ),
         itemCount: _activities.length,
         itemBuilder: (context, index) {
           final activity = _activities[index];
@@ -187,137 +173,91 @@ class _SavedActivityCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onRemove;
 
-  static const coupleAccent = Color(0xFFFF6B9D);
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            SizedBox(
-              width: 120,
-              height: 140,
-              child: activity.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: activity.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          Container(color: coupleAccent.withValues(alpha: 0.3)),
-                      errorWidget: (context, url, error) => _buildPlaceholder(),
-                    )
-                  : _buildPlaceholder(),
-            ),
-
-            // Content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Category
-                    Text(
-                      '${activity.categoryEmoji} ${activity.categoryLabel}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: coupleAccent,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Title
-                    Text(
-                      activity.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Location
-                    if (activity.city != null)
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.mapPin,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              activity.city!,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final city = activity.city;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(24),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: ActivityVisual(activity: activity, iconSize: 28),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SectionLabel(activity.categoryLabel),
+                        const SizedBox(height: 6),
+                        Text(
+                          activity.title,
+                          style: textTheme.titleMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (city != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.mapPin,
+                                size: 14,
+                                color: scheme.onSurfaceVariant,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  city,
+                                  style: textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    const SizedBox(height: 8),
-
-                    // Price + Remove button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            activity.formattedPrice,
-                            style: const TextStyle(
-                              color: AppColors.success,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              activity.formattedPrice,
+                              style: textTheme.titleSmall,
                             ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(LucideIcons.trash2, size: 18),
-                          color: Colors.grey[400],
-                          onPressed: onRemove,
-                          tooltip: 'Retirer',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
+                            IconButton(
+                              icon: const Icon(LucideIcons.trash2, size: 18),
+                              color: scheme.onSurfaceVariant,
+                              onPressed: onRemove,
+                              tooltip: 'Retirer',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 36,
+                                minHeight: 36,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: coupleAccent.withValues(alpha: 0.3),
-      child: Center(
-        child: Text(
-          activity.categoryEmoji,
-          style: const TextStyle(fontSize: 32),
+          ),
         ),
       ),
     );

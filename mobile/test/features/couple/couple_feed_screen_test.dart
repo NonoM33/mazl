@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
+import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_activities_feed_screen.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
@@ -47,10 +48,10 @@ Future<void> _settle(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
-/// The round button of the action row: the app bar has its own bookmark, and
-/// the action icons are the only ones drawn at 30 / 35 logical pixels.
+/// The round button of the action row: the app bar and the card have their
+/// own small round buttons, the action row's are the only ones 56+ wide.
 Finder _actionButton(IconData icon) => find.byWidgetPredicate(
-  (w) => w is Icon && w.icon == icon && (w.size ?? 0) >= 30,
+  (w) => w is RoundIconButton && w.icon == icon && w.size >= 56,
 );
 
 void main() {

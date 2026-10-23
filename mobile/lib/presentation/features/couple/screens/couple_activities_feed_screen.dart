@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,8 +7,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
+import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
 
 class CoupleActivitiesFeedScreen extends StatefulWidget {
@@ -43,19 +43,15 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   String? _selectedCategory;
   int _loadToken = 0;
 
-  // Couple mode accent color
-  static const coupleAccent = Color(0xFFFF6B9D);
-
-  // Categories with emojis
   static const categories = [
-    {'key': null, 'label': 'Tout', 'emoji': '✨'},
-    {'key': 'wellness', 'label': 'Bien-être', 'emoji': '🧖‍♀️'},
-    {'key': 'gastronomy', 'label': 'Gastro', 'emoji': '🍷'},
-    {'key': 'culture', 'label': 'Culture', 'emoji': '🎭'},
-    {'key': 'sport', 'label': 'Sport', 'emoji': '💃'},
-    {'key': 'romantic', 'label': 'Romantique', 'emoji': '💕'},
-    {'key': 'travel', 'label': 'Voyage', 'emoji': '✈️'},
-    {'key': 'spiritual', 'label': 'Spirituel', 'emoji': '📖'},
+    (key: null, label: 'Tout'),
+    (key: 'wellness', label: 'Bien-être'),
+    (key: 'gastronomy', label: 'Gastro'),
+    (key: 'culture', label: 'Culture'),
+    (key: 'sport', label: 'Sport'),
+    (key: 'romantic', label: 'Romantique'),
+    (key: 'travel', label: 'Voyage'),
+    (key: 'spiritual', label: 'Spirituel'),
   ];
 
   @override
@@ -106,32 +102,19 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Text('Activités'),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: coupleAccent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Couple',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: coupleAccent,
-                ),
+        title: const Text('Activités'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 24),
+            child: Center(
+              child: RoundIconButton(
+                icon: LucideIcons.bookmark,
+                tooltip: 'Activités sauvegardées',
+                size: 40,
+                iconSize: 18,
+                onPressed: () => context.push('/couple/activities/saved'),
               ),
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.bookmark),
-            tooltip: 'Activités sauvegardées',
-            onPressed: () => context.push('/couple/activities/saved'),
           ),
         ],
       ),
@@ -147,34 +130,22 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   }
 
   Widget _buildCategoryFilter() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
+    return SizedBox(
+      height: 52,
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         itemCount: categories.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final cat = categories[index];
-          final isSelected = _selectedCategory == cat['key'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(
-                '${cat['emoji']} ${cat['label']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isSelected ? Colors.white : null,
-                ),
-              ),
-              selected: isSelected,
-              selectedColor: coupleAccent,
-              checkmarkColor: Colors.white,
-              onSelected: (selected) {
-                setState(() => _selectedCategory = cat['key']);
-                _loadActivities();
-              },
-            ),
+          return _CategoryChip(
+            label: cat.label,
+            selected: _selectedCategory == cat.key,
+            onTap: () {
+              setState(() => _selectedCategory = cat.key);
+              _loadActivities();
+            },
           );
         },
       ),
@@ -204,7 +175,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       children: [
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
             child: CardSwiper(
               key: ValueKey(_deckGeneration),
               controller: _controller,
@@ -226,6 +197,9 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
                     horizontalOffsetPercentage,
                     verticalOffsetPercentage,
                   ) {
+                    // Only the card on top carries text: the ones stacked
+                    // behind are bare, opaque shells.
+                    if (index != _topIndex) return const _CardBack();
                     final activity = _deck[index];
                     return _ActivityCard(
                       activity: activity,
@@ -239,26 +213,30 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _ActionButton(
+              RoundIconButton(
                 icon: LucideIcons.x,
-                color: AppColors.passRed,
+                tooltip: 'Passer',
                 size: 60,
+                iconSize: 26,
                 onPressed: () => _controller.swipe(CardSwiperDirection.left),
               ),
-              _ActionButton(
+              RoundIconButton(
                 icon: LucideIcons.bookmark,
-                color: coupleAccent,
-                size: 70,
+                tooltip: 'Enregistrer',
+                size: 72,
+                iconSize: 30,
+                style: RoundButtonStyle.ink,
                 onPressed: () => _controller.swipe(CardSwiperDirection.top),
               ),
-              _ActionButton(
+              RoundIconButton(
                 icon: LucideIcons.info,
-                color: AppColors.info,
+                tooltip: 'Voir le détail',
                 size: 60,
+                iconSize: 26,
                 onPressed: () {
                   if (_topIndex < _deck.length) {
                     context.push('/couple/activities/${_deck[_topIndex].id}');
@@ -331,11 +309,12 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   }
 
   void _showSavedSnackbar(CoupleActivity activity) {
+    final onSnack = Theme.of(context).colorScheme.onInverseSurface;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(LucideIcons.bookmark, color: Colors.white),
+            Icon(LucideIcons.bookmark, color: onSnack, size: 18),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -346,13 +325,74 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             ),
           ],
         ),
-        backgroundColor: coupleAccent,
-        behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
           label: 'Voir',
-          textColor: Colors.white,
+          textColor: onSnack,
           onPressed: () => context.push('/couple/activities/saved'),
         ),
+      ),
+    );
+  }
+}
+
+/// Puce de catégorie : brume au repos, encre pleine quand elle est choisie.
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final background = selected ? scheme.onSurface : scheme.surfaceContainer;
+    final foreground = selected ? scheme.surface : scheme.onSurface;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: background,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: foreground,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A card waiting behind the one on top: opaque and empty, so nothing of its
+/// text shows through where the stack is offset.
+class _CardBack extends StatelessWidget {
+  const _CardBack();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: scheme.outline),
       ),
     );
   }
@@ -371,415 +411,196 @@ class _ActivityCard extends StatelessWidget {
   final double verticalProgress;
   final VoidCallback? onTapDetails;
 
-  static const coupleAccent = Color(0xFFFF6B9D);
-
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final city = activity.city;
+    return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: scheme.outline),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          fit: StackFit.expand,
+        borderRadius: BorderRadius.circular(27),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Activity image
-            if (activity.imageUrl != null)
-              CachedNetworkImage(
-                imageUrl: activity.imageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: coupleAccent.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                ),
-                errorWidget: (context, url, error) => _buildPlaceholder(),
-              )
-            else
-              _buildPlaceholder(),
-
-            // Gradient overlay at bottom
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.9),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-
-            // Activity info
-            Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+            // Image zone: nothing of the text zone is ever drawn over it.
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  // Category badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: coupleAccent,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${activity.categoryEmoji} ${activity.categoryLabel}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                  ActivityVisual(activity: activity),
+                  if (activity.rating != null)
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      child: TagPill(
+                        _ratingLabel(activity),
+                        icon: LucideIcons.star,
                       ),
+                    ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: RoundIconButton(
+                      icon: LucideIcons.info,
+                      tooltip: 'Voir le détail',
+                      size: 40,
+                      iconSize: 18,
+                      onPressed: onTapDetails,
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Title
-                  Text(
-                    activity.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+                  if (swipeProgress < -10)
+                    Positioned(
+                      top: 64,
+                      right: 24,
+                      child: Transform.rotate(
+                        angle: 0.3,
+                        child: _Stamp(label: 'PASSER', color: scheme.onSurface),
+                      ).animate().fadeIn(duration: 100.ms),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Location & Price
-                  Row(
-                    children: [
-                      if (activity.city != null) ...[
-                        const Icon(
-                          LucideIcons.mapPin,
-                          color: Colors.white70,
-                          size: 16,
+                  if (verticalProgress < -10)
+                    Positioned(
+                      top: 64,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: _Stamp(
+                          label: 'GARDER',
+                          color: scheme.primary,
+                          icon: LucideIcons.bookmark,
                         ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            activity.city!,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                      ],
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          activity.formattedPrice,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Description preview
-                  Text(
-                    activity.description,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  // Partner badge
-                  if (activity.isPartner) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentGold.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            LucideIcons.badgePercent,
-                            color: Colors.white,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            activity.discountPercent != null
-                                ? '-${activity.discountPercent}% Partenaire MAZL'
-                                : 'Partenaire MAZL',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                      ).animate().fadeIn(duration: 100.ms),
                     ),
-                  ],
-
-                  // Kosher badge
-                  if (activity.isKosher) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('✡️', style: TextStyle(fontSize: 14)),
-                          SizedBox(width: 6),
-                          Text(
-                            'Casher',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
-
-            // Info button to view details
-            Positioned(
-              top: 16,
-              right: 16,
-              child: GestureDetector(
-                onTap: onTapDetails,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    LucideIcons.info,
-                    color: Colors.white,
-                    size: 22,
-                  ),
+            // Text zone: a plain, opaque colour.
+            ColoredBox(
+              color: scheme.surfaceContainer,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TagPill(
+                      activity.categoryLabel,
+                      icon: activityCategoryIcon(activity.category),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      activity.title,
+                      style: textTheme.headlineSmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        if (city != null) ...[
+                          Icon(
+                            LucideIcons.mapPin,
+                            size: 16,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              city,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                        Text(
+                          activity.formattedPrice,
+                          style: textTheme.titleSmall,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      activity.description,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (activity.isPartner || activity.isKosher) ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (activity.isPartner)
+                            AccentPill(
+                              activity.discountPercent != null
+                                  ? '-${activity.discountPercent} % Partenaire MAZL'
+                                  : 'Partenaire MAZL',
+                              icon: LucideIcons.badgePercent,
+                            ),
+                          if (activity.isKosher) const TagPill('Casher'),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
-
-            // Rating badge
-            if (activity.rating != null)
-              Positioned(
-                top: 16,
-                left: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        LucideIcons.star,
-                        color: AppColors.accentGold,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        activity.rating!.toStringAsFixed(1),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (activity.reviewCount != null) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${activity.reviewCount})',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-            // Swipe overlay indicators
-            if (swipeProgress < -10)
-              Positioned(
-                top: 60,
-                right: 24,
-                child: Transform.rotate(
-                  angle: 0.3,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.passRed, width: 4),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'PASS',
-                      style: TextStyle(
-                        color: AppColors.passRed,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 100.ms),
-              ),
-
-            if (verticalProgress < -10)
-              Positioned(
-                top: 60,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: coupleAccent, width: 4),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          LucideIcons.bookmark,
-                          color: coupleAccent,
-                          size: 28,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'SAVE',
-                          style: TextStyle(
-                            color: coupleAccent,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 100.ms),
-              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlaceholder() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [coupleAccent, coupleAccent.withValues(alpha: 0.7)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          activity.categoryEmoji,
-          style: const TextStyle(fontSize: 80),
-        ),
-      ),
-    );
+  String _ratingLabel(CoupleActivity activity) {
+    final rating = activity.rating!.toStringAsFixed(1);
+    final count = activity.reviewCount;
+    return count == null ? rating : '$rating ($count)';
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.color,
-    required this.size,
-    required this.onPressed,
-  });
+class _Stamp extends StatelessWidget {
+  const _Stamp({required this.label, required this.color, this.icon});
 
-  final IconData icon;
+  final String label;
   final Color color;
-  final double size;
-  final VoidCallback onPressed;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(color: color, width: 3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: color),
             ),
           ],
         ),
-        child: Icon(icon, color: color, size: size * 0.5),
       ),
     );
   }
