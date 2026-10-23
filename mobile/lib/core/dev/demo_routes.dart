@@ -56,6 +56,21 @@ abstract final class DemoRoutes {
   }
 
   static const _ok = DemoReply({'success': true});
+
+  static Map<String, dynamic> _verificationStatus() {
+    final photo = DemoStore.photoVerified;
+    final identity = DemoStore.identityVerified;
+    final now = DateTime.now().toUtc().toIso8601String();
+    return {
+      'success': true,
+      'photo': {'verified': photo, 'verified_at': photo ? now : null, 'attempts_today': 0},
+      'identity': {'verified': identity, 'verified_at': identity ? now : null, 'attempts_today': 0},
+      'level': identity ? 'identity' : (photo ? 'photo' : 'none'),
+      'is_verified': photo || identity,
+      'attempts_today': 0,
+      'next_attempt_time': null,
+    };
+  }
   static DemoReply _json(Map<String, dynamic> body) => DemoReply(body);
   static int _id(RegExpMatch m) => int.parse(m.group(1)!);
 
@@ -159,30 +174,31 @@ abstract final class DemoRoutes {
           : _json({'success': true, 'profile': profile});
     }),
     _Route('DELETE', '/api/users/me', (r, m) => _ok),
-    _Route(
-      'GET',
-      '/api/verification/status',
-      (r, m) => _json({
-        'success': true,
-        'is_verified': false,
-        'attempts_today': 0,
-        'next_attempt_time': null,
-      }),
-    ),
+    // Vérification : mêmes formes que le serveur (docs/verification/CONTRAT.md).
+    // Le mode démo n'analyse rien : toute capture est acceptée.
+    _Route('GET', '/api/verification/status', (r, m) => _json(_verificationStatus())),
     _Route(
       'POST',
-      '/api/verification/start',
-      (r, m) => _json({'success': true, 'gesture_id': 'smile'}),
-    ),
-    _Route(
-      'POST',
-      '/api/verification/submit',
+      '/api/verification/face/session',
       (r, m) => _json({
         'success': true,
-        'verified': true,
-        'message': 'Mode démo : vérification simulée.',
+        'session_id': 'demo-${DemoStore.nextId()}',
+        'challenges': const ['front', 'left', 'right'],
+        'expires_at': DateTime.now().toUtc().add(const Duration(minutes: 2)).toIso8601String(),
       }),
     ),
+    _Route('POST', '/api/verification/face/submit', (r, m) {
+      DemoStore.setPhotoVerified(true);
+      return _json({'success': true, 'verified': true, 'photo_matches': const []});
+    }),
+    _Route('POST', '/api/verification/identity', (r, m) {
+      DemoStore.markIdentityVerified();
+      return _json({'success': true, 'verified': true});
+    }),
+    _Route('DELETE', '/api/verification/face/reference', (r, m) {
+      DemoStore.setPhotoVerified(false);
+      return _ok;
+    }),
 
     // --- Découverte, matchs, likes ---
     _Route(

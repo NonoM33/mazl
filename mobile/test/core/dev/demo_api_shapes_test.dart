@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -5,6 +7,8 @@ import 'package:mazl/core/dev/demo_http_client.dart';
 import 'package:mazl/core/dev/dev_session.dart';
 import 'package:mazl/core/dev/demo_fixtures.dart';
 import 'package:mazl/core/services/api_service.dart';
+import 'package:mazl/core/services/http_verification_api.dart';
+import 'package:mazl/core/services/verification_api.dart';
 import 'package:mazl/presentation/features/chat/conversation_lookup.dart';
 
 /// Rejoue les VRAIES méthodes d'`ApiService` (donc les vrais décodeurs) contre
@@ -143,8 +147,6 @@ void main() {
 
   test('photos, vérification, boost, visiteurs, bloqués, histoires', () async {
     expect(_ok(await _demo((a) => a.getProfilePhotos())), isEmpty);
-    final status = _ok(await _demo((a) => a.getVerificationStatus()));
-    expect(status['is_verified'], isFalse);
     expect(_ok(await _demo((a) => a.getBoostStatus())).isActive, isFalse);
     expect(_ok(await _demo((a) => a.activateBoost())).isActive, isTrue);
     expect(
@@ -192,5 +194,25 @@ void main() {
     await _demo((a) => a.sendSwipe(targetUserId: DemoFixtures.matchOnLikeUserId, action: 'like'));
     final again = _ok(await _demo((a) => a.getConversations()));
     expect(again.where((c) => c.otherUser?.userId == DemoFixtures.matchOnLikeUserId), hasLength(1));
+  });
+
+  test('vérification : les vrais décodeurs du niveau 1 et 2 lisent la démo', () async {
+    Future<R> verif<R>(Future<R> Function(VerificationApi api) body) => _demo((_) => body(HttpVerificationApi()));
+
+    expect(_ok(await verif((a) => a.getStatus())).level, 'none');
+    final session = _ok(await verif((a) => a.startFaceSession(FacePurpose.photo)));
+    expect(session.challenges.first, FaceChallenge.front);
+    expect(session.expiresAt.isAfter(DateTime.now()), isTrue);
+
+    final frames = [for (var i = 0; i < session.challenges.length; i++) Uint8List.fromList([i])];
+    expect(_ok(await verif((a) => a.submitFace(session.sessionId, frames))).verified, isTrue);
+    expect(_ok(await verif((a) => a.getStatus())).photo.verified, isTrue);
+
+    final chip = ChipReadResult(dg1: Uint8List(1), dg2: Uint8List(1), sod: Uint8List(1));
+    expect(_ok(await verif((a) => a.submitIdentity('demo-id', frames, chip))).verified, isTrue);
+    expect(_ok(await verif((a) => a.getStatus())).level, 'identity');
+
+    _success(await verif((a) => a.deleteFaceReference()));
+    expect(_ok(await verif((a) => a.getStatus())).photo.verified, isFalse);
   });
 }

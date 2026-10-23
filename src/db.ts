@@ -1,4 +1,7 @@
 import postgres from "postgres";
+import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
+import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
+import { publicPicturesFor } from "./features/media/infra/public-pictures";
 
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
@@ -137,12 +140,9 @@ export async function initDb() {
     )
   `;
 
-  // Selfie verification attempts (US-TS-03).
-  // Each row is one selfie-verification attempt. The 3-per-day quota is
-  // enforced server-side by counting today's rows for the user (see
-  // startVerification / submitVerification below). NOTE: the base64 selfie is
-  // intentionally NOT persisted here and is never added to profile_photos /
-  // profiles.photos — it is only used transiently to decide pass/fail.
+  // Legacy gesture-verification attempts (US-TS-03), used by
+  // POST /api/verification/start only. The 3-per-day quota is enforced by
+  // counting today's rows (see startVerification below).
   await sql`
     CREATE TABLE IF NOT EXISTS verification_attempts (
       id SERIAL PRIMARY KEY,
@@ -764,27 +764,10 @@ export async function findWaitlistByVerificationToken(token: string) {
   return result.length ? (result[0] as { id: number; email: string; verification_status: string }) : null;
 }
 
-export async function createDocument(params: {
-  waitlistId: number;
-  type: string;
-  filename: string;
-  originalName?: string;
-  mimeType?: string;
-}) {
-  const result = await sql`
-    INSERT INTO documents (waitlist_id, type, filename, original_name, mime_type)
-    VALUES (${params.waitlistId}, ${params.type}, ${params.filename}, ${params.originalName ?? null}, ${params.mimeType ?? null})
-    RETURNING id
-  `;
-  const row = result[0];
-  if (!row) throw new Error("Failed to create document");
-  return row.id as number;
-}
-
 export async function listVerifiedProfiles() {
   const rows = await sql`
     SELECT w.id as waitlist_id, w.email, w.verification_status, w.verified_at, w.os,
-           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
+           d.id as document_id, d.type, d.purged_at, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
     WHERE w.verification_status IN ('verified', 'verified_plus')
@@ -808,7 +791,7 @@ export async function listVerifiedProfiles() {
       grouped.get(id).documents.push({
         id: row.document_id,
         type: row.type,
-        filename: row.filename,
+        purged: row.purged_at !== null,
         mimeType: row.mime_type,
         status: row.document_status,
         createdAt: row.created_at,
@@ -822,7 +805,7 @@ export async function listVerifiedProfiles() {
 export async function listPendingSubmissions() {
   const rows = await sql`
     SELECT w.id as waitlist_id, w.email, w.verification_status, w.documents_submitted_at, w.os,
-           d.id as document_id, d.type, d.filename, d.mime_type, d.status as document_status, d.created_at
+           d.id as document_id, d.type, d.purged_at, d.mime_type, d.status as document_status, d.created_at
     FROM waitlist w
     LEFT JOIN documents d ON d.waitlist_id = w.id
     WHERE w.verification_status IN ('submitted', 'pending')
@@ -846,7 +829,7 @@ export async function listPendingSubmissions() {
       grouped.get(id).documents.push({
         id: row.document_id,
         type: row.type,
-        filename: row.filename,
+        purged: row.purged_at !== null,
         mimeType: row.mime_type,
         status: row.document_status,
         createdAt: row.created_at,
@@ -857,99 +840,12 @@ export async function listPendingSubmissions() {
   return Array.from(grouped.values());
 }
 
-export async function setDocumentReview(params: { documentId: number; status: 'approved' | 'rejected'; notes?: string }) {
-  await sql`
-    UPDATE documents
-    SET status = ${params.status}, reviewed_at = NOW(), reviewer_notes = ${params.notes ?? null}
-    WHERE id = ${params.documentId}
-  `;
-}
-
-export async function setDocumentsReviewBulk(params: {
-  waitlistId: number;
-  documentIds: number[];
-  status: 'approved' | 'rejected';
-  notes?: string;
-}) {
-  if (!params.documentIds.length) return;
-
-  await sql`
-    UPDATE documents
-    SET status = ${params.status}, reviewed_at = NOW(), reviewer_notes = ${params.notes ?? null}
-    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
-  `;
-}
-
-export async function getDocumentTypesByIds(params: { waitlistId: number; documentIds: number[] }) {
-  if (!params.documentIds.length) return [] as string[];
-
-  const rows = await sql`
-    SELECT id, type
-    FROM documents
-    WHERE waitlist_id = ${params.waitlistId} AND id IN ${sql(params.documentIds)}
-  `;
-
-  return (rows as any[]).map((r) => r.type as string);
-}
-
 export async function getWaitlistEmailById(waitlistId: number) {
   const rows = await sql`
     SELECT email FROM waitlist WHERE id = ${waitlistId}
   `;
   const row = rows[0];
   return row ? (row.email as string) : null;
-}
-
-export async function getDocumentById(documentId: number) {
-  const result = await sql`
-    SELECT id, waitlist_id, filename, mime_type FROM documents WHERE id = ${documentId}
-  `;
-  return result.length
-    ? (result[0] as { id: number; waitlist_id: number; filename: string; mime_type: string | null })
-    : null;
-}
-
-export async function getLatestDocumentsByType(waitlistId: number) {
-  const rows = await sql`
-    SELECT DISTINCT ON (type)
-      id, type, filename, mime_type, status, created_at
-    FROM documents
-    WHERE waitlist_id = ${waitlistId}
-    ORDER BY type, created_at DESC
-  `;
-
-  const map: Record<
-    string,
-    { id: number; type: string; filename: string; mimeType: string | null; status: string }
-  > = {};
-
-  for (const row of rows as any[]) {
-    map[row.type] = {
-      id: row.id,
-      type: row.type,
-      filename: row.filename,
-      mimeType: row.mime_type ?? null,
-      status: row.status,
-    };
-  }
-
-  return map;
-}
-
-export async function approveAllDocumentsForWaitlist(waitlistId: number) {
-  await sql`
-    UPDATE documents
-    SET status = 'approved', reviewed_at = NOW(), reviewer_notes = NULL
-    WHERE waitlist_id = ${waitlistId} AND status != 'rejected'
-  `;
-}
-
-export async function rejectAllDocumentsForWaitlist(waitlistId: number, notes?: string) {
-  await sql`
-    UPDATE documents
-    SET status = 'rejected', reviewed_at = NOW(), reviewer_notes = ${notes ?? null}
-    WHERE waitlist_id = ${waitlistId}
-  `;
 }
 
 export async function setWaitlistOS(waitlistId: number, os: string) {
@@ -1090,7 +986,9 @@ export async function getUserProfile(userId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function getFullProfile(userId: number) {
+// `includePrivate` is for the member's OWN profile only: email and the account
+// name (possibly a legal name) are never returned about someone else.
+export async function getFullProfile(userId: number, includePrivate = false) {
   // Get profile with user info
   const result = await sql`
     SELECT
@@ -1105,9 +1003,10 @@ export async function getFullProfile(userId: number) {
       p.kashrut_level,
       p.shabbat_observance,
       p.looking_for,
-      p.is_verified,
+      ${badgeColumns(sql)},
       p.verification_level,
       u.picture,
+      ${primaryPhotoColumns(sql)},
       u.name,
       u.email
     FROM profiles p
@@ -1117,18 +1016,20 @@ export async function getFullProfile(userId: number) {
 
   if (result.length === 0) return null;
 
-  const profile = result[0] as any;
+  const { name, email, ...shared } = withPublicPicture(result[0] as any);
+  const profile = includePrivate ? { ...shared, name, email } : shared;
 
-  // Get photos
+  // Get photos (signed URLs only; see features/media)
   const photos = await sql`
-    SELECT url, position FROM profile_photos
+    SELECT id, url, position FROM profile_photos
     WHERE user_id = ${userId}
     ORDER BY position ASC
   `;
+  const photoUrls = publicPhotoUrls(photos as any[]);
 
   return {
     ...profile,
-    photos: photos.length > 0 ? photos.map((p: any) => p.url) : (profile.picture ? [profile.picture] : []),
+    photos: photoUrls.length > 0 ? photoUrls : (profile.picture ? [profile.picture] : []),
   };
 }
 
@@ -1148,8 +1049,10 @@ export async function upsertProfile(userId: number, params: {
   ageMax?: number;
   distanceMax?: number;
 }) {
+  // Callers pass coordinates that the media location service already fuzzed.
+  const hasPosition = params.latitude !== undefined && params.longitude !== undefined;
   const result = await sql`
-    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
     VALUES (
       ${userId},
       ${params.displayName ?? null},
@@ -1159,6 +1062,7 @@ export async function upsertProfile(userId: number, params: {
       ${params.location ?? null},
       ${params.latitude ?? null},
       ${params.longitude ?? null},
+      ${hasPosition},
       ${params.denomination ?? null},
       ${params.kashrutLevel ?? null},
       ${params.shabbatObservance ?? null},
@@ -1170,12 +1074,15 @@ export async function upsertProfile(userId: number, params: {
     ON CONFLICT (user_id)
     DO UPDATE SET
       display_name = COALESCE(${params.displayName ?? null}, profiles.display_name),
-      birthdate = COALESCE(${params.birthdate ?? null}, profiles.birthdate),
+      -- once read from a verified document (level 2), the birthdate is locked
+      birthdate = CASE WHEN profiles.birthdate_locked THEN profiles.birthdate
+                       ELSE COALESCE(${params.birthdate ?? null}, profiles.birthdate) END,
       gender = COALESCE(${params.gender ?? null}, profiles.gender),
       bio = COALESCE(${params.bio ?? null}, profiles.bio),
       location = COALESCE(${params.location ?? null}, profiles.location),
       latitude = COALESCE(${params.latitude ?? null}, profiles.latitude),
       longitude = COALESCE(${params.longitude ?? null}, profiles.longitude),
+      location_fuzzed = profiles.location_fuzzed OR ${hasPosition},
       denomination = COALESCE(${params.denomination ?? null}, profiles.denomination),
       kashrut_level = COALESCE(${params.kashrutLevel ?? null}, profiles.kashrut_level),
       shabbat_observance = COALESCE(${params.shabbatObservance ?? null}, profiles.shabbat_observance),
@@ -1264,16 +1171,11 @@ export async function getActiveBoostedUserIds(): Promise<Set<number>> {
   return new Set(rows.map((r) => r.user_id));
 }
 
-// ============ SELFIE VERIFICATION (US-TS-03) ============
+// ============ LEGACY GESTURE VERIFICATION (US-TS-03) ============
 //
-// IMPORTANT — NO REAL FACE MATCHING IS PERFORMED HERE.
-// This flow deliberately does NOT run any facial recognition / ML comparison
-// between the submitted selfie and the profile photos (out of scope: no ML in
-// this codebase). A submission that provides an image simply "passes". This is
-// the natural place to branch in a real face-match service or an admin review
-// step (a documentary-verification admin flow already exists elsewhere in this
-// app and could gate `is_verified` the same way). The selfie itself is never
-// stored in profile_photos / profiles.photos — it is only used transiently.
+// Only `startVerification` survives, for app versions that still call
+// POST /api/verification/start. It verifies nobody: the real check lives in
+// src/features/verification (live selfie + face matching).
 
 /** Maximum selfie-verification attempts a user may make per calendar day. */
 export const VERIFICATION_DAILY_LIMIT = 3;
@@ -1294,20 +1196,6 @@ export interface StartVerificationResult {
   /** ISO timestamp of the next allowed attempt when the quota is exhausted. */
   nextAttemptTime?: string;
   message?: string;
-}
-
-export interface SubmitVerificationResult {
-  verified: boolean;
-  attemptsRemaining: number;
-  message: string;
-  /** Set when the daily quota was already exhausted (no attempt consumed). */
-  nextAttemptTime?: string;
-}
-
-export interface VerificationStatus {
-  isVerified: boolean;
-  attemptsToday: number;
-  nextAttemptTime?: string;
 }
 
 /** Count verification attempts made by the user during the current server day. */
@@ -1361,116 +1249,6 @@ export async function startVerification(
   return { ok: true, gestureId, attemptId: rows[0]!.id };
 }
 
-/**
- * Submit a selfie for the given gesture. Re-checks the daily quota server-side
- * (the pending row from `startVerification` counts toward it), then marks the
- * latest pending attempt as passed/failed and, on success, flips the profile
- * to verified. Returns `{ verified, attemptsRemaining, message }`.
- *
- * `imageProvided` is the only signal used to decide pass/fail — see the module
- * note above: NO real face matching is done.
- */
-export async function submitVerification(
-  userId: number,
-  gestureId: string,
-  imageProvided: boolean,
-): Promise<SubmitVerificationResult> {
-  const attemptsToday = await countVerificationAttemptsToday(userId);
-  if (attemptsToday > VERIFICATION_DAILY_LIMIT) {
-    return {
-      verified: false,
-      attemptsRemaining: 0,
-      message: "Limite de tentatives atteinte (3/jour). Réessayez demain.",
-      nextAttemptTime: await nextMidnightIso(),
-    };
-  }
-
-  // Find the most recent pending attempt to resolve. If none exists (client
-  // called submit without start), create a resolved row so the attempt is
-  // still counted against the daily quota.
-  const pending = await sql<{ id: number }[]>`
-    SELECT id
-    FROM verification_attempts
-    WHERE user_id = ${userId}
-      AND status = 'pending'
-      AND created_at >= DATE_TRUNC('day', NOW())
-    ORDER BY created_at DESC
-    LIMIT 1
-  `;
-
-  // Passes iff an image was provided. NO facial comparison is performed.
-  const passed = imageProvided;
-  const newStatus = passed ? "passed" : "failed";
-
-  if (pending[0]) {
-    await sql`
-      UPDATE verification_attempts
-      SET status = ${newStatus}, gesture_id = ${gestureId}
-      WHERE id = ${pending[0].id}
-    `;
-  } else {
-    await sql`
-      INSERT INTO verification_attempts (user_id, gesture_id, status)
-      VALUES (${userId}, ${gestureId}, ${newStatus})
-    `;
-  }
-
-  if (passed) {
-    await sql`
-      UPDATE profiles
-      SET is_verified = true,
-          verification_level = 'photo',
-          updated_at = NOW()
-      WHERE user_id = ${userId}
-    `;
-    return {
-      verified: true,
-      attemptsRemaining: Math.max(
-        0,
-        VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
-      ),
-      message: "Vérification réussie. Ton profil affiche le badge vérifié.",
-    };
-  }
-
-  const attemptsRemaining = Math.max(
-    0,
-    VERIFICATION_DAILY_LIMIT - (await countVerificationAttemptsToday(userId)),
-  );
-  return {
-    verified: false,
-    attemptsRemaining,
-    message:
-      attemptsRemaining > 0
-        ? "Le selfie n'a pas pu être validé. Réessaie en suivant bien le geste demandé."
-        : "Le selfie n'a pas pu être validé. Limite atteinte, réessaie demain.",
-  };
-}
-
-/**
- * Current verification status for the user: whether the profile is verified,
- * how many attempts were made today, and — if the daily quota is exhausted —
- * the ISO timestamp of the next allowed attempt (next midnight).
- */
-export async function getVerificationStatus(
-  userId: number,
-): Promise<VerificationStatus> {
-  const profileRows = await sql<{ is_verified: boolean }[]>`
-    SELECT is_verified
-    FROM profiles
-    WHERE user_id = ${userId}
-    LIMIT 1
-  `;
-  const isVerified = Boolean(profileRows[0]?.is_verified);
-  const attemptsToday = await countVerificationAttemptsToday(userId);
-
-  const status: VerificationStatus = { isVerified, attemptsToday };
-  if (!isVerified && attemptsToday >= VERIFICATION_DAILY_LIMIT) {
-    status.nextAttemptTime = await nextMidnightIso();
-  }
-  return status;
-}
-
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
   // Fetch candidate profiles filtered against the CALLER's own preferences.
   // Criteria are read directly from the caller's profile row (CTE `me`) so
@@ -1503,9 +1281,10 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
       p.denomination,
       p.kashrut_level,
       p.shabbat_observance,
-      p.is_verified,
+      ${badgeColumns(sql)},
       p.verification_level,
-      u.picture
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     CROSS JOIN me
@@ -1578,23 +1357,24 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
   // Get photos for each profile
   const userIds = profiles.map((p: any) => p.user_id);
   const photos = userIds.length > 0 ? await sql`
-    SELECT user_id, url, position FROM profile_photos
+    SELECT id, user_id, url, position FROM profile_photos
     WHERE user_id IN ${sql(userIds)}
     ORDER BY position ASC
   ` : [];
 
-  const photoMap = new Map<number, string[]>();
+  const photoMap = new Map<number, Array<{ id: number; url: string }>>();
   for (const photo of photos as any[]) {
     if (!photoMap.has(photo.user_id)) {
       photoMap.set(photo.user_id, []);
     }
-    photoMap.get(photo.user_id)!.push(photo.url);
+    photoMap.get(photo.user_id)!.push({ id: photo.id, url: photo.url });
   }
 
-  return profiles.map((p: any) => ({
-    ...p,
-    photos: photoMap.get(p.user_id) || (p.picture ? [p.picture] : []),
-  }));
+  return profiles.map((raw: any) => {
+    const p = withPublicPicture(raw);
+    const urls = publicPhotoUrls(photoMap.get(raw.user_id) ?? []);
+    return { ...p, photos: urls.length > 0 ? urls : (p.picture ? [p.picture] : []) };
+  });
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -1670,8 +1450,9 @@ export async function getMatches(userId: number) {
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) as age,
       p.location,
-      p.is_verified,
-      u.picture
+      ${badgeColumns(sql)},
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     WHERE p.user_id IN ${sql(otherUserIds)}
@@ -1679,7 +1460,7 @@ export async function getMatches(userId: number) {
 
   const profileMap = new Map<number, any>();
   for (const p of profiles as any[]) {
-    profileMap.set(p.user_id, p);
+    profileMap.set(p.user_id, withPublicPicture(p));
   }
 
   return matches.map((m: any) => ({
@@ -1710,8 +1491,9 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) AS age,
       p.location,
-      p.is_verified,
+      ${badgeColumns(sql)},
       u.picture,
+      ${primaryPhotoColumns(sql)},
       s.created_at AS liked_at
     FROM swipes s
     JOIN users u ON u.id = s.user_id
@@ -1732,7 +1514,7 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
       )
     ORDER BY s.created_at DESC
   `;
-  return rows as unknown as Array<{
+  return rows.map((row) => withPublicPicture(row as any)) as unknown as Array<{
     user_id: number;
     display_name: string | null;
     age: number | null;
@@ -2062,8 +1844,9 @@ export async function getConversations(userId: number) {
     SELECT
       p.user_id,
       p.display_name,
-      p.is_verified,
-      u.picture
+      ${badgeColumns(sql)},
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     WHERE p.user_id IN ${sql(otherUserIds)}
@@ -2071,7 +1854,7 @@ export async function getConversations(userId: number) {
 
   const profileMap = new Map<number, any>();
   for (const p of profiles as any[]) {
-    profileMap.set(p.user_id, p);
+    profileMap.set(p.user_id, withPublicPicture(p));
   }
 
   return conversations.map((c: any) => ({
@@ -2615,7 +2398,11 @@ export async function getCouple(userId: number) {
       AND c.status = 'active'
   `;
 
-  return result.length ? result[0] : null;
+  const couple = result[0];
+  if (!couple) return null;
+  const pictures = await publicPicturesFor(sql, [couple.partner_id]);
+  couple.partner_picture = pictures.get(couple.partner_id) ?? null;
+  return couple;
 }
 
 // Alias for getCouple - returns the couple with ID for the user
@@ -2834,9 +2621,21 @@ export async function getCoupleRequestsForUser(
     ORDER BY cr.created_at DESC
   `;
 
+  const memberIds = new Set<number>();
+  for (const raw of rows as unknown as CoupleRequestView[]) {
+    memberIds.add(raw.requester_id);
+    memberIds.add(raw.target_id);
+  }
+  const pictures = await publicPicturesFor(sql, [...memberIds]);
+
   const sent: CoupleRequestView[] = [];
   const received: CoupleRequestView[] = [];
-  for (const row of rows as unknown as CoupleRequestView[]) {
+  for (const raw of rows as unknown as CoupleRequestView[]) {
+    const row: CoupleRequestView = {
+      ...raw,
+      requester_picture: pictures.get(raw.requester_id) ?? null,
+      target_picture: pictures.get(raw.target_id) ?? null,
+    };
     if (row.requester_id === userId) {
       sent.push(row);
     } else {
@@ -3106,7 +2905,7 @@ export async function getAdminUserDetail(userId: number) {
 
   // Get profile photos
   const photos = await sql`
-    SELECT url, position FROM profile_photos
+    SELECT id, url, position FROM profile_photos
     WHERE user_id = ${userId}
     ORDER BY position ASC
   `;
@@ -3128,7 +2927,7 @@ export async function getAdminUserDetail(userId: number) {
 
   return {
     ...user,
-    photos: photos.map((p: any) => p.url),
+    photos: publicPhotoUrls(photos as any[]),
     bans,
     notes,
   };
@@ -3152,6 +2951,15 @@ export async function banUser(params: {
     RETURNING *
   `;
 
+  // A permanent ban follows the identity document: it cannot open a new account.
+  if (params.isPermanent) {
+    await sql`
+      INSERT INTO banned_document_fingerprints (doc_fingerprint)
+      SELECT doc_fingerprint FROM identity_verifications WHERE user_id = ${params.userId}
+      ON CONFLICT DO NOTHING
+    `;
+  }
+
   // Log action
   await logModerationAction({
     adminEmail: params.bannedBy,
@@ -3174,6 +2982,10 @@ export async function unbanUser(userId: number, unbannedBy: string) {
     UPDATE user_bans
     SET unbanned_at = NOW(), unbanned_by = ${unbannedBy}
     WHERE user_id = ${userId} AND unbanned_at IS NULL
+  `;
+  await sql`
+    DELETE FROM banned_document_fingerprints
+    WHERE doc_fingerprint IN (SELECT doc_fingerprint FROM identity_verifications WHERE user_id = ${userId})
   `;
 
   // Log action
@@ -3833,8 +3645,9 @@ export async function getBlockedUsers(userId: number): Promise<Array<{
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) AS age,
       p.location,
-      p.is_verified,
+      ${badgeColumns(sql)},
       u.picture,
+      ${primaryPhotoColumns(sql)},
       b.created_at AS blocked_at
     FROM blocked_users b
     JOIN users u ON u.id = b.blocked_id
@@ -3842,7 +3655,7 @@ export async function getBlockedUsers(userId: number): Promise<Array<{
     WHERE b.blocker_id = ${userId}
     ORDER BY b.created_at DESC
   `;
-  return rows as unknown as Array<{
+  return rows.map((row) => withPublicPicture(row as any)) as unknown as Array<{
     user_id: number;
     display_name: string | null;
     age: number | null;

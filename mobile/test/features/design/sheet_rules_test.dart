@@ -137,13 +137,16 @@ void main() {
     });
 
     test('no hand-drawn drag handle (the theme draws the only one)', () {
-      final handle = RegExp(r'width:\s*(\d+)(?:\.0)?,\s*\n\s*height:\s*(\d+)(?:\.0)?,');
+      // A small bar that is NOT a handle says so on the line above:
+      // `// not a drag handle: <what it is>`.
+      final handle = RegExp(r'(// not a drag handle[^\n]*\n\s*)?width:\s*(\d+)(?:\.0)?,\s*\n\s*height:\s*(\d+)(?:\.0)?,');
       final offenders = <String>[];
       for (final f in sources) {
         final text = f.readAsStringSync();
         for (final m in handle.allMatches(text)) {
-          final w = int.parse(m.group(1)!);
-          final h = int.parse(m.group(2)!);
+          if (m.group(1) != null) continue;
+          final w = int.parse(m.group(2)!);
+          final h = int.parse(m.group(3)!);
           if (w >= 28 && w <= 60 && h >= 3 && h <= 6) {
             offenders.add('${relative(f)}:${text.substring(0, m.start).split('\n').length}');
           }

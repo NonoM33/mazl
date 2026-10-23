@@ -10,6 +10,8 @@ abstract final class DemoStore {
   static Map<String, dynamic> _profilePatch = {};
   static List<Map<String, dynamic>> _prompts = DemoFixtures.myPrompts();
   static bool _boostActive = false;
+  static bool _photoVerified = false;
+  static bool _identityVerified = false;
   static int _nextId = 9000;
 
   /// Conversations ouvertes par un match pendant la session, comme le fait
@@ -23,6 +25,8 @@ abstract final class DemoStore {
     _profilePatch = {};
     _prompts = DemoFixtures.myPrompts();
     _boostActive = false;
+    _photoVerified = false;
+    _identityVerified = false;
     _nextId = 9000;
     _matched.clear();
   }
@@ -48,6 +52,12 @@ abstract final class DemoStore {
   }
 
   static int nextId() => _nextId++;
+
+  // Vérification (docs/verification/CONTRAT.md §3-4), simulée pour la session.
+  static bool get photoVerified => _photoVerified;
+  static bool get identityVerified => _identityVerified;
+  static void setPhotoVerified(bool verified) => _photoVerified = verified;
+  static void markIdentityVerified() => _identityVerified = true;
 
   static Map<String, dynamic> myProfile() => {
     ...DemoFixtures.me(),

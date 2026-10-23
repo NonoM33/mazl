@@ -17,6 +17,8 @@ class Profile {
   final String? relationshipIntention;
   final List<String> photos;
   final bool isVerified;
+  final bool photoVerified;
+  final bool identityVerified;
   final String? verificationLevel;
   final double? distance;
   final int? ageMin;
@@ -40,6 +42,8 @@ class Profile {
     this.relationshipIntention,
     this.photos = const [],
     this.isVerified = false,
+    this.photoVerified = false,
+    this.identityVerified = false,
     this.verificationLevel,
     this.distance,
     this.ageMin,
@@ -65,6 +69,8 @@ class Profile {
       relationshipIntention: json['relationship_intention'] as String?,
       photos: (json['photos'] as List<dynamic>?)?.cast<String>() ?? [],
       isVerified: json['is_verified'] == true,
+      photoVerified: json['photo_verified'] == true,
+      identityVerified: json['identity_verified'] == true,
       verificationLevel: json['verification_level'] as String?,
       distance: parseDoubleSafe(json['distance']),
       ageMin: parseIntSafe(json['age_min']),

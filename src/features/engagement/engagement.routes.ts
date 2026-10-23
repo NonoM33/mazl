@@ -4,9 +4,6 @@ import {
   activateBoost,
   getActiveBoost,
   getBoostsUsedToday,
-  startVerification,
-  submitVerification,
-  getVerificationStatus,
   createReport,
   blockUser,
   unblockUser,
@@ -19,8 +16,8 @@ import { parseBody } from "../../shared/http/validation";
 // verbatim from the monolith (src/index.ts): behaviour, payloads, status codes
 // and relative ordering are identical to the original inline handlers.
 //
-// Covers three related engagement surfaces:
-//   - Selfie verification (US-TS-03): /api/verification/start|submit|status
+// Covers two related engagement surfaces (selfie verification moved to
+// src/features/verification):
 //   - Boost: /api/boost/status, /api/boost/activate
 //   - Moderation (block / report): POST/DELETE /api/users/:id/block,
 //     GET /api/users/blocked, POST /api/users/:id/report, POST /api/report
@@ -62,93 +59,6 @@ async function buildBoostStatus(userId: number) {
 }
 
 export function registerEngagementRoutes(app: Hono<{ Variables: AppVariables }>): void {
-  // ============ SELFIE VERIFICATION (US-TS-03) ============
-  // Distinct from the WEB email-token flow at /api/verify/* — do not conflate.
-  // These literal /api/verification/* routes are registered before any
-  // parameterized route that could otherwise capture them.
-
-  // Start a selfie verification: returns a random gesture to perform.
-  app.post("/api/verification/start", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const result = await startVerification(userId);
-      if (!result.ok) {
-        // Daily quota exhausted — enforced server-side.
-        return c.json(
-          {
-            success: false,
-            error: result.message ?? "Daily verification limit reached",
-            next_attempt_time: result.nextAttemptTime,
-          },
-          429,
-        );
-      }
-
-      return c.json({ success: true, gesture_id: result.gestureId });
-    } catch (error: unknown) {
-      console.error("Verification start error:", error);
-      return c.json({ success: false, error: "Failed to start verification" }, 500);
-    }
-  });
-
-  // Submit a selfie (base64) for the given gesture.
-  app.post("/api/verification/submit", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const body = await c.req.json().catch(() => null);
-      const rawGesture =
-        body && typeof body.gesture_id === "string" ? body.gesture_id : "";
-      const selfie =
-        body && typeof body.selfie === "string" ? body.selfie : "";
-      // The base64 selfie is used transiently only; it is never persisted to
-      // profile_photos / profiles.photos. We just check that one was provided.
-      const imageProvided = selfie.length > 0;
-
-      const result = await submitVerification(userId, rawGesture, imageProvided);
-      if (result.nextAttemptTime && !result.verified && result.attemptsRemaining === 0) {
-        // Quota was already exhausted before this call — refuse.
-        return c.json(
-          {
-            success: false,
-            error: result.message,
-            next_attempt_time: result.nextAttemptTime,
-          },
-          429,
-        );
-      }
-
-      return c.json({
-        success: true,
-        verified: result.verified,
-        message: result.message,
-        attempts_remaining: result.attemptsRemaining,
-      });
-    } catch (error: unknown) {
-      console.error("Verification submit error:", error);
-      return c.json({ success: false, error: "Failed to submit verification" }, 500);
-    }
-  });
-
-  // Current verification status (verified flag + daily quota).
-  app.get("/api/verification/status", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const status = await getVerificationStatus(userId);
-      return c.json({
-        success: true,
-        is_verified: status.isVerified,
-        attempts_today: status.attemptsToday,
-        next_attempt_time: status.nextAttemptTime ?? null,
-      });
-    } catch (error: unknown) {
-      console.error("Verification status error:", error);
-      return c.json({ success: false, error: "Failed to get verification status" }, 500);
-    }
-  });
-
   // ============ BOOST ============
 
   // Get current boost status

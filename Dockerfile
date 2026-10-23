@@ -13,6 +13,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# OpenJPEG decodes the JPEG 2000 face photo stored in passport chips (DG2).
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libopenjp2-tools ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Face models (OpenCV Zoo), checksums pinned in the script.
+RUN bun scripts/fetch-face-models.ts
+
 # Uploads stored locally (Coolify volume recommended)
 RUN mkdir -p /app/uploads
 

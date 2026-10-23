@@ -24,6 +24,7 @@ import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
 import '../../presentation/features/premium/screens/plus_welcome_screen.dart';
+import '../../presentation/features/verification/identity/identity_flow_screen.dart';
 import '../../presentation/features/premium/screens/premium_screen.dart';
 import '../../presentation/features/premium/screens/subscription_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
@@ -168,6 +169,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: const SubscriptionScreen(),
           transitionsBuilder: slideLeftTransition,
         ),
+      ),
+
+      // Level 2 verification (identity from the NFC chip)
+      GoRoute(
+        path: RoutePaths.verificationIdentity,
+        name: RouteNames.verificationIdentity,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const IdentityFlowScreen(),
       ),
 
       // Likes Screen

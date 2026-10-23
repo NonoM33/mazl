@@ -3,17 +3,11 @@ import { z } from "zod";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
 import {
   sql,
-  createDocument,
-  findWaitlistByVerificationToken,
   getTotalCount,
   initDb,
-  markVerificationSubmitted,
   upsertWaitlistAndGetVerification,
-  getLatestDocumentsByType,
-  setWaitlistOS,
   findUserByEmail,
   // Chat
   getConversations,
@@ -101,7 +95,22 @@ import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
+import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
+import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
+import { assertKeysConfigured } from "./shared/crypto/keys";
+import {
+  createDocumentsModule,
+  ensureDocumentsSchema,
+  registerDocumentsDevRoutes,
+  registerDocumentsRoutes,
+  startPurgeScheduler,
+} from "./features/documents";
+import {
+  createVerificationModule,
+  ensureVerificationSchema,
+  registerVerification,
+} from "./features/verification/verification.module";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -124,6 +133,10 @@ const sendMessageBodySchema = z
   .passthrough();
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
+
+// Member verification (selfie): models load lazily, configuration is read now
+// so that a malformed threshold stops the boot.
+const verification = createVerificationModule({ sql, uploadsDir: UPLOADS_DIR });
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
@@ -181,31 +194,6 @@ app.use("/uploads/*", async (c) => {
 app.use("/*", serveStatic({ root: "./public" }));
 
 
-function getFileExtension(file: File) {
-  const byType: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "application/pdf": "pdf",
-    "image/webp": "webp",
-  };
-
-  if (file.type && byType[file.type]) return byType[file.type];
-  const name = (file as any).name as string | undefined;
-  if (!name) return "bin";
-  const ext = name.split(".").pop();
-  return ext ? ext.toLowerCase() : "bin";
-}
-
-function isAllowedUpload(file: File) {
-  const allowed = new Set(["image/jpeg", "image/png", "application/pdf", "image/webp"]);
-  if (file.type && allowed.has(file.type)) return true;
-
-  // Fallback for browsers that do not set mime
-  const name = (file as any).name as string | undefined;
-  if (!name) return false;
-  return /\.(jpe?g|png|pdf|webp)$/i.test(name);
-}
-
 // API Routes
 app.post("/api/subscribe", async (c) => {
   try {
@@ -252,91 +240,11 @@ app.get("/api/count", async (c) => {
   }
 });
 
-app.get("/api/verify", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const latest = await getLatestDocumentsByType(waitlist.id);
-  const required = ["selfie_id", "id_card_front", "id_card_back"];
-  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
-
-  return c.json({
-    success: true,
-    email: waitlist.email,
-    verificationStatus: waitlist.verification_status,
-    os: (waitlist as any).os,
-    requiredReady: missing.length === 0,
-    missing,
-  });
-});
-
-app.post("/api/verify/upload", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const form = await c.req.formData();
-  const type = (form.get("type") || "") as string;
-  const file = form.get("file");
-
-  if (!type) return c.json({ success: false, error: "Type manquant" }, 400);
-  if (!(file instanceof File)) return c.json({ success: false, error: "Fichier manquant" }, 400);
-
-  if (!isAllowedUpload(file)) {
-    return c.json({ success: false, error: "Format non supporté (JPG/PNG/PDF)" }, 400);
-  }
-
-  const maxBytes = 10 * 1024 * 1024;
-  if (file.size > maxBytes) return c.json({ success: false, error: "Fichier trop gros (max 10MB)" }, 400);
-
-  const ext = getFileExtension(file);
-  const safeType = type.replace(/[^a-z0-9_-]/gi, "_").slice(0, 40);
-  const filename = `${waitlist.id}-${safeType}-${crypto.randomUUID()}.${ext}`;
-  const fullPath = join(UPLOADS_DIR, filename);
-
-  await Bun.write(fullPath, file);
-
-  const documentId = await createDocument({
-    waitlistId: waitlist.id,
-    type: safeType,
-    filename,
-    originalName: (file as any).name,
-    mimeType: file.type,
-  });
-
-  return c.json({ success: true, documentId, filename });
-});
-
-app.post("/api/verify/submit", async (c) => {
-  const token = c.req.query("token") || "";
-  if (!token) return c.json({ success: false, error: "Token manquant" }, 400);
-
-  const waitlist = await findWaitlistByVerificationToken(token);
-  if (!waitlist) return c.json({ success: false, error: "Token invalide" }, 404);
-
-  const { os } = await c.req.json().catch(() => ({}));
-  if (os && ["ios", "android"].includes(os)) {
-    await setWaitlistOS(waitlist.id, os);
-  }
-
-  const latest = await getLatestDocumentsByType(waitlist.id);
-  const required = ["selfie_id", "id_card_front", "id_card_back"];
-  const missing = required.filter((t) => !latest[t] || latest[t].status === "rejected");
-  if (missing.length > 0) {
-    return c.json(
-      { success: false, error: `Documents manquants: ${missing.join(", ")}`, missing },
-      400,
-    );
-  }
-
-  await markVerificationSubmitted(waitlist.id);
-  return c.json({ success: true });
-});
+// Member document flow (GET /api/verify, POST /api/verify/upload, POST
+// /api/verify/submit): src/features/documents. Files are encrypted at rest and
+// purged after the admin decision.
+const documents = createDocumentsModule(UPLOADS_DIR);
+registerDocumentsRoutes(app, documents);
 
 // ============ ADMIN FEATURE ============
 // All `/api/admin/*` endpoints live in src/features/admin/*. They are
@@ -357,8 +265,11 @@ registerAuthRoutes(app);
 // profile prompts, and GET /api/profile/:userId). Moved to
 // src/features/profile/profile.routes.ts. The prompts routes are declared
 // before /api/profile/:userId inside that file to preserve route ordering.
-// Selfie verification (/api/verification/*) moved to the engagement feature.
-registerProfileRoutes(app, UPLOADS_DIR);
+// Selfie verification (/api/verification/*) lives in src/features/verification.
+// Photos added after verification are compared with the member's face reference.
+const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
+registerMediaRoutes(app, media.photos);
+registerProfileRoutes(app, { media });
 
 // ============ DISCOVER & MATCHING ============
 
@@ -374,6 +285,13 @@ registerMatchingRoutes(app);
 // /api/users/:id/report, /api/report). Moved to
 // src/features/engagement/engagement.routes.ts.
 registerEngagementRoutes(app);
+
+// ============ MEMBER VERIFICATION (level 1: live selfie) ============
+// /api/verification/* (face session + submit, reference deletion, status and
+// the legacy start/submit). Registered next to the engagement routes it was
+// split from. The module is built above, next to UPLOADS_DIR, so that
+// `verification.photoFaceChecker` can be handed to the profile feature.
+registerVerification(app, verification);
 
 // ============ CHAT ENDPOINTS ============
 
@@ -546,6 +464,8 @@ registerSubscriptionsRoutes(app);
 
 
 // ============ DEV/DEBUG ENDPOINTS ============
+
+registerDocumentsDevRoutes(app, documents, IS_PRODUCTION);
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
@@ -853,7 +773,16 @@ const port = Number.parseInt(process.env.PORT || "3000", 10);
 
 await mkdir(UPLOADS_DIR, { recursive: true });
 
+// Fail fast in production when a data-protection key is missing.
+assertKeysConfigured();
+
 await initDb();
+await ensureDocumentsSchema();
+startPurgeScheduler(() => documents.purger.sweep());
+await ensureMediaSchema();
+const fuzzedAtBoot = await fuzzExistingLocations();
+if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
+await ensureVerificationSchema(sql);
 
 console.log(`Server running on http://localhost:${port}`);
 
