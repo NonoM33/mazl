@@ -249,7 +249,8 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: "Invalid user ID" }, 400);
       }
 
-      const profile = await getFullProfile(targetUserId);
+      // Email and account name only for the caller's own profile.
+      const profile = await getFullProfile(targetUserId, targetUserId === c.get("userId"));
       if (!profile) {
         return c.json({ success: false, error: "Profile not found" }, 404);
       }

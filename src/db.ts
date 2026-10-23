@@ -1,6 +1,7 @@
 import postgres from "postgres";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
-import { publicAvatarUrl, publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
+import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
+import { publicPicturesFor } from "./features/media/infra/public-pictures";
 
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
@@ -1092,7 +1093,9 @@ export async function getUserProfile(userId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function getFullProfile(userId: number) {
+// `includePrivate` is for the member's OWN profile only: email and the account
+// name (possibly a legal name) are never returned about someone else.
+export async function getFullProfile(userId: number, includePrivate = false) {
   // Get profile with user info
   const result = await sql`
     SELECT
@@ -1120,7 +1123,8 @@ export async function getFullProfile(userId: number) {
 
   if (result.length === 0) return null;
 
-  const profile = withPublicPicture(result[0] as any);
+  const { name, email, ...shared } = withPublicPicture(result[0] as any);
+  const profile = includePrivate ? { ...shared, name, email } : shared;
 
   // Get photos (signed URLs only; see features/media)
   const photos = await sql`
@@ -2626,7 +2630,8 @@ export async function getCouple(userId: number) {
 
   const couple = result[0];
   if (!couple) return null;
-  couple.partner_picture = publicAvatarUrl(couple.partner_picture);
+  const pictures = await publicPicturesFor(sql, [couple.partner_id]);
+  couple.partner_picture = pictures.get(couple.partner_id) ?? null;
   return couple;
 }
 
@@ -2846,13 +2851,20 @@ export async function getCoupleRequestsForUser(
     ORDER BY cr.created_at DESC
   `;
 
+  const memberIds = new Set<number>();
+  for (const raw of rows as unknown as CoupleRequestView[]) {
+    memberIds.add(raw.requester_id);
+    memberIds.add(raw.target_id);
+  }
+  const pictures = await publicPicturesFor(sql, [...memberIds]);
+
   const sent: CoupleRequestView[] = [];
   const received: CoupleRequestView[] = [];
   for (const raw of rows as unknown as CoupleRequestView[]) {
     const row: CoupleRequestView = {
       ...raw,
-      requester_picture: publicAvatarUrl(raw.requester_picture),
-      target_picture: publicAvatarUrl(raw.target_picture),
+      requester_picture: pictures.get(raw.requester_id) ?? null,
+      target_picture: pictures.get(raw.target_id) ?? null,
     };
     if (row.requester_id === userId) {
       sent.push(row);

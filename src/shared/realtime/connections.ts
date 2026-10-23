@@ -1,4 +1,5 @@
 import { sql } from "../../db";
+import { publicPicturesFor } from "../../features/media/infra/public-pictures";
 
 // ============ REAL-TIME WEBSOCKET CONNECTIONS ============
 // Shared registry of active WebSocket connections keyed by user id, plus the
@@ -71,9 +72,7 @@ export async function emitNewMatch(userAId: number, userBId: number): Promise<vo
       m.id as match_id,
       c.id as conversation_id,
       pa.display_name as user_a_name,
-      ua.picture as user_a_picture,
-      pb.display_name as user_b_name,
-      ub.picture as user_b_picture
+      pb.display_name as user_b_name
     FROM matches m
     LEFT JOIN conversations c ON c.match_id = m.id
     JOIN users ua ON ua.id = ${userAId}
@@ -90,13 +89,12 @@ export async function emitNewMatch(userAId: number, userBId: number): Promise<vo
         match_id: number;
         conversation_id: number | null;
         user_a_name: string | null;
-        user_a_picture: string | null;
         user_b_name: string | null;
-        user_b_picture: string | null;
       }
     | undefined;
   if (!row || row.conversation_id === null) return;
 
+  const pictures = await publicPicturesFor(sql, [userAId, userBId]);
   const matchId = row.match_id;
   const conversationId = row.conversation_id;
 
@@ -105,14 +103,14 @@ export async function emitNewMatch(userAId: number, userBId: number): Promise<vo
     conversationId,
     userId: userBId,
     userName: row.user_b_name ?? "",
-    userPicture: row.user_b_picture,
+    userPicture: pictures.get(userBId) ?? null,
   };
   const toUserB: MatchNewPayload = {
     matchId,
     conversationId,
     userId: userAId,
     userName: row.user_a_name ?? "",
-    userPicture: row.user_a_picture,
+    userPicture: pictures.get(userAId) ?? null,
   };
 
   sendToUser(userAId, { type: "match:new", payload: toUserA });
