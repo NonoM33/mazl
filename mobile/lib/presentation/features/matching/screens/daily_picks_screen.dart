@@ -71,6 +71,8 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   }
 
   Future<void> _handleLike(Profile profile) async {
+    if (!PremiumGate.guardLike(context)) return;
+
     final response = await _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: 'like',

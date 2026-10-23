@@ -11,8 +11,10 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/subscription_format.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -444,19 +446,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Future<void> _handleShowPaywall() async {
-    await context.push<bool>(RoutePaths.premium);
+  Future<void> _handleOpenSubscription() async {
+    final isPremium = RevenueCatService().isMazlPro;
+    await context.push<bool>(isPremium ? RoutePaths.subscription : RoutePaths.premium);
     if (mounted) setState(() {});
-  }
-
-  Future<void> _handleShowCustomerCenter() async {
-    try {
-      await RevenueCatService().showCustomerCenter();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
-    }
   }
 
   Future<void> _handleRestorePurchases() async {
@@ -1163,7 +1156,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final revenueCat = RevenueCatService();
     final isMazlPro = revenueCat.isMazlPro;
-    final subscriptionStatus = revenueCat.subscriptionStatusText;
+    final renewal = revenueCat.mazlProExpirationDate;
+    final subscriptionDetail = [
+      ?revenueCat.activePlanLabel,
+      if (renewal != null)
+        '${revenueCat.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
+    ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
 
     final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecte';
@@ -1312,92 +1310,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // Premium / Subscription
               _SectionHeader(title: 'Abonnement'),
-              if (isMazlPro) ...[
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: AppColors.premiumGradient),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(LucideIcons.crown, color: Colors.white),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Mazl Pro',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                                ),
-                                Text(subscriptionStatus, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text('Actif', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: _handleShowCustomerCenter,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white54),
-                          ),
-                          child: const Text('Gerer mon abonnement'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: AppColors.premiumGradient),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(LucideIcons.crown, color: Colors.white),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Passe a Mazl Pro', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                            Text('Likes illimites, voir qui t\'aime, boost', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _handleShowPaywall,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.accentGold,
-                          minimumSize: const Size(80, 36),
-                        ),
-                        child: const Text('Voir'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              PlusSettingsCard(
+                isPremium: isMazlPro,
+                detail: subscriptionDetail,
+                onTap: _handleOpenSubscription,
+              ),
               _SettingTile(
                 icon: LucideIcons.refreshCw,
                 title: 'Restaurer les achats',

@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
+import 'subscription_format.dart';
+
 /// Outcome of a purchase attempt.
 ///
 /// A user-initiated cancellation is a normal, expected outcome and is
@@ -265,4 +267,41 @@ class RevenueCatService {
         _customerInfo?.entitlements.active[RevenueCatConfig.entitlementMazlPro];
     return entitlement?.periodType == PeriodType.trial;
   }
+
+  EntitlementInfo? get _activeEntitlement =>
+      _customerInfo?.entitlements.active[RevenueCatConfig.entitlementMazlPro];
+
+  /// Durée de la formule active (« 6 mois »), ou null si inconnue.
+  String? get activePlanLabel {
+    final entitlement = _activeEntitlement;
+    if (entitlement == null) return null;
+    return planLabelForProduct(entitlement.productIdentifier);
+  }
+
+  /// Prix de la formule active tel qu'affiché par le store, retrouvé dans
+  /// l'offre courante. Null si l'offre est indisponible.
+  Future<String?> activePlanPrice() async {
+    final entitlement = _activeEntitlement;
+    if (entitlement == null) return null;
+    try {
+      final offering = await getCurrentOffering();
+      for (final package in offering?.availablePackages ?? const <Package>[]) {
+        final productId = package.storeProduct.identifier;
+        if (productId == entitlement.productIdentifier ||
+            productId.split(':').first ==
+                entitlement.productIdentifier.split(':').first) {
+          return package.storeProduct.priceString;
+        }
+      }
+    } catch (e) {
+      debugPrint('RevenueCat: active plan price unavailable - $e');
+    }
+    return null;
+  }
+
+  /// Faux quand l'abonnement a été résilié et s'arrêtera à l'échéance.
+  bool get willRenew => _activeEntitlement?.willRenew ?? false;
+
+  /// Page de gestion de l'abonnement dans le store, si RevenueCat la connaît.
+  String? get managementUrl => _customerInfo?.managementURL;
 }
