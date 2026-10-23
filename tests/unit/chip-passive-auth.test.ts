@@ -67,6 +67,18 @@ describe("passive authentication: attacks", () => {
     expect(result).toEqual({ ok: false, reason: "csca_unknown" });
   });
 
+  test("validly signed data with a bad MRZ check digit is chip_data_invalid", async () => {
+    const result = await new PassiveChipVerifier(loadTrust("bad-mrz")).verify(loadFiles("bad-mrz"), NOW);
+    expect(result).toEqual({ ok: false, reason: "chip_data_invalid" });
+  });
+
+  test("oversized inputs are refused before any parsing", async () => {
+    const files = loadFiles("rsa-pkcs1");
+    expect(await verifier.verify({ ...files, sod: new Uint8Array(70_000) }, NOW)).toEqual({ ok: false, reason: "chip_data_invalid" });
+    expect(await verifier.verify({ ...files, dg2: new Uint8Array(3_000_000) }, NOW)).toEqual({ ok: false, reason: "chip_data_invalid" });
+    expect(await verifier.verify({ ...files, dg1: new Uint8Array(2_000) }, NOW)).toEqual({ ok: false, reason: "chip_data_invalid" });
+  });
+
   test("an empty trust store is csca_unknown", async () => {
     const result = await new PassiveChipVerifier(loadTrust()).verify(loadFiles("rsa-pkcs1"), NOW);
     expect(result).toEqual({ ok: false, reason: "csca_unknown" });

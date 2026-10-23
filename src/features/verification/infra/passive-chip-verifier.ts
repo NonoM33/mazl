@@ -5,6 +5,11 @@ import { ChipParseError } from "../domain/chip/errors";
 import type { ChipFiles, ChipVerification } from "../domain/types";
 import { NodeChipCrypto } from "./node-chip-crypto";
 
+// Generous upper bounds for real chips (SOD ~2-5 KB, DG1 93 B, DG2 15-150 KB).
+const MAX_SOD_BYTES = 64 * 1024;
+const MAX_DG1_BYTES = 1024;
+const MAX_DG2_BYTES = 2 * 1024 * 1024;
+
 // ChipVerifier port: ICAO 9303 passive authentication against a CSCA trust
 // store. Never throws on hostile input; never logs chip content.
 export class PassiveChipVerifier implements ChipVerifier {
@@ -14,6 +19,9 @@ export class PassiveChipVerifier implements ChipVerifier {
   ) {}
 
   async verify(files: ChipFiles, now: Date): Promise<ChipVerification> {
+    if (files.sod.length > MAX_SOD_BYTES || files.dg1.length > MAX_DG1_BYTES || files.dg2.length > MAX_DG2_BYTES) {
+      return { ok: false, reason: "chip_data_invalid" };
+    }
     try {
       return authenticatePassively(files, now, { crypto: this.crypto, trust: this.trust });
     } catch (e) {

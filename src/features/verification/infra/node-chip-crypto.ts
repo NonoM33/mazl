@@ -4,9 +4,19 @@ import { OID, type HashName } from "../domain/chip/oids";
 import { candidateSignatures, verifyEcdsa } from "../domain/chip/crypto/ecdsa";
 import { parseEcParameters } from "../domain/chip/crypto/ec-params";
 import { decodePoint } from "../domain/chip/crypto/ec-math";
+import { encodeTlv } from "../domain/chip/tlv";
 import type { SignatureScheme } from "../domain/chip/crypto/signature-schemes";
 import type { SubjectPublicKeyInfo } from "../domain/chip/x509";
 import type { ChipCrypto } from "../application/chip-crypto";
+
+const RSA_ALGORITHM_IDENTIFIER = Uint8Array.of(0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00);
+
+// Some CSCAs (e.g. Estonian) omit the NULL parameters of rsaEncryption, which
+// BoringSSL refuses; re-wrap the key bits in the RFC 3279 canonical form.
+function canonicalRsaSpki(publicKey: Uint8Array): Uint8Array {
+  const bits = encodeTlv(0x03, Uint8Array.of(0, ...publicKey));
+  return encodeTlv(0x30, Uint8Array.of(...RSA_ALGORITHM_IDENTIFIER, ...bits));
+}
 
 // Hashing and RSA through node:crypto (BoringSSL in Bun); ECDSA through our
 // own BigInt implementation because BoringSSL has no brainpool curves.
@@ -29,7 +39,7 @@ export class NodeChipCrypto implements ChipCrypto {
     if (key.algorithm.oid !== OID.rsaEncryption) throw new InvalidKeyError("not an RSA key");
     let publicKey;
     try {
-      publicKey = createPublicKey({ key: Buffer.from(key.der), format: "der", type: "spki" });
+      publicKey = createPublicKey({ key: Buffer.from(canonicalRsaSpki(key.publicKey)), format: "der", type: "spki" });
     } catch {
       throw new InvalidKeyError("unreadable RSA key");
     }

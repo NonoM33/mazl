@@ -42,6 +42,9 @@ l1 = ("P<UTOERIKSSON<<ANNA<MARIA" + "<" * 44)[:44]
 doc, birth, expiry, pers = "L898902C3", "740812", "320415", "ZE184226B<<<<<"
 l2 = doc + cd(doc) + "UTO" + birth + cd(birth) + "F" + expiry + cd(expiry) + pers + cd(pers)
 l2 += cd(l2[0:10] + l2[13:20] + l2[21:43])
+import os
+if os.environ.get('BAD_MRZ'):  # validly signed but with a wrong composite check digit
+    l2 = l2[:43] + str((int(l2[43]) + 1) % 10)
 assert len(l1) == 44 and len(l2) == 44, (len(l1), len(l2))
 open(out + '/dg1.bin', 'wb').write(tlv(0x61, tlv(b'\x5f\x1f', (l1 + l2).encode())))
 
@@ -151,8 +154,46 @@ gen_csca rsa "$dir" "Utopia CSCA rsa-pss-cert"
 gen_dsc rsa "$dir" 1002 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:32
 build_dg "$HERE/face-a.jpg" "$dir"; build_lds "$dir"; sign_sod "$dir"; finish "$dir"; echo "built rsa-pss-cert"
 
+# (5b) Validly signed data whose MRZ composite check digit is wrong.
+dir=$HERE/bad-mrz; rm -rf "$dir"; mkdir -p "$dir"
+gen_csca rsa "$dir" "Utopia CSCA bad-mrz"; gen_dsc rsa "$dir" 1003
+BAD_MRZ=1 build_dg "$HERE/face-a.jpg" "$dir"; build_lds "$dir"; sign_sod "$dir"; finish "$dir"; echo "built bad-mrz"
+
 # (6) A DSC signed by a CA that is NOT in the trust store (rogue/other country).
 dir=$HERE/untrusted-csca; rm -rf "$dir"; mkdir -p "$dir"
 gen_csca rsa "$dir" "Rogue CSCA"
 gen_dsc rsa "$dir" 2001
 build_dg "$HERE/face-a.jpg" "$dir"; build_lds "$dir"; sign_sod "$dir"; finish "$dir"; echo "built untrusted-csca"
+
+# (7) ICAO master list (CMS, content type 2.23.136.1.1.2) signed by a list signer
+# issued by a root CSCA that is itself in the list; plus a "rogue" list whose
+# signer is issued by a CA that is NOT in the list.
+build_master_list() { # $1 = out dir, $2 = signer CA dir (has csca.pem/key + dsc.pem/key), $3... = certs (PEM) to list
+  local dir=$1 signer_dir=$2; shift 2
+  : >"$WORK/ml-certs.der"
+  for pem in "$@"; do "$OPENSSL" x509 -in "$pem" -outform DER >>"$WORK/ml-certs.der"; done
+  python3 -I - "$WORK/ml-certs.der" "$dir/ml-content.der" <<'PY'
+import sys
+def tlv(tag, c):
+    n = len(c)
+    l = bytes([n]) if n < 0x80 else bytes([0x81, n]) if n < 0x100 else bytes([0x82, n >> 8, n & 0xff])
+    return bytes([tag]) + l + c
+certs = open(sys.argv[1], 'rb').read()
+open(sys.argv[2], 'wb').write(tlv(0x30, tlv(0x02, b'\x00') + tlv(0x31, certs)))
+PY
+  "$OPENSSL" cms -sign -binary -nodetach -econtent_type 2.23.136.1.1.2 -md sha256 -nosmimecap \
+    -signer "$signer_dir/dsc.pem" -inkey "$signer_dir/dsc.key" -in "$dir/ml-content.der" -outform DER -out "$dir/ml.der"
+  rm -f "$dir/ml-content.der"
+}
+
+ML_VALID=(-not_before 20250101000000Z -not_after 20400101000000Z)
+dir=$HERE/master-list; rm -rf "$dir"; mkdir -p "$dir"
+gen_csca rsa "$dir" "Utopia Root CSCA"
+DSC_VALID=("${ML_VALID[@]}"); gen_dsc rsa "$dir" 3001
+build_master_list "$dir" "$dir" "$dir/csca.pem" "$HERE/rsa-pkcs1/csca.pem" "$HERE/ecdsa-p256/csca.pem" "$HERE/ecdsa-brainpool-explicit/csca.pem" "$HERE/rsa-pss/csca.pem"
+mv "$dir/ml.der" "$dir/ml-good.der"
+rogue=$WORK/rogue; mkdir -p "$rogue"
+gen_csca rsa "$rogue" "Rogue Root CSCA"; gen_dsc rsa "$rogue" 3002
+build_master_list "$dir" "$rogue" "$dir/csca.pem" "$HERE/rsa-pkcs1/csca.pem"
+mv "$dir/ml.der" "$dir/ml-rogue.der"
+rm -f "$dir"/*.key "$dir"/*.csr "$dir"/dsc.pem; echo "built master-list"

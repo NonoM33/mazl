@@ -13,12 +13,15 @@ export interface Tlv {
   readonly valueStart: number;
   readonly end: number; // one past the last value byte
   readonly buffer: Uint8Array;
+  // Accept non-minimal length encodings (set only by trust-store tooling that
+  // reads third-party files; chip data is always parsed strictly).
+  readonly lenient: boolean;
 }
 
 const MAX_TAG_BYTES = 3;
 const MAX_LENGTH_BYTES = 4;
 
-export function readTlv(buffer: Uint8Array, offset: number, limit: number = buffer.length): Tlv {
+export function readTlv(buffer: Uint8Array, offset: number, limit: number = buffer.length, lenient = false): Tlv {
   let pos = offset;
   if (pos >= limit) throw new TlvError("truncated: no tag");
   const first = buffer[pos++] as number;
@@ -50,16 +53,16 @@ export function readTlv(buffer: Uint8Array, offset: number, limit: number = buff
     length = 0;
     for (let i = 0; i < count; i++) length = length * 256 + (buffer[pos + i] as number);
     // DER: the long form is used only when needed, without leading zeros.
-    if ((buffer[pos] as number) === 0 || length < 0x80) throw new TlvError("non-minimal length");
+    if (!lenient && ((buffer[pos] as number) === 0 || length < 0x80)) throw new TlvError("non-minimal length");
     pos += count;
   }
   if (pos + length > limit) throw new TlvError("truncated: value");
-  return { tag, constructed: (first & 0x20) !== 0, start: offset, valueStart: pos, end: pos + length, buffer };
+  return { tag, constructed: (first & 0x20) !== 0, start: offset, valueStart: pos, end: pos + length, buffer, lenient };
 }
 
 // Exactly one TLV filling the whole input.
-export function parseTlv(buffer: Uint8Array): Tlv {
-  const tlv = readTlv(buffer, 0);
+export function parseTlv(buffer: Uint8Array, lenient = false): Tlv {
+  const tlv = readTlv(buffer, 0, buffer.length, lenient);
   if (tlv.end !== buffer.length) throw new TlvError("trailing data");
   return tlv;
 }
@@ -70,7 +73,7 @@ export function children(tlv: Tlv): Tlv[] {
   const result: Tlv[] = [];
   let pos = tlv.valueStart;
   while (pos < tlv.end) {
-    const child = readTlv(tlv.buffer, pos, tlv.end);
+    const child = readTlv(tlv.buffer, pos, tlv.end, tlv.lenient);
     result.push(child);
     pos = child.end;
   }

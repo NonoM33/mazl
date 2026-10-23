@@ -1,13 +1,12 @@
 import { parseDg1 } from "../domain/chip/dg1";
 import { parseDg2 } from "../domain/chip/dg2";
-import { parseSod, type SignedData, type SignerInfo } from "../domain/chip/cms";
-import { ChipParseError, UnsupportedAlgorithmError } from "../domain/chip/errors";
+import { parseSod, type SignedData } from "../domain/chip/cms";
 import { parseLdsSecurityObject } from "../domain/chip/lds-security-object";
-import { HASH_OIDS, OID } from "../domain/chip/oids";
-import { resolveSignatureScheme } from "../domain/chip/crypto/signature-schemes";
+import { OID } from "../domain/chip/oids";
 import type { Certificate } from "../domain/chip/x509";
 import type { ChipFiles, ChipVerification } from "../domain/types";
 import type { ChipCrypto, TrustAnchors } from "./chip-crypto";
+import { isIssuedBy, sameBytes, verifySignedData } from "./signed-data-verification";
 
 // ICAO Doc 9303 Part 11 passive authentication, steps in order:
 //   1. EF.SOD is CMS SignedData of type id-icao-ldsSecurityObject
@@ -31,43 +30,10 @@ export interface PassiveAuthDeps {
   readonly trust: TrustAnchors;
 }
 
-function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
-}
-
-function findSigner(signedData: SignedData, signer: SignerInfo): Certificate | undefined {
-  return signedData.certificates.find((cert) => {
-    const sid = signer.sid;
-    if (sid.kind === "subjectKeyId") return cert.subjectKeyId !== undefined && sameBytes(cert.subjectKeyId, sid.keyId);
-    return cert.issuer === sid.issuer && sameBytes(cert.serial, sid.serial);
-  });
-}
-
-// Messages covered by the DSC signature: the signed attributes (which must
-// bind the content type and the digest of eContent), or eContent itself.
-type SignedMessage = { readonly ok: true; readonly message: Uint8Array } | { readonly ok: false };
-
-function signedMessage(signedData: SignedData, signer: SignerInfo, deps: PassiveAuthDeps): SignedMessage {
-  if (signer.signedAttrsDer === undefined) return { ok: true, message: signedData.eContent };
-  const hash = HASH_OIDS[signer.digestAlgorithm.oid];
-  if (hash === undefined) throw new UnsupportedAlgorithmError("signer digest");
-  if (signer.contentTypeAttr !== signedData.eContentType || signer.messageDigestAttr === undefined) return { ok: false };
-  if (!sameBytes(signer.messageDigestAttr, deps.crypto.digest(hash, signedData.eContent))) return { ok: false };
-  return { ok: true, message: signer.signedAttrsDer };
-}
-
 function chainsToCsca(dsc: Certificate, now: Date, deps: PassiveAuthDeps): boolean {
-  for (const csca of deps.trust.candidatesFor(dsc.issuer, dsc.authorityKeyId)) {
-    if (now < csca.notBefore || now > csca.notAfter) continue;
-    try {
-      const scheme = resolveSignatureScheme(dsc.signatureAlgorithm);
-      if (deps.crypto.verifySignature(scheme, csca.spki, dsc.tbs, dsc.signature)) return true;
-    } catch (e) {
-      // A trust-store key we cannot use must not hide another valid candidate.
-      if (!(e instanceof ChipParseError)) throw e;
-    }
-  }
-  return false;
+  return deps.trust
+    .candidatesFor(dsc.issuer, dsc.authorityKeyId)
+    .some((csca) => now >= csca.notBefore && now <= csca.notAfter && isIssuedBy(dsc, csca, deps.crypto));
 }
 
 function dataGroupsMatch(files: ChipFiles, signedData: SignedData, deps: PassiveAuthDeps): boolean {
@@ -85,17 +51,9 @@ function dataGroupsMatch(files: ChipFiles, signedData: SignedData, deps: Passive
 export function authenticatePassively(files: ChipFiles, now: Date, deps: PassiveAuthDeps): ChipVerification {
   const signedData = parseSod(files.sod);
   if (signedData.eContentType !== OID.ldsSecurityObject) return fail("chip_data_invalid");
-  const [signer, ...others] = signedData.signerInfos;
-  if (signer === undefined || others.length > 0) return fail("chip_data_invalid");
-  const dsc = findSigner(signedData, signer);
-  if (dsc === undefined) return fail("chip_data_invalid");
-
-  const covered = signedMessage(signedData, signer, deps);
-  if (!covered.ok) return fail("chip_signature_invalid");
-  const scheme = resolveSignatureScheme(signer.signatureAlgorithm, signer.digestAlgorithm);
-  if (!deps.crypto.verifySignature(scheme, dsc.spki, covered.message, signer.signature)) return fail("chip_signature_invalid");
-
-  if (!chainsToCsca(dsc, now, deps)) return fail("csca_unknown");
+  const signature = verifySignedData(signedData, deps.crypto);
+  if (!signature.ok) return fail(signature.reason);
+  if (!chainsToCsca(signature.signer, now, deps)) return fail("csca_unknown");
   if (!dataGroupsMatch(files, signedData, deps)) return fail("chip_data_invalid");
 
   const identity = parseDg1(files.dg1, now);

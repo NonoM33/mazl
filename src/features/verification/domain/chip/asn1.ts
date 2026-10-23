@@ -1,5 +1,5 @@
 import { TlvError } from "./errors";
-import { children, expectTag, raw, value, type Tlv } from "./tlv";
+import { children, expectTag, value, type Tlv } from "./tlv";
 
 // Decoders for the ASN.1 universal types we meet in CMS and X.509.
 
@@ -184,8 +184,4 @@ export function canonicalName(name: Tlv): string {
       .join("+");
   });
   return rdns.join(",");
-}
-
-export function rawBytes(tlv: Tlv): Uint8Array {
-  return raw(tlv);
 }

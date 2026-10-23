@@ -51,7 +51,7 @@ function parseSpki(tlv: Tlv): SubjectPublicKeyInfo {
   };
 }
 
-function parseKeyIds(extensions: Tlv | undefined): { ski?: Uint8Array; aki?: Uint8Array } {
+function parseKeyIds(extensions: Tlv | undefined, lenient: boolean): { ski?: Uint8Array; aki?: Uint8Array } {
   const result: { ski?: Uint8Array; aki?: Uint8Array } = {};
   if (extensions === undefined) return result;
   const list = expectTag(children(extensions)[0], TAG.sequence, "Extensions");
@@ -60,7 +60,7 @@ function parseKeyIds(extensions: Tlv | undefined): { ski?: Uint8Array; aki?: Uin
     const oid = decodeOid(expectTag(parts[0], TAG.oid, "extnID"));
     const valueTlv = parts[parts.length - 1] as Tlv;
     if (oid !== OID.extSubjectKeyIdentifier && oid !== OID.extAuthorityKeyIdentifier) continue;
-    const inner = parseTlv(decodeOctetString(expectTag(valueTlv, TAG.octetString, "extnValue")));
+    const inner = parseTlv(decodeOctetString(expectTag(valueTlv, TAG.octetString, "extnValue")), lenient);
     if (oid === OID.extSubjectKeyIdentifier) {
       result.ski = decodeOctetString(inner);
     } else {
@@ -71,8 +71,8 @@ function parseKeyIds(extensions: Tlv | undefined): { ski?: Uint8Array; aki?: Uin
   return result;
 }
 
-export function parseCertificate(der: Uint8Array): Certificate {
-  const cert = expectTag(parseTlv(der), TAG.sequence, "Certificate");
+export function parseCertificate(der: Uint8Array, lenient = false): Certificate {
+  const cert = expectTag(parseTlv(der, lenient), TAG.sequence, "Certificate");
   const [tbsTlv, sigAlg, sigValue, extra] = children(cert);
   if (extra !== undefined) throw new TlvError("certificate too long");
   const tbs = expectTag(tbsTlv, TAG.sequence, "TBSCertificate");
@@ -91,7 +91,7 @@ export function parseCertificate(der: Uint8Array): Certificate {
   const subject = canonicalName(expectTag(fields[i++], TAG.sequence, "subject"));
   const spki = parseSpki(expectTag(fields[i++], TAG.sequence, "SPKI"));
   const extensions = fields.slice(i).find((f) => f.tag === TAG_EXTENSIONS);
-  const ids = parseKeyIds(extensions);
+  const ids = parseKeyIds(extensions, lenient);
   const [nb, na] = validity;
   if (nb === undefined || na === undefined) throw new TlvError("bad validity");
   return {

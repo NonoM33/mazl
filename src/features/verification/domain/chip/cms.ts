@@ -116,7 +116,17 @@ export function parseSod(sod: Uint8Array): SignedData {
   const wrapper = expectTag(parseTlv(sod), TAG_SOD, "EF.SOD");
   const [contentInfo, trailing] = children(wrapper);
   if (trailing !== undefined) throw new ChipParseError("sod: unexpected content");
-  const [ctype, explicit] = children(expectTag(contentInfo, TAG.sequence, "ContentInfo"));
+  return parseContentInfo(expectTag(contentInfo, TAG.sequence, "ContentInfo"));
+}
+
+// A bare CMS ContentInfo (e.g. an ICAO master list file). `lenient` accepts
+// BER length encodings produced by third-party tools.
+export function parseCmsSignedData(der: Uint8Array, lenient = false): SignedData {
+  return parseContentInfo(expectTag(parseTlv(der, lenient), TAG.sequence, "ContentInfo"));
+}
+
+function parseContentInfo(contentInfo: Tlv): SignedData {
+  const [ctype, explicit] = children(contentInfo);
   if (decodeOid(expectTag(ctype, TAG.oid, "contentType")) !== OID.contentTypeSignedData) throw new ChipParseError("sod: not SignedData");
   const signedData = expectTag(children(expectTag(explicit, TAG_EXPLICIT_0, "content"))[0], TAG.sequence, "SignedData");
   const f = children(signedData);
@@ -126,7 +136,7 @@ export function parseSod(sod: Uint8Array): SignedData {
   const encap = parseEncapContent(f[i++] as Tlv);
   const certificates: Certificate[] = [];
   if (f[i]?.tag === TAG_CERTIFICATES) {
-    for (const c of children(f[i++] as Tlv)) if (c.tag === TAG.sequence) certificates.push(parseCertificate(raw(c)));
+    for (const c of children(f[i++] as Tlv)) if (c.tag === TAG.sequence) certificates.push(parseCertificate(raw(c), c.lenient));
   }
   if (f[i]?.tag === TAG_CRLS) i++;
   const signerInfos = children(expectTag(f[i++], TAG.set, "signerInfos")).map(parseSignerInfo);
