@@ -32,7 +32,7 @@ abstract class EmrtdLink {
 
 /// French texts of the iOS NFC sheet.
 abstract final class ChipAlerts {
-  static const approach = 'Approche ton document du haut du téléphone.';
+  static const approach = 'Approchez votre document du haut du téléphone.';
   static const authenticating = 'Ne bouge pas. Connexion sécurisée…';
   static const readingPhoto = 'Lecture de la photo… 40 %';
   static const readingSignature = 'Lecture de la signature… 85 %';

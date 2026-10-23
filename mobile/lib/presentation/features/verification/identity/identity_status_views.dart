@@ -105,8 +105,11 @@ class IdentityDoneView extends StatelessWidget {
           const SizedBox(height: 14),
           Text('Ce que les autres voient sur votre profil.', style: TextStyle(fontSize: 13, color: muted)),
           const SizedBox(height: 20),
-          const FactRow(label: 'Document', value: 'Effacé'),
-          const FactRow(label: 'Conservé', value: 'Le résultat, la date', last: true),
+          // Must match the server (docs/verification/CONTRAT.md §0, §4): the chip
+          // data and the selfie are never stored; only these facts are kept.
+          const FactRow(label: 'Photos et puce', value: 'Jamais enregistrées'),
+          const FactRow(label: 'Conservé', value: 'Pays, expiration, empreinte anonyme'),
+          const FactRow(label: 'Profil', value: 'Date de naissance du document', last: true),
         ],
       ),
     );

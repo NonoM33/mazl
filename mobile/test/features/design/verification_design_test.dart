@@ -254,9 +254,10 @@ void main() {
       expect(tester.widget<Text>(find.text('Identité vérifiée.')).style!.fontSize, 48);
       expect(find.text('Identité vérifiée'), findsOneWidget, reason: 'le badge tel que les autres le voient');
       expect(find.text('Ce que les autres voient sur votre profil.'), findsOneWidget);
-      expect(find.text('Document'), findsOneWidget);
-      expect(find.text('Effacé'), findsOneWidget);
-      expect(find.text('Le résultat, la date'), findsOneWidget);
+      expect(find.text('Photos et puce'), findsOneWidget);
+      expect(find.text('Jamais enregistrées'), findsOneWidget);
+      expect(find.text('Pays, expiration, empreinte anonyme'), findsOneWidget);
+      expect(find.text('Date de naissance du document'), findsOneWidget);
       expect(find.bySemanticsLabel('Terminer'), findsOneWidget);
       _expectNoGradient(tester);
 

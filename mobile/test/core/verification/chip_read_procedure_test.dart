@@ -159,7 +159,7 @@ void main() {
   test('iOS sheet texts are French and guide the user', () async {
     final link = _FakeLink();
     await readChipFiles(link, _mrz);
-    expect(link.alerts.first, 'Approche ton document du haut du téléphone.');
+    expect(link.alerts.first, 'Approchez votre document du haut du téléphone.');
     expect(link.alerts, contains(ChipAlerts.readingPhoto));
   });
 }
