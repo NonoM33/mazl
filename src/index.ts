@@ -102,6 +102,7 @@ import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
+import { assertKeysConfigured } from "./shared/crypto/keys";
 
 const app = new Hono<{ Variables: AppVariables }>();
 
@@ -852,6 +853,9 @@ app.get("/api/health", (c) => c.json({ status: "ok" }));
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 
 await mkdir(UPLOADS_DIR, { recursive: true });
+
+// Fail fast in production when a data-protection key is missing.
+assertKeysConfigured();
 
 await initDb();
 

@@ -5,7 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "bun --hot src/index.ts",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "test:unit": "bun test tests/unit",
+    "typecheck": "tsc --noEmit",
+    "models:fetch": "bun scripts/fetch-face-models.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -15,8 +18,13 @@
   },
   "dependencies": {
     "hono": "^4.11.4",
+    "onnxruntime-node": "1.30.0",
     "postgres": "^3.4.8",
     "resend": "^6.7.0",
+    "sharp": "^0.35.5",
     "zod": "^4.4.3"
-  }
+  },
+  "trustedDependencies": [
+    "sharp"
+  ]
 }
