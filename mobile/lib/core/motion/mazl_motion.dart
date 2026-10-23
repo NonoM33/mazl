@@ -8,6 +8,8 @@ import 'package:flutter/widgets.dart';
 abstract final class MazlMotion {
   /// True when the user asked the system to reduce motion: no rotation, no
   /// spring, no pop; fades of [reducedFade] and returns of [reducedReturn].
+  /// On iPhone the setting arrives through `ReduceMotionScope` at the app
+  /// root, which folds it into `disableAnimations`.
   static bool reduced(BuildContext context) =>
       MediaQuery.disableAnimationsOf(context);
 

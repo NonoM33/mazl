@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/di/providers/service_providers.dart';
+import 'core/motion/reduce_motion_scope.dart';
 import 'core/router/app_router.dart';
 import 'core/services/websocket_service.dart';
 import 'presentation/features/couple/widgets/couple_flow_host.dart';
@@ -28,16 +29,21 @@ class MazlApp extends ConsumerWidget {
 
       // Router
       routerConfig: router,
-      builder: (context, child) => CoupleFlowHost(
-        service: couple,
-        router: router,
-        navigatorKey: rootNavigatorKey,
-        realtime: socket.events,
-        auth: auth,
-        isAuthenticated: () => auth.isAuthenticated,
-        onSignedIn: socket.connect,
-        onSignedOut: socket.disconnect,
-        child: child ?? const SizedBox.shrink(),
+      // iOS « Réduire les animations » only reaches Flutter as
+      // AccessibilityFeatures.reduceMotion: fold it into disableAnimations
+      // for every screen, sheet and overlay.
+      builder: (context, child) => ReduceMotionScope(
+        child: CoupleFlowHost(
+          service: couple,
+          router: router,
+          navigatorKey: rootNavigatorKey,
+          realtime: socket.events,
+          auth: auth,
+          isAuthenticated: () => auth.isAuthenticated,
+          onSignedIn: socket.connect,
+          onSignedOut: socket.disconnect,
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }
