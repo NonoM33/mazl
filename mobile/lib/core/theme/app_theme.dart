@@ -26,13 +26,13 @@ class AppTheme {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: p.accent,
-        onPrimary: Colors.white,
+        onPrimary: p.onAccent,
         primaryContainer: p.accent.withValues(alpha: 0.12),
         onPrimaryContainer: p.accent,
         secondary: p.accent,
-        onSecondary: Colors.white,
+        onSecondary: p.onAccent,
         tertiary: p.accent,
-        onTertiary: Colors.white,
+        onTertiary: p.onAccent,
         surface: p.background,
         onSurface: p.text,
         onSurfaceVariant: p.muted,
@@ -91,7 +91,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: p.accent,
-          foregroundColor: Colors.white,
+          foregroundColor: p.onAccent,
           minimumSize: const Size(64, 56),
           shape: pill,
           textStyle: buttonText,
@@ -252,4 +252,8 @@ class _Palette {
   Color get hairline => isDark ? AppColors.dividerDark : AppColors.hairline;
   Color get divider => isDark ? AppColors.dividerDark : AppColors.dividerLight;
   Color get accent => isDark ? AppColors.tekheletLight : AppColors.tekhelet;
+
+  /// Texte sur l'accent : le blanc sur le tekhelet clair du thème sombre
+  /// n'atteint que 3,8:1, l'encre y passe à 5,2:1.
+  Color get onAccent => isDark ? AppColors.ink : Colors.white;
 }

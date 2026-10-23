@@ -26,6 +26,8 @@ void main() {
       'texte secondaire sur blanc': (AppColors.muted, AppColors.paper),
       'texte secondaire sur brume': (AppColors.muted, AppColors.mist),
       'blanc sur tekhelet': (Colors.white, AppColors.tekhelet),
+      'encre sur tekhelet clair (thème sombre)': (AppColors.ink, AppColors.tekheletLight),
+      'erreur sur blanc': (AppColors.error, AppColors.paper),
       'tekhelet sur blanc': (AppColors.tekhelet, AppColors.paper),
       'icône inactive sur encre': (AppColors.iconOnInk, AppColors.ink),
       'texte sombre sur fond sombre': (AppColors.textPrimaryDark, AppColors.backgroundDark),
@@ -42,6 +44,13 @@ void main() {
       expect(AppColors.secondary, AppColors.tekhelet);
       expect(AppColors.accentGold, AppColors.tekhelet);
       expect(AppColors.gradientStart, AppColors.gradientEnd);
+    });
+
+    test('le texte sur l\'accent reste lisible dans les deux thèmes', () {
+      for (final theme in [AppTheme.lightTheme, AppTheme.darkTheme]) {
+        final scheme = theme.colorScheme;
+        expect(_contrast(scheme.onPrimary, scheme.primary), greaterThanOrEqualTo(4.5));
+      }
     });
 
     test('le thème utilise Geist', () {

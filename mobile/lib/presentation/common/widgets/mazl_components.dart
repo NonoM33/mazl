@@ -147,7 +147,7 @@ class RoundIconButton extends StatelessWidget {
     final (Color bg, Color fg, BorderSide side) = switch (style) {
       RoundButtonStyle.outline => (scheme.surface, scheme.onSurface, BorderSide(color: scheme.outline)),
       RoundButtonStyle.ink => (scheme.onSurface, scheme.surface, BorderSide.none),
-      RoundButtonStyle.accent => (scheme.primary, Colors.white, BorderSide.none),
+      RoundButtonStyle.accent => (scheme.primary, scheme.onPrimary, BorderSide.none),
     };
     return Semantics(
       button: true,

@@ -179,7 +179,7 @@ class _ActionRow extends StatelessWidget {
         ? scheme.surface.withValues(alpha: 0.65)
         : scheme.onSurfaceVariant;
     final badge = inverted ? scheme.primary : scheme.surface;
-    final badgeIcon = inverted ? Colors.white : scheme.onSurface;
+    final badgeIcon = inverted ? scheme.onPrimary : scheme.onSurface;
 
     return Semantics(
       button: true,

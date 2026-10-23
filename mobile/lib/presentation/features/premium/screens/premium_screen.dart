@@ -500,10 +500,10 @@ class _PlanRow extends StatelessWidget {
                       ),
                       child: Text(
                         saving,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: scheme.onPrimary,
                         ),
                       ),
                     ),

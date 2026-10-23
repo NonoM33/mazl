@@ -48,7 +48,7 @@ abstract class AppColors {
   // Sémantique
   static const success = Color(0xFF15803D);
   static const warning = Color(0xFFB45309);
-  static const error = Color(0xFFD92D20);
+  static const error = Color(0xFFC8281C);
   static const info = tekhelet;
 
   // Neutres — clair

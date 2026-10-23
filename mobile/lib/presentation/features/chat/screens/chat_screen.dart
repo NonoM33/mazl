@@ -659,8 +659,8 @@ class ChatBubble extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isImage = message.isImage;
     final background = isMe ? scheme.primary : scheme.surfaceContainer;
-    final foreground = isMe ? Colors.white : scheme.onSurface;
-    final metaColor = isMe ? Colors.white.withValues(alpha: 0.78) : scheme.onSurfaceVariant;
+    final foreground = isMe ? scheme.onPrimary : scheme.onSurface;
+    final metaColor = isMe ? scheme.onPrimary.withValues(alpha: 0.78) : scheme.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
