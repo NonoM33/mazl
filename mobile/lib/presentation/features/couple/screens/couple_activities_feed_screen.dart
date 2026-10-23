@@ -101,26 +101,32 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Activités'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24),
-            child: Center(
-              child: RoundIconButton(
-                icon: LucideIcons.bookmark,
-                tooltip: 'Activités sauvegardées',
-                size: 40,
-                iconSize: 18,
-                onPressed: () => context.push('/couple/activities/saved'),
-              ),
-            ),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Activités',
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -2,
+                        height: 1.05,
+                      ),
+                    ),
+                  ),
+                  RoundIconButton(
+                    icon: LucideIcons.bookmark,
+                    tooltip: 'Activités sauvegardées',
+                    onPressed: () => context.push('/couple/activities/saved'),
+                  ),
+                ],
+              ),
+            ),
             _buildCategoryFilter(),
             Expanded(child: _buildBody()),
           ],
@@ -490,6 +496,7 @@ class _ActivityCard extends StatelessWidget {
                     TagPill(
                       activity.categoryLabel,
                       icon: activityCategoryIcon(activity.category),
+                      onCard: true,
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -548,7 +555,7 @@ class _ActivityCard extends StatelessWidget {
                                   : 'Partenaire MAZL',
                               icon: LucideIcons.badgePercent,
                             ),
-                          if (activity.isKosher) const TagPill('Casher'),
+                          if (activity.isKosher) const TagPill('Casher', onCard: true),
                         ],
                       ),
                     ],

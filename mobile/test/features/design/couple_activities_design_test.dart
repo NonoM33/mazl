@@ -356,5 +356,24 @@ void main() {
       expect(find.text('-15 % Partenaire MAZL'), findsOneWidget);
       expect(find.text('Casher'), findsOneWidget);
     });
+
+    // Vu au simulateur le 2026-10-23 : brume sur brume, « Casher » et la
+    // catégorie flottaient sans contour, comme du texte nu.
+    testWidgets('les puces de la carte se détachent de son fond brume', (tester) async {
+      await pumpFeed(tester);
+      final scheme = Theme.of(tester.element(find.text('Casher'))).colorScheme;
+      final pill = tester.widget<Container>(
+        find.ancestor(of: find.text('Casher'), matching: find.byType(Container)).first,
+      );
+      final color = (pill.decoration! as BoxDecoration).color;
+      expect(color, isNot(scheme.surfaceContainer));
+      expect(color, scheme.surface);
+    });
+
+    testWidgets('titre de page en grand, comme les autres onglets du couple', (tester) async {
+      await pumpFeed(tester);
+      final title = tester.widget<Text>(find.text('Activités'));
+      expect(title.style?.fontSize, 40);
+    });
   });
 }
