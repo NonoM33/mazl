@@ -157,10 +157,10 @@ class RevenueCatService {
   /// failure is rethrown for the caller to handle.
   Future<PurchaseResult> purchasePackage(Package package) async {
     try {
-      final result = await Purchases.purchasePackage(package);
-      _customerInfo = result;
+      final purchase = await Purchases.purchase(PurchaseParams.package(package));
+      _customerInfo = purchase.customerInfo;
       debugPrint('RevenueCat: Purchase successful');
-      return PurchaseResult(PurchaseStatus.success, result);
+      return PurchaseResult(PurchaseStatus.success, purchase.customerInfo);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {

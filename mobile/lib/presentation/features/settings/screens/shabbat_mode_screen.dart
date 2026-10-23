@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/jewish_calendar_service.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../widgets/shabbat_hero.dart';
 
 class ShabbatModeScreen extends StatefulWidget {
   const ShabbatModeScreen({super.key});
@@ -12,264 +15,206 @@ class ShabbatModeScreen extends StatefulWidget {
 }
 
 class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
+  static const _city = 'Basé sur Paris, France';
+
   bool _isEnabled = true;
   bool _includeHolidays = true;
   int _bufferMinutes = 18;
 
+  late final ShabbatInfo _shabbat = JewishCalendarService().getThisWeekShabbat();
+
+  /// Le service rend « --:-- » quand le calcul astronomique échoue.
+  static String _display(String time) => time.contains('-') ? '—' : time;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mode Shabbat'),
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
-        ),
+    final scheme = Theme.of(context).colorScheme;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Header illustration
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.shabbatBackground, Color(0xFF2D2D5A)],
-              ),
-              borderRadius: BorderRadius.circular(20),
+      child: Scaffold(
+        body: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            ShabbatHero(
+              candleLighting: _display(_shabbat.candleLighting),
+              havdala: _display(_shabbat.havdala),
+              city: _city,
+              onBack: () => context.pop(),
             ),
-            child: Column(
-              children: [
-                const Text(
-                  '🕯️🕯️',
-                  style: TextStyle(fontSize: 48),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Shabbat Shalom',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Profite d\'une pause automatique',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
+              child: SectionLabel('Réglages'),
             ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Enable switch
-          Card(
-            child: SwitchListTile(
-              title: const Text('Activer le mode Shabbat'),
-              subtitle: const Text(
-                'Pause automatique des notifications pendant Shabbat',
-              ),
+            const SizedBox(height: 8),
+            _SwitchRow(
+              title: 'Activer le mode Shabbat',
+              subtitle: 'Pause automatique des notifications pendant Shabbat',
               value: _isEnabled,
-              onChanged: (value) {
-                setState(() => _isEnabled = value);
-              },
-              activeThumbColor: AppColors.accentGold,
+              onChanged: (value) => setState(() => _isEnabled = value),
             ),
-          ),
-
-          if (_isEnabled) ...[
-            const SizedBox(height: 16),
-
-            // Next Shabbat info
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Prochain Shabbat',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _InfoRow(
-                      icon: LucideIcons.sun,
-                      label: 'Allumage des bougies',
-                      value: 'Vendredi 17:45',
-                    ),
-                    _InfoRow(
-                      icon: LucideIcons.moon,
-                      label: 'Sortie de Shabbat',
-                      value: 'Samedi 18:52',
-                    ),
-                    const Divider(height: 24),
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.mapPin,
-                          size: 16,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Basé sur Paris, France',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.5),
-                          ),
-                        ),
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () {
-                            // TODO: Change location
-                          },
-                          child: const Text('Modifier'),
-                        ),
-                      ],
-                    ),
-                  ],
+            if (_isEnabled) ...[
+              _SwitchRow(
+                title: 'Inclure les fêtes',
+                subtitle: 'Pause aussi pendant Yom Tov',
+                value: _includeHolidays,
+                onChanged: (value) => setState(() => _includeHolidays = value),
+              ),
+              _BufferRow(
+                minutes: _bufferMinutes,
+                onChanged: (value) => setState(() => _bufferMinutes = value),
+              ),
+              _LocationRow(
+                label: _city,
+                onEdit: () {
+                  // TODO: Change location
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                child: Text(
+                  'Les notifications sont mises en pause et les messages attendent. '
+                  'Vous recevrez tout après la fin de Shabbat, et votre statut '
+                  'affichera « Mode Shabbat ».',
+                  style: TextStyle(fontSize: 14, height: 1.5, color: scheme.onSurfaceVariant),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Options
-            Card(
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    title: const Text('Inclure les fêtes'),
-                    subtitle: const Text(
-                      'Pause aussi pendant Yom Tov',
-                    ),
-                    value: _includeHolidays,
-                    onChanged: (value) {
-                      setState(() => _includeHolidays = value);
-                    },
-                    activeThumbColor: AppColors.accentGold,
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    title: const Text('Buffer avant allumage'),
-                    subtitle: Text('$_bufferMinutes minutes'),
-                    trailing: SizedBox(
-                      width: 150,
-                      child: Slider(
-                        value: _bufferMinutes.toDouble(),
-                        min: 0,
-                        max: 30,
-                        divisions: 6,
-                        label: '$_bufferMinutes min',
-                        onChanged: (value) {
-                          setState(() => _bufferMinutes = value.toInt());
-                        },
-                        activeColor: AppColors.accentGold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Explanation
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.info.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(LucideIcons.info, color: AppColors.info),
-                      SizedBox(width: 8),
-                      Text(
-                        'Comment ça marche ?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.info,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '• Les notifications sont automatiquement mises en pause\n'
-                    '• Les messages sont mis en file d\'attente\n'
-                    '• Tu recevras tout après la fin de Shabbat\n'
-                    '• Ton statut sera affiché comme "Mode Shabbat"',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
+            const SizedBox(height: 48),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
+class _Hairline extends StatelessWidget {
+  const _Hairline();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.accentGold, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                Text(
-                  value,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant),
+    );
+  }
+}
+
+class _SwitchRow extends StatelessWidget {
+  const _SwitchRow({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        SwitchListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(subtitle, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
           ),
-        ],
-      ),
+          value: value,
+          onChanged: onChanged,
+        ),
+        const _Hairline(),
+      ],
+    );
+  }
+}
+
+class _BufferRow extends StatelessWidget {
+  const _BufferRow({required this.minutes, required this.onChanged});
+
+  final int minutes;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Buffer avant allumage',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Text('$minutes min', style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant)),
+                ],
+              ),
+              Slider(
+                value: minutes.toDouble(),
+                min: 0,
+                max: 30,
+                divisions: 6,
+                label: '$minutes min',
+                semanticFormatterCallback: (value) => '${value.toInt()} minutes',
+                onChanged: (value) => onChanged(value.toInt()),
+              ),
+            ],
+          ),
+        ),
+        const _Hairline(),
+      ],
+    );
+  }
+}
+
+class _LocationRow extends StatelessWidget {
+  const _LocationRow({required this.label, required this.onEdit});
+
+  final String label;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          child: Row(
+            children: [
+              Icon(LucideIcons.mapPin, size: 18, color: scheme.onSurfaceVariant),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(label, style: TextStyle(fontSize: 15, color: scheme.onSurface)),
+              ),
+              OutlinedButton(
+                onPressed: onEdit,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(44, 44),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                ),
+                child: const Text('Modifier'),
+              ),
+            ],
+          ),
+        ),
+        const _Hairline(),
+      ],
     );
   }
 }

@@ -1,6 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -9,8 +7,9 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
+import '../widgets/discover_card.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -91,209 +90,196 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MAZL'),
-        actions: [
-          // Daily Picks button
-          IconButton(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(LucideIcons.sparkles),
-                Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.accentGold,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            tooltip: 'Selections du jour',
+      // SafeArea réserve aussi la place de la barre d'onglets flottante.
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopRow(),
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopRow() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const MazlWordmark(size: 26),
+          const Spacer(),
+          RoundIconButton(
+            icon: LucideIcons.sparkles,
+            tooltip: 'Sélections du jour',
             onPressed: () => context.push(RoutePaths.dailyPicks),
           ),
-          // Filters button
-          IconButton(
-            icon: const Icon(LucideIcons.slidersHorizontal),
+          const SizedBox(width: 8),
+          RoundIconButton(
+            icon: LucideIcons.slidersHorizontal,
             tooltip: 'Filtres',
-            onPressed: () async {
-              final result = await context.push<bool>(RoutePaths.filters);
-              if (result == true && mounted) {
-                // Reload profiles with new filters
-                _loadProfiles(isRefresh: true);
-              }
-            },
+            onPressed: _openFilters,
           ),
         ],
       ),
-      body: SafeArea(
-        child: _buildBody(),
-      ),
     );
+  }
+
+  Future<void> _openFilters() async {
+    final result = await context.push<bool>(RoutePaths.filters);
+    if (result == true && mounted) {
+      // Reload profiles with new filters
+      _loadProfiles(isRefresh: true);
+    }
   }
 
   Widget _buildBody() {
     if (_isLoading) {
       return const ProfileCardSkeleton();
     }
-
     if (_error != null) {
-      return Center(
+      return _buildError();
+    }
+    if (_profiles.isEmpty) {
+      return _buildEmpty();
+    }
+    return _buildSwiper();
+  }
+
+  Widget _buildError() {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
+            Icon(LucideIcons.circleAlert, size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               _error!,
-              style: TextStyle(color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: scheme.onSurfaceVariant),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadProfiles,
               child: const Text('Réessayer'),
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    if (_profiles.isEmpty) {
-      return Center(
+  Widget _buildEmpty() {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(LucideIcons.searchX, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
             Text(
-              'Plus de profils disponibles',
-              style: TextStyle(color: Colors.grey[600], fontSize: 18),
+              'Vous avez tout vu.',
+              style: Theme.of(context).textTheme.displaySmall,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              'Reviens plus tard!',
-              style: TextStyle(color: Colors.grey[500]),
+              'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.',
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.45,
+                color: scheme.onSurfaceVariant,
+              ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
+            const SizedBox(height: 28),
+            OutlinedButton(
+              onPressed: _openFilters,
+              child: const Text('Ouvrir les filtres'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
               onPressed: _loadProfiles,
               child: const Text('Actualiser'),
             ),
           ],
         ),
-      );
-    }
-
-    return Column(
-      children: [
-        // Cards
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: CardSwiper(
-              controller: _controller,
-              cardsCount: _profiles.length,
-              numberOfCardsDisplayed: _profiles.length > 3 ? 3 : _profiles.length,
-              backCardOffset: const Offset(0, 40),
-              padding: EdgeInsets.zero,
-              onSwipe: _onSwipe,
-              onUndo: _onUndo,
-              cardBuilder: (context, index, horizontalOffsetPercentage,
-                  verticalOffsetPercentage) {
-                final profile = _profiles[index];
-                return _ProfileCard(
-                  profile: profile,
-                  swipeProgress: horizontalOffsetPercentage.toDouble(),
-                  onTapProfile: () async {
-                    final result = await context.push<String>('/discover/profile/${profile.userId}');
-                    if (result != null && mounted) {
-                      _handleSwipeFromDetail(result);
-                    }
-                  },
-                );
-              },
-            ),
-          ),
-        ),
-
-        // Action buttons
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Undo (Premium)
-              _ActionButton(
-                icon: LucideIcons.rotateCcw,
-                color: AppColors.warning,
-                size: 50,
-                isPremium: !PremiumGate.isPremium,
-                onPressed: () async {
-                  if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
-                    _controller.undo();
-                  }
-                },
-              ),
-
-              // Pass
-              _ActionButton(
-                icon: LucideIcons.x,
-                color: AppColors.passRed,
-                size: 60,
-                onPressed: () => _controller.swipe(CardSwiperDirection.left),
-              ),
-
-              // Super Like
-              _ActionButton(
-                icon: LucideIcons.star,
-                color: AppColors.superLikeBlue,
-                size: 50,
-                badge: PremiumGate.remainingSuperLikes.toString(),
-                onPressed: () async {
-                  if (PremiumGate.remainingSuperLikes > 0 ||
-                      await PremiumGate.showFeatureGate(context, PremiumFeature.superLikes)) {
-                    _controller.swipe(CardSwiperDirection.top);
-                  }
-                },
-              ),
-
-              // Like
-              _ActionButton(
-                icon: LucideIcons.heart,
-                color: AppColors.likeGreen,
-                size: 60,
-                onPressed: () => _controller.swipe(CardSwiperDirection.right),
-              ),
-
-              // Boost (Premium)
-              _ActionButton(
-                icon: LucideIcons.zap,
-                color: AppColors.accentGold,
-                size: 50,
-                isPremium: !PremiumGate.isPremium,
-                onPressed: () async {
-                  if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
-                    await _activateBoost();
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  Widget _buildSwiper() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: CardSwiper(
+        controller: _controller,
+        cardsCount: _profiles.length,
+        numberOfCardsDisplayed: _profiles.length > 2 ? 2 : _profiles.length,
+        backCardOffset: const Offset(0, 20),
+        padding: EdgeInsets.zero,
+        onSwipe: _onSwipe,
+        onUndo: _onUndo,
+        cardBuilder: (context, index, horizontalOffsetPercentage,
+            verticalOffsetPercentage) {
+          final profile = _profiles[index];
+          return DiscoverCard(
+            profile: profile,
+            swipeProgress: horizontalOffsetPercentage.toDouble(),
+            onPass: () => _controller.swipe(CardSwiperDirection.left),
+            onLike: () => _controller.swipe(CardSwiperDirection.right),
+            onTapProfile: () async {
+              final result = await context
+                  .push<String>('/discover/profile/${profile.userId}');
+              if (result != null && mounted) {
+                _handleSwipeFromDetail(result);
+              }
+            },
+            secondaryActions: _buildSecondaryActions(),
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> _buildSecondaryActions() {
+    return [
+      // Undo (Premium)
+      DiscoverMiniAction(
+        icon: LucideIcons.rotateCcw,
+        tooltip: 'Annuler',
+        locked: !PremiumGate.isPremium,
+        onPressed: () async {
+          if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
+            _controller.undo();
+          }
+        },
+      ),
+      // Super Like
+      DiscoverMiniAction(
+        icon: LucideIcons.star,
+        tooltip: 'Super like',
+        badge: PremiumGate.remainingSuperLikes.toString(),
+        onPressed: () async {
+          if (PremiumGate.remainingSuperLikes > 0 ||
+              await PremiumGate.showFeatureGate(context, PremiumFeature.superLikes)) {
+            _controller.swipe(CardSwiperDirection.top);
+          }
+        },
+      ),
+      // Boost (Premium)
+      DiscoverMiniAction(
+        icon: LucideIcons.zap,
+        tooltip: 'Boost',
+        locked: !PremiumGate.isPremium,
+        onPressed: () async {
+          if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
+            await _activateBoost();
+          }
+        },
+      ),
+    ];
   }
 
   Future<void> _activateBoost() async {
@@ -304,14 +290,12 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Boost activé ! Tu seras visible en priorité pendant 30 minutes.'),
-          backgroundColor: AppColors.accentGold,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(response.error ?? 'Impossible d\'activer le boost'),
-          backgroundColor: AppColors.passRed,
         ),
       );
     }
@@ -397,8 +381,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('It\'s a Match! 🎉'),
-        content: Text('Tu as matché avec ${profile.displayName}!'),
+        title: const Text('C\'est un match.'),
+        content: Text('Tu as matché avec ${profile.displayName}.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -411,344 +395,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             },
             child: const Text('Envoyer un message'),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileCard extends StatelessWidget {
-  const _ProfileCard({
-    required this.profile,
-    required this.swipeProgress,
-    this.onTapProfile,
-  });
-
-  final Profile profile;
-  final double swipeProgress;
-  final VoidCallback? onTapProfile;
-
-  @override
-  Widget build(BuildContext context) {
-    final imageUrl = profile.photos.isNotEmpty ? profile.photos.first : null;
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Profile image
-            if (imageUrl != null)
-              CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                ),
-                errorWidget: (context, url, error) => _buildPlaceholder(),
-              )
-            else
-              _buildPlaceholder(),
-
-            // Gradient overlay at bottom
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-
-            // Profile info
-            Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '${profile.displayName ?? 'Anonyme'}, ${profile.age ?? '?'}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      if (profile.isVerified)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                LucideIcons.badgeCheck,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                profile.verificationLevel == 'verified_plus'
-                                    ? 'Vérifié+'
-                                    : 'Vérifié',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        LucideIcons.mapPin,
-                        color: Colors.white70,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        profile.location ?? 'France',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                      if (profile.denomination != null) ...[
-                        const SizedBox(width: 16),
-                        Text(
-                          '✡ ${profile.denomination}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  if (profile.bio != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      profile.bio!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // Info button to view profile details
-            Positioned(
-              top: 16,
-              right: 16,
-              child: GestureDetector(
-                onTap: onTapProfile,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    LucideIcons.info,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                ),
-              ),
-            ),
-
-            // Like/Pass overlay
-            if (swipeProgress != 0)
-              Positioned(
-                top: 40,
-                left: swipeProgress > 0 ? 24 : null,
-                right: swipeProgress < 0 ? 24 : null,
-                child: Transform.rotate(
-                  angle: swipeProgress > 0 ? -0.3 : 0.3,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: swipeProgress > 0
-                            ? AppColors.likeGreen
-                            : AppColors.passRed,
-                        width: 4,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      swipeProgress > 0 ? 'LIKE' : 'NOPE',
-                      style: TextStyle(
-                        color: swipeProgress > 0
-                            ? AppColors.likeGreen
-                            : AppColors.passRed,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 100.ms),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withValues(alpha: 0.7),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          LucideIcons.user,
-          size: 120,
-          color: Colors.white.withValues(alpha: 0.3),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.color,
-    required this.size,
-    required this.onPressed,
-    this.isPremium = false,
-    this.badge,
-  });
-
-  final IconData icon;
-  final Color color;
-  final double size;
-  final VoidCallback onPressed;
-  final bool isPremium;
-  final String? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: size * 0.5,
-            ),
-          ),
-          // Premium lock badge
-          if (isPremium)
-            Positioned(
-              top: -4,
-              right: -4,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.accentGold,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.crown,
-                  size: 12,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          // Count badge
-          if (badge != null && !isPremium)
-            Positioned(
-              top: -4,
-              right: -4,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  badge!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
