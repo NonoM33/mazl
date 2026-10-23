@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/verification_providers.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/verification_api.dart';
 import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
@@ -125,6 +126,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     await _loadStatus();
   }
 
+  Future<void> _verifyIdentity() async {
+    await context.pushNamed<bool>(RouteNames.verificationIdentity);
+    if (mounted) await _loadStatus();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +160,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         if (_note != null) _Banner(text: _note!, error: false),
         _PhotoCard(status: status, busy: busy, onVerify: _verifyPhoto, onRemove: _removeVerification),
         const SizedBox(height: 12),
-        const _IdentityCard(),
+        _IdentityCard(verified: status.identity.verified, enabled: !busy, onVerify: _verifyIdentity),
       ],
     );
   }
@@ -235,17 +241,24 @@ class _PhotoCard extends StatelessWidget {
 }
 
 class _IdentityCard extends StatelessWidget {
-  const _IdentityCard();
+  const _IdentityCard({required this.verified, required this.enabled, required this.onVerify});
+
+  final bool verified;
+  final bool enabled;
+  final VoidCallback onVerify;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
       child: ListTile(
-        enabled: false,
-        leading: const Icon(LucideIcons.idCard),
+        enabled: enabled && !verified,
+        leading: Icon(verified ? LucideIcons.badgeCheck : LucideIcons.idCard),
         title: const Text('Vérifier mon identité (passeport / CNI)'),
-        trailing: Text('Bientôt', style: theme.textTheme.labelMedium),
+        trailing: verified
+            ? Text('Vérifiée', style: theme.textTheme.labelMedium)
+            : const Icon(LucideIcons.chevronRight),
+        onTap: verified ? null : onVerify,
       ),
     );
   }

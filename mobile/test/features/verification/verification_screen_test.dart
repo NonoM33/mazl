@@ -136,7 +136,7 @@ void main() {
   });
 
   group('VerificationScreen', () {
-    testWidgets('shows the consent line, the action and the level 2 placeholder', (tester) async {
+    testWidgets('shows the consent line, the action and the identity entry', (tester) async {
       await _pump(tester, FakeVerificationApi(), FakeCapture(_frames));
 
       expect(find.text(consentText), findsOneWidget);
@@ -145,7 +145,9 @@ void main() {
           'seule une empreinte chiffrée l\'est, supprimable à tout moment.'), findsOneWidget);
       expect(find.text('Vérifier ma photo'), findsOneWidget);
       expect(find.text('Vérifier mon identité (passeport / CNI)'), findsOneWidget);
-      expect(find.text('Bientôt'), findsOneWidget);
+      final identityTile = tester.widget<ListTile>(find.widgetWithText(ListTile, 'Vérifier mon identité (passeport / CNI)'));
+      expect(identityTile.enabled, isTrue);
+      expect(find.text('Bientôt'), findsNothing);
     });
 
     testWidgets('runs session, capture and submit, then shows the verified state', (tester) async {

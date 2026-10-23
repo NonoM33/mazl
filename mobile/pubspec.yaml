@@ -89,6 +89,7 @@ dependencies:
     git:
       url: https://github.com/ZeroPass/dmrtd.git
       ref: f8d3f88e12efa22f91fbc0c345dbad25826c2ea6
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

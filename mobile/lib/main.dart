@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
+import 'core/di/providers/identity_providers.dart';
+import 'core/di/providers/verification_providers.dart';
+import 'presentation/features/verification/providers/verification_providers.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/revenuecat_service.dart';
@@ -39,8 +42,13 @@ void main() async {
   await PushNotificationService().initialize();
 
   runApp(
-    const ProviderScope(
-      child: MazlApp(),
+    ProviderScope(
+      overrides: [
+        // The identity flow (level 2) reuses the level-1 API client and selfie capture.
+        identityVerificationApiProvider.overrideWith((ref) => ref.watch(verificationApiProvider)),
+        identityLivenessCaptureProvider.overrideWith((ref) => ref.watch(livenessCaptureProvider)),
+      ],
+      child: const MazlApp(),
     ),
   );
 }

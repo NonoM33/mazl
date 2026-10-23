@@ -4,8 +4,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-// http_parser ships with `http` and is the only way to type a multipart part.
-// ignore: depend_on_referenced_packages
 import 'package:http_parser/http_parser.dart' show MediaType;
 
 import 'api_service.dart';
