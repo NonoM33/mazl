@@ -52,22 +52,22 @@ IdentityFailureInfo describeIdentityRejection(String? code) => switch (code) {
         const IdentityFailureInfo('Ce document est déjà associé à un autre compte.', IdentityRecovery.close, 'Fermer'),
       'document_banned' => const IdentityFailureInfo('Ce document ne peut pas être utilisé.', IdentityRecovery.close, 'Fermer'),
       'document_face_mismatch' => const IdentityFailureInfo(
-          'Ton visage ne correspond pas à la photo du document.', IdentityRecovery.retryFace, _retry),
+          'Votre visage ne correspond pas à la photo du document.', IdentityRecovery.retryFace, _retry),
       'session_not_found' || 'session_expired' || 'session_used' =>
         const IdentityFailureInfo('La session a expiré.', IdentityRecovery.retryFace, _retry),
       'wrong_frame_count' || 'invalid_image' =>
         const IdentityFailureInfo('Les images n\'ont pas pu être lues.', IdentityRecovery.retryFace, _retry),
       'no_face' => const IdentityFailureInfo('Aucun visage détecté.', IdentityRecovery.retryFace, _retry),
       'multiple_faces' => const IdentityFailureInfo('Un seul visage doit apparaître.', IdentityRecovery.retryFace, _retry),
-      'face_too_small' => const IdentityFailureInfo('Rapproche-toi de la caméra.', IdentityRecovery.retryFace, _retry),
+      'face_too_small' => const IdentityFailureInfo('Rapprochez-vous de la caméra.', IdentityRecovery.retryFace, _retry),
       'pose_mismatch' => const IdentityFailureInfo('Les mouvements demandés n\'ont pas été reconnus.', IdentityRecovery.retryFace, _retry),
-      'duplicate_frames' => const IdentityFailureInfo('Bouge la tête comme demandé.', IdentityRecovery.retryFace, _retry),
+      'duplicate_frames' => const IdentityFailureInfo('Bougez la tête comme demandé.', IdentityRecovery.retryFace, _retry),
       'inconsistent_identity' => const IdentityFailureInfo('Le visage a changé pendant la capture.', IdentityRecovery.retryFace, _retry),
-      'no_profile_photo' => const IdentityFailureInfo('Ajoute d\'abord une photo à ton profil.', IdentityRecovery.close, 'Fermer'),
+      'no_profile_photo' => const IdentityFailureInfo('Ajoutez d\'abord une photo à votre profil.', IdentityRecovery.close, 'Fermer'),
       'profile_mismatch' =>
-        const IdentityFailureInfo('Ton visage ne correspond pas à ta photo de profil.', IdentityRecovery.retryFace, _retry),
+        const IdentityFailureInfo('Votre visage ne correspond pas à votre photo de profil.', IdentityRecovery.retryFace, _retry),
       'daily_limit_reached' =>
-        const IdentityFailureInfo('Tu as atteint la limite d\'essais du jour. Reviens demain.', IdentityRecovery.close, 'Fermer'),
+        const IdentityFailureInfo('Vous avez atteint la limite d\'essais du jour. Revenez demain.', IdentityRecovery.close, 'Fermer'),
       _ => const IdentityFailureInfo('La vérification a échoué.', IdentityRecovery.retryFace, _retry),
     };
 
@@ -78,21 +78,21 @@ IdentityFailureInfo? describeChipFailure(ChipFailureKind kind) => switch (kind) 
       ChipFailureKind.nfcUnavailable => const IdentityFailureInfo(
           'Ce téléphone n\'a pas de lecteur NFC.', IdentityRecovery.close, 'Fermer', offerManualReview: true),
       ChipFailureKind.nfcDisabled =>
-        const IdentityFailureInfo('Active le NFC dans les réglages du téléphone.', IdentityRecovery.retryChip, _retry),
+        const IdentityFailureInfo('Activez le NFC dans les réglages du téléphone.', IdentityRecovery.retryChip, _retry),
       ChipFailureKind.tagLost =>
-        const IdentityFailureInfo('Le document a bougé. Garde-le immobile contre le téléphone.', IdentityRecovery.retryChip, _retry),
+        const IdentityFailureInfo('Le document a bougé. Gardez-le immobile contre le téléphone.', IdentityRecovery.retryChip, _retry),
       ChipFailureKind.accessDenied => const IdentityFailureInfo(
           'Les informations saisies ne correspondent pas à la puce.', IdentityRecovery.rescanMrz, 'Scanner à nouveau'),
       ChipFailureKind.unsupportedDocument => const IdentityFailureInfo(
           'Ce document ne peut pas être lu.', IdentityRecovery.close, 'Fermer', offerManualReview: true),
-      ChipFailureKind.timeout => const IdentityFailureInfo('Aucun document détecté.', IdentityRecovery.retryChip, _retry),
+      ChipFailureKind.timeout => const IdentityFailureInfo('La puce n\'a pas répondu.', IdentityRecovery.retryChip, _retry),
       ChipFailureKind.unknown => const IdentityFailureInfo('La lecture a échoué.', IdentityRecovery.retryChip, _retry),
     };
 
 /// When the server could not be reached or answered with an error.
 IdentityFailureInfo describeApiFailure(String? error) => switch (error) {
       'daily_limit_reached' => describeIdentityRejection('daily_limit_reached'),
-      _ => const IdentityFailureInfo('Connexion impossible. Vérifie ta connexion.', IdentityRecovery.retryFace, _retry),
+      _ => const IdentityFailureInfo('Connexion impossible. Vérifiez votre connexion.', IdentityRecovery.retryFace, _retry),
     };
 
 const faceUnavailableMessage = 'La caméra n\'est pas disponible.';

@@ -141,12 +141,12 @@ void main() {
 
       expect(find.text(consentText), findsOneWidget);
       expect(find.text(
-          'Nous comparons ton visage à tes photos. Les images ne sont pas conservées ; '
+          'Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; '
           'seule une empreinte chiffrée l\'est, supprimable à tout moment.'), findsOneWidget);
       expect(find.text('Vérifier ma photo'), findsOneWidget);
-      expect(find.text('Vérifier mon identité (passeport / CNI)'), findsOneWidget);
-      final identityTile = tester.widget<ListTile>(find.widgetWithText(ListTile, 'Vérifier mon identité (passeport / CNI)'));
-      expect(identityTile.enabled, isTrue);
+      expect(find.text('Vérifier mon identité'), findsOneWidget);
+      final identityButton = tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Vérifier mon identité'));
+      expect(identityButton.onPressed, isNotNull);
       expect(find.text('Bientôt'), findsNothing);
     });
 
@@ -167,19 +167,19 @@ void main() {
       expect(api.submittedFrames, _frames);
       expect(find.text('Vérifiée le 20/10/2026.'), findsOneWidget);
       expect(find.text('Retirer ma vérification'), findsOneWidget);
-      expect(find.text('Une de tes photos ne te ressemble pas : elle ne compte pas.'), findsOneWidget);
+      expect(find.text('Une de vos photos ne vous ressemble pas : elle ne compte pas.'), findsOneWidget);
       expect(find.text('Vérifier ma photo'), findsNothing);
     });
 
     for (final entry in {
       'no_face': 'Aucun visage détecté',
       'multiple_faces': 'Plusieurs visages détectés',
-      'face_too_small': 'Ton visage est trop loin',
+      'face_too_small': 'Votre visage est trop loin',
       'pose_mismatch': 'Les poses demandées n\'ont pas été reconnues',
       'duplicate_frames': 'Les images sont trop semblables',
       'inconsistent_identity': 'Les images ne montrent pas la même personne',
-      'no_profile_photo': 'Ajoute d\'abord à ton profil une photo',
-      'profile_mismatch': 'Ton visage ne correspond pas à ta photo principale',
+      'no_profile_photo': 'Ajoutez d\'abord à votre profil une photo',
+      'profile_mismatch': 'Votre visage ne correspond pas à votre photo principale',
       'session_expired': 'La session a expiré',
       'daily_limit_reached': 'limite d\'essais',
     }.entries) {
@@ -253,7 +253,7 @@ void main() {
       );
       await _pump(tester, api, FakeCapture(_frames));
 
-      final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Vérifier ma photo'));
+      final button = tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Vérifier ma photo'));
       expect(button.onPressed, isNull);
       expect(find.textContaining('Limite atteinte'), findsOneWidget);
     });

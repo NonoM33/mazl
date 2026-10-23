@@ -1,56 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/verification/chip/chip_reader.dart';
 import 'chip_location_illustration.dart';
 import 'identity_flow_state.dart';
 import 'identity_layout.dart';
+import 'identity_messages.dart';
+import 'identity_parts.dart';
+import 'nfc_step_checklist.dart';
 
 /// Chip step: where to put the document, then a button, then progress.
 class NfcReadView extends StatelessWidget {
-  const NfcReadView({super.key, required this.state, required this.onRead, required this.onRecover, required this.onClose});
+  const NfcReadView({
+    super.key,
+    required this.state,
+    required this.onRead,
+    required this.onRecover,
+    required this.onClose,
+  });
 
   final IdentityNfc state;
   final VoidCallback onRead;
   final VoidCallback onRecover;
   final VoidCallback onClose;
 
-  static String stepLabel(ChipReadStep step) => switch (step) {
-        ChipReadStep.waitingForDocument => 'Approche ton document…',
-        ChipReadStep.authenticating => 'Connexion sécurisée…',
-        ChipReadStep.readingPhoto => 'Lecture de la photo…',
-        ChipReadStep.readingSignature => 'Lecture de la signature…',
-      };
+  static const _eyebrow = 'Étape 2 / 3';
+  static const _placement =
+      'Le haut du téléphone contre la couverture fermée du passeport, '
+      'ou contre le dos de la carte d\'identité. Retirez la coque si besoin.';
+  static const _tips = [
+    'Retirez la coque du téléphone.',
+    'Posez le haut du téléphone au centre de la couverture, passeport fermé.',
+    'Restez immobile une dizaine de secondes.',
+  ];
+
+  /// A chip that stayed silent, as opposed to a phone setting or a wrong MRZ.
+  static final _silentChipMessages = {
+    for (final kind in [ChipFailureKind.timeout, ChipFailureKind.tagLost, ChipFailureKind.unknown])
+      describeChipFailure(kind)!.message,
+  };
+
+  static String stepLabel(ChipReadStep step) => NfcStepChecklist.labels[step]!;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final failure = state.failure;
+    if (failure != null && !state.reading) return _failureView(failure);
+    return state.reading ? _readingView() : _waitingView();
+  }
+
+  Widget _waitingView() => IdentityPage(
+    eyebrow: _eyebrow,
+    onClose: onClose,
+    title: 'Posez votre document sur le téléphone.',
+    subtitle: _placement,
+    actions: [IdentityPrimaryButton('Lire le document', onPressed: onRead)],
+    child: const Center(child: ChipLocationIllustration()),
+  );
+
+  Widget _readingView() {
     final progress = state.progress;
+    final percent = progress?.percent ?? 0;
     return IdentityPage(
-      title: 'Pose ton document sur le téléphone',
-      onClose: state.reading ? null : onClose,
-      actions: [
-        if (state.reading)
-          const FilledButton(onPressed: null, child: Text('Lecture en cours…'))
-        else if (failure == null)
-          FilledButton(onPressed: onRead, child: const Text('Lire le document'))
-        else ...[
-          FilledButton(onPressed: onRecover, child: Text(failure.actionLabel)),
-          if (failure.offerManualReview) const ManualReviewButton(),
-        ],
-      ],
-      child: Column(
-        children: [
-          const Expanded(child: Center(child: ChipLocationIllustration())),
-          if (state.reading) ...[
-            LinearProgressIndicator(value: progress == null ? null : progress.percent / 100),
-            const SizedBox(height: 12),
-            Text(progress == null ? stepLabel(ChipReadStep.waitingForDocument) : stepLabel(progress.step), style: theme.textTheme.bodyMedium),
-          ] else if (failure != null)
-            Text(failure.message, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.error)),
-          const SizedBox(height: 8),
-        ],
+      eyebrow: _eyebrow,
+      title: 'Ne bougez plus.',
+      subtitle: 'Gardez le document contre le haut du téléphone jusqu\'à la fin de la lecture.',
+      note: Semantics(
+        label: 'Lecture de la puce',
+        value: '$percent %',
+        child: ExcludeSemantics(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(value: percent / 100, minHeight: 4),
+          ),
+        ),
       ),
+      child: NfcStepChecklist(current: progress?.step ?? ChipReadStep.waitingForDocument),
+    );
+  }
+
+  Widget _failureView(IdentityFailureInfo failure) {
+    final silent = _silentChipMessages.contains(failure.message);
+    return IdentityNotice(
+      eyebrow: _eyebrow,
+      icon: LucideIcons.circleAlert,
+      title: failure.message,
+      body: switch (failure.recovery) {
+        IdentityRecovery.retryChip => silent ? 'Cela arrive souvent au premier essai. Rien n\'a été envoyé.' : null,
+        IdentityRecovery.rescanMrz =>
+          'Rien n\'a été envoyé. Relisez la page photo pour repartir sur de bonnes données.',
+        IdentityRecovery.retryFace || IdentityRecovery.close => null,
+      },
+      tips: silent && failure.recovery == IdentityRecovery.retryChip ? _tips : const [],
+      onClose: onClose,
+      actions: [
+        IdentityPrimaryButton(failure.actionLabel, onPressed: onRecover),
+        if (failure.offerManualReview) const ManualReviewButton(),
+      ],
     );
   }
 }

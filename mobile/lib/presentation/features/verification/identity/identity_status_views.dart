@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../common/widgets/mazl_components.dart';
 import 'identity_flow_state.dart';
 import 'identity_layout.dart';
 import 'identity_messages.dart';
+import 'identity_parts.dart';
 
 /// Screens with a single message and at most one or two buttons.
 
@@ -13,7 +16,7 @@ class IdentityCheckingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      IdentityPage(onClose: onClose, child: const Center(child: CircularProgressIndicator()));
+      IdentityPage(onClose: onClose, centerBody: true, child: const CircularProgressIndicator());
 }
 
 class IdentityUnavailableView extends StatelessWidget {
@@ -24,17 +27,19 @@ class IdentityUnavailableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (reason) {
-        IdentityUnavailableReason.comingSoon => IdentityPage(
-            onClose: onClose,
-            actions: [FilledButton(onPressed: onClose, child: const Text('Fermer'))],
-            child: const CenteredMessage(icon: Icons.hourglass_empty, message: 'Bientôt disponible'),
-          ),
-        IdentityUnavailableReason.noNfc => IdentityPage(
-            onClose: onClose,
-            actions: const [ManualReviewButton()],
-            child: const CenteredMessage(icon: Icons.nfc, message: 'Ce téléphone n\'a pas de lecteur NFC.'),
-          ),
-      };
+    IdentityUnavailableReason.comingSoon => IdentityNotice(
+      icon: LucideIcons.clock,
+      title: 'Bientôt disponible',
+      onClose: onClose,
+      actions: [IdentityPrimaryButton('Fermer', onPressed: onClose)],
+    ),
+    IdentityUnavailableReason.noNfc => IdentityNotice(
+      icon: LucideIcons.smartphoneNfc,
+      title: 'Ce téléphone n\'a pas de lecteur NFC.',
+      onClose: onClose,
+      actions: const [ManualReviewButton()],
+    ),
+  };
 }
 
 /// Chip read, selfie next.
@@ -46,10 +51,14 @@ class IdentityFaceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IdentityPage(
-        onClose: onClose,
-        actions: [FilledButton(onPressed: onCapture, child: const Text('Prendre le selfie'))],
-        child: const CenteredMessage(icon: Icons.check_circle_outline, message: 'Document lu'),
-      );
+    eyebrow: 'Étape 2 / 3',
+    onClose: onClose,
+    lead: const IconDisc(icon: LucideIcons.check, filled: true),
+    title: 'Puce lue.',
+    titleSize: 36,
+    subtitle: 'Il reste un selfie en mouvement, comparé à la photo de la puce.',
+    actions: [IdentityPrimaryButton('Prendre le selfie', onPressed: onCapture)],
+  );
 }
 
 class IdentitySubmittingView extends StatelessWidget {
@@ -59,32 +68,91 @@ class IdentitySubmittingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IdentityPage(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(
-                stage == IdentitySubmitStage.sending ? 'Vérification en cours…' : 'Préparation…',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
-          ),
+    centerBody: true,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: 20),
+        Text(
+          stage == IdentitySubmitStage.sending ? 'Vérification en cours…' : 'Préparation…',
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-      );
+      ],
+    ),
+  );
 }
 
+/// Success: what the badge looks like for others, and what is kept.
 class IdentityDoneView extends StatelessWidget {
   const IdentityDoneView({super.key, required this.onDone});
 
   final VoidCallback onDone;
 
   @override
-  Widget build(BuildContext context) => IdentityPage(
-        actions: [FilledButton(onPressed: onDone, child: const Text('Terminer'))],
-        child: const CenteredMessage(icon: Icons.verified_outlined, message: 'Identité vérifiée'),
-      );
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return IdentityPage(
+      lead: const IconDisc(icon: LucideIcons.check, size: 72, filled: true),
+      title: 'Identité vérifiée.',
+      titleSize: 48,
+      subtitle: 'La puce de votre document et votre selfie correspondent. Votre profil porte maintenant le badge.',
+      actions: [IdentityPrimaryButton('Terminer', onPressed: onDone)],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _BadgePreview(),
+          const SizedBox(height: 14),
+          Text('Ce que les autres voient sur votre profil.', style: TextStyle(fontSize: 13, color: muted)),
+          const SizedBox(height: 20),
+          const FactRow(label: 'Document', value: 'Effacé'),
+          const FactRow(label: 'Conservé', value: 'Le résultat, la date', last: true),
+        ],
+      ),
+    );
+  }
+}
+
+/// The profile badge as others see it, on a neutral placeholder card.
+class _BadgePreview extends StatelessWidget {
+  const _BadgePreview();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: scheme.surfaceContainer, borderRadius: BorderRadius.circular(24)),
+        child: Row(
+          children: [
+            const SizedBox.square(dimension: 52, child: ProfilePhoto(radius: 26, iconSize: 24)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 12,
+                    decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(6)),
+                  ),
+                  const SizedBox(height: 12),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: TagPill('Identité vérifiée', icon: LucideIcons.check),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class IdentityFailedView extends StatelessWidget {
@@ -95,12 +163,13 @@ class IdentityFailedView extends StatelessWidget {
   final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context) => IdentityPage(
-        onClose: onClose,
-        actions: [
-          FilledButton(onPressed: onAction, child: Text(info.actionLabel)),
-          if (info.offerManualReview) const ManualReviewButton(),
-        ],
-        child: CenteredMessage(icon: Icons.error_outline, message: info.message, color: Theme.of(context).colorScheme.error),
-      );
+  Widget build(BuildContext context) => IdentityNotice(
+    icon: LucideIcons.circleAlert,
+    title: info.message,
+    onClose: onClose,
+    actions: [
+      IdentityPrimaryButton(info.actionLabel, onPressed: onAction),
+      if (info.offerManualReview) const ManualReviewButton(),
+    ],
+  );
 }

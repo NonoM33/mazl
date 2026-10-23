@@ -1,97 +1,137 @@
 import 'package:flutter/material.dart';
 
-enum DocumentKind { passport, idCard }
-
-/// Where the chip sits on each document, drawn as two small sketches.
+/// Un téléphone posé sur la couverture fermée d'un passeport : l'endroit où
+/// la puce se lit. Dessin statique, sans animation.
 class ChipLocationIllustration extends StatelessWidget {
   const ChipLocationIllustration({super.key});
 
+  static const _width = 240.0;
+  static const _height = 250.0;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        _Sketch(kind: DocumentKind.passport, size: const Size(110, 150), caption: 'Passeport\nPage de la photo', theme: theme),
-        _Sketch(kind: DocumentKind.idCard, size: const Size(150, 100), caption: 'Carte d\'identité\nAu dos', theme: theme),
-      ],
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: 'Le haut du téléphone posé contre la couverture fermée du passeport',
+      image: true,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: _width,
+          height: _height,
+          child: Stack(
+            children: [
+              Positioned(left: 40, top: 70, child: _Cover(scheme: scheme)),
+              Positioned(left: 100, top: 18, child: _Phone(scheme: scheme)),
+              Positioned(
+                left: 144,
+                top: 0,
+                child: CustomPaint(size: const Size(28, 18), painter: _WavesPainter(scheme.primary)),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 
-class _Sketch extends StatelessWidget {
-  const _Sketch({required this.kind, required this.size, required this.caption, required this.theme});
+class _Cover extends StatelessWidget {
+  const _Cover({required this.scheme});
 
-  final DocumentKind kind;
-  final Size size;
-  final String caption;
-  final ThemeData theme;
+  final ColorScheme scheme;
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomPaint(
-            size: size,
-            painter: DocumentSketchPainter(kind: kind, ink: theme.colorScheme.onSurfaceVariant, accent: theme.colorScheme.primary),
-          ),
-          const SizedBox(height: 8),
-          Text(caption, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
-        ],
-      );
+  Widget build(BuildContext context) => Container(
+    width: 150,
+    height: 170,
+    alignment: Alignment.bottomCenter,
+    padding: const EdgeInsets.only(bottom: 26),
+    decoration: BoxDecoration(
+      color: scheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: scheme.outline),
+    ),
+    child: CustomPaint(size: const Size(38, 26), painter: _ChipPainter(scheme.onSurfaceVariant)),
+  );
 }
 
-class DocumentSketchPainter extends CustomPainter {
-  const DocumentSketchPainter({required this.kind, required this.ink, required this.accent});
+class _Phone extends StatelessWidget {
+  const _Phone({required this.scheme});
 
-  final DocumentKind kind;
-  final Color ink;
-  final Color accent;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 112,
+    height: 196,
+    alignment: Alignment.topCenter,
+    padding: const EdgeInsets.only(top: 10),
+    decoration: BoxDecoration(
+      color: scheme.surface,
+      borderRadius: BorderRadius.circular(26),
+      border: Border.all(color: scheme.onSurface, width: 2),
+    ),
+    child: Container(
+      width: 34,
+      height: 6,
+      decoration: BoxDecoration(color: scheme.onSurface, borderRadius: BorderRadius.circular(3)),
+    ),
+  );
+}
+
+class _ChipPainter extends CustomPainter {
+  const _ChipPainter(this.color);
+
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final line = Paint()
-      ..color = ink
+      ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final faint = Paint()
-      ..color = ink.withValues(alpha: 0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final mark = Paint()
-      ..color = accent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5;
-
-    canvas.drawRRect(RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(10)), line);
-
-    final Offset chip;
-    switch (kind) {
-      case DocumentKind.passport:
-        // Photo and text lines of the data page, chip under them.
-        canvas.drawRect(Rect.fromLTWH(size.width * 0.12, size.height * 0.1, size.width * 0.32, size.height * 0.28), faint);
-        for (var i = 0; i < 3; i++) {
-          final y = size.height * (0.14 + i * 0.08);
-          canvas.drawLine(Offset(size.width * 0.52, y), Offset(size.width * 0.88, y), faint);
-        }
-        chip = Offset(size.width * 0.5, size.height * 0.68);
-      case DocumentKind.idCard:
-        // Back of the card: text lines at the bottom, chip on the left.
-        for (var i = 0; i < 2; i++) {
-          final y = size.height * (0.76 + i * 0.1);
-          canvas.drawLine(Offset(size.width * 0.1, y), Offset(size.width * 0.9, y), faint);
-        }
-        chip = Offset(size.width * 0.28, size.height * 0.36);
-    }
-
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: chip, width: 22, height: 17), const Radius.circular(3)), mark);
-    for (var i = 1; i <= 2; i++) {
-      final r = 14.0 + i * 7;
-      canvas.drawArc(Rect.fromCenter(center: chip, width: r * 2, height: r * 2), -0.7, 1.4, false, mark..color = accent.withValues(alpha: 1 - i * 0.3));
-    }
+      ..strokeWidth = 1.5;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(1, 1, size.width - 2, size.height - 2), const Radius.circular(5)),
+      line,
+    );
+    final middle = Offset(size.width / 2, size.height / 2);
+    canvas.drawCircle(middle, 5, line);
+    canvas.drawLine(Offset(1, middle.dy), Offset(middle.dx - 5, middle.dy), line);
+    canvas.drawLine(Offset(middle.dx + 5, middle.dy), Offset(size.width - 1, middle.dy), line);
+    canvas.drawLine(Offset(middle.dx, 1), Offset(middle.dx, middle.dy - 5), line);
+    canvas.drawLine(Offset(middle.dx, middle.dy + 5), Offset(middle.dx, size.height - 1), line);
   }
 
   @override
-  bool shouldRepaint(DocumentSketchPainter old) => old.kind != kind || old.ink != ink || old.accent != accent;
+  bool shouldRepaint(_ChipPainter old) => old.color != color;
+}
+
+class _WavesPainter extends CustomPainter {
+  const _WavesPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final wave = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.75
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(
+      Path()
+        ..moveTo(4, 14)
+        ..quadraticBezierTo(14, 2, 24, 14),
+      wave,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(9, 17)
+        ..quadraticBezierTo(14, 11, 19, 17),
+      wave,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_WavesPainter old) => old.color != color;
 }
