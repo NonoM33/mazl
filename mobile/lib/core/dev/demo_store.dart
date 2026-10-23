@@ -62,6 +62,16 @@ abstract final class DemoStore {
   static Map<String, dynamic> myProfile() => {
     ...DemoFixtures.me(),
     ..._profilePatch,
+    // Comme le serveur : le badge découle du statut de vérification, jamais
+    // d'un drapeau figé dans les données fictives.
+    ..._verificationBadge(),
+  };
+
+  static Map<String, dynamic> _verificationBadge() => {
+    'is_verified': _photoVerified || _identityVerified,
+    'photo_verified': _photoVerified,
+    'identity_verified': _identityVerified,
+    'verification_level': _identityVerified ? 'identity' : (_photoVerified ? 'photo' : 'none'),
   };
 
   static void patchProfile(Map<String, dynamic> body) {

@@ -215,4 +215,20 @@ void main() {
     _success(await verif((a) => a.deleteFaceReference()));
     expect(_ok(await verif((a) => a.getStatus())).photo.verified, isFalse);
   });
+
+  test('le badge du profil suit le statut de vérification, comme le serveur', () async {
+    Future<R> verif<R>(Future<R> Function(VerificationApi api) body) => _demo((_) => body(HttpVerificationApi()));
+    Future<bool> profileBadge() async => _ok(await _demo((a) => a.getCurrentUser())).profile?.isVerified ?? false;
+
+    expect(await profileBadge(), isFalse, reason: 'rien n\'est vérifié au départ');
+    expect(_ok(await verif((a) => a.getStatus())).level, 'none');
+
+    final session = _ok(await verif((a) => a.startFaceSession(FacePurpose.photo)));
+    final frames = [for (var i = 0; i < session.challenges.length; i++) Uint8List.fromList([i])];
+    await verif((a) => a.submitFace(session.sessionId, frames));
+    expect(await profileBadge(), isTrue);
+
+    await verif((a) => a.deleteFaceReference());
+    expect(await profileBadge(), isFalse);
+  });
 }
