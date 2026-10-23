@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/presentation/features/profile/screens/profile_setup_screen.dart';
 
 import '../../helpers/test_helpers.dart';
