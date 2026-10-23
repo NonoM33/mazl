@@ -80,11 +80,17 @@ Le match ne s'affiche plus dans une boîte de dialogue système. Il s'ouvre dans
 `showMazlSheet` sur fond papier. Ce n'est pas l'écran plein du Mazal Tov, qui reste la célébration
 du couple.
 
-- Les deux photos (cercles à filet, composition des avatars de Mazal Tov) glissent l'une vers
-  l'autre en 420 ms et se touchent (`matchMeet`, `matchMeetCurve`), puis un seul anneau accent
-  pulse une fois autour de la pastille cœur, en 600 ms (`matchPulse`). `mediumImpact` au contact.
-- Titre « C'est un match », une phrase, puis les deux actions : « Envoyer un message » (bouton
-  principal encre, ouvre la conversation) et « Continuer à découvrir » (bouton texte).
+- Les deux photos (`PairedAvatars`, la paire de cercles de Mazal Tov) partent à 28 px de part et
+  d'autre (`matchApartOffset`), attendent que la feuille ait fini de monter, puis se rejoignent en
+  420 ms (`matchMeet`, `matchMeetCurve`). Chaque photo porte un anneau papier de 3 px, qui les
+  sépare là où elles se touchent. La pastille cœur accent se pose sur le point de contact
+  (`PairBadgePlacement.overlay`) ; dans Mazal Tov, elle reste entre les deux photos.
+- Au contact, un seul anneau accent en forme de pilule autour de la paire grandit jusqu'à 1,3 et
+  s'efface, en 600 ms, une seule fois (`matchPulse`, `matchPulseCurve`, `matchPulseMaxScale`).
+  `mediumImpact` une fois, au contact.
+- Titre « C'est un match », la phrase « Myriam et vous vous êtes plu. », puis les deux actions :
+  « Envoyer un message » (bouton principal ENCRE, `ElevatedButton` du thème, qui ouvre la
+  conversation) et « Continuer à découvrir » (bouton texte).
 - Animations réduites : les photos sont déjà en place, sans pulsation.
 
 ## 5. Réponse glissée (chat)
