@@ -973,66 +973,6 @@ class ApiService {
     }
   }
 
-  // ============ VERIFICATION ============
-
-  /// Start photo verification process
-  Future<ApiResponse<Map<String, dynamic>>> startVerification() async {
-    try {
-      final response = await _post('/api/verification/start', {});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to start verification');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['success'] != true) {
-        return ApiResponse.failure(data['error'] ?? 'Unknown error');
-      }
-
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Submit verification selfie
-  Future<ApiResponse<Map<String, dynamic>>> submitVerification(String selfieBase64, String gestureId) async {
-    try {
-      final response = await _post('/api/verification/submit', {
-        'selfie': selfieBase64,
-        'gesture_id': gestureId,
-      });
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to submit verification');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Get verification status
-  Future<ApiResponse<Map<String, dynamic>>> getVerificationStatus() async {
-    try {
-      final response = await _get('/api/verification/status');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get verification status');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
   // ============ LIKES ============
 
   /// Get received likes (blurred for free users)
