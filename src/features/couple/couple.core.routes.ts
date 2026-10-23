@@ -1,7 +1,5 @@
 import { Hono } from "hono";
 import {
-  createCouple,
-  getCouple,
   checkAndRecordMilestones,
   getCoupleMilestones,
   createCoupleRequest,
@@ -22,8 +20,20 @@ import {
   assertCoupleMembership,
   coupleRequestBodySchema,
   coupleRespondBodySchema,
-  type CoupleRow,
 } from "./couple.shared";
+import {
+  canRequestCouple,
+  getCoupleRequestView,
+  getCoupleViewFor,
+} from "./infra/couple-queries";
+import {
+  emitCoupleAccepted,
+  emitCoupleEnded,
+  emitCoupleRejected,
+  emitCoupleRequest,
+  pushCoupleAccepted,
+  pushCoupleRequest,
+} from "./application/couple-notifier";
 
 // COUPLE feature — core endpoints: couple creation/retrieval, couple requests
 // (send / respond / cancel / list / check / archive), and the
@@ -35,64 +45,29 @@ import {
 export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>): void {
   // ============ COUPLE MODE ENDPOINTS ============
 
-  // Create or activate couple mode
-  app.post("/api/couple", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const body = await c.req.json();
-      const { partnerId, relationshipStatus, startedAt } = body;
+  // A couple is never created on one member's word alone (contract §0.1):
+  // it only exists once the other member accepted a request.
+  app.post("/api/couple", requireAuth, (c) =>
+    c.json({ success: false, error: "couple_request_required" }, 403),
+  );
 
-      if (!partnerId) {
-        return c.json({ success: false, error: "Partner ID required" }, 400);
-      }
-
-      const couple = await createCouple(
-        userId,
-        partnerId,
-        relationshipStatus || 'dating',
-        startedAt ? new Date(startedAt) : undefined
-      );
-
-      return c.json({ success: true, couple });
-    } catch (error: unknown) {
-      console.error("Create couple error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
-    }
-  });
-
-  // Get current user's couple
+  // Get current user's couple (contract §1, seen from the caller)
   app.get("/api/couple", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
 
-      const couple = await getCouple(userId);
-
+      const couple = await getCoupleViewFor(userId);
       if (!couple) {
-        return c.json({ success: true, couple: null });
+        return c.json({ success: true, couple: null, milestones: [] });
       }
 
-      const coupleRow = couple as CoupleRow;
-
-      // Calculate days together
-      const startedAt = coupleRow.started_at;
-      const daysTogether = startedAt
-        ? Math.floor((Date.now() - new Date(startedAt as string).getTime()) / (1000 * 60 * 60 * 24))
+      const daysTogether = couple.started_at
+        ? Math.floor((Date.now() - new Date(couple.started_at).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
+      await checkAndRecordMilestones(couple.id, daysTogether);
+      const milestones = await getCoupleMilestones(couple.id);
 
-      // Check and record milestones
-      await checkAndRecordMilestones(Number(coupleRow.id), daysTogether);
-
-      // Get milestones
-      const milestones = await getCoupleMilestones(Number(coupleRow.id));
-
-      return c.json({
-        success: true,
-        couple: {
-          ...coupleRow,
-          daysTogether,
-          milestones,
-        },
-      });
+      return c.json({ success: true, couple, milestones });
     } catch (error: unknown) {
       console.error("Get couple error:", error);
       return c.json({ success: false, error: (error as Error).message }, 500);
@@ -117,12 +92,37 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
         return c.json({ success: false, error: "target_user_id required" }, 400);
       }
 
+      if (targetUserId === userId) {
+        return c.json({ success: false, error: "Cannot send a couple request to yourself" }, 400);
+      }
+      if (!(await canRequestCouple(userId, targetUserId))) {
+        return c.json({ success: false, error: "not_matched" }, 403);
+      }
+
       const result = await createCoupleRequest(userId, targetUserId);
       if (!result.ok) {
         return c.json({ success: false, error: result.error }, 400);
       }
 
-      return c.json({ success: true, request: result.request });
+      const view = await getCoupleRequestView(result.request.id);
+      if (!view) {
+        return c.json({ success: false, error: "Couple request not found" }, 500);
+      }
+      emitCoupleRequest(view);
+      pushCoupleRequest(view);
+
+      return c.json({
+        success: true,
+        request: {
+          id: view.id,
+          requester_id: view.requester_id,
+          target_id: view.target_id,
+          status: view.status,
+          created_at: view.created_at,
+          target_name: view.target_name,
+          target_picture: view.target_picture,
+        },
+      });
     } catch (error) {
       console.error("Create couple request error:", error);
       return c.json({ success: false, error: (error as Error).message }, 500);
@@ -149,9 +149,24 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
         return c.json({ success: false, error: result.error }, result.status as 403 | 404 | 409);
       }
 
+      const request = await getCoupleRequestView(requestId);
+      const requesterId = request?.requester_id;
+
       if (result.action === "accepted") {
-        return c.json({ success: true, action: "accepted", couple: result.couple });
+        const couple = await getCoupleViewFor(userId);
+        if (!couple) {
+          return c.json({ success: false, error: "Couple not found" }, 500);
+        }
+        if (requesterId !== undefined) {
+          const requesterCouple = await getCoupleViewFor(requesterId);
+          if (requesterCouple) {
+            emitCoupleAccepted(requesterId, requesterCouple);
+            pushCoupleAccepted(requesterId, requesterCouple.partner_name);
+          }
+        }
+        return c.json({ success: true, action: "accepted", couple });
       }
+      if (requesterId !== undefined) emitCoupleRejected(requesterId, requestId);
       return c.json({ success: true, action: "rejected" });
     } catch (error) {
       console.error("Respond couple request error:", error);
@@ -273,7 +288,9 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       if (!(await assertCoupleMembership(userId, coupleId))) {
         return c.json({ error: "Forbidden" }, 403);
       }
+      const couple = await getCoupleViewFor(userId);
       await deleteCouple(coupleId);
+      if (couple) emitCoupleEnded(couple.partner_id, coupleId);
 
       return c.json({ success: true });
     } catch (error: unknown) {

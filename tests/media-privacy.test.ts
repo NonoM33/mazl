@@ -93,6 +93,14 @@ describe("couple screens show the partner's signed photo", () => {
     await db`UPDATE users SET picture = 'https://lh3.googleusercontent.com/a/YYY' WHERE id = ${y.id}`;
     await db`UPDATE users SET picture = 'https://i.pravatar.cc/400?img=4' WHERE id = ${z.id}`;
 
+    // A couple request needs a mutual match (contract §0.2): x matches y and z first.
+    const like = (from: TestUser, to: TestUser) =>
+      fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: json(from.token), body: JSON.stringify({ target_user_id: to.id, action: "like" }) });
+    for (const other of [y, z]) {
+      await like(x, other);
+      await like(other, x);
+    }
+
     // x asks y and z: y sees x's signed photo, x sees y's Google avatar, z has nothing displayable.
     const ask = (from: TestUser, to: TestUser) =>
       fetch(`${BASE_URL}/api/couple/request`, { method: "POST", headers: json(from.token), body: JSON.stringify({ target_user_id: to.id }) });
