@@ -19,12 +19,20 @@ recopie que pour être lu. En cas d'écart, c'est `MazlMotion` qui fait foi, et 
 - **Un refus revient d'où il est parti.** Ce que le serveur refuse (limite gratuite, super like
   sans crédit) revient en ressort, puis la raison s'affiche (fenêtre mazl+). Rien ne sort pour
   réapparaître d'un saut.
-- **Réduire les animations** (`MazlMotion.reduced(context)`, et lui seul) : ni rotation, ni ressort,
-  ni rebond, ni flou. Sur iOS, le réglage « Réduire les animations » arrive dans
-  `accessibilityFeatures.reduceMotion` et ne touche PAS `MediaQuery.disableAnimations` (qui ne
-  reflète que « Supprimer les animations » d'Android) : `reduced` lit les deux, et aucun écran ne
-  lit `disableAnimationsOf` lui-même. Un geste acquis s'efface en fondu de 150 ms (`reducedFade`) ; un geste non acquis revient
-  en 120 ms (`reducedReturn`). Chaque geste a son test sous `disableAnimations`.
+- **Réduire les animations** (`MazlMotion.reduced(context)`, ou `MediaQuery.disableAnimationsOf`) :
+  ni rotation, ni ressort, ni rebond, ni flou. Un geste acquis s'efface en fondu de 150 ms
+  (`reducedFade`) ; un geste non acquis revient en 120 ms (`reducedReturn`).
+- **Le réglage de l'iPhone passe par la racine.** Sur iOS, « Réduire les animations » arrive dans
+  `accessibilityFeatures.reduceMotion` et ne touche pas `MediaQuery.disableAnimations` (qui ne
+  reflète que « Supprimer les animations » d'Android). `ReduceMotionScope`, posé dans
+  `MaterialApp.builder`, verse `reduceMotion` dans `disableAnimations` pour tous les écrans,
+  feuilles et surcouches, et suit le réglage s'il change pendant que l'app tourne. Un test vérifie
+  qu'il est bien en place dans `app.dart`. Les `AnimationController` de Flutter lisent le drapeau
+  du moteur, pas `MediaQuery` : nos animations doivent donc décider elles-mêmes, en lisant
+  `disableAnimationsOf`.
+- **Tests** : un test qui parle du réglage de l'iPhone pose `reduceMotion` (allumé, éteint, changé
+  en cours de route), jamais seulement `disableAnimations`. Chaque geste a son test animations
+  réduites.
 
 ## 2. Valeurs communes
 
