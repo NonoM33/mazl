@@ -93,14 +93,10 @@ Future<void> showMessageActions(
   overlay.insert(entry);
 
   // The back button (or the back swipe) closes the menu before it leaves the
-  // screen: the route under it keeps a local history entry while it is up.
-  Route<dynamic>? top;
-  navigator.popUntil((route) {
-    top = route;
-    return true;
-  });
-  final route = top;
-  if (route is LocalHistoryRoute<dynamic>) {
+  // screen: the route that shows the bubble keeps a local history entry while
+  // it is up.
+  final route = ModalRoute.of(context);
+  if (route != null) {
     history = LocalHistoryEntry(
       onRemove: () {
         history = null;

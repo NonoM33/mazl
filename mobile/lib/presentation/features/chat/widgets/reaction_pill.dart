@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
 import '../state/chat_controller.dart';
 import 'chat_scope.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -50,20 +51,20 @@ class _ReactionPillState extends State<ReactionPill>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pop = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 220),
+    duration: MazlMotion.popDuration,
   );
 
   static final _scale = TweenSequence<double>([
     TweenSequenceItem(
       tween: Tween(
-        begin: 0.5,
-        end: 1.1,
+        begin: MazlMotion.reactionPopFrom,
+        end: MazlMotion.popScale,
       ).chain(CurveTween(curve: Curves.easeOut)),
       weight: 65,
     ),
     TweenSequenceItem(
       tween: Tween(
-        begin: 1.1,
+        begin: MazlMotion.popScale,
         end: 1.0,
       ).chain(CurveTween(curve: Curves.easeOut)),
       weight: 35,
