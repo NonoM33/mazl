@@ -105,7 +105,11 @@ class _DiscoverCardState extends State<DiscoverCard> {
             child: _PhotoProgress(count: photos.length, current: index),
           ),
         if (_profile.isVerified)
-          const Positioned(top: 28, left: 16, child: _VerifiedPill()),
+          Positioned(
+            top: 28,
+            left: 16,
+            child: _givesWayToLike(const _VerifiedPill()),
+          ),
         if (widget.secondaryActions.isNotEmpty)
           Positioned(
             left: 16,
@@ -152,6 +156,21 @@ class _DiscoverCardState extends State<DiscoverCard> {
           ),
         ),
       ],
+    );
+  }
+
+  /// The like disc lands where the « Vérifiée » pill sits: the pill fades out
+  /// as the disc fades in, so the two never show on top of each other.
+  Widget _givesWayToLike(Widget pill) {
+    final progress = widget.swipeProgress;
+    return ValueListenableBuilder<SwipeProgress>(
+      valueListenable: progress ?? const IdleSwipeProgress(),
+      child: pill,
+      builder: (context, p, child) => Opacity(
+        key: const Key('verified-pill'),
+        opacity: 1 - p.of(SwipeDirection.right),
+        child: child,
+      ),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
 
 /// The directions a card can leave in. Down is not one of them: it is always
@@ -27,6 +28,20 @@ class SwipeProgress {
 
   @override
   int get hashCode => Object.hash(direction, value);
+}
+
+/// A progress that never moves: what a card that is not on top follows.
+class IdleSwipeProgress implements ValueListenable<SwipeProgress> {
+  const IdleSwipeProgress();
+
+  @override
+  SwipeProgress get value => SwipeProgress.none;
+
+  @override
+  void addListener(VoidCallback listener) {}
+
+  @override
+  void removeListener(VoidCallback listener) {}
 }
 
 /// What the white disc in the corner of the card shows for one direction.

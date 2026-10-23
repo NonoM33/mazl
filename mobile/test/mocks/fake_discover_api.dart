@@ -31,7 +31,11 @@ class FakeDiscoverApi implements ApiService {
 }
 
 /// Profiles `Profil1`…, user ids 101…
-List<Profile> discoverProfiles(int count, {List<String> photos = const []}) => [
+List<Profile> discoverProfiles(
+  int count, {
+  List<String> photos = const [],
+  bool verified = false,
+}) => [
   for (var i = 1; i <= count; i++)
     Profile(
       id: i,
@@ -40,5 +44,6 @@ List<Profile> discoverProfiles(int count, {List<String> photos = const []}) => [
       age: 20 + i,
       location: 'Paris',
       photos: photos,
+      isVerified: verified,
     ),
 ];

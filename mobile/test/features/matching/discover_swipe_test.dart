@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
@@ -22,12 +23,15 @@ Finder _card(int userId) => find.byWidgetPredicate(
 Future<FakeDiscoverApi> _pumpDiscover(
   WidgetTester tester, {
   List<String> photos = const [],
+  bool verified = false,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
-  final api = FakeDiscoverApi(discoverProfiles(3, photos: photos));
+  final api = FakeDiscoverApi(
+    discoverProfiles(3, photos: photos, verified: verified),
+  );
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.lightTheme,
@@ -103,6 +107,30 @@ void main() {
   });
 
   tearDown(PremiumGate.resetForTest);
+
+  testWidgets(
+    'the « Vérifiée » pill gives way to the like disc that lands on it',
+    (tester) async {
+      await _pumpDiscover(tester, verified: true);
+      final pill = find.descendant(
+        of: _card(101),
+        matching: find.byKey(const Key('verified-pill')),
+      );
+      expect(tester.widget<Opacity>(pill).opacity, 1);
+
+      final width = tester.getSize(_card(101)).width;
+      final half = MazlMotion.deckThreshold * width / 2;
+      final g = await holdDrag(tester, _card(101), Offset(half, 0));
+      expect(tester.widget<Opacity>(pill).opacity, closeTo(0.5, 0.02));
+
+      await g.moveBy(Offset(-2 * half, 0));
+      await tester.pump();
+      // Passing: the cross lands on the other corner, the pill stays.
+      expect(tester.widget<Opacity>(pill).opacity, 1);
+      await g.up();
+      await settle(tester);
+    },
+  );
 
   testWidgets('a downward swipe does not consume the card and sends no swipe', (
     tester,

@@ -230,6 +230,25 @@ void main() {
       expect(quarter, greaterThan(MazlMotion.deckBackScale));
     });
 
+    testWidgets('the card below stays centred under the deck while dragging', (
+      tester,
+    ) async {
+      await _pump(tester);
+      final rest = tester.getRect(_card(0));
+      // Short of the threshold, so the top card comes back each time.
+      final reach = MazlMotion.deckThreshold * _cardSize.width * 0.8;
+
+      for (final dx in [-reach, reach]) {
+        final g = await holdDrag(tester, _card(0), Offset(dx, 0));
+        final below = tester.getRect(_card(1));
+        expect(below.center.dx, closeTo(rest.center.dx, 0.5));
+        expect(below.left, greaterThanOrEqualTo(rest.left - 0.5));
+        expect(below.right, lessThanOrEqualTo(rest.right + 0.5));
+        await g.up();
+        await settle(tester);
+      }
+    });
+
     testWidgets('the intent disc fades in with the progress, per direction', (
       tester,
     ) async {

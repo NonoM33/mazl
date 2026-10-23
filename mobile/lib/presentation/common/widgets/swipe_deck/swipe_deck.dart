@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/motion/mazl_motion.dart';
@@ -88,19 +87,6 @@ class _Exit {
   final DeckPose pose;
   final Offset pivot;
   final bool grabbedLower;
-}
-
-class _IdleProgress implements ValueListenable<SwipeProgress> {
-  const _IdleProgress();
-
-  @override
-  SwipeProgress get value => SwipeProgress.none;
-
-  @override
-  void addListener(VoidCallback listener) {}
-
-  @override
-  void removeListener(VoidCallback listener) {}
 }
 
 class _SwipeDeckState extends State<SwipeDeck>
@@ -189,7 +175,7 @@ class _SwipeDeckState extends State<SwipeDeck>
             SwipeIntentDiscs(
               progress: top
                   ? widget.controller.progress
-                  : const _IdleProgress(),
+                  : const IdleSwipeProgress(),
               pop: _pop,
               popDirection: () => _popDirection,
               intents: top ? widget.intents : const {},
