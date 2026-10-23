@@ -1,4 +1,7 @@
 import postgres from "postgres";
+import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
+import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
+import { publicPicturesFor } from "./features/media/infra/public-pictures";
 
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
@@ -986,7 +989,9 @@ export async function getUserProfile(userId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function getFullProfile(userId: number) {
+// `includePrivate` is for the member's OWN profile only: email and the account
+// name (possibly a legal name) are never returned about someone else.
+export async function getFullProfile(userId: number, includePrivate = false) {
   // Get profile with user info
   const result = await sql`
     SELECT
@@ -1001,9 +1006,10 @@ export async function getFullProfile(userId: number) {
       p.kashrut_level,
       p.shabbat_observance,
       p.looking_for,
-      p.is_verified,
+      ${badgeColumns(sql)},
       p.verification_level,
       u.picture,
+      ${primaryPhotoColumns(sql)},
       u.name,
       u.email
     FROM profiles p
@@ -1013,18 +1019,20 @@ export async function getFullProfile(userId: number) {
 
   if (result.length === 0) return null;
 
-  const profile = result[0] as any;
+  const { name, email, ...shared } = withPublicPicture(result[0] as any);
+  const profile = includePrivate ? { ...shared, name, email } : shared;
 
-  // Get photos
+  // Get photos (signed URLs only; see features/media)
   const photos = await sql`
-    SELECT url, position FROM profile_photos
+    SELECT id, url, position FROM profile_photos
     WHERE user_id = ${userId}
     ORDER BY position ASC
   `;
+  const photoUrls = publicPhotoUrls(photos as any[]);
 
   return {
     ...profile,
-    photos: photos.length > 0 ? photos.map((p: any) => p.url) : (profile.picture ? [profile.picture] : []),
+    photos: photoUrls.length > 0 ? photoUrls : (profile.picture ? [profile.picture] : []),
   };
 }
 
@@ -1044,8 +1052,10 @@ export async function upsertProfile(userId: number, params: {
   ageMax?: number;
   distanceMax?: number;
 }) {
+  // Callers pass coordinates that the media location service already fuzzed.
+  const hasPosition = params.latitude !== undefined && params.longitude !== undefined;
   const result = await sql`
-    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
     VALUES (
       ${userId},
       ${params.displayName ?? null},
@@ -1055,6 +1065,7 @@ export async function upsertProfile(userId: number, params: {
       ${params.location ?? null},
       ${params.latitude ?? null},
       ${params.longitude ?? null},
+      ${hasPosition},
       ${params.denomination ?? null},
       ${params.kashrutLevel ?? null},
       ${params.shabbatObservance ?? null},
@@ -1072,6 +1083,7 @@ export async function upsertProfile(userId: number, params: {
       location = COALESCE(${params.location ?? null}, profiles.location),
       latitude = COALESCE(${params.latitude ?? null}, profiles.latitude),
       longitude = COALESCE(${params.longitude ?? null}, profiles.longitude),
+      location_fuzzed = profiles.location_fuzzed OR ${hasPosition},
       denomination = COALESCE(${params.denomination ?? null}, profiles.denomination),
       kashrut_level = COALESCE(${params.kashrutLevel ?? null}, profiles.kashrut_level),
       shabbat_observance = COALESCE(${params.shabbatObservance ?? null}, profiles.shabbat_observance),
@@ -1399,9 +1411,10 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
       p.denomination,
       p.kashrut_level,
       p.shabbat_observance,
-      p.is_verified,
+      ${badgeColumns(sql)},
       p.verification_level,
-      u.picture
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     CROSS JOIN me
@@ -1474,23 +1487,24 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
   // Get photos for each profile
   const userIds = profiles.map((p: any) => p.user_id);
   const photos = userIds.length > 0 ? await sql`
-    SELECT user_id, url, position FROM profile_photos
+    SELECT id, user_id, url, position FROM profile_photos
     WHERE user_id IN ${sql(userIds)}
     ORDER BY position ASC
   ` : [];
 
-  const photoMap = new Map<number, string[]>();
+  const photoMap = new Map<number, Array<{ id: number; url: string }>>();
   for (const photo of photos as any[]) {
     if (!photoMap.has(photo.user_id)) {
       photoMap.set(photo.user_id, []);
     }
-    photoMap.get(photo.user_id)!.push(photo.url);
+    photoMap.get(photo.user_id)!.push({ id: photo.id, url: photo.url });
   }
 
-  return profiles.map((p: any) => ({
-    ...p,
-    photos: photoMap.get(p.user_id) || (p.picture ? [p.picture] : []),
-  }));
+  return profiles.map((raw: any) => {
+    const p = withPublicPicture(raw);
+    const urls = publicPhotoUrls(photoMap.get(raw.user_id) ?? []);
+    return { ...p, photos: urls.length > 0 ? urls : (p.picture ? [p.picture] : []) };
+  });
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -1566,8 +1580,9 @@ export async function getMatches(userId: number) {
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) as age,
       p.location,
-      p.is_verified,
-      u.picture
+      ${badgeColumns(sql)},
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     WHERE p.user_id IN ${sql(otherUserIds)}
@@ -1575,7 +1590,7 @@ export async function getMatches(userId: number) {
 
   const profileMap = new Map<number, any>();
   for (const p of profiles as any[]) {
-    profileMap.set(p.user_id, p);
+    profileMap.set(p.user_id, withPublicPicture(p));
   }
 
   return matches.map((m: any) => ({
@@ -1606,8 +1621,9 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) AS age,
       p.location,
-      p.is_verified,
+      ${badgeColumns(sql)},
       u.picture,
+      ${primaryPhotoColumns(sql)},
       s.created_at AS liked_at
     FROM swipes s
     JOIN users u ON u.id = s.user_id
@@ -1628,7 +1644,7 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
       )
     ORDER BY s.created_at DESC
   `;
-  return rows as unknown as Array<{
+  return rows.map((row) => withPublicPicture(row as any)) as unknown as Array<{
     user_id: number;
     display_name: string | null;
     age: number | null;
@@ -1958,8 +1974,9 @@ export async function getConversations(userId: number) {
     SELECT
       p.user_id,
       p.display_name,
-      p.is_verified,
-      u.picture
+      ${badgeColumns(sql)},
+      u.picture,
+      ${primaryPhotoColumns(sql)}
     FROM profiles p
     JOIN users u ON u.id = p.user_id
     WHERE p.user_id IN ${sql(otherUserIds)}
@@ -1967,7 +1984,7 @@ export async function getConversations(userId: number) {
 
   const profileMap = new Map<number, any>();
   for (const p of profiles as any[]) {
-    profileMap.set(p.user_id, p);
+    profileMap.set(p.user_id, withPublicPicture(p));
   }
 
   return conversations.map((c: any) => ({
@@ -2511,7 +2528,11 @@ export async function getCouple(userId: number) {
       AND c.status = 'active'
   `;
 
-  return result.length ? result[0] : null;
+  const couple = result[0];
+  if (!couple) return null;
+  const pictures = await publicPicturesFor(sql, [couple.partner_id]);
+  couple.partner_picture = pictures.get(couple.partner_id) ?? null;
+  return couple;
 }
 
 // Alias for getCouple - returns the couple with ID for the user
@@ -2730,9 +2751,21 @@ export async function getCoupleRequestsForUser(
     ORDER BY cr.created_at DESC
   `;
 
+  const memberIds = new Set<number>();
+  for (const raw of rows as unknown as CoupleRequestView[]) {
+    memberIds.add(raw.requester_id);
+    memberIds.add(raw.target_id);
+  }
+  const pictures = await publicPicturesFor(sql, [...memberIds]);
+
   const sent: CoupleRequestView[] = [];
   const received: CoupleRequestView[] = [];
-  for (const row of rows as unknown as CoupleRequestView[]) {
+  for (const raw of rows as unknown as CoupleRequestView[]) {
+    const row: CoupleRequestView = {
+      ...raw,
+      requester_picture: pictures.get(raw.requester_id) ?? null,
+      target_picture: pictures.get(raw.target_id) ?? null,
+    };
     if (row.requester_id === userId) {
       sent.push(row);
     } else {
@@ -3002,7 +3035,7 @@ export async function getAdminUserDetail(userId: number) {
 
   // Get profile photos
   const photos = await sql`
-    SELECT url, position FROM profile_photos
+    SELECT id, url, position FROM profile_photos
     WHERE user_id = ${userId}
     ORDER BY position ASC
   `;
@@ -3024,7 +3057,7 @@ export async function getAdminUserDetail(userId: number) {
 
   return {
     ...user,
-    photos: photos.map((p: any) => p.url),
+    photos: publicPhotoUrls(photos as any[]),
     bans,
     notes,
   };
@@ -3729,8 +3762,9 @@ export async function getBlockedUsers(userId: number): Promise<Array<{
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) AS age,
       p.location,
-      p.is_verified,
+      ${badgeColumns(sql)},
       u.picture,
+      ${primaryPhotoColumns(sql)},
       b.created_at AS blocked_at
     FROM blocked_users b
     JOIN users u ON u.id = b.blocked_id
@@ -3738,7 +3772,7 @@ export async function getBlockedUsers(userId: number): Promise<Array<{
     WHERE b.blocker_id = ${userId}
     ORDER BY b.created_at DESC
   `;
-  return rows as unknown as Array<{
+  return rows.map((row) => withPublicPicture(row as any)) as unknown as Array<{
     user_id: number;
     display_name: string | null;
     age: number | null;
