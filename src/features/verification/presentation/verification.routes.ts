@@ -5,7 +5,7 @@ import { startFaceSession, type StartSessionDeps } from "../application/start-se
 import { submitFaceVerification, type SubmitFaceDeps } from "../application/submit-face";
 import { requireAuth, type AppVariables } from "../../../shared/http/middleware";
 import { parseBody } from "../../../shared/http/validation";
-import { MAX_BODY_BYTES, parseFaceSubmission, sessionRequestSchema } from "./face-request";
+import { MAX_BODY_BYTES, parseFaceSubmission, readMultipartCapped, sessionRequestSchema } from "./face-request";
 import { registerLegacyVerificationRoutes } from "./legacy-routes";
 
 export interface VerificationRouteDeps {
@@ -57,12 +57,9 @@ export function registerVerificationRoutes(app: App, deps: VerificationRouteDeps
     const declared = Number(c.req.header("Content-Length") ?? "0");
     if (declared > MAX_BODY_BYTES) return c.json({ success: false, error: "payload_too_large" }, 413);
 
-    let form: FormData;
-    try {
-      form = await c.req.formData();
-    } catch {
-      return c.json({ success: false, error: "Malformed multipart body" }, 400);
-    }
+    const form = await readMultipartCapped(c.req.raw, MAX_BODY_BYTES);
+    if (form === "too_large") return c.json({ success: false, error: "payload_too_large" }, 413);
+    if (form === "malformed") return c.json({ success: false, error: "Malformed multipart body" }, 400);
     const parsed = await parseFaceSubmission(form);
     if (!parsed.ok) return c.json({ success: false, error: parsed.error }, parsed.status);
 

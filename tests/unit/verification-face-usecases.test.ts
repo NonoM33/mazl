@@ -94,7 +94,9 @@ describe("startFaceSession", () => {
   test("returns front first, then both sides, expiring in about 2 minutes", async () => {
     const s = await openSession();
     expect(s.challenges[0]).toBe("front");
-    expect([...s.challenges].sort()).toEqual([...new Set(s.challenges)].length === 3 ? ["front", "left", "right"] : ["front", "front", "left", "right"]);
+    const sides = s.challenges.filter((c) => c !== "front").sort();
+    expect(sides).toEqual(["left", "right"]);
+    expect([3, 4]).toContain(s.challenges.length);
     const ttl = s.expiresAt.getTime() - Date.now();
     expect(ttl).toBeGreaterThan(110_000);
     expect(ttl).toBeLessThanOrEqual(120_000);

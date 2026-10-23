@@ -10,6 +10,33 @@ export const sessionRequestSchema = z.object({ purpose: z.enum(["photo", "identi
 
 export const submitFieldsSchema = z.object({ session_id: z.string().min(1).max(64) });
 
+// Reads the multipart body without ever holding more than `maxBytes`, whether
+// or not the client declared a Content-Length (a chunked upload has none).
+export async function readMultipartCapped(req: Request, maxBytes: number): Promise<FormData | "too_large" | "malformed"> {
+  const contentType = req.headers.get("content-type") ?? "";
+  if (!req.body) return "malformed";
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > maxBytes) {
+      await reader.cancel();
+      return "too_large";
+    }
+    chunks.push(value);
+  }
+  try {
+    const parsed = await new Response(Buffer.concat(chunks), { headers: { "content-type": contentType } }).formData();
+    // bun-types and undici-types declare two FormData; they are the same object at runtime.
+    return parsed as unknown as FormData;
+  } catch {
+    return "malformed";
+  }
+}
+
 export type FrameParse =
   | { readonly ok: true; readonly sessionId: string; readonly frames: Uint8Array[] }
   | { readonly ok: false; readonly status: 400 | 413; readonly error: string };
