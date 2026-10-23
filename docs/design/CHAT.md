@@ -66,7 +66,8 @@ ressembler à un champ de formulaire.
   (effet découpé, comme WhatsApp : pas d'ombre, pas de contour accent). Émoji 15 px ; jusqu'à
   trois émojis distincts, puis le total en Geist 12 px `onSurfaceVariant` si plus d'une réaction.
   **Ma réaction** : fond `scheme.primary` à 12 % (jamais un contour). Elle apparaît ou change avec
-  un petit rebond (échelle 0,5 → 1,1 → 1, 220 ms).
+  un petit rebond (échelle 0,5 → 1,15 → 1 en 220 ms : `MazlMotion.reactionPopFrom`,
+  `popScale`, `popDuration`, voir `MOUVEMENT.md`).
 - Les émojis sont permis ICI SEULEMENT (réactions, barre, pastille) : c'est du contenu, pas de la
   décoration.
 

@@ -1,0 +1,87 @@
+import 'package:flutter/widgets.dart';
+
+/// Every motion value of the app's gestures, in one place, so the card deck,
+/// the couple deck, the photo viewer and swipe-to-reply cannot drift apart.
+/// Canon: docs/design/MOUVEMENT.md (proposal approved by Renaud on
+/// 2026-10-24: corner intent disc, 30 % threshold, match sheet).
+/// A test checks that each gesture reads its values from here.
+abstract final class MazlMotion {
+  /// True when the user asked the system to reduce motion: no rotation, no
+  /// spring, no pop; fades of [reducedFade] and returns of [reducedReturn].
+  static bool reduced(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context);
+
+  static const reducedFade = Duration(milliseconds: 150);
+  static const reducedReturn = Duration(milliseconds: 120);
+
+  /// Snap-back of anything released before its threshold. Damping 0.7: a
+  /// slight overshoot, settled in about 350 ms.
+  static final spring = SpringDescription.withDampingRatio(
+    mass: 1,
+    stiffness: 320,
+    ratio: 0.7,
+  );
+
+  /// The little bounce of something that becomes true (intent disc at the
+  /// threshold, reaction pill appearing): 1 → [popScale] → 1.
+  static const popDuration = Duration(milliseconds: 220);
+  static const popScale = 1.15;
+
+  // --- Card decks (Discover, couple activities) ---------------------------
+
+  /// Rotation at a drag of one card width, pivoting on the grab point: a card
+  /// held by its lower half turns the other way.
+  static const deckMaxRotationDegrees = 8.0;
+
+  /// Share of the card width that commits a left / right swipe.
+  static const deckThreshold = 0.30;
+
+  /// Share of the card height that commits an upward swipe (super like, save).
+  static const deckUpThreshold = 0.25;
+
+  /// A fling commits below the threshold only if it is fast, long enough and
+  /// clearly horizontal, so a small vertical flick never becomes a like.
+  static const deckFlingVelocity = 800.0; // logical px per second
+  static const deckFlingMinDistance = 48.0;
+  static const deckFlingHorizontalRatio = 1.2; // |dx| > ratio × |dy|
+
+  /// Directions that do nothing (down on Discover) give way at this rate,
+  /// then spring back: a hard stop reads as a bug.
+  static const deckBlockedResistance = 0.2;
+
+  /// The card below grows from this scale to 1 and rises from this offset to
+  /// 0 as the top card travels one card width.
+  static const deckBackScale = 0.96;
+  static const deckBackOffset = 8.0;
+
+  /// A committed card leaves along its drag and fling direction.
+  static const deckExit = Duration(milliseconds: 240);
+  static const deckExitCurve = Curves.easeOutCubic;
+
+  /// Corner intent disc: white, opacity and scale follow progress 0 → 1.
+  static const intentDiscSize = 56.0;
+  static const intentDiscMinScale = 0.8;
+
+  /// The matching action button under the card grows up to this scale.
+  static const deckButtonMaxScale = 1.1;
+
+  // --- Swipe to reply (chat) ----------------------------------------------
+
+  static const replyThreshold = 64.0;
+
+  /// Past the threshold the row follows at this rate, up to [replyMaxOffset].
+  static const replyResistance = 0.35;
+  static const replyMaxOffset = 110.0;
+
+  // --- Photo viewer: drag to close ----------------------------------------
+
+  static const viewerDismissDistance = 120.0;
+  static const viewerDismissVelocity = 600.0; // logical px per second
+
+  /// Over [viewerProgressDistance] of drag, the photo shrinks to
+  /// [viewerMinScale] and the background loses [viewerMaxFade] of its opacity.
+  static const viewerProgressDistance = 300.0;
+  static const viewerMinScale = 0.85;
+  static const viewerMaxFade = 0.7;
+  static const viewerReturnToThumbnail = Duration(milliseconds: 260);
+}

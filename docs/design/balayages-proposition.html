@@ -1,0 +1,625 @@
+<title>Balayages MAZL</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; each gesture = a phone-sized live demo beside its spec, stacked on phones. */
+:root {
+  --ink: #0B0B0F; --paper: #FFFFFF; --mist: #F3F3F5; --hairline: #E2E2E6;
+  --muted: #6B6B76; --accent: #2747F5; --accent-soft: rgba(39,71,245,.10);
+  --pass: #6B6B76; --bg: #FAFAFB; --card: #FFFFFF; --veil: rgba(11,11,15,.92);
+  --ph1: #E7E4DF; --ph2: #E1E5EA; --ph3: #E8E2E5; --ph4: #E1E8E4;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ink: #F4F4F5; --paper: #141418; --mist: #1C1C22; --hairline: #26262C;
+  --muted: #A1A1AA; --accent: #5B78FF; --accent-soft: rgba(91,120,255,.16);
+  --pass: #A1A1AA; --bg: #0B0B0F; --card: #141418; --veil: rgba(0,0,0,.92);
+  --ph1: #2A2825; --ph2: #23272C; --ph3: #2B2528; --ph4: #232A26; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ink: #F4F4F5; --paper: #141418; --mist: #1C1C22; --hairline: #26262C;
+  --muted: #A1A1AA; --accent: #5B78FF; --accent-soft: rgba(91,120,255,.16);
+  --pass: #A1A1AA; --bg: #0B0B0F; --card: #141418; --veil: rgba(0,0,0,.92);
+  --ph1: #2A2825; --ph2: #23272C; --ph3: #2B2528; --ph4: #232A26; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px }
+main { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px }
+h1, h2, h3 { text-wrap: balance; margin: 0; letter-spacing: -0.02em }
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700 }
+h2 { font-size: 24px; font-weight: 650 }
+h3 { font-size: 15px; font-weight: 600 }
+p { margin: 0; max-width: 65ch }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.lede { font-size: 18px; color: var(--muted) }
+header { display: flex; flex-direction: column; gap: 14px }
+.rule { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px }
+.rule span { border: 1px solid var(--hairline); border-radius: 999px; padding: 6px 12px; font-size: 13px; background: var(--card) }
+.rule b { color: var(--accent); font-weight: 600 }
+
+section { display: flex; flex-direction: column; gap: 20px }
+.gesture { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 32px; align-items: start }
+@media (max-width: 760px) { .gesture { grid-template-columns: minmax(0, 1fr) } }
+.spec { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
+table { border-collapse: collapse; width: 100%; font-size: 14px }
+td, th { text-align: left; vertical-align: top; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hairline) }
+th { font-weight: 500; color: var(--muted); white-space: nowrap; width: 128px }
+code, .num { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums }
+.today { color: var(--muted) }
+.today b { color: var(--ink); font-weight: 500 }
+.scroll { overflow-x: auto }
+
+/* phone demo */
+.phone { width: 100%; max-width: 340px; aspect-ratio: 340 / 560; border-radius: 34px; border: 1px solid var(--hairline);
+  background: var(--paper); position: relative; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none }
+.hint { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 12px; color: var(--muted); pointer-events: none }
+.haptic { position: absolute; top: 14px; left: 50%; transform: translateX(-50%) scale(.9); opacity: 0; font-family: var(--mono); font-size: 11px;
+  background: var(--ink); color: var(--paper); border-radius: 999px; padding: 4px 10px; pointer-events: none; transition: opacity .25s, transform .25s; white-space: nowrap; z-index: 20 }
+.haptic.on { opacity: 1; transform: translateX(-50%) scale(1); transition: opacity .05s, transform .12s cubic-bezier(.3,1.6,.5,1) }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.seg { display: inline-flex; border: 1px solid var(--hairline); border-radius: 999px; padding: 3px; background: var(--card) }
+.seg button { border: 0; background: none; color: var(--muted); font: 500 13px var(--sans); padding: 6px 12px; border-radius: 999px; cursor: pointer }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper) }
+button:focus-visible, .phone:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+label.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); cursor: pointer }
+
+/* cards */
+.deck { position: absolute; inset: 16px 16px 92px 16px }
+.pcard { position: absolute; inset: 0; border-radius: 24px; overflow: hidden; background: var(--ph1); will-change: transform; cursor: grab;
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 18px }
+.pcard:active { cursor: grabbing }
+.pcard .who { font-size: 22px; font-weight: 650; color: var(--ink) }
+.pcard .meta { font-size: 13px; color: var(--muted) }
+.pcard .initial { position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%); font-size: 96px; font-weight: 700; color: var(--ink); opacity: .08 }
+.intent { position: absolute; top: 18px; width: 56px; height: 56px; border-radius: 999px; display: grid; place-items: center; opacity: 0;
+  background: #FFFFFF }
+.intent.like { left: 18px; color: var(--accent) }
+.intent.pass { right: 18px; color: #6B6B76 }
+.intent svg { width: 24px; height: 24px }
+.tpill { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); height: 30px; padding: 0 14px; border-radius: 999px; display: none;
+  align-items: center; font: 600 12px var(--sans); letter-spacing: .06em; color: #fff }
+.tpill.like { background: var(--accent) } .tpill.pass { background: #0B0B0F }
+.bugs li b { color: var(--ink) }
+.actions { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 28px }
+.act { width: 58px; height: 58px; border-radius: 999px; border: 1px solid var(--hairline); background: var(--paper); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer; transition: transform .18s cubic-bezier(.3,1.5,.5,1), background .18s, color .18s }
+.act svg { width: 24px; height: 24px }
+.act.like.hot { background: var(--accent); color: #fff; border-color: var(--accent) }
+.act:active { transform: scale(.92) }
+
+/* chat */
+.chat { position: absolute; inset: 0; padding: 70px 16px 0; display: flex; flex-direction: column; gap: 6px }
+.row { position: relative; display: flex }
+.row.mine { justify-content: flex-end }
+.bubble { max-width: 78%; padding: 9px 13px; border-radius: 20px; font-size: 15px; line-height: 1.35; background: var(--mist); color: var(--ink); will-change: transform }
+.row.mine .bubble { background: var(--accent); color: #fff }
+.row.drag .bubble { cursor: grab }
+.replyIcon { position: absolute; left: 4px; top: 50%; width: 32px; height: 32px; margin-top: -16px; border-radius: 999px; background: var(--mist);
+  display: grid; place-items: center; opacity: 0; color: var(--ink) }
+.replyIcon svg { width: 16px; height: 16px }
+.composer { position: absolute; left: 12px; right: 12px; bottom: 44px; border: 1px solid var(--hairline); border-radius: 22px; background: var(--paper);
+  padding: 8px 14px; font-size: 14px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; overflow: hidden }
+.quote { border-left: 3px solid var(--accent); padding-left: 8px; font-size: 13px; color: var(--ink); display: none }
+.quote.on { display: block; animation: quoteIn .22s cubic-bezier(.2,.9,.3,1) }
+@keyframes quoteIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+
+/* viewer */
+.thumb { position: absolute; right: 16px; top: 120px; width: 150px; height: 200px; border-radius: 18px; background: var(--ph2); cursor: zoom-in }
+.thumb::after, .photo::after { content: ""; position: absolute; inset: 28% 30% 34%; border-radius: 999px; background: var(--ink); opacity: .07 }
+.viewer { position: absolute; inset: 0; display: none }
+.viewer.open { display: block }
+.viewer .bg { position: absolute; inset: 0; background: var(--veil) }
+.photo { position: absolute; left: 0; right: 0; top: 13%; height: 74%; background: var(--ph2); will-change: transform; transform-origin: 50% 50%; cursor: grab }
+.close { position: absolute; top: 16px; left: 16px; width: 36px; height: 36px; border-radius: 999px; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer }
+
+.compare td:first-child { font-weight: 600; white-space: nowrap }
+.take { color: var(--accent); font-weight: 500 }
+.callout { border: 1px solid var(--hairline); background: var(--card); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px }
+.callout ul, .callout ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch }
+.sources { font-size: 13px; color: var(--muted) }
+.sources a { color: var(--muted) }
+@media (prefers-reduced-motion: reduce) { .haptic, .act { transition: none } .quote.on { animation: none } }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">MAZL · proposition de mouvement · 24 octobre 2026</div>
+    <h1>Balayages MAZL</h1>
+    <p class="lede">Rendre les balayages satisfaisants sans en faire trop. Le doigt mène, la carte a du poids, et chaque geste n'a qu'une seule petite récompense, au moment où il est acquis.</p>
+    <div class="rule">
+      <span><b>1:1</b> sous le doigt, aucun retard</span>
+      <span><b>1</b> retour haptique au seuil, jamais en continu</span>
+      <span><b>ressort</b> au retour, élan au départ</span>
+      <span><b>0</b> confetti, tampon géant ou son</span>
+    </div>
+  </header>
+
+  <section id="decouvrir">
+    <div class="eyebrow">Geste 1 · Découvrir</div>
+    <h2>La carte de profil</h2>
+    <div class="gesture">
+      <div class="controls" style="flex-direction:column; align-items:stretch; gap:12px">
+        <div class="phone" id="deckPhone" tabindex="0" aria-label="Démo : balayez la carte à droite pour aimer, à gauche pour passer">
+          <div class="haptic" id="deckHaptic">haptique</div>
+          <div class="deck" id="deck"></div>
+          <div class="actions">
+            <button class="act pass" id="btnPass" aria-label="Passer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <button class="act like" id="btnLike" aria-label="Aimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Version">
+            <button data-mode="today" aria-pressed="false">Aujourd'hui</button>
+            <button data-mode="next" aria-pressed="true">Proposé</button>
+          </div>
+          <label class="toggle"><input type="checkbox" id="reduce"> Réduire les animations</label>
+        </div>
+      </div>
+      <div class="spec">
+        <p>La référence est Tinder pour la physique (la carte suit le doigt et part avec son élan) et Hinge pour la retenue (pas de tampon ni d'écran de jeu). Essayez les deux versions : glissez lentement, lancez vite d'un petit coup, relâchez avant le seuil. Aujourd'hui, 50 px suffisent pour perdre une carte, un lancer rapide est ignoré, et tout bouge en ligne droite à vitesse constante.</p>
+        <div class="scroll"><table>
+          <tr><th>Pendant</th><td>Suit le doigt 1:1. Rotation <span class="num">≤ 8°</span> (comme aujourd'hui), pivot au point saisi : une carte prise par le bas tourne dans l'autre sens, comme un objet réel. La carte suivante passe de <span class="num">0,96</span> à <span class="num">1</span> et remonte de <span class="num">8 px</span> en proportion du geste : on la voit vraiment arriver.</td></tr>
+          <tr><th>Intention</th><td>Un disque blanc de <span class="num">56 px</span> (lisible sur toutes les photos), cœur accent pour aimer, croix grise <code>AppColors.muted</code> pour passer, jamais de rouge. Opacité et échelle suivent la progression <span class="num">0 → 1</span>. Il remplace l'étiquette, « J'AIME / PASSER » qui s'allume d'un coup dès le premier pixel. Le bouton du bas correspondant grossit jusqu'à <span class="num">1,1</span> et se remplit d'accent côté « aimer ».</td></tr>
+          <tr><th>Seuil</th><td><span class="num">30 %</span> de la largeur, ou un lancer : plus de <span class="num">0,8 px/ms</span>, au moins <span class="num">48 px</span> de course et un geste nettement horizontal (<span class="num">|dx| > 1,2 × |dy|</span>), pour qu'un petit coup vertical ne parte pas en like. Au franchissement : <code>selectionClick</code> et la pastille fait un petit rebond (<span class="num">1 → 1,15 → 1</span>). Revenir en deçà la rend sans nouvel haptique.</td></tr>
+          <tr><th>Relâcher</th><td>Acquis : la carte part dans la direction et à la vitesse du lancer, <span class="num">240 ms</span>, décélération. Pas acquis : ressort (amortissement <span class="num">0,7</span>, léger dépassement), <span class="num">≈ 350 ms</span>.</td></tr>
+          <tr><th>Vers le haut</th><td>Super like : une étoile accent au centre, seuil <span class="num">25 %</span> de la hauteur, <code>mediumImpact</code> quand il est acquis, la carte part vers le haut. Sans super like disponible (compte gratuit, compteur à 0) : même règle que le like refusé. Vers le bas : résistance élastique (<span class="num">× 0,2</span>) puis retour en ressort ; un blocage sec ferait croire à un bug. Aujourd'hui la carte disparaît sans rien faire.</td></tr>
+          <tr><th>Photos</th><td>Le balayage horizontal appartient à la carte : ses photos se changent en touchant à gauche ou à droite (comme Tinder), jamais en balayant. Sinon les deux gestes se disputent.</td></tr>
+          <tr><th>Refus</th><td>Quand le like est refusé (limite atteinte), la carte revient en ressort depuis là où elle est, puis la fenêtre mazl+ s'ouvre. Aujourd'hui elle sort, puis réapparaît d'un coup.</td></tr>
+          <tr><th>Boutons</th><td>Le même départ que le balayage : la carte est lancée par le bouton, jamais simplement effacée.</td></tr>
+          <tr><th>Haptique</th><td>Deux seulement : <code>selectionClick</code> au seuil, <code>mediumImpact</code> au super like acquis. Rien au départ de la carte, pour ne pas doubler la récompense.</td></tr>
+          <tr><th>Réduire</th><td>Sans rotation ni ressort : la carte suit, puis s'efface en fondu <span class="num">150 ms</span>.</td></tr>
+          <tr><th class="today">Aujourd'hui</th><td class="today" id="todayDeck">Paquet <code>flutter_card_swiper</code> presque sans réglage : seuil <b>50 px</b> en distance seule (lancer ignoré), départ et retour <b>200 ms linéaires</b>, carte de dessous à <b>0,9</b> qui grandit à peine, étiquette pleine dès le premier pixel, <b>aucun haptique</b>, aucun cas « réduire les animations ».</td></tr>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="repondre">
+    <div class="eyebrow">Geste 2 · Messages</div>
+    <h2>Glisser pour répondre</h2>
+    <div class="gesture">
+      <div class="phone" id="chatPhone" aria-label="Démo : glissez une bulle vers la droite pour y répondre">
+        <div class="haptic" id="chatHaptic">haptique</div>
+        <div class="chat" id="chat">
+          <div class="row drag"><div class="replyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/></svg></div><div class="bubble">On se voit jeudi au Marais ?</div></div>
+          <div class="row mine drag"><div class="replyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/></svg></div><div class="bubble">Avec plaisir, 19 h ?</div></div>
+          <div class="row drag"><div class="replyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/></svg></div><div class="bubble">Parfait, je réserve chez Miznon</div></div>
+        </div>
+        <div class="composer"><div class="quote" id="quote"></div><div>Message…</div></div>
+        <div class="hint">Glissez une bulle vers la droite</div>
+      </div>
+      <div class="spec">
+        <p>C'est le geste d'iMessage et de WhatsApp. Ce qui le rend agréable : la bulle résiste après le seuil, comme un élastique, et la flèche « répondre » se remplit pendant qu'on tire.</p>
+        <div class="scroll"><table>
+          <tr><th>Pendant</th><td>1:1 jusqu'à <span class="num">64 px</span>, puis élastique (<span class="num">× 0,35</span>), butée à <span class="num">110 px</span>. La flèche passe de <span class="num">0,6</span> à <span class="num">1</span> en taille et de <span class="num">0</span> à <span class="num">1</span> en opacité.</td></tr>
+          <tr><th>Seuil</th><td><span class="num">64 px</span> : <code>lightImpact</code>, la flèche rebondit et prend l'accent.</td></tr>
+          <tr><th>Relâcher</th><td>Ressort vers sa place, <span class="num">≈ 300 ms</span>. La citation glisse dans le composer par le bas.</td></tr>
+          <tr><th>Réduire</th><td>Pas d'élastique ni de rebond, retour en <span class="num">120 ms</span>.</td></tr>
+          <tr><th class="today">Aujourd'hui</th><td class="today" id="todayReply">Déjà bon : seuil 64 px, élastique, <code>lightImpact</code>. Le retour est une courbe de 200 ms qui oublie la vitesse du doigt ; on la remplace par un ressort.</td></tr>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="photo">
+    <div class="eyebrow">Geste 3 · Photos</div>
+    <h2>Fermer une photo en la tirant</h2>
+    <div class="gesture">
+      <div class="phone" id="viewPhone" aria-label="Démo : ouvrez la photo puis tirez-la vers le bas pour la fermer">
+        <div class="haptic" id="viewHaptic">haptique</div>
+        <div class="thumb" id="thumb" role="button" tabindex="0" aria-label="Ouvrir la photo"></div>
+        <div class="hint" id="viewHint">Touchez la photo, puis tirez-la vers le bas</div>
+        <div class="viewer" id="viewer">
+          <div class="bg" id="viewerBg"></div>
+          <div class="photo" id="photo"></div>
+          <button class="close" id="close" aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+      </div>
+      <div class="spec">
+        <p>Comme Instagram et Photos d'iOS : on tire la photo, le fond s'éclaircit et la photo rétrécit, ce qui montre qu'on est en train de la ranger. Lâchée, elle retourne à sa vignette.</p>
+        <div class="scroll"><table>
+          <tr><th>Pendant</th><td>La photo suit le doigt dans les deux axes. Elle rétrécit jusqu'à <span class="num">0,85</span>, le fond perd jusqu'à <span class="num">70 %</span> de son opacité.</td></tr>
+          <tr><th>Seuil</th><td><span class="num">120 px</span> vers le bas ou un lancer à plus de <span class="num">0,6 px/ms</span> : <code>selectionClick</code>.</td></tr>
+          <tr><th>Relâcher</th><td>Acquis : elle vole vers sa vignette (<span class="num">260 ms</span>). Pas acquis : ressort au centre.</td></tr>
+          <tr><th>Réduire</th><td>Fondu de fermeture, sans vol.</td></tr>
+          <tr><th class="today">Aujourd'hui</th><td class="today" id="todayView">La photo descend avec le doigt et le fond s'éclaircit, mais elle ne rétrécit pas, aucun haptique, et relâchée trop tôt elle <b>saute</b> à sa place sans animation.</td></tr>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="partout">
+    <div class="eyebrow">Le reste de l'app</div>
+    <h2>Les mêmes règles partout</h2>
+    <div class="callout" id="elsewhere">
+      <ul>
+        <li><b>Feuilles du bas</b> : élastique quand on tire vers le haut, fermeture selon la vitesse du geste et pas seulement la distance, pas d'haptique.</li>
+        <li><b>Galerie d'un profil</b> : la photo suit le doigt, aimante à la suivante, et l'indicateur de position glisse au lieu de sauter.</li>
+        <li><b>Barre d'onglets repliée</b> : déjà en ressort ; on garde.</li>
+        <li><b>Retour en arrière</b> (premium) : la carte revient du côté où elle était partie, en ressort, au lieu des 200 ms linéaires.</li>
+        <li><b>Activités du couple</b> : même paquet, mêmes réglages que Découvrir ; les tampons « PASSER / GARDER » deviennent les mêmes pastilles de coin.</li>
+        <li><b>Accueil et onglets</b> : les pages qu'on fait défiler (présentation, galerie) gardent leur défilement natif ; seul l'indicateur de page glisse au lieu de sauter.</li>
+        <li><b>Match</b> : aujourd'hui une simple boîte de dialogue système. Proposé : une feuille du bas sur fond papier (pas un plein écran : la grande célébration reste Mazal Tov, pour le couple). Les deux photos glissent l'une vers l'autre et se touchent, avec la même composition d'avatars que Mazal Tov (cercles et pastille cœur), un seul anneau accent pulse, puis « Envoyer un message » et « Continuer à découvrir ». Pas de pluie de cœurs.</li>
+        <li><b>Une seule source de valeurs</b> : un fichier <code>MazlMotion</code> (durées, ressort, seuils, échelles) lu par tous les gestes, et un test qui vérifie que Découvrir, les activités du couple, la visionneuse et la réponse glissée passent par lui. Sinon les valeurs divergent dès le deuxième écran.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="defauts">
+    <div class="eyebrow">Trouvé en lisant le code</div>
+    <h2>Ce qui fait « pas fini » aujourd'hui</h2>
+    <p>Les quatre premiers points sont des bugs, pas des choix : ils se corrigent avec un test de non-régression chacun, quelle que soit la décision sur le reste.</p>
+    <div class="callout bugs"><ul>
+      <li><b>Balayer vers le bas consomme la carte</b> sans aimer ni passer : le profil est perdu.</li>
+      <li><b>Like refusé</b> (limite gratuite) : la carte sort, puis réapparaît d'un coup.</li>
+      <li><b>Petit lancer rapide ignoré</b> : seul compte le seuil de 50 px, très court pour un pouce.</li>
+      <li><b>Aucun retour haptique</b> nulle part dans Découvrir, alors que c'est le geste le plus fréquent de l'app.</li>
+      <li><b>Photo plein écran</b> lâchée avant le seuil : elle saute à sa place.</li>
+      <li><b>« Réduire les animations »</b> n'est respecté ni dans Découvrir, ni dans la visionneuse, ni dans les activités du couple.</li>
+    </ul></div>
+  </section>
+
+  <section id="concurrence">
+    <div class="eyebrow">Ce que font les autres</div>
+    <h2>Concurrence</h2>
+    <p>D'après l'usage des applications. Les éditeurs publient peu sur leurs réglages exacts : les valeurs ci-dessus sont les nôtres, pas les leurs.</p>
+    <div class="scroll"><table class="compare">
+      <tr><th>App</th><th>Ce qu'elle fait</th><th>Ce qu'on prend</th></tr>
+      <tr><td>Tinder</td><td>Carte collée au doigt, rotation selon le point saisi, tampons « LIKE / NOPE » qui apparaissent avec le geste, boutons qui grossissent, carte suivante qui avance.</td><td class="take">La physique, le pivot, les boutons qui réagissent. Pas les tampons.</td></tr>
+      <tr><td>Bumble</td><td>Même paquet de cartes, avec un profil qui défile dans la carte ; icônes de choix discrètes.</td><td class="take">L'icône d'intention dans le coin plutôt qu'un tampon.</td></tr>
+      <tr><td>Hinge</td><td>Pas de balayage pour aimer : un cœur sur une photo ou une réponse précise, et des animations volontairement plus discrètes pour ne pas ressembler à un jeu.</td><td class="take">La retenue : une seule récompense par geste.</td></tr>
+      <tr><td>iMessage, WhatsApp</td><td>Glisser pour répondre avec élastique, flèche qui se remplit, haptique au seuil, retour en ressort.</td><td class="take">Tout, tel quel.</td></tr>
+      <tr><td>Instagram, Photos</td><td>Photo tirée vers le bas : elle rétrécit, le fond s'éclaircit, elle retourne à sa vignette.</td><td class="take">Tout, tel quel.</td></tr>
+    </table></div>
+  </section>
+
+  <section id="decider">
+    <div class="eyebrow">À décider</div>
+    <h2>Trois choix pour Renaud</h2>
+    <div class="callout">
+      <ol>
+        <li>Signal d'intention : la <b>pastille de coin</b>, ou garder l'étiquette « J'AIME / PASSER » en haut mais qu'elle se remplisse avec le geste ? <i>Avis design : la pastille.</i></li>
+        <li>Seuil : <b>30 % de la largeur</b> ou 40 % pour des choix plus délibérés ? <i>Avis design : 30 %, 40 % rend le geste mou au pouce.</i></li>
+        <li>Le match : on garde la boîte de dialogue, ou la feuille où les deux photos se rejoignent ? <i>Avis design : la feuille.</i></li>
+      </ol>
+    </div>
+    <p class="sources">Sources consultées : <a href="https://www.forbes.com.au/?p=72227">Forbes Australia, sur la conception du balayage de Tinder</a> · <a href="https://www.designweek.co.uk/hinge-redesigns-to-get-people-off-dating-apps/">Design Week, refonte de Hinge</a> · <a href="https://vp0.com/blogs/tinder-card-swipe-animation-react-native-reanimated-free-ios-template-vibe-codin.md">principe du paquet de cartes (pan, rotation, ressort)</a>.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const reduceBox = document.getElementById('reduce');
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mq.matches) reduceBox.checked = true;
+  const reduced = () => reduceBox.checked;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  function haptic(el, name) {
+    el.textContent = 'haptique · ' + name;
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 650);
+  }
+
+  // Damped spring toward 0 for a set of values. Returns a cancel function.
+  function spring(state, keys, apply, { stiffness = 320, damping = 0.7, done } = {}) {
+    const c = 2 * damping * Math.sqrt(stiffness);
+    const v = Object.fromEntries(keys.map(k => [k, state['v' + k] || 0]));
+    let last = performance.now(), raf;
+    const step = now => {
+      const dt = Math.min(0.032, (now - last) / 1000); last = now;
+      let moving = false;
+      for (const k of keys) {
+        const a = -stiffness * state[k] - c * v[k];
+        v[k] += a * dt; state[k] += v[k] * dt;
+        if (Math.abs(state[k]) > 0.2 || Math.abs(v[k]) > 2) moving = true;
+      }
+      if (!moving) { for (const k of keys) state[k] = 0; apply(); done && done(); return; }
+      apply(); raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }
+
+  function tween(ms, ease, onFrame, done) {
+    const t0 = performance.now();
+    const step = now => {
+      const t = clamp((now - t0) / ms, 0, 1);
+      onFrame(ease(t));
+      t < 1 ? requestAnimationFrame(step) : done && done();
+    };
+    requestAnimationFrame(step);
+  }
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+  // ---------- Deck ----------
+  const PROFILES = [
+    ['Déborah', 29, 'Paris 11e · Architecte', '--ph1'],
+    ['Noam', 31, 'Vincennes · Médecin', '--ph2'],
+    ['Léa', 27, 'Paris 17e · Juriste', '--ph3'],
+    ['Yonathan', 33, 'Neuilly · Ingénieur', '--ph4'],
+  ];
+  const CONFIGS = {
+    next:  { maxRot: 8, backScale: 0.96, backY: 8, threshold: 0.30, fling: 0.8, exitMs: 240, intent: 'icon', haptic: true, springBack: true, buttonsReact: true, pivot: true },
+    // flutter_card_swiper 7.2 defaults as used today: 50 px, distance only, linear 200 ms, 30deg*dx/1000.
+    today: { maxRot: 0, rotPerPx: 0.03, backScale: 0.9, backY: 20, thresholdPx: 50, fling: Infinity, exitMs: 200, linear: true, intent: 'pill', haptic: false, springBack: false, buttonsReact: false, pivot: true, invertPivot: true },
+  };
+  let mode = 'next';
+  const deck = document.getElementById('deck');
+  const deckHaptic = document.getElementById('deckHaptic');
+  const btnLike = document.getElementById('btnLike'), btnPass = document.getElementById('btnPass');
+  let cursor = 0;
+
+  const heart = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+  const cross = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  function makeCard(p) {
+    const el = document.createElement('div');
+    el.className = 'pcard';
+    el.style.background = `var(${p[3]})`;
+    el.innerHTML = `<div class="initial">${p[0][0]}</div>
+      <div class="intent like">${heart}</div><div class="intent pass">${cross}</div>
+      <div class="tpill like">J'AIME</div><div class="tpill pass">PASSER</div>
+      <div><div class="who">${p[0]}, ${p[1]}</div><div class="meta">${p[2]}</div></div>`;
+    return el;
+  }
+
+  function fill() {
+    while (deck.children.length < 2) {
+      const el = makeCard(PROFILES[cursor++ % PROFILES.length]);
+      deck.prepend(el);
+    }
+    layoutBack(0);
+    bindTop();
+  }
+
+  function cfg() { return CONFIGS[mode]; }
+  const thr = (c, w) => c.thresholdPx ?? w * c.threshold;
+  function top() { return deck.lastElementChild; }
+  function back() { return deck.children.length > 1 ? deck.children[deck.children.length - 2] : null; }
+
+  function layoutBack(q) {
+    const b = back(); if (!b) return;
+    const c = cfg();
+    const s = c.linear ? Math.min(1, c.backScale + q * deck.clientWidth / 5000) : c.backScale + (1 - c.backScale) * q;
+    b.style.transform = `translateY(${c.backY * (1 - q)}px) scale(${s})`;
+  }
+
+  const st = { x: 0, y: 0, r: 0, vx: 0, vy: 0 };
+  let grabSign = 1, armed = false, cancelSpring = null, busy = false;
+
+  function render() {
+    const el = top(); if (!el) return;
+    const c = cfg();
+    el.style.transform = `translate(${st.x}px, ${st.y}px) rotate(${st.r}deg)`;
+    const w = deck.clientWidth;
+    const p = clamp(Math.abs(st.x) / (thr(c, w)), 0, 1);
+    layoutBack(clamp(Math.abs(st.x) / w, 0, 1));
+    const like = el.querySelector('.intent.like'), pass = el.querySelector('.intent.pass');
+    if (c.intent === 'icon' && !reduced()) {
+      like.style.opacity = st.x > 0 ? p : 0; pass.style.opacity = st.x < 0 ? p : 0;
+      like.style.transform = `scale(${0.8 + 0.2 * (st.x > 0 ? p : 0)})`;
+      pass.style.transform = `scale(${0.8 + 0.2 * (st.x < 0 ? p : 0)})`;
+    } else { like.style.opacity = 0; pass.style.opacity = 0; }
+    el.querySelector('.tpill.like').style.display = c.intent === 'pill' && st.x > 0.25 ? 'flex' : 'none';
+    el.querySelector('.tpill.pass').style.display = c.intent === 'pill' && st.x < -0.25 ? 'flex' : 'none';
+    if (c.buttonsReact) {
+      btnLike.style.transform = `scale(${1 + 0.1 * (st.x > 0 ? p : 0)})`;
+      btnPass.style.transform = `scale(${1 + 0.1 * (st.x < 0 ? p : 0)})`;
+      btnLike.classList.toggle('hot', st.x > 0 && p >= 1);
+    } else { btnLike.style.transform = ''; btnPass.style.transform = ''; btnLike.classList.remove('hot'); }
+  }
+
+  function pop(el) {
+    if (!el || reduced()) return;
+    el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }],
+      { duration: 220, easing: 'cubic-bezier(.3,1.5,.5,1)' });
+  }
+
+  function bindTop() {
+    const el = top(); if (!el || el._bound) return; el._bound = true;
+    let sx, sy, lx, lt, samples = [];
+    el.addEventListener('pointerdown', e => {
+      if (busy) return;
+      cancelSpring && cancelSpring();
+      el.setPointerCapture(e.pointerId);
+      const rect = el.getBoundingClientRect();
+      const lower = (e.clientY - rect.top) > rect.height * 0.55;
+      grabSign = !cfg().pivot ? 1 : (cfg().invertPivot ? (lower ? 1 : -1) : (lower ? -1 : 1));
+      sx = e.clientX - st.x; sy = e.clientY - st.y; samples = [];
+      armed = Math.abs(st.x) >= thr(cfg(), deck.clientWidth);
+      el._down = true;
+    });
+    el.addEventListener('pointermove', e => {
+      if (!el._down) return;
+      const c = cfg(), w = deck.clientWidth;
+      st.x = e.clientX - sx;
+      const rawY = e.clientY - sy;
+      st.y = !c.linear && rawY > 0 ? rawY * 0.2 : rawY * 0.6;
+      st.r = reduced() && !c.linear ? 0 : (c.rotPerPx ? st.x * c.rotPerPx : clamp(st.x / w, -1, 1) * c.maxRot) * grabSign;
+      const now = performance.now();
+      samples.push([now, e.clientX, e.clientY]); samples = samples.filter(s => now - s[0] < 90);
+      const nowArmed = Math.abs(st.x) >= thr(c, w);
+      if (nowArmed && !armed && c.haptic) {
+        haptic(deckHaptic, 'selectionClick');
+        pop(el.querySelector(st.x > 0 ? '.intent.like' : '.intent.pass'));
+      }
+      armed = nowArmed;
+      render();
+    });
+    const up = () => {
+      if (!el._down) return; el._down = false;
+      const c = cfg(), w = deck.clientWidth;
+      let vx = 0, vy = 0;
+      if (samples.length > 1) {
+        const a = samples[0], b = samples[samples.length - 1], dt = Math.max(1, b[0] - a[0]);
+        vx = (b[1] - a[1]) / dt; vy = (b[2] - a[2]) / dt;
+      }
+      const flung = Math.abs(vx) > c.fling && Math.sign(vx) === Math.sign(st.x || vx)
+        && Math.abs(st.x) >= 48 && Math.abs(st.x) > 1.2 * Math.abs(st.y);
+      if (Math.abs(st.x) >= thr(c, w) || flung) throwCard(Math.sign(st.x || vx), vx, vy);
+      else settle();
+    };
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+  }
+
+  function settle() {
+    const c = cfg();
+    if (reduced() || !c.springBack) {
+      const fx = st.x, fy = st.y, fr = st.r;
+      tween(c.linear ? 200 : 120, c.linear ? (t => t) : easeOut, t => { st.x = fx * (1 - t); st.y = fy * (1 - t); st.r = fr * (1 - t); render(); });
+      return;
+    }
+    cancelSpring = spring(st, ['x', 'y', 'r'], render, { stiffness: 260, damping: 0.62 });
+  }
+
+  function throwCard(dir, vx = 0, vy = 0) {
+    const el = top(); if (!el || busy) return; busy = true;
+    const c = cfg(), w = deck.clientWidth;
+    btnLike.style.transform = ''; btnPass.style.transform = ''; btnLike.classList.remove('hot');
+    const finish = () => { el.remove(); st.x = st.y = st.r = 0; busy = false; armed = false; fill(); render(); };
+    if (reduced() && !c.linear) {
+      el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: 'forwards' }).onfinish = finish;
+      layoutBack(1);
+      return;
+    }
+    const fx = st.x, fy = st.y, fr = st.r;
+    const tx = dir * w * 1.6, ty = c.linear ? fy : fy + vy * 180, tr = c.linear ? fr : fr + dir * (c.maxRot * 0.8);
+    tween(c.exitMs, c.linear ? (t => t) : easeOut, t => {
+      st.x = fx + (tx - fx) * t; st.y = fy + (ty - fy) * t; st.r = fr + (tr - fr) * t;
+      el.style.transform = `translate(${st.x}px, ${st.y}px) rotate(${st.r}deg)`;
+      layoutBack(clamp(Math.abs(st.x) / w, 0, 1));
+    }, finish);
+  }
+
+  function pressButton(dir) {
+    if (busy) return;
+    const c = cfg();
+    if (c.intent === 'icon' && !reduced()) {
+      const i = top().querySelector(dir > 0 ? '.intent.like' : '.intent.pass');
+      i.style.opacity = 1; pop(i);
+    }
+    st.r = 0; throwCard(dir, dir * 1.2, -0.1);
+  }
+  btnLike.addEventListener('click', () => pressButton(1));
+  btnPass.addEventListener('click', () => pressButton(-1));
+  document.getElementById('deckPhone').addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') pressButton(1);
+    if (e.key === 'ArrowLeft') pressButton(-1);
+  });
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode;
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    layoutBack(0); render();
+  }));
+  fill();
+
+  // ---------- Swipe to reply ----------
+  const chatHaptic = document.getElementById('chatHaptic');
+  const quote = document.getElementById('quote');
+  document.querySelectorAll('#chat .row.drag').forEach(row => {
+    const bubble = row.querySelector('.bubble'), icon = row.querySelector('.replyIcon');
+    const s = { x: 0 }; let sx, raw = 0, down = false, armed = false, cancel;
+    const show = () => {
+      bubble.style.transform = `translateX(${s.x}px)`;
+      const p = clamp(s.x / 64, 0, 1);
+      icon.style.opacity = p;
+      icon.style.transform = `scale(${0.6 + 0.4 * p})`;
+      icon.style.background = s.x >= 64 ? 'var(--accent)' : 'var(--mist)';
+      icon.style.color = s.x >= 64 ? '#fff' : 'var(--ink)';
+    };
+    bubble.addEventListener('pointerdown', e => {
+      cancel && cancel(); bubble.setPointerCapture(e.pointerId); sx = e.clientX; down = true; armed = false;
+    });
+    bubble.addEventListener('pointermove', e => {
+      if (!down) return;
+      raw = Math.max(0, e.clientX - sx);
+      s.x = reduced() ? Math.min(raw, 64) : (raw <= 64 ? raw : Math.min(110, 64 + (raw - 64) * 0.35));
+      if (s.x >= 64 && !armed) { armed = true; haptic(chatHaptic, 'lightImpact'); pop(icon); }
+      if (s.x < 64) armed = false;
+      show();
+    });
+    const up = () => {
+      if (!down) return; down = false;
+      if (s.x >= 64) {
+        quote.textContent = (row.classList.contains('mine') ? 'Vous : ' : 'Déborah : ') + bubble.textContent;
+        quote.classList.remove('on'); void quote.offsetWidth; quote.classList.add('on');
+      }
+      if (reduced()) { const f = s.x; tween(120, easeOut, t => { s.x = f * (1 - t); show(); }); }
+      else cancel = spring(s, ['x'], show, { stiffness: 340, damping: 0.72 });
+    };
+    bubble.addEventListener('pointerup', up);
+    bubble.addEventListener('pointercancel', up);
+  });
+
+  // ---------- Photo viewer ----------
+  const viewHaptic = document.getElementById('viewHaptic');
+  const thumb = document.getElementById('thumb'), viewer = document.getElementById('viewer');
+  const photo = document.getElementById('photo'), bg = document.getElementById('viewerBg');
+  const phone = document.getElementById('viewPhone');
+  const v = { x: 0, y: 0 }; let vsx, vsy, vdown = false, varmed = false, vsamples = [], vcancel;
+
+  function thumbDelta() {
+    const pr = phone.getBoundingClientRect(), tr = thumb.getBoundingClientRect(), fr = photo.getBoundingClientRect();
+    const scale = tr.width / fr.width;
+    return { dx: (tr.left + tr.width / 2) - (fr.left + fr.width / 2) + v.x, dy: (tr.top + tr.height / 2) - (fr.top + fr.height / 2) + v.y, scale, pr };
+  }
+  function vshow(extraScale) {
+    const p = clamp(Math.abs(v.y) / 300, 0, 1);
+    const sc = extraScale ?? (reduced() ? 1 : 1 - 0.15 * p);
+    photo.style.transform = `translate(${v.x}px, ${v.y}px) scale(${sc})`;
+    bg.style.opacity = 1 - 0.7 * p;
+  }
+  function open() {
+    viewer.classList.add('open'); v.x = v.y = 0; photo.style.transform = ''; bg.style.opacity = 1;
+    if (reduced()) { viewer.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150 }); return; }
+    const d = thumbDelta();
+    photo.animate([
+      { transform: `translate(${d.dx}px, ${d.dy}px) scale(${d.scale})`, borderRadius: '18px' },
+      { transform: 'none', borderRadius: '0px' }], { duration: 280, easing: 'cubic-bezier(.2,.9,.3,1)' });
+    bg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
+  }
+  function closeViewer() {
+    if (reduced()) {
+      viewer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150 }).onfinish = () => viewer.classList.remove('open');
+      return;
+    }
+    const p = clamp(Math.abs(v.y) / 300, 0, 1), cur = 1 - 0.15 * p;
+    const d = thumbDelta();
+    const a = photo.animate([
+      { transform: `translate(${v.x}px, ${v.y}px) scale(${cur})`, borderRadius: '0px' },
+      { transform: `translate(${d.dx}px, ${d.dy}px) scale(${d.scale})`, borderRadius: '18px' }],
+      { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1)', fill: 'forwards' });
+    bg.animate([{ opacity: bg.style.opacity || 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+    a.onfinish = () => { viewer.classList.remove('open'); a.cancel(); bg.getAnimations().forEach(x => x.cancel()); };
+  }
+  thumb.addEventListener('click', open);
+  thumb.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  document.getElementById('close').addEventListener('click', () => { v.x = v.y = 0; closeViewer(); });
+  photo.addEventListener('pointerdown', e => {
+    vcancel && vcancel(); photo.setPointerCapture(e.pointerId);
+    vsx = e.clientX - v.x; vsy = e.clientY - v.y; vdown = true; varmed = false; vsamples = [];
+  });
+  photo.addEventListener('pointermove', e => {
+    if (!vdown) return;
+    v.x = e.clientX - vsx; v.y = e.clientY - vsy;
+    const now = performance.now(); vsamples.push([now, e.clientY]); vsamples = vsamples.filter(s => now - s[0] < 90);
+    const a = v.y >= 120;
+    if (a && !varmed) haptic(viewHaptic, 'selectionClick');
+    varmed = a; vshow();
+  });
+  const vup = () => {
+    if (!vdown) return; vdown = false;
+    let vy = 0;
+    if (vsamples.length > 1) { const a = vsamples[0], b = vsamples[vsamples.length - 1]; vy = (b[1] - a[1]) / Math.max(1, b[0] - a[0]); }
+    if (v.y >= 120 || vy > 0.6) closeViewer();
+    else if (reduced()) { const fx = v.x, fy = v.y; tween(120, easeOut, t => { v.x = fx * (1 - t); v.y = fy * (1 - t); vshow(); }); }
+    else vcancel = spring(v, ['x', 'y'], () => vshow(), { stiffness: 300, damping: 0.75 });
+  };
+  photo.addEventListener('pointerup', vup);
+  photo.addEventListener('pointercancel', vup);
+})();
+</script>
