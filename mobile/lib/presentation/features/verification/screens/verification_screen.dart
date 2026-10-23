@@ -8,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Gesture data for verification
 class VerificationGesture {
@@ -395,12 +396,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
   }
 
   void _showPhotoVerificationDialog(BuildContext context, VerificationGesture gesture) {
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (context) => _PhotoVerificationSheet(
         gesture: gesture,
         onTakeSelfie: () => _takeSelfieAndSubmit(context, gesture),
@@ -631,115 +629,98 @@ class _PhotoVerificationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        24,
-        24,
-        24 + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(
+          LucideIcons.camera,
+          size: 48,
+          color: AppColors.primary,
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Vérification photo',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 24),
-          const Icon(
-            LucideIcons.camera,
-            size: 48,
-            color: AppColors.primary,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Prenez un selfie en réalisant le geste ci-dessous',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Vérification photo',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Prenez un selfie en réalisant le geste ci-dessous',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 24),
+        ),
+        const SizedBox(height: 24),
 
-          // Gesture instruction card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppColors.primary,
-                width: 2,
+        // Gesture instruction card
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.primary,
+              width: 2,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                gesture.emoji,
+                style: const TextStyle(fontSize: 64),
               ),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  gesture.emoji,
-                  style: const TextStyle(fontSize: 64),
+              const SizedBox(height: 12),
+              Text(
+                gesture.instruction,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  gesture.instruction,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Tips
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.info.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                _TipRow(icon: LucideIcons.sun, text: 'Bonne luminosité'),
-                _TipRow(icon: LucideIcons.user, text: 'Visage bien visible'),
-                _TipRow(icon: LucideIcons.hand, text: 'Geste clair et visible'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: onTakeSelfie,
-            icon: const Icon(LucideIcons.camera),
-            label: const Text('Prendre le selfie'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
               ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Tips
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.info.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              _TipRow(icon: LucideIcons.sun, text: 'Bonne luminosité'),
+              _TipRow(icon: LucideIcons.user, text: 'Visage bien visible'),
+              _TipRow(icon: LucideIcons.hand, text: 'Geste clair et visible'),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: onTakeSelfie,
+          icon: const Icon(LucideIcons.camera),
+          label: const Text('Prendre le selfie'),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Plus tard'),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Plus tard'),
+        ),
+      ],
     );
   }
 }

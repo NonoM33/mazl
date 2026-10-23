@@ -16,6 +16,7 @@ import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -103,185 +104,175 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     CitySuggestion? selectedCity;
     bool isSearching = false;
 
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildSheetHandle(),
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text('Localisation', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        builder: (context, setSheetState) => ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('Localisation', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              // Current location display
+              if (_location != null && selectedCity == null)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
-                  // Current location display
-                  if (_location != null && selectedCity == null)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _location!,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          Icon(LucideIcons.check, size: 20, color: AppColors.primary),
-                        ],
-                      ),
-                    ),
-                  // Selected city display
-                  if (selectedCity != null)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(LucideIcons.mapPin, size: 20, color: AppColors.success),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              selectedCity!.displayName,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => setSheetState(() {
-                              selectedCity = null;
-                              controller.clear();
-                            }),
-                            child: Icon(LucideIcons.x, size: 20, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  // Search input
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
-                      controller: controller,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: 'Rechercher une ville...',
-                        filled: true,
-                        fillColor: Colors.grey.withValues(alpha: 0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _location!,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        prefixIcon: const Icon(LucideIcons.search),
-                        suffixIcon: isSearching
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              )
-                            : null,
                       ),
-                      onChanged: (value) async {
-                        if (value.length < 2) {
-                          setSheetState(() => suggestions = []);
-                          return;
-                        }
-                        setSheetState(() => isSearching = true);
-                        final results = await _placesService.searchCities(value);
-                        if (context.mounted) {
-                          setSheetState(() {
-                            suggestions = results;
-                            isSearching = false;
-                          });
-                        }
-                      },
-                    ),
+                      Icon(LucideIcons.check, size: 20, color: AppColors.primary),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  // Hint text
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Saisissez le nom de votre ville et sélectionnez une suggestion',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
+                ),
+              // Selected city display
+              if (selectedCity != null)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                   ),
-                  // Suggestions list
-                  if (suggestions.isNotEmpty)
-                    Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        itemCount: suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = suggestions[index];
-                          return ListTile(
-                            leading: Icon(LucideIcons.mapPin, color: AppColors.primary),
-                            title: Text(suggestion.displayName),
-                            contentPadding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.success),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          selectedCity!.displayName,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => setSheetState(() {
+                          selectedCity = null;
+                          controller.clear();
+                        }),
+                        child: Icon(LucideIcons.x, size: 20, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // Search input
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher une ville...',
+                    filled: true,
+                    fillColor: Colors.grey.withValues(alpha: 0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    prefixIcon: const Icon(LucideIcons.search),
+                    suffixIcon: isSearching
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            onTap: () {
-                              setSheetState(() {
-                                selectedCity = suggestion;
-                                suggestions = [];
-                                controller.clear();
-                              });
-                            },
-                          );
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) async {
+                    if (value.length < 2) {
+                      setSheetState(() => suggestions = []);
+                      return;
+                    }
+                    setSheetState(() => isSearching = true);
+                    final results = await _placesService.searchCities(value);
+                    if (context.mounted) {
+                      setSheetState(() {
+                        suggestions = results;
+                        isSearching = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Hint text
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Saisissez le nom de votre ville et sélectionnez une suggestion',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ),
+              // Suggestions list
+              if (suggestions.isNotEmpty)
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    itemCount: suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = suggestions[index];
+                      return ListTile(
+                        leading: Icon(LucideIcons.mapPin, color: AppColors.primary),
+                        title: Text(suggestion.displayName),
+                        contentPadding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        onTap: () {
+                          setSheetState(() {
+                            selectedCity = suggestion;
+                            suggestions = [];
+                            controller.clear();
+                          });
                         },
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  // Save button
-                  _buildSheetButton(
-                    selectedCity != null ? 'Enregistrer' : 'Fermer',
-                    () {
-                      if (selectedCity != null) {
-                        setState(() {
-                          _location = selectedCity!.displayName;
-                          _latitude = selectedCity!.latitude;
-                          _longitude = selectedCity!.longitude;
-                        });
-                        Navigator.pop(context);
-                        _saveSettings();
-                      } else {
-                        Navigator.pop(context);
-                      }
+                      );
                     },
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
+              const SizedBox(height: 16),
+              // Save button
+              _buildSheetButton(
+                selectedCity != null ? 'Enregistrer' : 'Fermer',
+                () {
+                  if (selectedCity != null) {
+                    setState(() {
+                      _location = selectedCity!.displayName;
+                      _latitude = selectedCity!.latitude;
+                      _longitude = selectedCity!.longitude;
+                    });
+                    Navigator.pop(context);
+                    _saveSettings();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
-            ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
@@ -290,61 +281,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showDistanceSheet() {
     double tempDistance = _distanceMax.toDouble();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
+    showMazlSheet(
+      context,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('Distance maximale', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${tempDistance.round()} km',
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Slider(
-                    value: tempDistance,
-                    min: 5,
-                    max: 200,
-                    divisions: 39,
-                    activeColor: AppColors.primary,
-                    onChanged: (value) => setSheetState(() => tempDistance = value),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildSheetButton('Enregistrer', () {
-                  setState(() => _distanceMax = tempDistance.round());
-                  Navigator.pop(context);
-                  _saveSettings();
-                }),
-                const SizedBox(height: 20),
-              ],
+        builder: (context, setSheetState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Distance maximale', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${tempDistance.round()} km',
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Slider(
+                value: tempDistance,
+                min: 5,
+                max: 200,
+                divisions: 39,
+                activeColor: AppColors.primary,
+                onChanged: (value) => setSheetState(() => tempDistance = value),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildSheetButton('Enregistrer', () {
+              setState(() => _distanceMax = tempDistance.round());
+              Navigator.pop(context);
+              _saveSettings();
+            }),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -352,77 +334,56 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showAgeRangeSheet() {
     RangeValues tempRange = RangeValues(_ageMin.toDouble(), _ageMax.toDouble());
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
+    showMazlSheet(
+      context,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('Tranche d\'âge', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${tempRange.start.round()} - ${tempRange.end.round()} ans',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: RangeSlider(
-                    values: tempRange,
-                    min: 18,
-                    max: 99,
-                    divisions: 81,
-                    activeColor: AppColors.primary,
-                    onChanged: (values) => setSheetState(() => tempRange = values),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildSheetButton('Enregistrer', () {
-                  setState(() {
-                    _ageMin = tempRange.start.round();
-                    _ageMax = tempRange.end.round();
-                  });
-                  Navigator.pop(context);
-                  _saveSettings();
-                }),
-                const SizedBox(height: 20),
-              ],
+        builder: (context, setSheetState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Tranche d\'âge', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${tempRange.start.round()} - ${tempRange.end.round()} ans',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: RangeSlider(
+                values: tempRange,
+                min: 18,
+                max: 99,
+                divisions: 81,
+                activeColor: AppColors.primary,
+                onChanged: (values) => setSheetState(() => tempRange = values),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildSheetButton('Enregistrer', () {
+              setState(() {
+                _ageMin = tempRange.start.round();
+                _ageMax = tempRange.end.round();
+              });
+              Navigator.pop(context);
+              _saveSettings();
+            }),
+            const SizedBox(height: 20),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSheetHandle() {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(2),
       ),
     );
   }
@@ -527,209 +488,104 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'Autre raison',
     ];
 
-    return showModalBottomSheet<String>(
-      context: context,
+    return showMazlSheet<String>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
+        builder: (context, setSheetState) => ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.7,
           ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const SizedBox(height: 16),
-                const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
-                const SizedBox(height: 16),
-                const Text(
-                  'Supprimer mon compte',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Pourquoi souhaitez-vous nous quitter ?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: reasons.length,
-                    itemBuilder: (context, index) {
-                      final reason = reasons[index];
-                      final isSelected = selectedReason == reason;
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () => setSheetState(() => selectedReason = reason),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.error.withValues(alpha: 0.1)
-                                  : Colors.grey.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected
-                                    ? AppColors.error
-                                    : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  isSelected
-                                      ? LucideIcons.checkCircle
-                                      : LucideIcons.circle,
-                                  color: isSelected
-                                      ? AppColors.error
-                                      : Colors.grey,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(child: Text(reason)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Annuler'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: selectedReason != null
-                              ? () => Navigator.pop(context, selectedReason)
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.error,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Continuer'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<bool?> _showDeleteConfirmationSheet(String reason) {
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildSheetHandle(),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.alertTriangle,
-                  color: AppColors.error,
-                  size: 40,
+              const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
+              const SizedBox(height: 16),
+              const Text(
+                'Supprimer mon compte',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Pourquoi souhaitez-vous nous quitter ?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Confirmation finale',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Cette action est irréversible.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.w600,
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: reasons.length,
+                  itemBuilder: (context, index) {
+                    final reason = reasons[index];
+                    final isSelected = selectedReason == reason;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: InkWell(
+                        onTap: () => setSheetState(() => selectedReason = reason),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.error.withValues(alpha: 0.1)
+                                : Colors.grey.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.error
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isSelected
+                                    ? LucideIcons.checkCircle
+                                    : LucideIcons.circle,
+                                color: isSelected
+                                    ? AppColors.error
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(reason)),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
+                        onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Garder mon compte'),
+                        child: const Text('Annuler'),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
+                        onPressed: selectedReason != null
+                            ? () => Navigator.pop(context, selectedReason)
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.error,
                           foregroundColor: Colors.white,
@@ -738,7 +594,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Supprimer'),
+                        child: const Text('Continuer'),
                       ),
                     ),
                   ],
@@ -748,6 +604,93 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmationSheet(String reason) {
+    return showMazlSheet<bool>(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              LucideIcons.alertTriangle,
+              color: AppColors.error,
+              size: 40,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Confirmation finale',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const Text(
+                  'Cette action est irréversible.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Garder mon compte'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Supprimer'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -775,78 +718,68 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required String confirmText,
     required bool isDestructive,
   }) {
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSheetHandle(),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: (isDestructive ? Colors.red : AppColors.primary).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-                  color: isDestructive ? Colors.red : AppColors.primary,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: const Text('Annuler'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDestructive ? Colors.red : AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: Text(confirmText),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+    return showMazlSheet<bool>(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: (isDestructive ? Colors.red : AppColors.primary).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
+              color: isDestructive ? Colors.red : AppColors.primary,
+              size: 32,
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Annuler'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDestructive ? Colors.red : AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: Text(confirmText),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }

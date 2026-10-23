@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Widget to manage profile prompts (Hinge-style Q&A)
 class ProfilePromptsSection extends StatefulWidget {
@@ -89,10 +90,10 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     }
 
     // Show prompt selection dialog
-    final selectedTemplate = await showModalBottomSheet<PromptTemplate>(
-      context: context,
+    final selectedTemplate = await showMazlSheet<PromptTemplate>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => _PromptSelectionSheet(prompts: availableToAdd),
     );
 
@@ -205,95 +206,65 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   Future<String?> _showAnswerDialog(String question, {String? currentAnswer}) async {
     final controller = TextEditingController(text: currentAnswer);
 
-    return showModalBottomSheet<String>(
-      context: context,
+    return showMazlSheet<String>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Question
+          Text(
+            question,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-                  // Question
-                  Text(
-                    question,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Answer field
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    maxLines: 4,
-                    maxLength: 150,
-                    decoration: InputDecoration(
-                      hintText: 'Votre réponse…',
-                      filled: true,
-                      fillColor: Colors.grey.withValues(alpha: 0.1),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Save button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final text = controller.text.trim();
-                        if (text.isNotEmpty) {
-                          Navigator.pop(context, text);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Enregistrer'),
-                    ),
-                  ),
-                ],
+          // Answer field
+          TextField(
+            controller: controller,
+            autofocus: true,
+            maxLines: 4,
+            maxLength: 150,
+            decoration: InputDecoration(
+              hintText: 'Votre réponse…',
+              filled: true,
+              fillColor: Colors.grey.withValues(alpha: 0.1),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
           ),
-        ),
+          const SizedBox(height: 16),
+
+          // Save button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty) {
+                  Navigator.pop(context, text);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Enregistrer'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -521,24 +492,10 @@ class _PromptSelectionSheet extends StatelessWidget {
       grouped.putIfAbsent(category, () => []).add(prompt);
     }
 
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       child: Column(
         children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
           // Title
           const Padding(
             padding: EdgeInsets.all(20),
