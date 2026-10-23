@@ -9,7 +9,7 @@ const ROOT = join(import.meta.dir, "..", "fixtures", "chip");
 
 export const NOW = new Date("2026-10-23T12:00:00Z");
 
-export type Variant = "rsa-pkcs1" | "rsa-pss" | "rsa-pss-cert" | "ecdsa-p256" | "ecdsa-brainpool-explicit" | "untrusted-csca" | "bad-mrz";
+export type Variant = "rsa-pkcs1" | "rsa-pss" | "rsa-pss-cert" | "ecdsa-p256" | "ecdsa-brainpool-explicit" | "untrusted-csca" | "bad-mrz" | "rsa-pkcs1-face";
 
 export function loadFiles(variant: Variant): ChipFiles {
   const read = (name: string): Uint8Array => new Uint8Array(readFileSync(join(ROOT, variant, name)));

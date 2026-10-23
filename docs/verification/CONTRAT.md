@@ -167,6 +167,12 @@ Contrôles :
 5. photo de la puce (JPEG ou JPEG 2000) vs première image `front` :
    ≥ `FACE_MATCH_THRESHOLD`, sinon `document_face_mismatch`.
 
+**Ordre réellement appliqué** : 1 → 2 → 3 → **5** → 4. Le visage est comparé
+AVANT de consulter le registre des documents : quelqu'un qui détient une copie
+des données d'une puce ne peut pas apprendre si ce document est inscrit chez
+nous sans avoir aussi le visage de son titulaire. Le pays du CSCA doit
+correspondre à l'État émetteur du DG1 (`csca_unknown` sinon).
+
 Succès : ligne `identity_verifications`, `profiles.birthdate` remplacée par
 celle du document et verrouillée (`birthdate_locked = true`, plus modifiable
 par `PUT /api/profile`), `verification_level = 'identity'`.
@@ -174,8 +180,10 @@ Réponse `{ success: true, verified: true }` ou
 `{ success: true, verified: false, reason: "<IdentityRejection>" }`.
 Quota : celui des sessions `identity` (3 par jour).
 
-Au bannissement d'un compte (route admin existante), son empreinte est copiée
-dans `banned_document_fingerprints`.
+Au bannissement **définitif** d'un compte (route admin existante,
+`isPermanent: true`), son empreinte est copiée dans
+`banned_document_fingerprints` ; un bannissement temporaire ne la copie pas, et
+le débannissement la retire.
 
 Repli sans NFC : le parcours web existant (relecture manuelle), chiffré et purgé (§2.4).
 
@@ -215,7 +223,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS photo_verified_at TIMESTAMP;
 CREATE TABLE IF NOT EXISTS identity_verifications (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   method VARCHAR(20) NOT NULL,            -- 'nfc_passive_auth' | 'manual_review'
-  issuing_state CHAR(3) NOT NULL, document_type VARCHAR(2) NOT NULL,
+  issuing_state VARCHAR(3) NOT NULL  -- « D » pour l'Allemagne, document_type VARCHAR(2) NOT NULL,
   doc_fingerprint CHAR(64) NOT NULL UNIQUE, document_expiry DATE NOT NULL,
   verified_at TIMESTAMP NOT NULL DEFAULT NOW());
 CREATE TABLE IF NOT EXISTS banned_document_fingerprints (

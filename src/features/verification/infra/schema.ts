@@ -33,4 +33,29 @@ export async function ensureVerificationSchema(sql: Sql): Promise<void> {
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS identity_verified_at TIMESTAMP`;
   await sql`ALTER TABLE profile_photos ADD COLUMN IF NOT EXISTS face_match BOOLEAN`;
   await sql`ALTER TABLE profile_photos ADD COLUMN IF NOT EXISTS face_checked_at TIMESTAMP`;
+  await ensureIdentitySchema(sql);
+}
+
+// Level 2 (CONTRAT.md §5 "niveau 2"). No name, no document number: only an
+// HMAC fingerprint, so that one document opens one account and a banned
+// document stays banned.
+async function ensureIdentitySchema(sql: Sql): Promise<void> {
+  await sql`
+    CREATE TABLE IF NOT EXISTS identity_verifications (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      method VARCHAR(20) NOT NULL,
+      issuing_state VARCHAR(3) NOT NULL,
+      document_type VARCHAR(2) NOT NULL,
+      doc_fingerprint CHAR(64) NOT NULL UNIQUE,
+      document_expiry DATE NOT NULL,
+      verified_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS banned_document_fingerprints (
+      doc_fingerprint CHAR(64) PRIMARY KEY,
+      banned_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS birthdate_locked BOOLEAN NOT NULL DEFAULT false`;
 }

@@ -147,6 +147,8 @@ variant rsa-pkcs1 rsa face-a.jpg
 variant rsa-pss rsa face-b.jpg -keyopt rsa_padding_mode:pss -keyopt rsa_pss_saltlen:32
 variant ecdsa-p256 p256 face-a.jpg -keyid
 variant ecdsa-brainpool-explicit bp256x face-b.jpg
+# (4b) a real public-domain portrait (tests/fixtures/faces/SOURCES.md) for the end-to-end identity test
+variant rsa-pkcs1-face rsa face-ride.jpg
 
 # (5) PSS for the DSC certificate as well (CSCA signs the DSC with RSASSA-PSS).
 dir=$HERE/rsa-pss-cert; rm -rf "$dir"; mkdir -p "$dir"

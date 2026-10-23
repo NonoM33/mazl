@@ -2,7 +2,13 @@ import type { Sql } from "postgres";
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import { PhotoFaceCheckerService } from "./application/photo-face-checker";
-import type { FaceEngine, ImageDecoder, PhotoFaceChecker } from "./application/ports";
+import type { ChipVerifier, FaceEngine, ImageDecoder, Jp2Decoder, PhotoFaceChecker } from "./application/ports";
+import type { SubmitIdentityDeps } from "./application/submit-identity";
+import { hmacHex } from "../../shared/crypto/signer";
+import { LazyChipVerifier } from "./infra/lazy-chip-verifier";
+import { OpjJp2Decoder } from "./infra/opj-jp2-decoder";
+import { PgIdentityRepository } from "./infra/pg-identity-repository";
+import { registerIdentityRoutes } from "./presentation/identity.routes";
 import type { FaceThresholds } from "./domain/thresholds";
 import { readFaceConfig } from "./infra/config";
 import { createLocalPhotoReader } from "./infra/local-photo-reader";
@@ -24,12 +30,16 @@ export interface VerificationModuleOptions {
   // Replaceable engine and decoder, for tests of the HTTP layer.
   readonly engine?: FaceEngine;
   readonly decoder?: ImageDecoder;
+  // Level 2: chip verification and JPEG 2000 decoding, replaceable in tests.
+  readonly chip?: ChipVerifier;
+  readonly jp2?: Jp2Decoder;
 }
 
 export interface VerificationModule {
   readonly routeDeps: VerificationRouteDeps;
   readonly photoFaceChecker: PhotoFaceChecker;
   readonly thresholds: FaceThresholds;
+  readonly identityDeps: SubmitIdentityDeps;
 }
 
 export function createVerificationModule(options: VerificationModuleOptions): VerificationModule {
@@ -57,7 +67,19 @@ export function createVerificationModule(options: VerificationModuleOptions): Ve
     vault,
     matchThreshold: config.thresholds.match,
   });
-  return { routeDeps, photoFaceChecker, thresholds: config.thresholds };
+  const identityDeps: SubmitIdentityDeps = {
+    decoder,
+    jp2: options.jp2 ?? new OpjJp2Decoder(),
+    engine,
+    chip: options.chip ?? new LazyChipVerifier(),
+    sessions,
+    identities: new PgIdentityRepository(options.sql),
+    state,
+    fingerprint: (message) => hmacHex("DOC_FINGERPRINT_KEY", message),
+    thresholds: config.thresholds,
+    now: () => new Date(),
+  };
+  return { routeDeps, photoFaceChecker, thresholds: config.thresholds, identityDeps };
 }
 
 // For the profile feature: compares photos added after verification with the
@@ -68,6 +90,7 @@ export function createPhotoFaceChecker(options: VerificationModuleOptions): Phot
 
 export function registerVerification(app: Hono<{ Variables: AppVariables }>, module: VerificationModule): void {
   registerVerificationRoutes(app, module.routeDeps);
+  registerIdentityRoutes(app, module.identityDeps);
 }
 
 export { registerVerificationRoutes } from "./presentation/verification.routes";

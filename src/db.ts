@@ -1074,7 +1074,9 @@ export async function upsertProfile(userId: number, params: {
     ON CONFLICT (user_id)
     DO UPDATE SET
       display_name = COALESCE(${params.displayName ?? null}, profiles.display_name),
-      birthdate = COALESCE(${params.birthdate ?? null}, profiles.birthdate),
+      -- once read from a verified document (level 2), the birthdate is locked
+      birthdate = CASE WHEN profiles.birthdate_locked THEN profiles.birthdate
+                       ELSE COALESCE(${params.birthdate ?? null}, profiles.birthdate) END,
       gender = COALESCE(${params.gender ?? null}, profiles.gender),
       bio = COALESCE(${params.bio ?? null}, profiles.bio),
       location = COALESCE(${params.location ?? null}, profiles.location),
@@ -2949,6 +2951,15 @@ export async function banUser(params: {
     RETURNING *
   `;
 
+  // A permanent ban follows the identity document: it cannot open a new account.
+  if (params.isPermanent) {
+    await sql`
+      INSERT INTO banned_document_fingerprints (doc_fingerprint)
+      SELECT doc_fingerprint FROM identity_verifications WHERE user_id = ${params.userId}
+      ON CONFLICT DO NOTHING
+    `;
+  }
+
   // Log action
   await logModerationAction({
     adminEmail: params.bannedBy,
@@ -2971,6 +2982,10 @@ export async function unbanUser(userId: number, unbannedBy: string) {
     UPDATE user_bans
     SET unbanned_at = NOW(), unbanned_by = ${unbannedBy}
     WHERE user_id = ${userId} AND unbanned_at IS NULL
+  `;
+  await sql`
+    DELETE FROM banned_document_fingerprints
+    WHERE doc_fingerprint IN (SELECT doc_fingerprint FROM identity_verifications WHERE user_id = ${userId})
   `;
 
   // Log action
