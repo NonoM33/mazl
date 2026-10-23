@@ -119,6 +119,23 @@ void main() {
       expect(offenders, isEmpty, reason: 'use showMazlSheet: root navigator + the single theme handle');
     });
 
+    test('popup menus open on the root navigator, above the tab bar', () {
+      final menu = RegExp(r'\b(PopupMenuButton\s*(<[^>]*>)?\s*\(|showMenu\s*(<[^>]*>)?\s*\()');
+      final offenders = <String>[];
+      for (final f in sources) {
+        final text = f.readAsStringSync();
+        for (final m in menu.allMatches(text)) {
+          // The arguments of this call: up to the first line closing it at
+          // the same indentation, a generous window is enough here.
+          final window = text.substring(m.start, (m.start + 600).clamp(0, text.length));
+          if (!window.contains('useRootNavigator: true')) {
+            offenders.add('${relative(f)}:${text.substring(0, m.start).split('\n').length}');
+          }
+        }
+      }
+      expect(offenders, isEmpty);
+    });
+
     test('no hand-drawn drag handle (the theme draws the only one)', () {
       final handle = RegExp(r'width:\s*(\d+)(?:\.0)?,\s*\n\s*height:\s*(\d+)(?:\.0)?,');
       final offenders = <String>[];

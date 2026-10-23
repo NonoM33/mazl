@@ -391,6 +391,8 @@ class _PromptCard extends StatelessWidget {
                 ),
                 // Actions
                 PopupMenuButton<String>(
+                  // Above the floating tab bar, like every overlay (sheet_rules_test).
+                  useRootNavigator: true,
                   icon: Icon(LucideIcons.moreVertical, size: 18, color: AppColors.primary),
                   onSelected: (value) {
                     if (value == 'edit') onEdit();
