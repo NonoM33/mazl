@@ -2,6 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mazl/core/dev/dev_session.dart';
+import 'package:mazl/core/router/route_names.dart';
+import 'package:mazl/core/services/auth_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:mazl/presentation/features/auth/screens/login_screen.dart';
@@ -97,6 +101,42 @@ void main() {
     testWidgets("n'utilise aucun dégradé", (tester) async {
       await tester.pumpWidget(_app(const LoginScreen(showApple: true)));
       expect(_hasLinearGradient(tester), isFalse);
+    });
+  });
+
+  group('connexion fictive (dev, debug uniquement)', () {
+    // Le ProviderScope dispose le singleton AuthService en fin de test : on
+    // ne peut donc que fermer la session fictive, pas appeler signOut().
+    tearDown(DevSession.stop);
+
+    testWidgets('le bouton « Connexion fictive (dev) » est présent et actif', (tester) async {
+      await tester.pumpWidget(_app(const LoginScreen(showApple: false)));
+
+      final button = find.widgetWithText(TextButton, 'Connexion fictive (dev)');
+      expect(button, findsOneWidget);
+      expect(tester.widget<TextButton>(button).onPressed, isNotNull);
+    });
+
+    testWidgets('un appui ouvre une session fictive et va à la découverte', (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(path: '/', builder: (_, __) => const LoginScreen(showApple: false)),
+          GoRoute(
+            path: RoutePaths.discover,
+            builder: (_, __) => const Scaffold(body: Text('Découverte')),
+          ),
+        ],
+      );
+      await tester.pumpWidget(ProviderScope(
+        child: MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+      ));
+
+      await tester.tap(find.widgetWithText(TextButton, 'Connexion fictive (dev)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Découverte'), findsOneWidget);
+      expect(AuthService().isAuthenticated, isTrue);
+      expect(DevSession.isActive, isTrue);
     });
   });
 

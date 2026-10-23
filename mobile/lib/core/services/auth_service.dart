@@ -9,6 +9,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../dev/dev_login.dart';
+import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'push_notification_service.dart';
 import 'revenuecat_service.dart';
@@ -152,6 +154,28 @@ class AuthService extends ChangeNotifier {
       _isInitialized = true;
     }
     notifyListeners();
+  }
+
+  /// Connexion fictive, réservée au développement local.
+  ///
+  /// Session purement en mémoire : pas de JWT, aucun appel au vrai serveur,
+  /// rien d'écrit en stockage sécurisé, ni RevenueCat ni notifications push.
+  /// Les requêtes sont servies par `DemoHttpClient` tant que la session dure.
+  Future<AuthResult> signInAsDemo() async {
+    if (!kDevLoginAvailable) {
+      throw StateError('La connexion fictive est réservée au mode debug.');
+    }
+    final user = AuthUser(
+      id: '0',
+      email: 'demo@example.com',
+      displayName: 'Léa (démo)',
+      provider: AuthProvider.email,
+    );
+    DevSession.start();
+    _currentUser = user;
+    debugPrint('AuthService: session fictive démarrée');
+    notifyListeners();
+    return AuthResult.success(user);
   }
 
   /// Sign in with Google
@@ -447,6 +471,14 @@ class AuthService extends ChangeNotifier {
 
   /// Sign out current user
   Future<void> signOut() async {
+    if (DevSession.isActive) {
+      // Session fictive : rien à révoquer côté RevenueCat / push / stockage.
+      DevSession.stop();
+      _currentUser = null;
+      debugPrint('AuthService: session fictive terminée');
+      notifyListeners();
+      return;
+    }
     try {
       // Sign out from Google if applicable
       if (_currentUser?.provider == AuthProvider.google) {
@@ -461,6 +493,7 @@ class AuthService extends ChangeNotifier {
       await _secureStorage.delete(key: _userKey);
       await _secureStorage.delete(key: _tokenKey);
 
+      DevSession.stop();
       _currentUser = null;
       debugPrint('AuthService: User signed out');
       notifyListeners();

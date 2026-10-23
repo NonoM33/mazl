@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -137,6 +138,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  /// Développement local seulement : session fictive, aucun appel au serveur.
+  Future<void> _handleDemoSignIn() async {
+    if (!kDevLoginAvailable) return;
+    final result = await ref.read(authServiceProvider).signInAsDemo();
+    if (!mounted || !result.success) return;
+    context.go(RoutePaths.discover);
+  }
+
   void _navigateToEmailAuth({required bool isLogin}) {
     Navigator.push(
       context,
@@ -208,6 +217,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               : () => _navigateToEmailAuth(isLogin: true),
           child: const Text('Utiliser mon e-mail'),
         ),
+        if (kDevLoginAvailable)
+          TextButton.icon(
+            onPressed: _isLoading ? null : _handleDemoSignIn,
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            icon: const Icon(LucideIcons.flaskConical, size: 16),
+            label: const Text('Connexion fictive (dev)'),
+          ),
       ],
     );
   }
