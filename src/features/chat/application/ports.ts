@@ -95,7 +95,8 @@ export interface PreviewCacheData {
 
 export interface PreviewCache {
   get(url: string, notOlderThan: Date): Promise<CachedPreview>;
-  put(url: string, data: PreviewCacheData | null, at: Date): Promise<void>;
+  // Returns the image key of the entry it replaced, so the caller can delete that file.
+  put(url: string, data: PreviewCacheData | null, at: Date): Promise<string | null>;
   // Drops entries fetched before `olderThan`; returns the image keys they owned.
   deleteExpired(olderThan: Date): Promise<string[]>;
 }

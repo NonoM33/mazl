@@ -153,3 +153,87 @@ export class RecordingEvents implements RealtimeEvents {
   }
   ofType(type: string) { return this.sent.filter((e) => e.type === type); }
 }
+
+import type { FetchOptions, FetchOutcome, GuardedFetcher } from "../../src/features/chat/application/guarded-fetch";
+import type { CachedPreview, ChatImageProcessor, PreviewCache, PreviewCacheData, ProcessedImage } from "../../src/features/chat/application/ports";
+import { PhotoRejectedError } from "../../src/features/media/domain/errors";
+
+export class FakeFetcher implements GuardedFetcher {
+  readonly calls: Array<{ url: string; kind: string }> = [];
+  constructor(private readonly responses: Record<string, FetchOutcome | (() => Promise<FetchOutcome>)>) {}
+  async fetch(url: string, options: FetchOptions): Promise<FetchOutcome> {
+    this.calls.push({ url, kind: options.kind });
+    const response = this.responses[url];
+    if (response === undefined) return { ok: false, reason: "dns_failed" };
+    return typeof response === "function" ? response() : response;
+  }
+}
+
+export const htmlPage = (html: string): FetchOutcome => ({
+  ok: true, body: new TextEncoder().encode(html), contentType: "text/html", truncated: false,
+});
+export const imageBytes = (marker = 1): FetchOutcome => ({
+  ok: true, body: Uint8Array.from([0x89, 0x50, marker]), contentType: "image/png", truncated: false,
+});
+
+export class FakeImages implements ChatImageProcessor {
+  failPreview = false;
+  readonly previewCalls: Uint8Array[] = [];
+  async toChatJpeg(bytes: Uint8Array): Promise<ProcessedImage> {
+    if (bytes.byteLength < 3) throw new PhotoRejectedError("undecodable");
+    return { bytes: Uint8Array.from([0xff, 0xd8, 0xff, 0x01]), width: 640, height: 480 };
+  }
+  async toPreviewJpeg(bytes: Uint8Array): Promise<ProcessedImage> {
+    this.previewCalls.push(bytes);
+    if (this.failPreview) throw new PhotoRejectedError("undecodable");
+    return { bytes: Uint8Array.from([0xff, 0xd8, 0xff, 0x02]), width: 320, height: 200 };
+  }
+}
+
+export class FakePreviewCache implements PreviewCache {
+  readonly entries = new Map<string, { data: PreviewCacheData | null; at: Date }>();
+  async get(url: string, notOlderThan: Date): Promise<CachedPreview> {
+    const entry = this.entries.get(url);
+    return entry && entry.at >= notOlderThan ? { found: true, data: entry.data } : { found: false };
+  }
+  async put(url: string, data: PreviewCacheData | null, at: Date) {
+    const previous = this.entries.get(url)?.data?.imageKey ?? null;
+    this.entries.set(url, { data, at });
+    return previous;
+  }
+  async deleteExpired(olderThan: Date) {
+    const keys: string[] = [];
+    for (const [url, entry] of [...this.entries]) {
+      if (entry.at < olderThan) {
+        this.entries.delete(url);
+        if (entry.data?.imageKey) keys.push(entry.data.imageKey);
+      }
+    }
+    return keys;
+  }
+}
+
+import type { MediaRepository } from "../../src/features/chat/application/ports";
+
+export class FakeMediaRepository implements MediaRepository {
+  readonly rows: MediaRecord[] = [];
+  private nextId = 1;
+  async insert(media: NewMedia) {
+    const row: MediaRecord = { id: this.nextId++, messageId: null, role: "attachment", createdAt: T0, ...media };
+    this.rows.push(row);
+    return row;
+  }
+  async find(id: number) { return this.rows.find((r) => r.id === id) ?? null; }
+  async countPending(uploaderId: number) {
+    return this.rows.filter((r) => r.uploaderId === uploaderId && r.messageId === null && r.role === "attachment").length;
+  }
+  async listOrphans(olderThan: Date, limit: number) {
+    return this.rows.filter((r) => r.messageId === null && r.role === "attachment" && r.createdAt < olderThan).slice(0, limit);
+  }
+  async delete(ids: readonly number[]) {
+    for (const id of ids) {
+      const index = this.rows.findIndex((r) => r.id === id);
+      if (index >= 0) this.rows.splice(index, 1);
+    }
+  }
+}
