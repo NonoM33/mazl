@@ -90,7 +90,7 @@ export function readMasterList(der: Uint8Array, crypto: ChipCrypto, options: Mas
 }
 
 export function countryOf(cert: Certificate): string {
-  return /2\.5\.4\.6=([a-z]{2})/.exec(cert.subject)?.[1]?.toUpperCase() ?? "??";
+  return cert.subjectCountry ?? "??";
 }
 
 export function toPem(der: Uint8Array): string {

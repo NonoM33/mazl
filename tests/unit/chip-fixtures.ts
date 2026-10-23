@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ChipFiles } from "../../src/features/verification/domain/types";
+import { createIssuingStateRegistry } from "../../src/features/verification/domain/chip/icao-states";
 import { CscaTrustStore } from "../../src/features/verification/infra/csca-trust-store";
 
 // Loads the OpenSSL-generated fixtures of tests/fixtures/chip (make-fixtures.sh).
@@ -24,3 +25,6 @@ export function fixtureJpeg(name: "face-a" | "face-b"): Uint8Array {
 }
 
 export const TRUSTED: readonly Variant[] = ["rsa-pkcs1", "rsa-pss", "rsa-pss-cert", "ecdsa-p256", "ecdsa-brainpool-explicit"];
+
+// The fictitious fixtures use issuing state "UTO" and CSCA countryName "UT".
+export const TEST_STATES = createIssuingStateRegistry({ UTO: ["UT"] });

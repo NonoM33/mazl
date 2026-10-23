@@ -1,6 +1,7 @@
 import { parseDg1 } from "../domain/chip/dg1";
 import { parseDg2 } from "../domain/chip/dg2";
 import { parseSod, type SignedData } from "../domain/chip/cms";
+import type { IssuingStateRegistry } from "../domain/chip/icao-states";
 import { parseLdsSecurityObject } from "../domain/chip/lds-security-object";
 import { OID } from "../domain/chip/oids";
 import type { Certificate } from "../domain/chip/x509";
@@ -14,7 +15,9 @@ import { isIssuedBy, sameBytes, verifySignedData } from "./signed-data-verificat
 //   3. the signature over the signed attributes verifies with the DSC key
 //   4. the DSC chains to a trusted, currently valid CSCA
 //   5. DG1 / DG2 hash to the values signed in the LDSSecurityObject
-// Only then are DG1 and DG2 parsed.
+//   6. (after parsing DG1) the countryName of the CSCA and of the DSC issuer
+//      corresponds to DG1's issuing state: country binding
+// DG1 and DG2 are parsed only after step 5.
 //
 // Choices (documented deviations from a full 9303 path validation):
 //  - Only the CSCA validity is compared with `now`. A DSC signs for months but
@@ -28,12 +31,22 @@ const fail = (reason: Failure["reason"]): Failure => ({ ok: false, reason });
 export interface PassiveAuthDeps {
   readonly crypto: ChipCrypto;
   readonly trust: TrustAnchors;
+  readonly states: IssuingStateRegistry;
 }
 
-function chainsToCsca(dsc: Certificate, now: Date, deps: PassiveAuthDeps): boolean {
+function findIssuingCsca(dsc: Certificate, now: Date, deps: PassiveAuthDeps): Certificate | undefined {
   return deps.trust
     .candidatesFor(dsc.issuer, dsc.authorityKeyId)
-    .some((csca) => now >= csca.notBefore && now <= csca.notAfter && isIssuedBy(dsc, csca, deps.crypto));
+    .find((csca) => now >= csca.notBefore && now <= csca.notAfter && isIssuedBy(dsc, csca, deps.crypto));
+}
+
+// Country binding: the CSCA that vouched for the DSC, and the DSC issuer name,
+// must both belong to the state DG1 claims. Without it a CSCA of any country
+// could validate a document claiming to be issued by another.
+function boundToIssuingState(issuingState: string, csca: Certificate, dsc: Certificate, deps: PassiveAuthDeps): boolean {
+  const accepted = deps.states.countryCodesFor(issuingState);
+  const matches = (country: string | undefined): boolean => country !== undefined && accepted.includes(country);
+  return matches(csca.subjectCountry) && matches(dsc.issuerCountry);
 }
 
 function dataGroupsMatch(files: ChipFiles, signedData: SignedData, deps: PassiveAuthDeps): boolean {
@@ -53,10 +66,12 @@ export function authenticatePassively(files: ChipFiles, now: Date, deps: Passive
   if (signedData.eContentType !== OID.ldsSecurityObject) return fail("chip_data_invalid");
   const signature = verifySignedData(signedData, deps.crypto);
   if (!signature.ok) return fail(signature.reason);
-  if (!chainsToCsca(signature.signer, now, deps)) return fail("csca_unknown");
+  const csca = findIssuingCsca(signature.signer, now, deps);
+  if (csca === undefined) return fail("csca_unknown");
   if (!dataGroupsMatch(files, signedData, deps)) return fail("chip_data_invalid");
 
   const identity = parseDg1(files.dg1, now);
   const face = parseDg2(files.dg2);
+  if (!boundToIssuingState(identity.issuingState, csca, signature.signer, deps)) return fail("csca_unknown");
   return { ok: true, identity, faceImage: face.bytes, faceImageFormat: face.format };
 }

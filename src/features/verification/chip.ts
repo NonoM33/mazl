@@ -1,7 +1,7 @@
 // Public surface of the chip (level 2) library. Wiring example:
 //
 //   const trust = await CscaTrustStore.fromEnv();           // CSCA_BUNDLE_PATH
-//   const chipVerifier: ChipVerifier = new PassiveChipVerifier(trust);
+//   const chipVerifier: ChipVerifier = new PassiveChipVerifier(trust); // ICAO_STATES: CSCA country must match DG1 issuing state
 //   const jp2: Jp2Decoder = new OpjJp2Decoder();            // OPJ_DECOMPRESS
 //
 // The use case, not this library, checks expiry, age and the document
@@ -11,3 +11,4 @@ export { CscaTrustStore, TrustStoreError, DEFAULT_CSCA_BUNDLE_PATH } from "./inf
 export { OpjJp2Decoder } from "./infra/opj-jp2-decoder";
 export { ageOn, documentFingerprintMessage, isExpired } from "./domain/chip/identity-helpers";
 export { ChipParseError, TlvError } from "./domain/chip/errors";
+export { createIssuingStateRegistry, ICAO_STATES, type IssuingStateRegistry } from "./domain/chip/icao-states";

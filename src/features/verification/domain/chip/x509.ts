@@ -1,5 +1,6 @@
 import {
   canonicalName,
+  countryOfName,
   decodeAlgorithmIdentifier,
   decodeByteAlignedBitString,
   decodeOctetString,
@@ -27,6 +28,8 @@ export interface Certificate {
   readonly serial: Uint8Array;
   readonly issuer: string; // canonical form
   readonly subject: string; // canonical form
+  readonly issuerCountry: string | undefined; // countryName (C), upper case
+  readonly subjectCountry: string | undefined;
   readonly notBefore: Date;
   readonly notAfter: Date;
   readonly spki: SubjectPublicKeyInfo;
@@ -86,9 +89,9 @@ export function parseCertificate(der: Uint8Array, lenient = false): Certificate 
   if (!sameBytes(raw(tbsSignatureAlgorithm), raw(expectTag(sigAlg, TAG.sequence, "signatureAlgorithm")))) {
     throw new TlvError("signature algorithm mismatch");
   }
-  const issuer = canonicalName(expectTag(fields[i++], TAG.sequence, "issuer"));
+  const issuerName = expectTag(fields[i++], TAG.sequence, "issuer");
   const validity = children(expectTag(fields[i++], TAG.sequence, "validity"));
-  const subject = canonicalName(expectTag(fields[i++], TAG.sequence, "subject"));
+  const subjectName = expectTag(fields[i++], TAG.sequence, "subject");
   const spki = parseSpki(expectTag(fields[i++], TAG.sequence, "SPKI"));
   const extensions = fields.slice(i).find((f) => f.tag === TAG_EXTENSIONS);
   const ids = parseKeyIds(extensions, lenient);
@@ -98,8 +101,10 @@ export function parseCertificate(der: Uint8Array, lenient = false): Certificate 
     der,
     tbs: raw(tbs),
     serial,
-    issuer,
-    subject,
+    issuer: canonicalName(issuerName),
+    subject: canonicalName(subjectName),
+    issuerCountry: countryOfName(issuerName),
+    subjectCountry: countryOfName(subjectName),
     notBefore: decodeTime(nb),
     notAfter: decodeTime(na),
     spki,

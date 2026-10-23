@@ -185,3 +185,17 @@ export function canonicalName(name: Tlv): string {
   });
   return rdns.join(",");
 }
+
+// The single countryName (2.5.4.6) of a Name, upper-cased; undefined if there
+// is none or more than one (ambiguous).
+export function countryOfName(name: Tlv): string | undefined {
+  expectTag(name, TAG.sequence, "Name");
+  const found: string[] = [];
+  for (const rdn of children(name)) {
+    for (const atv of children(expectTag(rdn, TAG.set, "RDN"))) {
+      const [oid, val] = children(expectTag(atv, TAG.sequence, "AttributeTypeAndValue"));
+      if (oid !== undefined && val !== undefined && decodeOid(oid) === "2.5.4.6") found.push(decodeString(val).trim().toUpperCase());
+    }
+  }
+  return found.length === 1 ? found[0] : undefined;
+}

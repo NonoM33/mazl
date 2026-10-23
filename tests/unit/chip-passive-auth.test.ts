@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
 import { PassiveChipVerifier } from "../../src/features/verification/infra/passive-chip-verifier";
-import type { ChipFiles } from "../../src/features/verification/domain/types";
-import { fixtureJpeg, loadFiles, loadTrust, NOW, TRUSTED, type Variant } from "./chip-fixtures";
+import type { ChipFiles, ChipVerification } from "../../src/features/verification/domain/types";
+import { createIssuingStateRegistry } from "../../src/features/verification/domain/chip/icao-states";
+import { fixtureJpeg, loadFiles, loadTrust, NOW, TEST_STATES, TRUSTED, type Variant } from "./chip-fixtures";
 
-const verifier = new PassiveChipVerifier(loadTrust(...TRUSTED));
+const verifier = new PassiveChipVerifier(loadTrust(...TRUSTED), undefined, TEST_STATES);
 
 function mutate(bytes: Uint8Array, index: number): Uint8Array {
   const copy = bytes.slice();
@@ -68,7 +69,7 @@ describe("passive authentication: attacks", () => {
   });
 
   test("validly signed data with a bad MRZ check digit is chip_data_invalid", async () => {
-    const result = await new PassiveChipVerifier(loadTrust("bad-mrz")).verify(loadFiles("bad-mrz"), NOW);
+    const result = await new PassiveChipVerifier(loadTrust("bad-mrz"), undefined, TEST_STATES).verify(loadFiles("bad-mrz"), NOW);
     expect(result).toEqual({ ok: false, reason: "chip_data_invalid" });
   });
 
@@ -80,7 +81,7 @@ describe("passive authentication: attacks", () => {
   });
 
   test("an empty trust store is csca_unknown", async () => {
-    const result = await new PassiveChipVerifier(loadTrust()).verify(loadFiles("rsa-pkcs1"), NOW);
+    const result = await new PassiveChipVerifier(loadTrust(), undefined, TEST_STATES).verify(loadFiles("rsa-pkcs1"), NOW);
     expect(result).toEqual({ ok: false, reason: "csca_unknown" });
   });
 
@@ -93,8 +94,46 @@ describe("passive authentication: attacks", () => {
 
   test("a CSCA with the same name but another key does not validate the DSC", async () => {
     // Trust only the CSCA of another variant: different subject, so unknown.
-    const result = await new PassiveChipVerifier(loadTrust("rsa-pss")).verify(loadFiles("rsa-pkcs1"), NOW);
+    const result = await new PassiveChipVerifier(loadTrust("rsa-pss"), undefined, TEST_STATES).verify(loadFiles("rsa-pkcs1"), NOW);
     expect(result).toEqual({ ok: false, reason: "csca_unknown" });
+  });
+});
+
+describe("passive authentication: country binding", () => {
+  const files = loadFiles("rsa-pkcs1");
+  const trust = loadTrust("rsa-pkcs1");
+  const rejected: ChipVerification = { ok: false, reason: "csca_unknown" };
+
+  test("a CSCA of another country cannot vouch for the issuing state of DG1", async () => {
+    // Same valid chain, but DG1 says UTO and we only accept FR for UTO.
+    const result = await new PassiveChipVerifier(trust, undefined, createIssuingStateRegistry({ UTO: ["FR"] })).verify(files, NOW);
+    expect(result).toEqual(rejected);
+  });
+
+  test("an unknown issuing state is refused", async () => {
+    const result = await new PassiveChipVerifier(trust, undefined, createIssuingStateRegistry({})).verify(files, NOW);
+    expect(result).toEqual(rejected);
+  });
+
+  test("several accepted country codes for one state (Kosovo style) are fine", async () => {
+    const result = await new PassiveChipVerifier(trust, undefined, createIssuingStateRegistry({ UTO: ["XX", "UT"] })).verify(files, NOW);
+    expect(result.ok).toBe(true);
+  });
+
+  test("the DSC issuer country is checked too, not only the CSCA subject", async () => {
+    const real = trust.certificates[0];
+    if (!real) throw new Error("fixture");
+    // A trust store whose CSCA claims country FR although the DSC issuer says UT.
+    const lying = { candidatesFor: () => [{ ...real, subjectCountry: "FR" }] };
+    const result = await new PassiveChipVerifier(lying, undefined, createIssuingStateRegistry({ UTO: ["FR"] })).verify(files, NOW);
+    expect(result).toEqual(rejected);
+  });
+
+  test("a CSCA without a countryName is refused", async () => {
+    const real = trust.certificates[0];
+    if (!real) throw new Error("fixture");
+    const noCountry = { candidatesFor: () => [{ ...real, subjectCountry: undefined }] };
+    expect(await new PassiveChipVerifier(noCountry, undefined, TEST_STATES).verify(files, NOW)).toEqual(rejected);
   });
 });
 
