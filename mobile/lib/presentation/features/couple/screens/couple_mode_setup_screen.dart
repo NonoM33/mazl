@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
-import '../../../../core/services/api_service.dart';
+import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
 
 /// Loads the member's matches (the real API in production).
 typedef MatchesLoader = Future<ApiResponse<List<Map<String, dynamic>>>> Function();
@@ -29,6 +30,10 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   bool _isLoading = true;
   bool _loadFailed = false;
   bool _isBusy = false;
+
+  /// True right after a successful send: the confirmation has no cancel button
+  /// then. Reopening the screen with a pending request shows it.
+  bool _justSent = false;
   Map<String, dynamic>? _selectedProfile;
   String? _errorMessage;
 
@@ -70,6 +75,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     if (!mounted) return;
     setState(() {
       _isBusy = false;
+      _justSent = result.ok;
       _errorMessage = result.message;
     });
   }
@@ -85,6 +91,15 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
       _isBusy = false;
       _errorMessage = result.message;
     });
+  }
+
+  /// Closes the screen and goes back to where the member came from.
+  void _done() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(RoutePaths.settings);
+    }
   }
 
   void _back() {
@@ -117,18 +132,27 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   }
 
   Widget _buildPending(BuildContext context, CoupleRequest request) {
-    final name = request.targetName;
+    final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final name = request.targetName ?? '';
+    final who = name.isEmpty ? 'Cette personne' : name;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           const Spacer(),
-          _Avatar(name: name ?? '', picture: request.targetPicture, radius: 40),
-          const SizedBox(height: 20),
+          _Avatar(name: name, picture: request.targetPicture, size: 96, seed: request.targetId),
+          const SizedBox(height: 24),
           Text(
-            name == null || name.isEmpty ? 'Demande envoyée' : 'Demande envoyée à $name',
+            'Demande envoyée',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$who doit accepter. Nous vous préviendrons dès sa réponse.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
           ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 12),
@@ -137,11 +161,21 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           const Spacer(),
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton(
-              onPressed: _isBusy ? null : _cancel,
-              child: _isBusy ? const _Spinner() : const Text('Annuler la demande'),
+            child: FilledButton(
+              onPressed: _isBusy ? null : _done,
+              child: const Text('Compris'),
             ),
           ),
+          if (!_justSent) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: _isBusy ? null : _cancel,
+                child: _isBusy ? const _Spinner() : const Text('Annuler la demande'),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -162,6 +196,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
       );
     }
 
+    final textTheme = Theme.of(context).textTheme;
     final profiles = [
       for (final match in _matches)
         if (match['profile'] is Map<String, dynamic>) match['profile'] as Map<String, dynamic>,
@@ -176,9 +211,9 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
             children: [
-              const Text(
+              Text(
                 'Avec qui ?',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
               for (final profile in profiles) _buildOption(context, profile),
@@ -195,7 +230,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
               ],
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: _selectedProfile == null || _isBusy ? null : _send,
                   child: _isBusy ? const _Spinner() : const Text('Envoyer la demande'),
                 ),
@@ -212,13 +247,18 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     final selected = identical(_selectedProfile, profile) ||
         (_selectedProfile != null && _selectedProfile!['user_id'] == profile['user_id']);
     final name = profile['display_name'] as String? ?? '';
+    final userId = parseCoupleId(profile['user_id']);
+    final border = selected ? scheme.primary : _hairline(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: selected ? scheme.primaryContainer : scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(20),
+        color: selected ? scheme.primary.withValues(alpha: 0.08) : Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: border, width: selected ? 1.5 : 1),
+        ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           onTap: () => setState(() {
             _selectedProfile = profile;
             _errorMessage = null;
@@ -227,15 +267,23 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                _Avatar(name: name, picture: profile['picture'] as String?, radius: 26),
+                _Avatar(
+                  name: name,
+                  picture: profile['picture'] as String?,
+                  size: 52,
+                  seed: userId,
+                ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-                if (selected) const Icon(LucideIcons.check, size: 20),
+                if (selected) Icon(LucideIcons.check, size: 20, color: scheme.primary),
               ],
             ),
           ),
@@ -245,23 +293,46 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   }
 }
 
+Color _hairline(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark ? AppColors.glassBorderDark : AppColors.hairline;
+
+/// Round avatar shared by every row and the confirmation: the photo when there
+/// is one, otherwise the initial on a neutral fill.
 class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name, required this.picture, required this.radius});
+  const _Avatar({required this.name, required this.picture, required this.size, this.seed});
 
   final String name;
   final String? picture;
-  final double radius;
+  final double size;
+  final int? seed;
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-      backgroundImage: picture != null ? CachedNetworkImageProvider(picture!) : null,
-      child: picture == null && name.isNotEmpty
-          ? Text(name.characters.first.toUpperCase(),
-              style: TextStyle(fontSize: radius * 0.7, fontWeight: FontWeight.w600))
-          : null,
+    final scheme = Theme.of(context).colorScheme;
+    final hasPicture = picture != null && picture!.isNotEmpty;
+    return Container(
+      key: const ValueKey('couple-avatar'),
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: scheme.surfaceContainer,
+        border: Border.all(color: _hairline(context)),
+      ),
+      child: ClipOval(
+        child: hasPicture
+            ? ProfilePhoto(url: picture, seed: seed ?? 0, radius: size / 2, iconSize: size * 0.4)
+            : Center(
+                child: Text(
+                  name.isEmpty ? '?' : name.characters.first.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: size * 0.4,
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ),
+      ),
     );
   }
 }
@@ -274,7 +345,7 @@ class _ErrorText extends StatelessWidget {
   Widget build(BuildContext context) => Text(
         message,
         textAlign: TextAlign.center,
-        style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13),
+        style: const TextStyle(color: AppColors.error, fontSize: 13),
       );
 }
 
@@ -282,6 +353,11 @@ class _Spinner extends StatelessWidget {
   const _Spinner();
 
   @override
-  Widget build(BuildContext context) =>
-      const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2));
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: DefaultTextStyle.of(context).style.color,
+        ),
+      );
 }
