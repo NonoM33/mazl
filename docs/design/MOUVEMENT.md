@@ -19,8 +19,11 @@ recopie que pour être lu. En cas d'écart, c'est `MazlMotion` qui fait foi, et 
 - **Un refus revient d'où il est parti.** Ce que le serveur refuse (limite gratuite, super like
   sans crédit) revient en ressort, puis la raison s'affiche (fenêtre mazl+). Rien ne sort pour
   réapparaître d'un saut.
-- **Réduire les animations** (`MazlMotion.reduced(context)`) : ni rotation, ni ressort, ni rebond,
-  ni flou. Un geste acquis s'efface en fondu de 150 ms (`reducedFade`) ; un geste non acquis revient
+- **Réduire les animations** (`MazlMotion.reduced(context)`, et lui seul) : ni rotation, ni ressort,
+  ni rebond, ni flou. Sur iOS, le réglage « Réduire les animations » arrive dans
+  `accessibilityFeatures.reduceMotion` et ne touche PAS `MediaQuery.disableAnimations` (qui ne
+  reflète que « Supprimer les animations » d'Android) : `reduced` lit les deux, et aucun écran ne
+  lit `disableAnimationsOf` lui-même. Un geste acquis s'efface en fondu de 150 ms (`reducedFade`) ; un geste non acquis revient
   en 120 ms (`reducedReturn`). Chaque geste a son test sous `disableAnimations`.
 
 ## 2. Valeurs communes
@@ -28,6 +31,8 @@ recopie que pour être lu. En cas d'écart, c'est `MazlMotion` qui fait foi, et 
 | rôle | valeur | `MazlMotion` |
 |---|---|---|
 | retour en ressort | amortissement 0,7, léger dépassement, ≈ 350 ms | `spring` |
+| filet de fin de ressort | `springTolerance` | `springTolerance` |
+| retour, animations réduites (courbe) | `reducedReturnCurve` | `reducedReturnCurve` |
 | rebond « c'est acquis » | 1 → 1,15 → 1 en 220 ms | `popDuration`, `popScale` |
 | apparition d'une pastille de réaction | 0,5 → 1,15 → 1 en 220 ms | `reactionPopFrom`, `popScale`, `popDuration` |
 | fondu, animations réduites | 150 ms | `reducedFade` |
@@ -48,10 +53,10 @@ deçà d'un seuil ne redéclenche pas d'haptique.
 
 - **Pendant** : la carte suit le doigt. Rotation jusqu'à 8° (`deckMaxRotationDegrees`) pour une
   largeur de carte, avec le pivot au point saisi : une carte tenue par le bas tourne dans l'autre
-  sens. La carte de dessous passe de 0,96 à 1 (`deckBackScale`) et remonte de 8 px
-  (`deckBackOffset`) en proportion du geste.
+  sens (la moitié basse se décide à `deckGrabLowerHalf`, 0,5 de la hauteur). La carte de dessous
+  passe de 0,96 à 1 (`deckBackScale`) et remonte de 8 px (`deckBackOffset`) en proportion du geste.
 - **Intention** : une pastille ronde blanche de 56 px (`intentDiscSize`) apparaît dans le coin
-  haut opposé au geste. Elle porte un cœur accent pour aimer, une croix `AppColors.muted` pour
+  haut opposé au geste, à 20 px des bords (`intentDiscInset`). Elle porte un cœur accent pour aimer, une croix `AppColors.muted` pour
   passer, et une étoile accent au centre pour un geste vers le haut. Son opacité et son échelle
   (de 0,8 à 1, `intentDiscMinScale`) suivent la progression vers le seuil. Le bouton correspondant
   sous la carte grossit jusqu'à 1,1 (`deckButtonMaxScale`) et se remplit d'accent côté « aimer ».
@@ -62,7 +67,8 @@ deçà d'un seuil ne redéclenche pas d'haptique.
   horizontal : |dx| > 1,2 × |dy| (`deckFlingHorizontalRatio`). Au franchissement :
   `selectionClick`, et la pastille fait le rebond commun.
 - **Relâcher** : un geste acquis fait partir la carte selon son élan en 240 ms (`deckExit`,
-  `deckExitCurve`). Un geste non acquis la ramène en ressort (`spring`).
+  `deckExitCurve`), jusqu'à 1,6 largeur de carte (`deckExitDistance`), en gardant 18 % de la
+  vitesse du doigt (`deckExitVelocityCarry`) et 80 % de rotation en plus (`deckExitExtraRotationShare`). Un geste non acquis la ramène en ressort (`spring`).
 - **Vers le haut** : super like dans Découvrir, « garder » dans le couple. `mediumImpact` quand
   c'est acquis. Super like sans crédit : même règle que le like refusé.
 - **Vers le bas** : sans effet. La carte cède à 20 % du geste (`deckBlockedResistance`) puis
@@ -103,6 +109,8 @@ du couple.
 - Le reste de la conversation (réactions, appui long, flou) : `docs/design/CHAT.md` §4 et §5.
 
 ## 6. Photo en plein écran : tirer pour fermer
+
+- Ouverture en 200 ms (`viewerOpen`).
 
 - La photo suit le doigt dans les deux axes. Sur 300 px de course (`viewerProgressDistance`), elle
   rétrécit jusqu'à 0,85 (`viewerMinScale`) et le fond perd jusqu'à 70 % de son opacité
