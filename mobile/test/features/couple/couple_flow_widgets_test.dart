@@ -281,7 +281,7 @@ void main() {
     testWidgets('confirmer : DELETE attendu puis retour aux rencontres', (tester) async {
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Quitter'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
@@ -295,7 +295,7 @@ void main() {
       api.endError = 'boom';
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Quitter'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
@@ -309,7 +309,7 @@ void main() {
     testWidgets('annuler la confirmation n\'appelle rien', (tester) async {
       await pumpSettings(tester);
 
-      await tester.tap(find.byTooltip('Quitter le mode couple'));
+      await tester.tap(find.text('Quitter le mode couple'));
       await _pumpFor(tester, const Duration(milliseconds: 500));
       await tester.tap(find.text('Annuler'));
       await _pumpFor(tester, const Duration(milliseconds: 400));
