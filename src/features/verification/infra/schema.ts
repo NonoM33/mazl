@@ -34,6 +34,20 @@ export async function ensureVerificationSchema(sql: Sql): Promise<void> {
   await sql`ALTER TABLE profile_photos ADD COLUMN IF NOT EXISTS face_match BOOLEAN`;
   await sql`ALTER TABLE profile_photos ADD COLUMN IF NOT EXISTS face_checked_at TIMESTAMP`;
   await ensureIdentitySchema(sql);
+  await resetUnprovenPhotoBadges(sql);
+}
+
+// Before level 1 existed, /api/verification/submit marked anyone "photo"
+// verified without looking at the image. Those rows are recognisable: level
+// 'photo' with no photo_verified_at (only the real flow sets it). Manual
+// reviews ('verified', 'verified_plus', 'identity') are left alone. Idempotent.
+export async function resetUnprovenPhotoBadges(sql: Sql): Promise<number> {
+  const rows = await sql`
+    UPDATE profiles SET is_verified = false, verification_level = 'none', updated_at = NOW()
+    WHERE verification_level = 'photo' AND photo_verified_at IS NULL AND identity_verified_at IS NULL
+    RETURNING user_id
+  `;
+  return rows.length;
 }
 
 // Level 2 (CONTRAT.md §5 "niveau 2"). No name, no document number: only an
