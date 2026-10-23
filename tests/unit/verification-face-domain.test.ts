@@ -13,6 +13,7 @@ import {
   findDuplicateFrames,
   THUMBNAIL_SIZE,
 } from "../../src/features/verification/domain/frames";
+import { selectSubjectFace } from "../../src/features/verification/domain/face-selection";
 import type { DetectedFace } from "../../src/features/verification/domain/types";
 
 // A random source that replays a fixed script of values in [0, 1).
@@ -193,5 +194,47 @@ describe("frame thumbnails and duplicate detection", () => {
 
   test("a single frame has no duplicate", () => {
     expect(findDuplicateFrames([new Uint8Array(1024)])).toBe(false);
+  });
+});
+
+describe("selectSubjectFace", () => {
+  function faceOf(width: number, height: number, score = 0.9): DetectedFace {
+    return {
+      box: { x: 0, y: 0, width, height },
+      score,
+      landmarks: landmarks(10, 20, 15),
+    };
+  }
+
+  test("no detection means no face", () => {
+    expect(selectSubjectFace([])).toEqual({ status: "no_face" });
+  });
+
+  test("one detection is the subject", () => {
+    const f = faceOf(100, 120);
+    expect(selectSubjectFace([f])).toEqual({ status: "single_face", face: f });
+  });
+
+  test("a second face of comparable size is refused", () => {
+    expect(selectSubjectFace([faceOf(100, 120), faceOf(90, 100)]).status).toBe("multiple_faces");
+  });
+
+  test("a tiny spurious detection next to the real face is ignored", () => {
+    const main = faceOf(150, 164);
+    const speck = faceOf(49, 62, 0.83); // 12 % of the area, seen on a real portrait (a hand)
+    const result = selectSubjectFace([speck, main]);
+    expect(result).toEqual({ status: "single_face", face: main });
+  });
+
+  test("the limit is 25 % of the largest area: at the limit counts as a second face", () => {
+    const main = faceOf(100, 100);
+    expect(selectSubjectFace([main, faceOf(50, 50)]).status).toBe("multiple_faces"); // exactly 25 %
+    expect(selectSubjectFace([main, faceOf(49, 50)]).status).toBe("single_face"); // 24.5 %
+  });
+
+  test("the subject is the largest face whatever the input order", () => {
+    const big = faceOf(200, 200);
+    const small = faceOf(40, 40);
+    expect(selectSubjectFace([small, big])).toEqual({ status: "single_face", face: big });
   });
 });
