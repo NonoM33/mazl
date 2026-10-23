@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../chat_providers.dart';
+import '../state/chat_controller_impl.dart';
 import '../logic/chat_dates.dart';
 import '../logic/chat_items.dart';
 import '../state/chat_controller.dart';
@@ -63,7 +63,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   Timer? _highlightTimer;
   Timer? _appearTimer;
 
-  ChatActions get _actions => ref.read(chatActionsProvider(widget.conversationId));
+  ChatActions get _actions => ref.read(chatControllerProvider(widget.conversationId).notifier);
 
   @override
   void initState() {

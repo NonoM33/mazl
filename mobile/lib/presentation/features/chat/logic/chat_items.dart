@@ -5,9 +5,6 @@ import 'chat_dates.dart';
 /// and are less than this apart (docs/design/CHAT.md §2).
 const groupGap = Duration(minutes: 3);
 
-/// A message may be taken back by its author for this long (contract §2).
-const unsendWindow = Duration(minutes: 15);
-
 /// Stable identity of a message across its optimistic and server versions.
 String messageKey(ChatMessage message) => message.clientId ?? 'id-${message.id}';
 

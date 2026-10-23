@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/chat/voice.dart';
 import '../../../../core/models/conversation.dart';
-import '../chat_providers.dart';
+import '../logic/scam_flags.dart';
+import '../state/chat_controller_impl.dart';
 import '../state/chat_controller.dart';
 import '../widgets/chat_feedback.dart';
 import '../widgets/chat_header.dart';
@@ -13,8 +14,8 @@ import '../widgets/message_composer.dart';
 import '../widgets/message_list.dart';
 
 /// The conversation: header, thread, composer. Everything it shows comes from
-/// [chatStateProvider] and everything it does goes through [chatActionsProvider]
-/// (CONTRACT §4); it never talks to an API service.
+/// the state of [chatControllerProvider] and everything it does goes through
+/// its notifier (CONTRACT §4); it never talks to an API service.
 class ChatConversationScreen extends ConsumerStatefulWidget {
   const ChatConversationScreen({
     super.key,
@@ -36,8 +37,8 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
   final VoidCallback? onVideoCall;
   final VoidCallback? onOptions;
 
-  /// Decided by the scam rules (`lib/core/chat/scam_rules.dart`): true for a
-  /// received message that deserves the warning card.
+  /// Replaces the built-in scam rules (`lib/core/chat/scam_rules.dart`) that
+  /// decide which received messages get the warning card; for tests.
   final bool Function(ChatMessage message)? isScamFlagged;
 
   @override
@@ -47,7 +48,8 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
 class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen> {
   final _text = TextEditingController();
   final _focus = FocusNode();
-  late final ChatActions _actions = ref.read(chatActionsProvider(widget.conversationId));
+  late final ChatActions _actions = ref.read(chatControllerProvider(widget.conversationId).notifier);
+  final _scam = ScamFlagger();
   ReplyDraft? _reply;
 
   @override
@@ -82,7 +84,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
 
   void _startReply(ChatMessage message) {
     if (message.isLocal || message.unsent) return;
-    setState(() => _reply = _draftFor(message, ref.read(chatStateProvider(widget.conversationId)).myUserId));
+    setState(() => _reply = _draftFor(message, ref.read(chatControllerProvider(widget.conversationId)).myUserId));
     _focus.requestFocus();
   }
 
@@ -116,7 +118,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(chatStateProvider(widget.conversationId));
+    final state = ref.watch(chatControllerProvider(widget.conversationId));
     final other = widget.otherUser;
     return Scaffold(
       body: Column(
@@ -137,7 +139,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
               otherUserId: other?.userId ?? 0,
               otherPicture: other?.picture,
               onReply: _startReply,
-              isScamFlagged: widget.isScamFlagged,
+              isScamFlagged: widget.isScamFlagged ?? _scam.forState(state),
             ),
           ),
           MessageComposer(

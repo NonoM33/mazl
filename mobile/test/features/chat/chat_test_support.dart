@@ -8,11 +8,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/chat/voice.dart';
+import 'package:mazl/core/chat/voice_impl.dart';
 import 'package:mazl/core/models/conversation.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/chat/chat_providers.dart';
 import 'package:mazl/presentation/features/chat/screens/chat_conversation_screen.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
+import 'package:mazl/presentation/features/chat/state/chat_controller_impl.dart';
 
 const me = 1;
 const other = 2;
@@ -76,8 +78,15 @@ ChatState chatState(List<ChatMessage> messages, {bool hasMore = false, bool typi
       error: error,
     );
 
-/// Records every call; returns null (success) unless [error] is set.
-class FakeChatActions implements ChatActions {
+/// The real controller's seat: records every action, returns null (success)
+/// unless [error] is set.
+class FakeChatNotifier extends ChatNotifier {
+  FakeChatNotifier(super.state);
+
+  /// Pushes a new state to the screen.
+  void emit(ChatState next) => state = next;
+
+
   final calls = <String>[];
   final sentTexts = <({String text, int? replyToId})>[];
   final sentVoices = <({int durationMs, List<int> waveform, int? replyToId})>[];
@@ -223,19 +232,15 @@ class FakePicker implements ChatMediaPicker {
   Future<List<Uint8List>> fromCamera() async => camera;
 }
 
-/// The state the screen watches, changeable from a test.
-final testChatState = StateProvider<ChatState>((ref) => chatState(const []));
-
 class ChatHarness {
   ChatHarness({ChatState? initial}) : initialState = initial ?? chatState(const []);
 
   final ChatState initialState;
-  final actions = FakeChatActions();
+  late final FakeChatNotifier actions = FakeChatNotifier(initialState);
   final recorder = FakeVoiceRecorder();
   final player = FakeVoicePlayer();
   final picker = FakePicker();
   final opened = <Uri>[];
-  late ProviderContainer container;
 
   Future<void> pump(
     WidgetTester tester, {
@@ -251,9 +256,7 @@ class ChatHarness {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          testChatState.overrideWith((ref) => initialState),
-          chatStateProvider.overrideWith((ref, id) => ref.watch(testChatState)),
-          chatActionsProvider.overrideWith((ref, id) => actions),
+          chatControllerProvider.overrideWith((ref, id) => actions),
           voiceRecorderProvider.overrideWithValue(recorder),
           voicePlayerProvider.overrideWithValue(player),
           chatMediaPickerProvider.overrideWithValue(picker),
@@ -273,12 +276,11 @@ class ChatHarness {
         ),
       ),
     );
-    container = ProviderScope.containerOf(tester.element(find.byType(ChatConversationScreen)));
     await tester.pump();
   }
 
-  void setState(ChatState next) => container.read(testChatState.notifier).state = next;
-  ChatState get state => container.read(testChatState);
+  void setState(ChatState next) => actions.emit(next);
+  ChatState get state => actions.debugState;
 }
 
 /// Real fonts, so text measures like on a phone (the default test font is

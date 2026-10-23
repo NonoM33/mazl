@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_typography.dart';
-import '../chat_providers.dart';
+import '../../../../core/chat/voice_impl.dart';
+import 'chat_feedback.dart';
 import '../logic/chat_dates.dart';
 import '../state/chat_controller.dart';
 import 'bubble_style.dart';
@@ -14,12 +15,16 @@ import 'waveform.dart';
 /// fills as it plays, duration and a speed chip. One shared [VoicePlayer]
 /// plays one clip at a time; a bubble follows it only while it is the one loaded.
 class VoiceBubbleContent extends ConsumerStatefulWidget {
-  const VoiceBubbleContent({super.key, required this.voice, required this.mine});
+  const VoiceBubbleContent({super.key, required this.voice, required this.mine, this.onPlayFailed});
 
   static const speeds = [1.0, 1.5, 2.0];
 
   final VoiceNote voice;
   final bool mine;
+
+  /// The clip could not be played (a signed URL that expired): the owner
+  /// reloads the thread to get fresh ones.
+  final VoidCallback? onPlayFailed;
 
   /// « 1× », « 1,5× », « 2× » (decimal comma).
   static String speedLabel(double speed) => '${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll('.', ',')}×';
@@ -61,7 +66,13 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
     if (_current && _playing) {
       await player.pause();
     } else {
-      await player.play(widget.voice.url, speed: _speed);
+      try {
+        await player.play(widget.voice.url, speed: _speed);
+      } on Object {
+        if (!mounted) return;
+        showChatSnack(context, 'Lecture impossible');
+        widget.onPlayFailed?.call();
+      }
     }
   }
 

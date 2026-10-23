@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../common/widgets/mazl_sheet.dart';
-import '../chat_providers.dart';
+import '../state/chat_controller_impl.dart';
 import '../logic/chat_items.dart';
 import '../state/chat_controller.dart';
 import 'chat_feedback.dart';
@@ -23,7 +23,7 @@ class RowOperations {
   final MessageItem item;
 
   ChatMessage get message => item.message;
-  ChatActions get _actions => ref.read(chatActionsProvider(scope.conversationId));
+  ChatActions get _actions => ref.read(chatControllerProvider(scope.conversationId).notifier);
 
   bool get canMenu => !message.unsent && (!message.isLocal || message.status == MessageStatus.failed);
   bool get failed => message.status == MessageStatus.failed;

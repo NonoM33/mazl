@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/chat/voice.dart';
+import '../../../../core/chat/voice_impl.dart';
 import '../chat_providers.dart';
 import 'attach_sheet.dart';
 import 'chat_feedback.dart';
@@ -142,6 +143,8 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final safeBottom = MediaQuery.paddingOf(context).bottom;
+    // Watched so the autoDispose recorder lives as long as the composer.
+    ref.watch(voiceRecorderProvider);
     final capture = _capture;
     final recording = capture != null && capture.recording;
     final reply = widget.reply;

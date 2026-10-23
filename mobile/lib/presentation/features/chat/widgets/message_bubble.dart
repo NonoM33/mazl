@@ -17,6 +17,7 @@ class BubbleContext {
     this.onRevealPhotos,
     this.photosBlurred = false,
     this.heroEnabled = true,
+    this.onPlayFailed,
   });
 
   /// « Vous » or the other member's first name.
@@ -25,6 +26,7 @@ class BubbleContext {
   final void Function(int index)? onOpenPhoto;
   final VoidCallback? onRevealPhotos;
   final bool photosBlurred;
+  final VoidCallback? onPlayFailed;
 
   /// Off in the long-press overlay, which must not take part in hero flights.
   final bool heroEnabled;
@@ -94,7 +96,7 @@ class MessageBubble extends StatelessWidget {
           onReveal: thread.onRevealPhotos,
           onOpen: thread.onOpenPhoto ?? (_) {},
         ),
-      if (message.type == ChatMessageType.voice && message.voice != null) VoiceBubbleContent(voice: message.voice!, mine: mine),
+      if (message.type == ChatMessageType.voice && message.voice != null) VoiceBubbleContent(voice: message.voice!, mine: mine, onPlayFailed: thread.onPlayFailed),
       if (message.content.isNotEmpty)
         Padding(
           padding: inset.add(EdgeInsets.symmetric(vertical: hasPhotos ? 8 : 0)),

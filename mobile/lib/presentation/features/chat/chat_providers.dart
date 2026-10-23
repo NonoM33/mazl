@@ -4,30 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/chat/voice.dart';
-import 'state/chat_controller.dart';
 
-// The seam between the conversation UI and its state. The real controller
-// (HTTP + WebSocket) overrides the first four; widget tests override them with
-// fakes. Nothing in the UI reads an API service directly.
-
-/// What the screen of conversation `id` renders.
-final chatStateProvider = Provider.family<ChatState, int>(
-  (ref, conversationId) => throw UnimplementedError('chatStateProvider($conversationId) is not provided'),
-);
-
-/// What the screen of conversation `id` can ask for.
-final chatActionsProvider = Provider.family<ChatActions, int>(
-  (ref, conversationId) => throw UnimplementedError('chatActionsProvider($conversationId) is not provided'),
-);
-
-final voiceRecorderProvider = Provider<VoiceRecorder>(
-  (ref) => throw UnimplementedError('voiceRecorderProvider is not provided'),
-);
-
-final voicePlayerProvider = Provider<VoicePlayer>(
-  (ref) => throw UnimplementedError('voicePlayerProvider is not provided'),
-);
+// Small providers of the conversation UI. State and actions come from
+// `chatControllerProvider(conversationId)`, voice from `core/chat/voice_impl.dart`;
+// nothing in the UI reads an API service directly. Widget tests override them.
 
 /// Photos picked from the camera or the gallery, as JPEG bytes.
 abstract class ChatMediaPicker {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../chat_providers.dart';
+import '../state/chat_controller_impl.dart';
 import '../logic/chat_dates.dart';
 import '../logic/chat_items.dart';
 import '../state/chat_controller.dart';
@@ -51,6 +52,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
       authorOf: scope.authorOf,
       onQuoteTap: overlay ? null : scope.scrollToMessage,
       heroEnabled: !overlay,
+      onPlayFailed: () => ref.read(chatControllerProvider(scope.conversationId).notifier).load(),
       photosBlurred: !item.mine && !message.isLocal && !revealed && message.type == ChatMessageType.photo,
       onRevealPhotos: () => ref.read(revealedPhotosProvider.notifier).update((s) => {...s, message.id}),
       onOpenPhoto: (index) => openPhotoViewer(
