@@ -80,7 +80,7 @@ class ApiResponse<T> {
 ApiResponse<T> _networkFailure<T>(Object error) {
   if (error is TimeoutException) {
     return ApiResponse.failure(
-      'Délai d\'attente dépassé, vérifie ta connexion.',
+      'Délai d\'attente dépassé, vérifiez votre connexion.',
       ApiErrorKind.timeout,
     );
   }
@@ -92,7 +92,7 @@ ApiResponse<T> _networkFailure<T>(Object error) {
   }
   if (error is http.ClientException) {
     return ApiResponse.failure(
-      'Serveur injoignable, réessaie plus tard.',
+      'Serveur injoignable, réessayez plus tard.',
       ApiErrorKind.network,
     );
   }

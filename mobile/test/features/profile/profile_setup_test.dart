@@ -13,11 +13,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Parle-nous de toi'), findsOneWidget);
+      expect(find.text('Parlez-nous de vous'), findsOneWidget);
       // Both name and city fields are now backed by controllers.
-      expect(find.widgetWithText(TextFormField, 'Prenom'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Prénom'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Ville'), findsOneWidget);
-      expect(find.text('Etape 1/4'), findsOneWidget);
+      expect(find.text('Étape 1/4'), findsOneWidget);
     });
 
     testWidgets('blocks advancing when required fields are empty',
@@ -31,9 +31,9 @@ void main() {
       await tester.tap(find.text('Suivant'));
       await tester.pump();
 
-      expect(find.text('Indique ton prenom pour continuer'), findsOneWidget);
+      expect(find.text('Indiquez votre prénom pour continuer'), findsOneWidget);
       // Still on step 1.
-      expect(find.text('Parle-nous de toi'), findsOneWidget);
+      expect(find.text('Parlez-nous de vous'), findsOneWidget);
     });
 
     testWidgets('gender selection is functional and not hard-coded',

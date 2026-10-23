@@ -116,24 +116,24 @@ class _VerificationScreenState extends State<VerificationScreen> {
   }
 
   String get _attemptButtonText {
-    if (_isVerified) return 'Verifie';
+    if (_isVerified) return 'Vérifié';
     if (!_canAttemptVerification) {
       if (_nextAttemptTime != null) {
         final diff = _nextAttemptTime!.difference(DateTime.now());
         final hours = diff.inHours;
         final minutes = diff.inMinutes % 60;
-        return 'Reessayer dans ${hours}h${minutes.toString().padLeft(2, '0')}';
+        return 'Réessayer dans ${hours}h${minutes.toString().padLeft(2, '0')}';
       }
       return 'Limite atteinte (3/jour)';
     }
-    return 'Verifier (${3 - _attemptsToday} essais restants)';
+    return 'Vérifier (${3 - _attemptsToday} essais restants)';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verification'),
+        title: const Text('Vérification'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -167,7 +167,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                         TextButton(
                           onPressed: _loadVerificationStatus,
-                          child: const Text('Reessayer'),
+                          child: const Text('Réessayer'),
                         ),
                       ],
                     ),
@@ -195,7 +195,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _isVerified ? 'Profil verifie !' : 'Fais-toi verifier',
+                        _isVerified ? 'Profil vérifié' : 'Faites-vous vérifier',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -205,8 +205,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _isVerified
-                            ? 'Ton profil inspire confiance aux autres membres'
-                            : 'Les profils verifies recoivent 3x plus de matchs !',
+                            ? 'Votre profil inspire confiance aux autres membres'
+                            : 'Les profils vérifiés reçoivent 3x plus de matchs.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
@@ -220,7 +220,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
                 // Verification levels
                 const Text(
-                  'Niveaux de verification',
+                  'Niveaux de vérification',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -230,7 +230,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
                 _VerificationLevel(
                   level: 'Email',
-                  description: 'Verifie ton adresse email',
+                  description: 'Vérifiez votre adresse email',
                   icon: LucideIcons.mail,
                   isCompleted: true,
                   badge: Container(
@@ -240,7 +240,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
-                      'Complete',
+                      'Complété',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -250,7 +250,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 ),
                 _VerificationLevel(
                   level: 'Photo',
-                  description: 'Prends un selfie pour prouver que c\'est bien toi',
+                  description: 'Prenez un selfie pour prouver que c\'est bien vous',
                   icon: LucideIcons.camera,
                   isCompleted: _isVerified,
                   badge: _isVerified
@@ -261,7 +261,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
-                            'Verifie',
+                            'Vérifié',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -283,15 +283,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                 ),
                 _VerificationLevel(
-                  level: 'Telephone',
-                  description: 'Verifie ton numero de telephone',
+                  level: 'Téléphone',
+                  description: 'Vérifiez votre numéro de téléphone',
                   icon: LucideIcons.phone,
                   isCompleted: false,
                   badge: OutlinedButton(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Bientot disponible'),
+                          content: Text('Bientôt disponible'),
                           backgroundColor: AppColors.info,
                         ),
                       );
@@ -299,7 +299,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(100, 36),
                     ),
-                    child: const Text('Bientot'),
+                    child: const Text('Bientôt'),
                   ),
                 ),
 
@@ -317,7 +317,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             Icon(LucideIcons.star, color: AppColors.accentGold),
                             SizedBox(width: 8),
                             Text(
-                              'Avantages du badge verifie',
+                              'Avantages du badge vérifié',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -325,7 +325,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         const SizedBox(height: 16),
                         _BenefitRow(
                           icon: LucideIcons.eye,
-                          text: 'Plus de visibilite dans les recherches',
+                          text: 'Plus de visibilité dans les recherches',
                         ),
                         _BenefitRow(
                           icon: LucideIcons.heart,
@@ -337,7 +337,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                         _BenefitRow(
                           icon: LucideIcons.badgeCheck,
-                          text: 'Badge visible sur ton profil',
+                          text: 'Badge visible sur votre profil',
                         ),
                       ],
                     ),
@@ -359,7 +359,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Ton selfie de verification est securise et ne sera jamais partage ni ajoute a ton profil.',
+                          'Votre selfie de vérification est sécurisé et ne sera jamais partagé ni ajouté à votre profil.',
                           style: TextStyle(fontSize: 13),
                         ),
                       ),
@@ -380,7 +380,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     if (!startResult.success || startResult.data == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(startResult.error ?? 'Erreur lors du demarrage'),
+          content: Text(startResult.error ?? 'Erreur lors du démarrage'),
           backgroundColor: Colors.red,
         ),
       );
@@ -424,7 +424,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Photo annulee'),
+            content: Text('Photo annulée'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -466,7 +466,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       } else {
         // Show failure with remaining attempts
         final attemptsRemaining = result.data!['attempts_remaining'] as int? ?? 0;
-        _showFailureDialog(context, message ?? 'Verification echouee', attemptsRemaining);
+        _showFailureDialog(context, message ?? 'Vérification échouée', attemptsRemaining);
         setState(() {
           _attemptsToday++;
         });
@@ -474,7 +474,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.error ?? 'Erreur lors de la verification'),
+          content: Text(result.error ?? 'Erreur lors de la vérification'),
           backgroundColor: Colors.red,
         ),
       );
@@ -504,7 +504,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Verification reussie !',
+              'Vérification réussie',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -512,7 +512,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Ton profil affiche maintenant le badge verifie. Les autres membres peuvent te faire confiance.',
+              'Votre profil affiche maintenant le badge vérifié. Les autres membres peuvent vous faire confiance.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[600],
@@ -534,7 +534,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Super !'),
+                child: const Text('Parfait'),
               ),
             ),
           ],
@@ -566,7 +566,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Verification echouee',
+              'Vérification échouée',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -592,7 +592,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               )
             else
               Text(
-                'Reessayez demain',
+                'Réessayez demain',
                 style: TextStyle(
                   color: Colors.red[400],
                   fontSize: 13,
@@ -657,7 +657,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Verification photo',
+            'Vérification photo',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -665,7 +665,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Prends un selfie en realisant le geste ci-dessous',
+            'Prenez un selfie en réalisant le geste ci-dessous',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -714,7 +714,7 @@ class _PhotoVerificationSheet extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _TipRow(icon: LucideIcons.sun, text: 'Bonne luminosite'),
+                _TipRow(icon: LucideIcons.sun, text: 'Bonne luminosité'),
                 _TipRow(icon: LucideIcons.user, text: 'Visage bien visible'),
                 _TipRow(icon: LucideIcons.hand, text: 'Geste clair et visible'),
               ],
@@ -783,7 +783,7 @@ class _VerificationLoadingDialog extends StatelessWidget {
             const CircularProgressIndicator(),
             const SizedBox(height: 24),
             const Text(
-              'Verification en cours...',
+              'Vérification en cours...',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -791,7 +791,7 @@ class _VerificationLoadingDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Analyse de ton selfie',
+              'Analyse de votre selfie',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 14,

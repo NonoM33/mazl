@@ -53,7 +53,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qui a visite mon profil'),
+        title: const Text('Qui a visité mon profil'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -78,7 +78,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadVisitors,
-            child: const Text('Reessayer'),
+            child: const Text('Réessayer'),
           ),
         ],
       ),
@@ -210,19 +210,19 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGold.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.accentGold.withValues(alpha: 0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(LucideIcons.crown, color: AppColors.accentGold, size: 24),
+            child: Icon(LucideIcons.plus, color: AppColors.primary, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -230,14 +230,14 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Decouvre qui t\'a visite',
+                  'Découvrez qui vous a visité',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
                 Text(
-                  'Passe Premium pour voir les profils',
+                  'Passez à mazl+ pour voir les profils',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -246,7 +246,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           ElevatedButton(
             onPressed: () => context.push(RoutePaths.premium),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentGold,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -289,7 +289,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Complete ton profil et utilise un Boost pour attirer plus de visiteurs !',
+              'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[500],
@@ -343,18 +343,18 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.accentGold.withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                LucideIcons.crown,
-                color: AppColors.accentGold,
+                LucideIcons.lock,
+                color: AppColors.primary,
                 size: 40,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-              'Fonctionnalite Premium',
+              'Réservé à mazl+',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -362,7 +362,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Passe Premium pour decouvrir qui a visite ton profil et les contacter directement !',
+              'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[600],
@@ -378,7 +378,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                   context.push(RoutePaths.premium);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentGold,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -386,7 +386,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Decouvrir Premium',
+                  'Découvrir mazl+',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

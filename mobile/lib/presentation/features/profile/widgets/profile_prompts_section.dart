@@ -81,7 +81,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     if (availableToAdd.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Tous les prompts sont deja utilises'),
+          content: Text('Tous les prompts sont déjà utilisés'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -146,7 +146,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de la mise a jour'),
+            content: Text(result.error ?? 'Erreur lors de la mise à jour'),
             backgroundColor: Colors.red,
           ),
         );
@@ -160,7 +160,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Supprimer ce prompt ?'),
-        content: const Text('Cette action est irreversible.'),
+        content: const Text('Cette action est irréversible.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -189,7 +189,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         });
         widget.onPromptsChanged?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prompt supprime')),
+          const SnackBar(content: Text('Prompt supprimé')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -255,7 +255,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
                     maxLines: 4,
                     maxLength: 150,
                     decoration: InputDecoration(
-                      hintText: 'Ta reponse...',
+                      hintText: 'Votre réponse…',
                       filled: true,
                       fillColor: Colors.grey.withValues(alpha: 0.1),
                       border: OutlineInputBorder(
@@ -325,7 +325,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Reponds a des questions pour montrer ta personnalite',
+          'Répondez à des questions pour montrer votre personnalité',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -345,7 +345,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
             child: Column(
               children: [
                 Text(_error!, style: TextStyle(color: Colors.grey[600])),
-                TextButton(onPressed: _loadData, child: const Text('Reessayer')),
+                TextButton(onPressed: _loadData, child: const Text('Réessayer')),
               ],
             ),
           )
@@ -543,7 +543,7 @@ class _PromptSelectionSheet extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.all(20),
             child: Text(
-              'Choisis un prompt',
+              'Choisissez un prompt',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

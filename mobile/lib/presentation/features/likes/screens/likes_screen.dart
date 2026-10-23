@@ -74,7 +74,7 @@ class _LikesScreenState extends State<LikesScreen> {
         if (result.data?['matched'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Match avec ${profile.displayName} !'),
+              content: Text('Match avec ${profile.displayName}'),
               action: SnackBarAction(
                 label: 'Message',
                 onPressed: () => context.push(RoutePaths.chat),
@@ -83,7 +83,7 @@ class _LikesScreenState extends State<LikesScreen> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Tu as like ${profile.displayName}')),
+            SnackBar(content: Text('Vous avez liké ${profile.displayName}')),
           );
         }
       }
@@ -248,7 +248,7 @@ class _LikesScreenState extends State<LikesScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Continuez à swiper et complétez votre profil pour attirer plus de likes.',
+            'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

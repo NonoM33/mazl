@@ -43,14 +43,14 @@ class CompatibilityScore {
         factors.add(CompatibilityFactor(
           name: 'Intentions',
           score: 100,
-          description: 'Vous cherchez la meme chose',
+          description: 'Vous cherchez la même chose',
           icon: 'heart',
         ));
       } else {
         factors.add(CompatibilityFactor(
           name: 'Intentions',
           score: 40,
-          description: 'Intentions differentes',
+          description: 'Intentions différentes',
           icon: 'heart',
         ));
         totalScore += 12;
@@ -67,7 +67,7 @@ class CompatibilityScore {
         factors.add(CompatibilityFactor(
           name: 'Pratique',
           score: 100,
-          description: 'Meme denomination',
+          description: 'Même dénomination',
           icon: 'star',
         ));
       } else {
@@ -97,7 +97,7 @@ class CompatibilityScore {
           factors.add(CompatibilityFactor(
             name: 'Pratique',
             score: 30,
-            description: 'Pratique differente',
+            description: 'Pratique différente',
             icon: 'star',
           ));
         }
@@ -111,33 +111,33 @@ class CompatibilityScore {
       if (ageDiff <= 3) {
         totalScore += 20;
         factors.add(CompatibilityFactor(
-          name: 'Age',
+          name: 'Âge',
           score: 100,
-          description: 'Age tres proche',
+          description: 'Âge très proche',
           icon: 'calendar',
         ));
       } else if (ageDiff <= 5) {
         totalScore += 16;
         factors.add(CompatibilityFactor(
-          name: 'Age',
+          name: 'Âge',
           score: 80,
-          description: 'Age proche',
+          description: 'Âge proche',
           icon: 'calendar',
         ));
       } else if (ageDiff <= 10) {
         totalScore += 10;
         factors.add(CompatibilityFactor(
-          name: 'Age',
+          name: 'Âge',
           score: 50,
-          description: 'Difference d\'age moderee',
+          description: 'Différence d\'âge modérée',
           icon: 'calendar',
         ));
       } else {
         totalScore += 4;
         factors.add(CompatibilityFactor(
-          name: 'Age',
+          name: 'Âge',
           score: 20,
-          description: 'Grande difference d\'age',
+          description: 'Grande différence d\'âge',
           icon: 'calendar',
         ));
       }
@@ -152,7 +152,7 @@ class CompatibilityScore {
         factors.add(CompatibilityFactor(
           name: 'Distance',
           score: 100,
-          description: 'Tres proche (< 10km)',
+          description: 'Très proche (< 10 km)',
           icon: 'map-pin',
         ));
       } else if (dist <= 25) {
@@ -160,7 +160,7 @@ class CompatibilityScore {
         factors.add(CompatibilityFactor(
           name: 'Distance',
           score: 80,
-          description: 'Proche (< 25km)',
+          description: 'Proche (< 25 km)',
           icon: 'map-pin',
         ));
       } else if (dist <= 50) {
@@ -168,7 +168,7 @@ class CompatibilityScore {
         factors.add(CompatibilityFactor(
           name: 'Distance',
           score: 50,
-          description: 'Distance moderee',
+          description: 'Distance modérée',
           icon: 'map-pin',
         ));
       } else {

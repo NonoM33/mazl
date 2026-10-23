@@ -113,8 +113,8 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('It\'s a Match! '),
-        content: Text('Tu as matche avec ${profile.displayName}!'),
+        title: const Text('C\'est un match'),
+        content: Text('Vous avez matché avec ${profile.displayName}.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -136,7 +136,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Selections du jour'),
+        title: const Text('Sélections du jour'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -162,7 +162,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadDailyPicks,
-              child: const Text('Reessayer'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -188,7 +188,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Tu as vu toutes tes selections !',
+              'Vous avez vu toutes vos sélections.',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -196,14 +196,14 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Prochaines selections dans ${_getTimeUntilRefresh()}',
+              'Prochaines sélections dans ${_getTimeUntilRefresh()}',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => context.go(RoutePaths.discover),
               icon: const Icon(LucideIcons.compass),
-              label: const Text('Decouvrir plus de profils'),
+              label: const Text('Découvrir plus de profils'),
             ),
           ],
         ),
@@ -234,7 +234,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    '${_dailyPicks.length} profils selectionnes pour toi',
+                    '${_dailyPicks.length} profils sélectionnés pour vous',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Mis a jour dans ${_getTimeUntilRefresh()}',
+                'Mis à jour dans ${_getTimeUntilRefresh()}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],

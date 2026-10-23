@@ -71,15 +71,15 @@ extension RelationshipStatusExtension on RelationshipStatus {
   String get displayName {
     switch (this) {
       case RelationshipStatus.single:
-        return 'Celibataire';
+        return 'Célibataire';
       case RelationshipStatus.dating:
         return 'En train de dater';
       case RelationshipStatus.inRelationship:
         return 'En couple';
       case RelationshipStatus.engaged:
-        return 'Fiance(e)';
+        return 'Fiancé(e)';
       case RelationshipStatus.married:
-        return 'Marie(e)';
+        return 'Marié(e)';
     }
   }
 
@@ -436,34 +436,34 @@ class CoupleService extends ChangeNotifier {
     return [
       DailyQuestion(
         id: '1',
-        question: 'Quel est ton moment prefere de la semaine ensemble ?',
-        category: 'Connection',
+        question: 'Quel est votre moment préféré de la semaine ensemble ?',
+        category: 'Connexion',
       ),
       DailyQuestion(
         id: '2',
-        question: 'Si on pouvait voyager n\'importe ou, ou irais-tu ?',
-        category: 'Reves',
+        question: 'Si vous pouviez voyager n\'importe où, où iriez-vous ?',
+        category: 'Rêves',
       ),
       DailyQuestion(
         id: '3',
-        question: 'Qu\'est-ce qui t\'a fait sourire aujourd\'hui ?',
+        question: 'Qu\'est-ce qui vous a fait sourire aujourd\'hui ?',
         category: 'Quotidien',
       ),
       DailyQuestion(
         id: '4',
-        question: 'Comment aimerais-tu celebrer notre prochain Shabbat ?',
-        category: 'Judaisme',
+        question: 'Comment aimeriez-vous célébrer votre prochain Shabbat ?',
+        category: 'Judaïsme',
         options: [
-          'Diner romantique a la maison',
+          'Dîner romantique à la maison',
           'Invitation chez des amis',
-          'Restaurant cacher',
+          'Restaurant casher',
           'Shabbaton communautaire',
         ],
       ),
       DailyQuestion(
         id: '5',
-        question: 'Quel trait de caractere admires-tu le plus chez moi ?',
-        category: 'Appreciation',
+        question: 'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
+        category: 'Appréciation',
       ),
     ];
   }
@@ -475,7 +475,7 @@ class CoupleService extends ChangeNotifier {
     return [
       CoupleMilestone(
         id: 'first_week',
-        title: 'Premiere semaine',
+        title: 'Première semaine',
         description: '7 jours ensemble',
         emoji: '',
         isAchieved: daysTogether >= 7,
@@ -505,7 +505,7 @@ class CoupleService extends ChangeNotifier {
       ),
       CoupleMilestone(
         id: 'six_months',
-        title: 'Mi-annee',
+        title: 'Mi-année',
         description: '6 mois main dans la main',
         emoji: '',
         isAchieved: daysTogether >= 180,
@@ -515,7 +515,7 @@ class CoupleService extends ChangeNotifier {
       ),
       CoupleMilestone(
         id: 'first_year',
-        title: 'Premiere annee',
+        title: 'Première année',
         description: '365 jours de Mazl',
         emoji: '',
         isAchieved: daysTogether >= 365,
@@ -531,33 +531,33 @@ class CoupleService extends ChangeNotifier {
     return [
       {
         'title': 'Cuisine Shabbat',
-        'description': 'Preparez le repas de Shabbat ensemble',
+        'description': 'Préparez le repas de Shabbat ensemble',
         'icon': 'utensils',
         'category': 'Maison',
       },
       {
-        'title': 'Etude Torah',
+        'title': 'Étude Torah',
         'description': 'Apprenez la Paracha ensemble',
         'icon': 'book',
         'category': 'Spirituel',
       },
       {
         'title': 'Date night',
-        'description': 'Sortie restaurant ou cinema',
+        'description': 'Sortie restaurant ou cinéma',
         'icon': 'heart',
         'category': 'Romance',
       },
       {
         'title': 'Sport ensemble',
-        'description': 'Course, yoga, randonnee...',
+        'description': 'Course, yoga, randonnée…',
         'icon': 'dumbbell',
-        'category': 'Bien-etre',
+        'category': 'Bien-être',
       },
       {
         'title': 'Hesed ensemble',
         'description': 'Action caritative en couple',
         'icon': 'hand-heart',
-        'category': 'Communaute',
+        'category': 'Communauté',
       },
       {
         'title': 'Voyage',
@@ -714,7 +714,7 @@ class CoupleService extends ChangeNotifier {
     try {
       await _apiService.archiveAllConversationsExcept(
         _coupleData?.partnerId ?? 0,
-        message: "J'ai trouve l'amour sur Mazl! Je ne suis plus disponible. Bonne chance dans ta recherche!",
+        message: "J'ai trouvé l'amour sur Mazl. Je ne suis plus disponible. Bonne chance dans votre recherche.",
       );
     } catch (e) {
       debugPrint('CoupleService: Error archiving conversations: $e');

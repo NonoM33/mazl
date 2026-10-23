@@ -325,7 +325,7 @@ void main() {
       );
       expect(find.text('COMPATIBILITÉ'), findsOneWidget);
       expect(find.textContaining('avec Sarah'), findsOneWidget);
-      await tester.tap(find.text('Débloquer avec Premium'));
+      await tester.tap(find.text('Débloquer avec mazl+'));
       expect(unlock, 1);
       _expectNoGradient(tester);
     });

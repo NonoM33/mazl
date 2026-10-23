@@ -43,7 +43,7 @@ class ProfileCoupleSection extends StatelessWidget {
               context,
               icon: LucideIcons.heartHandshake,
               title: 'Déjà en couple',
-              body: 'Tu es en mode couple avec ${partnerName ?? 'quelqu\'un'}.',
+              body: 'Vous êtes en mode couple avec ${partnerName ?? 'quelqu\'un'}.',
             ),
           CoupleEntryState.pending => _info(
               context,

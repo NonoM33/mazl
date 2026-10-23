@@ -37,9 +37,9 @@ class SuccessStory {
   String get statusLabel {
     switch (status) {
       case 'engaged':
-        return 'Fiances';
+        return 'Fiancés';
       case 'married':
-        return 'Maries';
+        return 'Mariés';
       default:
         return 'En couple';
     }

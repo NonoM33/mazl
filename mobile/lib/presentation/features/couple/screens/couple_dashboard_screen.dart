@@ -147,7 +147,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
                   // Quick actions
                   const Text(
-                    'Activites en couple',
+                    'Activités en couple',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -173,7 +173,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Nos etapes',
+                        'Nos étapes',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -194,7 +194,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
                   // Events for couples
                   const Text(
-                    'Evenements couples',
+                    'Événements en couple',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -223,7 +223,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Success Stories',
+                        'Histoires de couples',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -368,7 +368,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Repondre'),
+              child: const Text('Répondre'),
             ),
           ),
         ],
@@ -553,7 +553,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Cours de cuisine cacher',
+                      'Cours de cuisine casher',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
@@ -594,7 +594,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 foregroundColor: AppColors.secondary,
                 side: const BorderSide(color: AppColors.secondary),
               ),
-              child: const Text('Voir tous les evenements'),
+              child: const Text('Voir tous les événements'),
             ),
           ),
         ],
@@ -637,7 +637,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      'Entree: 17h23 - Sortie: 18h34',
+                      'Entrée : 17h23 - Sortie : 18h34',
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
@@ -653,8 +653,8 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildShabbatSuggestion('Diner', LucideIcons.utensilsCrossed),
-              _buildShabbatSuggestion('Priere', LucideIcons.bookOpen),
+              _buildShabbatSuggestion('Dîner', LucideIcons.utensilsCrossed),
+              _buildShabbatSuggestion('Prière', LucideIcons.bookOpen),
               _buildShabbatSuggestion('Repos', LucideIcons.bed),
             ],
           ),
@@ -754,7 +754,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 controller: controller,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'Ta reponse...',
+                  hintText: 'Votre réponse…',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -794,7 +794,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             const Icon(LucideIcons.check, color: Colors.white),
             const SizedBox(width: 12),
             const Expanded(
-              child: Text('Reponse envoyee ! Ton/ta partenaire sera notifie(e).'),
+              child: Text('Réponse envoyée. Votre partenaire sera notifié(e).'),
             ),
           ],
         ),
@@ -844,7 +844,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Partagez votre histoire !',
+                      'Partagez votre histoire',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -852,7 +852,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Inspirez la communaute MAZL avec votre success story',
+                      'Inspirez la communauté MAZL avec votre histoire',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey,
@@ -877,7 +877,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Voir les stories'),
+                  child: const Text('Voir les histoires'),
                 ),
               ),
               const SizedBox(width: 12),

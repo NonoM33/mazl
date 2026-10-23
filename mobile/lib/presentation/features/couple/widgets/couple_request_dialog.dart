@@ -185,7 +185,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
 
             // Description
             Text(
-              '${widget.request.requesterName} souhaite activer le mode couple avec toi !',
+              '${widget.request.requesterName} souhaite activer le mode couple avec vous.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -206,7 +206,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
                   const SizedBox(height: 8),
                   _buildFeatureRow(LucideIcons.trophy, 'Milestones de couple'),
                   const SizedBox(height: 8),
-                  _buildFeatureRow(LucideIcons.calendar, 'Calendrier juif partage'),
+                  _buildFeatureRow(LucideIcons.calendar, 'Calendrier juif partagé'),
                 ],
               ),
             ),

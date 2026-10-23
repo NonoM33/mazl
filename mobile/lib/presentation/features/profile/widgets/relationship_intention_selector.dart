@@ -44,7 +44,7 @@ class RelationshipIntentionSelector extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Montre aux autres ce que tu recherches',
+          'Montrez aux autres ce que vous recherchez',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],

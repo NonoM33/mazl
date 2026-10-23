@@ -84,7 +84,7 @@ class _CoupleActivityDetailScreenState
     } else if (_isSaved && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Activité sauvegardée !'),
+          content: const Text('Activité sauvegardée'),
           backgroundColor: coupleAccent,
           behavior: SnackBarBehavior.floating,
           action: SnackBarAction(
@@ -115,7 +115,7 @@ class _CoupleActivityDetailScreenState
     Clipboard.setData(ClipboardData(text: code));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Code $code copié !'),
+        content: Text('Code $code copié'),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -204,7 +204,7 @@ class _CoupleActivityDetailScreenState
                   final activity = _activity;
                   if (activity == null) return;
                   Share.share(
-                    'Idée de date pour nous : "${activity.title}" 💕 (via MAZL)',
+                    'Idée de date pour nous : "${activity.title}" (via MAZL)',
                     subject: activity.title,
                   );
                 },
@@ -354,7 +354,7 @@ class _CoupleActivityDetailScreenState
                       if (activity.isKosher)
                         const _Badge(
                           icon: null,
-                          label: '✡️ Casher',
+                          label: 'Casher',
                           color: AppColors.info,
                         ),
                       // Price badge

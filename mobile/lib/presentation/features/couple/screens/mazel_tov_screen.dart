@@ -246,7 +246,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
             ],
           ).createShader(bounds),
           child: const Text(
-            'MAZEL TOV !',
+            'MAZAL TOV !',
             style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.bold,
@@ -415,7 +415,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
       child: Column(
         children: [
           Text(
-            'Felicitations ${widget.partnerName} et toi !',
+            'Félicitations à vous et à ${widget.partnerName}',
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
@@ -430,7 +430,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
           const SizedBox(height: 16),
 
           Text(
-            'Vous commencez une belle aventure ensemble.\nMAZL vous accompagne dans cette nouvelle etape.',
+            'Vous commencez une belle aventure ensemble.\nMAZL vous accompagne dans cette nouvelle étape.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),

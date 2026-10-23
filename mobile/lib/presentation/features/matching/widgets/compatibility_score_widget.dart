@@ -138,8 +138,8 @@ class CompatibilityScoreCard extends StatelessWidget {
                       ],
                       Text(
                         score.isSuperCompatible
-                            ? 'Super compatible !'
-                            : 'Compatibilite',
+                            ? 'Très compatible'
+                            : 'Compatibilité',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _mainColor,
@@ -149,7 +149,7 @@ class CompatibilityScoreCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${score.factors.length} criteres analyses',
+                    '${score.factors.length} critères analysés',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -298,8 +298,8 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 score.isSuperCompatible
-                                    ? 'Super compatible !'
-                                    : 'Score de compatibilite',
+                                    ? 'Très compatible'
+                                    : 'Score de compatibilité',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -331,7 +331,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Details',
+                    'Détails',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -347,7 +347,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Text(
-                    'Completez vos profils pour voir plus de details',
+                    'Complétez vos profils pour voir plus de détails',
                     style: TextStyle(color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -368,7 +368,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Le score est base sur vos preferences et points communs',
+                        'Le score est basé sur vos préférences et points communs',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[700],

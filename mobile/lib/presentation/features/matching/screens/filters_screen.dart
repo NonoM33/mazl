@@ -435,7 +435,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(LucideIcons.crown, color: Colors.white),
+                      const Icon(LucideIcons.plus, color: Colors.white),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -449,7 +449,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                               ),
                             ),
                             Text(
-                              'Passe à Mazl Pro pour des recherches précises',
+                              'Passez à mazl+ pour des recherches précises',
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12,
@@ -468,7 +468,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: AppColors.accentGold,
+                          foregroundColor: AppColors.primary,
                         ),
                         child: const Text('Voir'),
                       ),
@@ -570,22 +570,22 @@ class _FilterSection extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.accentGold.withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
                       Icon(
-                        LucideIcons.crown,
+                        LucideIcons.lock,
                         size: 12,
-                        color: AppColors.accentGold,
+                        color: AppColors.primary,
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'PRO',
+                        'mazl+',
                         style: TextStyle(
-                          color: AppColors.accentGold,
+                          color: AppColors.primary,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),

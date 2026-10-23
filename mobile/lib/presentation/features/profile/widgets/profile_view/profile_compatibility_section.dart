@@ -86,10 +86,10 @@ class ProfileCompatibilitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TagPill('Mazl Pro', icon: LucideIcons.lock),
+        const TagPill('mazl+', icon: LucideIcons.lock),
         const SizedBox(height: 14),
         Text(
-          'Découvre ton score de compatibilité avec $firstName.',
+          'Découvrez votre score de compatibilité avec $firstName.',
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, letterSpacing: -0.5, height: 1.25),
         ),
         const SizedBox(height: 6),
@@ -100,7 +100,7 @@ class ProfileCompatibilitySection extends StatelessWidget {
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton(onPressed: onUnlock, child: const Text('Débloquer avec Premium')),
+          child: ElevatedButton(onPressed: onUnlock, child: const Text('Débloquer avec mazl+')),
         ),
       ],
     );

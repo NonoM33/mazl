@@ -81,7 +81,7 @@ class AnniversaryWidget extends StatelessWidget {
                             color: Colors.white, size: 16),
                         SizedBox(width: 8),
                         Text(
-                          'Joyeux Anniversaire MAZL !',
+                          'Joyeux anniversaire MAZL',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -203,7 +203,7 @@ class AnniversaryWidget extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Prochain: ${anniversaryData.nextMilestone!.label} dans ${anniversaryData.nextMilestone!.daysUntil ?? 0} jours',
+                      'Prochain : ${anniversaryData.nextMilestone!.label} dans ${anniversaryData.nextMilestone!.daysUntil ?? 0} jours',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
@@ -331,12 +331,12 @@ class _AnniversaryCelebrationDialogState
 
       if (result.success && result.data != null && result.data!.isNotEmpty) {
         await Share.share(
-          'Nous fetons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL ! ${widget.anniversaryData.currentMilestone?.label ?? ""} ❤️',
+          'Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}',
         );
       } else {
         // Fallback to simple share
         await Share.share(
-          'Nous fetons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL ! ${widget.anniversaryData.currentMilestone?.label ?? ""} ❤️',
+          'Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}',
         );
       }
     }
@@ -381,7 +381,7 @@ class _AnniversaryCelebrationDialogState
 
               // Title
               const Text(
-                'Joyeux Anniversaire !',
+                'Joyeux anniversaire',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -486,7 +486,7 @@ class _AnniversaryCelebrationDialogState
                         ),
                       ),
                       child: const Text(
-                        'Merci !',
+                        'Merci',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

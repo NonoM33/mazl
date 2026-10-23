@@ -118,7 +118,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
 
   void _shareStory(SuccessStory story) {
     Share.share(
-      '${story.couple1Name} et ${story.couple2Name} se sont rencontres sur MAZL ! ${story.statusEmoji} Leur histoire: ${story.story.substring(0, story.story.length.clamp(0, 100))}...',
+      '${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...',
     );
   }
 
@@ -126,7 +126,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Success Stories'),
+        title: const Text('Histoires de couples'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -151,7 +151,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadStories,
-            child: const Text('Reessayer'),
+            child: const Text('Réessayer'),
           ),
         ],
       ),
@@ -208,7 +208,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Pas encore de success stories',
+            'Pas encore d\'histoires de couples',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -219,7 +219,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Les premieres histoires d\'amour MAZL seront bientot partagees !',
+              'Les premières histoires d\'amour MAZL seront bientôt partagées.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[500],
@@ -548,7 +548,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
     if (_storyController.text.length < 100) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Votre histoire doit faire au moins 100 caracteres'),
+          content: Text('Votre histoire doit faire au moins 100 caractères'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -572,7 +572,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content:
-                Text('Merci ! Votre histoire sera publiee apres validation.'),
+                Text('Merci. Votre histoire sera publiée après validation.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -630,7 +630,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Inspirez la communaute MAZL en partageant votre success story !',
+              'Inspirez la communauté MAZL en partageant votre histoire.',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
@@ -645,15 +645,15 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
               spacing: 8,
               children: [
                 _buildStatusChip('dating', 'En couple', '❤️'),
-                _buildStatusChip('engaged', 'Fiances', '💍'),
-                _buildStatusChip('married', 'Maries', '👰'),
+                _buildStatusChip('engaged', 'Fiancés', '💍'),
+                _buildStatusChip('married', 'Mariés', '👰'),
               ],
             ),
             const SizedBox(height: 20),
 
             // Story text
             const Text(
-              'Votre histoire (min. 100 caracteres)',
+              'Votre histoire (min. 100 caractères)',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -663,7 +663,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
               maxLength: 1000,
               decoration: InputDecoration(
                 hintText:
-                    'Comment vous etes-vous rencontres ? Qu\'est-ce qui vous a plu chez l\'autre ?...',
+                    'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

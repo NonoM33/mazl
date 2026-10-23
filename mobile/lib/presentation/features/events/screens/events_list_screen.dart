@@ -146,7 +146,7 @@ class _EventsListScreenState extends State<EventsListScreen>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Evenements'),
+        title: const Text('Événements'),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.calendarDays),
@@ -283,7 +283,7 @@ class _EventsListScreenState extends State<EventsListScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Revenez bientôt pour découvrir\nde nouveaux événements !',
+              'Revenez bientôt pour découvrir\nde nouveaux événements.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -388,13 +388,13 @@ class _EventCard extends StatelessWidget {
       case 'speed_dating':
         return 'Speed Dating';
       case 'holiday':
-        return 'Fete';
+        return 'Fête';
       case 'lecture':
         return 'Cours';
       case 'social':
         return 'Social';
       default:
-        return 'Evenement';
+        return 'Événement';
     }
   }
 

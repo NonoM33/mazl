@@ -170,7 +170,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '💑 Couple',
+                'Couple',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -284,7 +284,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'De nouvelles activités arrivent bientôt !',
+              'De nouvelles activités arrivent bientôt.',
               style: TextStyle(color: Colors.grey[500]),
             ),
             const SizedBox(height: 24),
@@ -398,7 +398,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${activity.title} sauvegardé !',
+                '${activity.title} sauvegardé',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
