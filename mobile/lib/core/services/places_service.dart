@@ -32,13 +32,20 @@ class CitySuggestion {
 
 /// Service for city autocomplete using Google Places API
 class PlacesService {
-  static final PlacesService _instance = PlacesService._internal();
+  static final PlacesService _instance = PlacesService._internal(http.Client());
   factory PlacesService() => _instance;
-  PlacesService._internal();
+  PlacesService._internal(this._client);
 
-  // Google Places API key - should be in environment config
-  // For now we'll use the API.gouv.fr address API which is free and perfect for France
-  static const String _apiGeoBaseUrl = 'https://api-adresse.data.gouv.fr';
+  /// Test seam: build a service on top of an injected http client.
+  @visibleForTesting
+  PlacesService.withClient(http.Client client) : _client = client;
+
+  final http.Client _client;
+  static const Duration _timeout = Duration(seconds: 10);
+
+  // Geoplateforme geocoding API (free, no key). Replaces the retired
+  // api-adresse.data.gouv.fr.
+  static const String _apiGeoBaseUrl = 'https://data.geopf.fr/geocodage';
 
   /// Search for cities based on user input
   /// Uses the French government address API (free, no key needed)
@@ -50,10 +57,10 @@ class PlacesService {
     try {
       // Use the French address API to search for municipalities
       final url = Uri.parse(
-        '$_apiGeoBaseUrl/search/?q=${Uri.encodeComponent(query)}&type=municipality&limit=5',
+        '$_apiGeoBaseUrl/search?q=${Uri.encodeComponent(query)}&type=municipality&limit=5',
       );
 
-      final response = await http.get(url);
+      final response = await _client.get(url).timeout(_timeout);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -78,9 +85,10 @@ class PlacesService {
         }).toList();
       }
 
+      debugPrint('PlacesService: searchCities got HTTP ${response.statusCode} from $url');
       return [];
     } catch (e) {
-      debugPrint('PlacesService: Error searching cities: $e');
+      debugPrint('PlacesService: Error searching cities for "$query": $e');
       return [];
     }
   }
@@ -94,10 +102,10 @@ class PlacesService {
 
     try {
       final url = Uri.parse(
-        '$_apiGeoBaseUrl/search/?q=${Uri.encodeComponent(query)}&limit=5',
+        '$_apiGeoBaseUrl/search?q=${Uri.encodeComponent(query)}&limit=5',
       );
 
-      final response = await http.get(url);
+      final response = await _client.get(url).timeout(_timeout);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -133,9 +141,10 @@ class PlacesService {
         return citiesMap.values.toList();
       }
 
+      debugPrint('PlacesService: searchAddresses got HTTP ${response.statusCode} from $url');
       return [];
     } catch (e) {
-      debugPrint('PlacesService: Error searching addresses: $e');
+      debugPrint('PlacesService: Error searching addresses for "$query": $e');
       return [];
     }
   }
