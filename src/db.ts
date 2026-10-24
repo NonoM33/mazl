@@ -2702,35 +2702,41 @@ export async function getDailyQuestion(coupleId: number) {
   return result[0];
 }
 
+// Records one member's answer. The question must belong to the couple named in
+// the call, otherwise another couple's answer could be overwritten by id.
+// Returns false when nothing was written (unknown couple, outsider, or a
+// question that is not this couple's).
 export async function answerDailyQuestion(
   coupleId: number,
   questionId: number,
   userId: number,
   answer: string
-) {
-  // Determine if this is user1 or user2
-  const couple = await sql`
+): Promise<boolean> {
+  const couple = await sql<{ user1_id: number; user2_id: number }[]>`
     SELECT user1_id, user2_id FROM couples WHERE id = ${coupleId}
   `;
+  const members = couple[0];
+  if (!members) return false;
 
-  if (couple.length === 0) throw new Error("Couple not found");
-
-  const isUser1 = (couple[0] as any).user1_id === userId;
-  const column = isUser1 ? 'user1_answer' : 'user2_answer';
-
-  if (isUser1) {
-    await sql`
+  if (members.user1_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user1_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
-  } else {
-    await sql`
+    return updated.length > 0;
+  }
+  if (members.user2_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user2_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
+    return updated.length > 0;
   }
+  return false;
 }
 
 export async function getCoupleQuestionHistory(coupleId: number, limit = 30) {

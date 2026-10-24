@@ -327,9 +327,15 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
         return c.json({ error: "Forbidden" }, 403);
       }
       const questionId = parseInt(c.req.param("questionId"));
+      if (!Number.isInteger(questionId)) {
+        return c.json({ success: false, error: "Question not found" }, 404);
+      }
       const { answer } = await c.req.json();
 
-      await answerDailyQuestion(coupleId, questionId, userId, answer);
+      const recorded = await answerDailyQuestion(coupleId, questionId, userId, answer);
+      if (!recorded) {
+        return c.json({ success: false, error: "Question not found" }, 404);
+      }
 
       return c.json({ success: true });
     } catch (error: unknown) {
