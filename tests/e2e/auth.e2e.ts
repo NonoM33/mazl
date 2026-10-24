@@ -53,7 +53,7 @@ describe("sign-in", () => {
   test("signing out ends the web session: the next visit is the sign-in page", async () => {
     const { page, context } = await signedIn(browser, member);
     await open(page, "/reglages");
-    const response = await page.request.post(`${BASE_URL}/api/web/auth/logout`, { headers: { "X-Mazl-Web": "1", Origin: BASE_URL } });
+    const response = await page.request.post(`${BASE_URL}/api/web/auth/logout`, { headers: { "X-Mazl-Web": "1", Origin: BASE_URL }, data: {} });
     expect(response.ok()).toBe(true);
     await open(page, "/");
     await page.waitForURL(/\/app\/connexion$/);

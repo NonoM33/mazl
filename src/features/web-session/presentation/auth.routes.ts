@@ -7,7 +7,7 @@ import { remainingSeconds } from "../domain/session";
 import type { OpenedSession, WebMember } from "../application/ports";
 import type { WebSessionModule } from "../web-session.module";
 import { SESSION_HEADER, clearedCookie, sessionCookie } from "./cookie";
-import { hostAllowed } from "./origin";
+import { hostAllowed, originAllowed } from "./origin";
 import { appleBody, googleBody, qrBody } from "./schemas";
 
 type Ctx = Context<{ Variables: AppVariables }>;
@@ -35,6 +35,18 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, modul
   const pollLimit = createIpRateLimiter({ max: 120, windowMs: 60_000 });
   const rightHost = (c: Ctx): boolean => hostAllowed(module.config, c.req.header("host") ?? null);
   const label = (c: Ctx): string => browserLabel(c.req.header("user-agent"));
+
+  // Sign-in cannot be forged from another site (security review M1): a form of
+  // another site can only send text/plain, urlencoded or multipart, so JSON is
+  // required, and a request that names another origin is refused.
+  app.use("/api/web/auth/*", async (c, next) => {
+    if (c.req.method !== "POST") return next();
+    const type = c.req.header("content-type") ?? "";
+    if (!/^application\/json\s*(;|$)/i.test(type)) return c.json({ success: false, error: "json_required" }, 415);
+    const origin = c.req.header("origin");
+    if (origin !== undefined && !originAllowed(module.config, origin, c.req.header("host") ?? null)) return fail(c, "wrong_origin", 403);
+    await next();
+  });
 
   app.get("/api/web/auth/config", (c) =>
     c.json({

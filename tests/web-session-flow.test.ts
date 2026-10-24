@@ -24,7 +24,7 @@ function zeroBits(hex: string): number {
 }
 
 async function solvePow(): Promise<Pow> {
-  const res = await fetch(`${BASE_URL}/api/web/auth/challenge`, { method: "POST" });
+  const res = await fetch(`${BASE_URL}/api/web/auth/challenge`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
   const body = (await res.json()) as { success: boolean; challenge: string; difficulty: number };
   expect(body.success).toBe(true);
   for (let n = 0; ; n++) {
@@ -227,10 +227,11 @@ describe("cross-site protection", () => {
     const { browser } = await signInByQr(await makeUser("csrf"));
     const res = await fetch(`${BASE_URL}/api/web/auth/logout`, {
       method: "POST",
-      headers: { Cookie: `${COOKIE}=${browser.cookie}`, "X-Mazl-Web": "1", Origin: "https://evil.example.net" },
+      headers: { Cookie: `${COOKIE}=${browser.cookie}`, "X-Mazl-Web": "1", Origin: "https://evil.example.net", "Content-Type": "application/json" },
+      body: "{}",
     });
-    expect(res.status).toBe(200);
-    // Logout without a bridged session did nothing: the session still works.
+    expect(res.status).toBe(403);
+    // The cross-site logout did nothing: the session still works.
     expect((await browser.get("/api/matches")).status).toBe(200);
   });
 });
@@ -250,6 +251,36 @@ function signedToken(claims: Record<string, unknown>): string {
   const secret = process.env.JWT_SECRET ?? "";
   return `${header}.${body}.${createHmac("sha256", secret).update(`${header}.${body}`).digest("base64url")}`;
 }
+
+describe("sign-in cannot be forged from another site (security review M1)", () => {
+  // A cross-site HTML form may POST text/plain with any body: Hono would read it
+  // as JSON. And a request that says it comes from another origin is refused.
+  const post = (path: string, body: string, headers: Record<string, string>) =>
+    fetch(`${BASE_URL}${path}`, { method: "POST", headers: { "x-forwarded-for": `198.51.100.${Math.floor(Math.random() * 200) + 1}`, ...headers }, body });
+
+  test("a sign-in sent as text/plain, like a form of another site, is refused", async () => {
+    const pow = await solvePow();
+    for (const path of ["/api/web/auth/google", "/api/web/auth/apple", "/api/web/auth/qr"]) {
+      const res = await post(path, JSON.stringify({ idToken: "x", identityToken: "x", pow }), { "Content-Type": "text/plain" });
+      expect(res.status).toBe(415);
+      expect(((await res.json()) as { error: string }).error).toBe("json_required");
+    }
+  });
+
+  test("a sign-in whose Origin is another site is refused", async () => {
+    const pow = await solvePow();
+    for (const path of ["/api/web/auth/google", "/api/web/auth/qr", "/api/web/auth/challenge", "/api/web/auth/logout"]) {
+      const res = await post(path, JSON.stringify({ idToken: "x", pow }), { "Content-Type": "application/json", Origin: "https://evil.example" });
+      expect(res.status).toBe(403);
+      expect(((await res.json()) as { error: string }).error).toBe("wrong_origin");
+    }
+  });
+
+  test("the site's own JSON requests still go through", async () => {
+    const res = await post("/api/web/auth/challenge", "{}", { "Content-Type": "application/json", Origin: BASE_URL });
+    expect(res.status).toBe(200);
+  });
+});
 
 describe("socket tickets are not API tokens (security review H1)", () => {
   test("a ticket used as a Bearer token is refused, so it cannot approve a sign-in", async () => {
@@ -355,7 +386,7 @@ describe("listing and revoking from the phone", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("set-cookie")).toContain("Max-Age=0");
     expect((await browser.get("/api/matches")).status).toBe(401);
-    const bare = await fetch(`${BASE_URL}/api/web/auth/logout`, { method: "POST" });
+    const bare = await fetch(`${BASE_URL}/api/web/auth/logout`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     expect(bare.status).toBe(200);
   });
 });
