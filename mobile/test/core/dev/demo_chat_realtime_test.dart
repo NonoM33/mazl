@@ -155,7 +155,7 @@ void main() {
     fakeAsync((async) {
       var fail = true;
       api.onGet = (before, limit) async {
-        if (fail) throw const ChatApiException('Pas de connexion internet.');
+        if (fail) throw const ChatApiException(ChatApiErrorKind.network);
         return MessagePage(messages: server.reversed.toList(), hasMore: false);
       };
       listen(async, (_) {

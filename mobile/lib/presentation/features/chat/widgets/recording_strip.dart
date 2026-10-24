@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../logic/chat_dates.dart';
 import 'voice_capture.dart';
 
@@ -28,7 +29,7 @@ class RecordingStrip extends StatelessWidget {
       children: [
         if (capture.locked)
           IconButton(
-            tooltip: 'Annuler l\'enregistrement',
+            tooltip: context.l10n.chatRecordingCancel,
             constraints: const BoxConstraints.tightFor(width: 44, height: 44),
             icon: const Icon(
               LucideIcons.trash2,
@@ -56,11 +57,11 @@ class RecordingStrip extends StatelessWidget {
           child: capture.locked
               ? const SizedBox.shrink()
               : Align(
-                  alignment: Alignment.centerRight,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: Text(
                     cancelling
-                        ? 'Relâchez pour annuler'
-                        : '‹ Glisser pour annuler',
+                        ? context.l10n.chatRecordingRelease
+                        : context.l10n.chatRecordingSlide,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -141,7 +142,7 @@ class _LevelBars extends StatelessWidget {
         children: [
           for (final level in padded)
             Container(
-              margin: const EdgeInsets.only(right: 2),
+              margin: const EdgeInsetsDirectional.only(end: 2),
               width: 3,
               height: 4 + 20 * (level.clamp(0, 100) / 100),
               decoration: BoxDecoration(

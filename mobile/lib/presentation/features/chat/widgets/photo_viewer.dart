@@ -7,6 +7,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../../core/motion/mazl_motion.dart';
+import '../../../../l10n/l10n.dart';
 import 'photo_grid.dart';
 
 /// Opens the full-screen viewer on the root navigator (docs/design/CHAT.md §7).
@@ -246,15 +247,15 @@ class _PhotoViewerState extends State<PhotoViewer>
                     ),
                   ),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: MediaQuery.paddingOf(context).top + 8,
-                  left: 8,
+                  start: 8,
                   child: Opacity(
                     opacity: 1 - progress,
                     child: SizedBox.square(
                       dimension: 44,
                       child: IconButton(
-                        tooltip: 'Fermer',
+                        tooltip: context.l10n.commonClose,
                         icon: const Icon(
                           LucideIcons.x,
                           size: 24,

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
+import '../l10n/chat_failure_text.dart';
+import '../state/chat_controller.dart';
+
 /// Where chat messages (snackbars) must stop: the conversation screen knows
 /// where its composer starts, and a message floats 12 px above it instead of
 /// covering it (same rule as the floating tab bar).
@@ -33,7 +37,9 @@ void showChatSnack(BuildContext context, String message) {
     );
 }
 
-/// Shows [error] when an action returned one (null means success).
-void showChatError(BuildContext context, String? error) {
-  if (error != null && context.mounted) showChatSnack(context, error);
+/// Says why an action failed, when it did (null means success).
+void showChatError(BuildContext context, ChatFailure? failure) {
+  if (failure != null && context.mounted) {
+    showChatSnack(context, failure.text(context.l10n));
+  }
 }

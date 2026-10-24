@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../state/chat_controller.dart';
 import 'chat_image.dart';
 
@@ -203,14 +204,14 @@ class _RevealPill extends StatelessWidget {
       color: Colors.black.withValues(alpha: 0.45),
       borderRadius: BorderRadius.circular(18),
     ),
-    child: const Row(
+    child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(LucideIcons.eye, size: 16, color: Colors.white),
-        SizedBox(width: 8),
+        const Icon(LucideIcons.eye, size: 16, color: Colors.white),
+        const SizedBox(width: 8),
         Text(
-          'Voir la photo',
-          style: TextStyle(
+          context.l10n.chatPhotoReveal,
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: Colors.white,

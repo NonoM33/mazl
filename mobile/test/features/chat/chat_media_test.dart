@@ -472,9 +472,10 @@ void main() {
       expect(Waveform.resample(const []), hasLength(32));
     });
 
-    test('speed labels use the French decimal comma', () {
-      expect(VoiceBubbleContent.speedLabel(1.5), '1,5×');
-      expect(VoiceBubbleContent.speedLabel(2), '2×');
+    test('speed labels use the decimal separator of the language', () {
+      expect(VoiceBubbleContent.speedLabel(1.5, 'fr'), '1,5×');
+      expect(VoiceBubbleContent.speedLabel(2, 'fr'), '2×');
+      expect(VoiceBubbleContent.speedLabel(1.5, 'en'), '1.5×');
     });
   });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 
 enum AttachChoice { gallery, camera }
@@ -15,13 +16,13 @@ Future<AttachChoice?> pickAttachment(BuildContext context) {
       children: [
         ListTile(
           leading: const Icon(LucideIcons.image),
-          title: const Text('Photos'),
-          subtitle: const Text('Jusqu\'à 10 à la fois'),
+          title: Text(sheet.l10n.chatAttachPhotos),
+          subtitle: Text(sheet.l10n.chatAttachPhotosLimit),
           onTap: () => Navigator.pop(sheet, AttachChoice.gallery),
         ),
         ListTile(
           leading: const Icon(LucideIcons.camera),
-          title: const Text('Appareil photo'),
+          title: Text(sheet.l10n.chatAttachCamera),
           onTap: () => Navigator.pop(sheet, AttachChoice.camera),
         ),
       ],

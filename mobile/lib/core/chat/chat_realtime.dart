@@ -89,12 +89,33 @@ ChatRealtimeEvent? parseChatEnvelope(String type, Map<String, dynamic> payload) 
   return null;
 }
 
-/// One line for the conversation list.
-String chatPreviewText(ChatMessage message) {
-  if (message.unsent) return 'Message retiré';
+// Words the SERVER writes for what is not text (CONTRAT §1 `reply_to.preview`,
+// `GET /api/conversations` `lastMessage`). They are part of the wire contract,
+// not texts the member reads: screens translate them through
+// [ChatPreviewKind], never display them.
+
+const _wirePhoto = 'Photo';
+const _wireVoice = 'Message vocal';
+const _wireRemoved = 'Message retiré';
+
+/// What a one-line preview of a message stands for.
+enum ChatPreviewKind { text, photo, voice, removed }
+
+/// Reads a preview the server wrote (`lastMessage`, `reply_to.preview`).
+/// Anything else is the text of a message and is shown as it is.
+ChatPreviewKind chatPreviewKindOf(String wire) => switch (wire) {
+  _wirePhoto => ChatPreviewKind.photo,
+  _wireVoice => ChatPreviewKind.voice,
+  _wireRemoved => ChatPreviewKind.removed,
+  _ => ChatPreviewKind.text,
+};
+
+/// The preview the server would write for [message].
+String chatPreviewWire(ChatMessage message) {
+  if (message.unsent) return _wireRemoved;
   return switch (message.type) {
-    ChatMessageType.photo => 'Photo',
-    ChatMessageType.voice => 'Message vocal',
+    ChatMessageType.photo => _wirePhoto,
+    ChatMessageType.voice => _wireVoice,
     ChatMessageType.text => message.content,
   };
 }

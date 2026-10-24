@@ -162,14 +162,14 @@ class ChatControllerImpl extends ChatNotifier {
             hasMore: firstLoad ? page.hasMore : s.hasMore,
           ));
     } on ChatApiException catch (e) {
-      _loadFailed(e.message);
+      _loadFailed(ChatFailure.fromApi(e.kind));
     } on Object {
-      _loadFailed('Impossible de charger la conversation.');
+      _loadFailed(ChatFailure.loadFailed);
     }
   }
 
-  void _loadFailed(String message) =>
-      _update((s) => s.copyWith(loading: false, error: s.messages.isEmpty ? message : null));
+  void _loadFailed(ChatFailure failure) =>
+      _update((s) => s.copyWith(loading: false, error: s.messages.isEmpty ? failure : null));
 
   List<ChatMessage> _mergePage(List<ChatMessage> current, List<ChatMessage> newestFirst) {
     var merged = current;
@@ -212,16 +212,16 @@ class ChatControllerImpl extends ChatNotifier {
   // ---- sending ----
 
   @override
-  Future<String?> sendText(String text, {int? replyToId}) {
+  Future<ChatFailure?> sendText(String text, {int? replyToId}) {
     final content = text.trim();
     if (content.isEmpty) return Future.value();
     return _enqueue(_Outgoing(type: ChatMessageType.text, content: content, replyToId: replyToId));
   }
 
   @override
-  Future<String?> sendPhotos(List<Uint8List> jpegs, {String caption = '', int? replyToId}) {
+  Future<ChatFailure?> sendPhotos(List<Uint8List> jpegs, {String caption = '', int? replyToId}) {
     if (jpegs.isEmpty) return Future.value();
-    if (jpegs.length > maxPhotosPerMessage) return Future.value('Dix photos au maximum par message.');
+    if (jpegs.length > maxPhotosPerMessage) return Future.value(ChatFailure.tooManyPhotos);
     return _enqueue(_Outgoing(
       type: ChatMessageType.photo,
       content: caption.trim(),
@@ -231,7 +231,7 @@ class ChatControllerImpl extends ChatNotifier {
   }
 
   @override
-  Future<String?> sendVoice(
+  Future<ChatFailure?> sendVoice(
     Uint8List aac, {
     required int durationMs,
     required List<int> waveform,
@@ -245,11 +245,11 @@ class ChatControllerImpl extends ChatNotifier {
         replyToId: replyToId,
       ));
 
-  Future<String?> _enqueue(_Outgoing outgoing) async {
+  Future<ChatFailure?> _enqueue(_Outgoing outgoing) async {
     try {
       await _ensureUser();
     } on Object {
-      return 'Impossible d’envoyer pour le moment.';
+      return ChatFailure.sendUnavailable;
     }
     final clientId = _newClientId();
     _outbox[clientId] = outgoing;
@@ -284,9 +284,9 @@ class ChatControllerImpl extends ChatNotifier {
   }
 
   @override
-  Future<String?> retry(String clientId) async {
+  Future<ChatFailure?> retry(String clientId) async {
     final outgoing = _outbox[clientId];
-    if (outgoing == null || _byClientId(clientId) == null) return 'Ce message n’existe plus.';
+    if (outgoing == null || _byClientId(clientId) == null) return ChatFailure.messageGone;
     if (outgoing.inFlight) return null;
     return _deliver(clientId);
   }
@@ -302,10 +302,9 @@ class ChatControllerImpl extends ChatNotifier {
         ]);
   }
 
-  /// Uploads what is missing, sends, and settles the bubble. Returns the French
-  /// error, or null when delivered (or when the message turned out to be
+  /// Uploads what is missing, sends, and settles the bubble. Returns the failure, or null when delivered (or when the message turned out to be
   /// delivered already, because the WebSocket echo beat a failing HTTP call).
-  Future<String?> _deliver(String clientId) async {
+  Future<ChatFailure?> _deliver(String clientId) async {
     final outgoing = _outbox[clientId];
     if (outgoing == null) return null;
     outgoing.inFlight = true;
@@ -324,22 +323,22 @@ class ChatControllerImpl extends ChatNotifier {
       _setMessages((list) => upsertMessage(list, sent));
       return null;
     } on ChatApiException catch (e) {
-      return _failed(clientId, e.message);
+      return _failed(clientId, ChatFailure.fromApi(e.kind));
     } on Object {
-      return _failed(clientId, 'Une erreur est survenue.');
+      return _failed(clientId, ChatFailure.unknown);
     } finally {
       outgoing.inFlight = false;
     }
   }
 
-  String? _failed(String clientId, String message) {
+  ChatFailure? _failed(String clientId, ChatFailure failure) {
     final current = _byClientId(clientId);
     if (current != null && !current.isLocal) {
       _outbox.remove(clientId);
       return null;
     }
     _setStatus(clientId, MessageStatus.failed);
-    return message;
+    return failure;
   }
 
   void _setStatus(String clientId, MessageStatus status) => _setMessages((list) => [
@@ -378,10 +377,10 @@ class ChatControllerImpl extends ChatNotifier {
   // ---- reactions, unsend, report ----
 
   @override
-  Future<String?> toggleReaction(int messageId, String emoji) async {
-    if (!allowedReactions.contains(emoji)) return 'Réaction indisponible.';
+  Future<ChatFailure?> toggleReaction(int messageId, String emoji) async {
+    if (!allowedReactions.contains(emoji)) return ChatFailure.reactionUnavailable;
     final message = _byId(messageId);
-    if (message == null || message.isLocal) return 'Ce message n’est pas encore envoyé.';
+    if (message == null || message.isLocal) return ChatFailure.notYetSent;
     final before = message.reactions;
     _replace(message.copyWith(reactions: toggleMyReaction(before, emoji, _me)));
     try {
@@ -390,16 +389,16 @@ class ChatControllerImpl extends ChatNotifier {
       return null;
     } on ChatApiException catch (e) {
       _replaceFields(messageId, (m) => m.copyWith(reactions: before));
-      return e.message;
+      return ChatFailure.fromApi(e.kind);
     }
   }
 
   @override
-  Future<String?> unsend(int messageId) async {
+  Future<ChatFailure?> unsend(int messageId) async {
     final message = _byId(messageId);
-    if (message == null) return 'Ce message n’existe plus.';
-    if (message.senderId != _me) return 'Seul l’auteur peut retirer un message.';
-    if (_now().difference(message.createdAt) > unsendWindow) return 'Ce message ne peut plus être retiré.';
+    if (message == null) return ChatFailure.messageGone;
+    if (message.senderId != _me) return ChatFailure.notAuthor;
+    if (_now().difference(message.createdAt) > unsendWindow) return ChatFailure.cannotUnsend;
     _replace(message.copyWith(unsent: true));
     try {
       final updated = await _api.unsend(messageId);
@@ -407,17 +406,17 @@ class ChatControllerImpl extends ChatNotifier {
       return null;
     } on ChatApiException catch (e) {
       _replace(message);
-      return e.message;
+      return ChatFailure.fromApi(e.kind);
     }
   }
 
   @override
-  Future<String?> report(int messageId, String reason) async {
+  Future<ChatFailure?> report(int messageId, String reason) async {
     try {
       await _api.report(messageId, reason);
       return null;
     } on ChatApiException catch (e) {
-      return e.message;
+      return ChatFailure.fromApi(e.kind);
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import '../state/chat_controller_impl.dart';
 import '../logic/chat_items.dart';
@@ -37,8 +38,8 @@ class RowOperations {
   };
 
   Future<void> react(String emoji) async {
-    final error = await _actions.toggleReaction(message.id, emoji);
-    if (context.mounted) showChatError(context, error);
+    final failure = await _actions.toggleReaction(message.id, emoji);
+    if (context.mounted) showChatError(context, failure);
   }
 
   /// Double tap: the heart. True when it was ADDED (so the caller pops it).
@@ -57,15 +58,16 @@ class RowOperations {
       DateTime.now().difference(message.createdAt) < unsendWindow;
 
   List<MessageMenuAction> menu() {
+    final l10n = context.l10n;
     if (failed) {
       return [
         MessageMenuAction(
-          label: 'Réessayer',
+          label: l10n.commonRetry,
           icon: LucideIcons.rotateCw,
           onTap: retry,
         ),
         MessageMenuAction(
-          label: 'Supprimer',
+          label: l10n.commonDelete,
           icon: LucideIcons.trash2,
           destructive: true,
           onTap: discard,
@@ -74,22 +76,28 @@ class RowOperations {
     }
     return [
       MessageMenuAction(
-        label: 'Répondre',
+        label: l10n.chatMenuReply,
         icon: MenuIcons.reply,
+        mirrorsInRtl: true,
         onTap: () => scope.onReply(message),
       ),
       if (message.content.isNotEmpty)
-        MessageMenuAction(label: 'Copier', icon: MenuIcons.copy, onTap: copy),
+        MessageMenuAction(
+          label: l10n.chatMenuCopy,
+          icon: MenuIcons.copy,
+          onTap: copy,
+        ),
       if (canUnsend)
         MessageMenuAction(
-          label: 'Retirer',
+          label: l10n.chatMenuUnsend,
           icon: MenuIcons.unsend,
+          mirrorsInRtl: true,
           destructive: true,
           onTap: unsend,
         ),
       if (!item.mine)
         MessageMenuAction(
-          label: 'Signaler',
+          label: l10n.commonReport,
           icon: MenuIcons.report,
           destructive: true,
           onTap: report,
@@ -99,27 +107,28 @@ class RowOperations {
 
   void copy() {
     Clipboard.setData(ClipboardData(text: message.content));
-    showChatSnack(context, 'Message copié');
+    showChatSnack(context, context.l10n.chatCopied);
   }
 
   Future<void> unsend() async {
-    final error = await _actions.unsend(message.id);
-    if (context.mounted) showChatError(context, error);
+    final failure = await _actions.unsend(message.id);
+    if (context.mounted) showChatError(context, failure);
   }
 
   Future<void> report() async {
     final reason = await pickReportReason(context);
     if (reason == null || !context.mounted) return;
-    final error = await _actions.report(message.id, reason);
+    final failure = await _actions.report(message.id, reason.wire);
     if (!context.mounted) return;
-    showChatSnack(context, error ?? 'Merci, nous examinons ce message.');
+    if (failure != null) return showChatError(context, failure);
+    showChatSnack(context, context.l10n.chatReportThanks);
   }
 
   Future<void> retry() async {
     final id = message.clientId;
     if (id == null) return;
-    final error = await _actions.retry(id);
-    if (context.mounted) showChatError(context, error);
+    final failure = await _actions.retry(id);
+    if (context.mounted) showChatError(context, failure);
   }
 
   void discard() {
@@ -127,7 +136,7 @@ class RowOperations {
     if (id != null) _actions.discard(id);
   }
 
-  /// Tap on « Échec · Réessayer ».
+  /// Tap on the failure line (« Échec · Réessayer » in French).
   Future<void> failedMenu() {
     return showMazlSheet<void>(
       context,
@@ -137,7 +146,7 @@ class RowOperations {
         children: [
           ListTile(
             leading: const Icon(LucideIcons.rotateCw),
-            title: const Text('Réessayer'),
+            title: Text(sheet.l10n.commonRetry),
             onTap: () {
               Navigator.pop(sheet);
               retry();
@@ -149,7 +158,7 @@ class RowOperations {
               color: Theme.of(sheet).colorScheme.error,
             ),
             title: Text(
-              'Supprimer',
+              sheet.l10n.commonDelete,
               style: TextStyle(color: Theme.of(sheet).colorScheme.error),
             ),
             onTap: () {

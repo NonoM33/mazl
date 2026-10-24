@@ -1,3 +1,4 @@
+import '../../../../core/chat/chat_realtime.dart';
 import '../../../../core/models/chat_message.dart';
 
 // Pure list operations of the chat controller: merging server and local
@@ -86,19 +87,13 @@ List<ChatMessage> markSeenUpTo(List<ChatMessage> messages, {required int me, req
           m,
     ];
 
-/// What a quoted message shows (CONTRAT §1 `reply_to.preview`).
+/// What a quoted message shows (CONTRAT §1 `reply_to.preview`): the server's
+/// own wording for a photo, a voice note or a retracted message, the first
+/// [quotedPreviewLength] characters of a text.
 ReplyRef replyRefFor(ChatMessage original) {
-  final String preview;
-  if (original.unsent) {
-    preview = 'Message retiré';
-  } else {
-    preview = switch (original.type) {
-      ChatMessageType.photo => 'Photo',
-      ChatMessageType.voice => 'Message vocal',
-      ChatMessageType.text => original.content.length > quotedPreviewLength
-          ? original.content.substring(0, quotedPreviewLength)
-          : original.content,
-    };
-  }
+  final wire = chatPreviewWire(original);
+  final preview = original.type == ChatMessageType.text && !original.unsent && wire.length > quotedPreviewLength
+      ? wire.substring(0, quotedPreviewLength)
+      : wire;
   return ReplyRef(id: original.id, senderId: original.senderId, type: original.type, preview: preview);
 }

@@ -175,7 +175,7 @@ void main() {
         final harness = ChatHarness(
           initial: chatState(
             const [],
-            error: 'Impossible de charger la conversation.',
+            error: ChatFailure.loadFailed,
           ),
         );
         await harness.pump(tester);
@@ -419,7 +419,8 @@ void main() {
             ((tester.widget<Container>(bubbleOf(m)).decoration!
                         as BoxDecoration)
                     .borderRadius!
-                as BorderRadius);
+                as BorderRadiusDirectional)
+                .resolve(TextDirection.ltr);
         final first = radius(a), last = radius(b);
         expect(first.topLeft.x, 22);
         expect(first.bottomLeft.x, 8);
@@ -438,9 +439,10 @@ void main() {
       final a = msg(1, me, 'Seul');
       await ChatHarness(initial: chatState([a])).pump(tester);
       final r =
-          (tester.widget<Container>(bubbleOf(a)).decoration! as BoxDecoration)
-                  .borderRadius!
-              as BorderRadius;
+          ((tester.widget<Container>(bubbleOf(a)).decoration! as BoxDecoration)
+                      .borderRadius!
+                  as BorderRadiusDirectional)
+              .resolve(TextDirection.ltr);
       expect(
         [r.topLeft.x, r.topRight.x, r.bottomLeft.x, r.bottomRight.x],
         [22, 22, 22, 6],

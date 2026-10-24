@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Quiet warning in the thread under a received message flagged by the scam
 /// rules (docs/design/CHAT.md §11). It warns, it never blocks.
@@ -42,7 +43,7 @@ class ScamWarningCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Restez prudent',
+                  context.l10n.chatScamTitle,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -51,7 +52,7 @@ class ScamWarningCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Ne transférez jamais d'argent à quelqu'un que vous n'avez pas rencontré.",
+                  context.l10n.chatScamBody,
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.4,
@@ -62,8 +63,8 @@ class ScamWarningCard extends StatelessWidget {
                 Wrap(
                   children: [
                     if (onLearnMore != null)
-                      _Link('En savoir plus', onLearnMore!, scheme.primary),
-                    _Link('Signaler', onReport, scheme.primary),
+                      _Link(context.l10n.chatScamLearnMore, onLearnMore!, scheme.primary),
+                    _Link(context.l10n.commonReport, onReport, scheme.primary),
                   ],
                 ),
               ],
@@ -89,10 +90,10 @@ class _Link extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
       child: Padding(
-        padding: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsetsDirectional.only(end: 16),
         child: Align(
           widthFactor: 1,
-          alignment: Alignment.centerLeft,
+          alignment: AlignmentDirectional.centerStart,
           child: Text(
             label,
             style: TextStyle(

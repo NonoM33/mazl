@@ -8,7 +8,10 @@ abstract class BubbleStyle {
 
   /// Within a group the side against the margin is squeezed to 8 so bubbles
   /// stack; the last bubble carries the 6 px tail.
-  static BorderRadius radius({
+  ///
+  /// Directional: my bubbles sit on the END side (right in French, left in
+  /// Hebrew) and carry the tail there; the others sit on the START side.
+  static BorderRadiusDirectional radius({
     required bool mine,
     required bool first,
     required bool last,
@@ -16,17 +19,17 @@ abstract class BubbleStyle {
     final top = first ? big : stacked;
     final bottom = last ? tail : stacked;
     return mine
-        ? BorderRadius.only(
-            topLeft: big,
-            topRight: top,
-            bottomLeft: big,
-            bottomRight: bottom,
+        ? BorderRadiusDirectional.only(
+            topStart: big,
+            topEnd: top,
+            bottomStart: big,
+            bottomEnd: bottom,
           )
-        : BorderRadius.only(
-            topLeft: top,
-            topRight: big,
-            bottomLeft: bottom,
-            bottomRight: big,
+        : BorderRadiusDirectional.only(
+            topStart: top,
+            topEnd: big,
+            bottomStart: bottom,
+            bottomEnd: big,
           );
   }
 

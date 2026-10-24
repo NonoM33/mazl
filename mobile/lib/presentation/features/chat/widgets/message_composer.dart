@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/chat/voice.dart';
 import '../../../../core/chat/voice_impl.dart';
+import '../../../../l10n/l10n.dart';
 import '../chat_providers.dart';
 import 'attach_sheet.dart';
 import 'chat_feedback.dart';
@@ -109,10 +110,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
       if (photos.isNotEmpty) widget.onSendPhotos(photos);
     } on Exception {
       if (mounted) {
-        showChatSnack(
-          context,
-          'Impossible d\'ajouter la photo. Vérifiez les autorisations.',
-        );
+        showChatSnack(context, context.l10n.chatComposerPhotoError);
       }
     }
   }
@@ -137,9 +135,9 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
       case VoiceStartResult.started:
         break;
       case VoiceStartResult.denied:
-        showChatSnack(context, 'Autorisez le micro dans les réglages pour envoyer un vocal.');
+        showChatSnack(context, context.l10n.chatComposerMicDenied);
       case VoiceStartResult.failed:
-        showChatSnack(context, 'Impossible d\'enregistrer pour le moment. Réessayez.');
+        showChatSnack(context, context.l10n.chatComposerRecordError);
     }
   }
 
@@ -147,10 +145,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
     final recording = await _capture?.finish();
     if (!mounted) return;
     if (recording == null) {
-      showChatSnack(
-        context,
-        'Maintenez le micro plus longtemps pour enregistrer.',
-      );
+      showChatSnack(context, context.l10n.chatComposerHoldLonger);
       return;
     }
     HapticFeedback.mediumImpact();
@@ -202,7 +197,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
                 onCancel: widget.onCancelReply ?? () {},
               ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+              padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 6, 6),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -215,7 +210,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
                     )
                   else ...[
                     IconButton(
-                      tooltip: 'Joindre des photos',
+                      tooltip: context.l10n.chatComposerAttach,
                       constraints: const BoxConstraints.tightFor(
                         width: 44,
                         height: 44,
@@ -274,11 +269,11 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
       maxLines: 5,
       textCapitalization: TextCapitalization.sentences,
       style: const TextStyle(fontSize: 15, height: 1.4),
-      decoration: const InputDecoration(
-        hintText: 'Message',
+      decoration: InputDecoration(
+        hintText: context.l10n.chatComposerHint,
         filled: false,
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         border: noBorder,
         enabledBorder: noBorder,
         focusedBorder: noBorder,
@@ -291,7 +286,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
     final scheme = Theme.of(context).colorScheme;
     if (recording && capture!.locked) {
       return ComposerRoundButton(
-        label: 'Envoyer le vocal',
+        label: context.l10n.chatComposerSendVoice,
         icon: LucideIcons.arrowUp,
         color: scheme.primary,
         onTap: _sendRecording,
@@ -304,7 +299,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
             : const Duration(milliseconds: 150),
         child: ComposerRoundButton(
           key: const ValueKey('send'),
-          label: 'Envoyer',
+          label: context.l10n.chatComposerSend,
           icon: LucideIcons.arrowUp,
           color: scheme.primary,
           onTap: _submit,
@@ -316,12 +311,15 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
       recording: recording,
       lockHint: recording && !capture!.locked,
       onStart: _startRecording,
-      onMove: (offset) => capture?.slide(offset),
-      onEnd: _releaseMic,
-      onTap: () => showChatSnack(
-        context,
-        'Maintenez le micro pour enregistrer un vocal.',
+      // The mic sits at the END of the capsule: cancelling means sliding toward
+      // the START, which is left in French and right in Hebrew.
+      onMove: (offset) => capture?.slide(
+        Directionality.of(context) == TextDirection.rtl
+            ? Offset(-offset.dx, offset.dy)
+            : offset,
       ),
+      onEnd: _releaseMic,
+      onTap: () => showChatSnack(context, context.l10n.chatComposerHoldHint),
     );
   }
 }

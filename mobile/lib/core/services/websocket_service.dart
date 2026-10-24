@@ -252,7 +252,7 @@ class WebSocketService {
             conversationId: m.conversationId,
             messageId: m.id,
             senderId: m.senderId,
-            content: chatPreviewText(m),
+            content: chatPreviewWire(m),
             createdAt: m.createdAt,
           ));
         } else if (payload['messageId'] != null) {

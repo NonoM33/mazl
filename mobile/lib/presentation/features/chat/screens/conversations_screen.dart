@@ -8,10 +8,12 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/websocket_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../conversation_lookup.dart';
 import '../conversation_time.dart';
+import '../l10n/chat_preview_text.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -137,8 +139,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     }
   }
 
-  String _formatTime(DateTime? dateTime) =>
-      dateTime == null ? '' : formatConversationTime(dateTime.toLocal(), DateTime.now());
+  String _formatTime(DateTime? dateTime) => dateTime == null
+      ? ''
+      : formatConversationTime(context.l10n, dateTime.toLocal(), DateTime.now());
 
   void _open(Conversation conversation) {
     setState(() => _conversations = markConversationRead(_conversations, conversation.id));
@@ -164,11 +167,11 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'Messages',
-                style: TextStyle(
+                context.l10n.chatListTitle,
+                style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -2,
@@ -202,22 +205,22 @@ class _ConversationsScreenState extends State<ConversationsScreen>
 
     if (_hasError) {
       return _CenteredMessage(
-        title: 'Impossible de charger',
-        subtitle: 'Vérifiez votre connexion, puis réessayez.',
+        title: context.l10n.chatListLoadErrorTitle,
+        subtitle: context.l10n.chatListLoadErrorBody,
         action: FilledButton(
           onPressed: _loadConversations,
-          child: const Text('Réessayer'),
+          child: Text(context.l10n.commonRetry),
         ),
       );
     }
 
     if (_conversations.isEmpty) {
       return _CenteredMessage(
-        title: 'Pas encore de conversations',
-        subtitle: 'Vos échanges apparaîtront ici dès votre premier match.',
+        title: context.l10n.chatListEmptyTitle,
+        subtitle: context.l10n.chatListEmptyBody,
         action: FilledButton(
           onPressed: () => context.go('/discover'),
-          child: const Text('Découvrir'),
+          child: Text(context.l10n.chatListEmptyAction),
         ),
       );
     }
@@ -235,7 +238,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
               padding: EdgeInsets.fromLTRB(24, 24, 24, bottom + 16),
               children: [
                 Text(
-                  'Aucun résultat pour « ${_query.trim()} ».',
+                  context.l10n.chatListNoResults(_query.trim()),
                   style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
                 ),
               ],
@@ -278,7 +281,7 @@ class _SearchField extends StatelessWidget {
         textInputAction: TextInputAction.search,
         style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
-          hintText: 'Rechercher',
+          hintText: context.l10n.chatListSearchHint,
           prefixIcon: Icon(LucideIcons.search, size: 18, color: scheme.onSurfaceVariant),
           contentPadding: EdgeInsets.zero,
           border: _noBorder,
@@ -355,12 +358,16 @@ class ConversationRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final hasUnread = conversation.unreadCount > 0;
     final user = conversation.otherUser;
-    final name = user?.displayName ?? 'Utilisateur';
-    final preview = conversation.lastMessage ?? 'Nouveau match';
+    final l10n = context.l10n;
+    final name = user?.displayName ?? l10n.chatListUnknownMember;
+    final lastMessage = conversation.lastMessage;
+    final preview = lastMessage == null
+        ? l10n.chatNewMatch
+        : chatPreviewLabel(l10n, lastMessage);
 
     return Semantics(
       button: true,
-      label: hasUnread ? '$name, message non lu' : name,
+      label: hasUnread ? l10n.chatListUnreadLabel(name) : name,
       child: InkWell(
         onTap: onTap,
         child: Padding(
