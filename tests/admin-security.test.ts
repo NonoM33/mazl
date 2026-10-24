@@ -202,6 +202,40 @@ describe("campaigns: sending", () => {
   });
 });
 
+describe("pagination bounds on the admin lists", () => {
+  const lists = ["/api/admin/campaigns", "/api/admin/events"];
+
+  test.each(lists)("%s survives garbage limit and offset (no 500)", async (path) => {
+    for (const query of ["limit=abc", "limit=-1&offset=-5", "limit=1e9", "offset=abc", "limit=%00", "offset=99999999999999999999"]) {
+      const res = await fetch(`${BASE_URL}${path}?${query}`, { headers: admin() });
+      expect(res.status, `${path}?${query}`).toBe(200);
+    }
+  });
+
+  test.each(lists)("%s never returns more than 100 rows", async (path) => {
+    const res = await fetch(`${BASE_URL}${path}?limit=100000`, { headers: admin() });
+    const body = (await res.json()) as Record<string, unknown[]>;
+    const rows = body.campaigns ?? body.events ?? [];
+    expect(rows.length).toBeLessThanOrEqual(100);
+  });
+
+  test("limit=1 returns a single row", async () => {
+    await createCampaign();
+    await createCampaign();
+    const res = await fetch(`${BASE_URL}/api/admin/campaigns?limit=1`, { headers: admin() });
+    const body = (await res.json()) as { campaigns: unknown[] };
+    expect(body.campaigns.length).toBe(1);
+  });
+
+  test("a malformed event id is a 404, never a 500", async () => {
+    for (const suffix of ["abc/export", "abc/duplicate", "abc"]) {
+      const method = suffix.endsWith("duplicate") ? "POST" : suffix === "abc" ? "DELETE" : "GET";
+      const res = await fetch(`${BASE_URL}/api/admin/events/${suffix}`, { method, headers: admin() });
+      expect(res.status, `${method} ${suffix}`).toBe(404);
+    }
+  });
+});
+
 describe("campaigns: editing", () => {
   test("PUT cannot put a sent campaign back to draft", async () => {
     const id = await createCampaign();
