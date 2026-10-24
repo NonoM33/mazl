@@ -38,5 +38,13 @@ export function webSecurityHeaders(secure: boolean, mediaOrigin: string | null =
   return headers;
 }
 
-export const NO_STORE = "no-store";
-export const IMMUTABLE = "public, max-age=31536000, immutable";
+// The origin of the signed media, when it is not the web host itself (it is then allowed in img-src and media-src).
+export function mediaOriginFor(mediaBaseUrl: string | null, webOrigin: URL | null): string | null {
+  if (!mediaBaseUrl) return null;
+  try {
+    const media = new URL(mediaBaseUrl).origin;
+    return media === webOrigin?.origin ? null : media;
+  } catch {
+    return null;
+  }
+}

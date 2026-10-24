@@ -1,5 +1,7 @@
 import { join, normalize } from "node:path";
-import { IMMUTABLE, NO_STORE, webSecurityHeaders } from "./security-headers";
+import { HASHED_ASSET, NO_STORE, cacheControlFor } from "./cache-rules";
+import { PROXIED_PREFIXES, WEB_HOST_PAGES, apiHostOnly } from "./site-rules";
+import { mediaOriginFor, webSecurityHeaders } from "./security-headers";
 
 // Serves the built web client (web/dist) under /app, before Hono so its own
 // headers are not overwritten by the API's. With WEB_ORIGIN set, the client
@@ -14,43 +16,16 @@ export interface WebAppOptions {
 }
 
 const PREFIX = "/app";
-// Paths the web host also serves: the API, its socket and signed media, and
-// the legal pages (static, without any script) with their stylesheet and icon,
-// so WEB_ORIGIN may be https://mazl.app itself.
-const WEB_HOST_PREFIXES = ["/api/", "/ws", "/media/"];
-const WEB_HOST_PAGES = new Set([
-  "/cgu", "/cgv", "/confidentialite", "/cgu.html", "/cgv.html", "/confidentialite.html", "/terms", "/privacy",
-  "/style.css", "/favicon.svg",
-]);
-const servedByApi = (path: string): boolean => WEB_HOST_PAGES.has(path) || WEB_HOST_PREFIXES.some((prefix) => path.startsWith(prefix));
+// Paths the web host also serves (site-rules.ts), so WEB_ORIGIN may be https://mazl.app itself.
+const servedByApi = (path: string): boolean => WEB_HOST_PAGES.has(path) || PROXIED_PREFIXES.some((prefix) => path.startsWith(prefix));
 
-// Pages with their own scripts and a looser CSP (the waitlist document link,
-// the staff console, the old admin) never share the client's origin: on the
-// web host they redirect to the API host, query kept, so the links already
-// sent by e-mail keep working (security review M5).
-const API_HOST_PREFIXES = ["/verify", "/admin", "/console"];
 const DOCUMENT_LINK_PAGES = new Set(["/verify", "/verify.html", "/verify.js", "/admin-escape.js"]);
-const apiHostOnly = (path: string): boolean => API_HOST_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`) || path.startsWith(`${prefix}.`) || path.startsWith(`${prefix}-`));
-const HASHED = /-[a-z0-9]{8}\.(?:js|css|svg|png|woff2?)$/;
+const HASHED = HASHED_ASSET;
 
 function fileUnder(distDir: string, path: string): string | null {
   const relative = normalize(path.slice(PREFIX.length)).replace(/^\/+/, "");
   if (relative.length === 0 || relative.startsWith("..")) return null;
   return join(distDir, relative);
-}
-
-function mediaOriginFor(mediaBaseUrl: string | null, webOrigin: URL | null): string | null {
-  if (!mediaBaseUrl) return null;
-  try {
-    const media = new URL(mediaBaseUrl).origin;
-    return media === webOrigin?.origin ? null : media;
-  } catch {
-    return null;
-  }
-}
-
-function cacheFor(relativePath: string): string {
-  return HASHED.test(relativePath) || relativePath.startsWith("fonts/") ? IMMUTABLE : NO_STORE;
 }
 
 export function createWebApp(options: WebAppOptions) {
@@ -71,7 +46,7 @@ export function createWebApp(options: WebAppOptions) {
     const gz = Bun.file(`${file}.gz`);
     if (!(await gz.exists())) return null;
     const type = file.endsWith(".js") ? "text/javascript;charset=utf-8" : "text/css;charset=utf-8";
-    return new Response(gz, { headers: { ...headers(), "Content-Type": type, "Content-Encoding": "gzip", Vary: "Accept-Encoding", "Cache-Control": cacheFor(file) } });
+    return new Response(gz, { headers: { ...headers(), "Content-Type": type, "Content-Encoding": "gzip", Vary: "Accept-Encoding", "Cache-Control": cacheControlFor(file) } });
   }
 
   async function serveClient(path: string, acceptEncoding: string | null): Promise<Response> {
@@ -81,7 +56,7 @@ export function createWebApp(options: WebAppOptions) {
       if (gz) return gz;
       const asset = Bun.file(file);
       if (await asset.exists()) {
-        return new Response(asset, { headers: { ...headers(), "Cache-Control": cacheFor(file.slice(options.distDir.length + 1)) } });
+        return new Response(asset, { headers: { ...headers(), "Cache-Control": cacheControlFor(file.slice(options.distDir.length + 1)) } });
       }
       // A missing hashed asset is a 404, never the page (it would be cached as JS).
       if (HASHED.test(file) || file.includes("/fonts/")) return new Response("Not found", { status: 404, headers: { "Cache-Control": NO_STORE } });
