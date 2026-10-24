@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -139,7 +140,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
       );
     }
 
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadActivities,
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(

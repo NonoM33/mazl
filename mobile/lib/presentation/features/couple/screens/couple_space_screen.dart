@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -135,7 +136,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
       return CoupleMessageView.failure(_failure!, onRetry: _loadData);
     }
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadData,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

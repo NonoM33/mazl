@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -180,7 +181,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     }
 
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadEvents,
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),
