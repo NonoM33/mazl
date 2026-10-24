@@ -44,6 +44,8 @@ const secret = () => randomBytes(32).toString("hex");
 const env = {
   ...process.env,
   NODE_ENV: "development",
+  // Like the production container: TIMESTAMP columns hold UTC and are read as such.
+  TZ: "UTC",
   PORT: String(E2E_PORT),
   DATABASE_URL,
   JWT_SECRET: secret(),
