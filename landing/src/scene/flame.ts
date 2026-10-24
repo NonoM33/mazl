@@ -1,9 +1,8 @@
 import {
-  AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, CylinderGeometry, Group, Mesh, MeshStandardMaterial,
-  PerspectiveCamera, PointLight, Points, Scene, ShaderMaterial, Vector3,
+  AdditiveBlending, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector3,
 } from "three";
+import { flameFragment, glowFragment, quadVertex, waxFragment, waxVertex } from "./flame-shaders";
 import { createPlayer } from "./player";
-import { seeded } from "./random";
 
 export interface FlameScene {
   readonly dispose: () => void;
@@ -15,122 +14,79 @@ export interface FlameOptions {
   readonly lightweight: boolean;
 }
 
-const vertex = /* glsl */ `
-uniform float uTime;
-uniform float uPixel;
-uniform vec3 uBase;
-attribute vec4 aSeed;
-varying float vLife;
+const STILL_TIME = 4.3;
+const CANDLE_TOP = 0;
+const CANDLE_RADIUS = 0.15;
+const CANDLE_HEIGHT = 9;
+const WICK_HEIGHT = 0.09;
+const FLAME_WIDTH = 0.3;
+const FLAME_HEIGHT = 0.8;
+const BASES = [-0.62, 0.62] as const;
 
-void main() {
-  float life = fract(uTime * (0.38 + aSeed.x * 0.4) + aSeed.y);
-  float width = 0.17 * (1.0 - life) * (0.3 + sin(life * 2.8));
-  float angle = aSeed.z * 6.2832;
-  vec2 ring = width * sqrt(aSeed.w) * vec2(cos(angle), sin(angle));
-  float sway = sin(uTime * 2.1 + aSeed.y * 9.0) * 0.03 * life + sin(uTime * 0.8) * 0.025 * life;
-  vec3 pos = uBase + vec3(ring.x + sway, life * 0.78, ring.y);
-  vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  gl_PointSize = (1.0 - life * 0.55) * uPixel * (150.0 / -mv.z) * (0.7 + aSeed.x * 0.6);
-  gl_Position = projectionMatrix * mv;
-  vLife = life;
+interface Candle {
+  readonly flame: Mesh;
+  readonly seed: number;
 }
-`;
 
-const fragment = /* glsl */ `
-varying float vLife;
-void main() {
-  float d = length(gl_PointCoord - 0.5) * 2.0;
-  if (d > 1.0) discard;
-  float halo = pow(1.0 - d, 2.0);
-  vec3 hot = vec3(1.0, 0.84, 0.46);
-  vec3 gold = vec3(0.949, 0.710, 0.267);
-  vec3 tip = vec3(0.86, 0.5, 0.12);
-  vec3 color = mix(mix(hot, gold, smoothstep(0.0, 0.35, vLife)), tip, smoothstep(0.5, 1.0, vLife));
-  float alpha = smoothstep(0.0, 0.07, vLife) * pow(1.0 - vLife, 1.25);
-  gl_FragColor = vec4(color, halo * alpha * 0.8);
+function additive(fragmentShader: string, uniforms: Record<string, { value: number }>, depthTest = true): ShaderMaterial {
+  return new ShaderMaterial({
+    vertexShader: quadVertex, fragmentShader, uniforms, transparent: true, depthWrite: false, depthTest, blending: AdditiveBlending,
+  });
 }
-`;
 
-const BLOOM = /* glsl */ `
-uniform float uTime;
-uniform float uPixel;
-attribute vec4 aSeed;
-varying float vPulse;
-void main() {
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vPulse = 0.75 + 0.25 * sin(uTime * 3.1 + aSeed.x * 20.0) * sin(uTime * 1.3 + aSeed.y * 9.0);
-  gl_PointSize = uPixel * (1100.0 / -mv.z) * (0.6 + aSeed.x * 0.5);
-  gl_Position = projectionMatrix * mv;
-}
-`;
-
-const BLOOM_FRAGMENT = /* glsl */ `
-varying float vPulse;
-void main() {
-  float d = length(gl_PointCoord - 0.5) * 2.0;
-  if (d > 1.0) discard;
-  gl_FragColor = vec4(0.949, 0.710, 0.267, pow(1.0 - d, 2.4) * 0.3 * vPulse);
-}
-`;
-
-// Two chabbat candles whose flames are made of gold light.
+// Two chabbat candles: translucent wax, a dark wick, a teardrop flame drawn
+// per pixel and its halo. Returns null without WebGL.
 export function createFlameScene(options: FlameOptions): FlameScene | null {
   const host = options.canvas.parentElement;
   if (host === null) return null;
-  const perFlame = options.lightweight ? 340 : 520;
-  const bases = [[-0.62, 0.0], [0.62, 0.0]] as const;
-  const candleTop = 0.0;
 
   const scene = new Scene();
-  const candles = new Group();
-  const candleGeometry = new CylinderGeometry(0.15, 0.16, 9, 40);
-  const candleMaterial = new MeshStandardMaterial({ color: 0xe9e2d0, roughness: 0.78, metalness: 0 });
-  const owned: { dispose: () => void }[] = [candleGeometry, candleMaterial];
-  const clocks: { value: number }[] = [];
-  const pixels: { value: number }[] = [];
-  const random = seeded(5785);
+  const uTime = { value: 0 };
+  const owned: { dispose: () => void }[] = [];
+  const own = <T extends { dispose: () => void }>(item: T): T => {
+    owned.push(item);
+    return item;
+  };
+  const candleGeometry = own(new CylinderGeometry(CANDLE_RADIUS, CANDLE_RADIUS * 1.04, CANDLE_HEIGHT, 48));
+  const wickGeometry = own(new CylinderGeometry(0.006, 0.009, WICK_HEIGHT, 8));
+  const wickMaterial = own(new MeshBasicMaterial({ color: 0x1a120c }));
+  const flameGeometry = own(new PlaneGeometry(FLAME_WIDTH, FLAME_HEIGHT));
+  const glowGeometry = own(new PlaneGeometry(1.7, 1.7));
+  const haloGeometry = own(new PlaneGeometry(4.2, 4.2));
+  const candles: Candle[] = [];
 
-  for (const [x] of bases) {
-    const candle = new Mesh(candleGeometry, candleMaterial);
-    candle.position.set(x, candleTop - 4.5, 0);
-    candles.add(candle);
+  BASES.forEach((x, index) => {
+    const seed = index * 0.37 + 0.11;
+    const uSeed = { value: seed };
+    const flameCentre = new Vector3(x, CANDLE_TOP + WICK_HEIGHT + FLAME_HEIGHT * 0.3, 0);
+    const group = new Group();
 
-    const seed = new Float32Array(perFlame * 4);
-    const origin = new Float32Array(perFlame * 3);
-    for (let i = 0; i < perFlame; i++) seed.set([random(), random(), random(), random()], i * 4);
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", new BufferAttribute(origin, 3));
-    geometry.setAttribute("aSeed", new BufferAttribute(seed, 4));
-    const uTime = { value: 0 };
-    const uPixel = { value: 1 };
-    clocks.push(uTime);
-    pixels.push(uPixel);
-    const material = new ShaderMaterial({
-      vertexShader: vertex, fragmentShader: fragment, transparent: true, depthWrite: false, blending: AdditiveBlending,
-      uniforms: { uTime, uPixel, uBase: { value: new Vector3(x, candleTop + 0.02, 0) } },
-    });
-    const flame = new Points(geometry, material);
-    flame.frustumCulled = false;
-    scene.add(flame);
+    const wax = own(new ShaderMaterial({
+      vertexShader: waxVertex, fragmentShader: waxFragment,
+      uniforms: { uFlame: { value: flameCentre }, uTop: { value: CANDLE_TOP }, uTime, uSeed },
+    }));
+    const candle = new Mesh(candleGeometry, wax);
+    candle.position.set(x, CANDLE_TOP - CANDLE_HEIGHT / 2, 0);
 
-    const bloomPosition = new Float32Array([x, candleTop + 0.32, 0, x, candleTop + 0.22, 0.05]);
-    const bloomGeometry = new BufferGeometry();
-    bloomGeometry.setAttribute("position", new BufferAttribute(bloomPosition, 3));
-    bloomGeometry.setAttribute("aSeed", new BufferAttribute(new Float32Array([random(), random(), 0, 0, random(), random(), 0, 0]), 4));
-    const bloomMaterial = new ShaderMaterial({
-      vertexShader: BLOOM, fragmentShader: BLOOM_FRAGMENT, transparent: true, depthWrite: false, blending: AdditiveBlending,
-      uniforms: { uTime, uPixel },
-    });
-    const bloom = new Points(bloomGeometry, bloomMaterial);
-    bloom.frustumCulled = false;
-    scene.add(bloom);
+    const wick = new Mesh(wickGeometry, wickMaterial);
+    wick.position.set(x, CANDLE_TOP + WICK_HEIGHT / 2, 0);
+    wick.rotation.z = (index === 0 ? 1 : -1) * 0.12;
 
-    const light = new PointLight(0xf2b544, 3.2, 6, 2);
-    light.position.set(x, candleTop + 0.5, 0.6);
-    scene.add(light);
-    owned.push(geometry, material, bloomGeometry, bloomMaterial);
-  }
-  scene.add(candles, new AmbientLight(0xf4f1ea, 0.12));
+    const halo = new Mesh(haloGeometry, own(additive(glowFragment, { uTime, uSeed, uStrength: { value: 0.16 } }, false)));
+    halo.position.copy(flameCentre);
+    const glow = new Mesh(glowGeometry, own(additive(glowFragment, { uTime, uSeed, uStrength: { value: 0.55 } }, false)));
+    glow.position.copy(flameCentre);
+
+    const flame = new Mesh(flameGeometry, own(additive(flameFragment, { uTime, uSeed })));
+    flame.position.set(x, CANDLE_TOP + WICK_HEIGHT * 0.55 + FLAME_HEIGHT / 2, 0.02);
+    halo.renderOrder = 1;
+    glow.renderOrder = 2;
+    flame.renderOrder = 3;
+
+    group.add(candle, wick, halo, glow, flame);
+    scene.add(group);
+    candles.push({ flame, seed });
+  });
 
   const camera = new PerspectiveCamera(30, 1, 0.1, 40);
   const place = (width: number, height: number): void => {
@@ -145,16 +101,26 @@ export function createFlameScene(options: FlameOptions): FlameScene | null {
     camera.updateProjectionMatrix();
   };
 
+  // The flame breathes: a little taller, a little narrower, never in step.
+  const breathe = (seconds: number): void => {
+    for (const { flame, seed } of candles) {
+      const t = seconds + seed * 13;
+      const stretch = 1 + Math.sin(t * 2.9) * 0.035 + Math.sin(t * 7.3) * 0.02;
+      flame.scale.set(1 / Math.sqrt(stretch), stretch, 1);
+    }
+  };
+
   const player = createPlayer({
     canvas: options.canvas,
     host,
-    maxPixelRatio: 2,
+    maxPixelRatio: options.lightweight ? 1.75 : 2,
     transparent: false,
     background: 0x0b0b0f,
     onResize: place,
     onFrame: (renderer, seconds) => {
-      for (const clock of clocks) clock.value = options.animate ? seconds : 4.3;
-      for (const pixel of pixels) pixel.value = renderer.getPixelRatio();
+      const time = options.animate ? seconds : STILL_TIME;
+      uTime.value = time;
+      breathe(time);
       renderer.render(scene, camera);
     },
   }, options.animate);
@@ -162,7 +128,7 @@ export function createFlameScene(options: FlameOptions): FlameScene | null {
     for (const item of owned) item.dispose();
     return null;
   }
-  if (!options.animate) player.renderStill(4.3);
+  if (!options.animate) player.renderStill(STILL_TIME);
 
   return {
     dispose: () => {

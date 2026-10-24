@@ -1,5 +1,6 @@
 import { createFlameScene, type FlameScene } from "./scene/flame";
 import { createHeroScene, type HeroScene } from "./scene/hero";
+import { createOutroScene, type OutroScene } from "./scene/outro";
 import { createPhoneScene, type PhoneScene } from "./scene/phone";
 import { paintDecorativeCode } from "./sections/qr";
 import { setupReveal } from "./sections/reveal";
@@ -28,6 +29,9 @@ mount<PhoneScene>(document.querySelector<HTMLCanvasElement>("[data-phone-canvas]
   createPhoneScene({ canvas, animate, progress: scroll.phone }));
 mount<FlameScene>(document.querySelector<HTMLCanvasElement>("[data-flame-canvas]"), (canvas) =>
   createFlameScene({ canvas, animate, lightweight }));
+
+mount<OutroScene>(document.querySelector<HTMLCanvasElement>("[data-outro-canvas]"), (canvas) =>
+  createOutroScene({ canvas, animate, lightweight, progress: scroll.outro }));
 
 window.addEventListener("pagehide", () => {
   for (const scene of scenes) scene.dispose();

@@ -48,7 +48,7 @@ describe("showcase build", () => {
     const visible = text(html);
     for (const expected of [
       "Trouvez votre mazal", "Chaque profil est vérifié", "Un selfie en direct", "La puce NFC", "Une compatibilité qui comprend votre pratique",
-      "Orthodoxe moderne", "Habad", "Chabbat chalom", "Le mode couple", "scannez le QR code", "Une modération humaine", "consentement explicite", "Votre mazal vous attend",
+      "Orthodoxe moderne", "Habad", "Chabbat chalom", "passe en mode couple", "Votre mère sera ravie", "chez les parents", "scannez le QR code", "Une modération humaine", "consentement explicite", "Votre mazal vous attend",
     ]) expect([expected, visible.includes(expected)]).toEqual([expected, true]);
     expect(html).toContain('<html lang="fr">');
     expect(html).toMatch(/<meta name="description" content="[^"]{60,}/);

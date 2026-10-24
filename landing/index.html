@@ -23,7 +23,7 @@
 
     <header class="nav" id="nav">
       <div class="nav__inner">
-        <a class="wordmark" href="/" aria-label="MAZL, accueil">mazl<span>.</span></a>
+        <a class="wordmark" href="/" aria-label="MAZL, accueil">mazl<span title="Ce point, c’est vous deux.">.</span></a>
         <nav class="nav__links" aria-label="Sections">
           <a href="#verification">Vérification</a>
           <a href="#compatibilite">Compatibilité</a>
@@ -47,14 +47,14 @@
           <div class="hero__copy">
             <p class="eyebrow eyebrow--on-ink" data-reveal>L’application de rencontre de la communauté juive</p>
             <h1 class="hero__title" data-reveal style="--d: 80ms">Trouvez votre&nbsp;mazal<span class="dot">.</span></h1>
-            <p class="hero__lead" data-reveal style="--d: 180ms">Des profils vérifiés. Une compatibilité qui comprend votre pratique. Pour des relations sérieuses et le&nbsp;mariage.</p>
+            <p class="hero__lead" data-reveal style="--d: 180ms">Pour des relations sérieuses.<br />Votre mère sera ravie. Vous aussi, promis.</p>
             <div class="hero__actions" data-reveal style="--d: 280ms">
               <a class="btn btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger sur l’App&nbsp;Store</a>
               <a class="btn btn--ghost-ink" href="/app">Ouvrir MAZL sur ordinateur</a>
             </div>
           </div>
           <p class="hero__caption">Deux parcours. <em>Un seul fil.</em></p>
-          <p class="hero__scroll eyebrow eyebrow--on-ink" aria-hidden="true">Défiler</p>
+          <p class="hero__scroll eyebrow eyebrow--on-ink" aria-hidden="true">Défiler <span class="hero__scroll-quip">(oui, on fait durer le suspense)</span></p>
         </div>
       </section>
 
@@ -63,7 +63,7 @@
           <div class="split__text">
             <p class="eyebrow" data-reveal>01 — Vérification</p>
             <h2 class="display" id="t-verification" data-reveal style="--d: 60ms">Chaque profil est vérifié. Vraiment<span class="dot">.</span></h2>
-            <p class="lead" data-reveal style="--d: 120ms">Ici, la personne qui vous écrit est celle des photos. Deux contrôles, avant même le premier message.</p>
+            <p class="lead" data-reveal style="--d: 120ms">Ici, la personne qui vous écrit est celle des photos. Pas son cousin. Pas une photo de&nbsp;2014.</p>
             <ol class="steps">
               <li class="step" data-reveal style="--d: 140ms">
                 <span class="step__n" aria-hidden="true">1</span>
@@ -80,6 +80,7 @@
                 </div>
               </li>
             </ol>
+            <p class="quip" data-reveal style="--d: 300ms">Nous vérifions les passeports pour que vous n’ayez pas à mener l’enquête.</p>
           </div>
           <div class="split__visual phone-stage" data-phone-stage>
             <canvas class="phone-stage__canvas" data-phone-canvas role="img" aria-label="Un téléphone affichant un profil marqué «&nbsp;Vérifié&nbsp;»"></canvas>
@@ -95,6 +96,7 @@
             <p class="lead lead--center" data-reveal style="--d: 120ms">Courant, cashrout, chabbat, intention&nbsp;: ce qui compte vraiment pour vous entre dans la balance, pas seulement l’âge et la ville.</p>
           </div>
           <div class="chip-groups">
+            <p class="quip quip--center" data-reveal>Laïque ou Habad, on ne juge pas. On rapproche.</p>
             <div class="chip-group" data-chips>
               <p class="mono-label">Courant</p>
               <ul class="chips">
@@ -122,6 +124,7 @@
               </ul>
             </div>
           </div>
+          <p class="quip quip--center" data-reveal>Notre algorithme ne connaît pas votre tante. Mais il sait si vous préférez une table cacher à la maison.</p>
           <div class="cards cards--two">
             <article class="card" data-reveal>
               <h3>Réciproque</h3>
@@ -129,7 +132,7 @@
             </article>
             <article class="card" data-reveal style="--d: 100ms">
               <h3>Explicable</h3>
-              <p>Vous voyez pourquoi une personne vous est proposée. Pas de boîte noire&nbsp;: la compatibilité se lit, se comprend et se discute.</p>
+              <p>Vous voyez pourquoi une personne vous est proposée. Pas de boîte noire, ni de tante qui décide à votre place&nbsp;: la compatibilité se lit, se comprend et se discute.</p>
             </article>
           </div>
         </div>
@@ -141,6 +144,7 @@
           <p class="eyebrow eyebrow--gold" data-reveal>03 — Mode chabbat</p>
           <h2 class="display display--shabbat" id="t-chabbat" data-reveal style="--d: 60ms">Chabbat chalom<span class="dot dot--gold">.</span></h2>
           <p class="lead lead--shabbat" data-reveal style="--d: 120ms">Du vendredi soir à la sortie de chabbat, MAZL se met en pause et prend les couleurs de la bougie. Vous retrouvez la table, vos proches et le repos. Les rencontres vous attendront.</p>
+          <p class="quip quip--shabbat" data-reveal style="--d: 200ms">Pendant chabbat, MAZL se repose aussi. C’est dans les CGU. Enfin, presque.</p>
         </div>
       </section>
 
@@ -158,15 +162,16 @@
             </li>
             <li class="journey__item" data-reveal style="--d: 120ms">
               <span class="journey__node" aria-hidden="true"></span>
-              <h3>Des rencontres en vrai</h3>
+              <h3>Un premier café</h3>
               <p>Les événements de la communauté vous offrent l’occasion de vous retrouver autour de la même table.</p>
             </li>
             <li class="journey__item" data-reveal style="--d: 240ms">
               <span class="journey__node" aria-hidden="true"></span>
-              <h3>Le mode couple</h3>
-              <p>Quand vous avez trouvé votre mazal, MAZL continue&nbsp;: des activités, un calendrier et des événements à deux.</p>
+              <h3>Un premier dîner chez les parents <span class="nowrap">(courage)</span></h3>
+              <p>Puis, mazal tov. Et MAZL passe en mode couple&nbsp;: des activités, un calendrier et des événements à deux.</p>
             </li>
           </ol>
+          <p class="quip quip--center" data-reveal>On ne vous lâche pas comme ça.</p>
         </div>
       </section>
 
@@ -175,7 +180,7 @@
           <div class="split__text">
             <p class="eyebrow" data-reveal>05 — MAZL sur ordinateur</p>
             <h2 class="display" id="t-ordi" data-reveal style="--d: 60ms">Aussi sur grand écran<span class="dot">.</span></h2>
-            <p class="lead" data-reveal style="--d: 120ms">Vos messages et la découverte de profils, confortablement installé devant votre ordinateur.</p>
+            <p class="lead" data-reveal style="--d: 120ms">Vos conversations sur grand écran. Pour quand le téléphone est trop petit pour tout ce que vous avez à vous dire.</p>
             <p class="lead lead--small" data-reveal style="--d: 180ms">Pour vous connecter, ouvrez MAZL sur votre téléphone et scannez le QR code affiché à l’écran.</p>
             <a class="btn btn--ink" href="/app" data-reveal style="--d: 240ms">Ouvrir MAZL sur ordinateur</a>
           </div>
@@ -207,7 +212,7 @@
           <div class="cards cards--three">
             <article class="card card--outline" data-reveal>
               <h3>Une modération humaine</h3>
-              <p>Des personnes examinent chaque signalement.</p>
+              <p>Des personnes, pas des robots, examinent chaque signalement.</p>
             </article>
             <article class="card card--outline" data-reveal style="--d: 100ms">
               <h3>Signaler et bloquer</h3>
@@ -218,15 +223,24 @@
               <p>Vos données de pratique religieuse sont protégées et ne sont utilisées qu’avec votre consentement explicite.</p>
             </article>
           </div>
+          <p class="quip quip--center" data-reveal>Les seules surprises qu’on aime, ce sont les bonnes.</p>
         </div>
       </section>
 
-      <section class="final" id="telecharger" aria-labelledby="t-final">
-        <div class="wrap final__inner">
-          <h2 class="display display--xl" id="t-final" data-reveal>Votre mazal vous attend<span class="dot">.</span></h2>
-          <div class="hero__actions hero__actions--center" data-reveal style="--d: 120ms">
-            <a class="btn btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger sur l’App&nbsp;Store</a>
-            <a class="btn btn--ghost-ink" href="/app">Se connecter</a>
+      <section class="outro" id="telecharger" aria-labelledby="t-final" data-outro>
+        <div class="outro__stage">
+          <canvas class="outro__canvas" data-outro-canvas aria-hidden="true"></canvas>
+          <div class="outro__line">
+            <h2 class="display display--xl" id="t-final">Votre mazal vous attend<span class="dot">.</span></h2>
+            <p class="outro__sub">Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
+          </div>
+          <p class="outro__word" aria-hidden="true">mazl<span>.</span></p>
+          <div class="outro__actions">
+            <div class="hero__actions hero__actions--center">
+              <a class="btn btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger sur l’App&nbsp;Store</a>
+              <a class="btn btn--ghost-ink" href="/app">Se connecter</a>
+            </div>
+            <p class="outro__note">Gratuit. Votre tante a vérifié.</p>
           </div>
         </div>
       </section>
@@ -242,6 +256,11 @@
           <a href="mailto:hello@mazl.app">Contact</a>
         </nav>
         <p class="footer__copy">© MAZL</p>
+      </div>
+      <div class="wrap footer__quips">
+        <p>Vous êtes tout en bas. Votre mazal, lui, est plutôt en haut, sur l’App&nbsp;Store.</p>
+        <p>Une question, une idée, une histoire qui finit bien&nbsp;? <a href="mailto:hello@mazl.app">hello@mazl.app</a>. On lit tout, même les longs messages.</p>
+        <p class="footer__made">Fait avec amour, un peu de houmous et beaucoup de café à&nbsp;Paris.</p>
       </div>
     </footer>
 
