@@ -29,6 +29,8 @@ export interface CheckoutSessionInput {
   readonly offer: Offer;
   readonly priceId: string;
   readonly waiverId: number;
+  // The dated waiver, shown when paying and printed on the pack's invoice.
+  readonly waiverConfirmation: string;
   readonly successUrl: string;
   readonly cancelUrl: string;
 }

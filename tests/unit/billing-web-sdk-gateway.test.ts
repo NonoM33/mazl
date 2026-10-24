@@ -33,7 +33,7 @@ describe("Stripe SDK gateway", () => {
 
   test("a subscription checkout session carries the reference, metadata and subscription_data", async () => {
     const session = await gateway.createCheckoutSession({
-      customerId: "cus_1", userId: 42, offer: offer("plus_3m"), priceId: "price_test_plus_3m", waiverId: 9,
+      customerId: "cus_1", userId: 42, offer: offer("plus_3m"), priceId: "price_test_plus_3m", waiverId: 9, waiverConfirmation: "Renoncement",
       successUrl: "https://mazl.test/app/premium?checkout=success", cancelUrl: "https://mazl.test/app/premium?checkout=cancel",
     });
     expect(session.url).toStartWith("https://checkout.stripe.test/c/pay/cs_test_fake_");
@@ -50,7 +50,7 @@ describe("Stripe SDK gateway", () => {
 
   test("a pack checkout session is a payment with invoice creation and PaymentIntent metadata", async () => {
     await gateway.createCheckoutSession({
-      customerId: "cus_1", userId: 42, offer: offer("superlikes_15"), priceId: "price_test_superlikes_15", waiverId: 10,
+      customerId: "cus_1", userId: 42, offer: offer("superlikes_15"), priceId: "price_test_superlikes_15", waiverId: 10, waiverConfirmation: "Renoncement",
       successUrl: "https://mazl.test/ok", cancelUrl: "https://mazl.test/ko",
     });
     const { params } = lastTo("POST", "/v1/checkout/sessions") ?? { params: {} };
@@ -102,7 +102,7 @@ describe("Stripe SDK gateway", () => {
 
 describe("duplicate protection on the real paths (security review M2)", () => {
   const checkout = (customerId: string, offerId: string, priceId: string) =>
-    gateway.createCheckoutSession({ customerId, userId: 7, offer: offer(offerId), priceId, waiverId: 1, successUrl: "https://mazl.test/s", cancelUrl: "https://mazl.test/c" });
+    gateway.createCheckoutSession({ customerId, userId: 7, offer: offer(offerId), priceId, waiverId: 1, waiverConfirmation: "Renoncement", successUrl: "https://mazl.test/s", cancelUrl: "https://mazl.test/c" });
 
   test("expiring lists the customer's open sessions and expires the subscription ones only", async () => {
     const sub = await checkout("cus_dup", "plus_1m", "price_test_plus_1m");
@@ -132,5 +132,21 @@ describe("account erasure on the real paths (security review B2)", () => {
   test("deletes the customer", async () => {
     await gateway.deleteCustomer("cus_b2");
     expect(fake.requestsTo("DELETE", "/v1/customers/cus_b2")).toHaveLength(1);
+  });
+});
+
+describe("waiver confirmation on the real paths (security review B4)", () => {
+  const confirmation = "Renoncement exprès au droit de rétractation accepté le 24/10/2026 à 14:02 (UTC) : « texte ».";
+  test("a pack shows it when paying and prints it in the invoice footer", async () => {
+    await gateway.createCheckoutSession({ customerId: "cus_b4", userId: 4, offer: offer("boost_1"), priceId: "price_test_boost_1", waiverId: 1, waiverConfirmation: confirmation, successUrl: "https://mazl.test/s", cancelUrl: "https://mazl.test/c" });
+    expect(lastTo("POST", "/v1/checkout/sessions")?.params).toMatchObject({
+      "custom_text[submit][message]": confirmation,
+      "invoice_creation[invoice_data][footer]": confirmation,
+    });
+  });
+
+  test("a subscription shows it when paying", async () => {
+    await gateway.createCheckoutSession({ customerId: "cus_b4", userId: 4, offer: offer("plus_1m"), priceId: "price_test_plus_1m", waiverId: 2, waiverConfirmation: confirmation, successUrl: "https://mazl.test/s", cancelUrl: "https://mazl.test/c" });
+    expect(lastTo("POST", "/v1/checkout/sessions")?.params).toMatchObject({ "custom_text[submit][message]": confirmation });
   });
 });

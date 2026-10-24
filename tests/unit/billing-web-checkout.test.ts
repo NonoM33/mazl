@@ -113,3 +113,15 @@ describe("portal", () => {
     expect(gateway.portals).toEqual([{ customerId: "cus_1", returnUrl: SETTINGS.returnUrl }]);
   });
 });
+
+// Security review B4: the waiver is confirmed to the member when paying and,
+// for packs, on the invoice Stripe e-mails (a durable medium, L221-13).
+describe("confirmation of the waiver", () => {
+  test("the session carries the dated waiver text", async () => {
+    const { checkout, gateway } = setup();
+    await checkout.start(1, { offer: offer("boost_1"), ...accepted });
+    const confirmation = gateway.sessions[0]?.waiverConfirmation ?? "";
+    expect(confirmation).toContain(WITHDRAWAL_TEXT);
+    expect(confirmation).toMatch(/^Renoncement exprès au droit de rétractation accepté le \d{2}\/\d{2}\/\d{4} à \d{2}:\d{2} \(UTC\)/);
+  });
+});

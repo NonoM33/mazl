@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { AlreadySubscribedError, NoCustomerError, OfferUnavailableError, WithdrawalWaiverRequiredError } from "../domain/errors";
 import type { Offer } from "../domain/offers";
-import { WITHDRAWAL_TEXT, WITHDRAWAL_VERSION } from "../domain/withdrawal";
+import { waiverConfirmation, WITHDRAWAL_TEXT, WITHDRAWAL_VERSION } from "../domain/withdrawal";
 import type { BillingRepository, StripeGateway } from "./ports";
 import type { BillingSettings } from "./settings";
 
@@ -63,6 +63,7 @@ export class CheckoutService {
       offer,
       priceId,
       waiverId,
+      waiverConfirmation: waiverConfirmation(new Date()),
       successUrl: this.settings.successUrl,
       cancelUrl: this.settings.cancelUrl,
     });

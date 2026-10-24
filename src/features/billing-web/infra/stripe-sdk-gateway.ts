@@ -91,11 +91,12 @@ export class SdkStripeGateway implements StripeGateway {
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       locale: "fr",
+      custom_text: { submit: { message: input.waiverConfirmation } },
     };
     const params: Stripe.Checkout.SessionCreateParams =
       input.offer.kind === "subscription"
         ? { ...base, subscription_data: { metadata } }
-        : { ...base, invoice_creation: { enabled: true }, payment_intent_data: { metadata } };
+        : { ...base, invoice_creation: { enabled: true, invoice_data: { footer: input.waiverConfirmation } }, payment_intent_data: { metadata } };
     const session = await call("checkout.sessions.create", () => this.stripe.checkout.sessions.create(params));
     if (session.url === null) throw new StripeGatewayError("checkout.sessions.create", "no_url");
     return { id: session.id, url: session.url };
