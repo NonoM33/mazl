@@ -10,6 +10,7 @@ import '../../../../core/web_sessions/web_login_qr.dart';
 import '../../../../core/web_sessions/web_sessions_api.dart';
 import '../widgets/confirm_pairing_sheet.dart';
 import '../widgets/qr_scanner_view.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Reads the QR code shown by app.mazl.app and approves the login.
 /// Pops with true once the computer is connected.
@@ -38,7 +39,7 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
     _lastAt = clock.now();
     final code = parseWebLoginQr(raw);
     if (code == null) {
-      setState(() => _message = 'Ce QR code n\'est pas un code MAZL.');
+      setState(() => _message = context.l10n.webSessionsScanNotMazl);
       return;
     }
     setState(() {
@@ -61,7 +62,7 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
     if (!mounted) return;
     setState(() => _waiting = false);
     if (!scanned.success || pairing == null) {
-      setState(() => _message = _scanProblem(scanned));
+      setState(() => _message = _scanProblem(context.l10n, scanned));
       return;
     }
     final approved = await confirmPairing(context, pairing);
@@ -77,32 +78,36 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
     if (result.success) {
       context.pop(true);
     } else {
-      setState(() => _message = _approveProblem(result));
+      setState(() => _message = _approveProblem(context.l10n, result));
     }
   }
 
-  static String _scanProblem(ApiResponse<Object?> response) =>
-      switch (response.error) {
-        WebSessionsError.pairingNotFound =>
-          'Ce code a expiré. Affichez un nouveau code sur l\'ordinateur.',
-        WebSessionsError.rateLimited =>
-          'Trop de tentatives. Patientez un instant avant de réessayer.',
-        _ => _connectionProblem(response),
-      };
-
-  static String _approveProblem(
+  static String _scanProblem(
+    AppLocalizations l10n,
     ApiResponse<Object?> response,
   ) => switch (response.error) {
-    WebSessionsError.pairingNotFound || WebSessionsError.pairingNotPending =>
-      'Cette demande n\'est plus valide. Affichez un nouveau code sur l\'ordinateur.',
-    _ => _connectionProblem(response),
+    WebSessionsError.pairingNotFound => l10n.webSessionsScanExpired,
+    WebSessionsError.rateLimited => l10n.webSessionsScanTooMany,
+    _ => _connectionProblem(l10n, response),
   };
 
-  static String _connectionProblem(ApiResponse<Object?> response) =>
+  static String _approveProblem(
+    AppLocalizations l10n,
+    ApiResponse<Object?> response,
+  ) => switch (response.error) {
+    WebSessionsError.pairingNotFound ||
+    WebSessionsError.pairingNotPending => l10n.webSessionsApproveInvalid,
+    _ => _connectionProblem(l10n, response),
+  };
+
+  static String _connectionProblem(
+    AppLocalizations l10n,
+    ApiResponse<Object?> response,
+  ) =>
       response.errorKind == ApiErrorKind.network ||
           response.errorKind == ApiErrorKind.timeout
-      ? 'Connexion impossible. Vérifiez votre réseau, puis réessayez.'
-      : 'Une erreur est survenue. Réessayez dans un instant.';
+      ? l10n.webSessionsConnectionProblem
+      : l10n.webSessionsGenericProblem;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +117,7 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
         fit: StackFit.expand,
         children: [
           Semantics(
-            label: 'Caméra de lecture du QR code',
+            label: context.l10n.webSessionsScanCameraLabel,
             child: ref.watch(qrScannerBuilderProvider)(context, _onCode),
           ),
           const IgnorePointer(child: Center(child: _Frame())),
@@ -120,9 +125,9 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
             child: Column(
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: IconButton(
-                    tooltip: 'Fermer',
+                    tooltip: context.l10n.commonClose,
                     icon: const Icon(Icons.close, color: Colors.white),
                     onPressed: () => context.pop(),
                   ),
@@ -167,10 +172,10 @@ class _Instructions extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         children: [
-          const Text(
-            'Scannez le QR code affiché sur app.mazl.app',
+          Text(
+            context.l10n.webSessionsScanInstruction,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w500,

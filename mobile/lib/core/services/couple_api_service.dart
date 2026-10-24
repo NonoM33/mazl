@@ -9,8 +9,9 @@ import '../models/couple_event.dart';
 import '../models/couple_space.dart';
 import 'api_service.dart';
 
-/// Why a couple content call failed. The UI reads [CoupleFailure.message]
-/// (already user-facing, in French) and [CoupleFailure.kind] to choose a state.
+/// Why a couple content call failed. The UI reads [CoupleFailure.kind] to
+/// choose a state and to say it in the member's language; [CoupleFailure.message]
+/// is an English diagnostic for the logs and never reaches the screen.
 enum CoupleFailureKind {
   /// No connection, timeout or unreachable server.
   network,
@@ -35,13 +36,16 @@ class CoupleFailure implements Exception {
   const CoupleFailure(this.kind, this.message, {this.detail});
 
   final CoupleFailureKind kind;
+
+  /// Short diagnostic token for the logs (`timeout`, `unreachable`…), never
+  /// shown: the screens write the cause from [kind].
   final String message;
 
   /// Technical detail for the logs, never shown.
   final String? detail;
 
   @override
-  String toString() => 'CoupleFailure(${kind.name}): $message ${detail ?? ''}';
+  String toString() => [runtimeType, kind.name, message, detail].join(':');
 }
 
 /// Outcome of a call: a value or a [CoupleFailure], never a swallowed error.
@@ -288,25 +292,25 @@ class CoupleApiService {
     } on TimeoutException catch (e) {
       return _failed(
         CoupleFailureKind.network,
-        'Délai dépassé. Vérifiez votre connexion.',
+        'timeout',
         e,
       );
     } on SocketException catch (e) {
       return _failed(
         CoupleFailureKind.network,
-        'Pas de connexion. Réessayez.',
+        'no-connection',
         e,
       );
     } on http.ClientException catch (e) {
       return _failed(
         CoupleFailureKind.network,
-        'Serveur injoignable. Réessayez.',
+        'unreachable',
         e,
       );
     } on FormatException catch (e) {
       return _failed(
         CoupleFailureKind.malformed,
-        'Réponse inattendue du serveur.',
+        'malformed',
         e,
       );
     }
@@ -320,13 +324,13 @@ class CoupleApiService {
     } on FormatException catch (e) {
       return _failed(
         CoupleFailureKind.malformed,
-        'Réponse inattendue du serveur.',
+        'malformed',
         e,
       );
     } on TypeError catch (e) {
       return _failed(
         CoupleFailureKind.malformed,
-        'Réponse inattendue du serveur.',
+        'malformed',
         e,
       );
     }
@@ -343,18 +347,23 @@ class CoupleApiService {
 
   // The routes answer `{ success: false, error: "<english text>" }`; that text
   // is the only discriminator the shared HTTP client keeps.
-  CoupleFailureKind _kindOf(Object? error) => switch (error) {
-    'Not in a couple' => CoupleFailureKind.notInCouple,
-    'Activity not found' || 'Event not found' => CoupleFailureKind.notFound,
-    'Event is full' => CoupleFailureKind.full,
-    _ => CoupleFailureKind.server,
-  };
+  static final _serverNotInCouple = RegExp(r'^Not in a couple$');
+  static final _serverNotFound = RegExp(r'^(Activity|Event) not found$');
+  static final _serverFull = RegExp(r'^Event is full$');
+
+  CoupleFailureKind _kindOf(Object? error) {
+    final text = error is String ? error : '';
+    if (_serverNotInCouple.hasMatch(text)) return CoupleFailureKind.notInCouple;
+    if (_serverNotFound.hasMatch(text)) return CoupleFailureKind.notFound;
+    if (_serverFull.hasMatch(text)) return CoupleFailureKind.full;
+    return CoupleFailureKind.server;
+  }
 
   String _messageOf(Object? error) => switch (_kindOf(error)) {
-    CoupleFailureKind.notInCouple => 'Le mode couple n\'est pas actif.',
-    CoupleFailureKind.notFound => 'Introuvable.',
-    CoupleFailureKind.full => 'Cet événement est complet.',
-    _ => 'Le serveur n\'a pas pu répondre. Réessayez.',
+    CoupleFailureKind.notInCouple => 'not-in-couple',
+    CoupleFailureKind.notFound => 'not-found',
+    CoupleFailureKind.full => 'event-full',
+    _ => 'server-error',
   };
 
   List<T> _list<T>(

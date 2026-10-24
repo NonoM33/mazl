@@ -14,6 +14,7 @@ import 'package:mazl/presentation/features/chat/chat_providers.dart';
 import 'package:mazl/presentation/features/chat/screens/chat_conversation_screen.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller_impl.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const me = 1;
 const other = 2;
@@ -137,7 +138,7 @@ ChatState chatState(
   bool hasMore = false,
   bool typing = false,
   bool loading = false,
-  String? error,
+  ChatFailure? error,
 }) => ChatState(
   conversationId: conversationId,
   myUserId: me,
@@ -168,7 +169,7 @@ class FakeChatNotifier extends ChatNotifier {
   final reported = <({int id, String reason})>[];
   final readUpTo = <int>[];
   final unsent = <int>[];
-  String? error;
+  ChatFailure? error;
   int loadOlderCalls = 0;
   int loadCalls = 0;
 
@@ -177,13 +178,13 @@ class FakeChatNotifier extends ChatNotifier {
   @override
   Future<void> loadOlder() async => loadOlderCalls++;
   @override
-  Future<String?> sendText(String text, {int? replyToId}) async {
+  Future<ChatFailure?> sendText(String text, {int? replyToId}) async {
     sentTexts.add((text: text, replyToId: replyToId));
     return error;
   }
 
   @override
-  Future<String?> sendPhotos(
+  Future<ChatFailure?> sendPhotos(
     List<Uint8List> jpegs, {
     String caption = '',
     int? replyToId,
@@ -193,7 +194,7 @@ class FakeChatNotifier extends ChatNotifier {
   }
 
   @override
-  Future<String?> sendVoice(
+  Future<ChatFailure?> sendVoice(
     Uint8List aac, {
     required int durationMs,
     required List<int> waveform,
@@ -208,7 +209,7 @@ class FakeChatNotifier extends ChatNotifier {
   }
 
   @override
-  Future<String?> retry(String clientId) async {
+  Future<ChatFailure?> retry(String clientId) async {
     retried.add(clientId);
     return error;
   }
@@ -216,19 +217,19 @@ class FakeChatNotifier extends ChatNotifier {
   @override
   void discard(String clientId) => discarded.add(clientId);
   @override
-  Future<String?> toggleReaction(int messageId, String emoji) async {
+  Future<ChatFailure?> toggleReaction(int messageId, String emoji) async {
     reactions.add((messageId: messageId, emoji: emoji));
     return error;
   }
 
   @override
-  Future<String?> unsend(int messageId) async {
+  Future<ChatFailure?> unsend(int messageId) async {
     unsent.add(messageId);
     return error;
   }
 
   @override
-  Future<String?> report(int messageId, String reason) async {
+  Future<ChatFailure?> report(int messageId, String reason) async {
     reported.add((id: messageId, reason: reason));
     return error;
   }
@@ -358,6 +359,7 @@ class ChatHarness {
     double safeBottom = 0,
     Size size = const Size(390, 844),
     bool disableAnimations = false,
+    Locale locale = kTestLocale,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -376,6 +378,9 @@ class ChatHarness {
           }),
         ],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: locale,
           debugShowCheckedModeBanner: false,
           builder: disableAnimations
               ? (context, child) => MediaQuery(

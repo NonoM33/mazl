@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../subscription_format.dart';
+import 'consumable_purchases.dart';
+import 'credits_service.dart';
+import 'purchase_errors.dart';
 import 'store_gateway.dart';
 import 'store_products.dart';
 import 'subscription_api.dart';
@@ -13,21 +14,6 @@ import 'subscription_models.dart';
 
 const String _verifyPath = '/api/subscriptions/apple/verify';
 const String _subscriptionPath = '/api/subscription';
-
-const String _ownedByAnotherUser =
-    'Cet achat App Store est déjà associé à un autre compte mazl.';
-const String _invalidTransaction =
-    'Nous n’avons pas pu valider cet achat auprès de l’App Store. '
-    'Il sera revérifié au prochain lancement.';
-const String _invalidBody =
-    'Votre achat n’a pas pu être transmis correctement. Réessayez dans un instant.';
-const String _signInAgain =
-    'Reconnectez-vous à mazl pour finaliser votre achat.';
-const String _offline =
-    'Connexion impossible. Votre achat est conservé et sera validé dès que possible.';
-const String _genericFailure =
-    'L’achat n’a pas pu aboutir. Réessayez dans un instant.';
-const String _inactive = 'Votre abonnement n’est pas actif.';
 
 /// Abonnement mazl+ acheté nativement (StoreKit 2 via `in_app_purchase`).
 ///
@@ -48,19 +34,26 @@ class SubscriptionService extends ChangeNotifier {
     Duration restoreSettle = const Duration(seconds: 3),
     Duration purchaseSettleTimeout = const Duration(seconds: 45),
     Future<bool> Function(Uri uri)? openUrl,
+    ConsumablePurchaseHandler? consumables,
   }) : _gateway = gateway,
        _api = api,
        _platform = platform,
        _now = now ?? DateTime.now,
        _restoreSettle = restoreSettle,
        _purchaseSettleTimeout = purchaseSettleTimeout,
-       _openUrl = openUrl ?? _launchExternally;
+       _openUrl = openUrl ?? _launchExternally,
+       _consumables = consumables;
 
-  static final SubscriptionService _shared = SubscriptionService.create();
+  static final SubscriptionService _shared = _buildShared();
 
-  /// Affiché à la place de l'achat tant que Google Play n'est pas vérifié
-  /// côté serveur.
-  static const String androidSoonMessage = 'Bientôt disponible sur Android';
+  /// Le singleton de production : le flux d'achats est unique, et c'est lui
+  /// qui démarre l'écoute pour le [CreditsService] (qui ne l'écoute jamais).
+  static SubscriptionService _buildShared() {
+    final credits = CreditsService();
+    final service = SubscriptionService.create(consumables: credits);
+    credits.attachPurchaseStream(service.initialize);
+    return service;
+  }
 
   StoreGateway? _gateway;
   SubscriptionApi? _api;
@@ -69,6 +62,11 @@ class SubscriptionService extends ChangeNotifier {
   final Duration _restoreSettle;
   final Duration _purchaseSettleTimeout;
   final Future<bool> Function(Uri uri) _openUrl;
+
+  /// Qui tient les consommables (Boosts, Super Likes). Le flux d'achats est
+  /// unique : ce service reçoit tout et leur confie ce qui n'est pas un
+  /// abonnement.
+  final ConsumablePurchaseHandler? _consumables;
 
   StoreGateway get _store => _gateway ??= InAppPurchaseGateway();
   SubscriptionApi get _backend =>
@@ -99,11 +97,12 @@ class SubscriptionService extends ChangeNotifier {
   /// Premium = statut « active » ET échéance dans le futur (heure du téléphone).
   bool get isMazlPro => _subscription?.isActiveAt(_now()) ?? false;
 
-  /// Durée de la formule active (« 1 mois »), ou null si inconnue.
-  String? get activePlanLabel {
+  /// Durée de la formule active, en mois, ou null si inconnue. L'écran écrit
+  /// la durée dans la langue du membre.
+  int? get activePlanMonths {
     final sub = _subscription;
     if (sub == null || !isMazlPro) return null;
-    return planLabelForProduct(sub.productId);
+    return monthsFromProductId(sub.productId);
   }
 
   /// Échéance de la formule active.
@@ -114,16 +113,13 @@ class SubscriptionService extends ChangeNotifier {
   /// pour renouvelé jusqu'à l'échéance.
   bool get willRenew => isMazlPro;
 
-  /// Libellé court pour l'interface.
-  String get subscriptionStatusText => isMazlPro ? 'mazl+ (actif)' : 'Gratuit';
-
   /// Seul iOS achète : le serveur ne vérifie pas encore Google Play, et on
   /// n'ouvre jamais un droit sur un achat non vérifié.
-  bool get canPurchase => _targetPlatform == TargetPlatform.iOS;
+  bool get canPurchase => canSellOn(_targetPlatform);
 
   /// Pourquoi l'achat est impossible ici, ou null s'il est possible.
-  String? get unavailablePurchaseMessage =>
-      canPurchase ? null : androidSoonMessage;
+  PurchaseProblem? get unavailablePurchaseProblem =>
+      canPurchase ? null : PurchaseProblem.androidSoon;
 
   // --------------------------------------------------------------- cycle de vie
 
@@ -230,10 +226,10 @@ class SubscriptionService extends ChangeNotifier {
   /// Achète [plan]. Ne lève jamais : l'annulation, l'attente d'approbation et
   /// l'échec sont des issues, pas des exceptions.
   Future<PurchaseResult> purchase(SubscriptionPlan plan) async {
-    final unavailable = unavailablePurchaseMessage;
+    final unavailable = unavailablePurchaseProblem;
     if (unavailable != null) return PurchaseFailed(unavailable);
     if (_pendingPurchase != null) {
-      return const PurchaseFailed('Un achat est déjà en cours.');
+      return const PurchaseFailed(PurchaseProblem.purchaseInProgress);
     }
     final pending = _PendingPurchase(plan.productId);
     _pendingPurchase = pending;
@@ -242,15 +238,15 @@ class SubscriptionService extends ChangeNotifier {
       final started = await _store.buyNonConsumable(
         PurchaseParam(productDetails: plan.product),
       );
-      if (!started) return const PurchaseFailed(_genericFailure);
+      if (!started) return const PurchaseFailed(PurchaseProblem.generic);
       return await pending.result.future.timeout(
         _purchaseSettleTimeout,
         onTimeout: () => const PurchasePending(),
       );
     } on Exception catch (error) {
-      if (_isUserCancellation(error)) return const PurchaseCancelled();
-      debugPrint('Subscription: achat en erreur - $error');
-      return const PurchaseFailed(_genericFailure);
+      if (isUserCancellation(error)) return const PurchaseCancelled();
+      debugPrint('Subscription: purchase failed - $error');
+      return const PurchaseFailed(PurchaseProblem.generic);
     } finally {
       if (identical(_pendingPurchase, pending)) _pendingPurchase = null;
     }
@@ -273,16 +269,14 @@ class SubscriptionService extends ChangeNotifier {
       await Future.wait(List<Future<void>>.of(_handlers));
     } on Exception catch (error) {
       debugPrint('Subscription: restauration en erreur - $error');
-      return const RestoreFailed(
-        'La restauration a échoué. Réessayez dans un instant.',
-      );
+      return const RestoreFailed(PurchaseProblem.restoreFailed);
     } finally {
       _restoreOutcomes = null;
     }
     if (!outcomes.any((o) => o.granted)) await refresh();
     if (isMazlPro) return const RestoreFound();
-    final refusal = outcomes.where((o) => o.message != null).firstOrNull;
-    if (refusal != null) return RestoreFailed(refusal.message!);
+    final refusal = outcomes.where((o) => o.problem != null).firstOrNull;
+    if (refusal != null) return RestoreFailed(refusal.problem!);
     return const RestoreNothing();
   }
 
@@ -316,6 +310,10 @@ class SubscriptionService extends ChangeNotifier {
   }
 
   Future<void> _handle(PurchaseDetails purchase) async {
+    if (isConsumableProductId(purchase.productID)) {
+      await _handleConsumable(purchase);
+      return;
+    }
     switch (purchase.status) {
       case PurchaseStatus.pending:
         _resolvePending(purchase.productID, const PurchasePending());
@@ -324,9 +322,9 @@ class SubscriptionService extends ChangeNotifier {
       case PurchaseStatus.error:
         _resolvePending(
           purchase.productID,
-          _isUserCancellation(purchase.error)
+          isUserCancellation(purchase.error)
               ? const PurchaseCancelled()
-              : const PurchaseFailed(_genericFailure),
+              : const PurchaseFailed(PurchaseProblem.generic),
         );
         // Une transaction en erreur n'a rien livré : la terminer est sans risque
         // et évite qu'elle bloque un nouvel achat.
@@ -337,6 +335,18 @@ class SubscriptionService extends ChangeNotifier {
         _restoreOutcomes?.add(outcome);
         _resolvePending(purchase.productID, outcome.asPurchaseResult());
     }
+  }
+
+  /// Un consommable n'est ni un abonnement ni une restauration : il va, tel
+  /// quel, à celui qui tient les crédits. Sans lui, on le laisse NON terminé :
+  /// le store le rejouera, rien n'est perdu.
+  Future<void> _handleConsumable(PurchaseDetails purchase) async {
+    final consumables = _consumables;
+    if (consumables == null) {
+      debugPrint('Subscription: no owner for ${purchase.productID}');
+      return;
+    }
+    await consumables.handlePurchase(purchase);
   }
 
   void _resolvePending(String productId, PurchaseResult result) {
@@ -390,23 +400,27 @@ class SubscriptionService extends ChangeNotifier {
           return await _grant(purchase, reply);
         case 409:
           await _complete(purchase);
-          return const _VerifyOutcome.refused(_ownedByAnotherUser);
+          return const _VerifyOutcome.refused(
+            PurchaseProblem.ownedByAnotherAccount,
+          );
         case 400:
-          return const _VerifyOutcome.refused(_invalidBody);
+          return const _VerifyOutcome.refused(PurchaseProblem.invalidBody);
         case 422:
-          return const _VerifyOutcome.refused(_invalidTransaction);
+          return const _VerifyOutcome.refused(
+            PurchaseProblem.invalidTransaction,
+          );
         case 401:
         case 403:
           _deferred[key] = purchase;
-          return const _VerifyOutcome.refused(_signInAgain);
+          return const _VerifyOutcome.refused(PurchaseProblem.signInAgain);
         default:
           _deferred[key] = purchase;
-          return const _VerifyOutcome.refused(_offline);
+          return const _VerifyOutcome.refused(PurchaseProblem.offline);
       }
     } on Exception catch (error) {
-      debugPrint('Subscription: vérification impossible - $error');
+      debugPrint('Subscription: verification impossible - $error');
       _deferred[key] = purchase;
-      return const _VerifyOutcome.refused(_offline);
+      return const _VerifyOutcome.refused(PurchaseProblem.offline);
     }
   }
 
@@ -420,20 +434,18 @@ class SubscriptionService extends ChangeNotifier {
           ? null
           : MazlSubscription.fromEnvelope(body);
       if (subscription == null) {
-        debugPrint('Subscription: réponse de vérification sans abonnement');
-        return const _VerifyOutcome.refused(_invalidTransaction);
+        debugPrint('Subscription: verification reply without subscription');
+        return const _VerifyOutcome.refused(PurchaseProblem.invalidTransaction);
       }
       _setSubscription(subscription);
     } on FormatException catch (error) {
-      debugPrint(
-        'Subscription: réponse de vérification illisible - ${error.message}',
-      );
-      return const _VerifyOutcome.refused(_invalidTransaction);
+      debugPrint('Subscription: unreadable verification reply - ${error.message}');
+      return const _VerifyOutcome.refused(PurchaseProblem.invalidTransaction);
     }
     await _complete(purchase);
     return isMazlPro
         ? const _VerifyOutcome.granted()
-        : const _VerifyOutcome.refused(_inactive);
+        : const _VerifyOutcome.refused(PurchaseProblem.inactive);
   }
 
   Future<void> _complete(PurchaseDetails purchase) async {
@@ -465,17 +477,6 @@ class SubscriptionService extends ChangeNotifier {
       launchUrl(uri, mode: LaunchMode.externalApplication);
 }
 
-/// Vrai quand l'erreur est la fermeture volontaire de la fenêtre de paiement
-/// (StoreKit 1 : SKErrorPaymentCancelled ; StoreKit 2 : userCancelled).
-bool _isUserCancellation(Object? error) {
-  final text = switch (error) {
-    PlatformException(:final code, :final message) => '$code $message',
-    IAPError(:final code, :final message) => '$code $message',
-    _ => '',
-  };
-  return text.toLowerCase().contains('cancel');
-}
-
 class _PendingPurchase {
   _PendingPurchase(this.productId);
 
@@ -484,13 +485,13 @@ class _PendingPurchase {
 }
 
 class _VerifyOutcome {
-  const _VerifyOutcome.granted() : granted = true, message = null;
+  const _VerifyOutcome.granted() : granted = true, problem = null;
 
-  const _VerifyOutcome.refused(String this.message) : granted = false;
+  const _VerifyOutcome.refused(PurchaseProblem this.problem) : granted = false;
 
   final bool granted;
-  final String? message;
+  final PurchaseProblem? problem;
 
   PurchaseResult asPurchaseResult() =>
-      granted ? const PurchaseSucceeded() : PurchaseFailed(message!);
+      granted ? const PurchaseSucceeded() : PurchaseFailed(problem!);
 }

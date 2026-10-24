@@ -10,12 +10,15 @@ import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/block_report_dialog.dart';
 import '../../../widgets/skeletons.dart';
+import '../l10n/prompt_labels.dart';
 import '../widgets/profile_view/profile_action_bar.dart';
 import '../widgets/profile_view/profile_compatibility_section.dart';
 import '../widgets/profile_view/profile_completion_card.dart';
 import '../../chat/conversation_lookup.dart';
+import '../../couple/l10n/couple_failure_label.dart';
 import '../../couple/widgets/couple_request_dialog.dart';
 import '../../matching/widgets/match_sheet.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
@@ -148,12 +151,13 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   ProfileViewData _viewData() {
+    final l10n = context.l10n;
     final other = _otherProfile;
     if (other != null) {
       return ProfileViewData(
-        name: other.displayName ?? 'Utilisateur',
+        name: other.displayName ?? l10n.profileFallbackName,
         age: other.age,
-        location: other.location ?? 'France',
+        location: other.location,
         distance: other.distance,
         bio: other.bio,
         lookingFor: other.lookingFor,
@@ -169,9 +173,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     final currentUser = ref.watch(currentUserProvider);
     final profile = _userProfile?.profile;
     return ProfileViewData(
-      name: profile?.displayName ?? _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur',
+      name: profile?.displayName ??
+          _userProfile?.name ??
+          currentUser?.displayName ??
+          l10n.profileFallbackName,
       age: profile?.age,
-      location: profile?.location ?? 'France',
+      location: profile?.location,
       bio: profile?.bio,
       lookingFor: profile?.lookingFor,
       gender: profile?.gender,
@@ -219,7 +226,11 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
           ProfileCompletionCard(steps: steps, onStep: _openCompletionTarget),
         ],
         prompts: [
-          for (final p in _myPrompts) (question: p.promptText, answer: p.answer),
+          for (final p in _myPrompts)
+            (
+              question: promptQuestionText(context.l10n, p.promptId, p.promptText),
+              answer: p.answer,
+            ),
         ],
         onVerificationTap: () => context.go(RoutePaths.verification),
         onAddPhotos: () => context.go(RoutePaths.editProfile),
@@ -228,6 +239,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   }
 
   Widget _buildOtherProfile(ProfileViewData data) {
+    final l10n = context.l10n;
     final safeBottom = MediaQuery.paddingOf(context).bottom;
     final showActions = !widget.isFromMatch;
     final barBottom = safeBottom + 12 > 28 ? safeBottom + 12 : 28.0;
@@ -247,7 +259,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             ),
             trailing: [
               ProfileCompatibilitySection(
-                firstName: data.firstName,
+                firstName: data.firstName(l10n),
                 hasPremium: ref.watch(isMazlProProvider),
                 score: _compatibilityScore,
                 onUnlock: () => context.push(RoutePaths.premium),
@@ -258,7 +270,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                 child: TextButton.icon(
                   onPressed: _showBlockReportDialog,
                   icon: const Icon(LucideIcons.flag, size: 16),
-                  label: const Text('Signaler ce profil'),
+                  label: Text(l10n.profileReportThisProfile),
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -273,7 +285,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             right: 16,
             bottom: barBottom,
             child: ProfileActionBar(
-              firstName: data.firstName,
+              firstName: data.firstName(l10n),
               onPass: () => _handleSwipe('pass'),
               onLike: () => _handleSwipe('like'),
             ),
@@ -327,14 +339,18 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     setState(() => _isSendingRequest = false);
 
     _showMessage(
-      result.ok ? 'Demande envoyée à $userName.' : result.message ?? '',
+      result.ok
+          ? context.l10n.profileCoupleRequestSent(userName)
+          : result.failure?.label(context.l10n) ?? '',
       isError: !result.ok,
     );
   }
 
   Future<void> _cancelCoupleRequest() async {
     final result = await _coupleService.cancelCoupleRequest();
-    if (mounted && !result.ok) _showMessage(result.message ?? '', isError: true);
+    if (mounted && !result.ok) {
+      _showMessage(result.failure?.label(context.l10n) ?? '', isError: true);
+    }
   }
 
   /// The member asked first: the answer goes through the same dialog as
@@ -368,7 +384,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     );
     if (!mounted) return;
     if (!response.success) {
-      _showMessage("Votre choix n'est pas parti. Réessayez.", isError: true);
+      _showMessage(context.l10n.profileChoiceNotSent, isError: true);
       return;
     }
     if (!swipeMatched(response.data)) {
@@ -392,7 +408,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     BlockReportDialog.show(
       context,
       userId: _otherProfile!.userId,
-      userName: _otherProfile!.displayName ?? 'Cet utilisateur',
+      userName: _otherProfile!.displayName ?? context.l10n.profileFallbackReportName,
       onBlocked: () {
         // Navigate back after blocking
         if (mounted) context.pop();

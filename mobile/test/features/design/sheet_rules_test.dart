@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_sheet.dart';
 import 'package:mazl/presentation/features/navigation/widgets/mazl_nav_bar.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Paid on 2026-10-23: the MAZL+ sheet opened UNDER the floating tab bar (its
 // buttons hidden) and showed two drag handles. Both came from each screen
@@ -25,6 +26,9 @@ Future<void> _pumpShell(WidgetTester tester, void Function(BuildContext) open) a
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: Builder(
         builder: (_) => Scaffold(

@@ -6,8 +6,12 @@ import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:mazl/presentation/features/likes/widgets/like_widgets.dart';
 import 'package:mazl/presentation/features/matching/widgets/avatar_ring.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Widget _host(Widget child) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: kTestLocale,
   theme: AppTheme.lightTheme,
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
@@ -139,7 +143,7 @@ void main() {
       await tester.pumpWidget(
         _host(
           MazlPlusPill(
-            prefix: 'Voir les 8 autres avec ',
+            label: 'Voir les 8 autres avec mazl+',
             onPressed: () => taps++,
           ),
         ),
@@ -167,7 +171,7 @@ void main() {
 
     testWidgets('est un bouton en contour, haut de 56', (tester) async {
       await tester.pumpWidget(
-        _host(MazlPlusPill(prefix: 'Voir avec ', onPressed: () {})),
+        _host(MazlPlusPill(label: 'Voir avec mazl+', onPressed: () {})),
       );
 
       expect(find.byType(OutlinedButton), findsOneWidget);
@@ -192,7 +196,7 @@ void main() {
                 onPass: () {},
               ),
               LockedLikeTile(onTap: () {}),
-              MazlPlusPill(prefix: 'Voir les 8 autres avec ', onPressed: () {}),
+              MazlPlusPill(label: 'Voir les 8 autres avec mazl+', onPressed: () {}),
             ],
           ),
         ),

@@ -8,6 +8,7 @@ import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/web_sessions/web_sessions_api.dart';
 import 'package:mazl/presentation/features/web_sessions/screens/web_scan_screen.dart';
 import 'package:mazl/presentation/features/web_sessions/widgets/qr_scanner_view.dart';
+import 'package:mazl/l10n/l10n.dart';
 
 import 'web_sessions_fakes.dart';
 
@@ -44,7 +45,12 @@ Future<void> _open(
         webSessionsApiProvider.overrideWithValue(api),
         qrScannerBuilderProvider.overrideWithValue(camera.build),
       ],
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('fr'),
+        routerConfig: router,
+      ),
     ),
   );
   await tester.tap(find.text('open'));

@@ -1,0 +1,19 @@
+{
+  "likesTitle": "Likes",
+  "likesSection": "They liked you · {count}",
+  "likesWaiting": "{count, plural, one{{label} person is waiting for your reply.} other{{label} people are waiting for your reply.}}",
+  "likesSeeWhoWithPlus": "See who liked you with mazl+",
+  "likesMatchWith": "It's a match with {name}",
+  "likesYouLiked": "You liked {name}",
+  "likesEmptyTitle": "No likes yet",
+  "likesEmptyBody": "Keep discovering profiles and complete yours to get more likes.",
+  "likesEmptyAction": "Discover profiles",
+  "likesPremiumBody": "See who liked you and match right away with the people you like.",
+  "likesPremiumOffers": "See plans",
+  "likesCardOpen": "View {title}'s like",
+  "likesCardPass": "Pass on {name}",
+  "likesCardLike": "Like {name}",
+  "likesLockedLabel": "Hidden profile",
+  "likesLockedHint": "Available with mazl+",
+  "likesDistance": "{km} km"
+}

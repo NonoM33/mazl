@@ -6,10 +6,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
-import '../../../../core/services/subscription_format.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/plan_price.dart';
+import '../l10n/plus_text.dart';
 import '../widgets/plus_widgets.dart';
 
 /// L'offre mazl+ : avantages, choix de la formule, achat.
@@ -34,38 +36,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
   int _selectedPlanIndex = 1; // 3 mois, la formule mise en avant
   bool _isLoading = true;
   bool _isPurchasing = false;
-
-  // Default pricing when App Store Connect isn't configured
-  final List<_SubscriptionPlan> _defaultPlans = [
-    _SubscriptionPlan(
-      id: 'monthly',
-      duration: '1 mois',
-      price: '19,99 €',
-      pricePerMonth: '19,99 € par mois',
-      savings: null,
-    ),
-    _SubscriptionPlan(
-      id: 'three_month',
-      duration: '3 mois',
-      price: '44,99 €',
-      pricePerMonth: '15,00 € par mois',
-      savings: '-25 %',
-    ),
-    _SubscriptionPlan(
-      id: 'six_month',
-      duration: '6 mois',
-      price: '69,99 €',
-      pricePerMonth: '11,67 € par mois',
-      savings: '-42 %',
-    ),
-    _SubscriptionPlan(
-      id: 'yearly',
-      duration: '12 mois',
-      price: '99,99 €',
-      pricePerMonth: '8,33 € par mois',
-      savings: '-58 %',
-    ),
-  ];
 
   @override
   void initState() {
@@ -94,41 +64,32 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
   }
 
-  List<_SubscriptionPlan> get _plans {
-    if (_storePlans.isEmpty) return _defaultPlans;
+  /// Les formules du store ; à défaut (App Store Connect pas configuré, store
+  /// injoignable), les formules de secours en euros.
+  List<_PlanOffer> get _plans => _storePlans.isEmpty
+      ? _fallbackPlans
+      : [
+          for (final plan in _storePlans)
+            _PlanOffer(
+              months: plan.months,
+              price: plan.price,
+              currencyCode: plan.currencyCode,
+              storePlan: plan,
+            ),
+        ];
 
+  /// L'économie d'une formule longue par rapport au prix du mois seul, en
+  /// pourcents entiers ; null s'il n'y en a pas.
+  int? _savingsPercent(List<_PlanOffer> plans, _PlanOffer plan) {
     // Prix mensuel de référence pour calculer l'économie des formules longues.
-    final monthly = _storePlans.firstWhere(
+    final monthly = plans.firstWhere(
       (p) => p.months == 1,
-      orElse: () => _storePlans.first,
+      orElse: () => plans.first,
     );
-    final monthlyPrice = monthly.price / monthly.months;
-
-    return [
-      for (final plan in _storePlans)
-        _SubscriptionPlan(
-          id: plan.productId,
-          duration: monthsLabel(plan.months),
-          price: planTotalLabel(
-            price: plan.price,
-            currencyCode: plan.currencyCode,
-          ),
-          pricePerMonth: planMonthlyLabel(
-            price: plan.price,
-            months: plan.months,
-            currencyCode: plan.currencyCode,
-          ),
-          savings: _savings(monthlyPrice, plan),
-          storePlan: plan,
-        ),
-    ];
-  }
-
-  String? _savings(double monthlyPrice, SubscriptionPlan plan) {
-    final normalCost = monthlyPrice * plan.months;
+    final normalCost = monthly.price / monthly.months * plan.months;
     if (plan.months <= 1 || normalCost <= 0) return null;
     final percent = ((normalCost - plan.price) / normalCost * 100).round();
-    return percent > 0 ? '-$percent %' : null;
+    return percent > 0 ? percent : null;
   }
 
   void _showMessage(String message, {Color? background}) {
@@ -148,6 +109,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       try {
         final result = await _subscriptions.purchase(storePlan);
         if (!mounted) return;
+        final l10n = context.l10n;
         switch (result) {
           case PurchaseSucceeded():
             context.pushReplacement(RoutePaths.plusWelcome);
@@ -155,11 +117,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
             // Une annulation par l'utilisateur n'est ni un succès ni une erreur.
             break;
           case PurchasePending():
-            _showMessage(
-              'Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.',
-            );
-          case PurchaseFailed(:final message):
-            _showMessage(message);
+            _showMessage(l10n.plusPendingApproval);
+          case PurchaseFailed(:final problem):
+            _showMessage(purchaseProblemText(l10n, problem));
         }
       } finally {
         if (mounted) {
@@ -169,9 +129,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     } else {
       // Products not configured - show message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Les abonnements seront disponibles prochainement.'),
-        ),
+        SnackBar(content: Text(context.l10n.plusPlansSoon)),
       );
     }
   }
@@ -179,14 +137,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _handleRestore() async {
     final result = await _subscriptions.restore();
     if (!mounted) return;
+    final l10n = context.l10n;
     switch (result) {
       case RestoreFound():
-        _showMessage('Abonnement restauré', background: AppColors.success);
+        _showMessage(l10n.plusOfferRestored, background: AppColors.success);
         context.pop(true);
       case RestoreNothing():
-        _showMessage('Aucun abonnement trouvé');
-      case RestoreFailed(:final message):
-        _showMessage(message);
+        _showMessage(l10n.plusOfferNothingFound);
+      case RestoreFailed(:final problem):
+        _showMessage(purchaseProblemText(l10n, problem));
     }
   }
 
@@ -199,6 +158,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final plans = _plans;
     final selected = _selectedPlanIndex.clamp(0, plans.length - 1);
     // Seul iOS achète pour l'instant : le serveur ne vérifie pas Google Play.
@@ -215,7 +175,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 children: [
                   RoundIconButton(
                     icon: LucideIcons.x,
-                    tooltip: 'Fermer',
+                    tooltip: l10n.commonClose,
                     onPressed: () => context.pop(),
                   ),
                   const Spacer(),
@@ -224,7 +184,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       minimumSize: const Size(44, 44),
                     ),
                     onPressed: _handleRestore,
-                    child: const Text('Restaurer'),
+                    child: Text(l10n.plusRestore),
                   ),
                 ],
               ),
@@ -245,7 +205,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           const PlusWord(size: 72),
                           const SizedBox(height: 16),
                           Text(
-                            'Rencontrez sans compter.',
+                            l10n.plusOfferTagline,
                             style: Theme.of(context).textTheme.titleLarge!
                                 .copyWith(
                                   fontSize: 22,
@@ -254,13 +214,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 ),
                           ),
                           const SizedBox(height: 28),
-                          for (final perk in _perks) _PerkRow(perk: perk),
+                          for (final perk in _perks(l10n)) _PerkRow(perk: perk),
                           const SizedBox(height: 28),
-                          const SectionLabel('Votre formule'),
+                          SectionLabel(l10n.plusYourPlan),
                           const SizedBox(height: 12),
                           for (var i = 0; i < plans.length; i++) ...[
                             _PlanRow(
                               plan: plans[i],
+                              savingsPercent: _savingsPercent(plans, plans[i]),
                               selected: i == selected,
                               onTap: () =>
                                   setState(() => _selectedPlanIndex = i),
@@ -276,9 +237,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                   ? null
                                   : _handlePurchase,
                               child: !canBuy
-                                  ? const Text(
-                                      SubscriptionService.androidSoonMessage,
-                                    )
+                                  ? Text(l10n.plusAndroidSoon)
                                   : _isPurchasing
                                   ? SizedBox.square(
                                       dimension: 22,
@@ -290,7 +249,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       ),
                                     )
                                   : Text(
-                                      'Continuer · ${plans[selected].price}',
+                                      l10n.plusContinuePrice(
+                                        planTotalLabel(
+                                          price: plans[selected].price,
+                                          currencyCode:
+                                              plans[selected].currencyCode,
+                                          locale: l10n.localeName,
+                                        ),
+                                      ),
                                     ),
                             ),
                           ),
@@ -314,13 +280,16 @@ class _Perk {
   final String detail;
 }
 
-const _perks = [
-  _Perk('Likes illimités', 'Fini les 10 par jour.'),
-  _Perk('Voir qui vous a aimé', 'Avant même de les croiser.'),
-  _Perk('5 Super Likes par jour', 'Au lieu d’un seul.'),
-  _Perk('Un Boost par jour', 'En tête de pile pendant 30 minutes.'),
-  _Perk('Revenir en arrière', 'Rattrapez un « Passer » trop rapide.'),
-  _Perk('Filtres avancés', 'Pratique, communauté, et plus.'),
+List<_Perk> _perks(AppLocalizations l10n) => [
+  _Perk(
+    l10n.plusFeatureUnlimitedLikesTitle,
+    l10n.plusPerkUnlimitedLikesDetail,
+  ),
+  _Perk(l10n.plusFeatureSeeWhoLikesYouTitle, l10n.plusPerkSeeWhoDetail),
+  _Perk(l10n.plusPerkSuperLikesTitle, l10n.plusPerkSuperLikesDetail),
+  _Perk(l10n.plusPerkBoostTitle, l10n.plusPerkBoostDetail),
+  _Perk(l10n.plusFeatureRewindTitle, l10n.plusFeatureRewindDescription),
+  _Perk(l10n.plusFeatureAdvancedFiltersTitle, l10n.plusPerkFiltersDetail),
 ];
 
 class _PerkRow extends StatelessWidget {
@@ -379,26 +348,42 @@ class _PerkRow extends StatelessWidget {
 class _PlanRow extends StatelessWidget {
   const _PlanRow({
     required this.plan,
+    required this.savingsPercent,
     required this.selected,
     required this.onTap,
   });
 
-  final _SubscriptionPlan plan;
+  final _PlanOffer plan;
+  final int? savingsPercent;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final ink = scheme.onSurface;
-    final saving = plan.savings;
+    final duration = l10n.plusMonths(plan.months);
+    final price = planTotalLabel(
+      price: plan.price,
+      currencyCode: plan.currencyCode,
+      locale: l10n.localeName,
+    );
+    final perMonth = planMonthlyLabel(
+      l10n,
+      price: plan.price,
+      months: plan.months,
+      currencyCode: plan.currencyCode,
+    );
+    final percent = savingsPercent;
+    final saving = percent == null ? null : l10n.plusPlanSavings(percent);
     return Semantics(
       button: true,
       selected: selected,
       inMutuallyExclusiveGroup: true,
-      label:
-          '${plan.duration}, ${plan.price}, ${plan.pricePerMonth}'
-          '${saving == null ? '' : ', économie $saving'}',
+      label: saving == null
+          ? l10n.plusPlanSemantics(duration, price, perMonth)
+          : l10n.plusPlanSemanticsSaving(duration, price, perMonth, saving),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
@@ -438,7 +423,7 @@ class _PlanRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          plan.duration,
+                          duration,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -446,7 +431,7 @@ class _PlanRow extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          plan.pricePerMonth,
+                          perMonth,
                           style: TextStyle(
                             fontSize: 13,
                             color: scheme.onSurfaceVariant,
@@ -476,7 +461,7 @@ class _PlanRow extends StatelessWidget {
                     const SizedBox(width: 10),
                   ],
                   Text(
-                    plan.price,
+                    price,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -500,9 +485,10 @@ class _LegalLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final store = Theme.of(context).platform == TargetPlatform.android
-        ? 'Google Play'
-        : 'l’App Store';
+    final l10n = context.l10n;
+    final legal = Theme.of(context).platform == TargetPlatform.android
+        ? l10n.plusLegalGooglePlay
+        : l10n.plusLegalAppStore;
     final linkStyle = TextButton.styleFrom(
       minimumSize: const Size(44, 44),
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -511,7 +497,7 @@ class _LegalLine extends StatelessWidget {
     return Column(
       children: [
         Text(
-          'Renouvellement automatique, résiliable à tout moment dans les réglages de $store.',
+          legal,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppTypography.family,
@@ -527,13 +513,13 @@ class _LegalLine extends StatelessWidget {
             TextButton(
               style: linkStyle,
               onPressed: () => onOpenUrl('https://mazl.app/terms'),
-              child: const Text('Conditions'),
+              child: Text(l10n.plusTerms),
             ),
             Text('·', style: TextStyle(color: scheme.onSurfaceVariant)),
             TextButton(
               style: linkStyle,
               onPressed: () => onOpenUrl('https://mazl.app/privacy'),
-              child: const Text('Confidentialité'),
+              child: Text(l10n.plusPrivacy),
             ),
           ],
         ),
@@ -542,23 +528,29 @@ class _LegalLine extends StatelessWidget {
   }
 }
 
-class _SubscriptionPlan {
-  final String id;
-  final String duration;
-  final String price;
-  final String pricePerMonth;
-  final String? savings;
-
-  /// La formule du store derrière cette ligne ; null pour les formules par
-  /// défaut, affichées quand le store ne répond pas.
-  final SubscriptionPlan? storePlan;
-
-  const _SubscriptionPlan({
-    required this.id,
-    required this.duration,
+/// Une ligne de l'offre : une durée, un prix, dans la devise du store.
+class _PlanOffer {
+  const _PlanOffer({
+    required this.months,
     required this.price,
-    required this.pricePerMonth,
-    required this.savings,
+    required this.currencyCode,
     this.storePlan,
   });
+
+  final int months;
+  final double price;
+  final String currencyCode;
+
+  /// La formule du store derrière cette ligne ; null pour les formules de
+  /// secours, affichées quand le store ne répond pas.
+  final SubscriptionPlan? storePlan;
 }
+
+/// Les formules affichées avant la réponse du store (ou sans store), en euros :
+/// 1, 3, 6 et 12 mois, comme les produits `com.mazl.app.plus.<n>m`.
+const List<_PlanOffer> _fallbackPlans = [
+  _PlanOffer(months: 1, price: 19.99, currencyCode: 'EUR'),
+  _PlanOffer(months: 3, price: 44.99, currencyCode: 'EUR'),
+  _PlanOffer(months: 6, price: 69.99, currencyCode: 'EUR'),
+  _PlanOffer(months: 12, price: 99.99, currencyCode: 'EUR'),
+];

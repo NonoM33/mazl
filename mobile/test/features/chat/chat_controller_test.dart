@@ -70,11 +70,11 @@ void main() {
 
     test('a failed first load surfaces a French message, and loading again recovers', () async {
       final h = Harness();
-      h.api.onGet = (b, l) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onGet = (b, l) async => throw const ChatApiException(ChatApiErrorKind.network);
       await h.controller.load();
 
       expect(h.state.loading, isFalse);
-      expect(h.state.error, 'Pas de connexion internet.');
+      expect(h.state.error, ChatFailure.network);
       expect(h.messages, isEmpty);
 
       await h.load([serverMessage(id: 1)]);
@@ -85,14 +85,14 @@ void main() {
     test('an unresolvable user id is reported, not thrown', () async {
       final h = Harness(user: () async => throw StateError('no session'));
       await h.controller.load();
-      expect(h.state.error, 'Impossible de charger la conversation.');
+      expect(h.state.error, ChatFailure.loadFailed);
       expect(h.state.loading, isFalse);
     });
 
     test('loading again keeps the failed messages typed meanwhile and merges, never duplicates', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1)]);
-      h.api.onSend = (call) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.network);
       await h.controller.sendText('perdu');
       await h.load([serverMessage(id: 2), serverMessage(id: 1)]);
 
@@ -160,7 +160,7 @@ void main() {
     test('a failure keeps the list and lets the user try again', () async {
       final h = Harness();
       await h.load([serverMessage(id: 12)], true);
-      h.api.onGet = (b, l) async => throw const ChatApiException('Délai dépassé, vérifiez votre connexion.');
+      h.api.onGet = (b, l) async => throw const ChatApiException(ChatApiErrorKind.timeout);
       await h.controller.loadOlder();
       expect(h.messages, hasLength(1));
       expect(h.state.hasMore, isTrue);
@@ -252,11 +252,11 @@ void main() {
     test('a failure leaves a failed bubble and returns the French message', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.network);
 
       final error = await h.controller.sendText('Hello');
 
-      expect(error, 'Pas de connexion internet.');
+      expect(error, ChatFailure.network);
       expect(h.messages.single.status, MessageStatus.failed);
       expect(h.messages.single.content, 'Hello');
     });
@@ -264,7 +264,7 @@ void main() {
     test('retry sends the SAME client_id and succeeds', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.network);
       await h.controller.sendText('Hello');
       h.api.onSend = null;
 
@@ -280,7 +280,7 @@ void main() {
     test('retry shows sending again while it is in flight', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('x');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.unknown);
       await h.controller.sendText('Hello');
       final gate = Completer<ChatMessage>();
       h.api.onSend = (call) => gate.future;
@@ -296,10 +296,10 @@ void main() {
     test('a second failure keeps it failed and returns the error again', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('Le serveur est indisponible, réessayez.');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.server);
       await h.controller.sendText('Hello');
       final error = await h.controller.retry('c-1');
-      expect(error, 'Le serveur est indisponible, réessayez.');
+      expect(error, ChatFailure.server);
       expect(h.messages.single.status, MessageStatus.failed);
     });
 
@@ -312,7 +312,7 @@ void main() {
       await pumpEventQueue();
 
       h.realtime.emit(ChatMessageArrived(h.api.echo(h.api.sendCalls.single)));
-      gate.completeError(const ChatApiException('Délai dépassé, vérifiez votre connexion.'));
+      gate.completeError(const ChatApiException(ChatApiErrorKind.timeout));
       await done;
 
       expect(h.messages.single.status, MessageStatus.sent);
@@ -322,7 +322,7 @@ void main() {
     test('discard removes a failed message and forgets it', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('x');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.unknown);
       await h.controller.sendText('Hello');
 
       h.controller.discard('c-1');
@@ -435,13 +435,13 @@ void main() {
       var failSecond = true;
       var id = 600;
       h.api.onUpload = (call) async {
-        if (call.bytes.length == 2 && failSecond) throw const ChatApiException('Fichier trop volumineux.');
+        if (call.bytes.length == 2 && failSecond) throw const ChatApiException(ChatApiErrorKind.tooLarge);
         return ChatMedia(id: id++, url: 'u');
       };
 
       final error = await h.controller.sendPhotos([bytes(1), bytes(2)]);
 
-      expect(error, 'Fichier trop volumineux.');
+      expect(error, ChatFailure.tooLarge);
       expect(h.messages.single.status, MessageStatus.failed);
       expect(h.api.sendCalls, isEmpty);
       final uploadsBefore = h.api.uploadCalls.length;
@@ -458,7 +458,7 @@ void main() {
     test('uploads done, send failed: retry does not upload again', () async {
       final h = Harness();
       await h.load();
-      h.api.onSend = (call) async => throw const ChatApiException('x');
+      h.api.onSend = (call) async => throw const ChatApiException(ChatApiErrorKind.unknown);
       await h.controller.sendPhotos([bytes(1)]);
       expect(h.api.uploadCalls, hasLength(1));
 
@@ -474,7 +474,7 @@ void main() {
       final h = Harness();
       await h.load();
       final error = await h.controller.sendPhotos([for (var i = 0; i < 11; i++) bytes(1)]);
-      expect(error, 'Dix photos au maximum par message.');
+      expect(error, ChatFailure.tooManyPhotos);
       expect(h.messages, isEmpty);
       expect(h.api.uploadCalls, isEmpty);
     });
@@ -525,8 +525,8 @@ void main() {
     test('a failed voice upload can be retried or discarded', () async {
       final h = Harness();
       await h.load();
-      h.api.onUpload = (call) async => throw const ChatApiException('Pas de connexion internet.');
-      expect(await h.controller.sendVoice(bytes(5), durationMs: 2000, waveform: List.filled(48, 3)), 'Pas de connexion internet.');
+      h.api.onUpload = (call) async => throw const ChatApiException(ChatApiErrorKind.network);
+      expect(await h.controller.sendVoice(bytes(5), durationMs: 2000, waveform: List.filled(48, 3)), ChatFailure.network);
       expect(h.messages.single.status, MessageStatus.failed);
 
       h.api.onUpload = null;
@@ -770,7 +770,7 @@ void main() {
     test('a failed call can be retried with the same id later', () async {
       final h = Harness();
       await h.load();
-      h.api.onRead = (id) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onRead = (id) async => throw const ChatApiException(ChatApiErrorKind.network);
       h.controller.markReadUpTo(812);
       await pumpEventQueue();
 
@@ -896,11 +896,11 @@ void main() {
     test('a failure puts the previous reactions back and returns the error', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1, reactions: reacts({'👍': [other]}))]);
-      h.api.onReaction = (id, emoji) async => throw const ChatApiException('Pas de connexion internet.');
+      h.api.onReaction = (id, emoji) async => throw const ChatApiException(ChatApiErrorKind.network);
 
       final error = await h.controller.toggleReaction(1, '❤️');
 
-      expect(error, 'Pas de connexion internet.');
+      expect(error, ChatFailure.network);
       final byEmoji = {for (final r in h.messages.single.reactions) r.emoji: r.userIds};
       expect(byEmoji, {'👍': [other]});
     });
@@ -908,7 +908,7 @@ void main() {
     test('an emoji outside the six allowed ones is refused without a call', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1)]);
-      expect(await h.controller.toggleReaction(1, '🦄'), 'Réaction indisponible.');
+      expect(await h.controller.toggleReaction(1, '🦄'), ChatFailure.reactionUnavailable);
       expect(h.api.reactionCalls, isEmpty);
     });
 
@@ -951,11 +951,11 @@ void main() {
     test('a failure brings the message back', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1, senderId: me, content: 'Bonjour', createdAt: '2026-10-22T20:55:00.000Z')]);
-      h.api.onUnsend = (id) async => throw const ChatApiException('Ce message ne peut plus être retiré.');
+      h.api.onUnsend = (id) async => throw const ChatApiException(ChatApiErrorKind.cannotUnsend);
 
       final error = await h.controller.unsend(1);
 
-      expect(error, 'Ce message ne peut plus être retiré.');
+      expect(error, ChatFailure.cannotUnsend);
       expect(h.messages.single.unsent, isFalse);
       expect(h.messages.single.content, 'Bonjour');
     });
@@ -971,7 +971,7 @@ void main() {
     test('not after 15 minutes: refused without calling the server', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1, senderId: me, createdAt: '2026-10-22T20:44:00.000Z')]);
-      expect(await h.controller.unsend(1), 'Ce message ne peut plus être retiré.');
+      expect(await h.controller.unsend(1), ChatFailure.cannotUnsend);
       expect(h.api.unsendCalls, isEmpty);
     });
 
@@ -991,11 +991,11 @@ void main() {
       expect(h.api.reportCalls.single, (messageId: 1, reason: 'spam'));
     });
 
-    test('returns the French error', () async {
+    test('returns the typed failure, never a sentence', () async {
       final h = Harness();
       await h.load([serverMessage(id: 1)]);
-      h.api.onReport = (id, reason) async => throw const ChatApiException('Trop d’envois, patientez un instant.');
-      expect(await h.controller.report(1, 'spam'), 'Trop d’envois, patientez un instant.');
+      h.api.onReport = (id, reason) async => throw const ChatApiException(ChatApiErrorKind.rateLimited);
+      expect(await h.controller.report(1, 'spam'), ChatFailure.rateLimited);
     });
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../state/chat_controller.dart';
 
 /// What every row of the conversation needs to know about the thread, so rows
@@ -34,7 +35,8 @@ class ChatScope extends InheritedWidget {
   final ({double top, double bottom}) Function()? overlayBounds;
 
   /// « Vous » or the other member's name.
-  String authorOf(int userId) => userId == myUserId ? 'Vous' : otherName;
+  String authorOf(AppLocalizations l10n, int userId) =>
+      userId == myUserId ? l10n.chatAuthorYou : otherName;
 
   static ChatScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<ChatScope>();

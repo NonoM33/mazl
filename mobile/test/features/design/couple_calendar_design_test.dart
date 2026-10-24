@@ -11,6 +11,7 @@ import 'package:mazl/presentation/features/couple/screens/jewish_calendar_screen
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Passe DA « Encre & Tekhelet » des onglets Calendrier et Événements et du
 // détail d'un événement : plus de rose, de dégradé ni d'émoji, et une grille
@@ -44,7 +45,7 @@ Future<void> _pump(
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(MaterialApp(theme: theme, home: screen));
+  await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, theme: theme, home: screen));
   await tester.pump();
   await tester.pump();
 }
@@ -432,7 +433,7 @@ void main() {
         expect(find.widgetWithText(OutlinedButton, 'Annuler'), findsOneWidget);
         expect(find.text('Gratuit'), findsOneWidget);
         expect(find.text('Complet'), findsOneWidget);
-        expect(find.text('45€/couple'), findsWidgets);
+        expect(find.text('45\u00A0€/couple'), findsWidgets);
       },
     );
 
@@ -446,6 +447,9 @@ void main() {
       _events(transport);
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           theme: AppTheme.lightTheme,
           home: MediaQuery(
             data: const MediaQueryData(
@@ -504,6 +508,9 @@ void main() {
         ..reply(_registered, ok({'events': []}));
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           theme: AppTheme.lightTheme,
           home: MediaQuery(
             data: const MediaQueryData(

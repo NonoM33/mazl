@@ -7,6 +7,7 @@ import 'package:mazl/presentation/features/chat/widgets/photo_grid.dart';
 import 'package:mazl/presentation/features/chat/widgets/photo_viewer.dart';
 
 import 'chat_test_support.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // docs/design/CHAT.md §7 and balayages-proposition.html (Geste 3): the photo
 // follows the finger in both axes, shrinks, the background fades, a haptic
@@ -48,6 +49,9 @@ Future<void> _open(
   final photos = [for (var i = 0; i < 3; i++) PhotoSource(url: tinyPngUri)];
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       builder: (context, child) => iPhoneScope
           ? ReduceMotionScope(child: child!)
           : MediaQuery(

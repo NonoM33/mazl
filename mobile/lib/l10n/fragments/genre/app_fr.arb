@@ -1,0 +1,6 @@
+{
+  "genreLookingForRequired": "Indiquez ce que vous recherchez",
+  "@genreLookingForRequired": {
+    "description": "Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit."
+  }
+}

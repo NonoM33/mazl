@@ -3,6 +3,7 @@ import { createCreditTables, eraseCredits } from "./features/credits/infra/schem
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
+import { isProfileComplete } from "./features/profile/domain/profile-completeness";
 
 // Production must name its database: a silent fallback to the local
 // development credentials would hide a broken deployment.
@@ -779,6 +780,9 @@ export async function initDb() {
   // Seed couple mode data
   await seedCoupleActivities();
   await seedCoupleEvents();
+
+  // Members who completed their profile before is_complete was derived.
+  await backfillProfileCompleteness();
 }
 
 function generateVerificationToken() {
@@ -1161,21 +1165,6 @@ export async function isProfileVisibleTo(viewerId: number, targetId: number): Pr
   return rows.length > 0;
 }
 
-// A profile is shown to others once it has a name, a birthdate and a gender
-// (upsertProfile below). Profiles filled in before that rule are completed
-// once at boot, so that they do not vanish from profile views.
-export async function completeFinishedProfiles(): Promise<number> {
-  const rows = await sql`
-    UPDATE profiles SET is_complete = true
-    WHERE is_complete IS NOT TRUE
-      AND COALESCE(display_name, '') <> ''
-      AND birthdate IS NOT NULL
-      AND gender IS NOT NULL
-    RETURNING user_id
-  `;
-  return rows.length;
-}
-
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;
@@ -1239,18 +1228,32 @@ export async function upsertProfile(userId: number, params: {
       updated_at = NOW()
     RETURNING *
   `;
-  // Nothing else ever marks a profile complete: once the member has a name, a
-  // birthdate and a gender, others may see them (discover, profile view).
-  const completed = await sql`
-    UPDATE profiles SET is_complete = true
-    WHERE user_id = ${userId}
-      AND is_complete = false
-      AND COALESCE(display_name, '') <> ''
-      AND birthdate IS NOT NULL
-      AND gender IS NOT NULL
-    RETURNING *
+  const stored = result[0];
+  return stored === undefined ? stored : await syncProfileCompleteness(stored);
+}
+
+// `profiles.is_complete` is derived, never sent by the client: it follows
+// isProfileComplete (features/profile/domain) applied to the stored row.
+async function syncProfileCompleteness<Row extends Record<string, unknown>>(row: Row): Promise<Row> {
+  const complete = isProfileComplete(row);
+  if (row["is_complete"] === complete) return row;
+  await sql`UPDATE profiles SET is_complete = ${complete} WHERE user_id = ${Number(row["user_id"])}`;
+  return { ...row, is_complete: complete };
+}
+
+/**
+ * Idempotent: flags the profiles that already satisfy the rule but were never
+ * flagged (nothing used to set `is_complete`). Never unflags anyone.
+ */
+export async function backfillProfileCompleteness(): Promise<number> {
+  const rows = await sql<{ user_id: number; display_name: string | null; birthdate: Date | null; gender: string | null; looking_for: string | null }[]>`
+    SELECT user_id, display_name, birthdate, gender, looking_for
+    FROM profiles WHERE is_complete IS NOT TRUE
   `;
-  return completed[0] ?? result[0];
+  const ids = rows.filter((row) => isProfileComplete(row)).map((row) => row.user_id);
+  if (ids.length === 0) return 0;
+  await sql`UPDATE profiles SET is_complete = true WHERE user_id IN ${sql(ids)} AND is_complete IS NOT TRUE`;
+  return ids.length;
 }
 
 // ============ DISCOVER & SWIPES ============
@@ -1406,15 +1409,29 @@ export async function startVerification(
   return { ok: true, gestureId, attemptId: rows[0]!.id };
 }
 
+/** The caller's own gender / looking_for (null when there is no profile row). */
+export async function getProfilePreferences(userId: number): Promise<{
+  gender: string | null;
+  looking_for: string | null;
+} | null> {
+  const rows = await sql<{ gender: string | null; looking_for: string | null }[]>`
+    SELECT gender, looking_for FROM profiles WHERE user_id = ${userId}
+  `;
+  return rows[0] ?? null;
+}
+
 export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0) {
   // Fetch candidate profiles filtered against the CALLER's own preferences.
   // Criteria are read directly from the caller's profile row (CTE `me`) so
   // the public signature stays (userId, limit, offset).
   //
-  // Filtering rules (all null-tolerant: a missing criterion never excludes):
-  //  - gender/orientation: bidirectional. The candidate's gender must match the
-  //    caller's `looking_for`, AND the candidate's `looking_for` must match the
-  //    caller's gender. `looking_for = 'all'`/'any'/'everyone' disables that side.
+  // Filtering rules:
+  //  - gender/orientation: bidirectional and STRICT. The candidate's gender must
+  //    match the caller's `looking_for`, AND the candidate's `looking_for` must
+  //    match the caller's gender (legacy 'all'/'any'/'everyone' on the candidate
+  //    side is open). A caller without gender / looking_for never reaches this
+  //    query: the route answers 409 profile_incomplete first.
+  //  - the other criteria are null-tolerant: a missing one never excludes.
   //  - age: candidate age within the caller's [age_min, age_max].
   //  - distance: when both parties have lat/long and the caller has distance_max,
   //    haversine distance (km) must be <= distance_max.
@@ -1457,19 +1474,14 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
         UNION
         SELECT blocker_id FROM blocked_users WHERE blocked_id = ${userId}
       )
-      -- caller wants candidate's gender (skip when either side unset or open)
+      -- caller wants candidate's gender. Strict: the route refuses callers who
+      -- have not set looking_for (409 profile_incomplete), and a candidate with
+      -- no gender can never match a stated preference.
+      AND LOWER(p.gender) = LOWER(me.looking_for)
+      -- candidate wants caller's gender (legacy open values still accepted)
       AND (
-        me.looking_for IS NULL
-        OR LOWER(me.looking_for) IN ('all', 'any', 'everyone', 'both')
-        OR p.gender IS NULL
-        OR LOWER(p.gender) = LOWER(me.looking_for)
-      )
-      -- candidate wants caller's gender (skip when either side unset or open)
-      AND (
-        p.looking_for IS NULL
-        OR LOWER(p.looking_for) IN ('all', 'any', 'everyone', 'both')
-        OR me.gender IS NULL
-        OR LOWER(me.gender) = LOWER(p.looking_for)
+        LOWER(p.looking_for) IN ('all', 'any', 'everyone', 'both')
+        OR LOWER(p.looking_for) = LOWER(me.gender)
       )
       -- candidate age within caller's range (skip when birthdate unknown)
       AND (

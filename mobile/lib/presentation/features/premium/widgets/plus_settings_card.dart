@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import 'plus_widgets.dart';
 
 /// Ligne unique de la section « Abonnement » des réglages : mène à la gestion
@@ -22,14 +24,17 @@ class PlusSettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final subtitle = isPremium
-        ? (detail ?? 'Abonnement actif')
-        : 'Likes illimités, voir qui vous a aimé, Boost';
+        ? (detail ?? l10n.plusActiveSubscription)
+        : l10n.plusSettingsPitch;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Semantics(
         button: true,
-        label: isPremium ? 'mazl+. $subtitle' : 'Passer à mazl+. $subtitle',
+        label: isPremium
+            ? l10n.plusSettingsSemanticsActive(subtitle)
+            : l10n.plusSettingsSemanticsUpgrade(subtitle),
         excludeSemantics: true,
         onTap: onTap,
         child: Material(
@@ -56,9 +61,9 @@ class PlusSettingsCard extends StatelessWidget {
                           else
                             Text.rich(
                               TextSpan(
-                                text: 'Passer à ',
-                                children: plusWordSpans(
-                                  plusColor: scheme.primary,
+                                children: brandPhraseSpans(
+                                  l10n.plusUpgradeTo,
+                                  plusWordSpans(plusColor: scheme.primary),
                                 ),
                               ),
                               style: const TextStyle(
@@ -78,7 +83,7 @@ class PlusSettingsCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Icon(
+                    DirectionalIcon(
                       LucideIcons.chevronRight,
                       size: 18,
                       color: scheme.onSurface,

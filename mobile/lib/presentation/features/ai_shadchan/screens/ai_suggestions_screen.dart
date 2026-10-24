@@ -6,6 +6,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/glass_container.dart';
 
 class AISuggestionsScreen extends StatefulWidget {
@@ -23,9 +25,9 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
       city: 'Paris',
       compatibilityScore: 95,
       reasons: [
-        'Même niveau de pratique',
-        'Intérêts communs : voyages, cuisine',
-        'Objectifs similaires',
+        _Reason.samePractice,
+        _Reason.interests,
+        _Reason.goals,
       ],
       color: AppColors.secondary,
     ),
@@ -35,9 +37,9 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
       city: 'Lyon',
       compatibilityScore: 88,
       reasons: [
-        'Valeurs familiales alignées',
-        'Passion commune pour la musique',
-        'Zones de vie compatibles',
+        _Reason.family,
+        _Reason.music,
+        _Reason.location,
       ],
       color: AppColors.accent,
     ),
@@ -47,9 +49,9 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
       city: 'Paris',
       compatibilityScore: 82,
       reasons: [
-        'Pratique religieuse similaire',
-        'Secteur professionnel proche',
-        'Même vision du couple',
+        _Reason.religion,
+        _Reason.profession,
+        _Reason.couple,
       ],
       color: AppColors.primary,
     ),
@@ -58,7 +60,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
   void _handlePass(_Suggestion suggestion) {
     setState(() => _suggestions.remove(suggestion));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${suggestion.name} ignorée')),
+      SnackBar(content: Text(context.l10n.shadchanPassed(suggestion.name))),
     );
   }
 
@@ -66,7 +68,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
     setState(() => _suggestions.remove(suggestion));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${suggestion.name} ajoutée à vos likes'),
+        content: Text(context.l10n.shadchanLiked(suggestion.name)),
         backgroundColor: AppColors.likeGreen,
       ),
     );
@@ -76,9 +78,9 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Shadchan'),
+        title: Text(context.l10n.shadchanTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -104,9 +106,9 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                             ],
                     ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Votre Shadchan personnel',
-                  style: TextStyle(
+                Text(
+                  context.l10n.shadchanHeaderTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -114,7 +116,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles',
+                  context.l10n.shadchanHeaderBody,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
@@ -129,14 +131,15 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
           // Today's suggestions
           Row(
             children: [
-              const Text(
-                'Suggestions du jour',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  context.l10n.shadchanTodayTitle,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -148,7 +151,7 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                     const Icon(LucideIcons.sparkles, size: 14, color: AppColors.accent),
                     const SizedBox(width: 4),
                     Text(
-                      '${_suggestions.length} nouvelles',
+                      context.l10n.shadchanNewCount(_suggestions.length),
                       style: const TextStyle(
                         color: AppColors.accent,
                         fontSize: 12,
@@ -184,28 +187,30 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(LucideIcons.lightbulb, color: AppColors.warning),
-                      SizedBox(width: 8),
-                      Text(
-                        'Comment ça marche ?',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      const Icon(LucideIcons.lightbulb, color: AppColors.warning),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.shadchanHowTitle,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   _HowItWorksStep(
                     number: '1',
-                    text: 'Notre IA analyse votre profil et vos préférences',
+                    text: context.l10n.shadchanHowStepAnalyze,
                   ),
                   _HowItWorksStep(
                     number: '2',
-                    text: 'Elle compare avec les profils compatibles',
+                    text: context.l10n.shadchanHowStepCompare,
                   ),
                   _HowItWorksStep(
                     number: '3',
-                    text: 'Vous recevez des suggestions personnalisées chaque jour',
+                    text: context.l10n.shadchanHowStepDaily,
                   ),
                 ],
               ),
@@ -231,8 +236,33 @@ class _Suggestion {
   final int age;
   final String city;
   final int compatibilityScore;
-  final List<String> reasons;
+  final List<_Reason> reasons;
   final Color color;
+}
+
+/// Why a profile is suggested. The words come from the member's language.
+enum _Reason {
+  samePractice,
+  interests,
+  goals,
+  family,
+  music,
+  location,
+  religion,
+  profession,
+  couple;
+
+  String text(AppLocalizations l10n) => switch (this) {
+    samePractice => l10n.shadchanReasonSamePractice,
+    interests => l10n.shadchanReasonInterests,
+    goals => l10n.shadchanReasonGoals,
+    family => l10n.shadchanReasonFamily,
+    music => l10n.shadchanReasonMusic,
+    location => l10n.shadchanReasonLocation,
+    religion => l10n.shadchanReasonReligion,
+    profession => l10n.shadchanReasonProfession,
+    couple => l10n.shadchanReasonCouple,
+  };
 }
 
 class _EmptySuggestions extends StatelessWidget {
@@ -249,14 +279,14 @@ class _EmptySuggestions extends StatelessWidget {
           children: [
             const Icon(LucideIcons.sparkles, size: 40, color: AppColors.accent),
             const SizedBox(height: 12),
-            const Text(
-              'Vous avez parcouru toutes vos suggestions.',
+            Text(
+              context.l10n.shadchanEmptyTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
-              'Revenez demain pour de nouvelles propositions de votre Shadchan.',
+              context.l10n.shadchanEmptyBody,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
@@ -264,7 +294,7 @@ class _EmptySuggestions extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onDiscover,
               icon: const Icon(LucideIcons.compass),
-              label: const Text('Découvrir plus de profils'),
+              label: Text(context.l10n.shadchanEmptyAction),
             ),
           ],
         ),
@@ -344,16 +374,18 @@ class _SuggestionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(LucideIcons.sparkles, size: 16, color: AppColors.success),
-                      SizedBox(width: 8),
-                      Text(
-                        'Pourquoi cette suggestion ?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.success,
-                          fontSize: 12,
+                      const Icon(LucideIcons.sparkles, size: 16, color: AppColors.success),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.shadchanWhy,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.success,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -367,7 +399,7 @@ class _SuggestionCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                reason,
+                                reason.text(context.l10n),
                                 style: const TextStyle(fontSize: 13),
                               ),
                             ),
@@ -383,14 +415,14 @@ class _SuggestionCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onPass,
-                    child: const Text('Passer'),
+                    child: Text(context.l10n.matchingCardPass),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: onLike,
-                    child: const Text('J\'aime'),
+                    child: Text(context.l10n.matchingCardLike),
                   ),
                 ),
               ],
@@ -432,7 +464,7 @@ class _CompatibilityBadge extends StatelessWidget {
             ),
           ),
           Text(
-            'Match',
+            context.l10n.shadchanMatchBadge,
             style: TextStyle(
               color: color,
               fontSize: 10,

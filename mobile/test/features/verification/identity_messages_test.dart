@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/verification/chip/chip_reader.dart';
 import 'package:mazl/presentation/features/verification/identity/identity_messages.dart';
+import 'package:mazl/presentation/features/verification/l10n/identity_failure_text.dart';
+
+import 'verification_l10n.dart';
 
 // Every IdentityRejection of docs/verification/CONTRAT.md §4
 // (src/features/verification/domain/types.ts), written out by hand.
@@ -13,20 +16,21 @@ const _contractCodes = [
 ];
 
 void main() {
-  final generic = describeIdentityRejection('something_new').message;
+  final l10n = frenchL10n;
+  final generic = describeIdentityRejection('something_new').messageText(l10n);
 
   test('every code of the contract has its own message', () {
     for (final code in _contractCodes) {
       final info = describeIdentityRejection(code);
-      expect(info.message, isNot(generic), reason: code);
-      expect(info.message, isNotEmpty);
-      expect(info.actionLabel, isNotEmpty);
+      expect(info.messageText(l10n), isNot(generic), reason: code);
+      expect(info.messageText(l10n), isNotEmpty);
+      expect(info.actionLabel(l10n), isNotEmpty);
     }
   });
 
   test('messages are short single sentences', () {
     for (final code in [..._contractCodes, 'unknown']) {
-      final message = describeIdentityRejection(code).message;
+      final message = describeIdentityRejection(code).messageText(l10n);
       expect(message.length, lessThan(90), reason: code);
       expect(message, endsWith('.'), reason: code);
       expect(message, isNot(contains('  ')), reason: code);
@@ -34,8 +38,28 @@ void main() {
   });
 
   test('fixed wording asked by the product', () {
-    expect(describeIdentityRejection('csca_unknown').message, 'Document non reconnu.');
-    expect(describeIdentityRejection('document_expired').message, 'Ce document est expiré.');
+    expect(describeIdentityRejection('csca_unknown').messageText(l10n), 'Document non reconnu.');
+    expect(describeIdentityRejection('document_expired').messageText(l10n), 'Ce document est expiré.');
+  });
+
+  test('the buttons keep their French labels', () {
+    expect(describeIdentityRejection('no_face').actionLabel(l10n), 'Réessayer');
+    expect(describeIdentityRejection('csca_unknown').actionLabel(l10n), 'Fermer');
+    expect(describeIdentityRejection('chip_data_invalid').actionLabel(l10n), 'Relire le document');
+    expect(describeIdentityRejection('document_expired').actionLabel(l10n), 'Autre document');
+    expect(describeChipFailure(ChipFailureKind.accessDenied)!.actionLabel(l10n), 'Scanner à nouveau');
+  });
+
+  test('every message and every button has a sentence in each of the five languages', () {
+    for (final code in ['fr', 'en', 'he', 'es', 'ru']) {
+      final strings = l10nFor(code);
+      for (final message in IdentityMessage.values) {
+        expect(message.text(strings).trim(), isNotEmpty, reason: '$code ${message.name}');
+      }
+      for (final action in IdentityAction.values) {
+        expect(action.label(strings).trim(), isNotEmpty, reason: '$code ${action.name}');
+      }
+    }
   });
 
   test('unknown or missing code falls back to a retryable generic failure', () {
@@ -62,7 +86,7 @@ void main() {
         expect(info, isNull);
       } else {
         expect(info, isNotNull, reason: kind.name);
-        expect(info!.message, endsWith('.'));
+        expect(info!.messageText(l10n), endsWith('.'));
       }
     }
   });

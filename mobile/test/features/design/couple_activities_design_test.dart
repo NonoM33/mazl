@@ -11,6 +11,7 @@ import 'package:mazl/presentation/features/couple/widgets/activity_visual.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Paid on 2026-10-23: the activities tab showed a pink badge, emoji chips, a
 // pink-to-burgundy gradient card with a big emoji drawn through its title, and
@@ -55,6 +56,9 @@ Future<void> _pump(
   setUp(transport);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: theme,
       home: screen(CoupleApiService(transport: transport)),
     ),

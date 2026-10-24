@@ -9,7 +9,11 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credit_models.dart';
+import '../../../../core/services/store/credits_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
@@ -32,10 +36,16 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   final SwipeDeckController _deck = SwipeDeckController();
   final DataPrefetchService _prefetchService = DataPrefetchService();
   late final ApiService _apiService = widget.apiService ?? ApiService();
+  final CreditsService _credits = CreditsService();
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
+  ApiErrorKind? _errorKind;
+
+  /// How long a Boost lasts, as announced to the member.
+  static const int _boostMinutes = 30;
+
   bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
 
   /// Bumped with each new list so the deck starts again from its first card.
@@ -54,6 +64,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     PremiumGate.onSuperLikesChanged = () {
       if (mounted) setState(() {});
     };
+    // The Super Like badge shows the server's balance.
+    _credits.addListener(_onCreditsChanged);
+    if (!_credits.isLoaded) unawaited(_credits.refresh());
+  }
+
+  void _onCreditsChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initializeData() async {
@@ -75,7 +92,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (!isRefresh) {
       setState(() {
         _isLoading = true;
-        _error = null;
+        _loadFailed = false;
       });
     }
 
@@ -89,7 +106,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       });
     } else {
       setState(() {
-        _error = response.error ?? 'Erreur de chargement';
+        _loadFailed = true;
+        _errorKind = response.errorKind;
         _isLoading = false;
       });
     }
@@ -98,6 +116,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   @override
   void dispose() {
     _deck.dispose();
+    _credits.removeListener(_onCreditsChanged);
     PremiumGate.onSuperLikesChanged = null;
     super.dispose();
   }
@@ -127,13 +146,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           const Spacer(),
           RoundIconButton(
             icon: LucideIcons.sparkles,
-            tooltip: 'Sélections du jour',
+            tooltip: context.l10n.matchingDiscoverDailyPicks,
             onPressed: () => context.push(RoutePaths.dailyPicks),
           ),
           const SizedBox(width: 8),
           RoundIconButton(
             icon: LucideIcons.slidersHorizontal,
-            tooltip: 'Filtres',
+            tooltip: context.l10n.matchingFilters,
             onPressed: _openFilters,
           ),
         ],
@@ -153,7 +172,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (_isLoading) {
       return const ProfileCardSkeleton();
     }
-    if (_error != null) {
+    if (_loadFailed) {
       return _buildError();
     }
     if (_profiles.isEmpty) {
@@ -170,17 +189,21 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.circleAlert, size: 40, color: scheme.onSurfaceVariant),
+            Icon(
+              LucideIcons.circleAlert,
+              size: 40,
+              color: scheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
             Text(
-              _error!,
+              apiErrorText(context.l10n, _errorKind),
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadProfiles,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -198,12 +221,12 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Vous avez tout vu.',
+              context.l10n.matchingDiscoverEmptyTitle,
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 12),
             Text(
-              'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.',
+              context.l10n.matchingDiscoverEmptyBody,
               style: TextStyle(
                 fontSize: 16,
                 height: 1.45,
@@ -213,7 +236,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             const SizedBox(height: 28),
             OutlinedButton(
               onPressed: _openFilters,
-              child: const Text('Ouvrir les filtres'),
+              child: Text(context.l10n.matchingDiscoverOpenFilters),
             ),
             const SizedBox(height: 4),
             // No inner padding: its text sits on the same edge as the title.
@@ -222,9 +245,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(0, 48),
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
               ),
-              child: const Text('Actualiser'),
+              child: Text(context.l10n.matchingDiscoverRefresh),
             ),
           ],
         ),
@@ -273,8 +296,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             onPass: () => _deck.swipe(SwipeDirection.left),
             onLike: () => _deck.swipe(SwipeDirection.right),
             onTapProfile: () async {
-              final result = await context
-                  .push<String>('/discover/profile/${profile.userId}');
+              final result = await context.push<String>(
+                '/discover/profile/${profile.userId}',
+              );
               if (result != null && mounted) {
                 _handleSwipeFromDetail(result);
               }
@@ -289,7 +313,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   List<Widget> _buildSecondaryActions({required bool followsSwipe}) {
     final superLike = DiscoverMiniAction(
       icon: LucideIcons.star,
-      tooltip: 'Super like',
+      tooltip: context.l10n.matchingDiscoverSuperLike,
       badge: PremiumGate.remainingSuperLikes.toString(),
       // Refused (none left): the card stays, then the gate opens.
       onPressed: () => _deck.swipe(SwipeDirection.up),
@@ -298,10 +322,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       // Undo (Premium)
       DiscoverMiniAction(
         icon: LucideIcons.rotateCcw,
-        tooltip: 'Annuler',
+        tooltip: context.l10n.matchingDiscoverUndo,
         locked: !PremiumGate.isPremium,
         onPressed: () async {
-          if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
+          if (await PremiumGate.showFeatureGate(
+            context,
+            PremiumFeature.rewind,
+          )) {
             _deck.undo();
           }
         },
@@ -315,18 +342,28 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         )
       else
         superLike,
-      // Boost (Premium)
+      // Boost: the server decides if one can start (included in mazl+, or
+      // bought), so the button is open to everyone.
       DiscoverMiniAction(
         icon: LucideIcons.zap,
-        tooltip: 'Boost',
-        locked: !PremiumGate.isPremium,
-        onPressed: () async {
-          if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
-            await _activateBoost();
-          }
-        },
+        tooltip: context.l10n.matchingDiscoverBoost,
+        onPressed: _onBoostPressed,
       ),
     ];
+  }
+
+  Future<void> _onBoostPressed() async {
+    if (!_credits.isLoaded) await _credits.refresh();
+    if (!mounted) return;
+    if (PremiumGate.remainingBoosts <= 0) {
+      final bought = await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (!bought || !mounted) return;
+    }
+    await _activateBoost();
   }
 
   Future<void> _activateBoost() async {
@@ -334,18 +371,23 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (!mounted) return;
 
     if (response.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Boost activé. Vous êtes en tête de pile pendant 30 minutes.'),
-        ),
+      _showMessage(context.l10n.matchingDiscoverBoostOn(_boostMinutes));
+    } else if (response.isCreditsExhausted) {
+      // The server's balance (already read) says there is none: the packs.
+      await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
       );
+    } else if (response.isBoostAlreadyActive) {
+      _showMessage(apiErrorText(context.l10n, response.errorKind));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.error ?? 'Impossible d\'activer le boost'),
-        ),
-      );
+      _showMessage(context.l10n.matchingDiscoverBoostFailed);
     }
+  }
+
+  void _showMessage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   void _handleSwipeFromDetail(String action) {
@@ -394,13 +436,41 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
   }
 
+  /// The balance says none is left: the packs sheet opens. The card goes up
+  /// by itself once the server says a Super Like can be spent.
   Future<void> _offerSuperLikes() async {
-    final granted = await PremiumGate.showFeatureGate(
-      context,
-      PremiumFeature.superLikes,
-    );
-    if (granted && mounted && PremiumGate.remainingSuperLikes > 0) {
+    // An unknown balance is not « none »: ask the server before refusing.
+    if (!_credits.isLoaded) await _credits.refresh();
+    if (!mounted) return;
+    if (PremiumGate.remainingSuperLikes > 0) {
       unawaited(_deck.swipe(SwipeDirection.up));
+      return;
+    }
+    final bought = await PremiumGate.offerCredits(
+      context,
+      CreditKind.superLike,
+    );
+    if (bought && mounted && PremiumGate.remainingSuperLikes > 0) {
+      unawaited(_deck.swipe(SwipeDirection.up));
+    }
+  }
+
+  /// The server refused a Super Like the app thought it could send (HTTP 402):
+  /// its balance has been read from the answer. The card is already gone, so
+  /// once a pack is bought the Super Like is sent again to the same person.
+  Future<void> _offerSuperLikesAfterRefusal(Profile profile) async {
+    if (!mounted) return;
+    final bought = await PremiumGate.offerCredits(
+      context,
+      CreditKind.superLike,
+    );
+    if (!bought) return;
+    final response = await _apiService.sendSwipe(
+      targetUserId: profile.userId,
+      action: 'super_like',
+    );
+    if (mounted && response.success && response.data?['match'] == true) {
+      unawaited(_showMatchDialog(profile));
     }
   }
 
@@ -417,8 +487,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     } else {
       debugPrint('Super liked ${profile.displayName}');
       action = 'super_like';
-      // Decrement super likes counter
-      PremiumGate.useSuperLike();
     }
 
     // Skip API call if swipe came from detail page (already sent)
@@ -435,6 +503,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);
+      } else if (response.isCreditsExhausted) {
+        unawaited(_offerSuperLikesAfterRefusal(profile));
       }
     });
   }

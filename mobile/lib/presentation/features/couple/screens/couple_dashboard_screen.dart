@@ -5,8 +5,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../l10n/couple_feed_labels.dart';
+import '../l10n/couple_feed_service_content.dart';
 import 'success_stories_screen.dart';
 
 class CoupleDashboardScreen extends StatefulWidget {
@@ -33,6 +36,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
     final activities = _coupleService.getCoupleActivities();
     final questions = _coupleService.getDailyQuestions();
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -46,7 +50,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             const SizedBox(height: 16),
             _buildDailyQuestionCard(questions.first),
             const SizedBox(height: 32),
-            const SectionLabel('Activités en couple'),
+            SectionLabel(l10n.coupleFeedDashboardActivities),
             const SizedBox(height: 12),
             SizedBox(
               height: 128,
@@ -61,32 +65,32 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             const SizedBox(height: 32),
             Row(
               children: [
-                const Expanded(child: SectionLabel('Nos étapes')),
+                Expanded(child: SectionLabel(l10n.coupleFeedDashboardMilestones)),
                 TextButton(
                   onPressed: () {
                     // Show all milestones
                   },
-                  child: const Text('Voir tout'),
+                  child: Text(l10n.coupleFeedDashboardSeeAll),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             ...milestones.take(3).map(_buildMilestoneCard),
             const SizedBox(height: 32),
-            const SectionLabel('Événements en couple'),
+            SectionLabel(l10n.coupleFeedDashboardEvents),
             const SizedBox(height: 12),
             _buildCoupleEventsCard(),
             const SizedBox(height: 32),
-            const SectionLabel('Calendrier juif'),
+            SectionLabel(l10n.coupleFeedDashboardJewishCalendar),
             const SizedBox(height: 12),
             _buildJewishCalendarCard(),
             const SizedBox(height: 32),
             Row(
               children: [
-                const Expanded(child: SectionLabel('Histoires de couples')),
+                Expanded(child: SectionLabel(l10n.coupleFeedStoriesTitle)),
                 TextButton(
                   onPressed: () => context.push(RoutePaths.successStories),
-                  child: const Text('Voir toutes'),
+                  child: Text(l10n.coupleFeedDashboardSeeAllStories),
                 ),
               ],
             ),
@@ -102,8 +106,8 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
     return Row(
       children: [
         RoundIconButton(
-          icon: LucideIcons.arrowLeft,
-          tooltip: 'Retour',
+          icon: backArrowIcon(context),
+          tooltip: context.l10n.commonBack,
           onPressed: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -115,7 +119,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
         const Spacer(),
         RoundIconButton(
           icon: LucideIcons.settings,
-          tooltip: 'Réglages',
+          tooltip: context.l10n.coupleFeedDashboardSettingsTooltip,
           onPressed: () {
             // Navigate to couple settings
           },
@@ -126,13 +130,14 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildCoupleHeader(CoupleData? coupleData, int daysTogether) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _SurfaceCard(
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildAvatar('Moi', null, 0),
+              _buildAvatar(l10n.coupleFeedDashboardMe, null, 0),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 12),
                 width: 32,
@@ -148,7 +153,8 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 ),
               ),
               _buildAvatar(
-                coupleData?.partnerName ?? 'Partenaire',
+                coupleData?.partnerName ??
+                    l10n.coupleFeedDashboardPartnerFallback,
                 coupleData?.partnerPicture,
                 1,
               ),
@@ -156,7 +162,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            '$daysTogether jours ensemble',
+            l10n.coupleFeedDashboardDaysTogether(daysTogether),
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ],
@@ -178,19 +184,20 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
   }
 
   Widget _buildDailyQuestionCard(DailyQuestion question) {
+    final l10n = context.l10n;
     return _SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Expanded(child: SectionLabel('Question du jour')),
-              TagPill(question.category),
+              Expanded(child: SectionLabel(l10n.coupleFeedDashboardDailyQuestion)),
+              TagPill(questionCategory(l10n, question)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
-            question.question,
+            questionText(l10n, question),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
@@ -198,7 +205,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _showAnswerDialog(question),
-              child: const Text('Répondre'),
+              child: Text(l10n.coupleFeedDashboardAnswer),
             ),
           ),
         ],
@@ -208,6 +215,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildActivityCard(Map<String, dynamic> activity) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     IconData icon;
     switch (activity['icon']) {
       case 'utensils':
@@ -245,14 +253,14 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           Icon(icon, size: 22, color: scheme.primary),
           const Spacer(),
           Text(
-            activity['title'],
+            ideaTitle(l10n, activity),
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
-            activity['category'],
+            ideaCategory(l10n, activity),
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
         ],
@@ -262,6 +270,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildMilestoneCard(CoupleMilestone milestone) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -284,11 +293,11 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  milestone.title,
+                  milestoneTitle(l10n, milestone),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  milestone.description,
+                  milestoneLine(l10n, milestone),
                   style: TextStyle(
                     fontSize: 13,
                     color: scheme.onSurfaceVariant,
@@ -308,6 +317,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildCoupleEventsCard() {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _SurfaceCard(
       child: Column(
         children: [
@@ -319,12 +329,12 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Cours de cuisine casher',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Text(
+                      l10n.coupleFeedDashboardEventSampleTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      'Dimanche 20 janvier - 15h00',
+                      l10n.coupleFeedDashboardEventSampleWhen,
                       style: TextStyle(
                         fontSize: 13,
                         color: scheme.onSurfaceVariant,
@@ -333,7 +343,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   ],
                 ),
               ),
-              const TagPill('Couples'),
+              TagPill(l10n.coupleFeedDashboardEventSampleTag),
             ],
           ),
           const SizedBox(height: 16),
@@ -343,7 +353,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
               onPressed: () {
                 // Navigate to events
               },
-              child: const Text('Voir tous les événements'),
+              child: Text(l10n.coupleFeedDashboardAllEvents),
             ),
           ),
         ],
@@ -353,6 +363,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildJewishCalendarCard() {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _SurfaceCard(
       child: Column(
         children: [
@@ -364,12 +375,12 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Shabbat Beshalach',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Text(
+                      l10n.coupleFeedDashboardParasha,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      'Entrée : 17h23 - Sortie : 18h34',
+                      l10n.coupleFeedDashboardShabbatTimes,
                       style: TextStyle(
                         fontSize: 13,
                         color: scheme.onSurfaceVariant,
@@ -385,9 +396,18 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildShabbatSuggestion('Dîner', LucideIcons.utensilsCrossed),
-              _buildShabbatSuggestion('Prière', LucideIcons.bookOpen),
-              _buildShabbatSuggestion('Repos', LucideIcons.bed),
+              _buildShabbatSuggestion(
+                l10n.coupleFeedDashboardShabbatDinner,
+                LucideIcons.utensilsCrossed,
+              ),
+              _buildShabbatSuggestion(
+                l10n.coupleFeedDashboardShabbatPrayer,
+                LucideIcons.bookOpen,
+              ),
+              _buildShabbatSuggestion(
+                l10n.coupleFeedDashboardShabbatRest,
+                LucideIcons.bed,
+              ),
             ],
           ),
         ],
@@ -419,6 +439,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   void _showAnswerDialog(DailyQuestion question) {
     final controller = TextEditingController();
+    final l10n = context.l10n;
 
     showMazlSheet(
       context,
@@ -428,12 +449,12 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            question.question,
+            questionText(l10n, question),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           if (question.options != null) ...[
-            ...question.options!.map(
+            ...question.options!.indexed.map(
               (option) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: SizedBox(
@@ -443,7 +464,10 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                       Navigator.pop(context);
                       _showAnswerSentSnackbar();
                     },
-                    child: Text(option, textAlign: TextAlign.center),
+                    child: Text(
+                      questionOption(l10n, question, option.$1),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ),
@@ -452,7 +476,9 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
             TextField(
               controller: controller,
               maxLines: 3,
-              decoration: const InputDecoration(hintText: 'Votre réponse…'),
+              decoration: InputDecoration(
+                hintText: l10n.coupleFeedDashboardAnswerHint,
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -462,7 +488,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                   Navigator.pop(context);
                   _showAnswerSentSnackbar();
                 },
-                child: const Text('Envoyer'),
+                child: Text(l10n.coupleFeedDashboardSend),
               ),
             ),
           ],
@@ -473,14 +499,12 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   void _showAnswerSentSnackbar() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
-            Icon(LucideIcons.check, color: Colors.white),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text('Réponse envoyée. Votre partenaire sera notifié(e).'),
-            ),
+            const Icon(LucideIcons.check, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(context.l10n.coupleFeedDashboardAnswerSent)),
           ],
         ),
         backgroundColor: AppColors.success,
@@ -491,6 +515,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
 
   Widget _buildSuccessStoriesCard() {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _SurfaceCard(
       child: Column(
         children: [
@@ -502,16 +527,16 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Partagez votre histoire',
-                      style: TextStyle(
+                    Text(
+                      l10n.coupleFeedStoryShareTitle,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Inspirez la communauté MAZL avec votre histoire',
+                      l10n.coupleFeedDashboardShareStoryLine,
                       style: TextStyle(
                         fontSize: 13,
                         color: scheme.onSurfaceVariant,
@@ -528,7 +553,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => context.push(RoutePaths.successStories),
-                  child: const Text('Voir les histoires'),
+                  child: Text(l10n.coupleFeedDashboardSeeStories),
                 ),
               ),
               const SizedBox(width: 12),
@@ -540,7 +565,7 @@ class _CoupleDashboardScreenState extends State<CoupleDashboardScreen> {
                       // Story submitted
                     }
                   },
-                  child: const Text('Partager'),
+                  child: Text(l10n.commonShare),
                 ),
               ),
             ],

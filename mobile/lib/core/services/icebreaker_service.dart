@@ -54,16 +54,20 @@ class IcebreakerService {
   }
 
   Icebreaker _generatePromptIcebreaker(ProfilePrompt prompt) {
-    final templates = [
-      'J\'ai adoré ta réponse à "${prompt.promptText}". ${_getFollowUp(prompt.answer)}',
-      'Ta réponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?',
-      'Je suis curieux(se) de savoir pourquoi tu as répondu "${_truncate(prompt.answer, 30)}" à la question sur ${_extractTopic(prompt.promptText)}',
-    ];
+    final phrase = const [
+      IcebreakerPhrase.promptLoved,
+      IcebreakerPhrase.promptSmiled,
+      IcebreakerPhrase.promptCurious,
+    ][_random.nextInt(3)];
 
     return Icebreaker(
-      text: templates[_random.nextInt(templates.length)],
+      phrase: phrase,
       type: IcebreakerType.prompt,
       relatedContent: prompt.answer,
+      promptText: prompt.promptText,
+      answer: _truncate(prompt.answer, 30),
+      topic: _extractTopic(prompt.promptText),
+      followUp: _getFollowUp(),
     );
   }
 
@@ -71,21 +75,21 @@ class IcebreakerService {
     final lowercaseBio = bio.toLowerCase();
 
     // Look for interests/topics
-    final topics = <String, List<String>>{
-      'voyage': ['Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.', 'Quelle est ta prochaine destination de rêve ?'],
-      'musique': ['Quel genre de musique tu écoutes en ce moment ?', 'Tu as été à un bon concert récemment ?'],
-      'cuisine': ['Tu cuisines quoi de bon en ce moment ?', 'C\'est quoi ton plat signature ?'],
-      'sport': ['Tu pratiques quel sport ?', 'Tu préfères regarder ou pratiquer ?'],
-      'lecture': ['Tu lis quoi en ce moment ?', 'C\'est quoi le dernier livre qui t\'a marqué ?'],
-      'cinema': ['Tu as vu un bon film récemment ?', 'Tu préfères cinéma ou séries ?'],
-      'randonnee': ['Tu connais de beaux sentiers dans le coin ?', 'C\'est quoi ta plus belle rando ?'],
-      'photo': ['Tu prends des photos de quoi principalement ?', 'Tu utilises quoi comme appareil ?'],
+    const topics = <String, List<IcebreakerPhrase>>{
+      'voyage': [IcebreakerPhrase.bioTravelRecent, IcebreakerPhrase.bioTravelDream],
+      'musique': [IcebreakerPhrase.bioMusicGenre, IcebreakerPhrase.bioMusicConcert],
+      'cuisine': [IcebreakerPhrase.bioCookingNow, IcebreakerPhrase.bioCookingSignature],
+      'sport': [IcebreakerPhrase.bioSportWhich, IcebreakerPhrase.bioSportWatchOrPlay],
+      'lecture': [IcebreakerPhrase.bioReadingNow, IcebreakerPhrase.bioReadingLastBook],
+      'cinema': [IcebreakerPhrase.bioCinemaRecent, IcebreakerPhrase.bioCinemaOrSeries],
+      'randonnee': [IcebreakerPhrase.bioHikingTrails, IcebreakerPhrase.bioHikingBest],
+      'photo': [IcebreakerPhrase.bioPhotoSubjects, IcebreakerPhrase.bioPhotoCamera],
     };
 
     for (final entry in topics.entries) {
       if (lowercaseBio.contains(entry.key)) {
         return Icebreaker(
-          text: entry.value[_random.nextInt(entry.value.length)],
+          phrase: entry.value[_random.nextInt(entry.value.length)],
           type: IcebreakerType.bio,
           relatedContent: entry.key,
         );
@@ -96,89 +100,78 @@ class IcebreakerService {
   }
 
   Icebreaker _generateJewishIcebreaker(Profile profile) {
-    final templates = <String>[];
-
-    switch (profile.denomination?.toLowerCase()) {
-      case 'orthodox':
-      case 'modern orthodox':
-        templates.addAll([
-          'Tu as une synagogue préférée dans le coin ?',
-          'Comment tu passes généralement Shabbat ?',
-          'Tu as un restaurant casher préféré ?',
-        ]);
-        break;
-      case 'massorti':
-      case 'traditionaliste':
-        templates.addAll([
-          'Quelles traditions juives sont les plus importantes pour toi ?',
-          'Tu célèbres Shabbat comment généralement ?',
-          'Tu as une fête juive préférée ?',
-        ]);
-        break;
-      case 'laique':
-        templates.addAll([
-          'C\'est quoi ton rapport à la culture juive ?',
-          'Tu as des traditions familiales que tu gardes ?',
-          'Tu célèbres quelles fêtes ?',
-        ]);
-        break;
-      default:
-        templates.addAll([
-          'C\'est quoi ta fête juive préférée ?',
-          'Tu as des traditions familiales spéciales ?',
-          'Tu as grandi dans une famille pratiquante ?',
-        ]);
-    }
+    final phrases = switch (profile.denomination?.toLowerCase()) {
+      'orthodox' || 'modern orthodox' => const [
+        IcebreakerPhrase.orthodoxSynagogue,
+        IcebreakerPhrase.orthodoxShabbat,
+        IcebreakerPhrase.orthodoxKosherRestaurant,
+      ],
+      'massorti' || 'traditionaliste' => const [
+        IcebreakerPhrase.traditionalTraditions,
+        IcebreakerPhrase.traditionalShabbat,
+        IcebreakerPhrase.traditionalHoliday,
+      ],
+      'laique' => const [
+        IcebreakerPhrase.secularCulture,
+        IcebreakerPhrase.secularFamilyTraditions,
+        IcebreakerPhrase.secularHolidays,
+      ],
+      _ => const [
+        IcebreakerPhrase.defaultHoliday,
+        IcebreakerPhrase.defaultFamilyTraditions,
+        IcebreakerPhrase.defaultPracticingFamily,
+      ],
+    };
 
     return Icebreaker(
-      text: templates[_random.nextInt(templates.length)],
+      phrase: phrases[_random.nextInt(phrases.length)],
       type: IcebreakerType.jewish,
       relatedContent: profile.denomination,
     );
   }
 
   Icebreaker _generateLocationIcebreaker(String location) {
-    final templates = [
-      'Tu connais bien $location ? Tu me conseilles quoi ?',
-      'C\'est quoi ton coin préféré à $location ?',
-      'Tu es originaire de $location ou tu t\'y es installé(e) ?',
-      'Il y a un bon restaurant que tu recommandes à $location ?',
+    const phrases = [
+      IcebreakerPhrase.locationKnowWell,
+      IcebreakerPhrase.locationFavoriteSpot,
+      IcebreakerPhrase.locationOriginallyFrom,
+      IcebreakerPhrase.locationRestaurant,
     ];
 
     return Icebreaker(
-      text: templates[_random.nextInt(templates.length)],
+      phrase: phrases[_random.nextInt(phrases.length)],
       type: IcebreakerType.location,
       relatedContent: location,
+      location: location,
     );
   }
 
   Icebreaker _getGenericIcebreaker() {
-    final templates = [
-      'Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?',
-      'C\'est quoi ta définition d\'une journée parfaite ?',
-      'Tu as un talent caché que peu de gens connaissent ?',
-      'C\'est quoi le truc le plus spontané que tu aies fait ?',
-      'Tu préfères vacances à la mer ou à la montagne ?',
-      'Si tu gagnais au loto demain, tu ferais quoi en premier ?',
-      'C\'est quoi ton guilty pleasure ?',
-      'Tu as un rêve que tu n\'as pas encore réalisé ?',
-      'C\'est quoi le meilleur conseil qu\'on t\'ait donné ?',
-      'Tu préfères petit-déjeuner ou dîner dehors ?',
+    const phrases = [
+      IcebreakerPhrase.genericDinnerGuest,
+      IcebreakerPhrase.genericPerfectDay,
+      IcebreakerPhrase.genericHiddenTalent,
+      IcebreakerPhrase.genericSpontaneous,
+      IcebreakerPhrase.genericSeaOrMountain,
+      IcebreakerPhrase.genericLottery,
+      IcebreakerPhrase.genericGuiltyPleasure,
+      IcebreakerPhrase.genericDream,
+      IcebreakerPhrase.genericBestAdvice,
+      IcebreakerPhrase.genericBreakfastOrDinner,
     ];
 
     return Icebreaker(
-      text: templates[_random.nextInt(templates.length)],
+      phrase: phrases[_random.nextInt(phrases.length)],
       type: IcebreakerType.generic,
-      relatedContent: null,
     );
   }
 
-  String _getFollowUp(String answer) {
-    final followUps = [
-      'Ça m\'intrigue.',
-      'J\'aimerais en savoir plus.',
-      'Tu me racontes ?',
-      'Ça a l\'air intéressant.',
+  IcebreakerPhrase _getFollowUp() {
+    const followUps = [
+      IcebreakerPhrase.followUpIntrigued,
+      IcebreakerPhrase.followUpKnowMore,
+      IcebreakerPhrase.followUpTellMe,
+      IcebreakerPhrase.followUpInteresting,
     ];
     return followUps[_random.nextInt(followUps.length)];
   }
@@ -188,25 +181,107 @@ class IcebreakerService {
     return '${text.substring(0, maxLength)}...';
   }
 
-  String _extractTopic(String question) {
+  /// The two most telling words of a profile question, or null when there are
+  /// none. Questions are matched against French stop words: it is a heuristic
+  /// on the text the server serves, not a text shown as it is.
+  String? _extractTopic(String question) {
     // Extract key topic from question
     final words = question.toLowerCase().split(' ');
     final stopWords = {'est', 'que', 'quoi', 'qui', 'tu', 'ton', 'ta', 'tes', 'le', 'la', 'les', 'un', 'une', 'des', 'ce', 'cette', 'pour', 'avec', 'dans', 'sur', 'par'};
     final keywords = words.where((w) => !stopWords.contains(w) && w.length > 3).take(2);
-    return keywords.isEmpty ? 'ça' : keywords.join(' ');
+    return keywords.isEmpty ? null : keywords.join(' ');
   }
 }
 
-/// Icebreaker suggestion model
+/// The first-message drafts, by identifier: the core never writes the
+/// sentence, the screen translates it (`icebreakerText` in
+/// `features/chat/l10n/`). They are written in the member's name for another
+/// member, so every language speaks the familiar register.
+enum IcebreakerPhrase {
+  // About a profile prompt (uses promptText, answer, topic and followUp).
+  promptLoved,
+  promptSmiled,
+  promptCurious,
+  followUpIntrigued,
+  followUpKnowMore,
+  followUpTellMe,
+  followUpInteresting,
+  // About the bio.
+  bioTravelRecent,
+  bioTravelDream,
+  bioMusicGenre,
+  bioMusicConcert,
+  bioCookingNow,
+  bioCookingSignature,
+  bioSportWhich,
+  bioSportWatchOrPlay,
+  bioReadingNow,
+  bioReadingLastBook,
+  bioCinemaRecent,
+  bioCinemaOrSeries,
+  bioHikingTrails,
+  bioHikingBest,
+  bioPhotoSubjects,
+  bioPhotoCamera,
+  // About Jewish practice.
+  orthodoxSynagogue,
+  orthodoxShabbat,
+  orthodoxKosherRestaurant,
+  traditionalTraditions,
+  traditionalShabbat,
+  traditionalHoliday,
+  secularCulture,
+  secularFamilyTraditions,
+  secularHolidays,
+  defaultHoliday,
+  defaultFamilyTraditions,
+  defaultPracticingFamily,
+  // About the place (uses location).
+  locationKnowWell,
+  locationFavoriteSpot,
+  locationOriginallyFrom,
+  locationRestaurant,
+  // Generic.
+  genericDinnerGuest,
+  genericPerfectDay,
+  genericHiddenTalent,
+  genericSpontaneous,
+  genericSeaOrMountain,
+  genericLottery,
+  genericGuiltyPleasure,
+  genericDream,
+  genericBestAdvice,
+  genericBreakfastOrDinner,
+}
+
+/// Icebreaker suggestion: which phrase, and the words it needs.
 class Icebreaker {
-  final String text;
+  final IcebreakerPhrase phrase;
   final IcebreakerType type;
   final String? relatedContent;
 
+  /// The place, for the location phrases.
+  final String? location;
+
+  /// The question and the (shortened) answer of the profile prompt.
+  final String? promptText;
+  final String? answer;
+
+  /// Two key words of the question; null when there are none.
+  final String? topic;
+
+  /// The closing sentence of [IcebreakerPhrase.promptLoved].
+  final IcebreakerPhrase? followUp;
+
   Icebreaker({
-    required this.text,
+    required this.phrase,
     required this.type,
     this.relatedContent,
+    this.location,
+    this.promptText,
+    this.answer,
+    this.topic,
+    this.followUp,
   });
 }
 

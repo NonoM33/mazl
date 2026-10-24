@@ -1,9 +1,54 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show StateNotifier;
 
+import '../../../../core/chat/chat_api.dart';
 import '../../../../core/models/chat_message.dart';
 
 export '../../../../core/models/chat_message.dart';
+
+/// Why a chat action did not happen. The screen turns it into a sentence in
+/// the member's language (`ChatFailureText` in `features/chat/l10n/`).
+enum ChatFailure {
+  // From the server (see [ChatApiErrorKind]).
+  sessionExpired,
+  cannotUnsend,
+  conversationGone,
+  blocked,
+  tooLarge,
+  rateLimited,
+  server,
+  fileRejected,
+  messageRejected,
+  timeout,
+  network,
+  unknown,
+  // Refused by the controller before any call.
+  tooManyPhotos,
+  notYetSent,
+  messageGone,
+  notAuthor,
+  reactionUnavailable,
+  sendUnavailable,
+  loadFailed;
+
+  factory ChatFailure.fromApi(ChatApiErrorKind kind) => switch (kind) {
+        ChatApiErrorKind.sessionExpired => sessionExpired,
+        ChatApiErrorKind.cannotUnsend => cannotUnsend,
+        ChatApiErrorKind.conversationGone => conversationGone,
+        ChatApiErrorKind.blocked => blocked,
+        ChatApiErrorKind.tooLarge => tooLarge,
+        ChatApiErrorKind.rateLimited => rateLimited,
+        ChatApiErrorKind.server => server,
+        ChatApiErrorKind.fileRejected => fileRejected,
+        ChatApiErrorKind.messageRejected => messageRejected,
+        ChatApiErrorKind.timeout => timeout,
+        ChatApiErrorKind.network => network,
+        ChatApiErrorKind.unknown => unknown,
+      };
+
+  /// Nobody can write in this conversation any more: the composer is closed.
+  bool get closesComposer => this == blocked || this == conversationGone;
+}
 
 /// What the conversation screen renders. CONTRACT: docs/chat/CONTRAT.md §4.
 @immutable
@@ -29,8 +74,8 @@ class ChatState {
   final bool hasMore;
   final bool otherIsTyping;
 
-  /// A French message when the first load failed; null otherwise.
-  final String? error;
+  /// Why the first load failed; null otherwise.
+  final ChatFailure? error;
 
   ChatState copyWith({
     int? myUserId,
@@ -39,7 +84,7 @@ class ChatState {
     bool? loadingOlder,
     bool? hasMore,
     bool? otherIsTyping,
-    String? error,
+    ChatFailure? error,
     bool clearError = false,
   }) =>
       ChatState(
@@ -56,24 +101,24 @@ class ChatState {
 
 /// Everything the screen can ask for. Implemented by the real controller
 /// (HTTP + WebSocket) and by fakes in widget tests. Every action returns null
-/// on success or a short French message to show.
+/// on success or the [ChatFailure] to tell the member about.
 abstract class ChatActions {
   Future<void> load();
   Future<void> loadOlder();
 
-  Future<String?> sendText(String text, {int? replyToId});
-  Future<String?> sendPhotos(List<Uint8List> jpegs, {String caption = '', int? replyToId});
-  Future<String?> sendVoice(Uint8List aac, {required int durationMs, required List<int> waveform, int? replyToId});
+  Future<ChatFailure?> sendText(String text, {int? replyToId});
+  Future<ChatFailure?> sendPhotos(List<Uint8List> jpegs, {String caption = '', int? replyToId});
+  Future<ChatFailure?> sendVoice(Uint8List aac, {required int durationMs, required List<int> waveform, int? replyToId});
 
   /// Retries a message in [MessageStatus.failed].
-  Future<String?> retry(String clientId);
+  Future<ChatFailure?> retry(String clientId);
 
   /// Drops a failed message without sending it.
   void discard(String clientId);
 
-  Future<String?> toggleReaction(int messageId, String emoji);
-  Future<String?> unsend(int messageId);
-  Future<String?> report(int messageId, String reason);
+  Future<ChatFailure?> toggleReaction(int messageId, String emoji);
+  Future<ChatFailure?> unsend(int messageId);
+  Future<ChatFailure?> report(int messageId, String reason);
 
   /// Called while the composer changes; debounced by the implementation.
   void setTyping(bool typing);

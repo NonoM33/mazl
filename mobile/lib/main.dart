@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 
 import 'app.dart';
 import 'core/dev/demo_http_client.dart';
 import 'core/dev/dev_login.dart';
+import 'core/l10n/app_language_controller.dart';
 import 'core/di/providers/identity_providers.dart';
 import 'core/di/providers/verification_providers.dart';
 import 'presentation/features/verification/providers/verification_providers.dart';
@@ -32,10 +32,12 @@ void main() {
 Future<void> _start() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize locale data for date formatting
-  await initializeDateFormatting('fr_FR', null);
-  // Sans locale explicite, DateFormat écrivait « Tue » ou « Oct 15 ».
-  Intl.defaultLocale = 'fr_FR';
+  // Date names for every interface language; MazlApp then points
+  // Intl.defaultLocale at the language in use.
+  await initializeDateFormatting();
+  final savedLanguage = await loadSavedLanguage(
+    SharedPreferencesLanguageStore(),
+  );
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -65,9 +67,14 @@ Future<void> _start() async {
   runApp(
     ProviderScope(
       overrides: [
+        savedLanguageProvider.overrideWithValue(savedLanguage),
         // The identity flow (level 2) reuses the level-1 API client and selfie capture.
-        identityVerificationApiProvider.overrideWith((ref) => ref.watch(verificationApiProvider)),
-        identityLivenessCaptureProvider.overrideWith((ref) => ref.watch(livenessCaptureProvider)),
+        identityVerificationApiProvider.overrideWith(
+          (ref) => ref.watch(verificationApiProvider),
+        ),
+        identityLivenessCaptureProvider.overrideWith(
+          (ref) => ref.watch(livenessCaptureProvider),
+        ),
       ],
       child: const MazlApp(),
     ),

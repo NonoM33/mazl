@@ -1,0 +1,26 @@
+{
+  "navigationDiscover": "Découvrir",
+  "@navigationDiscover": {
+    "description": "Barre d'onglets : onglet des profils à découvrir. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationMatches": "Matchs",
+  "@navigationMatches": {
+    "description": "Barre d'onglets : onglet des matchs. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationMessages": "Messages",
+  "@navigationMessages": {
+    "description": "Barre d'onglets : onglet des conversations. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationEvents": "Événements",
+  "@navigationEvents": {
+    "description": "Barre d'onglets : onglet des événements. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationProfile": "Profil",
+  "@navigationProfile": {
+    "description": "Barre d'onglets : onglet du profil du membre. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationShowTabs": "Afficher les onglets",
+  "@navigationShowTabs": {
+    "description": "Barre d'onglets repliée en pastille : ce que lit le lecteur d'écran pour la pastille qui déplie la barre."
+  }
+}

@@ -6,7 +6,9 @@ import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/milestone_label.dart';
 
 IconData _iconForName(String iconName) {
   switch (iconName) {
@@ -60,6 +62,7 @@ class AnniversaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final muted = TextStyle(fontSize: 15, color: scheme.onSurfaceVariant);
     final isAnniversary = anniversaryData.isAnniversaryToday;
     final current = anniversaryData.currentMilestone;
@@ -78,8 +81,8 @@ class AnniversaryWidget extends StatelessWidget {
             child: Column(
               children: [
                 if (isAnniversary) ...[
-                  const TagPill(
-                    'Joyeux anniversaire MAZL',
+                  TagPill(
+                    l10n.coupleSpaceAnniversaryTag,
                     icon: LucideIcons.partyPopper,
                   ),
                   const SizedBox(height: 16),
@@ -105,12 +108,20 @@ class AnniversaryWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('jours ensemble', style: muted),
+                Text(
+                  l10n.coupleSpaceAnniversaryDaysLabel(
+                    anniversaryData.daysTogether,
+                  ),
+                  style: muted,
+                ),
                 const SizedBox(height: 12),
-                Text('avec ${anniversaryData.partnerName}', style: muted),
+                Text(
+                  l10n.coupleSpaceAnniversaryWith(anniversaryData.partnerName),
+                  style: muted,
+                ),
                 if (current != null) ...[
                   const SizedBox(height: 16),
-                  TagPill(current.label, icon: _iconForName(current.icon)),
+                  TagPill(current.name(l10n), icon: _iconForName(current.icon)),
                 ],
               ],
             ),
@@ -128,7 +139,10 @@ class AnniversaryWidget extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Prochain : ${next.label} dans ${next.daysUntil ?? 0} jours',
+                      l10n.coupleSpaceAnniversaryNext(
+                        next.name(l10n),
+                        next.daysUntil ?? 0,
+                      ),
                       style: TextStyle(
                         color: scheme.onSurfaceVariant,
                         fontSize: 13,
@@ -140,7 +154,7 @@ class AnniversaryWidget extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: onShare,
                   icon: const Icon(LucideIcons.share2, size: 16),
-                  label: const Text('Partager'),
+                  label: Text(l10n.commonShare),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(64, 44),
                   ),
@@ -238,6 +252,12 @@ class _AnniversaryCelebrationDialogState
   }
 
   Future<void> _shareCard() async {
+    final l10n = context.l10n;
+    final milestone = widget.anniversaryData.currentMilestone;
+    final text = l10n.coupleSpaceAnniversaryShare(
+      widget.anniversaryData.daysTogether,
+      milestone?.name(l10n) ?? '',
+    );
     setState(() => _isGeneratingCard = true);
 
     final result = await _apiService.generateAnniversaryCard();
@@ -246,14 +266,10 @@ class _AnniversaryCelebrationDialogState
       setState(() => _isGeneratingCard = false);
 
       if (result.success && result.data != null && result.data!.isNotEmpty) {
-        await Share.share(
-          'Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}',
-        );
+        await Share.share(text);
       } else {
         // Fallback to simple share
-        await Share.share(
-          'Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}',
-        );
+        await Share.share(text);
       }
     }
   }
@@ -264,6 +280,7 @@ class _AnniversaryCelebrationDialogState
 
   Widget _dialog(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final milestone = widget.anniversaryData.currentMilestone;
 
     return Dialog(
@@ -294,13 +311,13 @@ class _AnniversaryCelebrationDialogState
               ),
               const SizedBox(height: 20),
               Text(
-                'Joyeux anniversaire',
+                l10n.coupleSpaceAnniversaryHappy,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               if (milestone != null) ...[
                 const SizedBox(height: 12),
-                TagPill(milestone.label),
+                TagPill(milestone.name(l10n)),
               ],
               const SizedBox(height: 20),
               Row(
@@ -313,7 +330,10 @@ class _AnniversaryCelebrationDialogState
               ),
               const SizedBox(height: 16),
               Text(
-                '${widget.anniversaryData.daysTogether} jours avec ${widget.anniversaryData.partnerName}',
+                l10n.coupleSpaceAnniversaryDaysWith(
+                  widget.anniversaryData.daysTogether,
+                  widget.anniversaryData.partnerName,
+                ),
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -330,14 +350,14 @@ class _AnniversaryCelebrationDialogState
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(LucideIcons.share2, size: 18),
-                      label: Text(_isGeneratingCard ? '' : 'Partager'),
+                      label: Text(_isGeneratingCard ? '' : l10n.commonShare),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Merci'),
+                      child: Text(l10n.coupleSpaceAnniversaryThanks),
                     ),
                   ),
                 ],
@@ -364,6 +384,7 @@ class MilestonesTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       color: scheme.surfaceContainer,
@@ -372,7 +393,7 @@ class MilestonesTimeline extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionLabel('Vos milestones'),
+            SectionLabel(l10n.coupleSpaceMilestonesTitle),
             const SizedBox(height: 16),
             ...milestones.map((milestone) {
               final isReached = daysTogether >= milestone.days;
@@ -410,7 +431,7 @@ class MilestonesTimeline extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            milestone.label,
+                            milestone.name(l10n),
                             style: TextStyle(
                               fontWeight: isCurrent
                                   ? FontWeight.w700
@@ -422,7 +443,7 @@ class MilestonesTimeline extends StatelessWidget {
                           ),
                           if (!isReached && milestone.daysUntil != null)
                             Text(
-                              'dans ${milestone.daysUntil} jours',
+                              l10n.coupleSpaceMilestoneIn(milestone.daysUntil!),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: scheme.onSurfaceVariant,

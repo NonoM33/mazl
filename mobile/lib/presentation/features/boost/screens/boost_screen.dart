@@ -6,23 +6,35 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credit_models.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
 
 /// Screen to manage and activate profile boost
 class BoostScreen extends StatefulWidget {
-  const BoostScreen({super.key});
+  const BoostScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<BoostScreen> createState() => _BoostScreenState();
 }
 
 class _BoostScreenState extends State<BoostScreen> {
-  final ApiService _apiService = ApiService();
+  /// How long one Boost lasts.
+  static const int _boostMinutes = 30;
+
+  late final ApiService _apiService = widget.apiService ?? ApiService();
 
   BoostStatus? _boostStatus;
   bool _isLoading = true;
   bool _isActivating = false;
-  String? _error;
+  bool _loadFailed = false;
+  ApiErrorKind? _errorKind;
   Timer? _timer;
 
   @override
@@ -40,7 +52,7 @@ class _BoostScreenState extends State<BoostScreen> {
   Future<void> _loadBoostStatus() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _loadFailed = false;
     });
 
     final result = await _apiService.getBoostStatus();
@@ -54,7 +66,8 @@ class _BoostScreenState extends State<BoostScreen> {
             _startTimer();
           }
         } else {
-          _error = result.error;
+          _loadFailed = true;
+          _errorKind = result.errorKind;
         }
       });
     }
@@ -73,33 +86,65 @@ class _BoostScreenState extends State<BoostScreen> {
     });
   }
 
+  /// Boosts the member can start now: the server's balance, else the older
+  /// `remaining_boosts` of a server that does not send it yet.
+  int? get _remaining =>
+      _boostStatus?.credits?.boost.available ?? _boostStatus?.remainingBoosts;
+
+  /// The button: with nothing left the packs sheet opens first, and the Boost
+  /// starts once a pack is bought.
+  Future<void> _onActivatePressed() async {
+    final remaining = _remaining;
+    if (remaining != null && remaining <= 0) {
+      final bought = await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (!bought || !mounted) return;
+    }
+    await _activateBoost();
+  }
+
   Future<void> _activateBoost() async {
     setState(() => _isActivating = true);
 
     final result = await _apiService.activateBoost();
 
-    if (mounted) {
-      setState(() => _isActivating = false);
+    if (!mounted) return;
+    setState(() => _isActivating = false);
 
-      if (result.success && result.data != null) {
-        setState(() {
-          _boostStatus = result.data;
-        });
-        _startTimer();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Boost activé. Votre profil est maintenant en avant.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result.error ?? 'Erreur lors de l\'activation'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (result.success && result.data != null) {
+      setState(() {
+        _boostStatus = result.data;
+      });
+      _startTimer();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.boostActivated),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } else if (result.isCreditsExhausted) {
+      // The server's balance (read from its answer) says none is left.
+      await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (mounted) await _loadBoostStatus();
+    } else if (result.isBoostAlreadyActive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(apiErrorText(context.l10n, result.errorKind))),
+      );
+      await _loadBoostStatus();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.boostActivateFailed),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -107,17 +152,17 @@ class _BoostScreenState extends State<BoostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Boost'),
+        title: Text(context.l10n.boostTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? _buildError()
-              : _buildContent(),
+          : _loadFailed
+          ? _buildError()
+          : _buildContent(),
     );
   }
 
@@ -128,11 +173,15 @@ class _BoostScreenState extends State<BoostScreen> {
         children: [
           Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text(_error!, style: TextStyle(color: Colors.grey[600])),
+          Text(
+            apiErrorText(context.l10n, _errorKind),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadBoostStatus,
-            child: const Text('Réessayer'),
+            child: Text(context.l10n.commonRetry),
           ),
         ],
       ),
@@ -151,23 +200,17 @@ class _BoostScreenState extends State<BoostScreen> {
         const SizedBox(height: 24),
 
         // Stats or benefits
-        if (isActive)
-          _buildActiveStats()
-        else
-          _buildBenefits(),
+        if (isActive) _buildActiveStats() else _buildBenefits(),
 
         const SizedBox(height: 24),
 
         // Action button
-        if (!isActive)
-          _buildActivateButton(),
+        if (!isActive) _buildActivateButton(),
 
         const SizedBox(height: 16),
 
         // Premium upsell if not premium
-        if (_boostStatus?.remainingBoosts != null &&
-            _boostStatus!.remainingBoosts! <= 1)
-          _buildPremiumUpsell(),
+        if (_remaining != null && _remaining! <= 1) _buildPremiumUpsell(),
       ],
     );
   }
@@ -212,7 +255,9 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 16),
 
           Text(
-            isActive ? 'Boost actif' : 'Boostez votre profil',
+            isActive
+                ? context.l10n.boostHeadlineActive
+                : context.l10n.boostHeadlineIdle,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -223,7 +268,7 @@ class _BoostScreenState extends State<BoostScreen> {
 
           if (isActive) ...[
             Text(
-              '${_boostStatus!.minutesRemaining} min restantes',
+              context.l10n.boostMinutesLeft(_boostStatus!.minutesRemaining),
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 18,
@@ -234,7 +279,7 @@ class _BoostScreenState extends State<BoostScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: _boostStatus!.minutesRemaining / 30,
+                value: _boostStatus!.minutesRemaining / _boostMinutes,
                 backgroundColor: Colors.white.withValues(alpha: 0.3),
                 valueColor: const AlwaysStoppedAnimation(Colors.white),
                 minHeight: 6,
@@ -242,7 +287,7 @@ class _BoostScreenState extends State<BoostScreen> {
             ),
           ] else
             Text(
-              'Soyez vu par 10x plus de personnes.',
+              context.l10n.boostTagline,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
@@ -260,15 +305,17 @@ class _BoostScreenState extends State<BoostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(LucideIcons.barChart2, color: AppColors.primary),
-                SizedBox(width: 8),
-                Text(
-                  'Pendant ce boost',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                const Icon(LucideIcons.barChart2, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.l10n.boostDuringTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -280,7 +327,7 @@ class _BoostScreenState extends State<BoostScreen> {
                   child: _StatCard(
                     icon: LucideIcons.eye,
                     value: '${_boostStatus?.viewsDuringBoost ?? 0}',
-                    label: 'Vues',
+                    label: context.l10n.boostViews,
                     color: Colors.blue,
                   ),
                 ),
@@ -289,7 +336,7 @@ class _BoostScreenState extends State<BoostScreen> {
                   child: _StatCard(
                     icon: LucideIcons.heart,
                     value: '${_boostStatus?.likesDuringBoost ?? 0}',
-                    label: 'Likes',
+                    label: context.l10n.boostLikes,
                     color: AppColors.secondary,
                   ),
                 ),
@@ -308,32 +355,29 @@ class _BoostScreenState extends State<BoostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Avantages du Boost',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              context.l10n.boostBenefitsTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _BenefitRow(
               icon: LucideIcons.trendingUp,
-              text: 'Apparaissez en premier dans les suggestions',
+              text: context.l10n.boostBenefitFirst,
               color: Colors.purple,
             ),
             _BenefitRow(
               icon: LucideIcons.eye,
-              text: '10x plus de visibilité pendant 30 min',
+              text: context.l10n.boostBenefitVisibility(_boostMinutes),
               color: Colors.blue,
             ),
             _BenefitRow(
               icon: LucideIcons.heart,
-              text: 'Plus de chances de matcher',
+              text: context.l10n.boostBenefitMatches,
               color: AppColors.secondary,
             ),
             _BenefitRow(
               icon: LucideIcons.barChart2,
-              text: 'Stats en temps réel pendant le boost',
+              text: context.l10n.boostBenefitStats,
               color: AppColors.success,
             ),
           ],
@@ -343,14 +387,14 @@ class _BoostScreenState extends State<BoostScreen> {
   }
 
   Widget _buildActivateButton() {
-    final remaining = _boostStatus?.remainingBoosts;
+    final remaining = _remaining;
 
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _isActivating ? null : _activateBoost,
+            onPressed: _isActivating ? null : _onActivatePressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6C5CE7),
               foregroundColor: Colors.white,
@@ -373,11 +417,14 @@ class _BoostScreenState extends State<BoostScreen> {
                     children: [
                       const Icon(LucideIcons.rocket, size: 20),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Activer le Boost',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Flexible(
+                        child: Text(
+                          context.l10n.boostActivate,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -387,11 +434,8 @@ class _BoostScreenState extends State<BoostScreen> {
         if (remaining != null) ...[
           const SizedBox(height: 8),
           Text(
-            '$remaining boost${remaining > 1 ? 's' : ''} restant${remaining > 1 ? 's' : ''}',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
+            context.l10n.boostRemaining(remaining),
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
           ),
         ],
       ],
@@ -414,12 +458,12 @@ class _BoostScreenState extends State<BoostScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Boosts illimités',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  context.l10n.boostUpsellTitle,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Boostez sans limite avec mazl+',
+                  context.l10n.boostUpsellBody,
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -427,7 +471,7 @@ class _BoostScreenState extends State<BoostScreen> {
           ),
           TextButton(
             onPressed: () => context.push(RoutePaths.premium),
-            child: const Text('Voir'),
+            child: Text(context.l10n.commonSee),
           ),
         ],
       ),
@@ -468,13 +512,7 @@ class _StatCard extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
-          ),
+          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
         ],
       ),
     );
@@ -507,12 +545,7 @@ class _BenefitRow extends StatelessWidget {
             child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
         ],
       ),
     );

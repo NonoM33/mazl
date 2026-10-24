@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import 'reaction_bar.dart';
 import 'reaction_drag.dart';
 
@@ -15,6 +17,7 @@ class MessageMenuAction {
     required this.icon,
     required this.onTap,
     this.destructive = false,
+    this.mirrorsInRtl = false,
   });
 
   final String label;
@@ -23,6 +26,10 @@ class MessageMenuAction {
 
   /// Red: take back, report.
   final bool destructive;
+
+  /// The icon points somewhere (a reply arrow): it turns around in a
+  /// right-to-left language.
+  final bool mirrorsInRtl;
 }
 
 /// Long press on a bubble (docs/design/CHAT.md §5): the screen goes under a
@@ -219,8 +226,12 @@ class _ActionsPage extends StatelessWidget {
     if (bottom > high) shift = high - bottom;
     if (top + shift < low) shift = low - top;
 
+    // The bubble hugs the END side of the screen when it is mine: the bar and
+    // the menu line up with that same edge (left in a right-to-left language).
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final alignedRight = mine != rtl;
     double along(double width) {
-      final left = mine ? bubbleRect.right - width : bubbleRect.left;
+      final left = alignedRight ? bubbleRect.right - width : bubbleRect.left;
       return left.clamp(8.0, size.width - width - 8);
     }
 
@@ -234,7 +245,7 @@ class _ActionsPage extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: close,
               child: Semantics(
-                label: 'Fermer le menu',
+                label: context.l10n.chatMenuClose,
                 button: true,
                 child: _Veil(animation: animation),
               ),
@@ -249,7 +260,9 @@ class _ActionsPage extends StatelessWidget {
               scale: Tween<double>(begin: 1, end: 1.02).animate(animation),
               child: ClipRect(
                 child: OverflowBox(
-                  alignment: mine ? Alignment.topRight : Alignment.topLeft,
+                  alignment: mine
+                      ? AlignmentDirectional.topEnd
+                      : AlignmentDirectional.topStart,
                   minHeight: 0,
                   maxHeight: bubbleRect.height,
                   maxWidth: bubbleRect.width,
@@ -381,7 +394,9 @@ class _MenuRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Icon(action.icon, size: 20, color: color),
+              action.mirrorsInRtl
+                  ? DirectionalIcon(action.icon, size: 20, color: color)
+                  : Icon(action.icon, size: 20, color: color),
               const SizedBox(width: 12),
               Text(action.label, style: TextStyle(fontSize: 15, color: color)),
             ],

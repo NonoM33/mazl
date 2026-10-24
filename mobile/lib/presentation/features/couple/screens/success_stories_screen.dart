@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../l10n/couple_feed_labels.dart';
 
 /// Screen displaying success stories from MAZL couples
 class SuccessStoriesScreen extends StatefulWidget {
@@ -24,7 +27,8 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   List<SuccessStory> _stories = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
-  String? _error;
+  bool _hasError = false;
+  ApiErrorKind? _errorKind;
   int _currentPage = 1;
   bool _hasMore = true;
 
@@ -53,7 +57,8 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   Future<void> _loadStories() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _hasError = false;
+      _errorKind = null;
     });
 
     final result = await _apiService.getSuccessStories(page: 1);
@@ -66,7 +71,8 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           _currentPage = 1;
           _hasMore = result.data!.length >= 10;
         } else {
-          _error = result.error;
+          _hasError = true;
+          _errorKind = result.errorKind;
         }
       });
     }
@@ -122,7 +128,11 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
 
   void _shareStory(SuccessStory story) {
     Share.share(
-      '${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...',
+      context.l10n.coupleFeedStoryShareText(
+        story.couple1Name,
+        story.couple2Name,
+        story.story.substring(0, story.story.length.clamp(0, 100)),
+      ),
     );
   }
 
@@ -130,15 +140,16 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Histoires de couples'),
+        title: Text(context.l10n.coupleFeedStoriesTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
+          tooltip: context.l10n.commonBack,
           onPressed: () => context.pop(),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
+          : _hasError
           ? _buildError()
           : _buildContent(),
     );
@@ -156,9 +167,15 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
             color: scheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text(_error!, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(
+            apiErrorText(context.l10n, _errorKind),
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
           const SizedBox(height: 8),
-          TextButton(onPressed: _loadStories, child: const Text('Réessayer')),
+          TextButton(
+            onPressed: _loadStories,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     );
@@ -186,7 +203,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
             );
           }
 
-          return _SuccessStoryCard(
+          return SuccessStoryCard(
             story: _stories[index],
             onLike: () => _likeStory(_stories[index]),
             onShare: () => _shareStory(_stories[index]),
@@ -207,13 +224,13 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
             Icon(LucideIcons.heart, size: 32, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
-              'Pas encore d\'histoires de couples',
+              context.l10n.coupleFeedStoriesEmptyTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'Les premières histoires d\'amour MAZL seront bientôt partagées.',
+              context.l10n.coupleFeedStoriesEmptyLine,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
             ),
@@ -224,8 +241,10 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   }
 }
 
-class _SuccessStoryCard extends StatelessWidget {
-  const _SuccessStoryCard({
+/// Une histoire de couple : photos, statut, récit, « j'aime » et partage.
+class SuccessStoryCard extends StatelessWidget {
+  const SuccessStoryCard({
+    super.key,
     required this.story,
     required this.onLike,
     required this.onShare,
@@ -238,7 +257,7 @@ class _SuccessStoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final dateFormat = DateFormat('MMMM yyyy', 'fr_FR');
+    final l10n = context.l10n;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -259,16 +278,16 @@ class _SuccessStoryCard extends StatelessWidget {
                   height: 48,
                   child: Stack(
                     children: [
-                      Positioned(
-                        left: 0,
+                      PositionedDirectional(
+                        start: 0,
                         child: _buildPhotoCircle(
                           context,
                           story.couple1PhotoUrl,
                           0,
                         ),
                       ),
-                      Positioned(
-                        left: 28,
+                      PositionedDirectional(
+                        start: 28,
                         child: _buildPhotoCircle(
                           context,
                           story.couple2PhotoUrl,
@@ -289,7 +308,7 @@ class _SuccessStoryCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}',
+                        story.statusSinceLabel(l10n),
                         style: TextStyle(
                           color: scheme.onSurfaceVariant,
                           fontSize: 13,
@@ -312,7 +331,7 @@ class _SuccessStoryCard extends StatelessWidget {
                 itemCount: story.photoUrls.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsetsDirectional.only(end: 8),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Image.network(
@@ -359,7 +378,7 @@ class _SuccessStoryCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 _ActionPill(
                   icon: LucideIcons.share2,
-                  label: 'Partager',
+                  label: l10n.commonShare,
                   onTap: onShare,
                 ),
               ],
@@ -464,9 +483,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
   Future<void> _submit() async {
     if (_storyController.text.length < 100) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Votre histoire doit faire au moins 100 caractères'),
-        ),
+        SnackBar(content: Text(context.l10n.coupleFeedStoryTooShort)),
       );
       return;
     }
@@ -486,17 +503,15 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
       if (result.success) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Merci. Votre histoire sera publiée après validation.',
-            ),
+          SnackBar(
+            content: Text(context.l10n.coupleFeedStoryThanks),
             backgroundColor: AppColors.success,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de l\'envoi'),
+            content: Text(apiErrorText(context.l10n, result.errorKind)),
             backgroundColor: AppColors.error,
           ),
         );
@@ -508,45 +523,43 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Partagez votre histoire', style: textTheme.headlineSmall),
+          Text(l10n.coupleFeedStoryShareTitle, style: textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
-            'Inspirez la communauté MAZL en partageant votre histoire.',
+            l10n.coupleFeedStoryShareLine,
             style: TextStyle(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
 
-          const SectionLabel('Votre statut'),
+          SectionLabel(l10n.coupleFeedStoryStatusLabel),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             children: [
-              _buildStatusChip('dating', 'En couple'),
-              _buildStatusChip('engaged', 'Fiancés'),
-              _buildStatusChip('married', 'Mariés'),
+              _buildStatusChip('dating', successStatusLabel(l10n, 'dating')),
+              _buildStatusChip('engaged', successStatusLabel(l10n, 'engaged')),
+              _buildStatusChip('married', successStatusLabel(l10n, 'married')),
             ],
           ),
           const SizedBox(height: 20),
 
-          const SectionLabel('Votre histoire (min. 100 caractères)'),
+          SectionLabel(l10n.coupleFeedStoryTextLabel),
           const SizedBox(height: 8),
           TextField(
             controller: _storyController,
             maxLines: 5,
             maxLength: 1000,
-            decoration: const InputDecoration(
-              hintText:
-                  'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…',
-            ),
+            decoration: InputDecoration(hintText: l10n.coupleFeedStoryTextHint),
           ),
           const SizedBox(height: 20),
 
-          const SectionLabel('Photos (optionnel)'),
+          SectionLabel(l10n.coupleFeedStoryPhotosLabel),
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
@@ -564,7 +577,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ajoutez des photos de couple',
+                  l10n.coupleFeedStoryPhotosHint,
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ],
@@ -585,7 +598,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
                         color: scheme.surface,
                       ),
                     )
-                  : const Text('Soumettre notre histoire'),
+                  : Text(l10n.coupleFeedStorySubmit),
             ),
           ),
         ],

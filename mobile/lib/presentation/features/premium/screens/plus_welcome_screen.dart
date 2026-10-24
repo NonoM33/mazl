@@ -5,14 +5,17 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/store/subscription_service.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../widgets/plus_widgets.dart';
 
 /// Écran affiché juste après un achat réussi : trois façons de commencer.
 class PlusWelcomeScreen extends StatefulWidget {
-  const PlusWelcomeScreen({super.key, this.planLabel, this.loadLikesCount});
+  const PlusWelcomeScreen({super.key, this.planMonths, this.loadLikesCount});
 
-  /// Durée de la formule (« 6 mois »). Par défaut, celle de l'abonnement actif.
-  final String? planLabel;
+  /// Durée de la formule, en mois. Par défaut, celle de l'abonnement actif.
+  final int? planMonths;
 
   /// Nombre de personnes qui ont aimé le profil. Par défaut, l'API.
   final Future<int?> Function()? loadLikesCount;
@@ -45,12 +48,12 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
     if (mounted) setState(() => _likesCount = count);
   }
 
-  String get _likesTitle {
+  String _likesTitle(AppLocalizations l10n) {
     final count = _likesCount;
-    if (count == null || count <= 0) return 'Voir qui vous a aimé';
-    return count == 1
-        ? '1 personne vous a aimé'
-        : '$count personnes vous ont aimé';
+    if (count == null || count <= 0) {
+      return l10n.plusFeatureSeeWhoLikesYouTitle;
+    }
+    return l10n.plusWelcomeLikesCount(count);
   }
 
   void _later() {
@@ -64,10 +67,11 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final plan = widget.planLabel ?? SubscriptionService().activePlanLabel;
-    final eyebrow = plan == null
-        ? 'Abonnement actif'
-        : 'Abonnement actif · $plan';
+    final l10n = context.l10n;
+    final months = widget.planMonths ?? SubscriptionService().activePlanMonths;
+    final eyebrow = months == null
+        ? l10n.plusActiveSubscription
+        : l10n.plusActiveSubscriptionPlan(l10n.plusMonths(months));
 
     return Scaffold(
       body: SafeArea(
@@ -85,17 +89,15 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
                       const SizedBox(height: 14),
                       Text.rich(
                         TextSpan(
-                          text: 'Bienvenue dans ',
-                          children: [
+                          children: brandPhraseSpans(l10n.plusWelcomeTitle, [
                             const TextSpan(text: 'mazl'),
                             TextSpan(
                               text: '+',
                               style: TextStyle(color: scheme.primary),
                             ),
-                            const TextSpan(text: '.'),
-                          ],
+                          ]),
                         ),
-                        semanticsLabel: 'Bienvenue dans mazl+.',
+                        semanticsLabel: l10n.plusWelcomeTitle,
                         style: Theme.of(context).textTheme.displayMedium!
                             .copyWith(
                               fontSize: 48,
@@ -105,7 +107,7 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
                       ),
                       const SizedBox(height: 18),
                       Text(
-                        'Tout est déverrouillé. Par où commencer ?',
+                        l10n.plusWelcomeSubtitle,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontSize: 17,
                           color: scheme.onSurfaceVariant,
@@ -114,23 +116,23 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
                       const SizedBox(height: 36),
                       _ActionRow(
                         icon: LucideIcons.heart,
-                        title: _likesTitle,
-                        detail: 'Les voir maintenant',
+                        title: _likesTitle(l10n),
+                        detail: l10n.plusWelcomeLikesDetail,
                         inverted: true,
                         onTap: () => context.push(RoutePaths.likes),
                       ),
                       const SizedBox(height: 10),
                       _ActionRow(
                         icon: LucideIcons.zap,
-                        title: 'Lancer votre Boost',
-                        detail: 'En tête de pile pendant 30 minutes',
+                        title: l10n.plusWelcomeBoostTitle,
+                        detail: l10n.plusWelcomeBoostDetail,
                         onTap: () => context.go(RoutePaths.discover),
                       ),
                       const SizedBox(height: 10),
                       _ActionRow(
                         icon: LucideIcons.slidersHorizontal,
-                        title: 'Affiner vos filtres',
-                        detail: 'Pratique, communauté, et plus',
+                        title: l10n.plusWelcomeFiltersTitle,
+                        detail: l10n.plusWelcomeFiltersDetail,
                         onTap: () => context.push(RoutePaths.filters),
                       ),
                     ],
@@ -142,7 +144,7 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
                 height: 48,
                 child: TextButton(
                   onPressed: _later,
-                  child: const Text('Plus tard'),
+                  child: Text(l10n.commonLater),
                 ),
               ),
             ],
@@ -183,7 +185,7 @@ class _ActionRow extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '$title. $detail',
+      label: context.l10n.plusTitleDetail(title, detail),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
@@ -228,7 +230,11 @@ class _ActionRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(LucideIcons.chevronRight, size: 18, color: foreground),
+                  DirectionalIcon(
+                    LucideIcons.chevronRight,
+                    size: 18,
+                    color: foreground,
+                  ),
                 ],
               ),
             ),

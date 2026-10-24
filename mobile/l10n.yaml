@@ -1,0 +1,10 @@
+# Traductions : les fichiers lib/l10n/app_<langue>.arb sont ASSEMBLÉS depuis
+# lib/l10n/fragments/<feature>/app_<langue>.arb par `dart run tool/l10n.dart`,
+# qui lance ensuite `flutter gen-l10n`. On édite les fragments, jamais les
+# fichiers assemblés.
+arb-dir: lib/l10n
+template-arb-file: app_fr.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

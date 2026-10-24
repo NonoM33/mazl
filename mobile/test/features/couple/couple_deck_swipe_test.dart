@@ -9,6 +9,7 @@ import 'package:mazl/presentation/features/couple/screens/couple_activities_feed
 import '../../helpers/swipe_gestures.dart';
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _feed = 'GET /api/couple/activities?limit=50&offset=0';
 
@@ -31,6 +32,9 @@ Future<FakeCoupleTransport> _pumpDeck(WidgetTester tester) async {
     ..reply('POST /api/couple/activities/1/save', ok({}));
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: CoupleActivitiesFeedScreen(
         apiService: CoupleApiService(transport: transport),

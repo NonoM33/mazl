@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
+import '../../../../common/l10n/content_direction.dart';
 import 'profile_view_data.dart';
 
 /// Une étiquette de section au-dessus de son contenu.
@@ -36,6 +38,8 @@ class ProfileTextSection extends StatelessWidget {
       label: label,
       child: Text(
         text,
+        textDirection: contentDirection(context, text),
+        textAlign: interfaceStart(context),
         style: const TextStyle(fontSize: 17, height: 1.5, letterSpacing: -0.2),
       ),
     );
@@ -52,7 +56,7 @@ class ProfileFactsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (facts.isEmpty) return const SizedBox.shrink();
     return ProfileSection(
-      label: "L'essentiel",
+      label: context.l10n.profileEssentials,
       child: Column(
         children: [
           for (var i = 0; i < facts.length; i++)
@@ -98,6 +102,8 @@ class ProfilePromptCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             answer,
+            textDirection: contentDirection(context, answer),
+            textAlign: interfaceStart(context),
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w500,
@@ -122,7 +128,7 @@ class ProfilePromptCards extends StatelessWidget {
   Widget build(BuildContext context) {
     if (prompts.isEmpty) return const SizedBox.shrink();
     return ProfileSection(
-      label: 'En quelques mots',
+      label: context.l10n.profileInAFewWords,
       child: Column(
         children: [
           for (var i = 0; i < prompts.length; i++) ...[

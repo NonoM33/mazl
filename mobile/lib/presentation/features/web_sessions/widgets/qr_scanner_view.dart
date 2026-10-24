@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Builds the live camera view that reports every QR code it reads.
 /// Overridden in tests so a reading can be simulated without a camera.
@@ -54,14 +55,17 @@ class _CameraUnavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Text(
-          'La caméra n\'est pas accessible. Autorisez l\'accès à la caméra '
-          'dans les réglages de votre iPhone pour scanner un code.',
+          context.l10n.webSessionsCameraUnavailable,
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontSize: 15, height: 1.5),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            height: 1.5,
+          ),
         ),
       ),
     );

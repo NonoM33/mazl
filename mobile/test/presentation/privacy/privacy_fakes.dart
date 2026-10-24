@@ -4,6 +4,7 @@ import 'package:mazl/core/di/providers/privacy_providers.dart';
 import 'package:mazl/core/privacy/privacy_consent_api.dart';
 import 'package:mazl/core/privacy/religious_data_consent.dart';
 import 'package:mazl/core/services/api_service.dart';
+import 'package:mazl/l10n/l10n.dart';
 
 const consentText = 'Je consens au traitement de ma pratique religieuse.';
 
@@ -47,5 +48,10 @@ class FakePrivacyConsentApi implements PrivacyConsentApi {
 
 Widget host(FakePrivacyConsentApi api, Widget child) => ProviderScope(
   overrides: [privacyConsentApiProvider.overrideWithValue(api)],
-  child: MaterialApp(home: Scaffold(body: child)),
+  child: MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('fr'),
+    home: Scaffold(body: child),
+  ),
 );

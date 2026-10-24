@@ -14,6 +14,7 @@ import 'package:mazl/presentation/features/couple/widgets/anniversary_widget.dar
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Paid on 2026-10-23: « Notre espace » arrived with its own pink palette, an
 // emoji in the title, gradient cards and coloured tiles. These tests read the
@@ -81,6 +82,9 @@ Future<void> _pumpSpace(
   _viewport(tester, size);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: theme ?? AppTheme.lightTheme,
       home: CoupleSpaceScreen(
         apiService: CoupleApiService(transport: _transport(filled: filled)),
@@ -263,6 +267,9 @@ void main() {
           );
           await tester.pumpWidget(
             MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: kTestLocale,
               theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
               home: Scaffold(
                 body: SingleChildScrollView(
@@ -290,6 +297,9 @@ void main() {
           _viewport(tester, phone.value);
           await tester.pumpWidget(
             MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: kTestLocale,
               theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
               home: const CoupleDashboardScreen(),
             ),
@@ -309,6 +319,9 @@ void main() {
           _viewport(tester, phone.value);
           await tester.pumpWidget(
             MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: kTestLocale,
               theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
               home: const SuccessStoriesScreen(),
             ),
@@ -328,6 +341,9 @@ void main() {
         _viewport(tester, _phones['390x844']!);
         await tester.pumpWidget(
           MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: kTestLocale,
             theme: AppTheme.lightTheme,
             home: Builder(
               builder: (context) => TextButton(

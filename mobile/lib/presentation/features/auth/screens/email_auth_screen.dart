@@ -8,7 +8,10 @@ import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/glass_container.dart';
+import '../l10n/auth_failure_text.dart';
 
 /// Email authentication screen for login and registration
 class EmailAuthScreen extends ConsumerStatefulWidget {
@@ -29,7 +32,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _acceptedTerms = false;
-  String? _errorMessage;
+  String Function(AppLocalizations l10n)? _error;
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -54,28 +57,28 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email requis';
+      return context.l10n.authValidationEmailRequired;
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Email invalide';
+      return context.l10n.authValidationEmailInvalid;
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Mot de passe requis';
+      return context.l10n.authValidationPasswordRequired;
     }
     if (value.length < 8) {
-      return 'Minimum 8 caractères';
+      return context.l10n.authValidationPasswordMin;
     }
     if (!_isLogin) {
       if (!RegExp(r'[A-Z]').hasMatch(value)) {
-        return 'Au moins une majuscule';
+        return context.l10n.authValidationPasswordUpper;
       }
       if (!RegExp(r'[0-9]').hasMatch(value)) {
-        return 'Au moins un chiffre';
+        return context.l10n.authValidationPasswordDigit;
       }
     }
     return null;
@@ -83,17 +86,17 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
   String? _validateConfirmPassword(String? value) {
     if (value != _passwordController.text) {
-      return 'Les mots de passe ne correspondent pas';
+      return context.l10n.authValidationPasswordMismatch;
     }
     return null;
   }
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Prénom requis';
+      return context.l10n.authValidationNameRequired;
     }
     if (value.length < 2) {
-      return 'Minimum 2 caractères';
+      return context.l10n.authValidationNameMin;
     }
     return null;
   }
@@ -118,10 +121,11 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   }
 
   String _getPasswordStrengthText(double strength) {
-    if (strength < 0.3) return 'Faible';
-    if (strength < 0.6) return 'Moyen';
-    if (strength < 0.8) return 'Bon';
-    return 'Excellent';
+    final l10n = context.l10n;
+    if (strength < 0.3) return l10n.authStrengthWeak;
+    if (strength < 0.6) return l10n.authStrengthFair;
+    if (strength < 0.8) return l10n.authStrengthGood;
+    return l10n.authStrengthExcellent;
   }
 
   Future<void> _submit() async {
@@ -129,14 +133,14 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
     if (!_isLogin && !_acceptedTerms) {
       setState(() {
-        _errorMessage = 'Veuillez accepter les conditions d\'utilisation';
+        _error = (l10n) => l10n.authErrorTermsRequired;
       });
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _error = null;
     });
 
     try {
@@ -153,8 +157,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
         if (result.success) {
           context.go(RoutePaths.discover);
         } else {
+          final failure = result.failure;
           setState(() {
-            _errorMessage = result.errorMessage ?? 'Erreur de connexion';
+            _error = (l10n) => authFailureText(
+              l10n,
+              failure,
+              unknown: l10n.authErrorLoginFailed,
+            );
           });
         }
       } else {
@@ -170,15 +179,20 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
           // Show email verification dialog
           _showEmailVerificationDialog();
         } else {
+          final failure = result.failure;
           setState(() {
-            _errorMessage = result.errorMessage ?? 'Erreur d\'inscription';
+            _error = (l10n) => authFailureText(
+              l10n,
+              failure,
+              unknown: l10n.authErrorRegisterFailed,
+            );
           });
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+          _error = (l10n) => l10n.authErrorGeneric;
         });
       }
     } finally {
@@ -207,7 +221,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               child: const Icon(LucideIcons.mail, color: AppColors.success),
             ),
             const SizedBox(width: 12),
-            const Text('Vérifiez votre email'),
+            Text(context.l10n.authVerifyTitle),
           ],
         ),
         content: Column(
@@ -215,7 +229,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Un email de vérification a été envoyé à :',
+              context.l10n.authVerifySent,
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
@@ -225,7 +239,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Cliquez sur le lien dans l\'email pour activer votre compte.',
+              context.l10n.authVerifyInstruction,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -240,7 +254,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                 _passwordController.clear();
               });
             },
-            child: const Text('OK, je vais vérifier'),
+            child: Text(context.l10n.authVerifyOk),
           ),
         ],
       ),
@@ -258,11 +272,11 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(LucideIcons.keyRound, color: AppColors.primary),
-              SizedBox(width: 12),
-              Text('Mot de passe oublié'),
+              const Icon(LucideIcons.keyRound, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Text(context.l10n.authForgotTitle),
             ],
           ),
           content: Column(
@@ -271,7 +285,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             children: [
               if (!isSuccess) ...[
                 Text(
-                  'Entrez votre email pour recevoir un lien de réinitialisation.',
+                  context.l10n.authForgotInstruction,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
@@ -279,7 +293,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                   controller: forgotEmailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: context.l10n.authFieldEmail,
                     prefixIcon: const Icon(LucideIcons.mail),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -323,7 +337,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(isSuccess ? 'Fermer' : 'Annuler'),
+              child: Text(
+                isSuccess ? context.l10n.commonClose : context.l10n.commonCancel,
+              ),
             ),
             if (!isSuccess)
               ElevatedButton(
@@ -332,7 +348,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     : () async {
                         if (forgotEmailController.text.isEmpty) {
                           setDialogState(() {
-                            message = 'Email requis';
+                            message = context.l10n.authValidationEmailRequired;
                             isSuccess = false;
                           });
                           return;
@@ -349,9 +365,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           isLoading = false;
                           if (result.success) {
                             isSuccess = true;
-                            message = 'Email de réinitialisation envoyé';
+                            message = context.l10n.authForgotSent;
                           } else {
-                            message = result.errorMessage ?? 'Erreur';
+                            message = authFailureText(
+                              context.l10n,
+                              result.failure,
+                              unknown: context.l10n.authErrorGeneric,
+                            );
                           }
                         });
                       },
@@ -368,7 +388,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           valueColor: AlwaysStoppedAnimation(Colors.white),
                         ),
                       )
-                    : const Text('Envoyer'),
+                    : Text(context.l10n.authForgotSend),
               ),
           ],
         ),
@@ -402,8 +422,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
         ),
         child: SafeArea(
@@ -413,10 +433,14 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               children: [
                 // Back button
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: IconButton(
+                    tooltip: context.l10n.commonBack,
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+                    icon: const DirectionalIcon(
+                      LucideIcons.arrowLeft,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
 
@@ -424,7 +448,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
                 // Title
                 Text(
-                  _isLogin ? 'Connexion' : 'Inscription',
+                  _isLogin
+                      ? context.l10n.authEmailTitleLogin
+                      : context.l10n.authEmailTitleRegister,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -436,8 +462,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
                 Text(
                   _isLogin
-                      ? 'Ravi de vous revoir'
-                      : 'Créez votre compte MAZL',
+                      ? context.l10n.authEmailSubtitleLogin
+                      : context.l10n.authEmailSubtitleRegister,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -447,7 +473,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                 const SizedBox(height: 32),
 
                 // Error message
-                if (_errorMessage != null)
+                if (_error != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
@@ -462,7 +488,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _errorMessage!,
+                            _error!(context.l10n),
                             style: const TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         ),
@@ -485,7 +511,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             textCapitalization: TextCapitalization.words,
                             style: const TextStyle(color: Colors.white),
                             decoration: _inputDecoration(
-                              label: 'Prénom',
+                              label: context.l10n.authFieldName,
                               icon: LucideIcons.user,
                             ),
                             validator: _validateName,
@@ -499,7 +525,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           keyboardType: TextInputType.emailAddress,
                           style: const TextStyle(color: Colors.white),
                           decoration: _inputDecoration(
-                            label: 'Email',
+                            label: context.l10n.authFieldEmail,
                             icon: LucideIcons.mail,
                           ),
                           validator: _validateEmail,
@@ -514,7 +540,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           style: const TextStyle(color: Colors.white),
                           onChanged: (_) => setState(() {}),
                           decoration: _inputDecoration(
-                            label: 'Mot de passe',
+                            label: context.l10n.authFieldPassword,
                             icon: LucideIcons.lock,
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -573,7 +599,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             obscureText: _obscureConfirmPassword,
                             style: const TextStyle(color: Colors.white),
                             decoration: _inputDecoration(
-                              label: 'Confirmer le mot de passe',
+                              label: context.l10n.authFieldPasswordConfirm,
                               icon: LucideIcons.lock,
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -617,7 +643,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité',
+                                  context.l10n.authTermsCheckbox,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
@@ -631,11 +657,11 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                         // Forgot password (login only)
                         if (_isLogin) ...[
                           Align(
-                            alignment: Alignment.centerRight,
+                            alignment: AlignmentDirectional.centerEnd,
                             child: TextButton(
                               onPressed: _showForgotPasswordDialog,
                               child: Text(
-                                'Mot de passe oublié ?',
+                                context.l10n.authForgotLink,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                 ),
@@ -669,7 +695,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                     ),
                                   )
                                 : Text(
-                                    _isLogin ? 'Se connecter' : 'Créer mon compte',
+                                    _isLogin
+                                        ? context.l10n.authSubmitLogin
+                                        : context.l10n.authSubmitRegister,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -680,14 +708,17 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
                         const SizedBox(height: 16),
 
-                        // Toggle login/register
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        // Toggle login/register. A Wrap, not a Row: the two
+                        // pieces share a line when they fit and stack when
+                        // they do not (360 px wide, the line was cut off).
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               _isLogin
-                                  ? 'Pas encore de compte ?'
-                                  : 'Déjà un compte ?',
+                                  ? context.l10n.authToggleNoAccount
+                                  : context.l10n.authToggleHaveAccount,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
                               ),
@@ -696,12 +727,14 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                               onPressed: () {
                                 setState(() {
                                   _isLogin = !_isLogin;
-                                  _errorMessage = null;
+                                  _error = null;
                                   _formKey.currentState?.reset();
                                 });
                               },
                               child: Text(
-                                _isLogin ? 'Créer un compte' : 'Se connecter',
+                                _isLogin
+                                    ? context.l10n.authToggleCreate
+                                    : context.l10n.authToggleSignIn,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

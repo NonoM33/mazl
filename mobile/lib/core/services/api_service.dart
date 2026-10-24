@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
 import 'auth_service.dart';
+import 'profile_completeness_service.dart';
+import 'store/credits_service.dart';
 
 // Data-model classes extracted out of this file into `lib/core/models/`.
 // Imported so `ApiService` method signatures resolve the model types, and
@@ -57,23 +59,141 @@ class ApiConfig {
 /// connectivity, server unreachable) from application-level errors without
 /// parsing message strings. Existing call sites that only read [ApiResponse.error]
 /// keep working unchanged.
-enum ApiErrorKind { timeout, network, server, unknown }
+/// What went wrong, for the screen to say it in the member's language.
+/// `ApiResponse.error` is only a diagnostic for the logs.
+enum ApiErrorKind {
+  timeout,
+  network,
+  server,
+  unauthorized,
+  forbidden,
+  notFound,
+  conflict,
+  tooLarge,
+  rateLimited,
+  invalid,
+
+  /// HTTP 402: no Super Like or Boost left to spend (the server's balance
+  /// says so; the app opens the packs sheet).
+  creditsExhausted,
+
+  /// HTTP 409 `boost_already_active`: a Boost is already running.
+  boostAlreadyActive,
+  unknown,
+}
+
+ApiErrorKind _kindForStatus(int status) => switch (status) {
+  400 || 422 => ApiErrorKind.invalid,
+  401 => ApiErrorKind.unauthorized,
+  403 => ApiErrorKind.forbidden,
+  404 => ApiErrorKind.notFound,
+  402 => ApiErrorKind.creditsExhausted,
+  409 => ApiErrorKind.conflict,
+  413 => ApiErrorKind.tooLarge,
+  429 => ApiErrorKind.rateLimited,
+  >= 500 => ApiErrorKind.server,
+  _ => ApiErrorKind.unknown,
+};
+
+ApiErrorKind _kindForFailure(int status, String? code) =>
+    status == 409 && code == 'boost_already_active'
+    ? ApiErrorKind.boostAlreadyActive
+    : _kindForStatus(status);
+
+final _stableCode = RegExp(r'^[a-z][a-z0-9_]*$');
+
+/// The server's stable code, when it sent one (`code`, else a snake_case
+/// `reason` or `error`): « not_matched », « daily_limit_reached ». A sentence
+/// (« Event is full ») is not a code.
+String? _serverCode(String body) {
+  try {
+    final data = jsonDecode(body);
+    if (data is! Map) return null;
+    for (final field in ['code', 'reason', 'error']) {
+      final value = data[field];
+      if (value is String && _stableCode.hasMatch(value)) return value;
+    }
+  } on FormatException {
+    return null;
+  }
+  return null;
+}
+
+Map<String, dynamic>? _jsonBody(String body) {
+  try {
+    final data = jsonDecode(body);
+    return data is Map<String, dynamic> ? data : null;
+  } on FormatException {
+    return null;
+  }
+}
+
+/// Hands the `credits` object a server answer carries to the balance the app
+/// shows. The server alone decides what can be spent: the app only relays.
+void _relayCredits(Map<String, dynamic>? body) {
+  final credits = body?['credits'];
+  if (credits != null) CreditsService().applyFromServer(credits);
+}
 
 /// API Response wrapper
 class ApiResponse<T> {
   final bool success;
   final T? data;
+
+  /// Diagnostic for the logs. Screens show [errorKind] / [errorCode] through
+  /// `apiErrorText`, in the member's language.
   final String? error;
   final ApiErrorKind? errorKind;
 
-  ApiResponse({required this.success, this.data, this.error, this.errorKind});
+  /// Stable code sent by the server (« not_matched »), if any.
+  final String? errorCode;
+  final int? statusCode;
+
+  /// The server's JSON body of a refused call, when it sent one. Lets a
+  /// screen read more than the code (the `credits` of a 402).
+  final Map<String, dynamic>? body;
+
+  ApiResponse({
+    required this.success,
+    this.data,
+    this.error,
+    this.errorKind,
+    this.errorCode,
+    this.statusCode,
+    this.body,
+  });
 
   factory ApiResponse.success(T data) => ApiResponse(success: true, data: data);
   factory ApiResponse.failure(String error, [ApiErrorKind kind = ApiErrorKind.unknown]) =>
       ApiResponse(success: false, error: error, errorKind: kind);
+
+  /// A non-2xx answer: its kind from the status, the server's code if any.
+  factory ApiResponse.httpFailure(http.Response response, String diagnostic) =>
+      ApiResponse(
+        success: false,
+        error: '$diagnostic (HTTP ${response.statusCode})',
+        errorKind: _kindForFailure(
+          response.statusCode,
+          _serverCode(response.body),
+        ),
+        errorCode: _serverCode(response.body),
+        statusCode: response.statusCode,
+        body: _jsonBody(response.body),
+      );
+
+  /// HTTP 402 with the server's « nothing left to spend » code: a Super Like
+  /// or a Boost the member has no credit for, not an outage.
+  bool get isCreditsExhausted =>
+      statusCode == 402 &&
+      (errorCode == 'super_likes_exhausted' || errorCode == 'boosts_exhausted');
+
+  /// HTTP 409: a Boost is already running, nothing was spent.
+  bool get isBoostAlreadyActive =>
+      statusCode == 409 && errorCode == 'boost_already_active';
 }
 
-/// Translates a caught network exception into a user-facing [ApiResponse.failure].
+/// Translates a caught network exception into an [ApiResponse.failure]: the
+/// kind tells the screen what to say, the text is a diagnostic for the logs.
 ///
 /// Centralises the timeout vs. connectivity vs. generic distinction so every
 /// endpoint reports clear, differentiated messages instead of a raw
@@ -81,19 +201,19 @@ class ApiResponse<T> {
 ApiResponse<T> _networkFailure<T>(Object error) {
   if (error is TimeoutException) {
     return ApiResponse.failure(
-      'Délai d\'attente dépassé, vérifiez votre connexion.',
+      'Request timed out',
       ApiErrorKind.timeout,
     );
   }
   if (error is SocketException) {
     return ApiResponse.failure(
-      'Pas de connexion internet ou serveur injoignable.',
+      'No connection or server unreachable',
       ApiErrorKind.network,
     );
   }
   if (error is http.ClientException) {
     return ApiResponse.failure(
-      'Serveur injoignable, réessayez plus tard.',
+      'Server unreachable',
       ApiErrorKind.network,
     );
   }
@@ -182,7 +302,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/auth/me');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get user');
+        return ApiResponse.httpFailure(response, 'Failed to get user');
       }
 
       final data = jsonDecode(response.body);
@@ -201,13 +321,47 @@ class ApiService implements CoupleApi {
     }
   }
 
+  /// The fields the member still has to give (`gender`, `looking_for`), read
+  /// from the `missing` list of `/api/auth/me`; empty when the profile is
+  /// complete. A server that does not send `missing` yet is a failure: the
+  /// completeness stays unknown rather than guessed.
+  Future<ApiResponse<List<String>>> getMissingProfileFields() async {
+    try {
+      final response = await _get('/api/auth/me');
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get user');
+      }
+      final data = jsonDecode(response.body);
+      final missing = data is Map<String, dynamic> ? data['missing'] : null;
+      if (missing is! List) {
+        return ApiResponse.failure('missing_not_provided');
+      }
+      return ApiResponse.success(missing.whereType<String>().toList());
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return _networkFailure(e);
+    }
+  }
+
+  /// A non-200 answer from a discovery feed. A 409 `profile_incomplete` (the
+  /// member has not said who they are / who they seek) also tells the
+  /// completeness service, whose listeners (the router) send the member to the
+  /// profile setup.
+  ApiResponse<T> _feedFailure<T>(http.Response response, String diagnostic) {
+    final failure = ApiResponse<T>.httpFailure(response, diagnostic);
+    if (failure.errorCode == 'profile_incomplete') {
+      ProfileCompletenessService().markIncomplete(const []);
+    }
+    return failure;
+  }
+
   /// Get profile by user ID
   Future<ApiResponse<Profile>> getProfileById(int userId) async {
     try {
       final response = await _get('/api/profile/$userId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get profile');
+        return ApiResponse.httpFailure(response, 'Failed to get profile');
       }
 
       final data = jsonDecode(response.body);
@@ -231,7 +385,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/discover?limit=$limit&offset=$offset');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get profiles');
+        return _feedFailure(response, 'Failed to get profiles');
       }
 
       final data = jsonDecode(response.body);
@@ -256,7 +410,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/daily-picks');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get daily picks');
+        return _feedFailure(response, 'Failed to get daily picks');
       }
 
       final data = jsonDecode(response.body);
@@ -287,10 +441,16 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to send swipe');
+        final failure = ApiResponse<Map<String, dynamic>>.httpFailure(
+          response,
+          'Failed to send swipe',
+        );
+        _relayCredits(failure.body);
+        return failure;
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
@@ -304,7 +464,7 @@ class ApiService implements CoupleApi {
       final response = await _put('/api/profile', profileData);
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to update profile');
+        return ApiResponse.httpFailure(response, 'Failed to update profile');
       }
 
       final data = jsonDecode(response.body);
@@ -327,7 +487,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/profile/photos');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get photos');
+        return ApiResponse.httpFailure(response, 'Failed to get photos');
       }
 
       final data = jsonDecode(response.body);
@@ -361,7 +521,7 @@ class ApiService implements CoupleApi {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to upload photo');
+        return ApiResponse.httpFailure(response, 'Failed to upload photo');
       }
 
       final data = jsonDecode(response.body);
@@ -382,7 +542,7 @@ class ApiService implements CoupleApi {
       final response = await _delete('/api/profile/photos/$photoId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to delete photo');
+        return ApiResponse.httpFailure(response, 'Failed to delete photo');
       }
 
       final data = jsonDecode(response.body);
@@ -403,7 +563,7 @@ class ApiService implements CoupleApi {
       final response = await _put('/api/profile/photos/reorder', {'photoIds': photoIds});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to reorder photos');
+        return ApiResponse.httpFailure(response, 'Failed to reorder photos');
       }
 
       final data = jsonDecode(response.body);
@@ -428,7 +588,7 @@ class ApiService implements CoupleApi {
       final response = await _put('/api/profile/photos/$photoId/primary', {});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to set primary photo');
+        return ApiResponse.httpFailure(response, 'Failed to set primary photo');
       }
 
       final data = jsonDecode(response.body);
@@ -455,7 +615,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/matches');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get matches');
+        return ApiResponse.httpFailure(response, 'Failed to get matches');
       }
 
       final data = jsonDecode(response.body);
@@ -479,7 +639,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/conversations');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get conversations');
+        return ApiResponse.httpFailure(response, 'Failed to get conversations');
       }
 
       final data = jsonDecode(response.body);
@@ -504,7 +664,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/conversations/$conversationId/messages?limit=$limit&offset=$offset');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get messages');
+        return ApiResponse.httpFailure(response, 'Failed to get messages');
       }
 
       final data = jsonDecode(response.body);
@@ -531,7 +691,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to send message');
+        return ApiResponse.httpFailure(response, 'Failed to send message');
       }
 
       final data = jsonDecode(response.body);
@@ -568,7 +728,7 @@ class ApiService implements CoupleApi {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to send image');
+        return ApiResponse.httpFailure(response, 'Failed to send image');
       }
 
       final data = jsonDecode(response.body);
@@ -589,7 +749,7 @@ class ApiService implements CoupleApi {
       final response = await _put('/api/conversations/$conversationId/read', {});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to mark as read');
+        return ApiResponse.httpFailure(response, 'Failed to mark as read');
       }
 
       return ApiResponse.success(null);
@@ -613,7 +773,7 @@ class ApiService implements CoupleApi {
       final response = await _get(endpoint);
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get events');
+        return ApiResponse.httpFailure(response, 'Failed to get events');
       }
 
       final data = jsonDecode(response.body);
@@ -638,7 +798,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/events/$eventId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get event');
+        return ApiResponse.httpFailure(response, 'Failed to get event');
       }
 
       final data = jsonDecode(response.body);
@@ -659,7 +819,7 @@ class ApiService implements CoupleApi {
       final response = await _post('/api/events/$eventId/rsvp', {'status': status});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to RSVP');
+        return ApiResponse.httpFailure(response, 'Failed to RSVP');
       }
 
       final data = jsonDecode(response.body);
@@ -682,7 +842,7 @@ class ApiService implements CoupleApi {
           await http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to cancel RSVP');
+        return ApiResponse.httpFailure(response, 'Failed to cancel RSVP');
       }
 
       return ApiResponse.success(null);
@@ -700,15 +860,19 @@ class ApiService implements CoupleApi {
     try {
       final data = jsonDecode(response.body);
       if (data is Map && data['error'] is String) {
-        return ApiResponse.failure(
-          data['error'] as String,
-          ApiErrorKind.server,
+        // The couple layer still reads the server's legacy English sentence.
+        return ApiResponse(
+          success: false,
+          error: data['error'] as String,
+          errorKind: _kindForStatus(response.statusCode),
+          errorCode: _serverCode(response.body),
+          statusCode: response.statusCode,
         );
       }
     } catch (_) {
       // Body is not JSON: fall back to the generic message below.
     }
-    return ApiResponse.failure(fallback, ApiErrorKind.server);
+    return ApiResponse.httpFailure(response, fallback);
   }
 
   /// Send a couple mode request to a user
@@ -791,7 +955,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/couple/requests');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get couple requests');
+        return ApiResponse.httpFailure(response, 'Failed to get couple requests');
       }
 
       final data = jsonDecode(response.body);
@@ -819,7 +983,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to archive conversations');
+        return ApiResponse.httpFailure(response, 'Failed to archive conversations');
       }
 
       final data = jsonDecode(response.body);
@@ -863,7 +1027,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/couple');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get couple data');
+        return ApiResponse.httpFailure(response, 'Failed to get couple data');
       }
 
       final data = jsonDecode(response.body);
@@ -884,7 +1048,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/couple/check/$userId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to check couple mode');
+        return ApiResponse.httpFailure(response, 'Failed to check couple mode');
       }
 
       final data = jsonDecode(response.body);
@@ -905,7 +1069,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to block user');
+        return ApiResponse.httpFailure(response, 'Failed to block user');
       }
 
       final data = jsonDecode(response.body);
@@ -926,7 +1090,7 @@ class ApiService implements CoupleApi {
       final response = await _delete('/api/users/$userId/block');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to unblock user');
+        return ApiResponse.httpFailure(response, 'Failed to unblock user');
       }
 
       final data = jsonDecode(response.body);
@@ -947,7 +1111,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/users/blocked');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get blocked users');
+        return ApiResponse.httpFailure(response, 'Failed to get blocked users');
       }
 
       final data = jsonDecode(response.body);
@@ -983,7 +1147,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to report user');
+        return ApiResponse.httpFailure(response, 'Failed to report user');
       }
 
       final data = jsonDecode(response.body);
@@ -1006,7 +1170,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/likes/received');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get received likes');
+        return ApiResponse.httpFailure(response, 'Failed to get received likes');
       }
 
       final data = jsonDecode(response.body);
@@ -1027,7 +1191,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/likes/received/count');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get likes count');
+        return ApiResponse.httpFailure(response, 'Failed to get likes count');
       }
 
       final data = jsonDecode(response.body);
@@ -1046,7 +1210,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/prompts');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get prompts');
+        return ApiResponse.httpFailure(response, 'Failed to get prompts');
       }
 
       final data = jsonDecode(response.body);
@@ -1067,7 +1231,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/profile/prompts');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get my prompts');
+        return ApiResponse.httpFailure(response, 'Failed to get my prompts');
       }
 
       final data = jsonDecode(response.body);
@@ -1096,7 +1260,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to add prompt');
+        return ApiResponse.httpFailure(response, 'Failed to add prompt');
       }
 
       final data = jsonDecode(response.body);
@@ -1119,7 +1283,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to update prompt');
+        return ApiResponse.httpFailure(response, 'Failed to update prompt');
       }
 
       final data = jsonDecode(response.body);
@@ -1140,7 +1304,7 @@ class ApiService implements CoupleApi {
       final response = await _delete('/api/profile/prompts/$promptId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to delete prompt');
+        return ApiResponse.httpFailure(response, 'Failed to delete prompt');
       }
 
       final data = jsonDecode(response.body);
@@ -1167,7 +1331,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to like via prompt');
+        return ApiResponse.httpFailure(response, 'Failed to like via prompt');
       }
 
       final data = jsonDecode(response.body);
@@ -1186,10 +1350,11 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/boost/status');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get boost status');
+        return ApiResponse.httpFailure(response, 'Failed to get boost status');
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
@@ -1203,11 +1368,16 @@ class ApiService implements CoupleApi {
       final response = await _post('/api/boost/activate', {});
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        final data = jsonDecode(response.body);
-        return ApiResponse.failure(data['error'] ?? 'Failed to activate boost');
+        final failure = ApiResponse<BoostStatus>.httpFailure(
+          response,
+          'Failed to activate boost',
+        );
+        _relayCredits(failure.body);
+        return failure;
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
@@ -1223,7 +1393,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/profile/visitors');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get visitors');
+        return ApiResponse.httpFailure(response, 'Failed to get visitors');
       }
 
       final data = jsonDecode(response.body);
@@ -1240,7 +1410,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/profile/visitors/count');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get visitors count');
+        return ApiResponse.httpFailure(response, 'Failed to get visitors count');
       }
 
       final data = jsonDecode(response.body);
@@ -1259,7 +1429,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/couple/anniversary');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get anniversary data');
+        return ApiResponse.httpFailure(response, 'Failed to get anniversary data');
       }
 
       final data = jsonDecode(response.body);
@@ -1276,7 +1446,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/couple/milestones');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get milestones');
+        return ApiResponse.httpFailure(response, 'Failed to get milestones');
       }
 
       final data = jsonDecode(response.body);
@@ -1298,7 +1468,7 @@ class ApiService implements CoupleApi {
       final response = await _post('/api/couple/anniversary/card', {});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to generate card');
+        return ApiResponse.httpFailure(response, 'Failed to generate card');
       }
 
       final data = jsonDecode(response.body);
@@ -1317,7 +1487,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/success-stories?page=$page');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get success stories');
+        return ApiResponse.httpFailure(response, 'Failed to get success stories');
       }
 
       final data = jsonDecode(response.body);
@@ -1349,7 +1519,7 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.failure('Failed to submit success story');
+        return ApiResponse.httpFailure(response, 'Failed to submit success story');
       }
 
       final data = jsonDecode(response.body);
@@ -1370,7 +1540,7 @@ class ApiService implements CoupleApi {
       final response = await _post('/api/success-stories/$storyId/like', {});
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to like story');
+        return ApiResponse.httpFailure(response, 'Failed to like story');
       }
 
       return ApiResponse.success(null);
@@ -1390,7 +1560,7 @@ class ApiService implements CoupleApi {
       }
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get success story');
+        return ApiResponse.httpFailure(response, 'Failed to get success story');
       }
 
       final data = jsonDecode(response.body);

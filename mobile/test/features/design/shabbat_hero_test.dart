@@ -3,8 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/settings/widgets/shabbat_hero.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Widget _host({VoidCallback? onBack}) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: Scaffold(
         body: SingleChildScrollView(

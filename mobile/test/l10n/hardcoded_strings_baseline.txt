@@ -1,0 +1,3 @@
+# Textes encore en dur (cliquet : cette liste ne peut que rétrécir).
+# Voir test/l10n/hardcoded_strings_test.dart.
+

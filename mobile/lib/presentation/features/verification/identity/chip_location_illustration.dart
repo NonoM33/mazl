@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
+
 /// Un téléphone posé sur la couverture fermée d'un passeport : l'endroit où
 /// la puce se lit. Dessin statique, sans animation.
 class ChipLocationIllustration extends StatelessWidget {
@@ -12,7 +14,7 @@ class ChipLocationIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Le haut du téléphone posé contre la couverture fermée du passeport',
+      label: context.l10n.verificationNfcIllustration,
       image: true,
       child: ExcludeSemantics(
         child: SizedBox(

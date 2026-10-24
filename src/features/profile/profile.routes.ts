@@ -21,6 +21,7 @@ import {
   updatePromptBodySchema,
 } from "../../shared/http/validation";
 import { createRateLimiter } from "../../shared/http/rate-limit";
+import { missingProfileFields } from "./domain/profile-completeness";
 import { clampDistanceMax } from "../media/domain/geo-fuzz";
 import type { MediaModule } from "../media";
 import { registerPhotoRoutes } from "../media/presentation/photo.routes";
@@ -35,6 +36,7 @@ import { registerPhotoRoutes } from "../media/presentation/photo.routes";
 // declared BEFORE /api/profile/:userId, otherwise "prompts" is captured as
 // :userId (parseInt("prompts") = NaN). They live in this same file so the
 // ordering is guaranteed regardless of where registerProfileRoutes is called.
+
 
 export interface ProfileRouteDeps {
   readonly media: MediaModule;
@@ -252,6 +254,10 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: "Profile not found" }, 404);
       }
 
+      // The caller's own profile also says what is still missing to use the app.
+      if (targetUserId === c.get("userId")) {
+        return c.json({ success: true, profile, missing: missingProfileFields(profile) });
+      }
       return c.json({ success: true, profile });
     } catch (error: unknown) {
       console.error("Get profile error:", error);

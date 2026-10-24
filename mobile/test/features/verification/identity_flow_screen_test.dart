@@ -13,6 +13,8 @@ import 'package:mazl/presentation/features/verification/identity/identity_intro_
 import 'package:mazl/presentation/features/verification/identity/identity_messages.dart';
 
 import 'identity_fakes.dart';
+import 'verification_l10n.dart';
+import '../../helpers/l10n_helpers.dart';
 
 class _NoopRecognizer implements TextLineRecognizer {
   @override
@@ -24,18 +26,19 @@ class _NoopRecognizer implements TextLineRecognizer {
 
 Widget _app(Widget home, {List<Override> overrides = const []}) => ProviderScope(
       overrides: [textLineRecognizerProvider.overrideWithValue(_NoopRecognizer()), ...overrides],
-      child: MaterialApp(home: home),
+      child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: home),
     );
 
 void main() {
   group('intro', () {
     testWidgets('one title, three short steps, the privacy promise, one button', (tester) async {
       var started = false;
-      await tester.pumpWidget(MaterialApp(home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
+      await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
 
       expect(find.text('Vérifiez votre identité.'), findsOneWidget);
-      for (final step in IdentityIntroView.steps) {
-        expect(find.text(step), findsOneWidget);
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(find.text(step.title), findsOneWidget);
+        expect(find.text(step.detail!), findsOneWidget);
       }
       expect(find.text('Rien n\'est conservé : nous ne gardons que le résultat.'), findsOneWidget);
       expect(find.byType(ElevatedButton), findsOneWidget);
@@ -45,8 +48,8 @@ void main() {
     });
 
     testWidgets('steps are short', (tester) async {
-      for (final step in IdentityIntroView.steps) {
-        expect(step.length, lessThan(50));
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(step.title.length, lessThan(50));
       }
     });
   });
@@ -55,6 +58,9 @@ void main() {
     testWidgets('csca_unknown reads "Document non reconnu." and offers the manual review', (tester) async {
       var closed = false;
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         home: IdentityFailedView(info: describeIdentityRejection('csca_unknown'), onAction: () => closed = true, onClose: () {}),
       ));
       expect(find.text('Document non reconnu.'), findsOneWidget);
@@ -65,6 +71,9 @@ void main() {
 
     testWidgets('a retryable rejection offers its action and no manual review', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         home: IdentityFailedView(info: describeIdentityRejection('no_face'), onAction: () {}, onClose: () {}),
       ));
       expect(find.text('Aucun visage détecté.'), findsOneWidget);

@@ -7,11 +7,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../router/route_names.dart';
 import '../../presentation/common/widgets/mazl_sheet.dart';
+import '../../presentation/features/premium/widgets/credit_packs_sheet.dart';
 import '../../presentation/features/premium/widgets/plus_widgets.dart';
 import '../theme/app_colors.dart';
+import 'store/credit_models.dart';
+import 'store/credits_service.dart';
 import 'store/subscription_service.dart';
 
-/// Fonctions réservées aux abonnés mazl+
+/// Fonctions réservées aux abonnés mazl+. Leur titre et leur description
+/// s'écrivent dans la langue du membre (`PremiumFeatureText`).
 enum PremiumFeature {
   unlimitedLikes,
   seeWhoLikesYou,
@@ -23,51 +27,6 @@ enum PremiumFeature {
   prioritySupport,
 }
 
-/// Extension to get feature info
-extension PremiumFeatureInfo on PremiumFeature {
-  String get title {
-    switch (this) {
-      case PremiumFeature.unlimitedLikes:
-        return 'Likes illimités';
-      case PremiumFeature.seeWhoLikesYou:
-        return 'Voir qui vous a aimé';
-      case PremiumFeature.superLikes:
-        return 'Super Likes';
-      case PremiumFeature.boost:
-        return 'Boost';
-      case PremiumFeature.rewind:
-        return 'Revenir en arrière';
-      case PremiumFeature.readReceipts:
-        return 'Confirmations de lecture';
-      case PremiumFeature.advancedFilters:
-        return 'Filtres avancés';
-      case PremiumFeature.prioritySupport:
-        return 'Support prioritaire';
-    }
-  }
-
-  String get description {
-    switch (this) {
-      case PremiumFeature.unlimitedLikes:
-        return 'Likez autant que vous voulez, sans limite quotidienne.';
-      case PremiumFeature.seeWhoLikesYou:
-        return 'Voyez qui vous a aimé avant même de le croiser.';
-      case PremiumFeature.superLikes:
-        return 'Faites-vous remarquer avec 5 Super Likes par jour.';
-      case PremiumFeature.boost:
-        return 'Soyez en tête de pile pendant 30 minutes.';
-      case PremiumFeature.rewind:
-        return 'Rattrapez un « Passer » trop rapide.';
-      case PremiumFeature.readReceipts:
-        return 'Sachez quand vos messages ont été lus.';
-      case PremiumFeature.advancedFilters:
-        return 'Filtrez par pratique, communauté, et plus.';
-      case PremiumFeature.prioritySupport:
-        return 'Obtenez une réponse rapide de notre équipe.';
-    }
-  }
-}
-
 /// Helper class to gate premium features
 class PremiumGate {
   static final SubscriptionService _subscriptions = SubscriptionService();
@@ -76,22 +35,15 @@ class PremiumGate {
   // current day; when it differs, all daily counters reset to zero.
   static const String _kDateKey = 'premium_gate_quota_date';
   static const String _kLikesUsedKey = 'premium_gate_free_likes_used';
-  static const String _kSuperLikesUsedKey = 'premium_gate_super_likes_used';
-  static const String _kBoostsUsedKey = 'premium_gate_boosts_used';
 
   // Free daily limits (premium users are unlimited and bypass these).
   static const int freeLikesPerDay = 10;
   static const int _freeLikesPerDay = freeLikesPerDay;
-  static const int _freeSuperLikesPerDay = 1;
-  static const int _premiumSuperLikesPerDay = 5;
-  static const int _premiumBoostsPerDay = 1;
 
   // In-memory cache hydrated from [SharedPreferences]. Public getters read this
   // cache synchronously so the existing (synchronous) call sites keep working;
   // hydration happens lazily/asynchronously on first access.
   static int _freeLikesUsedToday = 0;
-  static int _superLikesUsedToday = 0;
-  static int _boostsUsedToday = 0;
   static String? _quotaDate;
   static bool _hydrated = false;
   static Future<void>? _hydrating;
@@ -129,14 +81,6 @@ class PremiumGate {
           _freeLikesUsedToday,
           prefs.getInt(_kLikesUsedKey) ?? 0,
         );
-        _superLikesUsedToday = max(
-          _superLikesUsedToday,
-          prefs.getInt(_kSuperLikesUsedKey) ?? 0,
-        );
-        _boostsUsedToday = max(
-          _boostsUsedToday,
-          prefs.getInt(_kBoostsUsedKey) ?? 0,
-        );
       }
       // Nouveau jour (ou premier lancement) : les compteurs en mémoire, s'il y
       // en a, datent d'aujourd'hui ; on fixe la nouvelle frontière.
@@ -164,8 +108,6 @@ class PremiumGate {
     final today = _today();
     if (_quotaDate != today) {
       _freeLikesUsedToday = 0;
-      _superLikesUsedToday = 0;
-      _boostsUsedToday = 0;
       _quotaDate = today;
       return true;
     }
@@ -179,8 +121,6 @@ class PremiumGate {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_kDateKey, _quotaDate ?? _today());
       await prefs.setInt(_kLikesUsedKey, _freeLikesUsedToday);
-      await prefs.setInt(_kSuperLikesUsedKey, _superLikesUsedToday);
-      await prefs.setInt(_kBoostsUsedKey, _boostsUsedToday);
     } catch (error, stackTrace) {
       debugPrint('PremiumGate: failed to persist quotas: $error\n$stackTrace');
     }
@@ -198,8 +138,6 @@ class PremiumGate {
   static void resetForTest() {
     debugPremiumOverride = null;
     _freeLikesUsedToday = 0;
-    _superLikesUsedToday = 0;
-    _boostsUsedToday = 0;
     _quotaDate = null;
     _hydrated = false;
     _hydrating = null;
@@ -241,10 +179,7 @@ class PremiumGate {
 
     final result = await _showSheet(
       context,
-      PremiumFeatureSheet(
-        title: feature.title,
-        description: feature.description,
-      ),
+      PremiumFeatureSheet(feature: feature),
     );
 
     if (result == true) {
@@ -262,6 +197,34 @@ class PremiumGate {
       isScrollControlled: true,
       builder: (_) => sheet,
     );
+  }
+
+  /// Ouvre la feuille « packs » de [kind] : plus de Super Likes ou de Boosts à
+  /// dépenser. « Découvrir mazl+ » ouvre l'offre. Rend vrai quand, au retour,
+  /// le serveur dit qu'il y a de nouveau de quoi dépenser (achat d'un pack, ou
+  /// abonnement qui rouvre l'inclus du jour).
+  static Future<bool> offerCredits(
+    BuildContext context,
+    CreditKind kind, {
+    int boostMinutes = 30,
+  }) async {
+    final outcome = await showMazlSheet<CreditPacksOutcome>(
+      context,
+      barrierColor: AppColors.ink.withValues(alpha: 0.45),
+      isScrollControlled: true,
+      builder: (_) => CreditPacksSheet(
+        kind: kind,
+        isSubscriber: isPremium,
+        boostMinutes: boostMinutes,
+      ),
+    );
+    if (outcome == CreditPacksOutcome.discoverPlus && context.mounted) {
+      await context.push<bool>(RoutePaths.premium);
+      await _subscriptions.refresh();
+      // L'inclus du jour dépend de l'abonnement : le serveur seul le sait.
+      await CreditsService().refresh();
+    }
+    return CreditsService().available(kind) > 0;
   }
 
   /// Tente de consommer un like gratuit. Toujours vrai pour un abonné ; pour
@@ -319,52 +282,21 @@ class PremiumGate {
     onSuperLikesChanged?.call();
   }
 
-  /// Nombre de Super Likes par jour pour le statut actuel.
+  // Boosts et Super Likes : le crédit est tenu par le SERVEUR. Ces trois
+  // lectures ne font que relayer le solde que le serveur a renvoyé (0 tant
+  // qu'on ne l'a pas) ; l'app n'accorde et ne décompte jamais rien d'elle-même.
+
+  /// Super Likes inclus par jour pour le statut actuel (donné par le serveur).
   static int get superLikesPerDay =>
-      isPremium ? _premiumSuperLikesPerDay : _freeSuperLikesPerDay;
+      CreditsService().balance?.superLike.dailyAllowance ?? 0;
 
-  /// Get remaining super likes for today.
-  static int get remainingSuperLikes {
-    _hydrateInBackground();
-    _resetIfNewDay();
-    final maxSuperLikes = isPremium
-        ? _premiumSuperLikesPerDay
-        : _freeSuperLikesPerDay;
-    return (maxSuperLikes - _superLikesUsedToday).clamp(0, maxSuperLikes);
-  }
+  /// Super Likes qu'on peut envoyer maintenant : l'inclus du jour restant plus
+  /// les crédits achetés.
+  static int get remainingSuperLikes =>
+      CreditsService().available(CreditKind.superLike);
 
-  /// Use a super like. Persists the updated count and notifies listeners.
-  static void useSuperLike() {
-    _resetIfNewDay();
-    final maxSuperLikes = isPremium
-        ? _premiumSuperLikesPerDay
-        : _freeSuperLikesPerDay;
-    if (_superLikesUsedToday < maxSuperLikes) {
-      _superLikesUsedToday++;
-    }
-    unawaited(_persist());
-    onSuperLikesChanged?.call();
-  }
-
-  /// Get remaining boosts for today. Free users get none.
-  static int get remainingBoosts {
-    if (!isPremium) return 0;
-    _hydrateInBackground();
-    _resetIfNewDay();
-    return (_premiumBoostsPerDay - _boostsUsedToday).clamp(
-      0,
-      _premiumBoostsPerDay,
-    );
-  }
-
-  /// Consume one boost (premium only). Persists and notifies listeners.
-  static void useBoost() {
-    if (!isPremium) return;
-    _resetIfNewDay();
-    if (_boostsUsedToday < _premiumBoostsPerDay) {
-      _boostsUsedToday++;
-    }
-    unawaited(_persist());
-    onSuperLikesChanged?.call();
-  }
+  /// Boosts qu'on peut activer maintenant : l'inclus du jour restant plus les
+  /// crédits achetés.
+  static int get remainingBoosts =>
+      CreditsService().available(CreditKind.boost);
 }

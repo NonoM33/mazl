@@ -5,61 +5,35 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/filter_options.dart';
 
 /// Advanced filters for discovery (Premium feature)
 class FiltersScreen extends ConsumerStatefulWidget {
-  const FiltersScreen({super.key});
+  const FiltersScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   ConsumerState<FiltersScreen> createState() => _FiltersScreenState();
 }
 
 class _FiltersScreenState extends ConsumerState<FiltersScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
   bool _isLoading = false;
   bool _hasChanges = false;
 
   // Filter values
   RangeValues _ageRange = const RangeValues(18, 45);
   double _distanceMax = 50;
-  String? _selectedDenomination;
-  Set<String> _selectedObservances = {};
-  String? _selectedEducation;
+  FilterDenomination? _selectedDenomination;
+  Set<FilterObservance> _selectedObservances = {};
+  FilterEducation? _selectedEducation;
   RangeValues? _heightRange;
   bool _onlyVerified = false;
   bool _onlyWithPhoto = true;
   bool _onlyOnline = false;
-
-  // Options
-  final List<String> _denominations = [
-    'Toutes',
-    'Orthodoxe',
-    'Massorti',
-    'Libéral',
-    'Traditionaliste',
-    'Loubavitch',
-    'Séfarade',
-    'Ashkénaze',
-  ];
-
-  final List<String> _observances = [
-    'Shomer Shabbat',
-    'Casher',
-    'Casher strict',
-    'Prière quotidienne',
-    'Mikvé',
-    'Tsniout',
-  ];
-
-  final List<String> _educations = [
-    'Tous',
-    'Lycée',
-    'Bac',
-    'Licence',
-    'Master',
-    'Doctorat',
-    'Yeshiva/Sem',
-  ];
 
   @override
   void initState() {
@@ -89,12 +63,14 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _distanceMax.round(),
-      if (_selectedDenomination != null && _selectedDenomination != 'Toutes')
-        'denomination': _selectedDenomination,
+      if (_selectedDenomination != null &&
+          _selectedDenomination != FilterDenomination.all)
+        'denomination': _selectedDenomination!.apiValue,
       if (_selectedObservances.isNotEmpty)
-        'observances': _selectedObservances.toList(),
-      if (_selectedEducation != null && _selectedEducation != 'Tous')
-        'education': _selectedEducation,
+        'observances': _selectedObservances.map((o) => o.apiValue).toList(),
+      if (_selectedEducation != null &&
+          _selectedEducation != FilterEducation.all)
+        'education': _selectedEducation!.apiValue,
       if (_heightRange != null)
         'heightMin': _heightRange!.start.round(),
       if (_heightRange != null)
@@ -111,8 +87,8 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
     if (response.success && mounted) {
       _hasChanges = false;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Filtres enregistrés'),
+        SnackBar(
+          content: Text(context.l10n.matchingFiltersSaved),
           backgroundColor: AppColors.success,
         ),
       );
@@ -120,7 +96,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response.error ?? 'Erreur lors de la sauvegarde'),
+          content: Text(context.l10n.matchingFiltersSaveFailed),
           backgroundColor: AppColors.error,
         ),
       );
@@ -148,11 +124,11 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Filtres'),
+        title: Text(context.l10n.matchingFilters),
         actions: [
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Réinitialiser'),
+            child: Text(context.l10n.matchingFiltersReset),
           ),
         ],
       ),
@@ -163,7 +139,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
             children: [
               // Age range
               _FilterSection(
-                title: 'Tranche d\'âge',
+                title: context.l10n.matchingFiltersAge,
                 icon: LucideIcons.users,
                 child: Column(
                   children: [
@@ -171,11 +147,15 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${_ageRange.start.round()} ans',
+                          context.l10n.matchingFiltersYears(
+                            _ageRange.start.round(),
+                          ),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '${_ageRange.end.round()} ans',
+                          context.l10n.matchingFiltersYears(
+                            _ageRange.end.round(),
+                          ),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -199,12 +179,12 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Distance
               _FilterSection(
-                title: 'Distance maximale',
+                title: context.l10n.matchingFiltersDistance,
                 icon: LucideIcons.mapPin,
                 child: Column(
                   children: [
                     Text(
-                      '${_distanceMax.round()} km',
+                      context.l10n.matchingFiltersKm(_distanceMax.round()),
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -230,17 +210,18 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Denomination (Premium)
               _FilterSection(
-                title: 'Courant religieux',
+                title: context.l10n.matchingFiltersDenomination,
                 icon: LucideIcons.star,
                 isPremium: !isPremium,
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _denominations.map((denom) {
+                  children: FilterDenomination.values.map((denom) {
                     final isSelected = _selectedDenomination == denom ||
-                        (_selectedDenomination == null && denom == 'Toutes');
+                        (_selectedDenomination == null &&
+                            denom == FilterDenomination.all);
                     return FilterChip(
-                      label: Text(denom),
+                      label: Text(denom.label(context.l10n)),
                       selected: isSelected,
                       onSelected: isPremium
                           ? (selected) {
@@ -259,16 +240,16 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Observances (Premium)
               _FilterSection(
-                title: 'Pratiques religieuses',
+                title: context.l10n.matchingFiltersObservances,
                 icon: LucideIcons.heart,
                 isPremium: !isPremium,
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _observances.map((obs) {
+                  children: FilterObservance.values.map((obs) {
                     final isSelected = _selectedObservances.contains(obs);
                     return FilterChip(
-                      label: Text(obs),
+                      label: Text(obs.label(context.l10n)),
                       selected: isSelected,
                       onSelected: isPremium
                           ? (selected) {
@@ -291,17 +272,18 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Education (Premium)
               _FilterSection(
-                title: 'Niveau d\'études',
+                title: context.l10n.matchingFiltersEducation,
                 icon: LucideIcons.graduationCap,
                 isPremium: !isPremium,
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _educations.map((edu) {
+                  children: FilterEducation.values.map((edu) {
                     final isSelected = _selectedEducation == edu ||
-                        (_selectedEducation == null && edu == 'Tous');
+                        (_selectedEducation == null &&
+                            edu == FilterEducation.all);
                     return FilterChip(
-                      label: Text(edu),
+                      label: Text(edu.label(context.l10n)),
                       selected: isSelected,
                       onSelected: isPremium
                           ? (selected) {
@@ -320,7 +302,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Height (Premium)
               _FilterSection(
-                title: 'Taille',
+                title: context.l10n.matchingFiltersHeight,
                 icon: LucideIcons.ruler,
                 isPremium: !isPremium,
                 child: Column(
@@ -330,14 +312,18 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       children: [
                         Text(
                           _heightRange != null
-                              ? '${_heightRange!.start.round()} cm'
-                              : 'Min',
+                              ? context.l10n.matchingFiltersCm(
+                                  _heightRange!.start.round(),
+                                )
+                              : context.l10n.matchingFiltersHeightMin,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
                           _heightRange != null
-                              ? '${_heightRange!.end.round()} cm'
-                              : 'Max',
+                              ? context.l10n.matchingFiltersCm(
+                                  _heightRange!.end.round(),
+                                )
+                              : context.l10n.matchingFiltersHeightMax,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -365,7 +351,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                             _hasChanges = true;
                           });
                         },
-                        child: const Text('Effacer le filtre taille'),
+                        child: Text(context.l10n.matchingFiltersHeightClear),
                       ),
                   ],
                 ),
@@ -373,13 +359,13 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
 
               // Verification
               _FilterSection(
-                title: 'Options',
+                title: context.l10n.matchingFiltersOptions,
                 icon: LucideIcons.settings,
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Profils vérifiés uniquement'),
-                      subtitle: const Text('Voir seulement les profils vérifiés'),
+                      title: Text(context.l10n.matchingFiltersVerifiedTitle),
+                      subtitle: Text(context.l10n.matchingFiltersVerifiedHint),
                       value: _onlyVerified,
                       activeThumbColor: AppColors.primary,
                       onChanged: (value) {
@@ -391,8 +377,8 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       contentPadding: EdgeInsets.zero,
                     ),
                     SwitchListTile(
-                      title: const Text('Avec photo uniquement'),
-                      subtitle: const Text('Exclure les profils sans photo'),
+                      title: Text(context.l10n.matchingFiltersPhotoTitle),
+                      subtitle: Text(context.l10n.matchingFiltersPhotoHint),
                       value: _onlyWithPhoto,
                       activeThumbColor: AppColors.primary,
                       onChanged: (value) {
@@ -404,8 +390,8 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       contentPadding: EdgeInsets.zero,
                     ),
                     SwitchListTile(
-                      title: const Text('En ligne maintenant'),
-                      subtitle: const Text('Voir les utilisateurs actifs'),
+                      title: Text(context.l10n.matchingFiltersOnlineTitle),
+                      subtitle: Text(context.l10n.matchingFiltersOnlineHint),
                       value: _onlyOnline,
                       activeThumbColor: AppColors.primary,
                       onChanged: isPremium
@@ -440,17 +426,17 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Débloquer tous les filtres',
-                              style: TextStyle(
+                              context.l10n.matchingFiltersUpsellTitle,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              'Passez à mazl+ pour des recherches précises',
-                              style: TextStyle(
+                              context.l10n.matchingFiltersUpsellBody,
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12,
                               ),
@@ -470,7 +456,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.primary,
                         ),
-                        child: const Text('Voir'),
+                        child: Text(context.l10n.commonSee),
                       ),
                     ],
                   ),
@@ -507,9 +493,9 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          'Appliquer les filtres',
-                          style: TextStyle(
+                      : Text(
+                          context.l10n.matchingFiltersApply,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -555,15 +541,17 @@ class _FilterSection extends StatelessWidget {
             children: [
               Icon(icon, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               if (isPremium) ...[
-                const Spacer(),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -601,7 +589,8 @@ class _FilterSection extends StatelessWidget {
             opacity: isPremium ? 0.5 : 1.0,
             child: IgnorePointer(
               ignoring: isPremium,
-              child: child,
+              // The list tiles paint their ink here, above the card's colour.
+              child: Material(type: MaterialType.transparency, child: child),
             ),
           ),
         ],

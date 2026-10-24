@@ -86,25 +86,26 @@ class CoupleEvent {
     return null;
   }
 
-  String get formattedPrice {
-    if (priceCents == null || priceCents == 0) return 'Gratuit';
-    final euros = priceCents! ~/ 100;
-    return '$euros€/couple';
+  /// Whole euros of the price per couple (the cents are dropped); null when
+  /// free. The words around it live in the presentation layer.
+  int? get priceEuros {
+    final cents = priceCents;
+    if (cents == null || cents == 0) return null;
+    return cents ~/ 100;
   }
 
-  String get formattedDate {
-    final months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    final days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    return '${days[eventDate.weekday - 1]} ${eventDate.day} ${months[eventDate.month - 1]}';
-  }
-
-  String get formattedTime {
-    if (eventTime == null) return '';
-    final parts = eventTime!.split(':');
-    if (parts.length >= 2) {
-      return '${parts[0]}h${parts[1]}';
-    }
-    return eventTime!;
+  /// The start time as an hour and a minute, or null when the event has no
+  /// time or the server sent something that is not `HH:mm[:ss]`.
+  ({int hour, int minute})? get startTime {
+    final raw = eventTime;
+    if (raw == null) return null;
+    final parts = raw.split(':');
+    if (parts.length < 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+    return (hour: hour, minute: minute);
   }
 
   int get spotsLeft {

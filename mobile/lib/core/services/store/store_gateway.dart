@@ -14,6 +14,11 @@ abstract interface class StoreGateway {
   /// Lance l'achat. Les abonnements passent aussi par `buyNonConsumable`.
   Future<bool> buyNonConsumable(PurchaseParam purchaseParam);
 
+  /// Lance l'achat d'un consommable (Boost, Super Likes). La transaction n'est
+  /// JAMAIS terminée par le plugin : `completePurchase` s'en charge, une fois
+  /// le crédit confirmé par le serveur.
+  Future<bool> buyConsumable(PurchaseParam purchaseParam);
+
   Future<void> restorePurchases();
 
   /// Termine la transaction auprès du store (à n'appeler qu'une fois le droit
@@ -28,7 +33,11 @@ abstract interface class StoreGateway {
 /// L'instance du plugin n'est touchée qu'au premier appel, pour que construire
 /// le service ne dépende jamais d'un canal de plateforme.
 class InAppPurchaseGateway implements StoreGateway {
-  InAppPurchase get _plugin => InAppPurchase.instance;
+  InAppPurchaseGateway({InAppPurchase? plugin}) : _injected = plugin;
+
+  final InAppPurchase? _injected;
+
+  InAppPurchase get _plugin => _injected ?? InAppPurchase.instance;
 
   @override
   Stream<List<PurchaseDetails>> get purchaseStream => _plugin.purchaseStream;
@@ -43,6 +52,10 @@ class InAppPurchaseGateway implements StoreGateway {
   @override
   Future<bool> buyNonConsumable(PurchaseParam purchaseParam) =>
       _plugin.buyNonConsumable(purchaseParam: purchaseParam);
+
+  @override
+  Future<bool> buyConsumable(PurchaseParam purchaseParam) =>
+      _plugin.buyConsumable(purchaseParam: purchaseParam, autoConsume: false);
 
   @override
   Future<void> restorePurchases() => _plugin.restorePurchases();

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/verification.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../identity/identity_parts.dart';
-
-const String consentText =
-    'Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; '
-    'seule une empreinte chiffrée l\'est, supprimable à tout moment.';
 
 /// Un niveau de vérification : étiquette, titre, état, texte, action. Les
 /// niveaux sont séparés par un filet, sans carte.
@@ -36,7 +32,10 @@ class _Level extends StatelessWidget {
           Row(
             children: [
               Expanded(child: IdentityHeadline(title, size: 24)),
-              if (verified) ...[const SizedBox(width: 12), const TagPill('Vérifiée', icon: LucideIcons.check)],
+              if (verified) ...[
+                const SizedBox(width: 12),
+                TagPill(context.l10n.verificationVerifiedPill, icon: LucideIcons.check),
+              ],
             ],
           ),
           const SizedBox(height: 12),
@@ -66,46 +65,45 @@ class PhotoLevel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final blockedUntil = nextAttempt;
     final blocked = !step.verified && blockedUntil != null && blockedUntil.isAfter(DateTime.now());
+    final verifiedAt = step.verifiedAt;
     return _Level(
-      eyebrow: 'Niveau 1',
-      title: 'Photo vérifiée',
+      eyebrow: l10n.verificationLevel1,
+      title: l10n.verificationPhotoTitle,
       verified: step.verified,
       children: [
         if (step.verified) ...[
-          IdentityParagraph(_verifiedLine(step.verifiedAt), size: 15),
+          IdentityParagraph(
+            verifiedAt == null
+                ? l10n.verificationPhotoVerifiedLine
+                : l10n.verificationPhotoVerifiedOn(verifiedAt.toLocal()),
+            size: 15,
+          ),
           const SizedBox(height: 20),
-          IdentityOutlineButton('Retirer ma vérification', onPressed: busy ? null : onRemove),
+          IdentityOutlineButton(l10n.verificationRemoveAction, onPressed: busy ? null : onRemove),
         ] else ...[
-          const IdentityParagraph(consentText, size: 15),
+          IdentityParagraph(l10n.verificationConsent, size: 15),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: busy || blocked ? null : onVerify,
-            child: busy ? const _BusyDot() : const Text('Vérifier ma photo'),
+            child: busy ? const _BusyDot() : Text(l10n.verificationVerifyPhotoAction),
           ),
           if (blocked) ...[
             const SizedBox(height: 10),
-            Text(
-              'Limite atteinte, nouvel essai possible ${_whenText(blockedUntil)}.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(_blockedText(l10n, blockedUntil), style: Theme.of(context).textTheme.bodySmall),
           ],
         ],
       ],
     );
   }
 
-  static String _verifiedLine(DateTime? at) => at == null
-      ? 'Votre visage correspond à vos photos.'
-      : 'Vérifiée le ${DateFormat('dd/MM/yyyy').format(at.toLocal())}.';
-
-  static String _whenText(DateTime at) {
+  static String _blockedText(AppLocalizations l10n, DateTime at) {
     final local = at.toLocal();
     final now = DateTime.now();
     final sameDay = local.year == now.year && local.month == now.month && local.day == now.day;
-    final time = DateFormat('HH:mm').format(local);
-    return sameDay ? 'à $time' : 'le ${DateFormat('dd/MM').format(local)} à $time';
+    return sameDay ? l10n.verificationBlockedToday(local) : l10n.verificationBlockedLater(local, local);
   }
 }
 
@@ -119,23 +117,22 @@ class IdentityLevel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final at = step.verifiedAt;
     return _Level(
-      eyebrow: 'Niveau 2',
-      title: 'Identité vérifiée',
+      eyebrow: l10n.verificationLevel2,
+      title: l10n.verificationIdentityTitle,
       verified: step.verified,
       children: [
         IdentityParagraph(
           step.verified
-              ? (at == null
-                    ? 'Document contrôlé par sa puce.'
-                    : 'Contrôlée le ${DateFormat('dd/MM/yyyy').format(at.toLocal())}.')
-              : 'Passeport ou carte d\'identité, lu par sa puce. Un selfie confirme que c\'est bien vous.',
+              ? (at == null ? l10n.verificationIdentityCheckedNoDate : l10n.verificationIdentityCheckedOn(at.toLocal()))
+              : l10n.verificationIdentityPitch,
           size: 15,
         ),
         if (!step.verified) ...[
           const SizedBox(height: 20),
-          IdentityOutlineButton('Vérifier mon identité', onPressed: enabled ? onVerify : null),
+          IdentityOutlineButton(l10n.verificationVerifyIdentityAction, onPressed: enabled ? onVerify : null),
         ],
       ],
     );
@@ -195,7 +192,7 @@ class VerificationRetry extends StatelessWidget {
           const SizedBox(height: 22),
           IdentityParagraph(message),
           const SizedBox(height: 24),
-          IdentityOutlineButton('Réessayer', onPressed: onRetry),
+          IdentityOutlineButton(context.l10n.commonRetry, onPressed: onRetry),
         ],
       ),
     );

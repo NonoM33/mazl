@@ -3,16 +3,16 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 /// How long a couple has existed, in calendar days (not 24 h slices):
-/// 23:30 then 00:10 the next day is already "1 jour".
-String coupleDurationLabel(DateTime since, DateTime now) {
+/// 23:30 then 00:10 the next day is already one day.
+String coupleDurationLabel(AppLocalizations l10n, DateTime since, DateTime now) {
   final start = DateTime.utc(since.year, since.month, since.day);
   final today = DateTime.utc(now.year, now.month, now.day);
   final days = today.difference(start).inDays;
-  if (days <= 0) return "Depuis aujourd'hui";
-  if (days == 1) return '1 jour';
-  return '$days jours';
+  if (days <= 0) return l10n.settingsCoupleSinceToday;
+  return l10n.settingsCoupleDays(days);
 }
 
 /// The couple mode card of the settings: active couple, request waiting for
@@ -125,17 +125,22 @@ class _ActiveCouple extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final since = couple.relationshipStartDate;
+    final partnerName = couple.partnerName;
     final detail = [
-      'Avec ${couple.partnerName ?? 'votre partenaire'}',
-      if (since != null) coupleDurationLabel(since.toLocal(), DateTime.now()),
+      partnerName == null
+          ? l10n.settingsCoupleWithYourPartner
+          : l10n.settingsCoupleWithPartner(partnerName),
+      if (since != null)
+        coupleDurationLabel(l10n, since.toLocal(), DateTime.now()),
     ].join(' · ');
     const compact = EdgeInsets.symmetric(horizontal: 12);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _CardTitle(title: 'Mode couple actif', detail: detail),
+        _CardTitle(title: l10n.settingsCoupleActive, detail: detail),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -146,8 +151,8 @@ class _ActiveCouple extends StatelessWidget {
                   padding: compact,
                   minimumSize: const Size(0, 48),
                 ),
-                child: const Text(
-                  'Espace couple',
+                child: Text(
+                  l10n.settingsCoupleOpenSpace,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -161,8 +166,8 @@ class _ActiveCouple extends StatelessWidget {
                   padding: compact,
                   minimumSize: const Size(0, 48),
                 ),
-                child: const Text(
-                  'Calendrier',
+                child: Text(
+                  l10n.settingsCoupleOpenCalendar,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -174,8 +179,8 @@ class _ActiveCouple extends StatelessWidget {
         TextButton(
           onPressed: onLeave,
           style: TextButton.styleFrom(foregroundColor: AppColors.error),
-          child: const Text(
-            'Quitter le mode couple',
+          child: Text(
+            l10n.settingsCoupleLeave,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -193,20 +198,23 @@ class _PendingRequest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final name = request.targetName?.trim().split(' ').first ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _CardTitle(
-          title: name.isEmpty ? 'Demande envoyée' : 'Demande envoyée à $name',
-          detail: 'En attente de sa réponse',
+          title: name.isEmpty
+              ? l10n.settingsCoupleRequestSent
+              : l10n.settingsCoupleRequestSentTo(name),
+          detail: l10n.settingsCoupleWaiting,
         ),
         const SizedBox(height: 16),
         OutlinedButton(
           onPressed: onCancel,
           style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
-          child: const Text(
-            'Annuler la demande',
+          child: Text(
+            l10n.settingsCoupleCancelRequest,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -225,7 +233,9 @@ class _Invitation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: _CardTitle(title: "Vous avez trouvé l'amour ?")),
+        Expanded(
+          child: _CardTitle(title: context.l10n.settingsCoupleInvitation),
+        ),
         const SizedBox(width: 12),
         ElevatedButton(
           onPressed: onActivate,
@@ -233,7 +243,7 @@ class _Invitation extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             minimumSize: const Size(0, 44),
           ),
-          child: const Text('Activer'),
+          child: Text(context.l10n.settingsCoupleActivate),
         ),
       ],
     );

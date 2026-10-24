@@ -6,7 +6,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/couple_failure_label.dart';
+import '../l10n/couple_feed_labels.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 
@@ -50,7 +53,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
         _isLoading = false;
         _failure = const CoupleFailure(
           CoupleFailureKind.notFound,
-          'Cet événement n\'existe plus.',
+          'invalidEventId',
         );
       });
       return;
@@ -100,10 +103,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
         showCoupleError(
           context,
           failure.kind == CoupleFailureKind.full
-              ? failure.message
+              ? failure.label(context.l10n)
               : wasRegistered
-              ? 'Impossible d\'annuler l\'inscription. Réessayez.'
-              : 'Inscription impossible. Réessayez.',
+              ? context.l10n.coupleFeedEventCancelError
+              : context.l10n.coupleFeedEventRegisterError,
         );
       case CoupleOk():
         setState(() {
@@ -114,8 +117,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
           SnackBar(
             content: Text(
               wasRegistered
-                  ? 'Inscription annulée'
-                  : 'Inscrits à « ${event.title} »',
+                  ? context.l10n.coupleFeedEventCancelled
+                  : context.l10n.coupleFeedEventRegisteredSnackDetail(
+                      event.title,
+                    ),
             ),
             backgroundColor: wasRegistered ? null : AppColors.success,
             behavior: SnackBarBehavior.floating,
@@ -152,12 +157,12 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
         body: Stack(
           children: [
             failure == null || failure.kind == CoupleFailureKind.notFound
-                ? const CoupleMessageView(
+                ? CoupleMessageView(
                     icon: LucideIcons.calendarX,
-                    title: 'Événement introuvable',
-                    line: 'Il n\'est plus proposé.',
+                    title: context.l10n.coupleFeedEventNotFoundTitle,
+                    line: context.l10n.coupleFeedEventNotFoundLine,
                   )
-                : CoupleMessageView.failure(failure, onRetry: _loadEvent),
+                : coupleFailureView(context, failure, onRetry: _loadEvent),
             const _BackButton(),
           ],
         ),
@@ -171,11 +176,12 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
   }
 
   Widget _buildRegistrationBar(CoupleEvent event) {
+    final l10n = context.l10n;
     final label = _isRegistered
-        ? 'Annuler mon inscription'
+        ? l10n.coupleFeedEventCancelMine
         : event.isFull
-        ? 'Complet'
-        : 'S\'inscrire';
+        ? l10n.coupleFeedEventFull
+        : l10n.coupleFeedEventRegister;
     final canTap = !_isUpdatingRegistration && (_isRegistered || !event.isFull);
     final bottom = MediaQuery.paddingOf(context).bottom;
 
@@ -198,10 +204,8 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
 
   Widget _buildContent(CoupleEvent event) {
     final textTheme = Theme.of(context).textTheme;
-    final when = [
-      event.formattedDate,
-      if (event.formattedTime.isNotEmpty) event.formattedTime,
-    ].join(' · ');
+    final l10n = context.l10n;
+    final when = event.whenLabel(l10n);
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,22 +228,22 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                   runSpacing: 8,
                   children: [
                     TagPill(
-                      eventCategoryLabel(event.category),
+                      eventCategoryLabel(l10n, event.category),
                       icon: eventCategoryIcon(event.category),
                     ),
-                    if (event.isKosher) const TagPill('Casher'),
+                    if (event.isKosher) TagPill(l10n.coupleFeedKosher),
                     if (event.isFeatured)
-                      const TagPill('À la une', icon: LucideIcons.star),
+                      TagPill(l10n.coupleFeedFeatured, icon: LucideIcons.star),
                   ],
                 ),
                 const SizedBox(height: 24),
                 _buildPriceCard(event),
                 const SizedBox(height: 24),
                 ..._buildFacts(event),
-                _buildSection('Description', event.description),
+                _buildSection(l10n.coupleFeedDescription, event.description),
                 if (event.whatIncluded != null) ...[
                   const SizedBox(height: 24),
-                  _buildSection('Ce qui est inclus', event.whatIncluded!),
+                  _buildSection(l10n.coupleFeedEventIncluded, event.whatIncluded!),
                 ],
               ],
             ),
@@ -250,12 +254,15 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
   }
 
   List<Widget> _buildFacts(CoupleEvent event) {
+    final l10n = context.l10n;
     final place = event.location ?? event.city;
     final facts = <(String, String)>[
-      if (place != null) ('Lieu', place),
-      if (event.address != null) ('Adresse', event.address!),
-      if (event.dressCode != null) ('Tenue', event.dressCode!),
-      if (event.organizerName != null) ('Organisé par', event.organizerName!),
+      if (place != null) (l10n.coupleFeedEventFactPlace, place),
+      if (event.address != null) (l10n.coupleFeedAddress, event.address!),
+      if (event.dressCode != null)
+        (l10n.coupleFeedEventFactDressCode, event.dressCode!),
+      if (event.organizerName != null)
+        (l10n.coupleFeedEventFactOrganizer, event.organizerName!),
     ];
     return [
       for (var i = 0; i < facts.length; i++)
@@ -302,6 +309,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
 
   Widget _buildPriceCard(CoupleEvent event) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final full = event.isFull;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -315,7 +323,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              event.formattedPrice,
+              event.priceLabel(l10n),
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontSize: 20),
@@ -325,7 +333,9 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
             const SizedBox(width: 12),
             Flexible(
               child: Text(
-                full ? 'Complet' : '${event.spotsLeft} places restantes',
+                full
+                    ? l10n.coupleFeedEventFull
+                    : l10n.coupleFeedEventSpotsLeft(event.spotsLeft),
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   fontSize: 14,
@@ -356,19 +366,19 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
   }
 }
 
-/// Retour posé sur la photo, cale sur le bord gauche.
+/// Retour posé sur la photo, calé sur le bord de départ.
 class _BackButton extends StatelessWidget {
   const _BackButton();
 
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
-    return Positioned(
+    return PositionedDirectional(
       top: top + 8,
-      left: 24,
+      start: 24,
       child: RoundIconButton(
-        icon: LucideIcons.arrowLeft,
-        tooltip: 'Retour',
+        icon: backArrowIcon(context),
+        tooltip: context.l10n.commonBack,
         onPressed: () => context.pop(),
       ),
     );

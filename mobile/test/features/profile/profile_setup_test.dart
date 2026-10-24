@@ -64,6 +64,41 @@ void main() {
       expect(selectedDecoration.color, isNot(Colors.transparent));
     });
 
+    testWidgets('cannot be finished without saying who the member looks for',
+        (tester) async {
+      await tester.pumpWidget(
+        createSimpleTestableWidget(const ProfileSetupScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      // Step 1: name, birthdate (default date of the picker), gender.
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Prénom'),
+        'Jeanne',
+      );
+      await tester.tap(find.byIcon(LucideIcons.calendar));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Un homme'));
+      await tester.pump();
+
+      // Steps 1 -> 4, nothing else is required on the way.
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.text('Suivant'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Ce que vous recherchez'), findsOneWidget);
+      expect(find.text('Terminer'), findsOneWidget);
+
+      // "Terminer" with no "Je recherche" choice: refused, same page.
+      await tester.tap(find.text('Terminer'));
+      await tester.pump();
+
+      expect(find.text('Indiquez ce que vous recherchez'), findsOneWidget);
+      expect(find.text('Ce que vous recherchez'), findsOneWidget);
+    });
+
     testWidgets('birthdate field opens a date picker on tap', (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(const ProfileSetupScreen()),

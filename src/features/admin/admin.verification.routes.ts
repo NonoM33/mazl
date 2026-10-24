@@ -7,7 +7,7 @@ import {
   getWaitlistEmailById,
   requestReuploadAndRotateToken,
 } from "../../db";
-import { createDocumentsModule, findMissingRequired } from "../documents";
+import { findMissingRequired, type DocumentsModule } from "../documents";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail } from "../../email";
 import type { Context } from "hono";
 import { z } from "zod";
@@ -52,11 +52,10 @@ async function readJson(c: Context): Promise<unknown> {
 // verified, document/profile review actions, then the file-download endpoint.
 export function registerAdminVerificationRoutes(
   app: Hono<{ Variables: AppVariables }>,
-  uploadsDir: string,
+  documents: DocumentsModule,
 ): void {
   // Every decision goes through documents.review, which also purges the files
   // it decides (CONTRAT §2.4); the file endpoint decrypts on the fly.
-  const documents = createDocumentsModule(uploadsDir);
 
   // Admin sign-in. Both routes are limited per client address; a wrong
   // password counts towards the lockout shared with the x-admin-password

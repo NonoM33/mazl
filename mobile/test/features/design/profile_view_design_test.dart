@@ -11,6 +11,7 @@ import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_top_bar.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_content.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_data.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme}) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -18,6 +19,9 @@ Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme}) async 
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: theme ?? AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),
@@ -57,26 +61,35 @@ const _full = ProfileViewData(
 );
 
 void main() {
+  final l10n = lookupAppLocalizations(kTestLocale);
+  final fullFacts = _full.facts(l10n);
+
   group('ProfileViewData', () {
     test('prénom, ligne meta et distance', () {
-      expect(_full.firstName, 'Sarah');
-      expect(_full.metaLine, 'Paris · à 4 km');
+      expect(_full.firstName(l10n), 'Sarah');
+      expect(_full.metaLine(l10n), 'Paris · à 4 km');
       const near = ProfileViewData(name: 'Noa', location: 'Lyon', distance: 0.3);
-      expect(near.metaLine, 'Lyon · à moins de 1 km');
+      expect(near.metaLine(l10n), 'Lyon · à moins de 1 km');
       const far = ProfileViewData(name: 'Noa', location: 'Lyon');
-      expect(far.metaLine, 'Lyon');
+      expect(far.metaLine(l10n), 'Lyon');
+    });
+
+    test('sans ville, le pays par défaut ; sans prénom, « cette personne »', () {
+      const nowhere = ProfileViewData(name: '  ', location: null, distance: 12);
+      expect(nowhere.metaLine(l10n), 'France · à 12 km');
+      expect(nowhere.firstName(l10n), 'cette personne');
     });
 
     test("L'essentiel ne garde que les champs renseignés", () {
-      expect(_full.facts.map((f) => f.label), ['Pratique', 'Cacherout', 'Shabbat', 'Genre']);
+      expect(fullFacts.map((f) => f.label), ['Pratique', 'Cacherout', 'Shabbat', 'Genre']);
       const partial = ProfileViewData(
         name: 'Noa',
         location: 'Lyon',
         kashrut: 'Casher',
         denomination: '  ',
       );
-      expect(partial.facts.map((f) => f.label), ['Cacherout']);
-      expect(const ProfileViewData(name: 'Noa', location: 'Lyon').facts, isEmpty);
+      expect(partial.facts(l10n).map((f) => f.label), ['Cacherout']);
+      expect(const ProfileViewData(name: 'Noa', location: 'Lyon').facts(l10n), isEmpty);
     });
 
     test('la photo SSO sert de repli à la galerie', () {
@@ -88,10 +101,10 @@ void main() {
 
   group("L'essentiel", () {
     testWidgets('affiche un libellé et sa valeur par champ, sans filet sur la dernière', (tester) async {
-      await _pump(tester, ProfileFactsSection(facts: _full.facts));
+      await _pump(tester, ProfileFactsSection(facts: fullFacts));
 
       expect(find.text("L'ESSENTIEL"), findsOneWidget);
-      for (final fact in _full.facts) {
+      for (final fact in fullFacts) {
         expect(find.text(fact.label), findsOneWidget);
         expect(find.text(fact.value), findsOneWidget);
       }
@@ -276,7 +289,7 @@ void main() {
           photos: photos ? ['a', 'b'] : const [],
           bio: bio ? 'Salut' : null,
           isVerified: verified,
-          location: city ? 'Paris' : 'France',
+          location: city ? 'Paris' : null,
         );
 
     testWidgets('mène à la première étape incomplète', (tester) async {

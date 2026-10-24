@@ -9,7 +9,8 @@ import 'package:mazl/core/services/store/subscription_api.dart';
 import 'package:mazl/core/services/store/subscription_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/premium/screens/premium_screen.dart';
-import 'package:mazl/presentation/features/premium/widgets/plus_widgets.dart';
+import 'package:mazl/l10n/generated/app_localizations.dart';
+import 'package:mazl/presentation/features/premium/l10n/plan_price.dart';
 
 import '../../support/store_fakes.dart';
 
@@ -18,7 +19,9 @@ import '../../support/store_fakes.dart';
 void main() {
   // « 14,99 € » avec l'espace insécable de la typographie française.
   final continueLabel =
-      'Continuer · ${planTotalLabel(price: 14.99, currencyCode: 'EUR')}';
+      'Continuer · ${planTotalLabel(price: 14.99, currencyCode: 'EUR', locale: 'fr')}';
+  final englishContinueLabel =
+      'Continue · ${planTotalLabel(price: 14.99, currencyCode: 'EUR', locale: 'en')}';
   late FakeStoreGateway gateway;
   late FakeSubscriptionApi api;
   late SubscriptionService service;
@@ -48,6 +51,7 @@ void main() {
   Future<void> pumpOffer(
     WidgetTester tester, {
     TargetPlatform platform = TargetPlatform.iOS,
+    Locale locale = const Locale('fr'),
   }) async {
     tester.view.physicalSize = const Size(390, 1400);
     tester.view.devicePixelRatio = 1;
@@ -72,6 +76,9 @@ void main() {
     addTearDown(router.dispose);
     await tester.pumpWidget(
       MaterialApp.router(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
         theme: AppTheme.lightTheme.copyWith(platform: platform),
         routerConfig: router,
       ),
@@ -197,5 +204,91 @@ void main() {
     await settle(tester);
 
     expect(find.text('Aucun abonnement trouvé'), findsOneWidget);
+  });
+
+  group('en anglais', () {
+    const english = Locale('en');
+
+    testWidgets('achat déjà lié à un autre compte : phrase anglaise', (
+      tester,
+    ) async {
+      api.onVerify = () => const ApiReply(409, {
+        'success': false,
+        'error': 'transaction_owned_by_another_user',
+      });
+      gateway.onBuy = (_) async =>
+          gateway.emit(purchaseDetails(PurchaseStatus.purchased));
+      await pumpOffer(tester, locale: english);
+
+      await tester.tap(find.text(englishContinueLabel));
+      await settle(tester);
+
+      expect(
+        find.text(
+          'This App Store purchase is already linked to another mazl account.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Cet achat App Store est déjà associé à un autre compte mazl.',
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('Android : le bouton désactivé le dit en anglais', (
+      tester,
+    ) async {
+      await pumpOffer(
+        tester,
+        platform: TargetPlatform.android,
+        locale: english,
+      );
+      expect(find.text('Coming soon on Android'), findsOneWidget);
+      expect(find.text('Bientôt disponible sur Android'), findsNothing);
+    });
+
+    testWidgets('Restaurer : abonnement retrouvé -> message anglais', (
+      tester,
+    ) async {
+      gateway.onRestore = () async =>
+          gateway.emit(purchaseDetails(PurchaseStatus.restored, id: '1999'));
+      await pumpOffer(tester, locale: english);
+
+      await tester.tap(find.text('Restore'));
+      await settle(tester);
+
+      expect(find.text('Subscription restored'), findsOneWidget);
+    });
+
+    testWidgets('Restaurer : rien à restaurer -> message anglais', (
+      tester,
+    ) async {
+      await pumpOffer(tester, locale: english);
+
+      await tester.tap(find.text('Restore'));
+      await settle(tester);
+
+      expect(find.text('No subscription found'), findsOneWidget);
+    });
+
+    testWidgets('achat en attente d\'approbation : phrase anglaise', (
+      tester,
+    ) async {
+      gateway.onBuy = (_) async =>
+          gateway.emit(purchaseDetails(PurchaseStatus.pending));
+      await pumpOffer(tester, locale: english);
+
+      await tester.tap(find.text(englishContinueLabel));
+      await settle(tester);
+
+      expect(
+        find.text(
+          'Purchase pending approval. Your subscription will activate as soon as it is approved.',
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }

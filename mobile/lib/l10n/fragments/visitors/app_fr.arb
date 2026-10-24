@@ -1,0 +1,96 @@
+{
+  "visitorsTitle": "Qui a visité mon profil",
+  "@visitorsTitle": {
+    "description": "Titre de la barre d'en-tête de l'écran des visiteurs du profil."
+  },
+  "visitorsTotal": "{count, plural, one{{count} visite} other{{count} visites}}",
+  "@visitorsTotal": {
+    "description": "Grand chiffre de l'en-tête violet : le nombre total de visites. {count} est un entier.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitorsThisWeek": "{count} cette semaine",
+  "@visitorsThisWeek": {
+    "description": "Sous le total des visites : combien datent des 7 derniers jours. {count} est un entier.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitorsBannerTitle": "Découvrez qui vous a visité",
+  "@visitorsBannerTitle": {
+    "description": "Titre de la bannière qui propose mazl+ à un compte gratuit."
+  },
+  "visitorsBannerBody": "Passez à mazl+ pour voir les profils",
+  "@visitorsBannerBody": {
+    "description": "Sous le titre de la bannière mazl+ : une ligne courte (12 px). « mazl+ » est un nom de marque."
+  },
+  "visitorsEmptyTitle": "Pas encore de visiteurs",
+  "@visitorsEmptyTitle": {
+    "description": "Titre de l'écran des visiteurs quand personne n'a encore visité le profil."
+  },
+  "visitorsEmptyBody": "Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.",
+  "@visitorsEmptyBody": {
+    "description": "Texte sous le titre de l'écran des visiteurs vide : conseil pour attirer des visiteurs. « Boost » est le nom d'une fonction."
+  },
+  "visitorsEmptyAction": "Activer un Boost",
+  "@visitorsEmptyAction": {
+    "description": "Bouton de l'écran des visiteurs vide : ouvre l'écran du Boost."
+  },
+  "visitorsLockedTitle": "Réservé à mazl+",
+  "@visitorsLockedTitle": {
+    "description": "Titre de la feuille qui s'ouvre quand un compte gratuit touche une visite verrouillée. « mazl+ » est un nom de marque."
+  },
+  "visitorsLockedBody": "Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.",
+  "@visitorsLockedBody": {
+    "description": "Texte de la feuille « Réservé à mazl+ »."
+  },
+  "visitorsLockedAction": "Découvrir mazl+",
+  "@visitorsLockedAction": {
+    "description": "Bouton principal de la feuille « Réservé à mazl+ » : ouvre l'abonnement."
+  },
+  "visitorsNew": "NEW",
+  "@visitorsNew": {
+    "description": "Pastille sur la photo d'une visite de moins de 24 heures. 10 px de haut, une seule ligne courte."
+  },
+  "visitorsAgoMinutes": "Il y a {count} min",
+  "@visitorsAgoMinutes": {
+    "description": "Il y a moins d'une heure, sous le prénom d'un visiteur. {count} est un entier de minutes (« min » abrégé).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitorsAgoHours": "Il y a {count}h",
+  "@visitorsAgoHours": {
+    "description": "Il y a moins d'un jour, sous le prénom d'un visiteur. {count} est un entier d'heures (« h » abrégé).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitorsAgoDays": "{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}",
+  "@visitorsAgoDays": {
+    "description": "Il y a 2 à 6 jours, sous le prénom d'un visiteur. {count} est un entier de jours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitorsAgoWeeks": "Il y a {count} sem.",
+  "@visitorsAgoWeeks": {
+    "description": "Il y a une semaine ou plus, sous le prénom d'un visiteur. {count} est un entier de semaines (« sem. » abrégé).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ import 'package:mazl/presentation/features/matching/widgets/match_sheet.dart';
 import 'package:mazl/presentation/features/profile/screens/profile_view_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/l10n_helpers.dart';
 import '../../mocks/fake_discover_api.dart';
 
 // A choice made on the profile page (like, pass) is the same choice as on the
@@ -59,6 +60,9 @@ Future<void> _pumpWithProfilePage(
       overrides: [isMazlProProvider.overrideWithValue(false)],
       child: MaterialApp.router(
         theme: AppTheme.lightTheme,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         routerConfig: router,
       ),
     ),

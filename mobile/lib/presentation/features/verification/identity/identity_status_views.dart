@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/identity_failure_text.dart';
 import 'identity_flow_state.dart';
 import 'identity_layout.dart';
 import 'identity_messages.dart';
@@ -29,13 +31,13 @@ class IdentityUnavailableView extends StatelessWidget {
   Widget build(BuildContext context) => switch (reason) {
     IdentityUnavailableReason.comingSoon => IdentityNotice(
       icon: LucideIcons.clock,
-      title: 'Bientôt disponible',
+      title: context.l10n.verificationComingSoon,
       onClose: onClose,
-      actions: [IdentityPrimaryButton('Fermer', onPressed: onClose)],
+      actions: [IdentityPrimaryButton(context.l10n.commonClose, onPressed: onClose)],
     ),
     IdentityUnavailableReason.noNfc => IdentityNotice(
       icon: LucideIcons.smartphoneNfc,
-      title: 'Ce téléphone n\'a pas de lecteur NFC.',
+      title: context.l10n.verificationFailureNoNfc,
       onClose: onClose,
       actions: const [ManualReviewButton()],
     ),
@@ -51,13 +53,13 @@ class IdentityFaceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IdentityPage(
-    eyebrow: 'Étape 2 / 3',
+    eyebrow: context.l10n.verificationStepLabel(2, 3),
     onClose: onClose,
     lead: const IconDisc(icon: LucideIcons.check, filled: true),
-    title: 'Puce lue.',
+    title: context.l10n.verificationFaceTitle,
     titleSize: 36,
-    subtitle: 'Il reste un selfie en mouvement, comparé à la photo de la puce.',
-    actions: [IdentityPrimaryButton('Prendre le selfie', onPressed: onCapture)],
+    subtitle: context.l10n.verificationFaceSubtitle,
+    actions: [IdentityPrimaryButton(context.l10n.verificationFaceAction, onPressed: onCapture)],
   );
 }
 
@@ -75,7 +77,9 @@ class IdentitySubmittingView extends StatelessWidget {
         const CircularProgressIndicator(),
         const SizedBox(height: 20),
         Text(
-          stage == IdentitySubmitStage.sending ? 'Vérification en cours…' : 'Préparation…',
+          stage == IdentitySubmitStage.sending
+              ? context.l10n.verificationSubmitSending
+              : context.l10n.verificationSubmitPreparing,
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ],
@@ -91,25 +95,26 @@ class IdentityDoneView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return IdentityPage(
       lead: const IconDisc(icon: LucideIcons.check, size: 72, filled: true),
-      title: 'Identité vérifiée.',
+      title: l10n.verificationDoneTitle,
       titleSize: 48,
-      subtitle: 'La puce de votre document et votre selfie correspondent. Votre profil porte maintenant le badge.',
-      actions: [IdentityPrimaryButton('Terminer', onPressed: onDone)],
+      subtitle: l10n.verificationDoneSubtitle,
+      actions: [IdentityPrimaryButton(l10n.verificationDoneAction, onPressed: onDone)],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _BadgePreview(),
           const SizedBox(height: 14),
-          Text('Ce que les autres voient sur votre profil.', style: TextStyle(fontSize: 13, color: muted)),
+          Text(l10n.verificationDoneBadgeCaption, style: TextStyle(fontSize: 13, color: muted)),
           const SizedBox(height: 20),
           // Must match the server (docs/verification/CONTRAT.md §0, §4): the chip
           // data and the selfie are never stored; only these facts are kept.
-          const FactRow(label: 'Photos et puce', value: 'Jamais enregistrées'),
-          const FactRow(label: 'Conservé', value: 'Pays, expiration, empreinte anonyme'),
-          const FactRow(label: 'Profil', value: 'Date de naissance du document', last: true),
+          FactRow(label: l10n.verificationDoneStoredLabel, value: l10n.verificationDoneStoredValue),
+          FactRow(label: l10n.verificationDoneKeptLabel, value: l10n.verificationDoneKeptValue),
+          FactRow(label: l10n.verificationDoneProfileLabel, value: l10n.verificationDoneProfileValue, last: true),
         ],
       ),
     );
@@ -141,11 +146,11 @@ class _BadgePreview extends StatelessWidget {
                     decoration: BoxDecoration(color: scheme.outline, borderRadius: BorderRadius.circular(6)),
                   ),
                   const SizedBox(height: 12),
-                  const Align(
-                    alignment: Alignment.centerLeft,
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: TagPill('Identité vérifiée', icon: LucideIcons.check),
+                      child: TagPill(context.l10n.verificationBadgeLabel, icon: LucideIcons.check),
                     ),
                   ),
                 ],
@@ -168,10 +173,10 @@ class IdentityFailedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IdentityNotice(
     icon: LucideIcons.circleAlert,
-    title: info.message,
+    title: info.messageText(context.l10n),
     onClose: onClose,
     actions: [
-      IdentityPrimaryButton(info.actionLabel, onPressed: onAction),
+      IdentityPrimaryButton(info.actionLabel(context.l10n), onPressed: onAction),
       if (info.offerManualReview) const ManualReviewButton(),
     ],
   );

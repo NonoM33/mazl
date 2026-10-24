@@ -7,6 +7,7 @@ import '../../../../core/privacy/religious_data_consent.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Asks for the explicit consent of article 9 and records the answer.
 /// Resolves true when granted, false when refused, null when dismissed or when
@@ -56,8 +57,8 @@ class _ReligiousConsentSheetState extends ConsumerState<ReligiousConsentSheet> {
     setState(() {
       _busy = false;
       _error = response.error == PrivacyConsentError.versionOutdated
-          ? 'Le texte a été mis à jour. Fermez cette fenêtre et rouvrez-la.'
-          : 'Votre choix n\'a pas pu être enregistré. Réessayez.';
+          ? context.l10n.privacySheetErrorOutdated
+          : context.l10n.privacySheetErrorSave;
     });
   }
 
@@ -69,24 +70,21 @@ class _ReligiousConsentSheetState extends ConsumerState<ReligiousConsentSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionLabel(
-            'Données sensibles · RGPD article 9',
+          SectionLabel(
+            context.l10n.privacySheetLabel,
             color: AppColors.tekhelet,
           ),
           const SizedBox(height: 8),
           Semantics(
             header: true,
             child: Text(
-              'Votre pratique religieuse, avec votre accord',
+              context.l10n.privacySheetTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'Ces informations aident à proposer des profils compatibles. '
-            'Ce sont des données sensibles, traitées seulement avec votre '
-            'accord explicite, distinct des conditions d\'utilisation. '
-            'Vous pouvez refuser et utiliser MAZL quand même.',
+            context.l10n.privacySheetBody,
             style: TextStyle(
               fontSize: 14,
               height: 1.5,
@@ -116,9 +114,9 @@ class _ReligiousConsentSheetState extends ConsumerState<ReligiousConsentSheet> {
             onChanged: _busy
                 ? null
                 : (value) => setState(() => _checked = value ?? false),
-            title: const Text(
-              'J\'ai lu ce texte et je donne mon accord explicite.',
-              style: TextStyle(fontSize: 14),
+            title: Text(
+              context.l10n.privacySheetCheckbox,
+              style: const TextStyle(fontSize: 14),
             ),
           ),
           if (_error != null)
@@ -132,12 +130,12 @@ class _ReligiousConsentSheetState extends ConsumerState<ReligiousConsentSheet> {
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: _checked && !_busy ? () => _decide(true) : null,
-            child: const Text('J\'accepte'),
+            child: Text(context.l10n.privacySheetAccept),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: _busy ? null : () => _decide(false),
-            child: const Text('Continuer sans'),
+            child: Text(context.l10n.privacySheetDecline),
           ),
         ],
       ),

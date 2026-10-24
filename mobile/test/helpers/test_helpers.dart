@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mazl/core/theme/app_colors.dart';
+import 'l10n_helpers.dart';
 
 /// Creates a testable widget wrapped with necessary providers and theme
 Widget createTestableWidget(
@@ -49,6 +50,9 @@ Widget createTestableWidget(
   return ProviderScope(
     overrides: overrides ?? [],
     child: MaterialApp.router(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       routerConfig: testRouter,
       theme: _testTheme,
       debugShowCheckedModeBanner: false,
@@ -61,6 +65,9 @@ Widget createSimpleTestableWidget(Widget child, {List<Override>? overrides}) {
   return ProviderScope(
     overrides: overrides ?? [],
     child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       home: child,
       theme: _testTheme,
       debugShowCheckedModeBanner: false,

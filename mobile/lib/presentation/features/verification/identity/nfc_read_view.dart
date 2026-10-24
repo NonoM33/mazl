@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/verification/chip/chip_reader.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/identity_failure_text.dart';
 import 'chip_location_illustration.dart';
 import 'identity_flow_state.dart';
 import 'identity_layout.dart';
@@ -26,50 +28,36 @@ class NfcReadView extends StatelessWidget {
   final VoidCallback onRereadPhotoPage;
   final VoidCallback onClose;
 
-  static const _eyebrow = 'Étape 2 / 3';
-  static const _placement =
-      'Le haut du téléphone contre la couverture fermée du passeport, '
-      'ou contre le dos de la carte d\'identité. Retirez la coque si besoin.';
-  static const _tips = [
-    'Retirez la coque du téléphone.',
-    'Posez le haut du téléphone au centre de la couverture, passeport fermé.',
-    'Restez immobile une dizaine de secondes.',
-  ];
-
-  /// A chip that stayed silent, as opposed to a phone setting or a wrong MRZ.
-  static final _silentChipMessages = {
-    for (final kind in [ChipFailureKind.timeout, ChipFailureKind.tagLost, ChipFailureKind.unknown])
-      describeChipFailure(kind)!.message,
-  };
-
-  static String stepLabel(ChipReadStep step) => NfcStepChecklist.labels[step]!;
-
   @override
   Widget build(BuildContext context) {
     final failure = state.failure;
-    if (failure != null && !state.reading) return _failureView(failure);
-    return state.reading ? _readingView() : _waitingView();
+    if (failure != null && !state.reading) return _failureView(context, failure);
+    return state.reading ? _readingView(context) : _waitingView(context);
   }
 
-  Widget _waitingView() => IdentityPage(
-    eyebrow: _eyebrow,
-    onClose: onClose,
-    title: 'Posez votre document sur le téléphone.',
-    subtitle: _placement,
-    actions: [IdentityPrimaryButton('Lire le document', onPressed: onRead)],
-    child: const Center(child: ChipLocationIllustration()),
-  );
+  Widget _waitingView(BuildContext context) {
+    final l10n = context.l10n;
+    return IdentityPage(
+      eyebrow: l10n.verificationStepLabel(2, 3),
+      onClose: onClose,
+      title: l10n.verificationNfcWaitingTitle,
+      subtitle: l10n.verificationNfcPlacement,
+      actions: [IdentityPrimaryButton(l10n.verificationNfcRead, onPressed: onRead)],
+      child: const Center(child: ChipLocationIllustration()),
+    );
+  }
 
-  Widget _readingView() {
+  Widget _readingView(BuildContext context) {
+    final l10n = context.l10n;
     final progress = state.progress;
     final percent = progress?.percent ?? 0;
     return IdentityPage(
-      eyebrow: _eyebrow,
-      title: 'Ne bougez plus.',
-      subtitle: 'Gardez le document contre le haut du téléphone jusqu\'à la fin de la lecture.',
+      eyebrow: l10n.verificationStepLabel(2, 3),
+      title: l10n.verificationNfcReadingTitle,
+      subtitle: l10n.verificationNfcReadingSubtitle,
       note: Semantics(
-        label: 'Lecture de la puce',
-        value: '$percent %',
+        label: l10n.verificationNfcProgressLabel,
+        value: l10n.verificationNfcProgressValue(percent),
         child: ExcludeSemantics(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(2),
@@ -81,24 +69,26 @@ class NfcReadView extends StatelessWidget {
     );
   }
 
-  Widget _failureView(IdentityFailureInfo failure) {
-    final silent = _silentChipMessages.contains(failure.message);
+  Widget _failureView(BuildContext context, IdentityFailureInfo failure) {
+    final l10n = context.l10n;
+    final silent = failure.isSilentChip;
     return IdentityNotice(
-      eyebrow: _eyebrow,
+      eyebrow: l10n.verificationStepLabel(2, 3),
       icon: LucideIcons.circleAlert,
-      title: failure.message,
+      title: failure.messageText(l10n),
       body: switch (failure.recovery) {
-        IdentityRecovery.retryChip => silent ? 'Cela arrive souvent au premier essai. Rien n\'a été envoyé.' : null,
-        IdentityRecovery.rescanMrz =>
-          'Rien n\'a été envoyé. Relisez la page photo pour repartir sur de bonnes données.',
+        IdentityRecovery.retryChip => silent ? l10n.verificationNfcSilentBody : null,
+        IdentityRecovery.rescanMrz => l10n.verificationNfcRescanBody,
         IdentityRecovery.retryFace || IdentityRecovery.close => null,
       },
-      tips: silent && failure.recovery == IdentityRecovery.retryChip ? _tips : const [],
+      tips: silent && failure.recovery == IdentityRecovery.retryChip
+          ? [l10n.verificationNfcTip1, l10n.verificationNfcTip2, l10n.verificationNfcTip3]
+          : const [],
       onClose: onClose,
       actions: [
-        IdentityPrimaryButton(failure.actionLabel, onPressed: onRecover),
+        IdentityPrimaryButton(failure.actionLabel(l10n), onPressed: onRecover),
         // The chip answered nothing or badly: the photo page may have been misread.
-        if (silent) IdentityLinkButton('Relire la page photo', onPressed: onRereadPhotoPage),
+        if (silent) IdentityLinkButton(l10n.verificationNfcRereadPhotoPage, onPressed: onRereadPhotoPage),
         if (failure.offerManualReview) const ManualReviewButton(),
       ],
     );

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _saved = 'GET /api/couple/saved';
 
@@ -24,6 +25,9 @@ Future<FakeCoupleTransport> _pumpSaved(
   setUp(transport);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       home: SavedActivitiesScreen(
         apiService: CoupleApiService(transport: transport),
       ),

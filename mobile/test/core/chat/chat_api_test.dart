@@ -354,7 +354,7 @@ void main() {
     });
   });
 
-  group('errors become short French messages', () {
+  group('errors become typed kinds, never sentences', () {
     Future<ChatApiException> failing(int status, Future<void> Function(HttpChatApi) call) async {
       final api = apiWith((r) async => json({'success': false, 'error': 'Not found: secret details'}, status));
       try {
@@ -367,13 +367,13 @@ void main() {
 
     test('401', () async {
       final e = await failing(401, (a) => a.getMessages(1));
-      expect(e.message, 'Session expirée, reconnectez-vous.');
+      expect(e.kind, ChatApiErrorKind.sessionExpired);
       expect(e.status, 401);
     });
 
     test('404: the conversation is gone (or never was ours), without saying which', () async {
       final e = await failing(404, (a) => a.getMessages(1));
-      expect(e.message, 'Cette conversation n’est plus disponible.');
+      expect(e.kind, ChatApiErrorKind.conversationGone);
     });
 
     test('403 on a write: the pair is blocked (server CONTRAT §0.1)', () async {
@@ -382,18 +382,18 @@ void main() {
         (a) => a.toggleReaction(1, '❤️'),
       ]) {
         final e = await failing(403, call);
-        expect(e.message, 'Vous ne pouvez plus écrire dans cette conversation.');
+        expect(e.kind, ChatApiErrorKind.blocked);
       }
     });
 
     test('429', () async {
       final e = await failing(429, (a) => a.sendMessage(1, clientId: 'c', type: ChatMessageType.text, content: 'x'));
-      expect(e.message, 'Trop d’envois, patientez un instant.');
+      expect(e.kind, ChatApiErrorKind.rateLimited);
     });
 
     test('5xx', () async {
       final e = await failing(503, (a) => a.getMessages(1));
-      expect(e.message, 'Le serveur est indisponible, réessayez.');
+      expect(e.kind, ChatApiErrorKind.server);
     });
 
     test('413 on upload', () async {
@@ -401,34 +401,63 @@ void main() {
         413,
         (a) => a.uploadMedia(1, bytes: Uint8List(1), kind: MediaKind.photo),
       );
-      expect(e.message, 'Fichier trop volumineux.');
+      expect(e.kind, ChatApiErrorKind.tooLarge);
     });
 
     test('415 and 422 on upload mean the file was refused', () async {
       for (final status in [400, 415, 422]) {
         final e = await failing(status, (a) => a.uploadMedia(1, bytes: Uint8List(1), kind: MediaKind.voice));
-        expect(e.message, 'Fichier refusé, essayez-en un autre.');
+        expect(e.kind, ChatApiErrorKind.fileRejected);
       }
     });
 
     test('unsend refused after 15 minutes', () async {
       for (final status in [403, 409, 422]) {
         final e = await failing(status, (a) => a.unsend(1));
-        expect(e.message, 'Ce message ne peut plus être retiré.');
+        expect(e.kind, ChatApiErrorKind.cannotUnsend);
       }
+    });
+
+    Future<ChatApiException> failingWith(
+      int status,
+      String code,
+      Future<void> Function(HttpChatApi) call,
+    ) async {
+      final api = apiWith((r) async => json({'success': false, 'error': code}, status));
+      try {
+        await call(api);
+      } on ChatApiException catch (e) {
+        return e;
+      }
+      fail('expected a ChatApiException');
+    }
+
+    test('the server code decides when there is one (CONTRAT §0.1, http-errors.ts)', () async {
+      Future<void> send(HttpChatApi a) =>
+          a.sendMessage(1, clientId: 'c', type: ChatMessageType.text, content: 'x');
+      expect((await failingWith(403, 'blocked', send)).kind, ChatApiErrorKind.blocked);
+      expect((await failingWith(403, 'not_author', (a) => a.unsend(1))).kind, ChatApiErrorKind.cannotUnsend);
+      expect((await failingWith(409, 'too_late', (a) => a.unsend(1))).kind, ChatApiErrorKind.cannotUnsend);
+      expect((await failingWith(429, 'too_many_pending', send)).kind, ChatApiErrorKind.rateLimited);
+      expect((await failingWith(429, 'rate_limited', send)).kind, ChatApiErrorKind.rateLimited);
+    });
+
+    test('a blocked pair stays « blocked » on a reaction too, never « cannot unsend »', () async {
+      final e = await failingWith(403, 'blocked', (a) => a.toggleReaction(1, '❤️'));
+      expect(e.kind, ChatApiErrorKind.blocked);
     });
 
     test('the server error text is never shown', () async {
       final e = await failing(400, (a) => a.sendMessage(1, clientId: 'c', type: ChatMessageType.text, content: 'x'));
-      expect(e.message, isNot(contains('secret')));
-      expect(e.message, 'Message refusé.');
+      expect(e.kind, ChatApiErrorKind.messageRejected);
+      expect(e.toString(), isNot(contains('secret')));
     });
 
     test('timeout', () async {
       final api = apiWith((r) async => throw TimeoutException('slow'));
       expect(
         () => api.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Délai dépassé, vérifiez votre connexion.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.timeout)),
       );
     });
 
@@ -436,12 +465,12 @@ void main() {
       final api = apiWith((r) async => throw const SocketException('down'));
       expect(
         () => api.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Pas de connexion internet.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.network)),
       );
       final api2 = apiWith((r) async => throw http.ClientException('down'));
       expect(
         () => api2.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Pas de connexion internet.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.network)),
       );
     });
 
@@ -449,7 +478,7 @@ void main() {
       final api = apiWith((r) async => json({'success': false, 'error': 'x'}));
       expect(
         () => api.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Une erreur est survenue.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.unknown)),
       );
     });
 
@@ -457,12 +486,12 @@ void main() {
       final api = apiWith((r) async => http.Response('<html>oops</html>', 200));
       expect(
         () => api.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Une erreur est survenue.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.unknown)),
       );
       final api2 = apiWith((r) async => json({'success': true, 'messages': 'nope'}));
       expect(
         () => api2.getMessages(1),
-        throwsA(isA<ChatApiException>().having((e) => e.message, 'message', 'Une erreur est survenue.')),
+        throwsA(isA<ChatApiException>().having((e) => e.kind, 'kind', ChatApiErrorKind.unknown)),
       );
     });
   });

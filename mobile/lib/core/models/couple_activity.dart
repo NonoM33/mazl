@@ -113,19 +113,13 @@ class CoupleActivity {
     return [];
   }
 
-  String get formattedPrice {
-    if (priceCents == null || priceCents == 0) return 'Gratuit';
-    final euros = priceCents! ~/ 100;
-    return '$euros€';
-  }
-
-  String get formattedDuration {
-    if (durationMinutes == null) return '';
-    if (durationMinutes! < 60) return '${durationMinutes}min';
-    final hours = durationMinutes! ~/ 60;
-    final mins = durationMinutes! % 60;
-    if (mins == 0) return '${hours}h';
-    return '${hours}h${mins}min';
+  /// Whole euros of the price (the cents are dropped); null when free.
+  /// The words around it live in the presentation layer, which owns the
+  /// language.
+  int? get priceEuros {
+    final cents = priceCents;
+    if (cents == null || cents == 0) return null;
+    return cents ~/ 100;
   }
 
   String get categoryEmoji {
@@ -148,29 +142,6 @@ class CoupleActivity {
         return '💕';
       default:
         return '✨';
-    }
-  }
-
-  String get categoryLabel {
-    switch (category) {
-      case 'wellness':
-        return 'Bien-être';
-      case 'gastronomy':
-        return 'Gastronomie';
-      case 'culture':
-        return 'Culture';
-      case 'sport':
-        return 'Sport';
-      case 'travel':
-        return 'Voyage';
-      case 'spiritual':
-        return 'Spirituel';
-      case 'diy':
-        return 'DIY';
-      case 'romantic':
-        return 'Romantique';
-      default:
-        return category;
     }
   }
 

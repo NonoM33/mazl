@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/di/providers/web_sessions_providers.dart';
 import 'package:mazl/core/web_sessions/web_session_models.dart';
 import 'package:mazl/presentation/features/web_sessions/screens/computers_screen.dart';
+import 'package:mazl/l10n/l10n.dart';
 
 import 'web_sessions_fakes.dart';
 
@@ -12,7 +13,12 @@ Future<void> _open(WidgetTester tester, FakeWebSessionsApi api) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [webSessionsApiProvider.overrideWithValue(api)],
-      child: const MaterialApp(home: ComputersScreen()),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('fr'),
+        home: const ComputersScreen(),
+      ),
     ),
   );
   await tester.pumpAndSettle();

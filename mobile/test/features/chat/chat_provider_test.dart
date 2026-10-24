@@ -42,7 +42,7 @@ void main() {
   });
 
   test('a failed message survives leaving and re-entering the screen', () async {
-    final api = FakeChatApi()..onSend = ((call) async => throw const ChatApiException('Pas de connexion internet.'));
+    final api = FakeChatApi()..onSend = ((call) async => throw const ChatApiException(ChatApiErrorKind.network));
     final c = container(api, FakeChatRealtime());
     addTearDown(c.dispose);
 

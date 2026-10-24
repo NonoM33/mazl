@@ -1,0 +1,21 @@
+{
+  "boostTitle": "Boost",
+  "boostHeadlineActive": "Boost activo",
+  "boostHeadlineIdle": "Impulsa tu perfil",
+  "boostTagline": "Haz que te vean 10 veces más personas.",
+  "boostMinutesLeft": "{minutes, plural, one{{minutes} min restante} other{{minutes} min restantes}}",
+  "boostDuringTitle": "Durante este Boost",
+  "boostViews": "Visitas",
+  "boostLikes": "Likes",
+  "boostBenefitsTitle": "Ventajas del Boost",
+  "boostBenefitFirst": "Aparece el primero en las sugerencias",
+  "boostBenefitVisibility": "10 veces más visibilidad durante {minutes} min",
+  "boostBenefitMatches": "Más posibilidades de hacer match",
+  "boostBenefitStats": "Estadísticas en tiempo real durante el Boost",
+  "boostActivate": "Activar el Boost",
+  "boostRemaining": "{count, plural, one{Queda {count} Boost} other{Quedan {count} Boosts}}",
+  "boostActivated": "Boost activado. Tu perfil ya está en primer plano.",
+  "boostActivateFailed": "Error al activar",
+  "boostUpsellTitle": "Boosts ilimitados",
+  "boostUpsellBody": "Usa el Boost sin límite con mazl+"
+}

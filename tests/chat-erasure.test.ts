@@ -6,7 +6,8 @@ import {
 } from "./chat-helpers";
 import { jpegWithGps } from "./media-helpers";
 import { createChatMediaService, STRAY_MIN_AGE_MS } from "../src/features/chat/application/chat-media-service";
-import { createChatDiskStorage } from "../src/features/chat/infra/disk-chat-storage";
+import { createChatStorage } from "../src/features/chat/infra/chat-storage";
+import { createDiskObjectStore } from "../src/shared/storage/disk-object-store";
 import { postgresMediaRepository } from "../src/features/chat/infra/postgres-media-repository";
 import { postgresMessageRepository } from "../src/features/chat/infra/postgres-message-repository";
 import { sharpChatImages } from "../src/features/chat/infra/sharp-chat-images";
@@ -109,7 +110,7 @@ describe("deleting an account erases its chat files", () => {
 
 describe("the stray-file sweep, with the real repositories and disk", () => {
   const service = () => createChatMediaService({
-    messages: postgresMessageRepository, media: postgresMediaRepository, storage: createChatDiskStorage(UPLOADS), images: sharpChatImages, now: () => new Date(),
+    messages: postgresMessageRepository, media: postgresMediaRepository, storage: createChatStorage(createDiskObjectStore(UPLOADS)), images: sharpChatImages, now: () => new Date(),
   });
   const plant = (key: string, ageMs: number) => {
     const path = `${UPLOADS}/${key}`;

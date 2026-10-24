@@ -13,12 +13,17 @@ import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
-import '../../../../core/services/subscription_format.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../../../../core/l10n/app_language_controller.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../l10n/delete_account_reason.dart';
+import '../widgets/language_picker_sheet.dart';
+import '../../couple/l10n/couple_failure_label.dart';
 import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -105,8 +110,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (response.success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Paramètres sauvegardés'),
+        SnackBar(
+          content: Text(context.l10n.settingsSaved),
           backgroundColor: AppColors.success,
         ),
       );
@@ -131,9 +136,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(20),
-                child: Text('Localisation', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(context.l10n.settingsLocation, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
               // Current location display
               if (_location != null && selectedCity == null)
@@ -197,7 +202,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   controller: controller,
                   autofocus: true,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher une ville...',
+                    hintText: context.l10n.settingsCitySearchHint,
                     filled: true,
                     fillColor: Colors.grey.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
@@ -237,7 +242,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  'Saisissez le nom de votre ville et sélectionnez une suggestion',
+                  context.l10n.settingsCitySearchHelp,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ),
@@ -271,7 +276,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const SizedBox(height: 16),
               // Save button
               _buildSheetButton(
-                selectedCity != null ? 'Enregistrer' : 'Fermer',
+                selectedCity != null ? context.l10n.commonSave : context.l10n.commonClose,
                 () {
                   if (selectedCity != null) {
                     setState(() {
@@ -303,21 +308,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         builder: (context, setSheetState) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text('Distance maximale', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(context.l10n.settingsMaxDistance, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '${tempDistance.round()} km',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        context.l10n.settingsDistanceKm(tempDistance.round()),
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -335,7 +345,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            _buildSheetButton('Enregistrer', () {
+            _buildSheetButton(context.l10n.commonSave, () {
               setState(() => _distanceMax = tempDistance.round());
               Navigator.pop(context);
               _saveSettings();
@@ -356,21 +366,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         builder: (context, setSheetState) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text('Tranche d\'âge', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(context.l10n.settingsAgeRange, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '${tempRange.start.round()} - ${tempRange.end.round()} ans',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        context.l10n.settingsAgeRangeValue(tempRange.start.round(), tempRange.end.round()),
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -388,7 +403,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            _buildSheetButton('Enregistrer', () {
+            _buildSheetButton(context.l10n.commonSave, () {
               setState(() {
                 _ageMin = tempRange.start.round();
                 _ageMax = tempRange.end.round();
@@ -399,6 +414,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showLanguageSheet() {
+    showMazlSheet(
+      context,
+      padded: false,
+      builder: (sheetContext) => LanguagePickerSheet(
+        onChosen: () => Navigator.of(sheetContext).pop(),
       ),
     );
   }
@@ -434,9 +459,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final result = await SubscriptionService().restore();
       if (mounted) {
         final message = switch (result) {
-          RestoreFound() => 'Achats restaurés avec succès.',
-          RestoreNothing() => 'Aucun abonnement trouvé.',
-          RestoreFailed(:final message) => message,
+          RestoreFound() => context.l10n.settingsRestoreSuccess,
+          RestoreNothing() => context.l10n.settingsRestoreNothing,
+          // The store's own wording is a diagnostic, not for the screen.
+          RestoreFailed() => context.l10n.settingsRestoreError,
         };
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message)),
@@ -449,10 +475,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = context.l10n;
     final confirmed = await _showConfirmSheet(
-      title: 'Se déconnecter',
-      message: 'Voulez-vous vraiment vous déconnecter ?',
-      confirmText: 'Se déconnecter',
+      title: l10n.settingsLogOut,
+      message: l10n.settingsLogOutMessage,
+      confirmText: l10n.settingsLogOut,
       isDestructive: false,
     );
 
@@ -476,7 +503,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     setState(() => _isLoading = true);
 
     final authService = ref.read(authServiceProvider);
-    final result = await authService.deleteAccount(reason: reason);
+    final result = await authService.deleteAccount(reason: reason.apiValue);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -486,25 +513,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.errorMessage ?? 'Erreur lors de la suppression'),
+          content: Text(context.l10n.settingsDeleteError),
           backgroundColor: AppColors.error,
         ),
       );
     }
   }
 
-  Future<String?> _showDeleteReasonSheet() {
-    String? selectedReason;
-    final reasons = [
-      'J\'ai trouvé quelqu\'un',
-      'Je n\'utilise plus l\'application',
-      'Je souhaite faire une pause',
-      'Problèmes techniques',
-      'Le service ne me convient pas',
-      'Autre raison',
-    ];
+  Future<DeleteAccountReason?> _showDeleteReasonSheet() {
+    DeleteAccountReason? selectedReason;
+    const reasons = DeleteAccountReason.values;
 
-    return showMazlSheet<String>(
+    return showMazlSheet<DeleteAccountReason>(
       context,
       isScrollControlled: true,
       padded: false,
@@ -518,15 +538,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
               const SizedBox(height: 16),
-              const Text(
-                'Supprimer mon compte',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                context.l10n.settingsDeleteAccount,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  'Pourquoi souhaitez-vous nous quitter ?',
+                  context.l10n.settingsDeleteReasonPrompt,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
@@ -570,7 +590,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     : Colors.grey,
                               ),
                               const SizedBox(width: 12),
-                              Expanded(child: Text(reason)),
+                              Expanded(child: Text(reason.label(context.l10n))),
                             ],
                           ),
                         ),
@@ -593,7 +613,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Annuler'),
+                        child: Text(context.l10n.commonCancel),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -610,7 +630,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Continuer'),
+                        child: Text(context.l10n.commonContinue),
                       ),
                     ),
                   ],
@@ -624,7 +644,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Future<bool?> _showDeleteConfirmationSheet(String reason) {
+  Future<bool?> _showDeleteConfirmationSheet(DeleteAccountReason reason) {
     return showMazlSheet<bool>(
       context,
       padded: false,
@@ -644,26 +664,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Confirmation finale',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            context.l10n.settingsDeleteFinalTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const Text(
-                  'Cette action est irréversible.',
+                Text(
+                  context.l10n.settingsDeleteIrreversible,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.error,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres',
+                  context.l10n.settingsDeleteDataList,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
@@ -684,7 +704,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Garder mon compte'),
+                    child: Text(context.l10n.settingsDeleteKeep),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -699,7 +719,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Supprimer'),
+                    child: Text(context.l10n.commonDelete),
                   ),
                 ),
               ],
@@ -712,10 +732,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleDeactivateCoupleMode() async {
+    final l10n = context.l10n;
     final confirmed = await _showConfirmSheet(
-      title: 'Quitter le mode couple',
-      message: 'Vous pourrez le réactiver plus tard si vous le souhaitez.',
-      confirmText: 'Quitter',
+      title: l10n.settingsCoupleLeave,
+      message: l10n.settingsCoupleLeaveMessage,
+      confirmText: l10n.settingsCoupleLeaveConfirm,
       isDestructive: true,
     );
 
@@ -727,7 +748,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final result = await _coupleService.leaveCouple();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? 'Impossible de quitter le mode couple. Réessayez.'),
+        content: Text(
+          result.ok
+              ? l10n.settingsCoupleLeft
+              : result.failure?.label(l10n) ?? l10n.settingsCoupleLeaveError,
+        ),
       ),
     );
     if (mounted) setState(() {});
@@ -780,7 +805,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: const Text('Annuler'),
+                    child: Text(context.l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -818,9 +843,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _handleCancelCoupleRequest() async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final result = await _coupleService.cancelCoupleRequest();
     if (!result.ok) {
-      messenger.showSnackBar(SnackBar(content: Text(result.message ?? "Impossible d'annuler la demande. Réessayez.")));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            result.failure?.label(l10n) ?? l10n.settingsCoupleCancelRequestError,
+          ),
+        ),
+      );
     }
     if (mounted) setState(() {});
   }
@@ -856,7 +888,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(context.l10n.settingsRestoreError), backgroundColor: AppColors.error),
         );
       }
     }
@@ -953,26 +985,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final subscriptions = SubscriptionService();
     final isMazlPro = subscriptions.isMazlPro;
     final renewal = subscriptions.expirationDate;
     final subscriptionDetail = [
-      ?subscriptions.activePlanLabel,
+      if (subscriptions.activePlanMonths case final months?)
+        l10n.plusMonths(months),
       if (renewal != null)
-        '${subscriptions.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
+        if (subscriptions.willRenew)
+          l10n.settingsSubscriptionRenewsOn(renewal.toLocal())
+        else
+          l10n.settingsSubscriptionEndsOn(renewal.toLocal()),
     ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
     final inCouple = _coupleService.isCoupleModeEnabled;
 
-    final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecté';
-    final userName = _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
+    final userEmail = _userProfile?.email ?? currentUser?.email ?? l10n.settingsNotSignedIn;
+    final userName = _userProfile?.name ?? currentUser?.displayName ?? l10n.settingsDefaultUserName;
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Paramètres'),
+        title: Text(l10n.settingsTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -1015,56 +1052,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               // Account section
-              _SectionHeader(title: 'Compte'),
+              _SectionHeader(title: l10n.settingsSectionAccount),
               _SettingTile(
                 icon: LucideIcons.userCircle,
-                title: 'Modifier le profil',
+                title: l10n.settingsEditProfile,
                 onTap: () => context.push(RoutePaths.editProfile),
               ),
               _SettingTile(
                 icon: LucideIcons.mail,
-                title: 'Email',
+                title: l10n.settingsEmail,
                 subtitle: userEmail,
                 showChevron: false,
                 onTap: () {},
               ),
+              _SettingTile(
+                icon: LucideIcons.languages,
+                title: l10n.settingsLanguage,
+                subtitle: ref.watch(appLanguageProvider)?.autonym ??
+                    l10n.settingsLanguageSystem,
+                onTap: _showLanguageSheet,
+              ),
 
               // Discovery section (meaningless once the member is in a couple)
               if (!inCouple) ...[
-                _SectionHeader(title: 'Découverte'),
+                _SectionHeader(title: l10n.settingsSectionDiscovery),
                 _SettingTile(
                   icon: LucideIcons.mapPin,
-                  title: 'Localisation',
-                  subtitle: _location ?? 'Non défini',
+                  title: l10n.settingsLocation,
+                  subtitle: _location ?? l10n.settingsLocationNotSet,
                   onTap: _showLocationSheet,
                 ),
                 _SettingTile(
                   icon: LucideIcons.radar,
-                  title: 'Distance maximale',
-                  subtitle: '$_distanceMax km',
+                  title: l10n.settingsMaxDistance,
+                  subtitle: l10n.settingsDistanceKm(_distanceMax),
                   onTap: _showDistanceSheet,
                 ),
                 _SettingTile(
                   icon: LucideIcons.users,
-                  title: 'Tranche d\'âge',
-                  subtitle: '$_ageMin - $_ageMax ans',
+                  title: l10n.settingsAgeRange,
+                  subtitle: l10n.settingsAgeRangeValue(_ageMin, _ageMax),
                   onTap: _showAgeRangeSheet,
                 ),
               ],
 
               // Jewish settings
-              _SectionHeader(title: 'Paramètres juifs'),
+              _SectionHeader(title: l10n.settingsSectionJewish),
               _SettingTile(
                 icon: LucideIcons.moonStar,
                 iconColor: AppColors.accentGold,
-                title: 'Mode Shabbat',
-                subtitle: 'Pause automatique',
+                title: l10n.settingsShabbatMode,
+                subtitle: l10n.settingsShabbatAutoPause,
                 onTap: () => context.push(RoutePaths.shabbatMode),
               ),
               _SettingTile(
                 icon: LucideIcons.calendarHeart,
-                title: 'Alertes fêtes',
-                subtitle: 'Notifications avant les fêtes',
+                title: l10n.settingsHolidayAlerts,
+                subtitle: l10n.settingsHolidayAlertsHint,
                 trailing: Switch(
                   value: _notifHolidays,
                   onChanged: (value) => setState(() => _notifHolidays = value),
@@ -1074,11 +1118,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               // Notifications
-              _SectionHeader(title: 'Notifications'),
+              _SectionHeader(title: l10n.settingsSectionNotifications),
               if (!inCouple)
                 _SettingTile(
                   icon: LucideIcons.heartHandshake,
-                  title: 'Nouveaux matchs',
+                  title: l10n.settingsNotifMatches,
                   trailing: Switch(
                     value: _notifMatches,
                     onChanged: (value) => setState(() => _notifMatches = value),
@@ -1088,7 +1132,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               _SettingTile(
                 icon: LucideIcons.messageCircle,
-                title: 'Messages',
+                title: l10n.settingsNotifMessages,
                 trailing: Switch(
                   value: _notifMessages,
                   onChanged: (value) => setState(() => _notifMessages = value),
@@ -1099,7 +1143,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               if (!inCouple)
                 _SettingTile(
                   icon: LucideIcons.star,
-                  title: 'Super Likes',
+                  title: l10n.settingsNotifSuperLikes,
                   trailing: Switch(
                     value: _notifSuperLikes,
                     onChanged: (value) => setState(() => _notifSuperLikes = value),
@@ -1109,11 +1153,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
 
               // Couple Mode Section
-              _SectionHeader(title: 'Mode Couple'),
+              _SectionHeader(title: l10n.settingsSectionCouple),
               _buildCoupleModeCard(context),
 
               // Premium / Subscription
-              _SectionHeader(title: 'Abonnement'),
+              _SectionHeader(title: l10n.settingsSectionSubscription),
               PlusSettingsCard(
                 isPremium: isMazlPro,
                 detail: subscriptionDetail,
@@ -1121,16 +1165,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.refreshCw,
-                title: 'Restaurer les achats',
+                title: l10n.settingsRestorePurchases,
                 onTap: _handleRestorePurchases,
               ),
 
               // Privacy & Safety
-              _SectionHeader(title: 'Confidentialité et sécurité'),
+              _SectionHeader(title: l10n.settingsSectionPrivacy),
               _SettingTile(
                 icon: LucideIcons.ban,
-                title: 'Utilisateurs bloqués',
-                subtitle: 'Gérer les personnes bloquées',
+                title: l10n.settingsBlockedUsers,
+                subtitle: l10n.settingsBlockedUsersHint,
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const BlockedUsersScreen()),
@@ -1138,21 +1182,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.shieldCheck,
-                title: 'Vérification du profil',
-                subtitle: _userProfile?.profile?.isVerified == true ? 'Vérifié' : 'Non vérifié',
+                title: l10n.settingsProfileVerification,
+                subtitle: _userProfile?.profile?.isVerified == true
+                    ? l10n.settingsVerified
+                    : l10n.settingsNotVerified,
                 onTap: () => context.push(RoutePaths.verification),
               ),
               Consumer(
                 builder: (context, ref, _) => _SettingTile(
                   icon: LucideIcons.heartHandshake,
-                  title: 'Données de pratique religieuse',
+                  title: context.l10n.privacySettingsTitle,
                   subtitle: switch (ref
                       .watch(religiousDataConsentProvider)
                       .valueOrNull
                       ?.data
                       ?.isValid) {
-                    true => 'Accordé',
-                    false => 'Non accordé',
+                    true => context.l10n.privacySettingsGrantedShort,
+                    false => context.l10n.privacySettingsDeniedShort,
                     null => null,
                   },
                   onTap: () => context.push(RoutePaths.religiousData),
@@ -1160,30 +1206,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.monitor,
-                title: 'Ordinateurs connectés',
+                title: context.l10n.webSessionsTitle,
                 onTap: () => context.push(RoutePaths.computers),
               ),
 
               // About
-              _SectionHeader(title: 'À propos'),
+              _SectionHeader(title: l10n.settingsSectionAbout),
               _SettingTile(
                 icon: LucideIcons.helpCircle,
-                title: 'Aide et support',
+                title: l10n.settingsHelp,
                 onTap: () {},
               ),
               _SettingTile(
                 icon: LucideIcons.fileText,
-                title: 'Conditions d\'utilisation',
+                title: l10n.settingsTerms,
                 onTap: () {},
               ),
               _SettingTile(
                 icon: LucideIcons.shield,
-                title: 'Politique de confidentialité',
+                title: l10n.settingsPrivacyPolicy,
                 onTap: () {},
               ),
               _SettingTile(
                 icon: LucideIcons.info,
-                title: 'Version',
+                title: l10n.settingsVersion,
                 subtitle: '1.0.0',
                 showChevron: false,
                 onTap: () {},
@@ -1252,7 +1298,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),
                   ),
-                  child: const Text('Se déconnecter'),
+                  child: Text(l10n.settingsLogOut),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1260,7 +1306,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextButton(
                   onPressed: _handleDeleteAccount,
-                  child: const Text('Supprimer mon compte', style: TextStyle(color: Colors.grey)),
+                  child: Text(l10n.settingsDeleteAccount, style: const TextStyle(color: Colors.grey)),
                 ),
               ),
               const SizedBox(height: 32),
@@ -1323,7 +1369,7 @@ class _SettingTile extends StatelessWidget {
       leading: Icon(icon, color: iconColor ?? AppColors.primary),
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ?? (showChevron ? const Icon(LucideIcons.chevronRight) : null),
+      trailing: trailing ?? (showChevron ? const DirectionalIcon(LucideIcons.chevronRight) : null),
       onTap: onTap,
     );
   }

@@ -1,0 +1,813 @@
+{
+  "coupleFeedDashboardSettingsTooltip": "Réglages",
+  "@coupleFeedDashboardSettingsTooltip": {
+    "description": "Info-bulle du bouton rond (engrenage) en haut à droite du tableau de bord du couple."
+  },
+  "coupleFeedDashboardMe": "Moi",
+  "@coupleFeedDashboardMe": {
+    "description": "Nom affiché sous l'avatar du membre, dans l'en-tête du tableau de bord du couple. Très court."
+  },
+  "coupleFeedDashboardPartnerFallback": "Partenaire",
+  "@coupleFeedDashboardPartnerFallback": {
+    "description": "Nom affiché sous l'avatar du partenaire quand son prénom est inconnu. Très court."
+  },
+  "coupleFeedDashboardDaysTogether": "{count, plural, =0{0 jours ensemble} one{{count} jour ensemble} other{{count} jours ensemble}}",
+  "@coupleFeedDashboardDaysTogether": {
+    "description": "Titre de l'en-tête du couple : le nombre de jours depuis le début de la relation. Une ligne, sous les deux avatars.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "coupleFeedDashboardDailyQuestion": "Question du jour",
+  "@coupleFeedDashboardDailyQuestion": {
+    "description": "Petit titre de la carte de la question du jour, à gauche de la catégorie de la question. Majuscules ajoutées par le design."
+  },
+  "coupleFeedDashboardAnswer": "Répondre",
+  "@coupleFeedDashboardAnswer": {
+    "description": "Bouton plein de la carte de la question du jour : ouvre la feuille pour répondre."
+  },
+  "coupleFeedDashboardAnswerHint": "Votre réponse…",
+  "@coupleFeedDashboardAnswerHint": {
+    "description": "Texte d'aide dans le champ où le membre écrit sa réponse à la question du jour."
+  },
+  "coupleFeedDashboardSend": "Envoyer",
+  "@coupleFeedDashboardSend": {
+    "description": "Bouton qui envoie la réponse écrite à la question du jour."
+  },
+  "coupleFeedDashboardAnswerSent": "Réponse envoyée. Votre partenaire sera notifié(e).",
+  "@coupleFeedDashboardAnswerSent": {
+    "description": "Message vert affiché en bas de l'écran une fois la réponse à la question du jour envoyée. Une à deux lignes."
+  },
+  "coupleFeedDashboardActivities": "Activités en couple",
+  "@coupleFeedDashboardActivities": {
+    "description": "Titre de section (petites majuscules) au-dessus de la bande d'idées d'activités à deux."
+  },
+  "coupleFeedDashboardMilestones": "Nos étapes",
+  "@coupleFeedDashboardMilestones": {
+    "description": "Titre de section au-dessus des étapes du couple (première semaine, premier mois...)."
+  },
+  "coupleFeedDashboardSeeAll": "Voir tout",
+  "@coupleFeedDashboardSeeAll": {
+    "description": "Bouton texte à droite du titre « Nos étapes ». Court."
+  },
+  "coupleFeedDashboardEvents": "Événements en couple",
+  "@coupleFeedDashboardEvents": {
+    "description": "Titre de section au-dessus de la carte d'événement pour couples."
+  },
+  "coupleFeedDashboardJewishCalendar": "Calendrier juif",
+  "@coupleFeedDashboardJewishCalendar": {
+    "description": "Titre de section au-dessus de la carte du calendrier juif (Shabbat de la semaine)."
+  },
+  "coupleFeedStoriesTitle": "Histoires de couples",
+  "@coupleFeedStoriesTitle": {
+    "description": "Titre de l'écran des histoires de couples et titre de section du tableau de bord du couple."
+  },
+  "coupleFeedDashboardSeeAllStories": "Voir toutes",
+  "@coupleFeedDashboardSeeAllStories": {
+    "description": "Bouton texte à droite du titre « Histoires de couples » : ouvre la liste des histoires. Court."
+  },
+  "coupleFeedDashboardEventSampleTitle": "Cours de cuisine casher",
+  "@coupleFeedDashboardEventSampleTitle": {
+    "description": "Titre de l'événement d'exemple dans la carte « Événements en couple » du tableau de bord (contenu fixe, pas celui du serveur)."
+  },
+  "coupleFeedDashboardEventSampleWhen": "Dimanche 20 janvier - 15h00",
+  "@coupleFeedDashboardEventSampleWhen": {
+    "description": "Jour et heure de l'événement d'exemple de la carte « Événements en couple » (contenu fixe)."
+  },
+  "coupleFeedDashboardEventSampleTag": "Couples",
+  "@coupleFeedDashboardEventSampleTag": {
+    "description": "Petite pastille à droite de l'événement d'exemple : il s'adresse aux couples. Un mot."
+  },
+  "coupleFeedDashboardAllEvents": "Voir tous les événements",
+  "@coupleFeedDashboardAllEvents": {
+    "description": "Bouton contour de la carte « Événements en couple » : ouvre tous les événements."
+  },
+  "coupleFeedDashboardParasha": "Shabbat Beshalach",
+  "@coupleFeedDashboardParasha": {
+    "description": "Nom du Shabbat de la semaine dans la carte du calendrier juif (contenu fixe). Nom propre de la section de la Torah."
+  },
+  "coupleFeedDashboardShabbatTimes": "Entrée : 17h23 - Sortie : 18h34",
+  "@coupleFeedDashboardShabbatTimes": {
+    "description": "Heures d'entrée et de sortie du Shabbat dans la carte du calendrier juif (contenu fixe). Une ligne."
+  },
+  "coupleFeedDashboardShabbatDinner": "Dîner",
+  "@coupleFeedDashboardShabbatDinner": {
+    "description": "Légende sous une icône ronde : idée de dîner de Shabbat. Un mot, 12 px de large environ par lettre."
+  },
+  "coupleFeedDashboardShabbatPrayer": "Prière",
+  "@coupleFeedDashboardShabbatPrayer": {
+    "description": "Légende sous une icône ronde : idée de prière de Shabbat. Un mot."
+  },
+  "coupleFeedDashboardShabbatRest": "Repos",
+  "@coupleFeedDashboardShabbatRest": {
+    "description": "Légende sous une icône ronde : idée de repos de Shabbat. Un mot."
+  },
+  "coupleFeedStoryShareTitle": "Partagez votre histoire",
+  "@coupleFeedStoryShareTitle": {
+    "description": "Titre de la carte du tableau de bord et de la feuille qui invitent le couple à partager son histoire."
+  },
+  "coupleFeedDashboardShareStoryLine": "Inspirez la communauté MAZL avec votre histoire",
+  "@coupleFeedDashboardShareStoryLine": {
+    "description": "Phrase sous le titre de la carte « Partagez votre histoire » du tableau de bord."
+  },
+  "coupleFeedDashboardSeeStories": "Voir les histoires",
+  "@coupleFeedDashboardSeeStories": {
+    "description": "Bouton contour de la carte « Partagez votre histoire » : ouvre la liste des histoires. Moitié de la largeur de l'écran."
+  },
+  "coupleFeedMilestoneFirstWeekTitle": "Première semaine",
+  "@coupleFeedMilestoneFirstWeekTitle": {
+    "description": "Étape du couple : première semaine (titre)."
+  },
+  "coupleFeedMilestoneFirstWeekLine": "7 jours ensemble",
+  "@coupleFeedMilestoneFirstWeekLine": {
+    "description": "Étape du couple : première semaine (légende)."
+  },
+  "coupleFeedMilestoneFirstMonthTitle": "Premier mois",
+  "@coupleFeedMilestoneFirstMonthTitle": {
+    "description": "Étape du couple : premier mois (titre)."
+  },
+  "coupleFeedMilestoneFirstMonthLine": "30 jours d'amour",
+  "@coupleFeedMilestoneFirstMonthLine": {
+    "description": "Étape du couple : premier mois (légende)."
+  },
+  "coupleFeedMilestoneThreeMonthsTitle": "Trimestre",
+  "@coupleFeedMilestoneThreeMonthsTitle": {
+    "description": "Étape du couple : trois mois (titre)."
+  },
+  "coupleFeedMilestoneThreeMonthsLine": "3 mois de bonheur",
+  "@coupleFeedMilestoneThreeMonthsLine": {
+    "description": "Étape du couple : trois mois (légende)."
+  },
+  "coupleFeedMilestoneSixMonthsTitle": "Mi-année",
+  "@coupleFeedMilestoneSixMonthsTitle": {
+    "description": "Étape du couple : six mois (titre)."
+  },
+  "coupleFeedMilestoneSixMonthsLine": "6 mois main dans la main",
+  "@coupleFeedMilestoneSixMonthsLine": {
+    "description": "Étape du couple : six mois (légende)."
+  },
+  "coupleFeedMilestoneFirstYearTitle": "Première année",
+  "@coupleFeedMilestoneFirstYearTitle": {
+    "description": "Étape du couple : un an (titre)."
+  },
+  "coupleFeedMilestoneFirstYearLine": "365 jours de Mazl",
+  "@coupleFeedMilestoneFirstYearLine": {
+    "description": "Étape du couple : un an (légende). « Mazl » est écrit ainsi dans le texte d'origine."
+  },
+  "coupleFeedQuestion1": "Quel est votre moment préféré de la semaine ensemble ?",
+  "@coupleFeedQuestion1": {
+    "description": "Question du jour n° 1, posée à un membre du couple."
+  },
+  "coupleFeedQuestion1Category": "Connexion",
+  "@coupleFeedQuestion1Category": {
+    "description": "Catégorie de la question du jour n° 1, dans une pastille. Un mot."
+  },
+  "coupleFeedQuestion2": "Si vous pouviez voyager n'importe où, où iriez-vous ?",
+  "@coupleFeedQuestion2": {
+    "description": "Question du jour n° 2."
+  },
+  "coupleFeedQuestion2Category": "Rêves",
+  "@coupleFeedQuestion2Category": {
+    "description": "Catégorie de la question du jour n° 2. Un mot."
+  },
+  "coupleFeedQuestion3": "Qu'est-ce qui vous a fait sourire aujourd'hui ?",
+  "@coupleFeedQuestion3": {
+    "description": "Question du jour n° 3."
+  },
+  "coupleFeedQuestion3Category": "Quotidien",
+  "@coupleFeedQuestion3Category": {
+    "description": "Catégorie de la question du jour n° 3. Un mot."
+  },
+  "coupleFeedQuestion4": "Comment aimeriez-vous célébrer votre prochain Shabbat ?",
+  "@coupleFeedQuestion4": {
+    "description": "Question du jour n° 4, sur le Shabbat, avec quatre réponses au choix."
+  },
+  "coupleFeedQuestion4Category": "Judaïsme",
+  "@coupleFeedQuestion4Category": {
+    "description": "Catégorie de la question du jour n° 4. Un mot."
+  },
+  "coupleFeedQuestion4Option1": "Dîner romantique à la maison",
+  "@coupleFeedQuestion4Option1": {
+    "description": "Réponse au choix n° 1 de la question sur le Shabbat, bouton pleine largeur."
+  },
+  "coupleFeedQuestion4Option2": "Invitation chez des amis",
+  "@coupleFeedQuestion4Option2": {
+    "description": "Réponse au choix n° 2 de la question sur le Shabbat, bouton pleine largeur."
+  },
+  "coupleFeedQuestion4Option3": "Restaurant casher",
+  "@coupleFeedQuestion4Option3": {
+    "description": "Réponse au choix n° 3 de la question sur le Shabbat, bouton pleine largeur."
+  },
+  "coupleFeedQuestion4Option4": "Shabbaton communautaire",
+  "@coupleFeedQuestion4Option4": {
+    "description": "Réponse au choix n° 4 de la question sur le Shabbat : un Shabbaton est un week-end communautaire."
+  },
+  "coupleFeedQuestion5": "Quel trait de caractère admirez-vous le plus chez votre partenaire ?",
+  "@coupleFeedQuestion5": {
+    "description": "Question du jour n° 5."
+  },
+  "coupleFeedQuestion5Category": "Appréciation",
+  "@coupleFeedQuestion5Category": {
+    "description": "Catégorie de la question du jour n° 5. Un mot."
+  },
+  "coupleFeedIdeaShabbatCookingTitle": "Cuisine Shabbat",
+  "@coupleFeedIdeaShabbatCookingTitle": {
+    "description": "Idée d'activité à deux de la bande du tableau de bord : cuisiner pour Shabbat. Carte étroite (deux lignes)."
+  },
+  "coupleFeedIdeaShabbatCookingCategory": "Maison",
+  "@coupleFeedIdeaShabbatCookingCategory": {
+    "description": "Étiquette de l'idée « Cuisine Shabbat ». Un mot."
+  },
+  "coupleFeedIdeaTorahTitle": "Étude Torah",
+  "@coupleFeedIdeaTorahTitle": {
+    "description": "Idée d'activité à deux : étudier la Torah ensemble. Carte étroite."
+  },
+  "coupleFeedIdeaDateNightTitle": "Date night",
+  "@coupleFeedIdeaDateNightTitle": {
+    "description": "Idée d'activité à deux : une soirée en tête-à-tête. Carte étroite."
+  },
+  "coupleFeedIdeaDateNightCategory": "Romance",
+  "@coupleFeedIdeaDateNightCategory": {
+    "description": "Étiquette de l'idée « Date night ». Un mot."
+  },
+  "coupleFeedIdeaSportTitle": "Sport ensemble",
+  "@coupleFeedIdeaSportTitle": {
+    "description": "Idée d'activité à deux : faire du sport ensemble. Carte étroite."
+  },
+  "coupleFeedIdeaChesedTitle": "Hesed ensemble",
+  "@coupleFeedIdeaChesedTitle": {
+    "description": "Idée d'activité à deux : une action de bienfaisance (hesed) en couple. Carte étroite."
+  },
+  "coupleFeedIdeaChesedCategory": "Communauté",
+  "@coupleFeedIdeaChesedCategory": {
+    "description": "Étiquette de l'idée « Hesed ensemble ». Un mot."
+  },
+  "coupleFeedIdeaTravelCategory": "Aventure",
+  "@coupleFeedIdeaTravelCategory": {
+    "description": "Étiquette de l'idée « Voyage ». Un mot."
+  },
+  "coupleFeedCategoryWellness": "Bien-être",
+  "@coupleFeedCategoryWellness": {
+    "description": "Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte."
+  },
+  "coupleFeedCategoryGastronomy": "Gastronomie",
+  "@coupleFeedCategoryGastronomy": {
+    "description": "Catégorie d'activité : restaurants et cuisine. Étiquette de carte."
+  },
+  "coupleFeedFilterGastronomy": "Gastro",
+  "@coupleFeedFilterGastronomy": {
+    "description": "Puce de filtre courte pour la catégorie gastronomie. Doit rester très court (une puce de 80 px environ)."
+  },
+  "coupleFeedCategoryCulture": "Culture",
+  "@coupleFeedCategoryCulture": {
+    "description": "Catégorie d'activité : spectacles, musées, culture."
+  },
+  "coupleFeedCategorySport": "Sport",
+  "@coupleFeedCategorySport": {
+    "description": "Catégorie d'activité : sport."
+  },
+  "coupleFeedCategoryTravel": "Voyage",
+  "@coupleFeedCategoryTravel": {
+    "description": "Catégorie d'activité : voyage et escapades. Sert aussi de titre à l'idée « Voyage » du tableau de bord."
+  },
+  "coupleFeedCategorySpiritual": "Spirituel",
+  "@coupleFeedCategorySpiritual": {
+    "description": "Catégorie d'activité : spirituel, étude, tradition."
+  },
+  "coupleFeedCategoryDiy": "DIY",
+  "@coupleFeedCategoryDiy": {
+    "description": "Catégorie d'activité : créer soi-même (DIY, « do it yourself »)."
+  },
+  "coupleFeedCategoryRomantic": "Romantique",
+  "@coupleFeedCategoryRomantic": {
+    "description": "Catégorie d'activité : moments romantiques."
+  },
+  "coupleFeedFilterAll": "Tout",
+  "@coupleFeedFilterAll": {
+    "description": "Première puce de chaque barre de filtres : aucun filtre, tout afficher. Très court."
+  },
+  "coupleFeedEventCategoryDinner": "Dîner",
+  "@coupleFeedEventCategoryDinner": {
+    "description": "Catégorie d'événement pour couples : dîner."
+  },
+  "coupleFeedEventCategoryTasting": "Dégustation",
+  "@coupleFeedEventCategoryTasting": {
+    "description": "Catégorie d'événement : dégustation (vin, fromages...)."
+  },
+  "coupleFeedEventCategoryParty": "Soirée",
+  "@coupleFeedEventCategoryParty": {
+    "description": "Catégorie d'événement : soirée festive."
+  },
+  "coupleFeedEventCategoryWorkshop": "Atelier",
+  "@coupleFeedEventCategoryWorkshop": {
+    "description": "Catégorie d'événement : atelier créatif ou pratique."
+  },
+  "coupleFeedEventCategoryBrunch": "Brunch",
+  "@coupleFeedEventCategoryBrunch": {
+    "description": "Catégorie d'événement : brunch."
+  },
+  "coupleFeedEventCategorySpiritual": "Spirituel",
+  "@coupleFeedEventCategorySpiritual": {
+    "description": "Catégorie d'événement : spirituel (étude, Shabbat communautaire)."
+  },
+  "coupleFeedEventCategoryTravel": "Week-end",
+  "@coupleFeedEventCategoryTravel": {
+    "description": "Catégorie d'événement : escapade d'un week-end."
+  },
+  "coupleFeedEventCategoryConcert": "Concert",
+  "@coupleFeedEventCategoryConcert": {
+    "description": "Catégorie d'événement : concert."
+  },
+  "coupleFeedEventCategoryGame": "Jeux",
+  "@coupleFeedEventCategoryGame": {
+    "description": "Catégorie d'événement : soirée jeux."
+  },
+  "coupleFeedEventCategoryOther": "Événement",
+  "@coupleFeedEventCategoryOther": {
+    "description": "Catégorie d'événement inconnue ou absente : libellé par défaut."
+  },
+  "coupleFeedPriceFree": "Gratuit",
+  "@coupleFeedPriceFree": {
+    "description": "Prix d'une activité ou d'un événement gratuit, dans une pastille. Un mot."
+  },
+  "coupleFeedEventPricePerCouple": "{price}/couple",
+  "@coupleFeedEventPricePerCouple": {
+    "description": "Prix d'un événement, par couple. {price} est déjà écrit avec la devise (ex. « 75 € »).",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedDurationMinutes": "{minutes}min",
+  "@coupleFeedDurationMinutes": {
+    "description": "Durée d'une activité de moins d'une heure. {minutes} est un nombre.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleFeedDurationHours": "{hours}h",
+  "@coupleFeedDurationHours": {
+    "description": "Durée d'une activité d'un nombre entier d'heures.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleFeedDurationHoursMinutes": "{hours}h{minutes}min",
+  "@coupleFeedDurationHoursMinutes": {
+    "description": "Durée d'une activité en heures et minutes.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleFeedRatingWithReviews": "{count, plural, other{{rating} ({count} avis)}}",
+  "@coupleFeedRatingWithReviews": {
+    "description": "Note d'une activité suivie du nombre d'avis, sur la fiche détail. {rating} est déjà formatée (ex. « 4,8 »).",
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "coupleFeedKosher": "Casher",
+  "@coupleFeedKosher": {
+    "description": "Pastille : l'activité ou l'événement est casher (kosher). Un mot."
+  },
+  "coupleFeedFeatured": "À la une",
+  "@coupleFeedFeatured": {
+    "description": "Pastille : événement mis en avant. Court."
+  },
+  "coupleFeedPartnerMazl": "Partenaire MAZL",
+  "@coupleFeedPartnerMazl": {
+    "description": "Pastille d'accent : l'activité vient d'un partenaire de MAZL."
+  },
+  "coupleFeedPartnerDiscountMazl": "-{percent} % Partenaire MAZL",
+  "@coupleFeedPartnerDiscountMazl": {
+    "description": "Pastille d'accent sur la carte : réduction de {percent} % chez un partenaire de MAZL.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleFeedPartnerDiscount": "-{percent} % Partenaire",
+  "@coupleFeedPartnerDiscount": {
+    "description": "Pastille d'accent sur la fiche détail : réduction de {percent} % chez un partenaire.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleFeedActivitiesTitle": "Activités",
+  "@coupleFeedActivitiesTitle": {
+    "description": "Grand titre de l'écran du fil d'activités à deux."
+  },
+  "coupleFeedSavedTitle": "Activités sauvegardées",
+  "@coupleFeedSavedTitle": {
+    "description": "Titre de l'écran des activités enregistrées et info-bulle du bouton qui y mène."
+  },
+  "coupleFeedActivitiesEmptyTitle": "Aucune activité pour le moment",
+  "@coupleFeedActivitiesEmptyTitle": {
+    "description": "Titre de l'état vide du fil d'activités."
+  },
+  "coupleFeedActivitiesEmptyLine": "De nouvelles idées arrivent bientôt.",
+  "@coupleFeedActivitiesEmptyLine": {
+    "description": "Phrase sous le titre de l'état vide du fil d'activités."
+  },
+  "coupleFeedRefresh": "Actualiser",
+  "@coupleFeedRefresh": {
+    "description": "Bouton de l'état vide : recharger le fil."
+  },
+  "coupleFeedSeeDetail": "Voir le détail",
+  "@coupleFeedSeeDetail": {
+    "description": "Info-bulle du bouton rond « i » qui ouvre la fiche détail d'une activité."
+  },
+  "coupleFeedActivitySavedSnack": "{title} sauvegardé",
+  "@coupleFeedActivitySavedSnack": {
+    "description": "Message en bas d'écran après avoir glissé une activité vers le haut. Une ligne ; {title} peut être long.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedActivitySaveCardError": "Impossible de sauvegarder « {title} ». Réessayez.",
+  "@coupleFeedActivitySaveCardError": {
+    "description": "Erreur : la sauvegarde d'une activité du fil a échoué ; la carte revient.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedActivityPassCardError": "Impossible de passer « {title} ». Réessayez.",
+  "@coupleFeedActivityPassCardError": {
+    "description": "Erreur : le passage d'une activité du fil a échoué ; la carte revient.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedActivityNotFoundTitle": "Activité introuvable",
+  "@coupleFeedActivityNotFoundTitle": {
+    "description": "Titre de l'écran quand l'activité n'existe plus."
+  },
+  "coupleFeedActivityNotFoundLine": "Elle n'est plus proposée.",
+  "@coupleFeedActivityNotFoundLine": {
+    "description": "Phrase sous le titre quand l'activité n'existe plus."
+  },
+  "coupleFeedActivityRemoveError": "Impossible de retirer cette activité. Réessayez.",
+  "@coupleFeedActivityRemoveError": {
+    "description": "Erreur : retirer l'activité de la liste enregistrée a échoué."
+  },
+  "coupleFeedActivitySaveError": "Impossible de sauvegarder cette activité. Réessayez.",
+  "@coupleFeedActivitySaveError": {
+    "description": "Erreur : enregistrer l'activité a échoué."
+  },
+  "coupleFeedActivitySavedConfirm": "Activité sauvegardée",
+  "@coupleFeedActivitySavedConfirm": {
+    "description": "Message en bas d'écran après avoir enregistré l'activité depuis sa fiche."
+  },
+  "coupleFeedCodeCopied": "Code {code} copié",
+  "@coupleFeedCodeCopied": {
+    "description": "Message en bas d'écran après avoir copié un code promo ; {code} est le code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedRemoveFromSaved": "Retirer des activités sauvegardées",
+  "@coupleFeedRemoveFromSaved": {
+    "description": "Info-bulle du bouton marque-page quand l'activité est déjà enregistrée."
+  },
+  "coupleFeedActivityShareText": "Idée de date pour nous : \"{title}\" (via MAZL)",
+  "@coupleFeedActivityShareText": {
+    "description": "Texte envoyé par le partage de la fiche d'une activité ; {title} est le nom de l'activité.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedPromoCodeLabel": "Code promo MAZL",
+  "@coupleFeedPromoCodeLabel": {
+    "description": "Petit titre (petites majuscules) au-dessus du code promo d'un partenaire."
+  },
+  "coupleFeedCopyCode": "Copier le code",
+  "@coupleFeedCopyCode": {
+    "description": "Info-bulle du bouton qui copie le code promo."
+  },
+  "coupleFeedDescription": "Description",
+  "@coupleFeedDescription": {
+    "description": "Titre de section (petites majuscules) au-dessus de la description d'une activité ou d'un événement."
+  },
+  "coupleFeedTags": "Tags",
+  "@coupleFeedTags": {
+    "description": "Titre de section (petites majuscules) au-dessus des mots-clés d'une activité."
+  },
+  "coupleFeedAddress": "Adresse",
+  "@coupleFeedAddress": {
+    "description": "Titre de section ou nom de ligne : adresse du lieu."
+  },
+  "coupleFeedContact": "Contact",
+  "@coupleFeedContact": {
+    "description": "Titre de section au-dessus des boutons d'appel et de site web."
+  },
+  "coupleFeedCall": "Appeler",
+  "@coupleFeedCall": {
+    "description": "Bouton contour : appeler le téléphone de l'activité (moitié de la largeur)."
+  },
+  "coupleFeedWebsite": "Site web",
+  "@coupleFeedWebsite": {
+    "description": "Bouton contour : ouvrir le site de l'activité (moitié de la largeur)."
+  },
+  "coupleFeedFromPrice": "À partir de",
+  "@coupleFeedFromPrice": {
+    "description": "Petit texte au-dessus du prix, dans la barre du bas de la fiche d'une activité."
+  },
+  "coupleFeedBook": "Réserver",
+  "@coupleFeedBook": {
+    "description": "Bouton principal de la fiche d'une activité : ouvrir la page de réservation."
+  },
+  "coupleFeedSavedRemoveTitle": "Retirer de la liste ?",
+  "@coupleFeedSavedRemoveTitle": {
+    "description": "Titre de la boîte de dialogue qui demande de retirer une activité enregistrée."
+  },
+  "coupleFeedSavedRemoveBody": "Voulez-vous retirer \"{title}\" de vos activités sauvegardées ?",
+  "@coupleFeedSavedRemoveBody": {
+    "description": "Corps de la boîte de dialogue de retrait d'une activité enregistrée ; {title} est son nom.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedSavedRemoved": "Activité retirée",
+  "@coupleFeedSavedRemoved": {
+    "description": "Message en bas d'écran après le retrait d'une activité enregistrée."
+  },
+  "coupleFeedSavedRemoveError": "Impossible de retirer « {title} ». Réessayez.",
+  "@coupleFeedSavedRemoveError": {
+    "description": "Erreur : le retrait d'une activité enregistrée a échoué ; la ligne revient.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedSavedEmptyTitle": "Aucune activité sauvegardée",
+  "@coupleFeedSavedEmptyTitle": {
+    "description": "Titre de l'état vide des activités enregistrées."
+  },
+  "coupleFeedSavedEmptyLine": "Glissez une carte vers le haut pour la garder.",
+  "@coupleFeedSavedEmptyLine": {
+    "description": "Phrase de l'état vide : explique le geste pour enregistrer (glisser vers le haut)."
+  },
+  "coupleFeedSavedEmptyAction": "Découvrir des activités",
+  "@coupleFeedSavedEmptyAction": {
+    "description": "Bouton de l'état vide : retourner au fil d'activités."
+  },
+  "coupleFeedEventsTitle": "Événements",
+  "@coupleFeedEventsTitle": {
+    "description": "Grand titre de l'écran des événements pour couples."
+  },
+  "coupleFeedEventsUpcoming": "À venir",
+  "@coupleFeedEventsUpcoming": {
+    "description": "Premier onglet de l'écran des événements : les événements à venir. Court."
+  },
+  "coupleFeedEventsRegisteredTab": "Inscrits ({count})",
+  "@coupleFeedEventsRegisteredTab": {
+    "description": "Second onglet : les événements où le couple est inscrit, avec leur nombre {count} entre parenthèses. Court.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "coupleFeedEventsEmptyAll": "Aucun événement disponible",
+  "@coupleFeedEventsEmptyAll": {
+    "description": "Titre de l'état vide de l'onglet des événements à venir."
+  },
+  "coupleFeedEventsEmptyRegistered": "Vous n'êtes inscrit à aucun événement",
+  "@coupleFeedEventsEmptyRegistered": {
+    "description": "Titre de l'état vide de l'onglet des inscriptions."
+  },
+  "coupleFeedEventsDiscover": "Découvrir les événements",
+  "@coupleFeedEventsDiscover": {
+    "description": "Bouton de l'état vide des inscriptions : revenir aux événements à venir."
+  },
+  "coupleFeedEventRegisteredSnack": "Inscrits à \"{title}\"",
+  "@coupleFeedEventRegisteredSnack": {
+    "description": "Message vert après l'inscription depuis la liste ; {title} est le nom de l'événement.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedEventRegisteredSnackDetail": "Inscrits à « {title} »",
+  "@coupleFeedEventRegisteredSnackDetail": {
+    "description": "Message vert après l'inscription depuis la fiche d'un événement ; {title} est son nom.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedEventRegisterError": "Inscription impossible. Réessayez.",
+  "@coupleFeedEventRegisterError": {
+    "description": "Erreur : l'inscription à un événement a échoué."
+  },
+  "coupleFeedEventCancelError": "Impossible d'annuler l'inscription. Réessayez.",
+  "@coupleFeedEventCancelError": {
+    "description": "Erreur : l'annulation d'une inscription a échoué."
+  },
+  "coupleFeedEventCancelTitle": "Annuler l'inscription ?",
+  "@coupleFeedEventCancelTitle": {
+    "description": "Titre de la boîte de dialogue qui demande d'annuler une inscription."
+  },
+  "coupleFeedEventCancelBody": "Voulez-vous vraiment annuler votre inscription à \"{title}\" ?",
+  "@coupleFeedEventCancelBody": {
+    "description": "Corps de la boîte de dialogue d'annulation d'inscription ; {title} est le nom de l'événement.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedEventCancelNo": "Non",
+  "@coupleFeedEventCancelNo": {
+    "description": "Bouton de la boîte de dialogue d'annulation : garder l'inscription. Très court."
+  },
+  "coupleFeedEventCancelYes": "Oui, annuler",
+  "@coupleFeedEventCancelYes": {
+    "description": "Bouton rouge de la boîte de dialogue d'annulation : confirmer l'annulation. Court."
+  },
+  "coupleFeedEventCancelled": "Inscription annulée",
+  "@coupleFeedEventCancelled": {
+    "description": "Message en bas d'écran après l'annulation d'une inscription."
+  },
+  "coupleFeedEventFull": "Complet",
+  "@coupleFeedEventFull": {
+    "description": "Texte rouge et libellé de bouton : l'événement n'a plus de place. Court."
+  },
+  "coupleFeedEventSpots": "{count, plural, one{{count} place} other{{count} places}}",
+  "@coupleFeedEventSpots": {
+    "description": "Nombre de places restantes, sur une carte d'événement, à côté d'une icône. Très court.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "coupleFeedEventSpotsLeft": "{count, plural, one{{count} place restante} other{{count} places restantes}}",
+  "@coupleFeedEventSpotsLeft": {
+    "description": "Nombre de places restantes, sur la fiche d'un événement, à droite du prix.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "coupleFeedEventRegister": "S'inscrire",
+  "@coupleFeedEventRegister": {
+    "description": "Bouton plein : s'inscrire à un événement."
+  },
+  "coupleFeedEventCancelMine": "Annuler mon inscription",
+  "@coupleFeedEventCancelMine": {
+    "description": "Bouton contour de la fiche d'un événement : annuler son inscription."
+  },
+  "coupleFeedEventNotFoundTitle": "Événement introuvable",
+  "@coupleFeedEventNotFoundTitle": {
+    "description": "Titre de l'écran quand l'événement n'existe plus."
+  },
+  "coupleFeedEventNotFoundLine": "Il n'est plus proposé.",
+  "@coupleFeedEventNotFoundLine": {
+    "description": "Phrase sous le titre quand l'événement n'existe plus."
+  },
+  "coupleFeedEventFactPlace": "Lieu",
+  "@coupleFeedEventFactPlace": {
+    "description": "Nom de ligne de la fiche d'un événement : le lieu (à gauche), la valeur est à droite."
+  },
+  "coupleFeedEventFactDressCode": "Tenue",
+  "@coupleFeedEventFactDressCode": {
+    "description": "Nom de ligne de la fiche d'un événement : la tenue demandée."
+  },
+  "coupleFeedEventFactOrganizer": "Organisé par",
+  "@coupleFeedEventFactOrganizer": {
+    "description": "Nom de ligne de la fiche d'un événement : qui l'organise."
+  },
+  "coupleFeedEventIncluded": "Ce qui est inclus",
+  "@coupleFeedEventIncluded": {
+    "description": "Titre de section de la fiche d'un événement : ce que le prix comprend."
+  },
+  "coupleFeedLoadFailedTitle": "Chargement impossible",
+  "@coupleFeedLoadFailedTitle": {
+    "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
+  },
+  "coupleFeedStoriesEmptyTitle": "Pas encore d'histoires de couples",
+  "@coupleFeedStoriesEmptyTitle": {
+    "description": "Titre de l'état vide des histoires de couples."
+  },
+  "coupleFeedStoriesEmptyLine": "Les premières histoires d'amour MAZL seront bientôt partagées.",
+  "@coupleFeedStoriesEmptyLine": {
+    "description": "Phrase sous le titre de l'état vide des histoires."
+  },
+  "coupleFeedStoryShareText": "{name1} et {name2} se sont rencontrés sur MAZL. Leur histoire : {excerpt}...",
+  "@coupleFeedStoryShareText": {
+    "description": "Texte envoyé par le partage d'une histoire de couple ; {name1} et {name2} sont les prénoms, {excerpt} le début de l'histoire.",
+    "placeholders": {
+      "name1": {
+        "type": "String"
+      },
+      "name2": {
+        "type": "String"
+      },
+      "excerpt": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedStoryStatusSince": "{status} · depuis {date}",
+  "@coupleFeedStoryStatusSince": {
+    "description": "Sous les noms du couple : son statut et le mois où ils se sont rencontrés. {status} est un des trois statuts, {date} un mois et une année.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleFeedStatusDating": "En couple",
+  "@coupleFeedStatusDating": {
+    "description": "Statut d'un couple : ensemble, sans engagement particulier."
+  },
+  "coupleFeedStatusEngaged": "Fiancés",
+  "@coupleFeedStatusEngaged": {
+    "description": "Statut d'un couple : fiancés."
+  },
+  "coupleFeedStatusMarried": "Mariés",
+  "@coupleFeedStatusMarried": {
+    "description": "Statut d'un couple : mariés."
+  },
+  "coupleFeedStoryShareLine": "Inspirez la communauté MAZL en partageant votre histoire.",
+  "@coupleFeedStoryShareLine": {
+    "description": "Phrase sous le titre de la feuille « Partagez votre histoire »."
+  },
+  "coupleFeedStoryStatusLabel": "Votre statut",
+  "@coupleFeedStoryStatusLabel": {
+    "description": "Titre de section (petites majuscules) au-dessus des trois puces de statut."
+  },
+  "coupleFeedStoryTextLabel": "Votre histoire (min. 100 caractères)",
+  "@coupleFeedStoryTextLabel": {
+    "description": "Titre de section au-dessus du champ de l'histoire ; le minimum de 100 caractères est imposé."
+  },
+  "coupleFeedStoryTextHint": "Comment vous êtes-vous rencontrés ? Qu'est-ce qui vous a plu chez l'autre ?…",
+  "@coupleFeedStoryTextHint": {
+    "description": "Texte d'aide du champ de l'histoire : deux questions pour donner des idées au couple."
+  },
+  "coupleFeedStoryPhotosLabel": "Photos (optionnel)",
+  "@coupleFeedStoryPhotosLabel": {
+    "description": "Titre de section au-dessus de la zone d'ajout de photos."
+  },
+  "coupleFeedStoryPhotosHint": "Ajoutez des photos de couple",
+  "@coupleFeedStoryPhotosHint": {
+    "description": "Texte de la zone d'ajout de photos de couple, sous une icône d'appareil photo."
+  },
+  "coupleFeedStorySubmit": "Soumettre notre histoire",
+  "@coupleFeedStorySubmit": {
+    "description": "Bouton plein qui envoie l'histoire du couple pour validation."
+  },
+  "coupleFeedStoryTooShort": "Votre histoire doit faire au moins 100 caractères",
+  "@coupleFeedStoryTooShort": {
+    "description": "Message en bas d'écran : l'histoire fait moins de 100 caractères."
+  },
+  "coupleFeedStoryThanks": "Merci. Votre histoire sera publiée après validation.",
+  "@coupleFeedStoryThanks": {
+    "description": "Message vert après l'envoi de l'histoire : elle sera relue avant d'être publiée."
+  }
+}

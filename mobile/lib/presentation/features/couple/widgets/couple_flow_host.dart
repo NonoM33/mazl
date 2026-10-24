@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/services/websocket_service.dart';
+import '../../../../core/l10n/app_language.dart';
+import '../../../../l10n/l10n.dart';
 import 'couple_request_dialog.dart';
 
 /// Keeps the couple flow alive above the router: loads the state once signed
@@ -55,6 +57,7 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
   @override
   void initState() {
     super.initState();
+    widget.service.archiveMessageProvider = _archiveMessage;
     WidgetsBinding.instance.addObserver(this);
     _flowSubscription = widget.service.events.listen(_onFlowEvent);
     _realtimeSubscription = widget.realtime.listen(_onRealtime);
@@ -62,8 +65,21 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
     _onAuthChanged();
   }
 
+  /// The sentence sent to the other conversations when the couple forms, in
+  /// the language the app is showing (English before the first screen exists).
+  String _archiveMessage() {
+    final context = widget.navigatorKey.currentContext;
+    final l10n = context == null
+        ? lookupAppLocalizations(fallbackLanguage.locale)
+        : context.l10n;
+    return l10n.coupleSpaceArchiveMessage;
+  }
+
   @override
   void dispose() {
+    if (widget.service.archiveMessageProvider == _archiveMessage) {
+      widget.service.archiveMessageProvider = null;
+    }
     WidgetsBinding.instance.removeObserver(this);
     widget.auth.removeListener(_onAuthChanged);
     _flowSubscription?.cancel();
@@ -113,18 +129,22 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
           },
         );
       case CoupleRequestDeclined(:final partnerName):
-        _snack(partnerName == null
-            ? 'Votre demande n\'a pas abouti.'
-            : '$partnerName n\'a pas donné suite à votre demande.');
+        _snack(
+          (l10n) => partnerName == null
+              ? l10n.coupleSpaceFlowDeclined
+              : l10n.coupleSpaceFlowDeclinedNamed(partnerName),
+        );
       case CoupleEnded():
-        _snack('Le mode couple a pris fin.');
+        _snack((l10n) => l10n.coupleSpaceFlowEnded);
     }
   }
 
-  void _snack(String message) {
+  void _snack(String Function(AppLocalizations l10n) message) {
     final context = widget.navigatorKey.currentContext;
     if (context == null) return;
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(content: Text(message(context.l10n))),
+    );
   }
 
   void _showRequestDialog(CoupleRequest request) {

@@ -3,11 +3,12 @@
 //
 //   bun scripts/encrypt-existing-documents.ts [--dry-run] [--delete-orphans]
 //
-// Needs DATABASE_URL, UPLOADS_DIR and DATA_ENCRYPTION_KEY (NODE_ENV=production
+// Needs DATABASE_URL, the storage variables (UPLOADS_DIR, or S3_* in production) and DATA_ENCRYPTION_KEY (NODE_ENV=production
 // refuses to run without the key). Prints counts only: no names, no emails.
 import { sql } from "../src/db";
 import { migrateExistingDocuments } from "../src/features/documents/application/migrate-existing-documents";
 import { createMigrationDeps } from "../src/features/documents/composition";
+import { createObjectStore, readStorageConfig } from "../src/shared/storage";
 import { ensureDocumentsSchema } from "../src/features/documents/infra/schema";
 import { assertKeysConfigured } from "../src/shared/crypto/keys";
 
@@ -20,13 +21,12 @@ if (unknown.length > 0) {
 }
 
 const dryRun = args.has("--dry-run");
-const uploadsDir = process.env.UPLOADS_DIR || "uploads";
 
 assertKeysConfigured();
 await ensureDocumentsSchema();
 
 const report = await migrateExistingDocuments({
-  ...createMigrationDeps(uploadsDir),
+  ...createMigrationDeps(createObjectStore(readStorageConfig(process.env))),
   dryRun,
   deleteOrphans: args.has("--delete-orphans"),
 });

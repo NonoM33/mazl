@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'couple_guard.dart';
+import 'app_guard.dart';
+import 'detail_screens.dart';
+import '../layout/adaptive_detail.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
 import '../../presentation/features/splash/splash_screen.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
+import '../../presentation/features/auth/screens/route_error_screen.dart';
 import '../../presentation/features/navigation/screens/main_navigation_screen.dart';
 import '../../presentation/features/matching/screens/discover_screen.dart';
 import '../../presentation/features/matching/screens/matches_screen.dart';
 import '../../presentation/features/chat/screens/conversations_screen.dart';
-import '../../presentation/features/chat/screens/chat_screen.dart';
 import '../../presentation/features/video_call/screens/video_call_screen.dart';
 import '../../presentation/features/events/screens/events_list_screen.dart';
 import '../../presentation/features/events/screens/event_detail_screen.dart';
@@ -84,36 +86,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authService = ref.watch(authServiceProvider.notifier);
   // Same for the couple state: the guard below re-runs when a couple forms or ends.
   final coupleService = ref.watch(coupleServiceProvider.notifier);
+  // And for the profile completeness: the guard re-runs when the backend says
+  // gender / looking-for are missing, or once the setup has given them.
+  final profileCompleteness = ref.watch(profileCompletenessProvider.notifier);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
-    refreshListenable: Listenable.merge([authService, coupleService]),
-    redirect: (context, state) {
-      final location = state.matchedLocation;
-
-      // Splash handles its own auth-based routing
-      if (location == RoutePaths.splash) {
-        return null;
-      }
-
-      // Block protected routes for unauthenticated users (e.g. deep links)
-      final isAuthenticated = ref.read(isAuthenticatedProvider);
-      if (!isAuthenticated && !_publicRoutes.contains(location)) {
-        return RoutePaths.onboarding;
-      }
-
-      // One navigation at a time: dating or couple, never both.
-      if (isAuthenticated) {
-        return coupleRedirect(
-          location: location,
-          inCouple: coupleService.isCoupleModeEnabled,
-        );
-      }
-
-      return null;
-    },
+    refreshListenable: Listenable.merge([authService, coupleService, profileCompleteness]),
+    redirect: (context, state) => appRedirect(
+      location: state.matchedLocation,
+      isAuthenticated: ref.read(isAuthenticatedProvider),
+      profileIncomplete: profileCompleteness.needsSetup,
+      inCouple: coupleService.isCoupleModeEnabled,
+    ),
     routes: [
       // Splash Screen
       GoRoute(
@@ -410,7 +397,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state, navigationShell) {
-          return MainNavigationScreen(navigationShell: navigationShell);
+          return MainNavigationScreen(
+            navigationShell: navigationShell,
+            buildDetail: detailScreenFor,
+          );
         },
         branches: [
           // Discover Tab
@@ -454,14 +444,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: RouteNames.matchProfile,
                     parentNavigatorKey: _rootNavigatorKey,
                     pageBuilder: (context, state) {
-                      final userId = state.pathParameters['userId']!;
-                      return CustomTransitionPage(
+                      final target = MatchProfileDetail(
+                        state.pathParameters['userId']!,
+                      );
+                      return AdaptiveDetailPage(
                         key: state.pageKey,
-                        child: ProfileViewScreen(
-                          userId: userId,
-                          isFromMatch: true,
-                        ),
-                        transitionsBuilder: heroTransition,
+                        target: target,
+                        child: detailScreenFor(context, target),
+                        transitionsBuilder: heroMotion,
                       );
                     },
                   ),
@@ -484,12 +474,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: RouteNames.chatDetail,
                     parentNavigatorKey: _rootNavigatorKey,
                     pageBuilder: (context, state) {
-                      final conversationId =
-                          state.pathParameters['conversationId']!;
-                      return CustomTransitionPage(
+                      final target = ChatDetail(
+                        state.pathParameters['conversationId']!,
+                      );
+                      return AdaptiveDetailPage(
                         key: state.pageKey,
-                        child: ChatScreen(conversationId: conversationId),
-                        transitionsBuilder: slideLeftTransition,
+                        target: target,
+                        child: detailScreenFor(context, target),
+                        transitionsBuilder: slideLeftMotion,
                       );
                     },
                     routes: [
@@ -628,34 +620,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Page introuvable',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(state.error?.message ?? 'Une erreur est survenue'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.go(RoutePaths.discover),
-              child: const Text('Retour à l\'accueil'),
-            ),
-          ],
-        ),
-      ),
-    ),
+    errorBuilder: (context, state) => const RouteErrorScreen(),
   );
 });
-
-/// Public routes that don't require authentication
-const _publicRoutes = [
-  RoutePaths.splash,
-  RoutePaths.onboarding,
-  RoutePaths.login,
-];

@@ -10,6 +10,7 @@ import '../../../../core/web_sessions/web_session_models.dart';
 import '../../../../core/web_sessions/web_sessions_api.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/web_session_format.dart';
+import '../../../../l10n/l10n.dart';
 
 enum _Stage { loading, ready, error }
 
@@ -46,7 +47,7 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
   Future<void> _connect() async {
     final connected = await context.push<bool>(RoutePaths.webScan);
     if (!mounted || connected != true) return;
-    _toast('Ordinateur connecté.');
+    _toast(context.l10n.webSessionsConnected);
     await _load();
   }
 
@@ -54,7 +55,7 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
     final response = await _api.revoke(session.id);
     if (!mounted) return;
     if (!response.success) {
-      _toast('Impossible de déconnecter cet ordinateur. Réessayez.');
+      _toast(context.l10n.webSessionsRevokeFailed);
     }
     await _load();
   }
@@ -63,18 +64,16 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Déconnecter tous les ordinateurs ?'),
-        content: const Text(
-          'Vous devrez vous reconnecter sur chaque ordinateur.',
-        ),
+        title: Text(context.l10n.webSessionsRevokeAllTitle),
+        content: Text(context.l10n.webSessionsRevokeAllBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Déconnecter tout'),
+            child: Text(context.l10n.webSessionsRevokeAllConfirm),
           ),
         ],
       ),
@@ -83,7 +82,7 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
     final response = await _api.revokeAll();
     if (!mounted) return;
     if (!response.success) {
-      _toast('Impossible de déconnecter les ordinateurs. Réessayez.');
+      _toast(context.l10n.webSessionsRevokeAllFailed);
     }
     await _load();
   }
@@ -94,15 +93,17 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ordinateurs connectés')),
+      appBar: AppBar(title: Text(context.l10n.webSessionsTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
         children: [
-          const SectionLabel('MAZL sur ordinateur', color: AppColors.tekhelet),
+          SectionLabel(
+            context.l10n.webSessionsSectionLabel,
+            color: AppColors.tekhelet,
+          ),
           const SizedBox(height: 8),
           Text(
-            'Utilisez MAZL sur ordinateur sur app.mazl.app. '
-            'Chaque ordinateur reste connecté 7 jours au plus.',
+            context.l10n.webSessionsIntro,
             style: TextStyle(
               fontSize: 15,
               height: 1.5,
@@ -113,7 +114,7 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
           ElevatedButton.icon(
             onPressed: _connect,
             icon: const Icon(LucideIcons.qrCode),
-            label: const Text('Connecter un ordinateur'),
+            label: Text(context.l10n.webSessionsConnect),
           ),
           const SizedBox(height: 28),
           ..._content(),
@@ -131,16 +132,18 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
     ],
     _Stage.error => [
       _Notice(
-        text:
-            'Impossible de charger vos ordinateurs. Vérifiez votre connexion.',
-        action: TextButton(onPressed: _load, child: const Text('Réessayer')),
+        text: context.l10n.webSessionsLoadFailed,
+        action: TextButton(
+          onPressed: _load,
+          child: Text(context.l10n.commonRetry),
+        ),
       ),
     ],
-    _Stage.ready when _sessions.isEmpty => const [
-      _Notice(text: 'Aucun ordinateur n\'est connecté pour le moment.'),
+    _Stage.ready when _sessions.isEmpty => [
+      _Notice(text: context.l10n.webSessionsEmpty),
     ],
     _Stage.ready => [
-      const SectionLabel('Ordinateurs'),
+      SectionLabel(context.l10n.webSessionsListLabel),
       for (final session in _sessions)
         _SessionTile(session: session, onRevoke: () => _revoke(session)),
       const SizedBox(height: 16),
@@ -149,7 +152,7 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
         style: TextButton.styleFrom(
           foregroundColor: Theme.of(context).colorScheme.error,
         ),
-        child: const Text('Déconnecter tous les ordinateurs'),
+        child: Text(context.l10n.webSessionsRevokeAll),
       ),
     ],
   };
@@ -192,8 +195,9 @@ class _SessionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final details =
-        '${connectionMethodLabel(session.method)} · ${lastActivityLabel(session.lastSeenAt)}';
+        '${connectionMethodLabel(l10n, session.method)} · ${lastActivityLabel(l10n, session.lastSeenAt)}';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -231,9 +235,9 @@ class _SessionTile extends StatelessWidget {
           TextButton(
             onPressed: onRevoke,
             child: Semantics(
-              label: 'Déconnecter ${session.browser}',
+              label: l10n.webSessionsRevokeNamed(session.browser),
               excludeSemantics: true,
-              child: const Text('Déconnecter'),
+              child: Text(l10n.webSessionsRevoke),
             ),
           ),
         ],

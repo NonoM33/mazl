@@ -7,7 +7,10 @@ import '../../../../core/models/couple_event.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/couple_failure_label.dart';
+import '../l10n/couple_feed_labels.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 
@@ -77,17 +80,18 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
+    final l10n = context.l10n;
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: top + 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'Événements',
-                style: TextStyle(
+                l10n.coupleFeedEventsTitle,
+                style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -2,
@@ -101,8 +105,12 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
               child: TabBar(
                 controller: _tabController,
                 tabs: [
-                  const Tab(text: 'À venir'),
-                  Tab(text: 'Inscrits (${_registeredEvents.length})'),
+                  Tab(text: l10n.coupleFeedEventsUpcoming),
+                  Tab(
+                    text: l10n.coupleFeedEventsRegisteredTab(
+                      _registeredEvents.length,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -137,11 +145,11 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
         itemBuilder: (context, index) {
           final cat = eventCategoryFilters[index];
           return _FilterPill(
-            key: Key('events-filter-${cat.key ?? 'all'}'),
-            label: cat.label,
-            selected: _selectedCategory == cat.key,
+            key: Key('events-filter-${cat ?? 'all'}'),
+            label: eventFilterLabel(context.l10n, cat),
+            selected: _selectedCategory == cat,
             onTap: () {
-              setState(() => _selectedCategory = cat.key);
+              setState(() => _selectedCategory = cat);
               _loadEvents();
             },
           );
@@ -160,16 +168,17 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
 
     final failure = _failure;
     if (failure != null) {
-      return CoupleMessageView.failure(failure, onRetry: _loadEvents);
+      return coupleFailureView(context, failure, onRetry: _loadEvents);
     }
 
     if (events.isEmpty) {
+      final l10n = context.l10n;
       return CoupleMessageView(
         icon: LucideIcons.calendar,
         title: showRegisterButton
-            ? 'Aucun événement disponible'
-            : 'Vous n\'êtes inscrit à aucun événement',
-        actionLabel: showRegisterButton ? null : 'Découvrir les événements',
+            ? l10n.coupleFeedEventsEmptyAll
+            : l10n.coupleFeedEventsEmptyRegistered,
+        actionLabel: showRegisterButton ? null : l10n.coupleFeedEventsDiscover,
         onAction: showRegisterButton
             ? null
             : () => _tabController.animateTo(
@@ -208,7 +217,9 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
       case CoupleOk():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Inscrits à "${event.title}"'),
+            content: Text(
+              context.l10n.coupleFeedEventRegisteredSnack(event.title),
+            ),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -218,8 +229,8 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
         showCoupleError(
           context,
           failure.kind == CoupleFailureKind.full
-              ? failure.message
-              : 'Inscription impossible. Réessayez.',
+              ? failure.label(context.l10n)
+              : context.l10n.coupleFeedEventRegisterError,
         );
     }
   }
@@ -228,14 +239,12 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Annuler l\'inscription ?'),
-        content: Text(
-          'Voulez-vous vraiment annuler votre inscription à "${event.title}" ?',
-        ),
+        title: Text(context.l10n.coupleFeedEventCancelTitle),
+        content: Text(context.l10n.coupleFeedEventCancelBody(event.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Non'),
+            child: Text(context.l10n.coupleFeedEventCancelNo),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
@@ -243,7 +252,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Oui, annuler'),
+            child: Text(context.l10n.coupleFeedEventCancelYes),
           ),
         ],
       ),
@@ -255,8 +264,8 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
       switch (result) {
         case CoupleOk():
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Inscription annulée'),
+            SnackBar(
+              content: Text(context.l10n.coupleFeedEventCancelled),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -264,7 +273,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
         case CoupleFailed():
           showCoupleError(
             context,
-            'Impossible d\'annuler l\'inscription. Réessayez.',
+            context.l10n.coupleFeedEventCancelError,
           );
       }
     }
@@ -337,10 +346,8 @@ class _EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final when = [
-      event.formattedDate,
-      if (event.formattedTime.isNotEmpty) event.formattedTime,
-    ].join(' · ');
+    final l10n = context.l10n;
+    final when = event.whenLabel(l10n);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -353,7 +360,7 @@ class _EventCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildImage(),
+              _buildImage(l10n),
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -370,21 +377,21 @@ class _EventCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 10),
-                    _buildMeta(scheme),
+                    _buildMeta(scheme, l10n),
                     const SizedBox(height: 14),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         TagPill(
-                          eventCategoryLabel(event.category),
+                          eventCategoryLabel(l10n, event.category),
                           icon: eventCategoryIcon(event.category),
                           onDark: true,
                         ),
-                        TagPill(event.formattedPrice, onDark: true),
+                        TagPill(event.priceLabel(l10n), onDark: true),
                       ],
                     ),
-                    ..._buildAction(),
+                    ..._buildAction(l10n),
                   ],
                 ),
               ),
@@ -395,7 +402,7 @@ class _EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(AppLocalizations l10n) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Stack(
@@ -411,19 +418,20 @@ class _EventCard extends StatelessWidget {
           else
             _placeholder(),
           if (event.isFeatured || event.isKosher)
-            Positioned(
+            PositionedDirectional(
               top: 12,
-              left: 12,
+              start: 12,
               child: Wrap(
                 spacing: 8,
                 children: [
                   if (event.isFeatured)
-                    const TagPill(
-                      'À la une',
+                    TagPill(
+                      l10n.coupleFeedFeatured,
                       icon: LucideIcons.star,
                       onDark: true,
                     ),
-                  if (event.isKosher) const TagPill('Casher', onDark: true),
+                  if (event.isKosher)
+                    TagPill(l10n.coupleFeedKosher, onDark: true),
                 ],
               ),
             ),
@@ -435,7 +443,7 @@ class _EventCard extends StatelessWidget {
   Widget _placeholder() =>
       EventImagePlaceholder(category: event.category, seed: seed);
 
-  Widget _buildMeta(ColorScheme scheme) {
+  Widget _buildMeta(ColorScheme scheme, AppLocalizations l10n) {
     final muted = scheme.onSurfaceVariant;
     final style = TextStyle(color: muted, fontSize: 14);
     final full = event.isFull;
@@ -463,7 +471,9 @@ class _EventCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                full ? 'Complet' : '${event.spotsLeft} places',
+                full
+                    ? l10n.coupleFeedEventFull
+                    : l10n.coupleFeedEventSpots(event.spotsLeft),
                 style: style.copyWith(
                   color: full ? AppColors.error : muted,
                   fontWeight: full ? FontWeight.w600 : FontWeight.w400,
@@ -475,17 +485,17 @@ class _EventCard extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAction() {
+  List<Widget> _buildAction(AppLocalizations l10n) {
     final Widget button;
     if (showRegisterButton && !isRegistered && !event.isFull) {
       button = ElevatedButton(
         onPressed: onRegister,
-        child: const Text('S\'inscrire'),
+        child: Text(l10n.coupleFeedEventRegister),
       );
     } else if (isRegistered) {
       button = OutlinedButton(
         onPressed: onCancel,
-        child: const Text('Annuler'),
+        child: Text(l10n.commonCancel),
       );
     } else {
       return const [];

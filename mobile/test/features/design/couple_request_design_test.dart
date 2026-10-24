@@ -16,6 +16,7 @@ import 'package:mazl/presentation/features/couple/widgets/couple_request_dialog.
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../couple/couple_flow_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _sizes = [Size(390, 844), Size(360, 740)];
 const _brightnesses = [Brightness.light, Brightness.dark];
@@ -30,6 +31,9 @@ Future<ApiResponse<List<Map<String, dynamic>>>> _threeMatches() async =>
     ]);
 
 Widget _host(Widget home, Brightness brightness) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: kTestLocale,
   theme: AppTheme.lightTheme,
   darkTheme: AppTheme.darkTheme,
   themeMode: brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light,

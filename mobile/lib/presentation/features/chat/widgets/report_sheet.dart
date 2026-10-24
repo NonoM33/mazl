@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 
+/// Why a message is reported. The moderation team reads [wire] in the
+/// `reports` table (CONTRAT §2), so it stays the same in every language.
+enum ReportReason {
+  scam('Arnaque ou demande d\'argent'),
+  harassment('Harcèlement ou propos déplacés'),
+  inappropriate('Contenu inapproprié'),
+  other('Autre');
+
+  const ReportReason(this.wire);
+
+  final String wire;
+}
+
+extension ReportReasonLabel on ReportReason {
+  String label(AppLocalizations l10n) => switch (this) {
+    ReportReason.scam => l10n.chatReportReasonScam,
+    ReportReason.harassment => l10n.chatReportReasonHarassment,
+    ReportReason.inappropriate => l10n.chatReportReasonInappropriate,
+    ReportReason.other => l10n.chatReportReasonOther,
+  };
+}
+
 const reportReasons = [
-  ('Arnaque ou demande d\'argent', LucideIcons.banknote),
-  ('Harcèlement ou propos déplacés', LucideIcons.messageSquareWarning),
-  ('Contenu inapproprié', LucideIcons.eyeOff),
-  ('Autre', LucideIcons.flag),
+  (ReportReason.scam, LucideIcons.banknote),
+  (ReportReason.harassment, LucideIcons.messageSquareWarning),
+  (ReportReason.inappropriate, LucideIcons.eyeOff),
+  (ReportReason.other, LucideIcons.flag),
 ];
 
 /// Asks why a message is reported; null when the sheet is dismissed.
-Future<String?> pickReportReason(BuildContext context) {
-  return showMazlSheet<String>(
+Future<ReportReason?> pickReportReason(BuildContext context) {
+  return showMazlSheet<ReportReason>(
     context,
     padded: false,
     builder: (context) => Column(
@@ -22,15 +45,15 @@ Future<String?> pickReportReason(BuildContext context) {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
           child: Text(
-            'Signaler ce message',
+            context.l10n.chatReportTitle,
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
-        for (final (label, icon) in reportReasons)
+        for (final (reason, icon) in reportReasons)
           ListTile(
             leading: Icon(icon),
-            title: Text(label),
-            onTap: () => Navigator.pop(context, label),
+            title: Text(reason.label(context.l10n)),
+            onTap: () => Navigator.pop(context, reason),
           ),
       ],
     ),
@@ -46,15 +69,15 @@ Future<void> showScamAdviceSheet(BuildContext context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Se protéger des arnaques',
+          context.l10n.chatScamAdviceTitle,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
-        for (final line in const [
-          "N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.",
-          'Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.',
-          'Faites un appel vidéo avant de vous engager.',
-          'En cas de doute, signalez la conversation : nous l\'examinons.',
+        for (final line in [
+          context.l10n.chatScamAdviceMoney,
+          context.l10n.chatScamAdviceApps,
+          context.l10n.chatScamAdviceVideo,
+          context.l10n.chatScamAdviceReport,
         ])
           Padding(
             padding: const EdgeInsets.only(bottom: 8),

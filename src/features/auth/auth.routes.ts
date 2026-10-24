@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT } from "../../auth";
 import { upsertUser, getUserProfile, findUserById } from "../../db";
+import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { createIpRateLimiter } from "../../shared/http/rate-limit";
 
@@ -162,6 +163,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
           hasProfile: !!profile?.is_complete,
         },
         profile,
+        missing: missingProfileFields(profile),
       });
     } catch (error) {
       console.error("Get user error:", error);

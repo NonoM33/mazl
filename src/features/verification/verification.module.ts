@@ -1,6 +1,7 @@
 import type { Sql } from "postgres";
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
+import type { ObjectStore } from "../../shared/storage/object-store";
 import { PhotoFaceCheckerService } from "./application/photo-face-checker";
 import type { ChipVerifier, FaceEngine, ImageDecoder, Jp2Decoder, PhotoFaceChecker } from "./application/ports";
 import type { SubmitIdentityDeps } from "./application/submit-identity";
@@ -11,7 +12,7 @@ import { PgIdentityRepository } from "./infra/pg-identity-repository";
 import { registerIdentityRoutes } from "./presentation/identity.routes";
 import type { FaceThresholds } from "./domain/thresholds";
 import { readFaceConfig } from "./infra/config";
-import { createLocalPhotoReader } from "./infra/local-photo-reader";
+import { createStorePhotoReader } from "./infra/store-photo-reader";
 import { PgFaceReferenceStore } from "./infra/pg-face-reference-store";
 import { PgFaceSessionRepository } from "./infra/pg-face-session-repository";
 import { PgProfilePhotoStore, type PhotoFileReader } from "./infra/pg-profile-photo-store";
@@ -23,9 +24,9 @@ import { registerVerificationRoutes, type VerificationRouteDeps } from "./presen
 
 export interface VerificationModuleOptions {
   readonly sql: Sql;
-  readonly uploadsDir: string;
+  readonly store: ObjectStore;
   readonly env?: Record<string, string | undefined>;
-  // Reads a profile photo from its storage key. Defaults to files under uploadsDir.
+  // Reads a profile photo from its storage key. Defaults to the object store.
   readonly readPhoto?: PhotoFileReader;
   // Replaceable engine and decoder, for tests of the HTTP layer.
   readonly engine?: FaceEngine;
@@ -48,7 +49,7 @@ export function createVerificationModule(options: VerificationModuleOptions): Ve
   const decoder = options.decoder ?? new SharpImageDecoder();
   const sessions = new PgFaceSessionRepository(options.sql);
   const references = new PgFaceReferenceStore(options.sql);
-  const photos = new PgProfilePhotoStore(options.sql, options.readPhoto ?? createLocalPhotoReader(options.uploadsDir));
+  const photos = new PgProfilePhotoStore(options.sql, options.readPhoto ?? createStorePhotoReader(options.store));
   const state = new PgVerificationState(options.sql);
   const vault = gcmSecretVault;
 

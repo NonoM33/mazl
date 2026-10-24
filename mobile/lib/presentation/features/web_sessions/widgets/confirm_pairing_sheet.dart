@@ -5,6 +5,7 @@ import '../../../../core/web_sessions/web_session_models.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import 'web_session_format.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Asks whether to connect the computer. Resolves true to connect, false to
 /// refuse; a dismissed sheet counts as a refusal.
@@ -26,36 +27,39 @@ class _ConfirmPairingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionLabel(
-            'Connexion à MAZL sur ordinateur',
-            color: AppColors.tekhelet,
-          ),
+          SectionLabel(l10n.webSessionsConfirmLabel, color: AppColors.tekhelet),
           const SizedBox(height: 8),
           Semantics(
             header: true,
             child: Text(
-              'Connecter cet ordinateur ?',
+              l10n.webSessionsConfirmTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
           const SizedBox(height: 16),
-          FactRow(label: 'Navigateur', value: pairing.browser),
-          if (pairing.address != null)
-            FactRow(label: 'Adresse', value: pairing.address!),
           FactRow(
-            label: 'Demande faite à',
-            value: clockTimeLabel(pairing.createdAt),
+            label: l10n.webSessionsConfirmBrowser,
+            value: pairing.browser,
+          ),
+          if (pairing.address != null)
+            FactRow(
+              label: l10n.webSessionsConfirmAddress,
+              value: pairing.address!,
+            ),
+          FactRow(
+            label: l10n.webSessionsConfirmAskedAt,
+            value: clockTimeLabel(l10n, pairing.createdAt),
             last: true,
           ),
           const SizedBox(height: 16),
           Text(
-            'Ne scannez que le code affiché sur votre propre ordinateur. '
-            'Si quelqu\'un vous demande de scanner un code, refusez.',
+            l10n.webSessionsConfirmWarning,
             style: TextStyle(
               fontSize: 14,
               height: 1.5,
@@ -65,12 +69,12 @@ class _ConfirmPairingBody extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Connecter'),
+            child: Text(l10n.webSessionsConfirmApprove),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Refuser'),
+            child: Text(l10n.webSessionsConfirmDeny),
           ),
         ],
       ),

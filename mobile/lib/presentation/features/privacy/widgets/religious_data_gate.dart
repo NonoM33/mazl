@@ -5,6 +5,7 @@ import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/privacy/religious_data_consent.dart';
 import '../../../../core/services/api_service.dart';
 import 'religious_consent_sheet.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Shows [child] (the practice fields) only once the member has given a valid
 /// consent; otherwise shows a card that opens the consent sheet.
@@ -58,14 +59,14 @@ class _ReligiousDataGateState extends ConsumerState<ReligiousDataGate> {
     }
     if (consent == null) {
       return ReligiousDataNotice(
-        text: 'Impossible de vérifier votre accord. Vérifiez votre connexion.',
-        actionLabel: 'Réessayer',
+        text: context.l10n.privacyGateUnverifiable,
+        actionLabel: context.l10n.commonRetry,
         onAction: () => ref.invalidate(religiousDataConsentProvider),
       );
     }
     return ReligiousDataNotice(
-      text: 'Pour renseigner votre pratique, donnez votre accord',
-      actionLabel: 'Donner mon accord',
+      text: context.l10n.privacyGateAsk,
+      actionLabel: context.l10n.privacyGive,
       onAction: () => _ask(consent),
     );
   }
@@ -134,7 +135,7 @@ class ReligiousDataLocked extends StatelessWidget {
         Opacity(opacity: 0.4, child: IgnorePointer(child: child)),
         const SizedBox(height: 8),
         Text(
-          'Disponible une fois votre accord donné pour la pratique religieuse.',
+          context.l10n.privacyLockedHint,
           style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
         ),
       ],

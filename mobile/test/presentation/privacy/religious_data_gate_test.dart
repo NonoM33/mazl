@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/presentation/features/privacy/widgets/religious_data_gate.dart';
+import 'package:mazl/l10n/l10n.dart';
 
 import 'privacy_fakes.dart';
 
@@ -119,6 +120,9 @@ void main() {
   testWidgets('ReligiousDataLocked blocks taps while locked', (tester) async {
     var taps = 0;
     Widget build(bool locked) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('fr'),
       home: ReligiousDataLocked(
         locked: locked,
         child: ElevatedButton(onPressed: () => taps++, child: const Text('x')),

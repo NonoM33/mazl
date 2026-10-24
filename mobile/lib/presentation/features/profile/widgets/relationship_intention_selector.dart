@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../core/services/api_service.dart';
+import '../../../../core/models/relationship_intention.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/profile_answer_labels.dart';
+
+IconData _intentionIcon(RelationshipIntention intention) =>
+    switch (intention.icon) {
+      'ring' => LucideIcons.gem,
+      'sparkles' => LucideIcons.sparkles,
+      'users' => LucideIcons.users,
+      _ => LucideIcons.heart,
+    };
 
 /// Widget to select relationship intention
 class RelationshipIntentionSelector extends StatelessWidget {
@@ -15,36 +25,21 @@ class RelationshipIntentionSelector extends StatelessWidget {
   final String? selectedIntention;
   final Function(String?) onChanged;
 
-  IconData _getIcon(String iconName) {
-    switch (iconName) {
-      case 'ring':
-        return LucideIcons.gem;
-      case 'heart':
-        return LucideIcons.heart;
-      case 'sparkles':
-        return LucideIcons.sparkles;
-      case 'users':
-        return LucideIcons.users;
-      default:
-        return LucideIcons.heart;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Ce que je recherche',
-          style: TextStyle(
+        Text(
+          context.l10n.profileLookingFor,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Montrez aux autres ce que vous recherchez',
+          context.l10n.profileIntentionHint,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -54,11 +49,11 @@ class RelationshipIntentionSelector extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: RelationshipIntention.intentions.map((intention) {
+          children: RelationshipIntention.selectable.map((intention) {
             final isSelected = selectedIntention == intention.id;
             return _IntentionChip(
               intention: intention,
-              icon: _getIcon(intention.icon),
+              icon: _intentionIcon(intention),
               isSelected: isSelected,
               onTap: () => onChanged(isSelected ? null : intention.id),
             );
@@ -116,7 +111,7 @@ class _IntentionChip extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              intention.label,
+              intention.selectorLabel(context.l10n),
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.black87,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -138,28 +133,8 @@ class RelationshipIntentionBadge extends StatelessWidget {
 
   final String intentionId;
 
-  RelationshipIntention? get _intention {
-    try {
-      return RelationshipIntention.intentions.firstWhere((i) => i.id == intentionId);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  IconData _getIcon(String iconName) {
-    switch (iconName) {
-      case 'ring':
-        return LucideIcons.gem;
-      case 'heart':
-        return LucideIcons.heart;
-      case 'sparkles':
-        return LucideIcons.sparkles;
-      case 'users':
-        return LucideIcons.users;
-      default:
-        return LucideIcons.heart;
-    }
-  }
+  RelationshipIntention? get _intention =>
+      RelationshipIntention.fromId(intentionId);
 
   @override
   Widget build(BuildContext context) {
@@ -179,13 +154,13 @@ class RelationshipIntentionBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            _getIcon(intention.icon),
+            _intentionIcon(intention),
             size: 16,
             color: AppColors.primary,
           ),
           const SizedBox(width: 6),
           Text(
-            intention.label,
+            intention.selectorLabel(context.l10n),
             style: TextStyle(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
@@ -207,28 +182,8 @@ class RelationshipIntentionCard extends StatelessWidget {
 
   final String intentionId;
 
-  RelationshipIntention? get _intention {
-    try {
-      return RelationshipIntention.intentions.firstWhere((i) => i.id == intentionId);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  IconData _getIcon(String iconName) {
-    switch (iconName) {
-      case 'ring':
-        return LucideIcons.gem;
-      case 'heart':
-        return LucideIcons.heart;
-      case 'sparkles':
-        return LucideIcons.sparkles;
-      case 'users':
-        return LucideIcons.users;
-      default:
-        return LucideIcons.heart;
-    }
-  }
+  RelationshipIntention? get _intention =>
+      RelationshipIntention.fromId(intentionId);
 
   @override
   Widget build(BuildContext context) {
@@ -244,8 +199,8 @@ class RelationshipIntentionCard extends StatelessWidget {
             AppColors.primary.withValues(alpha: 0.1),
             AppColors.secondary.withValues(alpha: 0.1),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
@@ -261,7 +216,7 @@ class RelationshipIntentionCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _getIcon(intention.icon),
+              _intentionIcon(intention),
               color: AppColors.primary,
               size: 24,
             ),
@@ -271,23 +226,23 @@ class RelationshipIntentionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Ce que je recherche',
-                  style: TextStyle(
+                Text(
+                  context.l10n.profileLookingFor,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  intention.label,
+                  intention.selectorLabel(context.l10n),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  intention.description,
+                  intention.description(context.l10n),
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[600],

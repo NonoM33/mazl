@@ -1,0 +1,416 @@
+{
+  "chatListTitle": "Messages",
+  "@chatListTitle": {
+    "description": "Conversations : titre de l'écran (grand titre, 40 px)."
+  },
+  "chatListSearchHint": "Rechercher",
+  "@chatListSearchHint": {
+    "description": "Conversations : texte d'aide du champ qui filtre la liste par prénom."
+  },
+  "chatListLoadErrorTitle": "Impossible de charger",
+  "@chatListLoadErrorTitle": {
+    "description": "Conversations : titre (34 px) quand la liste n'a pas pu être chargée."
+  },
+  "chatListLoadErrorBody": "Vérifiez votre connexion, puis réessayez.",
+  "@chatListLoadErrorBody": {
+    "description": "Conversations : phrase sous le titre d'erreur de chargement."
+  },
+  "chatListEmptyTitle": "Pas encore de conversations",
+  "@chatListEmptyTitle": {
+    "description": "Conversations : titre (34 px) quand le membre n'a encore aucune conversation."
+  },
+  "chatListEmptyBody": "Vos échanges apparaîtront ici dès votre premier match.",
+  "@chatListEmptyBody": {
+    "description": "Conversations : phrase sous le titre de l'état vide."
+  },
+  "chatListEmptyAction": "Découvrir",
+  "@chatListEmptyAction": {
+    "description": "Conversations : bouton de l'état vide qui ouvre l'écran de découverte des profils."
+  },
+  "chatListNoResults": "Aucun résultat pour « {query} ».",
+  "@chatListNoResults": {
+    "description": "Conversations : message quand la recherche par prénom ne trouve personne. {query} est ce que le membre a tapé.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatListUnknownMember": "Utilisateur",
+  "@chatListUnknownMember": {
+    "description": "Conversations : nom affiché quand le prénom de l'autre membre n'est pas connu."
+  },
+  "chatNewMatch": "Nouveau match",
+  "@chatNewMatch": {
+    "description": "Conversations et conversation vide : aperçu d'une conversation sans message, et petite étiquette au-dessus de « Dites bonjour »."
+  },
+  "chatListUnreadLabel": "{name}, message non lu",
+  "@chatListUnreadLabel": {
+    "description": "Conversations : phrase lue par le lecteur d'écran pour une ligne qui a des messages non lus. {name} est le prénom de l'autre membre.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPhotoLabel": "Photo",
+  "@chatPhotoLabel": {
+    "description": "Chat : aperçu d'un message qui est une photo (liste des conversations, citation, bandeau de réponse)."
+  },
+  "chatVoiceLabel": "Message vocal",
+  "@chatVoiceLabel": {
+    "description": "Chat : aperçu d'un message vocal (liste des conversations, citation, bandeau de réponse)."
+  },
+  "chatRemovedLabel": "Message retiré",
+  "@chatRemovedLabel": {
+    "description": "Chat : texte d'un message que son auteur a retiré (bulle en italique, aperçu, citation)."
+  },
+  "chatOtherFallbackName": "Votre correspondant",
+  "@chatOtherFallbackName": {
+    "description": "Chat : mot qui remplace le prénom de l'autre membre tant qu'on ne le connaît pas (« Réponse à Votre correspondant »)."
+  },
+  "chatAuthorYou": "Vous",
+  "@chatAuthorYou": {
+    "description": "Chat : auteur d'un message quand c'est le membre lui-même (citation, liste des réactions)."
+  },
+  "chatHeaderLoading": "Chargement…",
+  "@chatHeaderLoading": {
+    "description": "Chat, en-tête : à la place du prénom pendant le chargement."
+  },
+  "chatHeaderTyping": "écrit…",
+  "@chatHeaderTyping": {
+    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre est en train d'écrire (couleur d'accent, une ligne)."
+  },
+  "chatHeaderOnline": "En ligne",
+  "@chatHeaderOnline": {
+    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
+  },
+  "chatHeaderVideoCall": "Appel vidéo",
+  "@chatHeaderVideoCall": {
+    "description": "Chat, en-tête : info-bulle du bouton qui lance un appel vidéo."
+  },
+  "chatHeaderOptions": "Options",
+  "@chatHeaderOptions": {
+    "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."
+  },
+  "chatOptionsViewProfile": "Voir le profil",
+  "@chatOptionsViewProfile": {
+    "description": "Chat, feuille d'options : ouvre le profil de l'autre membre."
+  },
+  "chatOptionsMute": "Couper les notifications",
+  "@chatOptionsMute": {
+    "description": "Chat, feuille d'options : coupe les notifications de cette conversation."
+  },
+  "chatOptionsBlock": "Bloquer",
+  "@chatOptionsBlock": {
+    "description": "Chat, feuille d'options : bloque l'autre membre (action destructive, en rouge)."
+  },
+  "chatMutedConfirmation": "Notifications coupées pour cette conversation",
+  "@chatMutedConfirmation": {
+    "description": "Chat : message bref après avoir coupé les notifications de la conversation."
+  },
+  "chatBlockFallbackName": "Cet utilisateur",
+  "@chatBlockFallbackName": {
+    "description": "Chat : nom donné à la boîte de dialogue de blocage ou de signalement quand le prénom n'est pas connu."
+  },
+  "chatLoading": "Chargement de la conversation",
+  "@chatLoading": {
+    "description": "Chat : libellé lu par le lecteur d'écran pendant le chargement des premiers messages (bulles grises)."
+  },
+  "chatEmptyTitle": "Dites bonjour.",
+  "@chatEmptyTitle": {
+    "description": "Chat : grand titre (40 px) d'une conversation sans aucun message."
+  },
+  "chatEmptyBody": "Envoyez le premier message pour briser la glace.",
+  "@chatEmptyBody": {
+    "description": "Chat : phrase sous le titre d'une conversation sans aucun message."
+  },
+  "chatMatchStart": "Match · {date}",
+  "@chatMatchStart": {
+    "description": "Chat : repère au-dessus du premier message, avec la date du match déjà mise en forme (« 21 oct. »). Affiché en majuscules espacées.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chatNewMessages": "{count, plural, =1{1 nouveau message} other{{count} nouveaux messages}}",
+  "@chatNewMessages": {
+    "description": "Chat : pilule flottante au-dessus de la zone de saisie quand des messages sont arrivés pendant que le membre lisait plus haut.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatTypingSemantics": "Votre correspondant écrit",
+  "@chatTypingSemantics": {
+    "description": "Chat : phrase lue par le lecteur d'écran pour la bulle aux trois points (l'autre membre écrit)."
+  },
+  "chatSeenAt": "Vu à {time}",
+  "@chatSeenAt": {
+    "description": "Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatFailedRetry": "Échec · Réessayer",
+  "@chatFailedRetry": {
+    "description": "Chat : sous une bulle dont l'envoi a échoué (rouge, 12 px) ; un toucher ouvre le choix réessayer ou supprimer."
+  },
+  "chatMenuReply": "Répondre",
+  "@chatMenuReply": {
+    "description": "Chat, menu d'appui long : répondre à ce message."
+  },
+  "chatMenuCopy": "Copier",
+  "@chatMenuCopy": {
+    "description": "Chat, menu d'appui long : copie le texte du message."
+  },
+  "chatMenuUnsend": "Retirer",
+  "@chatMenuUnsend": {
+    "description": "Chat, menu d'appui long : retire un de ses propres messages envoyé il y a moins de 15 minutes (en rouge)."
+  },
+  "chatMenuClose": "Fermer le menu",
+  "@chatMenuClose": {
+    "description": "Chat : libellé lu par le lecteur d'écran pour le voile qui ferme le menu d'appui long."
+  },
+  "chatCopied": "Message copié",
+  "@chatCopied": {
+    "description": "Chat : message bref après avoir copié un message."
+  },
+  "chatReportThanks": "Merci, nous examinons ce message.",
+  "@chatReportThanks": {
+    "description": "Chat : message bref après avoir signalé un message."
+  },
+  "chatReactionsTitle": "Réactions",
+  "@chatReactionsTitle": {
+    "description": "Chat : titre de la feuille qui liste qui a réagi avec quel émoji."
+  },
+  "chatReportTitle": "Signaler ce message",
+  "@chatReportTitle": {
+    "description": "Chat : titre de la feuille qui demande pourquoi on signale un message."
+  },
+  "chatReportReasonScam": "Arnaque ou demande d'argent",
+  "@chatReportReasonScam": {
+    "description": "Chat, signalement : motif « arnaque »."
+  },
+  "chatReportReasonHarassment": "Harcèlement ou propos déplacés",
+  "@chatReportReasonHarassment": {
+    "description": "Chat, signalement : motif « harcèlement »."
+  },
+  "chatReportReasonInappropriate": "Contenu inapproprié",
+  "@chatReportReasonInappropriate": {
+    "description": "Chat, signalement : motif « contenu inapproprié »."
+  },
+  "chatReportReasonOther": "Autre",
+  "@chatReportReasonOther": {
+    "description": "Chat, signalement : motif « autre »."
+  },
+  "chatScamAdviceTitle": "Se protéger des arnaques",
+  "@chatScamAdviceTitle": {
+    "description": "Chat : titre de la feuille de conseils ouverte par « En savoir plus » sur la carte d'avertissement."
+  },
+  "chatScamAdviceMoney": "N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.",
+  "@chatScamAdviceMoney": {
+    "description": "Chat, conseils anti-arnaque : première ligne."
+  },
+  "chatScamAdviceApps": "Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.",
+  "@chatScamAdviceApps": {
+    "description": "Chat, conseils anti-arnaque : deuxième ligne. WhatsApp, Telegram et Signal sont des noms d'applications."
+  },
+  "chatScamAdviceVideo": "Faites un appel vidéo avant de vous engager.",
+  "@chatScamAdviceVideo": {
+    "description": "Chat, conseils anti-arnaque : troisième ligne."
+  },
+  "chatScamAdviceReport": "En cas de doute, signalez la conversation : nous l'examinons.",
+  "@chatScamAdviceReport": {
+    "description": "Chat, conseils anti-arnaque : dernière ligne."
+  },
+  "chatScamTitle": "Restez prudent",
+  "@chatScamTitle": {
+    "description": "Chat : titre (14 px) de la carte d'avertissement sous un message suspect."
+  },
+  "chatScamBody": "Ne transférez jamais d'argent à quelqu'un que vous n'avez pas rencontré.",
+  "@chatScamBody": {
+    "description": "Chat : phrase de la carte d'avertissement sous un message suspect."
+  },
+  "chatScamLearnMore": "En savoir plus",
+  "@chatScamLearnMore": {
+    "description": "Chat : lien de la carte d'avertissement qui ouvre les conseils."
+  },
+  "chatPhotoReveal": "Voir la photo",
+  "@chatPhotoReveal": {
+    "description": "Chat : pastille au centre d'une photo reçue et floutée ; un toucher la dévoile."
+  },
+  "chatVoicePlayFailed": "Lecture impossible",
+  "@chatVoicePlayFailed": {
+    "description": "Chat : message bref quand un message vocal ne peut pas être lu."
+  },
+  "chatVoicePlay": "Lire le message vocal",
+  "@chatVoicePlay": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton lecture d'un message vocal."
+  },
+  "chatVoicePause": "Mettre en pause",
+  "@chatVoicePause": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton pause d'un message vocal."
+  },
+  "chatComposerHint": "Message",
+  "@chatComposerHint": {
+    "description": "Chat : texte d'aide du champ de saisie du message."
+  },
+  "chatComposerAttach": "Joindre des photos",
+  "@chatComposerAttach": {
+    "description": "Chat : info-bulle du bouton « + » qui ouvre le choix de photos."
+  },
+  "chatComposerSend": "Envoyer",
+  "@chatComposerSend": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton flèche qui envoie le texte."
+  },
+  "chatComposerSendVoice": "Envoyer le vocal",
+  "@chatComposerSendVoice": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton qui envoie un vocal verrouillé."
+  },
+  "chatComposerPhotoError": "Impossible d'ajouter la photo. Vérifiez les autorisations.",
+  "@chatComposerPhotoError": {
+    "description": "Chat : message bref quand une photo n'a pas pu être ajoutée (autorisations refusées)."
+  },
+  "chatComposerMicDenied": "Autorisez le micro dans les réglages pour envoyer un vocal.",
+  "@chatComposerMicDenied": {
+    "description": "Chat : message bref quand l'accès au micro est refusé."
+  },
+  "chatComposerRecordError": "Impossible d'enregistrer pour le moment. Réessayez.",
+  "@chatComposerRecordError": {
+    "description": "Chat : message bref quand l'enregistrement n'a pas pu démarrer."
+  },
+  "chatComposerHoldLonger": "Maintenez le micro plus longtemps pour enregistrer.",
+  "@chatComposerHoldLonger": {
+    "description": "Chat : message bref quand le vocal est trop court."
+  },
+  "chatComposerHoldHint": "Maintenez le micro pour enregistrer un vocal.",
+  "@chatComposerHoldHint": {
+    "description": "Chat : message bref quand on touche le micro sans le maintenir."
+  },
+  "chatMicSemantics": "Maintenir pour enregistrer un vocal",
+  "@chatMicSemantics": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton micro."
+  },
+  "chatAttachPhotos": "Photos",
+  "@chatAttachPhotos": {
+    "description": "Chat, feuille des pièces jointes : ligne qui ouvre la galerie."
+  },
+  "chatAttachPhotosLimit": "Jusqu'à 10 à la fois",
+  "@chatAttachPhotosLimit": {
+    "description": "Chat, feuille des pièces jointes : sous « Photos », combien on peut en choisir."
+  },
+  "chatAttachCamera": "Appareil photo",
+  "@chatAttachCamera": {
+    "description": "Chat, feuille des pièces jointes : ligne qui ouvre l'appareil photo."
+  },
+  "chatRecordingCancel": "Annuler l'enregistrement",
+  "@chatRecordingCancel": {
+    "description": "Chat : info-bulle de la corbeille qui annule un enregistrement verrouillé."
+  },
+  "chatRecordingRelease": "Relâchez pour annuler",
+  "@chatRecordingRelease": {
+    "description": "Chat, enregistrement : indication quand le doigt est assez loin pour annuler (rouge, 12 px)."
+  },
+  "chatRecordingSlide": "‹ Glisser pour annuler",
+  "@chatRecordingSlide": {
+    "description": "Chat, enregistrement : indication pendant qu'on maintient le micro. Le signe ‹ pointe vers le côté où glisser pour annuler ; il se retourne tout seul de droite à gauche."
+  },
+  "chatReplyCancel": "Annuler la réponse",
+  "@chatReplyCancel": {
+    "description": "Chat : info-bulle de la croix du bandeau « Réponse à… » au-dessus de la zone de saisie."
+  },
+  "chatReplyToOther": "Réponse à {name}",
+  "@chatReplyToOther": {
+    "description": "Chat : en haut du bandeau de réponse. {name} est le prénom de l'auteur du message cité.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatReplyToMine": "Réponse à votre message",
+  "@chatReplyToMine": {
+    "description": "Chat : en haut du bandeau de réponse quand le membre répond à l'un de ses propres messages."
+  },
+  "chatErrorSessionExpired": "Session expirée, reconnectez-vous.",
+  "@chatErrorSessionExpired": {
+    "description": "Chat : erreur 401, la connexion du membre a expiré."
+  },
+  "chatErrorCannotUnsend": "Ce message ne peut plus être retiré.",
+  "@chatErrorCannotUnsend": {
+    "description": "Chat : un message ne peut plus être retiré (au-delà de 15 minutes, ou pas le sien)."
+  },
+  "chatErrorConversationGone": "Cette conversation n’est plus disponible.",
+  "@chatErrorConversationGone": {
+    "description": "Chat : la conversation n'existe plus ou n'est plus accessible (404)."
+  },
+  "chatErrorBlocked": "Vous ne pouvez plus écrire dans cette conversation.",
+  "@chatErrorBlocked": {
+    "description": "Chat : l'un des deux membres a bloqué l'autre. Aussi affiché à la place de la zone de saisie."
+  },
+  "chatErrorTooLarge": "Fichier trop volumineux.",
+  "@chatErrorTooLarge": {
+    "description": "Chat : le fichier envoyé est trop lourd (413)."
+  },
+  "chatErrorRateLimited": "Trop d’envois, patientez un instant.",
+  "@chatErrorRateLimited": {
+    "description": "Chat : trop d'envois en peu de temps (429)."
+  },
+  "chatErrorServer": "Le serveur est indisponible, réessayez.",
+  "@chatErrorServer": {
+    "description": "Chat : le serveur est en panne (5xx)."
+  },
+  "chatErrorFileRejected": "Fichier refusé, essayez-en un autre.",
+  "@chatErrorFileRejected": {
+    "description": "Chat : le serveur a refusé le fichier (format ou contenu)."
+  },
+  "chatErrorMessageRejected": "Message refusé.",
+  "@chatErrorMessageRejected": {
+    "description": "Chat : le serveur a refusé le message (400 ou 422)."
+  },
+  "chatErrorTimeout": "Délai dépassé, vérifiez votre connexion.",
+  "@chatErrorTimeout": {
+    "description": "Chat : le serveur n'a pas répondu à temps."
+  },
+  "chatErrorNetwork": "Pas de connexion internet.",
+  "@chatErrorNetwork": {
+    "description": "Chat : le téléphone n'a pas de connexion."
+  },
+  "chatErrorUnknown": "Une erreur est survenue.",
+  "@chatErrorUnknown": {
+    "description": "Chat : erreur sans cause connue."
+  },
+  "chatErrorTooManyPhotos": "Dix photos au maximum par message.",
+  "@chatErrorTooManyPhotos": {
+    "description": "Chat : plus de dix photos choisies pour un seul message."
+  },
+  "chatErrorNotYetSent": "Ce message n’est pas encore envoyé.",
+  "@chatErrorNotYetSent": {
+    "description": "Chat : action impossible sur un message pas encore envoyé (réaction)."
+  },
+  "chatErrorMessageGone": "Ce message n’existe plus.",
+  "@chatErrorMessageGone": {
+    "description": "Chat : le message visé n'existe plus."
+  },
+  "chatErrorNotAuthor": "Seul l’auteur peut retirer un message.",
+  "@chatErrorNotAuthor": {
+    "description": "Chat : on ne peut retirer que ses propres messages."
+  },
+  "chatErrorReactionUnavailable": "Réaction indisponible.",
+  "@chatErrorReactionUnavailable": {
+    "description": "Chat : l'émoji choisi n'est pas l'une des six réactions permises."
+  },
+  "chatErrorSendUnavailable": "Impossible d’envoyer pour le moment.",
+  "@chatErrorSendUnavailable": {
+    "description": "Chat : l'envoi n'a pas pu démarrer (identité du membre introuvable)."
+  },
+  "chatErrorLoadFailed": "Impossible de charger la conversation.",
+  "@chatErrorLoadFailed": {
+    "description": "Chat : le premier chargement de la conversation a échoué."
+  }
+}

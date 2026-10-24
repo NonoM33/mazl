@@ -32,7 +32,7 @@ void main() {
 
     expect(api.calls, ['get']);
     expect(find.textContaining('courant'), findsOneWidget);
-    expect(find.textContaining('cashrout'), findsOneWidget);
+    expect(find.textContaining('kashrout'), findsOneWidget);
     expect(find.textContaining('Shabbat'), findsOneWidget);
     expect(find.textContaining('intention'), findsOneWidget);
 

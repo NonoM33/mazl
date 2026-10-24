@@ -1,0 +1,21 @@
+{
+  "boostTitle": "בוסט",
+  "boostHeadlineActive": "הבוסט פעיל",
+  "boostHeadlineIdle": "להעלות את הפרופיל עם בוסט",
+  "boostTagline": "פי 10 יותר אנשים יראו את הפרופיל.",
+  "boostMinutesLeft": "{minutes, plural, one{נותרה דקה אחת} two{נותרו שתי דקות} other{נותרו {minutes} דקות}}",
+  "boostDuringTitle": "במהלך הבוסט הזה",
+  "boostViews": "צפיות",
+  "boostLikes": "לייקים",
+  "boostBenefitsTitle": "היתרונות של הבוסט",
+  "boostBenefitFirst": "הפרופיל יופיע ראשון בהצעות",
+  "boostBenefitVisibility": "פי 10 יותר חשיפה למשך {minutes} דקות",
+  "boostBenefitMatches": "יותר סיכוי ליצור מאץ'",
+  "boostBenefitStats": "סטטיסטיקות בזמן אמת במהלך הבוסט",
+  "boostActivate": "להפעיל את הבוסט",
+  "boostRemaining": "{count, plural, one{נותר בוסט אחד} two{נותרו שני בוסטים} other{נותרו {count} בוסטים}}",
+  "boostActivated": "הבוסט הופעל. הפרופיל שלך מוצג עכשיו בראש.",
+  "boostActivateFailed": "אירעה שגיאה בהפעלה",
+  "boostUpsellTitle": "בוסטים ללא הגבלה",
+  "boostUpsellBody": "אפשר להשתמש בבוסט ללא הגבלה עם mazl+‎"
+}

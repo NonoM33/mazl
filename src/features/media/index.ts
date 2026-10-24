@@ -4,11 +4,12 @@ import { noopPhotoFaceChecker } from "./application/no-op-face-checker";
 import { fuzzStoredLocations } from "./application/location-backfill";
 import { sql } from "../../db";
 import { createPostgresLocationBackfill } from "./infra/postgres-location-backfill";
-import { createDiskPhotoStorage } from "./infra/disk-photo-storage";
+import { createPhotoStorage } from "./infra/photo-storage";
 import { googlePictureFetcher } from "./infra/google-picture-fetcher";
 import { postgresLocationLog } from "./infra/postgres-location-log";
 import { postgresPhotoRepository } from "./infra/postgres-photo-repository";
 import { sharpImageProcessor } from "./infra/sharp-image-processor";
+import type { ObjectStore } from "../../shared/storage/object-store";
 import type { PhotoFaceChecker } from "../verification/application/ports";
 
 // Composition root of the media feature.
@@ -18,12 +19,12 @@ export interface MediaModule {
 }
 
 export function createMediaModule(options: {
-  uploadsDir: string;
+  store: ObjectStore;
   faceChecker?: PhotoFaceChecker;
 }): MediaModule {
   const photos = createPhotoService({
     processor: sharpImageProcessor,
-    storage: createDiskPhotoStorage(options.uploadsDir),
+    storage: createPhotoStorage(options.store),
     repository: postgresPhotoRepository,
     fetcher: googlePictureFetcher,
     faceChecker: options.faceChecker ?? noopPhotoFaceChecker,

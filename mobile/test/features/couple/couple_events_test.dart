@@ -1,10 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:mazl/l10n/generated/app_localizations_fr.dart';
+import 'package:mazl/presentation/features/couple/l10n/couple_feed_labels.dart';
 import 'package:mazl/core/models/couple_event.dart';
 
 import '../../mocks/mock_data.dart';
 import '../../mocks/mock_couple_api_service.dart';
 
+final _fr = AppLocalizationsFr();
+
 void main() {
+  setUpAll(initializeDateFormatting);
+
   group('CoupleEvents - Unit Tests', () {
     group('MockData.events', () {
       test('returns list of events', () {
@@ -63,18 +70,18 @@ void main() {
     });
 
     group('CoupleEvent model properties', () {
-      test('formattedPrice returns Gratuit for free events', () {
+      test('priceEuros is null for free events', () {
         final freeEvent = MockData.events
             .firstWhere((e) => e.priceCents == 0 || e.priceCents == null);
 
-        expect(freeEvent.formattedPrice, equals('Gratuit'));
+        expect(freeEvent.priceEuros, isNull);
       });
 
-      test('formattedPrice returns price with /couple suffix', () {
+      test('priceEuros is the price in whole euros', () {
         final paidEvent =
             MockData.events.firstWhere((e) => e.priceCents == 7500);
 
-        expect(paidEvent.formattedPrice, equals('75€/couple'));
+        expect(paidEvent.priceEuros, equals(75));
       });
 
       test('spotsLeft calculates correctly', () {
@@ -126,14 +133,14 @@ void main() {
         expect(gameEvent.categoryEmoji, equals('🎮'));
       });
 
-      test('formattedTime returns time in correct format', () {
+      test('timeLabel writes the time of the language', () {
         final event =
             MockData.events.firstWhere((e) => e.eventTime == '19:00');
 
-        expect(event.formattedTime, equals('19h00'));
+        expect(event.timeLabel(_fr), equals('19:00'));
       });
 
-      test('formattedTime returns empty string for null time', () {
+      test('timeLabel is empty for a null time', () {
         final event = CoupleEvent(
           id: 99,
           title: 'No time event',
@@ -142,12 +149,12 @@ void main() {
           eventTime: null,
         );
 
-        expect(event.formattedTime, isEmpty);
+        expect(event.timeLabel(_fr), isEmpty);
       });
 
-      test('formattedDate contains day and month', () {
+      test('dateLabel contains day and month', () {
         final event = MockData.singleEvent;
-        final formatted = event.formattedDate;
+        final formatted = event.dateLabel(_fr);
 
         // Should contain a day number
         expect(formatted, matches(RegExp(r'\d+')));

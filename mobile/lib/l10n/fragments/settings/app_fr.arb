@@ -1,0 +1,508 @@
+{
+  "settingsLanguage": "Langue",
+  "@settingsLanguage": {
+    "description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."
+  },
+  "settingsLanguageSystem": "Langue du téléphone",
+  "@settingsLanguageSystem": {
+    "description": "Réglages, choix de langue : suivre la langue réglée sur le téléphone plutôt qu'une langue fixe."
+  },
+  "settingsTitle": "Paramètres",
+  "@settingsTitle": {
+    "description": "Titre de l'écran des réglages."
+  },
+  "settingsSectionAccount": "Compte",
+  "@settingsSectionAccount": {
+    "description": "Réglages : titre de la section qui regroupe le profil, l'e-mail et la langue. Affiché en petites capitales."
+  },
+  "settingsEditProfile": "Modifier le profil",
+  "@settingsEditProfile": {
+    "description": "Réglages, ligne qui ouvre la modification du profil."
+  },
+  "settingsEmail": "Email",
+  "@settingsEmail": {
+    "description": "Réglages, ligne qui montre l'adresse e-mail du compte (le libellé, pas l'adresse)."
+  },
+  "settingsNotSignedIn": "Non connecté",
+  "@settingsNotSignedIn": {
+    "description": "Réglages : texte à la place de l'adresse e-mail quand aucun compte n'est connecté."
+  },
+  "settingsDefaultUserName": "Utilisateur",
+  "@settingsDefaultUserName": {
+    "description": "Réglages : nom affiché en tête de l'écran quand le profil n'a pas de nom."
+  },
+  "settingsSectionDiscovery": "Découverte",
+  "@settingsSectionDiscovery": {
+    "description": "Réglages : titre de la section des préférences de recherche (lieu, distance, âge). Affiché en petites capitales."
+  },
+  "settingsLocation": "Localisation",
+  "@settingsLocation": {
+    "description": "Réglages : ligne et titre de la feuille où l'on choisit sa ville."
+  },
+  "settingsLocationNotSet": "Non défini",
+  "@settingsLocationNotSet": {
+    "description": "Réglages : sous-titre de la ligne Localisation quand aucune ville n'est choisie."
+  },
+  "settingsMaxDistance": "Distance maximale",
+  "@settingsMaxDistance": {
+    "description": "Réglages : ligne et titre de la feuille où l'on règle la distance maximale des profils proposés."
+  },
+  "settingsDistanceKm": "{distance} km",
+  "@settingsDistanceKm": {
+    "description": "Une distance en kilomètres, par exemple « 50 km ». Sous-titre de la ligne et grand chiffre de la feuille.",
+    "placeholders": {
+      "distance": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "50"
+      }
+    }
+  },
+  "settingsAgeRange": "Tranche d'âge",
+  "@settingsAgeRange": {
+    "description": "Réglages : ligne et titre de la feuille où l'on règle l'âge minimal et maximal des profils proposés."
+  },
+  "settingsAgeRangeValue": "{min} - {max} ans",
+  "@settingsAgeRangeValue": {
+    "description": "Une tranche d'âge, par exemple « 25 - 35 ans ». Sous-titre de la ligne et grand chiffre de la feuille.",
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "25"
+      },
+      "max": {
+        "type": "int",
+        "format": "decimalPattern",
+        "example": "35"
+      }
+    }
+  },
+  "settingsSectionJewish": "Paramètres juifs",
+  "@settingsSectionJewish": {
+    "description": "Réglages : titre de la section Shabbat et fêtes. Affiché en petites capitales."
+  },
+  "settingsShabbatMode": "Mode Shabbat",
+  "@settingsShabbatMode": {
+    "description": "Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom."
+  },
+  "settingsShabbatAutoPause": "Pause automatique",
+  "@settingsShabbatAutoPause": {
+    "description": "Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules)."
+  },
+  "settingsHolidayAlerts": "Alertes fêtes",
+  "@settingsHolidayAlerts": {
+    "description": "Réglages : interrupteur qui prévient avant les fêtes juives."
+  },
+  "settingsHolidayAlertsHint": "Notifications avant les fêtes",
+  "@settingsHolidayAlertsHint": {
+    "description": "Réglages : sous-titre de l'interrupteur Alertes fêtes."
+  },
+  "settingsSectionNotifications": "Notifications",
+  "@settingsSectionNotifications": {
+    "description": "Réglages : titre de la section des notifications. Affiché en petites capitales."
+  },
+  "settingsNotifMatches": "Nouveaux matchs",
+  "@settingsNotifMatches": {
+    "description": "Réglages : interrupteur des notifications de nouveaux matchs."
+  },
+  "settingsNotifMessages": "Messages",
+  "@settingsNotifMessages": {
+    "description": "Réglages : interrupteur des notifications de messages."
+  },
+  "settingsNotifSuperLikes": "Super Likes",
+  "@settingsNotifSuperLikes": {
+    "description": "Réglages : interrupteur des notifications de Super Likes."
+  },
+  "settingsSectionCouple": "Mode Couple",
+  "@settingsSectionCouple": {
+    "description": "Réglages : titre de la section qui contient la carte du mode couple. Affiché en petites capitales."
+  },
+  "settingsSectionSubscription": "Abonnement",
+  "@settingsSectionSubscription": {
+    "description": "Réglages : titre de la section de l'abonnement mazl+. Affiché en petites capitales."
+  },
+  "settingsRestorePurchases": "Restaurer les achats",
+  "@settingsRestorePurchases": {
+    "description": "Réglages : ligne qui retrouve les achats déjà faits avec le même compte de la boutique."
+  },
+  "settingsRestoreSuccess": "Achats restaurés avec succès.",
+  "@settingsRestoreSuccess": {
+    "description": "Message bref : les achats ont bien été restaurés."
+  },
+  "settingsRestoreError": "La restauration des achats a échoué. Réessayez.",
+  "@settingsRestoreError": {
+    "description": "Message bref : la restauration des achats a échoué, le membre peut réessayer."
+  },
+  "settingsSubscriptionRenewsOn": "renouvellement le {date}",
+  "@settingsSubscriptionRenewsOn": {
+    "description": "Détail de l'abonnement, après la durée de la formule : date du prochain renouvellement. Exemple : « 6 mois · renouvellement le 12 mars 2027 ».",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd",
+        "example": "12 mars 2027"
+      }
+    }
+  },
+  "settingsSubscriptionEndsOn": "jusqu’au {date}",
+  "@settingsSubscriptionEndsOn": {
+    "description": "Détail de l'abonnement quand il ne se renouvelle pas : date de fin. Exemple : « 6 mois · jusqu’au 12 mars 2027 ».",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMMd",
+        "example": "12 mars 2027"
+      }
+    }
+  },
+  "settingsSectionPrivacy": "Confidentialité et sécurité",
+  "@settingsSectionPrivacy": {
+    "description": "Réglages : titre de la section confidentialité (personnes bloquées, vérification du profil). Affiché en petites capitales."
+  },
+  "settingsBlockedUsers": "Utilisateurs bloqués",
+  "@settingsBlockedUsers": {
+    "description": "Titre de l'écran et ligne des réglages qui listent les personnes que le membre a bloquées."
+  },
+  "settingsBlockedUsersHint": "Gérer les personnes bloquées",
+  "@settingsBlockedUsersHint": {
+    "description": "Réglages : sous-titre de la ligne Utilisateurs bloqués."
+  },
+  "settingsProfileVerification": "Vérification du profil",
+  "@settingsProfileVerification": {
+    "description": "Réglages : ligne qui ouvre la vérification du profil (photo de contrôle)."
+  },
+  "settingsVerified": "Vérifié",
+  "@settingsVerified": {
+    "description": "Réglages : sous-titre de la vérification quand le profil est vérifié."
+  },
+  "settingsNotVerified": "Non vérifié",
+  "@settingsNotVerified": {
+    "description": "Réglages : sous-titre de la vérification quand le profil n'est pas encore vérifié."
+  },
+  "settingsSectionAbout": "À propos",
+  "@settingsSectionAbout": {
+    "description": "Réglages : titre de la section d'informations (aide, conditions, version). Affiché en petites capitales."
+  },
+  "settingsHelp": "Aide et support",
+  "@settingsHelp": {
+    "description": "Réglages : ligne d'aide et de support."
+  },
+  "settingsTerms": "Conditions d'utilisation",
+  "@settingsTerms": {
+    "description": "Réglages : ligne des conditions d'utilisation."
+  },
+  "settingsPrivacyPolicy": "Politique de confidentialité",
+  "@settingsPrivacyPolicy": {
+    "description": "Réglages : ligne de la politique de confidentialité."
+  },
+  "settingsVersion": "Version",
+  "@settingsVersion": {
+    "description": "Réglages : ligne qui montre le numéro de version de l'app (le libellé, pas le numéro)."
+  },
+  "settingsLogOut": "Se déconnecter",
+  "@settingsLogOut": {
+    "description": "Bouton en bas des réglages, titre et bouton de confirmation de la feuille de déconnexion."
+  },
+  "settingsLogOutMessage": "Voulez-vous vraiment vous déconnecter ?",
+  "@settingsLogOutMessage": {
+    "description": "Feuille de déconnexion : la question posée avant de se déconnecter."
+  },
+  "settingsDeleteAccount": "Supprimer mon compte",
+  "@settingsDeleteAccount": {
+    "description": "Bouton discret en bas des réglages et titre de la première feuille de suppression du compte."
+  },
+  "settingsDeleteReasonPrompt": "Pourquoi souhaitez-vous nous quitter ?",
+  "@settingsDeleteReasonPrompt": {
+    "description": "Suppression du compte, première feuille : la question sur la raison du départ."
+  },
+  "settingsDeleteReasonFoundSomeone": "J'ai trouvé quelqu'un",
+  "@settingsDeleteReasonFoundSomeone": {
+    "description": "Suppression du compte : raison « le membre a trouvé quelqu'un »."
+  },
+  "settingsDeleteReasonNoLongerUsing": "Je n'utilise plus l'application",
+  "@settingsDeleteReasonNoLongerUsing": {
+    "description": "Suppression du compte : raison « le membre n'utilise plus l'app »."
+  },
+  "settingsDeleteReasonBreak": "Je souhaite faire une pause",
+  "@settingsDeleteReasonBreak": {
+    "description": "Suppression du compte : raison « le membre veut faire une pause »."
+  },
+  "settingsDeleteReasonTechnical": "Problèmes techniques",
+  "@settingsDeleteReasonTechnical": {
+    "description": "Suppression du compte : raison « problèmes techniques »."
+  },
+  "settingsDeleteReasonService": "Le service ne me convient pas",
+  "@settingsDeleteReasonService": {
+    "description": "Suppression du compte : raison « le service ne convient pas »."
+  },
+  "settingsDeleteReasonOther": "Autre raison",
+  "@settingsDeleteReasonOther": {
+    "description": "Suppression du compte : raison « autre »."
+  },
+  "settingsDeleteFinalTitle": "Confirmation finale",
+  "@settingsDeleteFinalTitle": {
+    "description": "Suppression du compte, seconde feuille : titre de la confirmation finale."
+  },
+  "settingsDeleteIrreversible": "Cette action est irréversible.",
+  "@settingsDeleteIrreversible": {
+    "description": "Suppression du compte, confirmation finale : avertissement en rouge."
+  },
+  "settingsDeleteDataList": "Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres",
+  "@settingsDeleteDataList": {
+    "description": "Suppression du compte, confirmation finale : la liste de ce qui sera effacé. Les retours à la ligne et les puces « • » sont voulus."
+  },
+  "settingsDeleteKeep": "Garder mon compte",
+  "@settingsDeleteKeep": {
+    "description": "Suppression du compte, confirmation finale : bouton qui renonce."
+  },
+  "settingsDeleteError": "Erreur lors de la suppression",
+  "@settingsDeleteError": {
+    "description": "Message bref : la suppression du compte a échoué."
+  },
+  "settingsCitySearchHint": "Rechercher une ville...",
+  "@settingsCitySearchHint": {
+    "description": "Feuille Localisation : texte grisé du champ de recherche de ville."
+  },
+  "settingsCitySearchHelp": "Saisissez le nom de votre ville et sélectionnez une suggestion",
+  "@settingsCitySearchHelp": {
+    "description": "Feuille Localisation : phrase d'aide sous le champ de recherche."
+  },
+  "settingsSaved": "Paramètres sauvegardés",
+  "@settingsSaved": {
+    "description": "Message bref : les réglages (ville, distance, âge) ont été enregistrés."
+  },
+  "settingsCoupleLeave": "Quitter le mode couple",
+  "@settingsCoupleLeave": {
+    "description": "Titre de la feuille de sortie du mode couple et bouton de la carte du mode couple."
+  },
+  "settingsCoupleLeaveMessage": "Vous pourrez le réactiver plus tard si vous le souhaitez.",
+  "@settingsCoupleLeaveMessage": {
+    "description": "Feuille de sortie du mode couple : rassurance, le mode peut être réactivé."
+  },
+  "settingsCoupleLeaveConfirm": "Quitter",
+  "@settingsCoupleLeaveConfirm": {
+    "description": "Feuille de sortie du mode couple : bouton rouge qui confirme."
+  },
+  "settingsCoupleLeft": "Mode couple quitté",
+  "@settingsCoupleLeft": {
+    "description": "Message bref : le mode couple est terminé."
+  },
+  "settingsCoupleLeaveError": "Impossible de quitter le mode couple. Réessayez.",
+  "@settingsCoupleLeaveError": {
+    "description": "Message bref : la sortie du mode couple a échoué."
+  },
+  "settingsCoupleCancelRequestError": "Impossible d'annuler la demande. Réessayez.",
+  "@settingsCoupleCancelRequestError": {
+    "description": "Message bref : l'annulation de la demande de couple a échoué."
+  },
+  "settingsCoupleActive": "Mode couple actif",
+  "@settingsCoupleActive": {
+    "description": "Carte du mode couple : titre quand le couple est actif."
+  },
+  "settingsCoupleWithPartner": "Avec {name}",
+  "@settingsCoupleWithPartner": {
+    "description": "Carte du mode couple, sous le titre : avec qui le membre est en couple.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsCoupleWithYourPartner": "Avec votre partenaire",
+  "@settingsCoupleWithYourPartner": {
+    "description": "Carte du mode couple, sous le titre, quand le prénom du partenaire est inconnu."
+  },
+  "settingsCoupleOpenSpace": "Espace couple",
+  "@settingsCoupleOpenSpace": {
+    "description": "Carte du mode couple : bouton qui ouvre l'espace du couple. Une seule ligne, environ 15 caractères."
+  },
+  "settingsCoupleOpenCalendar": "Calendrier",
+  "@settingsCoupleOpenCalendar": {
+    "description": "Carte du mode couple : bouton qui ouvre le calendrier. Une seule ligne, environ 12 caractères."
+  },
+  "settingsCoupleSinceToday": "Depuis aujourd'hui",
+  "@settingsCoupleSinceToday": {
+    "description": "Carte du mode couple : le couple vient d'être formé aujourd'hui. Suit « Avec Myriam · »."
+  },
+  "settingsCoupleDays": "{days, plural, one{{days} jour} other{{days} jours}}",
+  "@settingsCoupleDays": {
+    "description": "Carte du mode couple : depuis combien de jours le couple existe (au moins 1). Suit « Avec Myriam · ».",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "settingsCoupleRequestSent": "Demande envoyée",
+  "@settingsCoupleRequestSent": {
+    "description": "Carte du mode couple : titre quand une demande est partie et que le prénom du destinataire est inconnu."
+  },
+  "settingsCoupleRequestSentTo": "Demande envoyée à {name}",
+  "@settingsCoupleRequestSentTo": {
+    "description": "Carte du mode couple : titre quand une demande est partie vers une personne.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsCoupleWaiting": "En attente de sa réponse",
+  "@settingsCoupleWaiting": {
+    "description": "Carte du mode couple, sous le titre : la personne n'a pas encore répondu."
+  },
+  "settingsCoupleCancelRequest": "Annuler la demande",
+  "@settingsCoupleCancelRequest": {
+    "description": "Carte du mode couple : bouton qui retire la demande envoyée. Une seule ligne."
+  },
+  "settingsCoupleInvitation": "Vous avez trouvé l'amour ?",
+  "@settingsCoupleInvitation": {
+    "description": "Carte du mode couple : question d'invitation à activer le mode quand aucun couple n'existe."
+  },
+  "settingsCoupleActivate": "Activer",
+  "@settingsCoupleActivate": {
+    "description": "Carte du mode couple : bouton qui commence l'activation du mode couple. Environ 10 caractères."
+  },
+  "settingsShabbatCity": "Basé sur Paris, France",
+  "@settingsShabbatCity": {
+    "description": "Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu."
+  },
+  "settingsShabbatSettingsHeader": "Réglages",
+  "@settingsShabbatSettingsHeader": {
+    "description": "Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales."
+  },
+  "settingsShabbatEnable": "Activer le mode Shabbat",
+  "@settingsShabbatEnable": {
+    "description": "Écran Mode Shabbat : interrupteur principal."
+  },
+  "settingsShabbatEnableHint": "Pause automatique des notifications pendant Shabbat",
+  "@settingsShabbatEnableHint": {
+    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur principal."
+  },
+  "settingsShabbatIncludeHolidays": "Inclure les fêtes",
+  "@settingsShabbatIncludeHolidays": {
+    "description": "Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes."
+  },
+  "settingsShabbatIncludeHolidaysHint": "Pause aussi pendant Yom Tov",
+  "@settingsShabbatIncludeHolidaysHint": {
+    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête."
+  },
+  "settingsShabbatBuffer": "Marge avant l'allumage",
+  "@settingsShabbatBuffer": {
+    "description": "Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies."
+  },
+  "settingsMinutesShort": "{minutes} min",
+  "@settingsMinutesShort": {
+    "description": "Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "18"
+      }
+    }
+  },
+  "settingsMinutesSpoken": "{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}",
+  "@settingsMinutesSpoken": {
+    "description": "Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "18"
+      }
+    }
+  },
+  "settingsShabbatEdit": "Modifier",
+  "@settingsShabbatEdit": {
+    "description": "Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères."
+  },
+  "settingsShabbatExplanation": "Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».",
+  "@settingsShabbatExplanation": {
+    "description": "Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages)."
+  },
+  "settingsShabbatHeroTitle": "Shabbat\nshalom.",
+  "@settingsShabbatHeroTitle": {
+    "description": "Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu."
+  },
+  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous. Vos messages vous attendront à la havdala.",
+  "@settingsShabbatHeroSubtitle": {
+    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire."
+  },
+  "settingsShabbatCandleLighting": "Allumage",
+  "@settingsShabbatCandleLighting": {
+    "description": "Bandeau du mode Shabbat : petit libellé au-dessus de l'heure d'allumage des bougies. Affiché en majuscules, demi-largeur d'écran."
+  },
+  "settingsShabbatHavdalah": "Havdala",
+  "@settingsShabbatHavdalah": {
+    "description": "Bandeau du mode Shabbat : petit libellé au-dessus de l'heure de la havdala (fin de Shabbat). Affiché en majuscules, demi-largeur d'écran."
+  },
+  "settingsBlockedUserFallbackName": "Utilisateur",
+  "@settingsBlockedUserFallbackName": {
+    "description": "Écran des utilisateurs bloqués : nom affiché quand la personne n'a pas de nom."
+  },
+  "settingsBlockedUnblockTitle": "Débloquer cet utilisateur ?",
+  "@settingsBlockedUnblockTitle": {
+    "description": "Utilisateurs bloqués : titre de la boîte de confirmation du déblocage."
+  },
+  "settingsBlockedUnblockMessage": "Voulez-vous débloquer {name} ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.",
+  "@settingsBlockedUnblockMessage": {
+    "description": "Utilisateurs bloqués : texte de la confirmation de déblocage, avec le nom de la personne. Le saut de ligne double est voulu.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsBlockedUnblockMessageUnnamed": "Voulez-vous débloquer cet utilisateur ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.",
+  "@settingsBlockedUnblockMessageUnnamed": {
+    "description": "Utilisateurs bloqués : texte de la confirmation de déblocage quand la personne n'a pas de nom."
+  },
+  "settingsBlockedUnblock": "Débloquer",
+  "@settingsBlockedUnblock": {
+    "description": "Utilisateurs bloqués : bouton sur chaque ligne et bouton de confirmation du déblocage."
+  },
+  "settingsBlockedUnblocked": "{name} a été débloqué",
+  "@settingsBlockedUnblocked": {
+    "description": "Message bref : la personne nommée a été débloquée.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsBlockedUnblockedUnnamed": "L'utilisateur a été débloqué",
+  "@settingsBlockedUnblockedUnnamed": {
+    "description": "Message bref : la personne (sans nom) a été débloquée."
+  },
+  "settingsBlockedUnblockError": "Erreur lors du déblocage",
+  "@settingsBlockedUnblockError": {
+    "description": "Message bref : le déblocage a échoué."
+  },
+  "settingsBlockedEmptyTitle": "Aucun utilisateur bloqué",
+  "@settingsBlockedEmptyTitle": {
+    "description": "Utilisateurs bloqués : titre de l'état vide."
+  },
+  "settingsBlockedEmptyHint": "Les personnes que vous bloquez\napparaîtront ici",
+  "@settingsBlockedEmptyHint": {
+    "description": "Utilisateurs bloqués : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu)."
+  },
+  "settingsBlockedOn": "Bloqué le {date}",
+  "@settingsBlockedOn": {
+    "description": "Utilisateurs bloqués : sous-titre d'une ligne, la date du blocage.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd",
+        "example": "24/10/2026"
+      }
+    }
+  },
+  "settingsRestoreNothing": "Aucun abonnement trouvé.",
+  "@settingsRestoreNothing": {
+    "description": "Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte."
+  }
+}

@@ -8,6 +8,7 @@ import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/matching/widgets/match_sheet.dart';
 import 'package:mazl/presentation/features/navigation/widgets/mazl_nav_bar.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Expected numbers come from the design canon (80 px photos, touching = centres
 // 80 px apart, 420 ms meet, one 600 ms ring), not from reading the widget.
@@ -63,6 +64,9 @@ Future<_Harness> _open(
         padding: const EdgeInsets.only(bottom: 34),
       ),
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         theme: AppTheme.lightTheme,
         home: Scaffold(
           extendBody: true,

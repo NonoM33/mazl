@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
+
+import '../../../common/l10n/content_direction.dart';
 import 'bubble_style.dart';
 
 /// The quoted message inside a bubble (docs/design/CHAT.md §6): a name line
@@ -43,14 +46,14 @@ class QuoteBlock extends StatelessWidget {
                 width: 3,
                 decoration: BoxDecoration(
                   color: rule,
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(14),
+                  borderRadius: const BorderRadiusDirectional.horizontal(
+                    start: Radius.circular(14),
                   ),
                 ),
               ),
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 6, 12, 6),
+                  padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 12, 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -104,7 +107,7 @@ class ReplyComposerBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 0, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 0, 0),
       child: Row(
         children: [
           Expanded(
@@ -137,6 +140,8 @@ class ReplyComposerBar extends StatelessWidget {
                         ),
                         Text(
                           preview,
+                          textDirection: contentDirection(context, preview),
+                          textAlign: interfaceStart(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -152,7 +157,7 @@ class ReplyComposerBar extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Annuler la réponse',
+            tooltip: context.l10n.chatReplyCancel,
             constraints: const BoxConstraints.tightFor(width: 44, height: 44),
             icon: const Icon(LucideIcons.x, size: 18),
             onPressed: onCancel,

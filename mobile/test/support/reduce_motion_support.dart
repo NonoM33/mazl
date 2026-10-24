@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
+import 'package:mazl/l10n/l10n.dart';
 
 /// Turns the iPhone's « Réduire les animations » on or off the way iOS does:
 /// through the engine's accessibility flag, folded into `disableAnimations`
@@ -14,6 +15,9 @@ void setReduceMotion(WidgetTester tester, {required bool on}) {
 
 /// A [MaterialApp] whose subtree sees the iPhone setting, like the real app.
 MaterialApp reduceMotionApp({Widget? home}) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: const Locale('fr'),
   builder: (context, child) => ReduceMotionScope(child: child!),
   home: home,
 );

@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/prompt_labels.dart';
 
 /// Widget to display profile prompts (read-only view on profiles)
 /// Allows users to "like" a specific prompt
@@ -34,9 +36,9 @@ class ProfilePromptsDisplay extends StatelessWidget {
             children: [
               Icon(LucideIcons.messageCircle, size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
-              const Text(
-                'Apprenez à me connaître',
-                style: TextStyle(
+              Text(
+                context.l10n.profilePromptsGetToKnowMe,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -92,13 +94,13 @@ class _PromptDisplayCard extends StatelessWidget {
                   AppColors.primary.withValues(alpha: 0.15),
                   AppColors.primary.withValues(alpha: 0.05),
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: AlignmentDirectional.topStart,
+                end: AlignmentDirectional.bottomEnd,
               ),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Text(
-              prompt.promptText,
+              promptQuestionText(context.l10n, prompt.promptId, prompt.promptText),
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -230,7 +232,7 @@ class InlinePromptsDisplay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    prompt.promptText,
+                    promptQuestionText(context.l10n, prompt.promptId, prompt.promptText),
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 12,

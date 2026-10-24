@@ -8,6 +8,7 @@ import 'package:mazl/presentation/features/couple/screens/couple_space_screen.da
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<FakeCoupleTransport> _pump(
   WidgetTester tester,
@@ -21,7 +22,12 @@ Future<FakeCoupleTransport> _pump(
   final transport = FakeCoupleTransport();
   setUp(transport);
   await tester.pumpWidget(
-    MaterialApp(home: screen(CoupleApiService(transport: transport))),
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
+      home: screen(CoupleApiService(transport: transport)),
+    ),
   );
   await tester.pump();
   await tester.pump();

@@ -4,16 +4,17 @@ import { createReviewDocuments } from "./application/review-documents";
 import { createUploadDocument } from "./application/upload-document";
 import { createVerificationFlow } from "./application/verification-flow";
 import type { DocumentFileStore, DocumentRepository } from "./application/ports";
-import { DiskFileStore } from "./infra/disk-file-store";
+import type { ObjectStore } from "../../shared/storage/object-store";
+import { ObjectDocumentFileStore } from "./infra/object-document-file-store";
 import { PostgresDocumentRepository } from "./infra/postgres-document-repository";
 import { PostgresWaitlist } from "./infra/postgres-waitlist";
 
-export function createMigrationDeps(uploadsDir: string): { repo: DocumentRepository; store: DocumentFileStore } {
-  return { repo: new PostgresDocumentRepository(), store: new DiskFileStore(uploadsDir) };
+export function createMigrationDeps(objects: ObjectStore): { repo: DocumentRepository; store: DocumentFileStore } {
+  return { repo: new PostgresDocumentRepository(), store: new ObjectDocumentFileStore(objects) };
 }
 
-export function createDocumentsModule(uploadsDir: string) {
-  const { repo, store } = createMigrationDeps(uploadsDir);
+export function createDocumentsModule(objects: ObjectStore) {
+  const { repo, store } = createMigrationDeps(objects);
   const purger = createPurger({ repo, store });
   return {
     repo,

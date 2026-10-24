@@ -1,6 +1,7 @@
 import type { UserErasure } from "./admin.erasure";
 import { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
+import type { DocumentsModule } from "../documents";
 import { registerAdminVerificationRoutes } from "./admin.verification.routes";
 import {
   registerAdminEventsCrudRoutes,
@@ -40,15 +41,15 @@ import { registerAdminModerationRoutes } from "./admin.moderation.routes";
 //  10. moderation      — reports, report stats, handle report, pending photos,
 //                        approve/reject photo, moderation logs.
 //
-// `uploadsDir` is passed through to the verification routes because the
-// document file-download endpoint reads from the uploads directory (owned by
-// src/index.ts).
+// The documents module is passed through to the verification routes: the
+// document file-download endpoint reads through its file store (owned by
+// src/index.ts, disk or bucket).
 export function registerAdminRoutes(
   app: Hono<{ Variables: AppVariables }>,
-  uploadsDir: string,
+  documents: DocumentsModule,
   erasure: UserErasure,
 ): void {
-  registerAdminVerificationRoutes(app, uploadsDir);
+  registerAdminVerificationRoutes(app, documents);
   registerAdminEventsCrudRoutes(app);
   registerAdminUsersOverviewRoutes(app);
   registerAdminSubscriptionsRoutes(app);

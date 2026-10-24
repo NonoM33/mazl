@@ -43,6 +43,9 @@ class CoupleAnniversaryData {
 /// Couple milestone
 class CoupleMilestone {
   final int days;
+
+  /// What the server called it, if it did. Screens name a milestone from
+  /// [days] in the member's language and only fall back on this.
   final String label;
   final String icon;
   final bool isSpecial;
@@ -52,7 +55,7 @@ class CoupleMilestone {
 
   CoupleMilestone({
     required this.days,
-    required this.label,
+    this.label = '',
     required this.icon,
     this.isSpecial = false,
     this.date,
@@ -74,11 +77,11 @@ class CoupleMilestone {
 
   /// Predefined milestones
   static List<CoupleMilestone> get defaultMilestones => [
-        CoupleMilestone(days: 7, label: '1 semaine', icon: 'seedling'),
-        CoupleMilestone(days: 30, label: '1 mois', icon: 'heart'),
-        CoupleMilestone(days: 90, label: '3 mois', icon: 'star'),
-        CoupleMilestone(days: 180, label: '6 mois', icon: 'fire'),
-        CoupleMilestone(days: 365, label: '1 an', icon: 'crown', isSpecial: true),
-        CoupleMilestone(days: 730, label: '2 ans', icon: 'diamond', isSpecial: true),
+        CoupleMilestone(days: 7, icon: 'seedling'),
+        CoupleMilestone(days: 30, icon: 'heart'),
+        CoupleMilestone(days: 90, icon: 'star'),
+        CoupleMilestone(days: 180, icon: 'fire'),
+        CoupleMilestone(days: 365, icon: 'crown', isSpecial: true),
+        CoupleMilestone(days: 730, icon: 'diamond', isSpecial: true),
       ];
 }

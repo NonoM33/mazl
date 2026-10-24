@@ -1,0 +1,149 @@
+{
+  "safetyBlock": "Bloquer",
+  "@safetyBlock": {
+    "description": "Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation."
+  },
+  "safetyBlockSubtitle": "Cette personne ne pourra plus vous voir ni vous contacter",
+  "@safetyBlockSubtitle": {
+    "description": "Sous le titre « Bloquer », dans la feuille « Bloquer / Signaler » : ce que le blocage fait."
+  },
+  "safetyReportSubtitle": "Signaler un comportement inapproprié",
+  "@safetyReportSubtitle": {
+    "description": "Sous le titre « Signaler », dans la feuille « Bloquer / Signaler » : ce que le signalement permet."
+  },
+  "safetyBlockConfirmTitle": "Bloquer cet utilisateur ?",
+  "@safetyBlockConfirmTitle": {
+    "description": "Titre de la boîte de dialogue qui demande de confirmer le blocage d'un membre."
+  },
+  "safetyBlockConfirmIntro": "En bloquant {name} :",
+  "@safetyBlockConfirmIntro": {
+    "description": "Introduit la liste des conséquences du blocage, dans la boîte de confirmation. {name} est le prénom du membre.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "safetyBlockEffectHidden": "Cette personne ne pourra plus voir votre profil",
+  "@safetyBlockEffectHidden": {
+    "description": "Conséquence du blocage (puce de la liste) : le membre bloqué ne voit plus le profil de la personne."
+  },
+  "safetyBlockEffectNotSeen": "Vous ne verrez plus son profil",
+  "@safetyBlockEffectNotSeen": {
+    "description": "Conséquence du blocage (puce de la liste) : la personne ne voit plus le profil du membre bloqué."
+  },
+  "safetyBlockEffectChats": "Vos conversations seront supprimées",
+  "@safetyBlockEffectChats": {
+    "description": "Conséquence du blocage (puce de la liste) : les conversations avec ce membre disparaissent."
+  },
+  "safetyBlockEffectNotNotified": "Cette personne ne sera pas notifiée",
+  "@safetyBlockEffectNotNotified": {
+    "description": "Conséquence du blocage (puce de la liste) : le membre bloqué n'est pas prévenu."
+  },
+  "safetyBlocked": "{name} a été bloqué",
+  "@safetyBlocked": {
+    "description": "Message bref en bas de l'écran après un blocage réussi. {name} est le prénom du membre bloqué.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "safetyBlockFailed": "Erreur lors du blocage",
+  "@safetyBlockFailed": {
+    "description": "Message bref en bas de l'écran quand le blocage a échoué."
+  },
+  "safetyReportTitle": "Signaler un problème",
+  "@safetyReportTitle": {
+    "description": "Titre de la feuille de signalement d'un membre."
+  },
+  "safetyReportWhy": "Pourquoi signalez-vous {name} ?",
+  "@safetyReportWhy": {
+    "description": "Question sous le titre de la feuille de signalement. {name} est le prénom du membre signalé.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "safetyReportDetailsHint": "Détails supplémentaires (optionnel)",
+  "@safetyReportDetailsHint": {
+    "description": "Texte d'aide du champ libre où l'on peut préciser le signalement."
+  },
+  "safetyReportAlsoBlock": "Bloquer également cet utilisateur",
+  "@safetyReportAlsoBlock": {
+    "description": "Case à cocher de la feuille de signalement : bloquer aussi le membre."
+  },
+  "safetyReportAlsoBlockHint": "Vous ne verrez plus ce profil",
+  "@safetyReportAlsoBlockHint": {
+    "description": "Sous la case « Bloquer également » : ce que ça change."
+  },
+  "safetyReportSend": "Envoyer le signalement",
+  "@safetyReportSend": {
+    "description": "Bouton rouge qui envoie le signalement à la modération."
+  },
+  "safetyReportThanks": "Merci pour votre signalement. Notre équipe va l'examiner.",
+  "@safetyReportThanks": {
+    "description": "Message bref en bas de l'écran après l'envoi d'un signalement."
+  },
+  "safetyReportFailed": "Erreur lors du signalement",
+  "@safetyReportFailed": {
+    "description": "Message bref en bas de l'écran quand l'envoi du signalement a échoué."
+  },
+  "safetyCategoryFakeProfile": "Faux profil",
+  "@safetyCategoryFakeProfile": {
+    "description": "Motif de signalement (liste de choix) : profil qui usurpe une identité."
+  },
+  "safetyCategoryFakeProfileHint": "Photos volées, identité fausse",
+  "@safetyCategoryFakeProfileHint": {
+    "description": "Précision sous le motif « Faux profil »."
+  },
+  "safetyCategoryInappropriatePhotos": "Photos inappropriées",
+  "@safetyCategoryInappropriatePhotos": {
+    "description": "Motif de signalement (liste de choix) : photos choquantes."
+  },
+  "safetyCategoryInappropriatePhotosHint": "Contenu sexuel, violent ou choquant",
+  "@safetyCategoryInappropriatePhotosHint": {
+    "description": "Précision sous le motif « Photos inappropriées »."
+  },
+  "safetyCategoryHarassment": "Harcèlement",
+  "@safetyCategoryHarassment": {
+    "description": "Motif de signalement (liste de choix) : harcèlement."
+  },
+  "safetyCategoryHarassmentHint": "Messages insistants, menaces, insultes",
+  "@safetyCategoryHarassmentHint": {
+    "description": "Précision sous le motif « Harcèlement »."
+  },
+  "safetyCategorySpam": "Spam / Arnaque",
+  "@safetyCategorySpam": {
+    "description": "Motif de signalement (liste de choix) : spam ou arnaque."
+  },
+  "safetyCategorySpamHint": "Publicité, demande d'argent, liens suspects",
+  "@safetyCategorySpamHint": {
+    "description": "Précision sous le motif « Spam / Arnaque »."
+  },
+  "safetyCategoryUnderage": "Mineur",
+  "@safetyCategoryUnderage": {
+    "description": "Motif de signalement (liste de choix) : la personne est mineure."
+  },
+  "safetyCategoryUnderageHint": "La personne semble avoir moins de 18 ans",
+  "@safetyCategoryUnderageHint": {
+    "description": "Précision sous le motif « Mineur »."
+  },
+  "safetyCategoryOfflineBehavior": "Comportement hors app",
+  "@safetyCategoryOfflineBehavior": {
+    "description": "Motif de signalement (liste de choix) : comportement en dehors de l'app, lors d'une rencontre."
+  },
+  "safetyCategoryOfflineBehaviorHint": "Comportement inapproprié lors d'une rencontre",
+  "@safetyCategoryOfflineBehaviorHint": {
+    "description": "Précision sous le motif « Comportement hors app »."
+  },
+  "safetyCategoryOther": "Autre",
+  "@safetyCategoryOther": {
+    "description": "Motif de signalement (liste de choix) : tout autre motif."
+  },
+  "safetyCategoryOtherHint": "Autre raison (précisez)",
+  "@safetyCategoryOtherHint": {
+    "description": "Précision sous le motif « Autre »."
+  }
+}

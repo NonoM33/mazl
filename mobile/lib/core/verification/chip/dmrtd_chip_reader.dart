@@ -29,8 +29,11 @@ class DmrtdChipReader implements ChipReader {
   }
 
   @override
-  Future<ChipReadResult> read(MrzData mrz, {void Function(ChipReadProgress progress)? onProgress}) =>
-      readChipFiles(DmrtdLink(), mrz, onProgress: onProgress);
+  Future<ChipReadResult> read(
+    MrzData mrz, {
+    required ChipAlertTexts alerts,
+    void Function(ChipReadProgress progress)? onProgress,
+  }) => readChipFiles(DmrtdLink(), mrz, alerts: alerts, onProgress: onProgress);
 }
 
 /// dmrtd implementation of [EmrtdLink]. Uses [MrtdApi] directly: the higher
@@ -130,6 +133,16 @@ class DmrtdLink implements EmrtdLink {
   }
 }
 
+// Wording the NFC plugins put in their errors, matched on the lower-cased text.
+// Detection patterns, never shown to the member.
+final _cancelledMessage = RegExp(r'cancel|invalidated by user|session invalidated');
+final _timeoutMessage = RegExp(r'timeout|timed out');
+final _noNfcMessage = RegExp(r'nfc not available|not supported by this device');
+final _nfcOffMessage = RegExp(r'nfc is disabled|nfc disabled|nfc is off');
+final _tagLostMessage = RegExp(r'tag was lost|tag lost|connection lost|communication error|ioexception');
+final _notSupportedMessage = RegExp(r'not supported');
+final _paceTypeName = RegExp(r'PACE|Pace');
+
 /// Maps whatever dmrtd, its NFC plugin or the platform throws to a typed
 /// failure. Only the error's type and message are inspected, never any data.
 ///
@@ -139,17 +152,11 @@ ChipFailureKind mapDmrtdError(Object error, {bool authentication = false}) {
   final text = _describe(error).toLowerCase();
   if (error is PlatformException && error.code == '408') return ChipFailureKind.timeout;
 
-  if (_hasAny(text, const ['cancel', 'invalidated by user', 'session invalidated'])) {
-    return ChipFailureKind.cancelled;
-  }
-  if (_hasAny(text, const ['timeout', 'timed out'])) return ChipFailureKind.timeout;
-  if (_hasAny(text, const ['nfc not available', 'not supported by this device'])) {
-    return ChipFailureKind.nfcUnavailable;
-  }
-  if (_hasAny(text, const ['nfc is disabled', 'nfc disabled', 'nfc is off'])) return ChipFailureKind.nfcDisabled;
-  if (_hasAny(text, const ['tag was lost', 'tag lost', 'connection lost', 'communication error', 'ioexception'])) {
-    return ChipFailureKind.tagLost;
-  }
+  if (_cancelledMessage.hasMatch(text)) return ChipFailureKind.cancelled;
+  if (_timeoutMessage.hasMatch(text)) return ChipFailureKind.timeout;
+  if (_noNfcMessage.hasMatch(text)) return ChipFailureKind.nfcUnavailable;
+  if (_nfcOffMessage.hasMatch(text)) return ChipFailureKind.nfcDisabled;
+  if (_tagLostMessage.hasMatch(text)) return ChipFailureKind.tagLost;
 
   if (error is ICCError || error is PassportError) {
     final sw = error is ICCError ? error.sw : (error as PassportError).code;
@@ -157,8 +164,8 @@ ChipFailureKind mapDmrtdError(Object error, {bool authentication = false}) {
   }
   final type = error.runtimeType.toString();
   if (authentication) {
-    if (error is BACError || type.contains('PACE') || type.contains('Pace')) {
-      return text.contains('not supported') ? ChipFailureKind.unsupportedDocument : ChipFailureKind.accessDenied;
+    if (error is BACError || _paceTypeName.hasMatch(type)) {
+      return _notSupportedMessage.hasMatch(text) ? ChipFailureKind.unsupportedDocument : ChipFailureKind.accessDenied;
     }
     return ChipFailureKind.accessDenied;
   }
@@ -187,8 +194,9 @@ ChipFailureKind _fromStatusWord(StatusWord? sw, bool authentication) {
 }
 
 String _describe(Object error) {
-  if (error is PlatformException) return '${error.code} ${error.message ?? ''} ${error.details ?? ''}';
+  if (error is PlatformException) {
+    final details = error.details;
+    return [error.code, error.message ?? '', if (details != null) details.toString()].join(' ');
+  }
   return error.toString();
 }
-
-bool _hasAny(String text, List<String> needles) => needles.any(text.contains);

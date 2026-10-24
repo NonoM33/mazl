@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'helpers/l10n_helpers.dart';
 
 /// Basic smoke tests that don't require network calls
 void main() {
@@ -7,6 +8,9 @@ void main() {
     testWidgets('MaterialApp can be created', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           home: Scaffold(
             body: Center(
               child: Text('MAZL'),
@@ -21,6 +25,9 @@ void main() {
     testWidgets('Basic widgets render correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           home: Scaffold(
             appBar: AppBar(
               title: const Text('Test'),
@@ -45,6 +52,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           home: Scaffold(
             body: ElevatedButton(
               onPressed: () => tapped = true,

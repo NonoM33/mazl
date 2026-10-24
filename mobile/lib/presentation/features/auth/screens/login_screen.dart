@@ -10,7 +10,10 @@ import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/auth_failure_text.dart';
+import '../l10n/linked_text.dart';
 import 'email_auth_screen.dart';
 
 /// Les trois façons de se connecter, pour savoir quel bouton affiche
@@ -40,7 +43,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isLoading = false;
   _SignInMethod? _activeMethod;
-  String? _errorMessage;
+  String Function(AppLocalizations l10n)? _error;
 
   late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
     ..onTap = () => widget.onOpenTerms?.call();
@@ -60,7 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       _isLoading = true;
       _activeMethod = _SignInMethod.google;
-      _errorMessage = null;
+      _error = null;
     });
 
     try {
@@ -70,21 +73,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        // Navigate based on whether user is new or returning
-        if (result.isNewUser) {
-          context.go(RoutePaths.profileSetup);
-        } else {
-          context.go(RoutePaths.discover);
-        }
+        // The router guard sends a member with an incomplete profile to the setup.
+        context.go(RoutePaths.discover);
       } else {
+        final failure = result.failure;
         setState(() {
-          _errorMessage = result.errorMessage;
+          _error = (l10n) => authFailureText(
+            l10n,
+            failure,
+            unknown: l10n.authErrorGeneric,
+          );
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+          _error = (l10n) => l10n.authErrorGeneric;
         });
       }
     } finally {
@@ -101,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       _isLoading = true;
       _activeMethod = _SignInMethod.apple;
-      _errorMessage = null;
+      _error = null;
     });
 
     try {
@@ -111,21 +115,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        // Navigate based on whether user is new or returning
-        if (result.isNewUser) {
-          context.go(RoutePaths.profileSetup);
-        } else {
-          context.go(RoutePaths.discover);
-        }
+        // The router guard sends a member with an incomplete profile to the setup.
+        context.go(RoutePaths.discover);
       } else {
+        final failure = result.failure;
         setState(() {
-          _errorMessage = result.errorMessage;
+          _error = (l10n) => authFailureText(
+            l10n,
+            failure,
+            unknown: l10n.authErrorGeneric,
+          );
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+          _error = (l10n) => l10n.authErrorGeneric;
         });
       }
     } finally {
@@ -173,8 +178,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (_errorMessage != null)
-                          _ErrorBanner(message: _errorMessage!),
+                        if (_error != null)
+                          _ErrorBanner(message: _error!(context.l10n)),
                         _buildActions(),
                         const SizedBox(height: 20),
                         _buildLegal(context),
@@ -200,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             icon: _activeMethod == _SignInMethod.apple
                 ? const _ButtonSpinner()
                 : const Icon(LucideIcons.apple, size: 20),
-            label: const Text('Continuer avec Apple'),
+            label: Text(context.l10n.authLoginApple),
           ),
           const SizedBox(height: 12),
         ],
@@ -208,14 +213,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onPressed: _isLoading ? null : _handleGoogleSignIn,
           child: _activeMethod == _SignInMethod.google
               ? const _ButtonSpinner()
-              : const Text('Continuer avec Google'),
+              : Text(context.l10n.authLoginGoogle),
         ),
         const SizedBox(height: 4),
         TextButton(
           onPressed: _isLoading
               ? null
               : () => _navigateToEmailAuth(isLogin: true),
-          child: const Text('Utiliser mon e-mail'),
+          child: Text(context.l10n.authLoginEmail),
         ),
         if (kDevLoginAvailable)
           TextButton.icon(
@@ -224,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             icon: const Icon(LucideIcons.flaskConical, size: 16),
-            label: const Text('Connexion fictive (dev)'),
+            label: Text(context.l10n.authLoginDev),
           ),
       ],
     );
@@ -243,20 +248,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       decoration: TextDecoration.underline,
       decorationColor: scheme.onSurface,
     );
+    final l10n = context.l10n;
+    final terms = l10n.authLegalTermsLink;
+    final privacy = l10n.authLegalPrivacyLink;
     return Text.rich(
       TextSpan(
         style: base,
-        children: [
-          const TextSpan(text: 'En continuant, vous acceptez les '),
-          TextSpan(text: 'Conditions', style: link, recognizer: _termsTap),
-          const TextSpan(text: ' et la '),
-          TextSpan(
-            text: 'Confidentialité',
-            style: link,
-            recognizer: _privacyTap,
-          ),
-          const TextSpan(text: '.'),
-        ],
+        children: spansWithLinks(l10n.authLegal(terms, privacy), [
+          (label: terms, style: link, recognizer: _termsTap),
+          (label: privacy, style: link, recognizer: _privacyTap),
+        ]),
       ),
     );
   }
@@ -271,14 +272,14 @@ class _Hero extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionLabel('Rencontres · Communauté juive'),
+        SectionLabel(context.l10n.authLoginEyebrow),
         const SizedBox(height: 16),
         const MazlWordmark(size: 88),
         const SizedBox(height: 24),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: Text(
-            'Des rencontres sérieuses, entre personnes qui partagent vos valeurs.',
+            context.l10n.authLoginTagline,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w500,
               height: 1.3,

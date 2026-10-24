@@ -87,21 +87,6 @@ enum RelationshipStatus {
 }
 
 extension RelationshipStatusExtension on RelationshipStatus {
-  String get displayName {
-    switch (this) {
-      case RelationshipStatus.single:
-        return 'Célibataire';
-      case RelationshipStatus.dating:
-        return 'En train de dater';
-      case RelationshipStatus.inRelationship:
-        return 'En couple';
-      case RelationshipStatus.engaged:
-        return 'Fiancé(e)';
-      case RelationshipStatus.married:
-        return 'Marié(e)';
-    }
-  }
-
   String get emoji {
     switch (this) {
       case RelationshipStatus.single:

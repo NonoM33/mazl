@@ -27,8 +27,6 @@ class JewishCalendarService {
   /// annual holiday whatever the current date.
   static const int _lookaheadDays = 400;
 
-  final HebrewDateFormatter _parashaFormatter = HebrewDateFormatter()
-    ..hebrewFormat = false;
   final DateFormat _timeFormatter = DateFormat('HH:mm');
 
   /// Get upcoming Jewish holidays, computed dynamically from today.
@@ -57,23 +55,19 @@ class JewishCalendarService {
       final existing = byHoliday[meta.groupKey];
       if (existing == null) {
         byHoliday[meta.groupKey] = JewishHoliday(
-          name: meta.name,
-          hebrewName: meta.hebrewName,
+          id: meta.id,
           date: date,
-          description: meta.description,
           type: meta.type,
-          coupleIdeas: meta.coupleIdeas,
+          ideas: meta.ideas,
         );
       } else if (_isContiguous(existing, date)) {
         // Extend the running festival with each additional consecutive day.
         byHoliday[meta.groupKey] = JewishHoliday(
-          name: existing.name,
-          hebrewName: existing.hebrewName,
+          id: existing.id,
           date: existing.date,
           endDate: date,
-          description: existing.description,
           type: existing.type,
-          coupleIdeas: existing.coupleIdeas,
+          ideas: existing.ideas,
         );
       }
     }
@@ -101,102 +95,81 @@ class JewishCalendarService {
     }
     final saturday = friday.add(const Duration(days: 1));
 
+    final candleLightingAt = _zmanimFor(friday).getCandleLighting()?.toLocal();
+    final havdalaAt = _zmanimFor(saturday).getTzais()?.toLocal();
     return ShabbatInfo(
-      parasha: _getParasha(saturday),
-      candleLighting: _getCandleLightingTime(friday),
-      havdala: _getHavdalaTime(saturday),
+      parsha: _getParsha(saturday),
+      candleLighting: _clock(candleLightingAt),
+      havdala: _clock(havdalaAt),
+      candleLightingAt: candleLightingAt,
+      havdalaAt: havdalaAt,
       date: friday,
     );
   }
 
-  /// Get couple activities for an occasion
-  List<CoupleActivity> getActivitiesForOccasion(String occasion) {
+  /// Couple activities for an occasion. Their wording belongs to the
+  /// presentation layer, which names each one from its [OccasionActivityId].
+  List<OccasionActivity> getActivitiesForOccasion(JewishOccasion occasion) {
     switch (occasion) {
-      case 'shabbat':
-        return [
-          CoupleActivity(
-            title: 'Préparer le dîner ensemble',
-            description: 'Cuisinez la Halla et le repas de fête',
+      case JewishOccasion.shabbat:
+        return const [
+          OccasionActivity(
+            id: OccasionActivityId.shabbatDinner,
             icon: 'utensils',
-            category: 'Préparation',
+            category: OccasionActivityCategory.preparation,
           ),
-          CoupleActivity(
-            title: 'Allumer les bougies',
-            description: 'Moment de spiritualité partagé',
+          OccasionActivity(
+            id: OccasionActivityId.shabbatCandles,
             icon: 'flame',
-            category: 'Spirituel',
+            category: OccasionActivityCategory.spiritual,
           ),
-          CoupleActivity(
-            title: 'Promenade Shabbat',
-            description: 'Balade tranquille après le repas',
+          OccasionActivity(
+            id: OccasionActivityId.shabbatWalk,
             icon: 'footprints',
-            category: 'Détente',
+            category: OccasionActivityCategory.relaxation,
           ),
-          CoupleActivity(
-            title: 'Étude de la Parasha',
-            description: 'Apprenez ensemble la portion de la semaine',
+          OccasionActivity(
+            id: OccasionActivityId.shabbatParasha,
             icon: 'book',
-            category: 'Spirituel',
+            category: OccasionActivityCategory.spiritual,
           ),
         ];
-      case 'pessah':
-        return [
-          CoupleActivity(
-            title: 'Préparer le Seder',
-            description: 'Organisez la table ensemble',
+      case JewishOccasion.pesach:
+        return const [
+          OccasionActivity(
+            id: OccasionActivityId.pesachSeder,
             icon: 'table',
-            category: 'Préparation',
+            category: OccasionActivityCategory.preparation,
           ),
-          CoupleActivity(
-            title: 'Faire le ménage de Pessah',
-            description: 'Nettoyage de printemps en équipe',
+          OccasionActivity(
+            id: OccasionActivityId.pesachCleaning,
             icon: 'sparkles',
-            category: 'Préparation',
+            category: OccasionActivityCategory.preparation,
           ),
         ];
-      default:
-        return [];
     }
   }
 
-  /// Transliterated parasha of the week of [saturday], via kosher_dart.
+  /// The parasha of the week of [saturday], via kosher_dart.
   ///
-  /// Returns e.g. "Bereshis", "Vayikra". On weeks with no regular parasha
-  /// (a festival falls on Shabbat) kosher_dart returns an empty string; we
-  /// then look one week ahead so the UI always has a portion to display.
-  String _getParasha(DateTime saturday) {
+  /// On weeks with no regular parasha (a festival falls on Shabbat)
+  /// kosher_dart answers [Parsha.NONE]; we then look one week ahead so the UI
+  /// always has a portion to display.
+  Parsha _getParsha(DateTime saturday) {
     final calendar = JewishCalendar.fromDateTime(saturday)..inIsrael = false;
-    var parasha = _parashaFormatter.formatParsha(calendar);
-    if (parasha.isEmpty) {
+    var parsha = calendar.getParshah();
+    if (parsha == Parsha.NONE) {
       final next = JewishCalendar.fromDateTime(
         saturday.add(const Duration(days: 7)),
       )..inIsrael = false;
-      parasha = _parashaFormatter.formatParsha(next);
+      parsha = next.getParshah();
     }
-    return parasha;
+    return parsha;
   }
 
-  /// Real candle-lighting time (18 min before sunset by default) for the
-  /// Friday [date] at [_locationName], via kosher_dart's zmanim engine.
-  String _getCandleLightingTime(DateTime date) {
-    final zmanim = _zmanimFor(date);
-    final candle = zmanim.getCandleLighting();
-    if (candle == null) {
-      return '--:--';
-    }
-    return _timeFormatter.format(candle.toLocal());
-  }
-
-  /// Real Havdala time (tzais / nightfall) for the Saturday [date] at
-  /// [_locationName], via kosher_dart's zmanim engine.
-  String _getHavdalaTime(DateTime date) {
-    final zmanim = _zmanimFor(date);
-    final tzais = zmanim.getTzais();
-    if (tzais == null) {
-      return '--:--';
-    }
-    return _timeFormatter.format(tzais.toLocal());
-  }
+  /// `HH:mm` (24 h) of [moment], or `--:--` when the sun does not set.
+  String _clock(DateTime? moment) =>
+      moment == null ? '--:--' : _timeFormatter.format(moment);
 
   /// Build a zmanim calendar anchored on [date] at the configured location.
   ComplexZmanimCalendar _zmanimFor(DateTime date) {
@@ -209,202 +182,207 @@ class JewishCalendarService {
     return ComplexZmanimCalendar.intGeoLocation(location)..setCalendar(date);
   }
 
-  /// Curated presentation metadata keyed by kosher_dart's Yom Tov index.
+  /// Curated metadata keyed by kosher_dart's Yom Tov index.
   ///
-  /// kosher_dart computes *which* holiday any date is; this map only supplies
-  /// the human-facing French/Hebrew labels and couple ideas. [groupKey] lets
-  /// the multi-day festivals whose consecutive days share different indices
-  /// (e.g. Succos -> Chol Hamoed -> Shemini Atzeres) collapse into one entry.
+  /// kosher_dart computes *which* holiday any date is; this map only says which
+  /// holiday it is for the app and which couple ideas go with it. The words
+  /// (names, descriptions, ideas) are written by the presentation layer, per
+  /// language. [groupKey] lets the multi-day festivals whose consecutive days
+  /// share different indices (e.g. Succos -> Chol Hamoed -> Shemini Atzeres)
+  /// collapse into one entry.
   static final Map<int, _HolidayMeta> _holidayMeta = {
     JewishCalendar.ROSH_HASHANA: const _HolidayMeta(
       groupKey: JewishCalendar.ROSH_HASHANA,
-      name: 'Rosh Hashana',
-      hebrewName: 'ראש השנה',
-      description: 'Nouvel an juif',
+      id: JewishHolidayId.roshHashana,
       type: HolidayType.major,
-      coupleIdeas: ['Dîner festif', 'Tashlich ensemble'],
+      ideas: [HolidayIdea.festiveDinner, HolidayIdea.tashlich],
     ),
     JewishCalendar.YOM_KIPPUR: const _HolidayMeta(
       groupKey: JewishCalendar.YOM_KIPPUR,
-      name: 'Yom Kippour',
-      hebrewName: 'יום כיפור',
-      description: 'Jour du Grand Pardon',
+      id: JewishHolidayId.yomKippur,
       type: HolidayType.major,
-      coupleIdeas: ['Se demander pardon mutuellement'],
+      ideas: [HolidayIdea.mutualForgiveness],
     ),
     JewishCalendar.SUCCOS: const _HolidayMeta(
       groupKey: JewishCalendar.SUCCOS,
-      name: 'Souccot',
-      hebrewName: 'סוכות',
-      description: 'Fête des cabanes',
+      id: JewishHolidayId.sukkot,
       type: HolidayType.major,
-      coupleIdeas: ['Construire la Soucca ensemble', 'Inviter des amis'],
+      ideas: [HolidayIdea.buildSukkah, HolidayIdea.inviteFriends],
     ),
     JewishCalendar.CHOL_HAMOED_SUCCOS: const _HolidayMeta(
       groupKey: JewishCalendar.SUCCOS,
-      name: 'Souccot',
-      hebrewName: 'סוכות',
-      description: 'Fête des cabanes',
+      id: JewishHolidayId.sukkot,
       type: HolidayType.major,
-      coupleIdeas: ['Construire la Soucca ensemble', 'Inviter des amis'],
+      ideas: [HolidayIdea.buildSukkah, HolidayIdea.inviteFriends],
     ),
     JewishCalendar.HOSHANA_RABBA: const _HolidayMeta(
       groupKey: JewishCalendar.SUCCOS,
-      name: 'Souccot',
-      hebrewName: 'סוכות',
-      description: 'Fête des cabanes',
+      id: JewishHolidayId.sukkot,
       type: HolidayType.major,
-      coupleIdeas: ['Construire la Soucca ensemble', 'Inviter des amis'],
+      ideas: [HolidayIdea.buildSukkah, HolidayIdea.inviteFriends],
     ),
     JewishCalendar.SHEMINI_ATZERES: const _HolidayMeta(
       groupKey: JewishCalendar.SHEMINI_ATZERES,
-      name: 'Shemini Atseret',
-      hebrewName: 'שמיני עצרת',
-      description: 'Huitième jour de rassemblement',
+      id: JewishHolidayId.sheminiAtzeret,
       type: HolidayType.major,
-      coupleIdeas: ['Prière pour la pluie'],
+      ideas: [HolidayIdea.prayerForRain],
     ),
     JewishCalendar.SIMCHAS_TORAH: const _HolidayMeta(
       groupKey: JewishCalendar.SIMCHAS_TORAH,
-      name: 'Simhat Torah',
-      hebrewName: 'שמחת תורה',
-      description: 'Joie de la Torah',
+      id: JewishHolidayId.simchatTorah,
       type: HolidayType.major,
-      coupleIdeas: ['Danser avec la Torah'],
+      ideas: [HolidayIdea.danceWithTorah],
     ),
     JewishCalendar.CHANUKAH: const _HolidayMeta(
       groupKey: JewishCalendar.CHANUKAH,
-      name: 'Hanoucca',
-      hebrewName: 'חנוכה',
-      description: 'Fête des lumières',
+      id: JewishHolidayId.hanukkah,
       type: HolidayType.major,
-      coupleIdeas: ['Allumer les bougies ensemble', 'Soufganiot maison'],
+      ideas: [HolidayIdea.lightCandlesTogether, HolidayIdea.homemadeSufganiyot],
     ),
     JewishCalendar.TU_BESHVAT: const _HolidayMeta(
       groupKey: JewishCalendar.TU_BESHVAT,
-      name: 'Tou Bichvat',
-      hebrewName: 'ט״ו בשבט',
-      description: 'Nouvel an des arbres',
+      id: JewishHolidayId.tuBishvat,
       type: HolidayType.minor,
     ),
     JewishCalendar.PURIM: const _HolidayMeta(
       groupKey: JewishCalendar.PURIM,
-      name: 'Pourim',
-      hebrewName: 'פורים',
-      description: 'Fête des sorts',
+      id: JewishHolidayId.purim,
       type: HolidayType.major,
-      coupleIdeas: ['Déguisement en couple', 'Mishloach Manot ensemble'],
+      ideas: [HolidayIdea.coupleCostumes, HolidayIdea.mishloachManot],
     ),
     JewishCalendar.SHUSHAN_PURIM: const _HolidayMeta(
       groupKey: JewishCalendar.PURIM,
-      name: 'Pourim',
-      hebrewName: 'פורים',
-      description: 'Fête des sorts',
+      id: JewishHolidayId.purim,
       type: HolidayType.major,
-      coupleIdeas: ['Déguisement en couple', 'Mishloach Manot ensemble'],
+      ideas: [HolidayIdea.coupleCostumes, HolidayIdea.mishloachManot],
     ),
     JewishCalendar.PESACH: const _HolidayMeta(
       groupKey: JewishCalendar.PESACH,
-      name: 'Pessah',
-      hebrewName: 'פסח',
-      description: 'Fête de la liberté',
+      id: JewishHolidayId.pesach,
       type: HolidayType.major,
-      coupleIdeas: ['Seder romantique', 'Voyage en Israël'],
+      ideas: [HolidayIdea.romanticSeder, HolidayIdea.tripToIsrael],
     ),
     JewishCalendar.CHOL_HAMOED_PESACH: const _HolidayMeta(
       groupKey: JewishCalendar.PESACH,
-      name: 'Pessah',
-      hebrewName: 'פסח',
-      description: 'Fête de la liberté',
+      id: JewishHolidayId.pesach,
       type: HolidayType.major,
-      coupleIdeas: ['Seder romantique', 'Voyage en Israël'],
+      ideas: [HolidayIdea.romanticSeder, HolidayIdea.tripToIsrael],
     ),
     JewishCalendar.YOM_HASHOAH: const _HolidayMeta(
       groupKey: JewishCalendar.YOM_HASHOAH,
-      name: 'Yom HaShoah',
-      hebrewName: 'יום השואה',
-      description: 'Jour du souvenir de la Shoah',
+      id: JewishHolidayId.yomHashoah,
       type: HolidayType.memorial,
     ),
     JewishCalendar.YOM_HAZIKARON: const _HolidayMeta(
       groupKey: JewishCalendar.YOM_HAZIKARON,
-      name: 'Yom HaZikaron',
-      hebrewName: 'יום הזיכרון',
-      description: 'Jour du souvenir des soldats',
+      id: JewishHolidayId.yomHazikaron,
       type: HolidayType.memorial,
     ),
     JewishCalendar.YOM_HAATZMAUT: const _HolidayMeta(
       groupKey: JewishCalendar.YOM_HAATZMAUT,
-      name: 'Yom HaAtsmaout',
-      hebrewName: 'יום העצמאות',
-      description: 'Jour de l\'indépendance d\'Israël',
+      id: JewishHolidayId.yomHaatzmaut,
       type: HolidayType.israeli,
-      coupleIdeas: ['BBQ israélien', 'Concert/soirée'],
+      ideas: [HolidayIdea.israeliBarbecue, HolidayIdea.concertOrParty],
     ),
     JewishCalendar.YOM_YERUSHALAYIM: const _HolidayMeta(
       groupKey: JewishCalendar.YOM_YERUSHALAYIM,
-      name: 'Yom Yeroushalayim',
-      hebrewName: 'יום ירושלים',
-      description: 'Jour de la réunification de Jérusalem',
+      id: JewishHolidayId.yomYerushalayim,
       type: HolidayType.israeli,
     ),
     JewishCalendar.LAG_BAOMER: const _HolidayMeta(
       groupKey: JewishCalendar.LAG_BAOMER,
-      name: 'Lag BaOmer',
-      hebrewName: 'ל״ג בעומר',
-      description: '33eme jour du Omer',
+      id: JewishHolidayId.lagBaomer,
       type: HolidayType.minor,
-      coupleIdeas: ['Feu de camp', 'Pique-nique'],
+      ideas: [HolidayIdea.campfire, HolidayIdea.picnic],
     ),
     JewishCalendar.SHAVUOS: const _HolidayMeta(
       groupKey: JewishCalendar.SHAVUOS,
-      name: 'Shavouot',
-      hebrewName: 'שבועות',
-      description: 'Don de la Torah',
+      id: JewishHolidayId.shavuot,
       type: HolidayType.major,
-      coupleIdeas: ['Cheesecake maison', 'Nuit d\'étude'],
+      ideas: [HolidayIdea.homemadeCheesecake, HolidayIdea.studyNight],
     ),
   };
 }
 
-/// Presentation-only metadata attached to a computed holiday.
+/// Presentation-free metadata attached to a computed holiday.
 class _HolidayMeta {
   final int groupKey;
-  final String name;
-  final String hebrewName;
-  final String description;
+  final JewishHolidayId id;
   final HolidayType type;
-  final List<String>? coupleIdeas;
+  final List<HolidayIdea> ideas;
 
   const _HolidayMeta({
     required this.groupKey,
-    required this.name,
-    required this.hebrewName,
-    required this.description,
+    required this.id,
     required this.type,
-    this.coupleIdeas,
+    this.ideas = const [],
   });
+}
+
+/// The holidays the calendar shows. The screen names each one in the member's
+/// language; [hebrewName] is the Hebrew name, the same in every language.
+enum JewishHolidayId {
+  roshHashana('ראש השנה'),
+  yomKippur('יום כיפור'),
+  sukkot('סוכות'),
+  sheminiAtzeret('שמיני עצרת'),
+  simchatTorah('שמחת תורה'),
+  hanukkah('חנוכה'),
+  tuBishvat('ט״ו בשבט'),
+  purim('פורים'),
+  pesach('פסח'),
+  yomHashoah('יום השואה'),
+  yomHazikaron('יום הזיכרון'),
+  yomHaatzmaut('יום העצמאות'),
+  yomYerushalayim('יום ירושלים'),
+  lagBaomer('ל״ג בעומר'),
+  shavuot('שבועות');
+
+  const JewishHolidayId(this.hebrewName);
+
+  final String hebrewName;
+}
+
+/// A suggestion for a couple to share on a holiday.
+enum HolidayIdea {
+  festiveDinner,
+  tashlich,
+  mutualForgiveness,
+  buildSukkah,
+  inviteFriends,
+  prayerForRain,
+  danceWithTorah,
+  lightCandlesTogether,
+  homemadeSufganiyot,
+  coupleCostumes,
+  mishloachManot,
+  romanticSeder,
+  tripToIsrael,
+  israeliBarbecue,
+  concertOrParty,
+  campfire,
+  picnic,
+  homemadeCheesecake,
+  studyNight,
 }
 
 /// Model for a Jewish holiday
 class JewishHoliday {
-  final String name;
-  final String hebrewName;
+  final JewishHolidayId id;
   final DateTime date;
   final DateTime? endDate;
-  final String description;
   final HolidayType type;
-  final List<String>? coupleIdeas;
+  final List<HolidayIdea> ideas;
 
   JewishHoliday({
-    required this.name,
-    required this.hebrewName,
+    required this.id,
     required this.date,
     this.endDate,
-    required this.description,
     required this.type,
-    this.coupleIdeas,
+    this.ideas = const [],
   });
+
+  String get hebrewName => id.hebrewName;
 
   int get daysUntil => date.difference(DateTime.now()).inDays;
 
@@ -448,29 +426,52 @@ extension HolidayTypeExtension on HolidayType {
 
 /// Model for Shabbat info
 class ShabbatInfo {
-  final String parasha;
+  /// The parasha read this Shabbat (the next one when a festival takes the
+  /// day); the screen writes its name in the member's language.
+  final Parsha parsha;
+
+  /// Candle lighting and Havdala as `HH:mm` (24 h), `--:--` when unknown.
   final String candleLighting;
   final String havdala;
+
+  /// The same moments as dates, for screens that format them by language.
+  final DateTime? candleLightingAt;
+  final DateTime? havdalaAt;
   final DateTime date;
 
   ShabbatInfo({
-    required this.parasha,
+    required this.parsha,
     required this.candleLighting,
     required this.havdala,
+    this.candleLightingAt,
+    this.havdalaAt,
     required this.date,
   });
 }
 
-/// Model for couple activity
-class CoupleActivity {
-  final String title;
-  final String description;
-  final String icon;
-  final String category;
+/// The occasions the calendar suggests activities for.
+enum JewishOccasion { shabbat, pesach }
 
-  CoupleActivity({
-    required this.title,
-    required this.description,
+/// One activity suggested for an occasion.
+enum OccasionActivityId {
+  shabbatDinner,
+  shabbatCandles,
+  shabbatWalk,
+  shabbatParasha,
+  pesachSeder,
+  pesachCleaning,
+}
+
+enum OccasionActivityCategory { preparation, spiritual, relaxation }
+
+/// Model for a couple activity suggested for an occasion.
+class OccasionActivity {
+  final OccasionActivityId id;
+  final String icon;
+  final OccasionActivityCategory category;
+
+  const OccasionActivity({
+    required this.id,
     required this.icon,
     required this.category,
   });

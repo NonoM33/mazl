@@ -7,6 +7,7 @@ import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/religious_consent_sheet.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Shows the state of the religious-data consent and lets the member give or
 /// withdraw it. Withdrawing erases the four practice fields on the server.
@@ -36,19 +37,16 @@ class _ReligiousDataSettingsScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Retirer votre accord ?'),
-        content: const Text(
-          'Votre courant, votre cashrout, votre pratique du Shabbat et '
-          'votre intention seront effacés de votre profil.',
-        ),
+        title: Text(context.l10n.privacySettingsWithdrawTitle),
+        content: Text(context.l10n.privacySettingsWithdrawBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Retirer mon accord'),
+            child: Text(context.l10n.privacySettingsWithdraw),
           ),
         ],
       ),
@@ -61,7 +59,7 @@ class _ReligiousDataSettingsScreenState
     if (!mounted) return;
     setState(() => _busy = false);
     if (!response.success) {
-      _toast('Impossible de retirer votre accord. Réessayez.');
+      _toast(context.l10n.privacySettingsWithdrawFailed);
     }
     _refresh();
   }
@@ -70,7 +68,7 @@ class _ReligiousDataSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(religiousDataConsentProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Données de pratique religieuse')),
+      appBar: AppBar(title: Text(context.l10n.privacySettingsTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
         children: _content(state),
@@ -92,24 +90,21 @@ class _ReligiousDataSettingsScreenState
       return [
         Semantics(
           liveRegion: true,
-          child: const Text(
-            'Impossible de charger votre accord. Vérifiez votre connexion.',
-          ),
+          child: Text(context.l10n.privacySettingsLoadFailed),
         ),
-        TextButton(onPressed: _refresh, child: const Text('Réessayer')),
+        TextButton(onPressed: _refresh, child: Text(context.l10n.commonRetry)),
       ];
     }
     final valid = consent.isValid;
     return [
-      const SectionLabel(
-        'Données sensibles · RGPD article 9',
-        color: AppColors.tekhelet,
-      ),
+      SectionLabel(context.l10n.privacySheetLabel, color: AppColors.tekhelet),
       const SizedBox(height: 12),
       Semantics(
         header: true,
         child: Text(
-          valid ? 'Accord donné' : 'Accord non donné',
+          valid
+              ? context.l10n.privacySettingsGrantedTitle
+              : context.l10n.privacySettingsNotGrantedTitle,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
       ),
@@ -119,12 +114,12 @@ class _ReligiousDataSettingsScreenState
       if (valid)
         OutlinedButton(
           onPressed: _busy ? null : () => _withdraw(consent),
-          child: const Text('Retirer mon accord'),
+          child: Text(context.l10n.privacySettingsWithdraw),
         )
       else
         ElevatedButton(
           onPressed: _busy ? null : () => _grant(consent),
-          child: const Text('Donner mon accord'),
+          child: Text(context.l10n.privacyGive),
         ),
     ];
   }

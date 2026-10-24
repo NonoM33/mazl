@@ -1,0 +1,19 @@
+{
+  "likesTitle": "Likes",
+  "likesSection": "Les gustas · {count}",
+  "likesWaiting": "{count, plural, one{{label} persona espera tu respuesta.} other{{label} personas esperan tu respuesta.}}",
+  "likesSeeWhoWithPlus": "Ver quién te ha dado like con mazl+",
+  "likesMatchWith": "Match con {name}",
+  "likesYouLiked": "Le has dado like a {name}",
+  "likesEmptyTitle": "Aún no hay likes",
+  "likesEmptyBody": "Sigue descubriendo perfiles y completa el tuyo para recibir más likes.",
+  "likesEmptyAction": "Descubrir perfiles",
+  "likesPremiumBody": "Descubre quién te ha dado like y haz match al instante con las personas que te gusten.",
+  "likesPremiumOffers": "Ver planes",
+  "likesCardOpen": "Ver el like de {title}",
+  "likesCardPass": "Pasar de {name}",
+  "likesCardLike": "Dar like a {name}",
+  "likesLockedLabel": "Perfil oculto",
+  "likesLockedHint": "Disponible con mazl+",
+  "likesDistance": "{km} km"
+}

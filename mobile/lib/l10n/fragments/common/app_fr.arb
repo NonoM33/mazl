@@ -1,0 +1,118 @@
+{
+  "commonCancel": "Annuler",
+  "@commonCancel": {
+    "description": "Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire."
+  },
+  "commonContinue": "Continuer",
+  "@commonContinue": {
+    "description": "Bouton qui passe à l'étape suivante."
+  },
+  "commonRetry": "Réessayer",
+  "@commonRetry": {
+    "description": "Bouton qui relance une action qui a échoué (chargement, envoi)."
+  },
+  "commonClose": "Fermer",
+  "@commonClose": {
+    "description": "Bouton ou info-bulle qui ferme un écran, une feuille ou une boîte de dialogue."
+  },
+  "commonBack": "Retour",
+  "@commonBack": {
+    "description": "Info-bulle du bouton qui revient à l'écran précédent."
+  },
+  "errorTimeout": "Délai dépassé. Vérifiez votre connexion.",
+  "@errorTimeout": {
+    "description": "Erreur : le serveur n'a pas répondu à temps."
+  },
+  "errorNetwork": "Pas de connexion. Vérifiez votre réseau et réessayez.",
+  "@errorNetwork": {
+    "description": "Erreur : le téléphone n'a pas de connexion ou le serveur est injoignable."
+  },
+  "errorServer": "Le serveur est indisponible. Réessayez dans un instant.",
+  "@errorServer": {
+    "description": "Erreur : le serveur a une panne (HTTP 5xx)."
+  },
+  "errorSessionExpired": "Session expirée. Reconnectez-vous.",
+  "@errorSessionExpired": {
+    "description": "Erreur : la connexion du membre a expiré (HTTP 401), il doit se reconnecter."
+  },
+  "errorForbidden": "Action non autorisée.",
+  "@errorForbidden": {
+    "description": "Erreur : le membre n'a pas le droit de faire cette action (HTTP 403)."
+  },
+  "errorNotFound": "Introuvable : cet élément n'existe plus.",
+  "@errorNotFound": {
+    "description": "Erreur : l'élément demandé (profil, message, événement) n'existe plus (HTTP 404)."
+  },
+  "errorConflict": "Cette action n'est plus possible.",
+  "@errorConflict": {
+    "description": "Erreur : l'action n'est plus possible, l'état a changé entre-temps (HTTP 409)."
+  },
+  "errorTooLarge": "Fichier trop volumineux.",
+  "@errorTooLarge": {
+    "description": "Erreur : la photo ou le fichier envoyé est trop lourd (HTTP 413)."
+  },
+  "errorRateLimited": "Trop de tentatives. Patientez un instant.",
+  "@errorRateLimited": {
+    "description": "Erreur : trop de tentatives en peu de temps (HTTP 429)."
+  },
+  "errorInvalid": "Demande refusée. Vérifiez les informations saisies.",
+  "@errorInvalid": {
+    "description": "Erreur : le serveur a refusé la demande, données invalides (HTTP 400/422)."
+  },
+  "errorUnknown": "Une erreur est survenue. Réessayez.",
+  "@errorUnknown": {
+    "description": "Erreur sans cause connue."
+  },
+  "commonSave": "Enregistrer",
+  "@commonSave": {
+    "description": "Bouton qui enregistre les modifications d'un formulaire."
+  },
+  "commonDelete": "Supprimer",
+  "@commonDelete": {
+    "description": "Bouton qui supprime un élément (photo, date, activité)."
+  },
+  "commonRemove": "Retirer",
+  "@commonRemove": {
+    "description": "Bouton qui retire un élément d'une liste sans le détruire (favori, réaction)."
+  },
+  "commonSkip": "Passer",
+  "@commonSkip": {
+    "description": "Bouton qui saute une étape facultative (onboarding, question)."
+  },
+  "commonSee": "Voir",
+  "@commonSee": {
+    "description": "Bouton court qui ouvre le détail d'un élément."
+  },
+  "commonShare": "Partager",
+  "@commonShare": {
+    "description": "Bouton qui ouvre la feuille de partage du téléphone."
+  },
+  "commonReport": "Signaler",
+  "@commonReport": {
+    "description": "Bouton qui signale un membre ou un contenu à la modération."
+  },
+  "commonOk": "OK",
+  "@commonOk": {
+    "description": "Bouton qui referme une boîte de dialogue d'information."
+  },
+  "commonLater": "Plus tard",
+  "@commonLater": {
+    "description": "Bouton qui remet une action à plus tard."
+  },
+  "commonToday": "Aujourd'hui",
+  "@commonToday": {
+    "description": "Date relative : le jour même (liste de messages, événements)."
+  },
+  "commonYesterday": "Hier",
+  "@commonYesterday": {
+    "description": "Date relative : la veille."
+  },
+  "commonNotSpecified": "Non renseigné",
+  "@commonNotSpecified": {
+    "description": "Champ de profil laissé vide par le membre."
+  },
+  "commonLoadError": "Erreur de chargement",
+  "@commonLoadError": {
+    "description": "Titre d'un écran ou d'un bloc dont le chargement a échoué."
+  }
+}

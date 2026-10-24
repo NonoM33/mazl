@@ -12,6 +12,7 @@ import 'package:mazl/presentation/features/premium/screens/subscription_screen.d
 import 'package:mazl/presentation/features/premium/widgets/plus_settings_card.dart';
 import 'package:mazl/presentation/features/premium/widgets/plus_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<void> _pump(
   WidgetTester tester,
@@ -24,6 +25,9 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: (theme ?? AppTheme.lightTheme).copyWith(
         platform: TargetPlatform.iOS,
       ),
@@ -73,7 +77,7 @@ Future<void> _pumpOffer(WidgetTester tester, {ThemeData? theme}) async {
 
 final _active = SubscriptionSnapshot(
   isActive: true,
-  planLabel: '6 mois',
+  planMonths: 6,
   price: '59,99 €',
   renewalDate: DateTime(2027, 3, 12),
   superLikesLeft: 4,
@@ -125,20 +129,20 @@ void main() {
       await _pumpOffer(tester);
 
       // 3 mois, la formule mise en avant, est présélectionné
-      expect(find.text('Continuer · 44,99 €'), findsOneWidget);
+      expect(find.text('Continuer · 44,99\u00A0€'), findsOneWidget);
 
       await tester.tap(find.text('1 mois'));
       await tester.pump();
-      expect(find.text('Continuer · 19,99 €'), findsOneWidget);
-      expect(find.text('Continuer · 44,99 €'), findsNothing);
+      expect(find.text('Continuer · 19,99\u00A0€'), findsOneWidget);
+      expect(find.text('Continuer · 44,99\u00A0€'), findsNothing);
 
       await tester.tap(find.text('6 mois'));
       await tester.pump();
-      expect(find.text('Continuer · 69,99 €'), findsOneWidget);
+      expect(find.text('Continuer · 69,99\u00A0€'), findsOneWidget);
 
       await tester.tap(find.text('12 mois'));
       await tester.pump();
-      expect(find.text('Continuer · 99,99 €'), findsOneWidget);
+      expect(find.text('Continuer · 99,99\u00A0€'), findsOneWidget);
     });
 
     testWidgets(
@@ -261,7 +265,13 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+        MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          theme: AppTheme.lightTheme,
+          routerConfig: router,
+        ),
       );
 
       await tester.tap(find.text('ouvrir'));
@@ -300,10 +310,7 @@ void main() {
       await _pump(
         tester,
         const Scaffold(
-          body: PremiumFeatureSheet(
-            title: 'Revenir en arrière',
-            description: 'Rattrapez un « Passer » trop rapide.',
-          ),
+          body: PremiumFeatureSheet(feature: PremiumFeature.rewind),
         ),
       );
 
@@ -321,7 +328,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        PlusWelcomeScreen(planLabel: '6 mois', loadLikesCount: () async => 12),
+        PlusWelcomeScreen(planMonths: 6, loadLikesCount: () async => 12),
       );
 
       expect(find.text('ABONNEMENT ACTIF · 6 MOIS'), findsOneWidget);
@@ -341,7 +348,7 @@ void main() {
     testWidgets('accorde le singulier', (tester) async {
       await _pump(
         tester,
-        PlusWelcomeScreen(planLabel: '1 mois', loadLikesCount: () async => 1),
+        PlusWelcomeScreen(planMonths: 1, loadLikesCount: () async => 1),
       );
       expect(find.text('1 personne vous a aimé'), findsOneWidget);
     });
@@ -351,7 +358,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        PlusWelcomeScreen(planLabel: null, loadLikesCount: () async => null),
+        PlusWelcomeScreen(planMonths: null, loadLikesCount: () async => null),
       );
       expect(find.text('Voir qui vous a aimé'), findsOneWidget);
       expect(find.text('ABONNEMENT ACTIF'), findsOneWidget);
@@ -366,7 +373,7 @@ void main() {
           GoRoute(
             path: RoutePaths.plusWelcome,
             builder: (_, __) => PlusWelcomeScreen(
-              planLabel: '6 mois',
+              planMonths: 6,
               loadLikesCount: () async => 12,
             ),
           ),
@@ -380,7 +387,13 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+        MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          theme: AppTheme.lightTheme,
+          routerConfig: router,
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -425,7 +438,7 @@ void main() {
         SubscriptionScreen(
           snapshot: SubscriptionSnapshot(
             isActive: true,
-            planLabel: '12 mois',
+            planMonths: 12,
             renewalDate: DateTime(2027, 1, 1),
             willRenew: false,
             superLikesLeft: 0,

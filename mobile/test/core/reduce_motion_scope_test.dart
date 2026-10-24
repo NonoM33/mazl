@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
+import '../helpers/l10n_helpers.dart';
 
 // iOS « Réduire les animations » reaches Flutter as
 // AccessibilityFeatures.reduceMotion, NOT as MediaQuery.disableAnimations
@@ -16,6 +17,9 @@ void main() {
   late bool reduced;
 
   Widget probe() => MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: kTestLocale,
     builder: (context, child) => ReduceMotionScope(child: child!),
     home: Builder(
       builder: (context) {

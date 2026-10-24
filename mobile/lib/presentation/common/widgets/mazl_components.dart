@@ -15,7 +15,9 @@ class MazlWordmark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ink = color ?? Theme.of(context).colorScheme.onSurface;
+    // A logo, not a sentence: the dot stays after the word in Hebrew too.
     return Text.rich(
+      textDirection: TextDirection.ltr,
       TextSpan(
         text: 'mazl',
         children: [

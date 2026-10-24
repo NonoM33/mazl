@@ -7,6 +7,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../../likes/widgets/like_widgets.dart';
@@ -19,7 +20,10 @@ const int _likesPreviewCount = 4;
 const int _newMatchDays = 7;
 
 class MatchesScreen extends StatefulWidget {
-  const MatchesScreen({super.key});
+  const MatchesScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<MatchesScreen> createState() => _MatchesScreenState();
@@ -28,11 +32,11 @@ class MatchesScreen extends StatefulWidget {
 class _MatchesScreenState extends State<MatchesScreen>
     with AutomaticKeepAliveClientMixin {
   final DataPrefetchService _prefetchService = DataPrefetchService();
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
   List<Map<String, dynamic>> _matches = [];
   LikesData? _likesData;
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
   bool _coupleModeBannerDismissed = false;
 
   static const String _coupleModeBannerDismissedKey =
@@ -87,7 +91,7 @@ class _MatchesScreenState extends State<MatchesScreen>
     if (!isRefresh && _matches.isEmpty) {
       setState(() {
         _isLoading = true;
-        _error = null;
+        _loadFailed = false;
       });
     }
 
@@ -101,7 +105,7 @@ class _MatchesScreenState extends State<MatchesScreen>
       } else {
         setState(() {
           if (_matches.isEmpty) {
-            _error = response.error ?? 'Erreur inconnue';
+            _loadFailed = true;
           }
           _isLoading = false;
         });
@@ -109,7 +113,7 @@ class _MatchesScreenState extends State<MatchesScreen>
     } catch (e) {
       setState(() {
         if (_matches.isEmpty) {
-          _error = e.toString();
+          _loadFailed = true;
         }
         _isLoading = false;
       });
@@ -141,16 +145,13 @@ class _MatchesScreenState extends State<MatchesScreen>
   String _formatMatchedAt(String? matchedAt) {
     final date = matchedAt == null ? null : DateTime.tryParse(matchedAt);
     if (date == null) return '';
+    final l10n = context.l10n;
     final days = DateTime.now().difference(date).inDays;
-    if (days == 0) return "Aujourd'hui";
-    if (days == 1) return 'Hier';
-    if (days < 7) return 'Il y a $days jours';
-    if (days < 30) {
-      final weeks = (days / 7).floor();
-      return 'Il y a $weeks semaine${weeks > 1 ? 's' : ''}';
-    }
-    final months = (days / 30).floor();
-    return 'Il y a $months mois';
+    if (days == 0) return l10n.commonToday;
+    if (days == 1) return l10n.commonYesterday;
+    if (days < 7) return l10n.matchingMatchedDaysAgo(days);
+    if (days < 30) return l10n.matchingMatchedWeeksAgo((days / 7).floor());
+    return l10n.matchingMatchedMonthsAgo((days / 30).floor());
   }
 
   void _openChat(Map<String, dynamic> match) {
@@ -189,13 +190,13 @@ class _MatchesScreenState extends State<MatchesScreen>
       children: [
         Expanded(
           child: Text(
-            'Matchs',
+            context.l10n.matchingMatchesTitle,
             style: Theme.of(context).textTheme.displaySmall,
           ),
         ),
         RoundIconButton(
           icon: LucideIcons.heart,
-          tooltip: 'Qui vous a aimé',
+          tooltip: context.l10n.matchingMatchesWhoLikedYou,
           onPressed: () => context.push(RoutePaths.likes),
         ),
       ],
@@ -206,7 +207,7 @@ class _MatchesScreenState extends State<MatchesScreen>
     if (_isLoading) {
       return [for (var i = 0; i < 6; i++) const ListItemSkeleton()];
     }
-    if (_error != null) return [_buildError()];
+    if (_loadFailed) return [_buildError()];
     if (_matches.isEmpty) return [_buildEmpty()];
 
     final matches = _matches
@@ -235,7 +236,7 @@ class _MatchesScreenState extends State<MatchesScreen>
           );
         },
       ),
-      SectionLabel('Nouveaux · $newCount'),
+      SectionLabel(context.l10n.matchingMatchesNewSection(newCount)),
       const SizedBox(height: 16),
       SizedBox(
         height: 100,
@@ -247,7 +248,8 @@ class _MatchesScreenState extends State<MatchesScreen>
             final match = matches[index];
             final profile = match['profile'] as Map<String, dynamic>;
             return AvatarRing(
-              name: profile['display_name'] as String? ?? 'Inconnu',
+              name: profile['display_name'] as String? ??
+                  context.l10n.matchingMatchesUnknownName,
               pictureUrl: profile['picture'] as String?,
               seed: (profile['user_id'] as int?) ?? index,
               isNew: _isNewMatch(match['matchedAt'] as String?),
@@ -257,7 +259,9 @@ class _MatchesScreenState extends State<MatchesScreen>
         ),
       ),
       const SizedBox(height: 24),
-      SectionLabel('Conversations · ${matches.length}'),
+      SectionLabel(
+        context.l10n.matchingMatchesConversationsSection(matches.length),
+      ),
       const SizedBox(height: 8),
       for (var i = 0; i < matches.length; i++) _buildMatchRow(matches[i], i),
     ];
@@ -267,7 +271,9 @@ class _MatchesScreenState extends State<MatchesScreen>
     final profile = match['profile'] as Map<String, dynamic>;
     final userId = profile['user_id'] as int?;
     return _MatchRow(
-      name: profile['display_name'] as String? ?? 'Inconnu',
+      name:
+          profile['display_name'] as String? ??
+          context.l10n.matchingMatchesUnknownName,
       age: profile['age']?.toString(),
       location: profile['location'] as String?,
       picture: profile['picture'] as String?,
@@ -294,11 +300,14 @@ class _MatchesScreenState extends State<MatchesScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'Impossible de charger les matchs',
+            context.l10n.matchingMatchesLoadFailed,
             style: TextStyle(fontSize: 16, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
-          TextButton(onPressed: _loadMatches, child: const Text('Réessayer')),
+          TextButton(
+            onPressed: _loadMatches,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     );
@@ -313,12 +322,12 @@ class _MatchesScreenState extends State<MatchesScreen>
           Icon(LucideIcons.heart, size: 32, color: scheme.onSurfaceVariant),
           const SizedBox(height: 16),
           Text(
-            'Pas encore de match',
+            context.l10n.matchingMatchesEmptyTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Continuez à découvrir des profils.',
+            context.l10n.matchingMatchesEmptyBody,
             style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
           ),
         ],
@@ -336,7 +345,7 @@ class _MatchesScreenState extends State<MatchesScreen>
 
     return [
       const SizedBox(height: 32),
-      SectionLabel('Ils vous ont aimé · ${data.totalCount}'),
+      SectionLabel(context.l10n.likesSection('${data.totalCount}')),
       const SizedBox(height: 16),
       GridView.builder(
         shrinkWrap: true,
@@ -357,7 +366,7 @@ class _MatchesScreenState extends State<MatchesScreen>
             );
           }
           return LikeCard(
-            name: like.displayName ?? 'Anonyme',
+            name: like.displayName ?? context.l10n.matchingCardAnonymous,
             age: like.age,
             pictureUrl: like.photoUrl,
             isVerified: like.isVerified,
@@ -369,9 +378,9 @@ class _MatchesScreenState extends State<MatchesScreen>
       if (!isPremium) ...[
         const SizedBox(height: 16),
         MazlPlusPill(
-          prefix: remaining > 0
-              ? 'Voir les $remaining autres avec '
-              : 'Voir qui vous a aimé avec ',
+          label: remaining > 0
+              ? context.l10n.matchingSeeMoreWithPlus(remaining)
+              : context.l10n.likesSeeWhoWithPlus,
           onPressed: () => context.push(RoutePaths.premium),
         ),
       ] else if (remaining > 0) ...[
@@ -380,7 +389,7 @@ class _MatchesScreenState extends State<MatchesScreen>
           width: double.infinity,
           child: OutlinedButton(
             onPressed: () => context.push(RoutePaths.likes),
-            child: Text('Voir les $remaining autres'),
+            child: Text(context.l10n.matchingMatchesSeeMore(remaining)),
           ),
         ),
       ],
@@ -409,7 +418,7 @@ class _CoupleModePromoBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 8, 20),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 8, 20),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(24),
@@ -421,12 +430,12 @@ class _CoupleModePromoBanner extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Ça y est, vous avez matché ?',
+                  context.l10n.matchingCouplePromoTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               IconButton(
-                tooltip: 'Masquer',
+                tooltip: context.l10n.matchingCouplePromoDismiss,
                 constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                 onPressed: onDismiss,
                 icon: Icon(
@@ -438,9 +447,9 @@ class _CoupleModePromoBanner extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: Text(
-              'Questions quotidiennes, étapes, calendrier juif partagé : construisez votre relation avec mazl.',
+              context.l10n.matchingCouplePromoBody,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.4,
@@ -450,12 +459,12 @@ class _CoupleModePromoBanner extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: onActivate,
-                child: const Text('Activer le mode couple'),
+                child: Text(context.l10n.matchingCouplePromoAction),
               ),
             ),
           ),
@@ -496,7 +505,7 @@ class _MatchRow extends StatelessWidget {
     final title = age != null ? '$name, $age' : name;
     final subtitle = (location != null && location!.isNotEmpty)
         ? location!
-        : 'Écrivez-lui';
+        : context.l10n.matchingMatchesWriteHint;
     return InkWell(
       onTap: onChat,
       borderRadius: BorderRadius.circular(16),
@@ -506,7 +515,7 @@ class _MatchRow extends StatelessWidget {
           children: [
             Semantics(
               button: onViewProfile != null,
-              label: 'Voir le profil de $name',
+              label: context.l10n.matchingMatchesViewProfileOf(name),
               child: GestureDetector(
                 onTap: onViewProfile,
                 child: SizedBox.square(

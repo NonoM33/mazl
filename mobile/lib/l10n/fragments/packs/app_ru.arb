@@ -1,0 +1,16 @@
+{
+  "packsSuperLikesLabel": "Суперлайки",
+  "packsSuperLikesTitle": "Суперлайки закончились.",
+  "packsSuperLikesSubtitle": "Возьмите ещё: купленные суперлайки не сгорают.",
+  "packsBoostsLabel": "Бусты",
+  "packsBoostsTitle": "Бустов не осталось.",
+  "packsBoostsSubtitle": "Поднимите свой профиль выше на {minutes} мин. Купленный буст не сгорает.",
+  "packsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
+  "packsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
+  "packsPackSemantics": "Купить: {quantity} за {price}",
+  "packsLoading": "Загрузка предложений",
+  "packsStoreUnavailable": "Магазин сейчас недоступен. Попробуйте ещё раз чуть позже.",
+  "packsPending": "Покупка ожидает подтверждения. Баланс обновится, как только её одобрят.",
+  "packsBoostAlreadyActive": "Буст уже включён.",
+  "packsErrorExhausted": "Сейчас у Вас ничего не осталось."
+}

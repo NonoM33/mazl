@@ -1,0 +1,507 @@
+{
+  "jewishCalendarShabbatTitle": "Ce Shabbat",
+  "@jewishCalendarShabbatTitle": {
+    "description": "Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif."
+  },
+  "jewishCalendarParashat": "Parashat {name}",
+  "@jewishCalendarParashat": {
+    "description": "Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jewishCalendarParshaPair": "{first} {second}",
+  "@jewishCalendarParshaPair": {
+    "description": "Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "jewishCalendarCandleLighting": "Allumage",
+  "@jewishCalendarCandleLighting": {
+    "description": "Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères."
+  },
+  "jewishCalendarHavdalah": "Havdala",
+  "@jewishCalendarHavdalah": {
+    "description": "Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères."
+  },
+  "jewishCalendarCategoryPreparation": "Préparation",
+  "@jewishCalendarCategoryPreparation": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité du Shabbat ou d'une fête : il s'agit de préparer quelque chose."
+  },
+  "jewishCalendarCategorySpiritual": "Spirituel",
+  "@jewishCalendarCategorySpiritual": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité : moment spirituel."
+  },
+  "jewishCalendarCategoryRelaxation": "Détente",
+  "@jewishCalendarCategoryRelaxation": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité : moment de détente."
+  },
+  "jewishCalendarActivityShabbatDinnerTitle": "Préparer le dîner ensemble",
+  "@jewishCalendarActivityShabbatDinnerTitle": {
+    "description": "Titre d'une idée d'activité à deux : le vendredi soir, préparer le repas de Shabbat."
+  },
+  "jewishCalendarActivityShabbatDinnerBody": "Cuisinez la Halla et le repas de fête",
+  "@jewishCalendarActivityShabbatDinnerBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (le vendredi soir, préparer le repas de Shabbat)."
+  },
+  "jewishCalendarActivityShabbatCandlesTitle": "Allumer les bougies",
+  "@jewishCalendarActivityShabbatCandlesTitle": {
+    "description": "Titre d'une idée d'activité à deux : allumer les bougies de Shabbat."
+  },
+  "jewishCalendarActivityShabbatCandlesBody": "Moment de spiritualité partagé",
+  "@jewishCalendarActivityShabbatCandlesBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (allumer les bougies de Shabbat)."
+  },
+  "jewishCalendarActivityShabbatWalkTitle": "Promenade Shabbat",
+  "@jewishCalendarActivityShabbatWalkTitle": {
+    "description": "Titre d'une idée d'activité à deux : se promener le Shabbat."
+  },
+  "jewishCalendarActivityShabbatWalkBody": "Balade tranquille après le repas",
+  "@jewishCalendarActivityShabbatWalkBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (se promener le Shabbat)."
+  },
+  "jewishCalendarActivityShabbatParashaTitle": "Étude de la Parasha",
+  "@jewishCalendarActivityShabbatParashaTitle": {
+    "description": "Titre d'une idée d'activité à deux : étudier la paracha de la semaine."
+  },
+  "jewishCalendarActivityShabbatParashaBody": "Apprenez ensemble la portion de la semaine",
+  "@jewishCalendarActivityShabbatParashaBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (étudier la paracha de la semaine)."
+  },
+  "jewishCalendarActivityPesachSederTitle": "Préparer le Seder",
+  "@jewishCalendarActivityPesachSederTitle": {
+    "description": "Titre d'une idée d'activité à deux : préparer le repas du Seder de Pessah."
+  },
+  "jewishCalendarActivityPesachSederBody": "Organisez la table ensemble",
+  "@jewishCalendarActivityPesachSederBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (préparer le repas du Seder de Pessah)."
+  },
+  "jewishCalendarActivityPesachCleaningTitle": "Faire le ménage de Pessah",
+  "@jewishCalendarActivityPesachCleaningTitle": {
+    "description": "Titre d'une idée d'activité à deux : faire le grand ménage avant Pessah."
+  },
+  "jewishCalendarActivityPesachCleaningBody": "Nettoyage de printemps en équipe",
+  "@jewishCalendarActivityPesachCleaningBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (faire le grand ménage avant Pessah)."
+  },
+  "jewishCalendarHolidayRoshHashanaName": "Rosh Hashana",
+  "@jewishCalendarHolidayRoshHashanaName": {
+    "description": "Nom de la fête juive « Rosh Hashana » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayRoshHashanaDescription": "Nouvel an juif",
+  "@jewishCalendarHolidayRoshHashanaDescription": {
+    "description": "Courte explication sous le nom de la fête « Rosh Hashana » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomKippurName": "Yom Kippour",
+  "@jewishCalendarHolidayYomKippurName": {
+    "description": "Nom de la fête juive « Yom Kippour » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomKippurDescription": "Jour du Grand Pardon",
+  "@jewishCalendarHolidayYomKippurDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom Kippour » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySukkotName": "Souccot",
+  "@jewishCalendarHolidaySukkotName": {
+    "description": "Nom de la fête juive « Souccot » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySukkotDescription": "Fête des cabanes",
+  "@jewishCalendarHolidaySukkotDescription": {
+    "description": "Courte explication sous le nom de la fête « Souccot » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySheminiAtzeretName": "Shemini Atseret",
+  "@jewishCalendarHolidaySheminiAtzeretName": {
+    "description": "Nom de la fête juive « Shemini Atseret » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySheminiAtzeretDescription": "Huitième jour de rassemblement",
+  "@jewishCalendarHolidaySheminiAtzeretDescription": {
+    "description": "Courte explication sous le nom de la fête « Shemini Atseret » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySimchatTorahName": "Simhat Torah",
+  "@jewishCalendarHolidaySimchatTorahName": {
+    "description": "Nom de la fête juive « Simhat Torah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySimchatTorahDescription": "Joie de la Torah",
+  "@jewishCalendarHolidaySimchatTorahDescription": {
+    "description": "Courte explication sous le nom de la fête « Simhat Torah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayHanukkahName": "Hanoucca",
+  "@jewishCalendarHolidayHanukkahName": {
+    "description": "Nom de la fête juive « Hanoucca » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayHanukkahDescription": "Fête des lumières",
+  "@jewishCalendarHolidayHanukkahDescription": {
+    "description": "Courte explication sous le nom de la fête « Hanoucca » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayTuBishvatName": "Tou Bichvat",
+  "@jewishCalendarHolidayTuBishvatName": {
+    "description": "Nom de la fête juive « Tou Bichvat » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayTuBishvatDescription": "Nouvel an des arbres",
+  "@jewishCalendarHolidayTuBishvatDescription": {
+    "description": "Courte explication sous le nom de la fête « Tou Bichvat » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayPurimName": "Pourim",
+  "@jewishCalendarHolidayPurimName": {
+    "description": "Nom de la fête juive « Pourim » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayPurimDescription": "Fête des sorts",
+  "@jewishCalendarHolidayPurimDescription": {
+    "description": "Courte explication sous le nom de la fête « Pourim » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayPesachName": "Pessah",
+  "@jewishCalendarHolidayPesachName": {
+    "description": "Nom de la fête juive « Pessah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayPesachDescription": "Fête de la liberté",
+  "@jewishCalendarHolidayPesachDescription": {
+    "description": "Courte explication sous le nom de la fête « Pessah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHashoahName": "Yom HaShoah",
+  "@jewishCalendarHolidayYomHashoahName": {
+    "description": "Nom de la fête juive « Yom HaShoah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHashoahDescription": "Jour du souvenir de la Shoah",
+  "@jewishCalendarHolidayYomHashoahDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaShoah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHazikaronName": "Yom HaZikaron",
+  "@jewishCalendarHolidayYomHazikaronName": {
+    "description": "Nom de la fête juive « Yom HaZikaron » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHazikaronDescription": "Jour du souvenir des soldats",
+  "@jewishCalendarHolidayYomHazikaronDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaZikaron » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHaatzmautName": "Yom HaAtsmaout",
+  "@jewishCalendarHolidayYomHaatzmautName": {
+    "description": "Nom de la fête juive « Yom HaAtsmaout » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHaatzmautDescription": "Jour de l'indépendance d'Israël",
+  "@jewishCalendarHolidayYomHaatzmautDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaAtsmaout » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomYerushalayimName": "Yom Yeroushalayim",
+  "@jewishCalendarHolidayYomYerushalayimName": {
+    "description": "Nom de la fête juive « Yom Yeroushalayim » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomYerushalayimDescription": "Jour de la réunification de Jérusalem",
+  "@jewishCalendarHolidayYomYerushalayimDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom Yeroushalayim » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayLagBaomerName": "Lag BaOmer",
+  "@jewishCalendarHolidayLagBaomerName": {
+    "description": "Nom de la fête juive « Lag BaOmer » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayLagBaomerDescription": "33eme jour du Omer",
+  "@jewishCalendarHolidayLagBaomerDescription": {
+    "description": "Courte explication sous le nom de la fête « Lag BaOmer » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayShavuotName": "Shavouot",
+  "@jewishCalendarHolidayShavuotName": {
+    "description": "Nom de la fête juive « Shavouot » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayShavuotDescription": "Don de la Torah",
+  "@jewishCalendarHolidayShavuotDescription": {
+    "description": "Courte explication sous le nom de la fête « Shavouot » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarIdeaFestiveDinner": "Dîner festif",
+  "@jewishCalendarIdeaFestiveDinner": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Dîner festif »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaTashlich": "Tashlich ensemble",
+  "@jewishCalendarIdeaTashlich": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Tashlich ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaMutualForgiveness": "Se demander pardon mutuellement",
+  "@jewishCalendarIdeaMutualForgiveness": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Se demander pardon mutuellement »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaBuildSukkah": "Construire la Soucca ensemble",
+  "@jewishCalendarIdeaBuildSukkah": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Construire la Soucca ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaInviteFriends": "Inviter des amis",
+  "@jewishCalendarIdeaInviteFriends": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Inviter des amis »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaPrayerForRain": "Prière pour la pluie",
+  "@jewishCalendarIdeaPrayerForRain": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Prière pour la pluie »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaDanceWithTorah": "Danser avec la Torah",
+  "@jewishCalendarIdeaDanceWithTorah": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Danser avec la Torah »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaLightCandlesTogether": "Allumer les bougies ensemble",
+  "@jewishCalendarIdeaLightCandlesTogether": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Allumer les bougies ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaHomemadeSufganiyot": "Soufganiot maison",
+  "@jewishCalendarIdeaHomemadeSufganiyot": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Soufganiot maison »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaCoupleCostumes": "Déguisement en couple",
+  "@jewishCalendarIdeaCoupleCostumes": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Déguisement en couple »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaMishloachManot": "Mishloach Manot ensemble",
+  "@jewishCalendarIdeaMishloachManot": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Mishloach Manot ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaRomanticSeder": "Seder romantique",
+  "@jewishCalendarIdeaRomanticSeder": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Seder romantique »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaTripToIsrael": "Voyage en Israël",
+  "@jewishCalendarIdeaTripToIsrael": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Voyage en Israël »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaIsraeliBarbecue": "BBQ israélien",
+  "@jewishCalendarIdeaIsraeliBarbecue": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« BBQ israélien »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaConcertOrParty": "Concert/soirée",
+  "@jewishCalendarIdeaConcertOrParty": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Concert/soirée »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaCampfire": "Feu de camp",
+  "@jewishCalendarIdeaCampfire": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Feu de camp »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaPicnic": "Pique-nique",
+  "@jewishCalendarIdeaPicnic": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Pique-nique »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaHomemadeCheesecake": "Cheesecake maison",
+  "@jewishCalendarIdeaHomemadeCheesecake": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Cheesecake maison »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaStudyNight": "Nuit d'étude",
+  "@jewishCalendarIdeaStudyNight": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Nuit d'étude »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarParshaBereshis": "Bereshis",
+  "@jewishCalendarParshaBereshis": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bereshis ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNoach": "Noach",
+  "@jewishCalendarParshaNoach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Noach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaLechLecha": "Lech Lecha",
+  "@jewishCalendarParshaLechLecha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Lech Lecha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayera": "Vayera",
+  "@jewishCalendarParshaVayera": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayera ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaChayeiSara": "Chayei Sara",
+  "@jewishCalendarParshaChayeiSara": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Chayei Sara ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaToldos": "Toldos",
+  "@jewishCalendarParshaToldos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Toldos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayetzei": "Vayetzei",
+  "@jewishCalendarParshaVayetzei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayetzei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayishlach": "Vayishlach",
+  "@jewishCalendarParshaVayishlach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayishlach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayeshev": "Vayeshev",
+  "@jewishCalendarParshaVayeshev": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayeshev ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMiketz": "Miketz",
+  "@jewishCalendarParshaMiketz": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Miketz ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayigash": "Vayigash",
+  "@jewishCalendarParshaVayigash": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayigash ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayechi": "Vayechi",
+  "@jewishCalendarParshaVayechi": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayechi ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShemos": "Shemos",
+  "@jewishCalendarParshaShemos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shemos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVaera": "Vaera",
+  "@jewishCalendarParshaVaera": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vaera ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBo": "Bo",
+  "@jewishCalendarParshaBo": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bo ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBeshalach": "Beshalach",
+  "@jewishCalendarParshaBeshalach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Beshalach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaYisro": "Yisro",
+  "@jewishCalendarParshaYisro": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Yisro ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMishpatim": "Mishpatim",
+  "@jewishCalendarParshaMishpatim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Mishpatim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTerumah": "Terumah",
+  "@jewishCalendarParshaTerumah": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Terumah ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTetzaveh": "Tetzaveh",
+  "@jewishCalendarParshaTetzaveh": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tetzaveh ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSisa": "Ki Sisa",
+  "@jewishCalendarParshaKiSisa": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Sisa ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayakhel": "Vayakhel",
+  "@jewishCalendarParshaVayakhel": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayakhel ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaPekudei": "Pekudei",
+  "@jewishCalendarParshaPekudei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Pekudei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayikra": "Vayikra",
+  "@jewishCalendarParshaVayikra": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayikra ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTzav": "Tzav",
+  "@jewishCalendarParshaTzav": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tzav ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShmini": "Shmini",
+  "@jewishCalendarParshaShmini": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shmini ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTazria": "Tazria",
+  "@jewishCalendarParshaTazria": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tazria ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMetzora": "Metzora",
+  "@jewishCalendarParshaMetzora": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Metzora ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaAchreiMos": "Achrei Mos",
+  "@jewishCalendarParshaAchreiMos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Achrei Mos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKedoshim": "Kedoshim",
+  "@jewishCalendarParshaKedoshim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Kedoshim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaEmor": "Emor",
+  "@jewishCalendarParshaEmor": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Emor ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBehar": "Behar",
+  "@jewishCalendarParshaBehar": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Behar ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBechukosai": "Bechukosai",
+  "@jewishCalendarParshaBechukosai": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bechukosai ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBamidbar": "Bamidbar",
+  "@jewishCalendarParshaBamidbar": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bamidbar ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNasso": "Nasso",
+  "@jewishCalendarParshaNasso": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Nasso ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBehaaloscha": "Beha'aloscha",
+  "@jewishCalendarParshaBehaaloscha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Beha'aloscha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShlach": "Sh'lach",
+  "@jewishCalendarParshaShlach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Sh'lach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKorach": "Korach",
+  "@jewishCalendarParshaKorach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Korach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaChukas": "Chukas",
+  "@jewishCalendarParshaChukas": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Chukas ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBalak": "Balak",
+  "@jewishCalendarParshaBalak": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Balak ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaPinchas": "Pinchas",
+  "@jewishCalendarParshaPinchas": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Pinchas ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMatos": "Matos",
+  "@jewishCalendarParshaMatos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Matos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMasei": "Masei",
+  "@jewishCalendarParshaMasei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Masei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaDevarim": "Devarim",
+  "@jewishCalendarParshaDevarim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Devarim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVaeschanan": "Vaeschanan",
+  "@jewishCalendarParshaVaeschanan": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vaeschanan ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaEikev": "Eikev",
+  "@jewishCalendarParshaEikev": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Eikev ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaReeh": "Re'eh",
+  "@jewishCalendarParshaReeh": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Re'eh ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShoftim": "Shoftim",
+  "@jewishCalendarParshaShoftim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shoftim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSeitzei": "Ki Seitzei",
+  "@jewishCalendarParshaKiSeitzei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Seitzei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSavo": "Ki Savo",
+  "@jewishCalendarParshaKiSavo": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Savo ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNitzavim": "Nitzavim",
+  "@jewishCalendarParshaNitzavim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Nitzavim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayeilech": "Vayeilech",
+  "@jewishCalendarParshaVayeilech": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayeilech ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaHaazinu": "Ha'Azinu",
+  "@jewishCalendarParshaHaazinu": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ha'Azinu ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVzosHaberacha": "Vezos Habracha",
+  "@jewishCalendarParshaVzosHaberacha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vezos Habracha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  }
+}

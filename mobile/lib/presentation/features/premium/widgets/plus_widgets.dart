@@ -1,51 +1,35 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/services/daily_limit.dart';
+import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/plus_text.dart';
+
+/// Le nom du produit, tel qu'il est écrit dans les phrases traduites.
+const String plusBrand = 'mazl+';
+
+/// [phrase] (« Découvrir mazl+ ») avec la marque remplacée par [brand] : les
+/// mots autour restent du texte simple. La place de la marque dans la phrase
+/// change d'une langue à l'autre ; sans marque, la phrase est rendue telle
+/// quelle.
+List<InlineSpan> brandPhraseSpans(String phrase, List<InlineSpan> brand) {
+  final at = phrase.indexOf(plusBrand);
+  if (at < 0) return [TextSpan(text: phrase)];
+  final after = phrase.substring(at + plusBrand.length);
+  return [
+    if (at > 0) TextSpan(text: phrase.substring(0, at)),
+    ...brand,
+    if (after.isNotEmpty) TextSpan(text: after),
+  ];
+}
 
 /// Les deux morceaux du nom du produit : « mazl » en gras, « + » en accent.
 /// À glisser dans un `TextSpan.children` pour écrire « Découvrir mazl+ ».
-/// Total of a plan, in the store product's own currency (« 18,99 \$US »,
-/// « 89,99 € »), formatted for French.
-String planTotalLabel({required double price, required String currencyCode}) =>
-    _planCurrency(currencyCode).format(price);
-
-/// Price per month of a plan, in the same currency as its total: never a
-/// hand-written « € » next to a store that sells in another currency.
-String planMonthlyLabel({
-  required double price,
-  required int months,
-  required String currencyCode,
-}) =>
-    '${_planCurrency(currencyCode).format(_perMonthCents(price, months) / 100)} par mois';
-
-/// Rounded to the cent from the price in cents, so 18,99 over 2 months reads
-/// 9,50 and not a float artefact (9,4949… shown as 9,49).
-int _perMonthCents(double price, int months) =>
-    ((price * 100).round() / (months > 0 ? months : 1)).round();
-
-/// French notation: « € » for the euro; a bare « $ » would be ambiguous, so
-/// dollars carry their country (« $US », « $CA »), as in French typography.
-NumberFormat _planCurrency(String currencyCode) {
-  final simple = NumberFormat.simpleCurrency(
-    locale: 'fr_FR',
-    name: currencyCode,
-  );
-  final symbol = simple.currencySymbol == r'$' && currencyCode.length == 3
-      ? '\$${currencyCode.substring(0, 2)}'
-      : simple.currencySymbol;
-  return NumberFormat.currency(
-    locale: 'fr_FR',
-    name: currencyCode,
-    symbol: symbol,
-  );
-}
-
 List<InlineSpan> plusWordSpans({Color? plusColor}) => [
   const TextSpan(
     text: 'mazl',
@@ -78,38 +62,41 @@ class PlusWord extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: 'mazl'),
-          TextSpan(
-            text: '+',
-            style: TextStyle(color: plusColor ?? scheme.primary),
-          ),
-        ],
-      ),
-      semanticsLabel: 'mazl+',
-      style: TextStyle(
-        fontFamily: AppTypography.family,
-        fontSize: size,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -size * 0.05,
-        height: 0.95,
-        color: color ?? scheme.onSurface,
+    // Un logo : « mazl » puis « + » se lisent de gauche à droite dans toutes
+    // les langues, même en hébreu où le « + » sauterait à gauche.
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(text: 'mazl'),
+            TextSpan(
+              text: '+',
+              style: TextStyle(color: plusColor ?? scheme.primary),
+            ),
+          ],
+        ),
+        semanticsLabel: plusBrand,
+        style: TextStyle(
+          fontFamily: AppTypography.family,
+          fontSize: size,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -size * 0.05,
+          height: 0.95,
+          color: color ?? scheme.onSurface,
+        ),
       ),
     );
   }
 }
 
-/// Bouton plein encre « préfixe + mazl+ » (la forme du thème : pilule de 56).
+/// Bouton plein encre qui écrit une phrase contenant « mazl+ » (la forme du
+/// thème : pilule de 56).
 class PlusCtaButton extends StatelessWidget {
-  const PlusCtaButton({
-    super.key,
-    required this.prefix,
-    required this.onPressed,
-  });
+  const PlusCtaButton({super.key, required this.label, required this.onPressed});
 
-  final String prefix;
+  /// La phrase entière, dans la langue du membre (« Découvrir mazl+ »).
+  final String label;
   final VoidCallback onPressed;
 
   @override
@@ -119,12 +106,14 @@ class PlusCtaButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         child: Semantics(
-          label: '${prefix}mazl+',
+          label: label,
           excludeSemantics: true,
           child: Text.rich(
             TextSpan(
-              text: prefix,
-              children: plusWordSpans(plusColor: plusAccentOnInk(context)),
+              children: brandPhraseSpans(
+                label,
+                plusWordSpans(plusColor: plusAccentOnInk(context)),
+              ),
             ),
             textAlign: TextAlign.center,
           ),
@@ -154,7 +143,8 @@ class PlusSheetFrame extends StatelessWidget {
   }
 }
 
-TextStyle _sheetTitle(BuildContext context) =>
+/// Le style du titre des fenêtres du bas (« Vos likes du jour sont partis. »).
+TextStyle plusSheetTitleStyle(BuildContext context) =>
     Theme.of(context).textTheme.headlineLarge!.copyWith(
       fontSize: 32,
       fontWeight: FontWeight.w700,
@@ -220,14 +210,15 @@ class DailyLimitSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return PlusSheetFrame(
       children: [
-        SectionLabel('Limite du jour · $freeLikesPerDay / $freeLikesPerDay'),
+        SectionLabel(l10n.plusDailyLimitLabel(freeLikesPerDay)),
         const SizedBox(height: 10),
-        Text('Vos likes du jour sont partis.', style: _sheetTitle(context)),
+        Text(l10n.plusDailyLimitTitle, style: plusSheetTitleStyle(context)),
         const SizedBox(height: 12),
         Text(
-          'Ils reviennent à minuit. Ou continuez sans compter, et voyez qui vous a déjà aimé.',
+          l10n.plusDailyLimitBody,
           style: Theme.of(
             context,
           ).textTheme.bodyLarge!.copyWith(color: scheme.onSurfaceVariant),
@@ -247,7 +238,7 @@ class DailyLimitSheet extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  'Prochains likes dans',
+                  l10n.plusDailyLimitNext,
                   style: TextStyle(
                     fontSize: 15,
                     color: scheme.onSurfaceVariant,
@@ -261,7 +252,7 @@ class DailyLimitSheet extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         PlusCtaButton(
-          prefix: 'Découvrir ',
+          label: l10n.plusDiscover,
           onPressed: () => Navigator.pop(context, true),
         ),
         const SizedBox(height: 4),
@@ -270,7 +261,7 @@ class DailyLimitSheet extends StatelessWidget {
           height: 48,
           child: TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Attendre minuit'),
+            child: Text(l10n.plusDailyLimitWait),
           ),
         ),
       ],
@@ -281,33 +272,29 @@ class DailyLimitSheet extends StatelessWidget {
 /// Fenêtre expliquant une fonction réservée aux abonnés.
 /// Se ferme avec `true` pour ouvrir l'offre.
 class PremiumFeatureSheet extends StatelessWidget {
-  const PremiumFeatureSheet({
-    super.key,
-    required this.title,
-    required this.description,
-  });
+  const PremiumFeatureSheet({super.key, required this.feature});
 
-  final String title;
-  final String description;
+  final PremiumFeature feature;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return PlusSheetFrame(
       children: [
-        const SectionLabel('Réservé à mazl+'),
+        SectionLabel(l10n.plusReservedLabel),
         const SizedBox(height: 10),
-        Text(title, style: _sheetTitle(context)),
+        Text(feature.title(l10n), style: plusSheetTitleStyle(context)),
         const SizedBox(height: 12),
         Text(
-          description,
+          feature.description(l10n),
           style: Theme.of(
             context,
           ).textTheme.bodyLarge!.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 28),
         PlusCtaButton(
-          prefix: 'Découvrir ',
+          label: l10n.plusDiscover,
           onPressed: () => Navigator.pop(context, true),
         ),
         const SizedBox(height: 4),
@@ -316,7 +303,7 @@ class PremiumFeatureSheet extends StatelessWidget {
           height: 48,
           child: TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Pas maintenant'),
+            child: Text(l10n.plusNotNow),
           ),
         ),
       ],

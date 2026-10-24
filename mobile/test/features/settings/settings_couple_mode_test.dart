@@ -9,6 +9,7 @@ import 'package:mazl/presentation/features/settings/widgets/settings_couple_card
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../couple/couple_flow_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 /// Never disposed: the app's services are singletons, and a ProviderScope
 /// disposes the ones it creates, which would break the next test.
@@ -44,6 +45,9 @@ Future<void> _pumpSettings(
     UncontrolledProviderScope(
       container: _sharedContainer,
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: brightness == Brightness.dark
@@ -86,6 +90,7 @@ void main() {
     test('le jour même : Depuis aujourd\'hui', () {
       expect(
         coupleDurationLabel(
+          lookupAppLocalizations(kTestLocale),
           DateTime(2026, 10, 23, 8),
           DateTime(2026, 10, 23, 22),
         ),
@@ -96,6 +101,7 @@ void main() {
     test('le lendemain : 1 jour', () {
       expect(
         coupleDurationLabel(
+          lookupAppLocalizations(kTestLocale),
           DateTime(2026, 10, 22, 10),
           DateTime(2026, 10, 23, 10),
         ),
@@ -105,7 +111,7 @@ void main() {
 
     test('+5 jours : 5 jours', () {
       expect(
-        coupleDurationLabel(DateTime(2026, 10, 18), DateTime(2026, 10, 23)),
+        coupleDurationLabel(lookupAppLocalizations(kTestLocale), DateTime(2026, 10, 18), DateTime(2026, 10, 23)),
         '5 jours',
       );
     });
@@ -113,6 +119,7 @@ void main() {
     test('compte en jours calendaires : 23 h 30 puis 00 h 10 donne 1 jour', () {
       expect(
         coupleDurationLabel(
+          lookupAppLocalizations(kTestLocale),
           DateTime(2026, 10, 22, 23, 30),
           DateTime(2026, 10, 23, 0, 10),
         ),
@@ -122,14 +129,14 @@ void main() {
 
     test('un changement d\'heure ne décale pas le compte', () {
       expect(
-        coupleDurationLabel(DateTime(2026, 10, 24), DateTime(2026, 10, 26)),
+        coupleDurationLabel(lookupAppLocalizations(kTestLocale), DateTime(2026, 10, 24), DateTime(2026, 10, 26)),
         '2 jours',
       );
     });
 
     test('une date de début dans le futur ne donne pas de durée négative', () {
       expect(
-        coupleDurationLabel(DateTime(2026, 10, 25), DateTime(2026, 10, 23)),
+        coupleDurationLabel(lookupAppLocalizations(kTestLocale), DateTime(2026, 10, 25), DateTime(2026, 10, 23)),
         "Depuis aujourd'hui",
       );
     });
@@ -185,6 +192,12 @@ void main() {
           tester,
           service: service,
           size: const Size(360, 740),
+        );
+        // The Language row pushed the card below the fold of a small phone.
+        await tester.scrollUntilVisible(
+          find.text('Quitter le mode couple'),
+          200,
+          scrollable: find.byType(Scrollable).first,
         );
 
         for (final label in [

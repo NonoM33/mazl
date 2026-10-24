@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/navigation/widgets/mazl_nav_bar.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Luminance relative et contraste d'après WCAG 2.1 (§1.4.3), pas d'après le code.
 double _channel(double c) =>
@@ -63,6 +64,9 @@ void main() {
     Future<void> pump(WidgetTester tester, {double safeBottom = 34}) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           theme: AppTheme.lightTheme,
           home: MediaQuery(
             data: MediaQueryData(

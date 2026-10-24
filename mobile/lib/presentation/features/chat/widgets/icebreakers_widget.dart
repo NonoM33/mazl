@@ -3,6 +3,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/icebreaker_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../l10n/icebreaker_text.dart';
 
 /// Widget showing icebreaker suggestions for starting a conversation
 class IcebreakersWidget extends StatelessWidget {
@@ -30,8 +33,8 @@ class IcebreakersWidget extends StatelessWidget {
             AppColors.primary.withValues(alpha: 0.1),
             AppColors.secondary.withValues(alpha: 0.1),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
@@ -57,20 +60,20 @@ class IcebreakersWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Besoin d\'inspiration ?',
-                      style: TextStyle(
+                      context.l10n.icebreakerWidgetTitle,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                       ),
                     ),
                     Text(
-                      'Voici quelques idées pour briser la glace',
-                      style: TextStyle(
+                      context.l10n.icebreakerWidgetSubtitle,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
                       ),
@@ -92,7 +95,7 @@ class IcebreakersWidget extends StatelessWidget {
           // Icebreaker suggestions
           ...icebreakers.take(3).map((icebreaker) => _IcebreakerCard(
                 icebreaker: icebreaker,
-                onTap: () => onSelect(icebreaker.text),
+                onTap: () => onSelect(icebreakerText(context.l10n, icebreaker)),
               )),
         ],
       ),
@@ -163,7 +166,7 @@ class _IcebreakerCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                icebreaker.text,
+                icebreakerText(context.l10n, icebreaker),
                 style: const TextStyle(fontSize: 14),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -176,7 +179,7 @@ class _IcebreakerCard extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: DirectionalIcon(
                 LucideIcons.send,
                 size: 14,
                 color: AppColors.primary,
@@ -213,12 +216,13 @@ class InlineIcebreakersChips extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final icebreaker = icebreakers[index];
+          final text = icebreakerText(context.l10n, icebreaker);
           return ActionChip(
             label: Text(
-              _truncate(icebreaker.text, 25),
+              _truncate(text, 25),
               style: const TextStyle(fontSize: 12),
             ),
-            onPressed: () => onSelect(icebreaker.text),
+            onPressed: () => onSelect(text),
             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
           );
