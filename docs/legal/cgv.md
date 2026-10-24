@@ -6,7 +6,7 @@
 
 ## 1. Vendeur et champ d'application
 
-Les présentes conditions générales de vente (« CGV ») s'appliquent aux achats de services numériques payants proposés dans l'application mobile MAZL (« l'Application ») par :
+Les présentes conditions générales de vente (« CGV ») s'appliquent aux achats de services numériques payants proposés dans l'application mobile MAZL (« l'Application ») et sur le site web de MAZL (« le Site ») par :
 
 - Raison sociale : [À COMPLÉTER : raison sociale de l'éditeur]
 - Forme juridique et capital : [À COMPLÉTER : forme, capital]
@@ -48,11 +48,18 @@ Le décompte des crédits (Boosts, Super Likes) est tenu par les serveurs de MAZ
 
 ### 2.4 Disponibilité par plateforme
 
-Les achats sont actuellement réalisés **via l'App Store d'Apple (iOS)**. Les achats via Google Play (Android) ne sont pas encore ouverts ; l'Application l'indique lorsque c'est le cas. Lorsqu'ils le seront, ces CGV s'appliqueront de la même façon, avec les mécanismes de Google Play pour la facturation, la résiliation et le remboursement.
+Les offres peuvent être achetées par **deux canaux** :
+
+- **dans l'Application, via l'App Store d'Apple (iOS)** ;
+- **sur le Site de MAZL, par carte bancaire, via le prestataire de paiement Stripe** (article 4).
+
+Les offres, leur contenu et leurs avantages sont les mêmes sur les deux canaux, et l'abonnement mazl+ ou les crédits achetés par l'un des canaux sont reconnus par l'Application. Un seul abonnement mazl+ est utile à la fois : lorsqu'un abonnement est en cours, un second ne peut pas être souscrit sur le Site (article 5). Les achats via Google Play (Android) ne sont pas encore ouverts ; l'Application l'indique lorsque c'est le cas. Lorsqu'ils le seront, ces CGV s'appliqueront de la même façon, avec les mécanismes de Google Play pour la facturation, la résiliation et le remboursement.
 
 ## 3. Prix
 
 Les prix sont ceux **affichés dans l'Application, dans la devise et la taxe de votre boutique, au moment de l'achat** (App Store). Ils s'entendent toutes taxes comprises (TTC). Ils peuvent varier selon le pays et le taux de change. MAZL peut modifier ses prix pour l'avenir ; un changement de prix d'un abonnement en cours est soumis aux règles de la boutique (information préalable et, le cas échéant, acceptation expresse du Membre), et ne s'applique pas à la période déjà payée.
+
+**Sur le Site**, les prix sont affichés en euros, **toutes taxes comprises (TTC)**, sur la page d'achat avant le paiement ; le prix payé est celui affiché au moment où le Membre ouvre le paiement.
 
 Une offre promotionnelle (par exemple un tarif de bienvenue pour un premier mois) peut être proposée, dans les conditions indiquées dans l'Application et réservée par la boutique aux nouveaux abonnés. [À COMPLÉTER : prix et offres en vigueur à la date de publication, si l'éditeur souhaite les faire figurer ici]
 
@@ -64,10 +71,18 @@ Une offre promotionnelle (par exemple un tarif de bienvenue pour un premier mois
 4. Le justificatif d'achat (reçu) est émis par la boutique et envoyé à l'adresse du compte du Membre auprès de celle-ci. [À COMPLÉTER : préciser si MAZL émet ses propres factures, notamment à l'égard de la TVA]
 5. La fonction « Restaurer » de l'Application permet de retrouver un abonnement actif lors d'un changement d'appareil.
 
+**Achats sur le Site (Stripe).**
+
+- Le Membre connecté choisit son offre sur le Site, coche la case de renoncement au droit de rétractation (article 6.2), puis est redirigé vers la page de paiement hébergée par Stripe. **MAZL est le vendeur.** **Stripe est le prestataire de paiement** de MAZL : le paiement par carte bancaire est saisi sur la page de Stripe, et **MAZL ne voit ni ne conserve le numéro de la carte** du Membre.
+- Le contrat est conclu à la confirmation du paiement. MAZL est informée du paiement par Stripe et active alors l'abonnement ou crédite les Boosts et Super Likes ; l'activation est en principe immédiate.
+- Les **factures sont émises via Stripe** et téléchargeables par le Membre dans l'espace de gestion de l'abonnement (Réglages › mazl+ › Gérer) ; une facture est également envoyée à l'adresse e-mail du compte. [À COMPLÉTER : mentions de facturation à paramétrer dans Stripe (raison sociale, adresse, numéro de TVA du vendeur) et confirmer que les factures Stripe font foi]
+
 ## 5. Durée, renouvellement automatique et résiliation de l'abonnement
 
 - L'abonnement est souscrit pour la durée choisie (1, 3, 6 ou 12 mois), puis **se renouvelle automatiquement pour une durée identique, au prix affiché au moment du renouvellement**, sauf résiliation.
-- Le Membre peut **résilier à tout moment** : la résiliation se fait **dans les réglages de son compte auprès de l'App Store** (Réglages > son nom > Abonnements > mazl+), au plus tard **24 heures avant la fin de la période en cours** pour éviter le renouvellement suivant. Supprimer l'Application, ou supprimer son compte MAZL, **ne résilie pas** l'abonnement.
+- Le Membre peut **résilier à tout moment** : la résiliation se fait **dans les réglages de son compte auprès de l'App Store** (Réglages > son nom > Abonnements > mazl+) pour un abonnement souscrit dans l'Application, au plus tard **24 heures avant la fin de la période en cours** pour éviter le renouvellement suivant. Supprimer l'Application, ou supprimer son compte MAZL, **ne résilie pas** l'abonnement App Store.
+- **Abonnement souscrit sur le Site** : le Membre le résilie à tout moment depuis le Site (Réglages › mazl+ › Gérer), avant la fin de la période en cours pour éviter le renouvellement suivant. Il conserve ses avantages jusqu'à la fin de la période payée. Le même espace permet de changer de formule, de mettre à jour le moyen de paiement et de télécharger les factures. La suppression du compte MAZL **résilie** l'abonnement souscrit sur le Site (article 9).
+- **Un seul abonnement mazl+ utile à la fois** : tant qu'un abonnement mazl+ est en cours (App Store ou Site), le Site refuse d'en souscrire un second. Si deux abonnements ont malgré tout été souscrits, un seul donne les avantages ; le Membre résilie l'autre (Site : espace de gestion ; App Store : réglages de son compte Apple) et MAZL ne rembourse pas la période du second, sauf disposition légale contraire.
 - La résiliation prend effet à la fin de la période déjà payée : le Membre conserve ses avantages jusqu'à cette date. Les périodes entamées ne sont pas remboursées au prorata, sous réserve du droit de rétractation (article 6) et des dispositions impératives.
 - Le Membre peut changer de formule (durée) selon les règles de la boutique : le passage à une durée plus longue prend effet immédiatement ; le passage à une durée plus courte prend effet au renouvellement.
 - En cas d'échec du paiement au renouvellement, la boutique peut tenter de renouveler la facturation pendant une période de grâce ; à défaut, l'abonnement expire.
@@ -85,6 +100,8 @@ Les Boosts et les Super Likes sont des **contenus numériques fournis sans suppo
 
 En conséquence, **en validant son achat, le Membre demande expressément l'exécution immédiate du service ou la fourniture immédiate du contenu numérique, reconnaît qu'il perd son droit de rétractation dès le début de l'exécution (pour un contenu numérique) ou dès la pleine exécution du service**, et y renonce expressément. Cette demande et ce renoncement sont recueillis dans l'Application avant la confirmation de l'achat, par une case ou une mention que le Membre accepte. [À COMPLÉTER : vérifier avec le développeur que cette mention et son acceptation figurent bien sur l'écran d'achat avant l'activation ; à défaut, le renoncement ne sera pas valablement recueilli]
 
+**Sur le Site**, le renoncement est recueilli par une **case à cocher obligatoire, non cochée par défaut, placée avant le paiement** ; sans elle, le paiement n'est pas ouvert. Le texte accepté est : « Je demande l'accès immédiat à mon achat et je renonce expressément à mon droit de rétractation de 14 jours dès le début de son exécution (article L221-28 13° du Code de la consommation). ». MAZL conserve la preuve de cette acceptation (Membre, offre, version et empreinte du texte, date et heure, identifiant de la session de paiement), y compris après la suppression du compte, pour la durée de la prescription, afin de pouvoir justifier du renoncement.
+
 Pour l'abonnement, lorsque le Membre n'a pas renoncé ou lorsque la loi l'exige, le délai de 14 jours court à compter de la souscription ; s'il se rétracte après avoir demandé l'exécution immédiate, il paie un montant proportionnel au service déjà fourni jusqu'à la communication de sa rétractation (article L221-25).
 
 ### 6.3 Comment se rétracter
@@ -93,11 +110,13 @@ Lorsque le droit existe, le Consommateur l'exerce en adressant une déclaration 
 
 > *Je vous notifie par la présente ma rétractation du contrat portant sur l'offre suivante : [offre] . Commandée le : [date]. Nom : [nom du Membre]. Adresse e-mail du compte : [adresse]. Date : [date].*
 
-**Les achats étant encaissés par Apple, le remboursement relève des règles de la boutique** (article 7).
+**Les achats faits dans l'Application étant encaissés par Apple, le remboursement relève des règles de la boutique ; pour un achat fait sur le Site, MAZL rembourse elle-même** (article 7).
 
 ## 7. Remboursements
 
-Le paiement ayant été encaissé par la boutique, **les demandes de remboursement sont traitées par Apple** (reportaproblem.apple.com ou la page « Signaler un problème » ; ou, pour Android, par Google Play), selon leurs conditions. MAZL ne peut pas rembourser lui-même un achat réalisé via une boutique, mais peut apporter son concours en cas de difficulté technique.
+**Achats faits sur le Site.** Les remboursements des achats faits sur le Site sont **traités par MAZL**, sur demande à [À COMPLÉTER : adresse à laquelle demander le remboursement d'un achat fait sur le Site] ou, lorsque le droit de rétractation s'applique, selon l'article 6. Le remboursement est effectué par Stripe sur le moyen de paiement utilisé. Lorsque MAZL rembourse un pack de Boosts ou de Super Likes, les crédits correspondants sont retirés du solde, qui peut devenir négatif s'ils ont déjà été utilisés ; lorsqu'elle rembourse un abonnement, l'abonnement prend fin.
+
+**Achats faits dans l'Application.** Le paiement ayant été encaissé par la boutique, **les demandes de remboursement sont traitées par Apple** (reportaproblem.apple.com ou la page « Signaler un problème » ; ou, pour Android, par Google Play), selon leurs conditions. MAZL ne peut pas rembourser lui-même un achat réalisé via une boutique, mais peut apporter son concours en cas de difficulté technique.
 
 Lorsque la boutique rembourse ou révoque un achat, MAZL est informé et en tire les conséquences : l'abonnement concerné est désactivé, et les Boosts ou Super Likes de l'achat remboursé sont retirés du solde, qui peut devenir négatif si ces crédits ont déjà été utilisés, auquel cas les achats suivants comblent d'abord cette différence.
 
@@ -109,7 +128,7 @@ Le Consommateur bénéficie de la **garantie légale de conformité** des conten
 
 ## 9. Suppression du compte et achats
 
-La suppression du compte efface les données d'abonnement et de crédits tenues par MAZL. Les crédits (Boosts, Super Likes) non utilisés sont perdus à la suppression du compte et ne sont pas remboursés, sauf disposition légale contraire. L'abonnement doit être résilié séparément dans l'App Store (article 5).
+La suppression du compte efface les données d'abonnement et de crédits tenues par MAZL. Les crédits (Boosts, Super Likes) non utilisés sont perdus à la suppression du compte et ne sont pas remboursés, sauf disposition légale contraire. **La suppression du compte résilie l'abonnement souscrit sur le Site** (MAZL le résilie auprès de Stripe avant d'effacer le compte ; si cette résiliation échoue, la suppression n'a pas lieu et le Membre peut réessayer). **Elle ne résilie pas l'abonnement souscrit via l'App Store**, qui doit être résilié séparément dans les réglages Apple (article 5). Les factures déjà émises restent conservées par Stripe et par MAZL au titre des obligations comptables.
 
 ## 10. Responsabilité
 
@@ -117,7 +136,7 @@ MAZL est tenu d'une obligation de moyens pour la fourniture des avantages payant
 
 ## 11. Données personnelles
 
-Les données nécessaires à la gestion des achats (identifiant de transaction, produit, dates, statut de l'abonnement) sont traitées selon la [Politique de confidentialité](/confidentialite.html). Les données de paiement sont traitées par Apple (ou Google).
+Les données nécessaires à la gestion des achats (identifiant de transaction, produit, dates, statut de l'abonnement) sont traitées selon la [Politique de confidentialité](/confidentialite.html). Les données de paiement sont traitées par Apple (ou Google) pour les achats dans l'Application, et par Stripe pour les achats sur le Site ; MAZL ne reçoit pas le numéro de la carte bancaire.
 
 ## 12. Réclamations, médiation et droit applicable
 

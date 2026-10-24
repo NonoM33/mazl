@@ -61,7 +61,7 @@ Signalements (motif, précisions, message visé, auteur du signalement), blocage
 
 ### 2.9 Achats
 
-Statut de l'abonnement mazl+ (formule, dates de début et d'expiration, statut), identifiants de transaction Apple, produits achetés, soldes et historique d'usage des Boosts et Super Likes. **Nous ne recevons ni votre numéro de carte, ni vos coordonnées bancaires** : ils restent chez Apple.
+Statut de l'abonnement mazl+ (formule, dates de début et d'expiration, statut), identifiants de transaction Apple, produits achetés, soldes et historique d'usage des Boosts et Super Likes. Pour un achat fait sur le site, nous conservons aussi votre identifiant client Stripe, l'identifiant de l'abonnement, l'historique de vos paiements et la preuve de votre renoncement au droit de rétractation (date, offre, version du texte). **Nous ne recevons ni votre numéro de carte, ni vos coordonnées bancaires** : ils restent chez Apple ou chez Stripe.
 
 ### 2.10 Notifications, e-mails et liste d'attente
 
@@ -137,6 +137,7 @@ Vos données sont accessibles :
 | OneSignal | Notifications push | Identifiant d'appareil, identifiant de membre, contenu de la notification | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme] |
 | Google (Sign-In) | Authentification par compte Google ; polices Google Fonts du site | Identifiant, e-mail, nom, photo du compte ; adresse IP lors du chargement des polices | États-Unis / monde : [À COMPLÉTER : mécanisme de transfert] |
 | Apple (Sign in with Apple, App Store, notifications du serveur App Store) | Authentification ; vente et facturation ; vérification des transactions | Identifiant Apple, adresse (éventuellement masquée), transactions | Apple, selon sa politique et ses mécanismes de transfert |
+| Stripe Payments Europe, Ltd (groupe Stripe) | Encaissement des paiements par carte sur le site, gestion des abonnements web, émission des factures, portail de gestion | Identifiant client Stripe, adresse e-mail, historique des paiements et des factures, identifiant de l'abonnement ; le numéro de carte est saisi chez Stripe et n'est jamais transmis à MAZL. Stripe agit pour MAZL comme sous-traitant et, pour ses propres obligations (lutte contre la fraude et le blanchiment, réglementation financière), comme responsable de traitement | Irlande / UE, avec des transferts possibles vers les États-Unis : encadrés par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
 | Institut national de l'information géographique et forestière (IGN) — Géoplateforme (data.geopf.fr) | Recherche de commune à la saisie de la ville | Texte saisi pour la recherche de commune, adresse IP | France |
 | Sites web que vous partagez dans un message | Aperçu de lien | Notre serveur consulte l'adresse partagée (le site visité voit l'adresse IP du serveur, pas la vôtre) | Variable |
 
@@ -146,7 +147,7 @@ Nous concluons avec nos sous-traitants les accords exigés par l'article 28 du R
 
 ## 7. Transferts hors de l'Union européenne
 
-Certains prestataires (Resend, OneSignal, Google, Apple) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
+Certains prestataires (Resend, OneSignal, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
 
 ## 8. Sécurité
 
