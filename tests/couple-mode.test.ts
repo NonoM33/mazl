@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
 
@@ -76,7 +76,7 @@ describe("Couple Mode API Tests", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: "test-couple@mazl.app",
-        password: TEST_PASSWORD,
+        password: THROWAWAY_CREDENTIAL,
         name: "Test Couple User",
       }),
     });

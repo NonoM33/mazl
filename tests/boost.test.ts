@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll } from "bun:test";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Integration test for boost endpoints. Requires a running server (TEST_API_URL)
 // with Postgres and dev endpoints enabled.
@@ -13,7 +13,7 @@ async function makeUser(): Promise<TestUser> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: TEST_PASSWORD, name: "Boost User" }),
+    body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: "Boost User" }),
   });
   const data = (await res.json()) as { success: boolean; user?: { id: number }; token?: string };
   if (!data.success || !data.user || !data.token) throw new Error(`makeUser: ${JSON.stringify(data)}`);

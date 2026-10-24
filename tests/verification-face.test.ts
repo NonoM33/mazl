@@ -10,7 +10,7 @@ import { PgVerificationState } from "../src/features/verification/infra/pg-verif
 import { gcmSecretVault } from "../src/features/verification/infra/secret-vault";
 import { sharedFaceEngine } from "../src/features/verification/infra/shared-face-engine";
 import { SharpImageDecoder } from "../src/features/verification/infra/sharp-image-decoder";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Integration test of the level 1 selfie verification, against a running
 // server and its Postgres.
@@ -37,7 +37,7 @@ async function makeUser(label: string): Promise<TestUser> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: TEST_PASSWORD, name: label }),
+    body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: label }),
   });
   const data = (await res.json()) as { success: boolean; user?: { id: number }; token?: string };
   if (!data.success || !data.user || !data.token) throw new Error(`makeUser(${label}): ${JSON.stringify(data)}`);

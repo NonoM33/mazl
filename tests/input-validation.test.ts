@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll } from "bun:test";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Regression: write endpoints reject malformed input with 400 (permissive zod
 // validation), while legitimate payloads keep working (covered by the other
@@ -12,7 +12,7 @@ beforeAll(async () => {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: TEST_PASSWORD, name: "Zod" }),
+    body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: "Zod" }),
   });
   token = ((await res.json()) as { token: string }).token;
 });

@@ -1,5 +1,5 @@
 import { test, expect, describe } from "bun:test";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Integration tests for the consent-based couple mode (docs/couple/CONTRAT.md).
 // Expectations are written from the contract, not from the implementation.
@@ -16,7 +16,7 @@ async function makeUser(label: string): Promise<TestUser> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: TEST_PASSWORD, name }),
+    body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name }),
   });
   const data = (await res.json()) as { success: boolean; user?: { id: number }; token?: string };
   if (!data.success || !data.user || !data.token) throw new Error(`makeUser(${label}): ${JSON.stringify(data)}`);

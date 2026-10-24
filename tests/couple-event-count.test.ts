@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { db } from "./media-helpers";
-import { TEST_PASSWORD } from "./test-password";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Regression: registering twice for the same couple event counted the couple
 // twice in current_couples, and cancelling twice removed it twice (the count
@@ -37,7 +37,7 @@ beforeAll(async () => {
     await fetch(`${BASE_URL}/api/dev/test-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: TEST_PASSWORD, name: "Event Count" }),
+      body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: "Event Count" }),
     }),
   );
   const enabled = await fetch(`${BASE_URL}/api/dev/couple/enable`, {
