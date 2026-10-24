@@ -83,8 +83,10 @@ ressembler à un champ de formulaire.
   bouton retour la ferme d'abord, par une entrée d'historique local de la route courante.
 - **Barre de réactions** : capsule compacte de 44 px, radius 999, fond `scheme.surface`, contour
   1 px `AppColors.hairline` (sombre : `dividerDark`), marge intérieure horizontale 6 px. Six cases
-  de 40 px séparées de 2 px, émoji 28 px : les six que le serveur accepte (❤️ 😂 😮 😢 😡 👍 ; 🙏 à
-  la place de 😡 si Renaud le décide). Pas de « + » : il n'y a pas de sélecteur complet dans cette
+  de 40 px séparées de 2 px, émoji 28 px : les six que le serveur accepte, dans cet ordre :
+  ❤️ 😂 😮 😢 🙏 👍 (décidé par Renaud le 2026-10-24 : 🙏 remplace 😡, qui n'a pas sa place dans une
+  appli de rencontres sérieuses). Un 😡 déjà posé reste affiché dans la pastille et peut être
+  retiré, mais ne peut plus être ajouté (contrat `docs/chat/CONTRAT.md` §1). Pas de « + » : il n'y a pas de sélecteur complet dans cette
   version. Elle s'aligne sur le CÔTÉ de la bulle (à gauche pour un message reçu, à droite pour le
   mien), jamais centrée.
 - **Mouvement** : la barre naît du coin de la bulle (échelle 0,7 → 1, ressort d'environ 260 ms),
