@@ -104,3 +104,139 @@ describe("event attendee CSV export: formula injection", () => {
     for (const hostile of hostileNames) expect(names).toContain(`'${hostile}`);
   });
 });
+
+interface CampaignRow { id: number; status: string; stats_sent: number; type: string; segment_id: number | null }
+
+async function createCampaign(extra: Record<string, unknown> = {}): Promise<number> {
+  const res = await fetch(`${BASE_URL}/api/admin/campaigns`, {
+    method: "POST",
+    headers: admin(),
+    body: JSON.stringify({ type: "email", title: "Newsletter Exemple", subject: "Bonjour", content: "<p>Shalom</p>", ...extra }),
+  });
+  const body = (await res.json()) as { campaign?: CampaignRow };
+  if (res.status !== 200 || !body.campaign) throw new Error(`createCampaign failed ${res.status}: ${JSON.stringify(body)}`);
+  return body.campaign.id;
+}
+
+const sendCampaign = (id: number | string): Promise<Response> =>
+  fetch(`${BASE_URL}/api/admin/campaigns/${id}/send`, { method: "POST", headers: admin() });
+
+const putCampaign = (id: number, body: Record<string, unknown>): Promise<Response> =>
+  fetch(`${BASE_URL}/api/admin/campaigns/${id}`, { method: "PUT", headers: admin(), body: JSON.stringify(body) });
+
+async function campaignInDb(id: number): Promise<CampaignRow> {
+  const rows = await db<CampaignRow[]>`SELECT id, status, stats_sent, type, segment_id FROM campaigns WHERE id = ${id}`;
+  return rows[0]!;
+}
+
+async function recipientCount(campaignId: number, onlyDelivered = false): Promise<number> {
+  const rows = await db<{ n: number }[]>`
+    SELECT COUNT(*)::int AS n FROM campaign_recipients
+    WHERE campaign_id = ${campaignId} AND (${!onlyDelivered} OR sent_at IS NOT NULL)`;
+  return rows[0]!.n;
+}
+
+describe("campaigns: sending", () => {
+  test("two simultaneous /send: only one goes out and every recipient is written once", async () => {
+    await makeNamedUser("Jeanne Exemple", "camp-a");
+    await makeNamedUser("Samuel Exemple", "camp-b");
+    const id = await createCampaign();
+
+    const responses = await Promise.all([sendCampaign(id), sendCampaign(id), sendCampaign(id)]);
+    const statuses = responses.map((r) => r.status).sort();
+    expect(statuses).toEqual([200, 409, 409]);
+
+    const duplicates = await db`
+      SELECT user_id, COUNT(*)::int AS n FROM campaign_recipients
+      WHERE campaign_id = ${id} GROUP BY user_id HAVING COUNT(*) > 1`;
+    expect(duplicates.length).toBe(0);
+    expect(await recipientCount(id)).toBeGreaterThan(0);
+  });
+
+  test("a campaign that was already sent cannot be sent again", async () => {
+    const id = await createCampaign();
+    expect((await sendCampaign(id)).status).toBe(200);
+    expect((await sendCampaign(id)).status).toBe(409);
+  });
+
+  test.each(["email", "push"])("%s campaign without provider keys: nothing counted as sent", async (type) => {
+    await makeNamedUser("Ruth Exemple", `camp-${type}`);
+    const id = await createCampaign({ type });
+    const res = await sendCampaign(id);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { sent: number; errors: number; total: number };
+    expect(body.total).toBeGreaterThan(0);
+    expect(body.sent).toBe(0);
+    expect(body.errors).toBe(body.total);
+
+    const row = await campaignInDb(id);
+    expect(row.stats_sent).toBe(0);
+    expect(row.status).toBe("failed");
+    expect(await recipientCount(id, true)).toBe(0);
+    expect(await recipientCount(id)).toBeGreaterThan(0);
+  });
+
+  test("a campaign tied to a segment is refused instead of going to every member", async () => {
+    await makeNamedUser("David Exemple", "camp-seg");
+    const segRes = await fetch(`${BASE_URL}/api/admin/segments`, {
+      method: "POST",
+      headers: admin(),
+      body: JSON.stringify({ name: "Paris 25-30", filters: { city: "Paris", ageMin: 25, ageMax: 30 } }),
+    });
+    const segmentId = ((await segRes.json()) as { segment: { id: number } }).segment.id;
+    const id = await createCampaign({ segmentId });
+
+    const res = await sendCampaign(id);
+    expect(res.status).toBe(409);
+    const body = (await res.json()) as { success: boolean; error: string };
+    expect(body.success).toBe(false);
+    expect(body.error).toMatch(/segment/i);
+
+    expect((await campaignInDb(id)).status).toBe("draft");
+    expect(await recipientCount(id)).toBe(0);
+  });
+
+  test("an unknown or malformed id is a 404, never a 500", async () => {
+    expect((await sendCampaign(999999999)).status).toBe(404);
+    expect((await sendCampaign("abc")).status).toBe(404);
+  });
+});
+
+describe("campaigns: editing", () => {
+  test("PUT cannot put a sent campaign back to draft", async () => {
+    const id = await createCampaign();
+    expect((await sendCampaign(id)).status).toBe(200);
+    const after = (await campaignInDb(id)).status;
+    expect(after).not.toBe("draft");
+
+    const res = await putCampaign(id, { status: "draft" });
+    expect(res.status).toBe(409);
+    expect((await campaignInDb(id)).status).toBe(after);
+  });
+
+  test("PUT cannot edit the content of a campaign that was already sent", async () => {
+    const id = await createCampaign();
+    await sendCampaign(id);
+    const res = await putCampaign(id, { title: "Titre piraté" });
+    expect(res.status).toBe(409);
+  });
+
+  test("PUT cannot mark a draft as sent or sending, nor invent a status", async () => {
+    const id = await createCampaign();
+    for (const status of ["sent", "sending", "failed", "bogus"]) {
+      expect((await putCampaign(id, { status })).status).toBe(400);
+    }
+    expect((await campaignInDb(id)).status).toBe("draft");
+    expect((await putCampaign(id, { status: "scheduled" })).status).toBe(200);
+    expect((await campaignInDb(id)).status).toBe("scheduled");
+  });
+
+  test("a campaign type outside email/push is refused at creation", async () => {
+    const res = await fetch(`${BASE_URL}/api/admin/campaigns`, {
+      method: "POST",
+      headers: admin(),
+      body: JSON.stringify({ type: "sms", title: "x", content: "y" }),
+    });
+    expect(res.status).toBe(400);
+  });
+});
