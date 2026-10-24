@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/chat/voice.dart';
 import '../../../../core/models/conversation.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/chat_failure_text.dart';
 import '../logic/chat_errors.dart';
 import '../logic/scam_flags.dart';
 import '../state/chat_controller_impl.dart';
@@ -75,19 +77,20 @@ class _ChatConversationScreenState
   }
 
   String get _otherName =>
-      widget.otherUser?.displayName ?? 'Votre correspondant';
+      widget.otherUser?.displayName ?? context.l10n.chatOtherFallbackName;
 
   ReplyDraft _draftFor(ChatMessage message, int myUserId) {
+    final l10n = context.l10n;
     final mine = message.senderId == myUserId;
     final preview = switch (message.type) {
       ChatMessageType.photo =>
-        message.content.isEmpty ? 'Photo' : message.content,
-      ChatMessageType.voice => 'Message vocal',
+        message.content.isEmpty ? l10n.chatPhotoLabel : message.content,
+      ChatMessageType.voice => l10n.chatVoiceLabel,
       ChatMessageType.text => message.content,
     };
     return ReplyDraft(
       messageId: message.id,
-      label: mine ? 'Réponse à votre message' : 'Réponse à $_otherName',
+      label: mine ? l10n.chatReplyToMine : l10n.chatReplyToOther(_otherName),
       preview: preview.length > 80 ? '${preview.substring(0, 80)}…' : preview,
     );
   }
@@ -110,13 +113,15 @@ class _ChatConversationScreenState
     return id;
   }
 
-  Future<void> _send(Future<String?> Function(int? replyToId) action) async {
-    final error = await action(_takeReply());
+  Future<void> _send(
+    Future<ChatFailure?> Function(int? replyToId) action,
+  ) async {
+    final failure = await action(_takeReply());
     if (!mounted) return;
-    if (isBlockedError(error)) {
+    if (isBlockedFailure(failure)) {
       setState(() => _blocked = true);
     } else {
-      showChatError(context, error);
+      showChatError(context, failure);
     }
   }
 
@@ -194,7 +199,7 @@ class _ChatConversationScreenState
               ),
               MessageComposer(
                 key: _composerKey,
-                disabledMessage: _blocked ? blockedConversationMessage : null,
+                disabledMessage: _blocked ? ChatFailure.blocked.text(context.l10n) : null,
                 controller: _text,
                 focusNode: _focus,
                 reply: _reply,

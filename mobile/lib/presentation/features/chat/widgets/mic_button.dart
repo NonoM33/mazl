@@ -2,6 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
+
 class ComposerRoundButton extends StatelessWidget {
   const ComposerRoundButton({
     super.key,
@@ -66,7 +68,7 @@ class MicButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
-      label: 'Maintenir pour enregistrer un vocal',
+      label: context.l10n.chatMicSemantics,
       child: RawGestureDetector(
         behavior: HitTestBehavior.opaque,
         gestures: {

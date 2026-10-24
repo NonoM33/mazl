@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
+import '../l10n/chat_preview_text.dart';
 import '../logic/chat_items.dart';
 import '../state/chat_controller.dart';
 import 'bubble_style.dart';
@@ -70,7 +72,7 @@ class MessageBubble extends StatelessWidget {
           border: Border.all(color: scheme.outline),
         ),
         child: Text(
-          'Message retiré',
+          context.l10n.chatRemovedLabel,
           style: TextStyle(
             fontSize: 15,
             height: 1.4,
@@ -97,7 +99,7 @@ class MessageBubble extends StatelessWidget {
               : EdgeInsets.zero,
           child: QuoteBlock(
             author: thread.authorOf(quote.senderId),
-            preview: quote.preview,
+            preview: chatPreviewLabel(context.l10n, quote.preview),
             mine: mine,
             onTap: thread.onQuoteTap == null
                 ? null

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
+
 /// « 3 nouveaux messages ↓ »: ink pill floating above the composer while the
 /// reader is scrolled up (docs/design/CHAT.md §3). Fades in and out.
 class NewMessagesPill extends StatelessWidget {
@@ -11,9 +13,6 @@ class NewMessagesPill extends StatelessWidget {
 
   final int count;
   final VoidCallback onTap;
-
-  static String label(int count) =>
-      count == 1 ? '1 nouveau message' : '$count nouveaux messages';
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,7 @@ class NewMessagesPill extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      label(count == 0 ? 1 : count),
+                      context.l10n.chatNewMessages(count == 0 ? 1 : count),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,

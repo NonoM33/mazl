@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../../core/chat/voice_impl.dart';
 import 'chat_feedback.dart';
 import '../logic/chat_dates.dart';
@@ -31,9 +33,11 @@ class VoiceBubbleContent extends ConsumerStatefulWidget {
   /// reloads the thread to get fresh ones.
   final VoidCallback? onPlayFailed;
 
-  /// « 1× », « 1,5× », « 2× » (decimal comma).
-  static String speedLabel(double speed) =>
-      '${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll('.', ',')}×';
+  /// « 1× », « 1,5× », « 2× » (the decimal separator of [locale]).
+  static String speedLabel(double speed, String locale) {
+    final number = NumberFormat('0.#', locale).format(speed);
+    return '$number×';
+  }
 
   @override
   ConsumerState<VoiceBubbleContent> createState() => _VoiceBubbleContentState();
@@ -81,7 +85,7 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
         await player.play(widget.voice.url, speed: _speed);
       } on Object {
         if (!mounted) return;
-        showChatSnack(context, 'Lecture impossible');
+        showChatSnack(context, context.l10n.chatVoicePlayFailed);
         widget.onPlayFailed?.call();
       }
     }
@@ -117,7 +121,9 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
       children: [
         Semantics(
           button: true,
-          label: playing ? 'Mettre en pause' : 'Lire le message vocal',
+          label: playing
+              ? context.l10n.chatVoicePause
+              : context.l10n.chatVoicePlay,
           child: GestureDetector(
             onTap: _toggle,
             child: Container(
@@ -172,7 +178,7 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      VoiceBubbleContent.speedLabel(_speed),
+                      VoiceBubbleContent.speedLabel(_speed, context.l10n.localeName),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,

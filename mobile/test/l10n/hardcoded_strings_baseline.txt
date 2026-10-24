@@ -2,21 +2,8 @@
 # Voir test/l10n/hardcoded_strings_test.dart.
 lib/core/chat/chat_api.dart | Authorization
 lib/core/chat/chat_api.dart | Bearer $jwt
-lib/core/chat/chat_api.dart | Ce message ne peut plus être retiré.
-lib/core/chat/chat_api.dart | Cette conversation n’est plus disponible.
 lib/core/chat/chat_api.dart | ChatApiException($status)
 lib/core/chat/chat_api.dart | Content-Type
-lib/core/chat/chat_api.dart | Délai dépassé, vérifiez votre connexion.
-lib/core/chat/chat_api.dart | Fichier refusé, essayez-en un autre.
-lib/core/chat/chat_api.dart | Fichier trop volumineux.
-lib/core/chat/chat_api.dart | Le serveur est indisponible, réessayez.
-lib/core/chat/chat_api.dart | Message refusé.
-lib/core/chat/chat_api.dart | Pas de connexion internet.
-lib/core/chat/chat_api.dart | Pas de connexion internet.
-lib/core/chat/chat_api.dart | Session expirée, reconnectez-vous.
-lib/core/chat/chat_api.dart | Trop d’envois, patientez un instant.
-lib/core/chat/chat_api.dart | Une erreur est survenue.
-lib/core/chat/chat_api.dart | Vous ne pouvez plus écrire dans cette conversation.
 lib/core/chat/chat_providers.dart | current user unavailable
 lib/core/chat/chat_realtime.dart | Message retiré
 lib/core/chat/chat_realtime.dart | Message vocal
@@ -82,9 +69,6 @@ lib/core/models/report_category.dart | Photos volées, identité fausse
 lib/core/models/report_category.dart | Publicité, demande d\'argent, liens suspects
 lib/core/models/report_category.dart | Spam / Arnaque
 lib/core/models/verification.dart | unknown challenge: $value
-lib/core/router/app_router.dart | Page introuvable
-lib/core/router/app_router.dart | Retour à l\'accueil
-lib/core/router/app_router.dart | Une erreur est survenue
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
@@ -181,38 +165,16 @@ lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
-lib/core/services/auth_service.dart | Apple Sign-In is only available on iOS and macOS
-lib/core/services/auth_service.dart | Apple sign-in failed: $e
-lib/core/services/auth_service.dart | Apple sign-in was cancelled
-lib/core/services/auth_service.dart | Aucun utilisateur connecté
-lib/core/services/auth_service.dart | Authentication failed
-lib/core/services/auth_service.dart | Authentication failed
 lib/core/services/auth_service.dart | Authorization
-lib/core/services/auth_service.dart | Backend authentication failed
-lib/core/services/auth_service.dart | Backend authentication failed
 lib/core/services/auth_service.dart | Bearer ${_currentUser!.jwtToken}
-lib/core/services/auth_service.dart | Connexion échouée
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
-lib/core/services/auth_service.dart | Email ou mot de passe incorrect
-lib/core/services/auth_service.dart | Erreur d\'inscription: $e
-lib/core/services/auth_service.dart | Erreur de connexion: $e
-lib/core/services/auth_service.dart | Erreur lors de l\'envoi
-lib/core/services/auth_service.dart | Erreur lors de la suppression
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Google sign-in failed: $e
-lib/core/services/auth_service.dart | Google sign-in was cancelled
-lib/core/services/auth_service.dart | Inscription échouée
-lib/core/services/auth_service.dart | Inscription échouée
 lib/core/services/auth_service.dart | La connexion fictive est réservée au mode debug.
 lib/core/services/auth_service.dart | Léa (démo)
-lib/core/services/auth_service.dart | No ID token received from Google
-lib/core/services/auth_service.dart | No identity token received from Apple
 lib/core/services/auth_service.dart | Non spécifié
 lib/core/services/couple_api_service.dart | $key holds a non-object item
 lib/core/services/couple_api_service.dart | $key is not a list
@@ -266,57 +228,7 @@ lib/core/services/http_verification_api.dart | Bearer $token
 lib/core/services/http_verification_api.dart | Bearer $token
 lib/core/services/http_verification_api.dart | Content-Type
 lib/core/services/http_verification_api.dart | unexpected response body
-lib/core/services/icebreaker_service.dart | C\'est quoi le dernier livre qui t\'a marqué ?
-lib/core/services/icebreaker_service.dart | C\'est quoi le meilleur conseil qu\'on t\'ait donné ?
-lib/core/services/icebreaker_service.dart | C\'est quoi le truc le plus spontané que tu aies fait ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta définition d\'une journée parfaite ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta fête juive préférée ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta plus belle rando ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton coin préféré à $location ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton guilty pleasure ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton plat signature ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton rapport à la culture juive ?
-lib/core/services/icebreaker_service.dart | Comment tu passes généralement Shabbat ?
-lib/core/services/icebreaker_service.dart | Il y a un bon restaurant que tu recommandes à $location ?
-lib/core/services/icebreaker_service.dart | J\'ai adoré ta réponse à "${prompt.promptText}". ${_getFollowUp(prompt.answer)}
-lib/core/services/icebreaker_service.dart | J\'aimerais en savoir plus.
-lib/core/services/icebreaker_service.dart | Je suis curieux(se) de savoir pourquoi tu as répondu "${_truncate(prompt.answer, 30)}" à la question sur ${_extractTopic(prompt.promptText)}
-lib/core/services/icebreaker_service.dart | Quel genre de musique tu écoutes en ce moment ?
-lib/core/services/icebreaker_service.dart | Quelle est ta prochaine destination de rêve ?
-lib/core/services/icebreaker_service.dart | Quelles traditions juives sont les plus importantes pour toi ?
-lib/core/services/icebreaker_service.dart | Si tu gagnais au loto demain, tu ferais quoi en premier ?
-lib/core/services/icebreaker_service.dart | Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?
-lib/core/services/icebreaker_service.dart | Ta réponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?
-lib/core/services/icebreaker_service.dart | Tu as des traditions familiales que tu gardes ?
-lib/core/services/icebreaker_service.dart | Tu as des traditions familiales spéciales ?
-lib/core/services/icebreaker_service.dart | Tu as grandi dans une famille pratiquante ?
-lib/core/services/icebreaker_service.dart | Tu as un restaurant casher préféré ?
-lib/core/services/icebreaker_service.dart | Tu as un rêve que tu n\'as pas encore réalisé ?
-lib/core/services/icebreaker_service.dart | Tu as un talent caché que peu de gens connaissent ?
-lib/core/services/icebreaker_service.dart | Tu as une fête juive préférée ?
-lib/core/services/icebreaker_service.dart | Tu as une synagogue préférée dans le coin ?
-lib/core/services/icebreaker_service.dart | Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.
-lib/core/services/icebreaker_service.dart | Tu as vu un bon film récemment ?
-lib/core/services/icebreaker_service.dart | Tu as été à un bon concert récemment ?
-lib/core/services/icebreaker_service.dart | Tu connais bien $location ? Tu me conseilles quoi ?
-lib/core/services/icebreaker_service.dart | Tu connais de beaux sentiers dans le coin ?
-lib/core/services/icebreaker_service.dart | Tu cuisines quoi de bon en ce moment ?
-lib/core/services/icebreaker_service.dart | Tu célèbres Shabbat comment généralement ?
-lib/core/services/icebreaker_service.dart | Tu célèbres quelles fêtes ?
-lib/core/services/icebreaker_service.dart | Tu es originaire de $location ou tu t\'y es installé(e) ?
-lib/core/services/icebreaker_service.dart | Tu lis quoi en ce moment ?
-lib/core/services/icebreaker_service.dart | Tu me racontes ?
-lib/core/services/icebreaker_service.dart | Tu pratiques quel sport ?
-lib/core/services/icebreaker_service.dart | Tu prends des photos de quoi principalement ?
-lib/core/services/icebreaker_service.dart | Tu préfères cinéma ou séries ?
-lib/core/services/icebreaker_service.dart | Tu préfères petit-déjeuner ou dîner dehors ?
-lib/core/services/icebreaker_service.dart | Tu préfères regarder ou pratiquer ?
-lib/core/services/icebreaker_service.dart | Tu préfères vacances à la mer ou à la montagne ?
-lib/core/services/icebreaker_service.dart | Tu utilises quoi comme appareil ?
 lib/core/services/icebreaker_service.dart | modern orthodox
-lib/core/services/icebreaker_service.dart | Ça a l\'air intéressant.
-lib/core/services/icebreaker_service.dart | Ça m\'intrigue.
-lib/core/services/icebreaker_service.dart | ça
 lib/core/services/jewish_calendar_service.dart | Paris
 lib/core/services/premium_gate.dart | Boost
 lib/core/services/premium_gate.dart | Confirmations de lecture
@@ -407,64 +319,6 @@ lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Votre
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous avez parcouru toutes vos suggestions.
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous recevez des suggestions personnalisées chaque jour
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Zones de vie compatibles
-lib/presentation/features/auth/screens/email_auth_screen.dart | Annuler
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins un chiffre
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins une majuscule
-lib/presentation/features/auth/screens/email_auth_screen.dart | Bon
-lib/presentation/features/auth/screens/email_auth_screen.dart | Cliquez sur le lien dans l\'email pour activer votre compte.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Confirmer le mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer mon compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer un compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créez votre compte MAZL
-lib/presentation/features/auth/screens/email_auth_screen.dart | Déjà un compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email de réinitialisation envoyé
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email invalide
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Entrez votre email pour recevoir un lien de réinitialisation.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Envoyer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur d\'inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur de connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Excellent
-lib/presentation/features/auth/screens/email_auth_screen.dart | Faible
-lib/presentation/features/auth/screens/email_auth_screen.dart | Fermer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | J\'accepte les Conditions d\'utilisation et la Politique de confidentialité
-lib/presentation/features/auth/screens/email_auth_screen.dart | Les mots de passe ne correspondent pas
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 2 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 8 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Moyen
-lib/presentation/features/auth/screens/email_auth_screen.dart | OK, je vais vérifier
-lib/presentation/features/auth/screens/email_auth_screen.dart | Pas encore de compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Ravi de vous revoir
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Un email de vérification a été envoyé à :
-lib/presentation/features/auth/screens/email_auth_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Veuillez accepter les conditions d\'utilisation
-lib/presentation/features/auth/screens/email_auth_screen.dart | Vérifiez votre email
-lib/presentation/features/auth/screens/login_screen.dart |  et la 
-lib/presentation/features/auth/screens/login_screen.dart | Conditions
-lib/presentation/features/auth/screens/login_screen.dart | Confidentialité
-lib/presentation/features/auth/screens/login_screen.dart | Connexion fictive (dev)
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Apple
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Google
-lib/presentation/features/auth/screens/login_screen.dart | Des rencontres sérieuses, entre personnes qui partagent vos valeurs.
-lib/presentation/features/auth/screens/login_screen.dart | En continuant, vous acceptez les 
-lib/presentation/features/auth/screens/login_screen.dart | Rencontres · Communauté juive
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Utiliser mon e-mail
 lib/presentation/features/boost/screens/boost_screen.dart | $remaining boost${remaining > 1 ? 
 lib/presentation/features/boost/screens/boost_screen.dart | ${_boostStatus!.minutesRemaining} min restantes
 lib/presentation/features/boost/screens/boost_screen.dart | 10x plus de visibilité pendant 30 min
@@ -487,121 +341,10 @@ lib/presentation/features/boost/screens/boost_screen.dart | Stats en temps réel
 lib/presentation/features/boost/screens/boost_screen.dart | Voir
 lib/presentation/features/boost/screens/boost_screen.dart | Vues
 lib/presentation/features/boost/screens/boost_screen.dart | } restant${remaining > 1 ? 
-lib/presentation/features/chat/conversation_time.dart | Hier
-lib/presentation/features/chat/logic/chat_dates.dart | ${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, 
-lib/presentation/features/chat/logic/chat_dates.dart | Aujourd'hui
-lib/presentation/features/chat/logic/chat_dates.dart | Hier
-lib/presentation/features/chat/logic/chat_dates.dart | août
-lib/presentation/features/chat/logic/chat_dates.dart | déc.
-lib/presentation/features/chat/logic/chat_dates.dart | févr.
-lib/presentation/features/chat/logic/chat_errors.dart | Cette conversation n’est plus disponible.
-lib/presentation/features/chat/logic/chat_errors.dart | Vous ne pouvez plus écrire dans cette conversation.
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Message vocal
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Photo
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Réponse à $_otherName
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Réponse à votre message
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Votre correspondant
-lib/presentation/features/chat/screens/chat_screen.dart | Bloquer
-lib/presentation/features/chat/screens/chat_screen.dart | Cet utilisateur
-lib/presentation/features/chat/screens/chat_screen.dart | Couper les notifications
-lib/presentation/features/chat/screens/chat_screen.dart | Notifications coupées pour cette conversation
-lib/presentation/features/chat/screens/chat_screen.dart | Signaler
-lib/presentation/features/chat/screens/chat_screen.dart | Voir le profil
-lib/presentation/features/chat/screens/conversations_screen.dart | $name, message non lu
-lib/presentation/features/chat/screens/conversations_screen.dart | Aucun résultat pour « ${_query.trim()} ».
-lib/presentation/features/chat/screens/conversations_screen.dart | Découvrir
-lib/presentation/features/chat/screens/conversations_screen.dart | Impossible de charger
-lib/presentation/features/chat/screens/conversations_screen.dart | Messages
-lib/presentation/features/chat/screens/conversations_screen.dart | Nouveau match
-lib/presentation/features/chat/screens/conversations_screen.dart | Pas encore de conversations
-lib/presentation/features/chat/screens/conversations_screen.dart | Rechercher
-lib/presentation/features/chat/screens/conversations_screen.dart | Réessayer
-lib/presentation/features/chat/screens/conversations_screen.dart | Utilisateur
-lib/presentation/features/chat/screens/conversations_screen.dart | Vos échanges apparaîtront ici dès votre premier match.
-lib/presentation/features/chat/screens/conversations_screen.dart | Vérifiez votre connexion, puis réessayez.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message ne peut plus être retiré.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’est pas encore envoyé.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’existe plus.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’existe plus.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Dix photos au maximum par message.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Impossible de charger la conversation.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Impossible d’envoyer pour le moment.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Réaction indisponible.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Seul l’auteur peut retirer un message.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Une erreur est survenue.
-lib/presentation/features/chat/state/chat_message_ops.dart | Message retiré
-lib/presentation/features/chat/state/chat_message_ops.dart | Message vocal
-lib/presentation/features/chat/state/chat_message_ops.dart | Photo
-lib/presentation/features/chat/widgets/attach_sheet.dart | Appareil photo
-lib/presentation/features/chat/widgets/attach_sheet.dart | Jusqu\'à 10 à la fois
-lib/presentation/features/chat/widgets/attach_sheet.dart | Photos
-lib/presentation/features/chat/widgets/chat_header.dart | Appel vidéo
-lib/presentation/features/chat/widgets/chat_header.dart | Chargement…
-lib/presentation/features/chat/widgets/chat_header.dart | En ligne
-lib/presentation/features/chat/widgets/chat_header.dart | Options
-lib/presentation/features/chat/widgets/chat_header.dart | Retour
-lib/presentation/features/chat/widgets/chat_header.dart | écrit…
-lib/presentation/features/chat/widgets/chat_scope.dart | Vous
-lib/presentation/features/chat/widgets/icebreakers_widget.dart | Besoin d\'inspiration ?
-lib/presentation/features/chat/widgets/icebreakers_widget.dart | Voici quelques idées pour briser la glace
-lib/presentation/features/chat/widgets/list_states.dart | Chargement de la conversation
-lib/presentation/features/chat/widgets/list_states.dart | Dites bonjour.
-lib/presentation/features/chat/widgets/list_states.dart | Envoyez le premier message pour briser la glace.
-lib/presentation/features/chat/widgets/list_states.dart | Nouveau match
-lib/presentation/features/chat/widgets/list_states.dart | Réessayer
-lib/presentation/features/chat/widgets/message_actions_overlay.dart | Fermer le menu
-lib/presentation/features/chat/widgets/message_bubble.dart | Message retiré
-lib/presentation/features/chat/widgets/message_composer.dart | Autorisez le micro dans les réglages pour envoyer un vocal.
-lib/presentation/features/chat/widgets/message_composer.dart | Envoyer
-lib/presentation/features/chat/widgets/message_composer.dart | Envoyer le vocal
-lib/presentation/features/chat/widgets/message_composer.dart | Impossible d\'ajouter la photo. Vérifiez les autorisations.
-lib/presentation/features/chat/widgets/message_composer.dart | Impossible d\'enregistrer pour le moment. Réessayez.
-lib/presentation/features/chat/widgets/message_composer.dart | Joindre des photos
-lib/presentation/features/chat/widgets/message_composer.dart | Maintenez le micro plus longtemps pour enregistrer.
-lib/presentation/features/chat/widgets/message_composer.dart | Maintenez le micro pour enregistrer un vocal.
-lib/presentation/features/chat/widgets/message_composer.dart | Message
-lib/presentation/features/chat/widgets/message_list.dart | Match · ${shortDate(day)}
-lib/presentation/features/chat/widgets/message_row.dart | Vu à ${clock(seenAt)}
-lib/presentation/features/chat/widgets/message_row.dart | Échec · Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Copier
-lib/presentation/features/chat/widgets/message_row_operations.dart | Merci, nous examinons ce message.
-lib/presentation/features/chat/widgets/message_row_operations.dart | Message copié
-lib/presentation/features/chat/widgets/message_row_operations.dart | Retirer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Répondre
-lib/presentation/features/chat/widgets/message_row_operations.dart | Signaler
-lib/presentation/features/chat/widgets/message_row_operations.dart | Supprimer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Supprimer
-lib/presentation/features/chat/widgets/mic_button.dart | Maintenir pour enregistrer un vocal
-lib/presentation/features/chat/widgets/new_messages_pill.dart | $count nouveaux messages
-lib/presentation/features/chat/widgets/new_messages_pill.dart | 1 nouveau message
-lib/presentation/features/chat/widgets/photo_grid.dart | Voir la photo
-lib/presentation/features/chat/widgets/photo_viewer.dart | Fermer
-lib/presentation/features/chat/widgets/reaction_pill.dart | Réactions
-lib/presentation/features/chat/widgets/recording_strip.dart | Annuler l\'enregistrement
-lib/presentation/features/chat/widgets/recording_strip.dart | Relâchez pour annuler
-lib/presentation/features/chat/widgets/recording_strip.dart | ‹ Glisser pour annuler
-lib/presentation/features/chat/widgets/reply_quote.dart | Annuler la réponse
 lib/presentation/features/chat/widgets/report_sheet.dart | Arnaque ou demande d\'argent
 lib/presentation/features/chat/widgets/report_sheet.dart | Autre
 lib/presentation/features/chat/widgets/report_sheet.dart | Contenu inapproprié
-lib/presentation/features/chat/widgets/report_sheet.dart | En cas de doute, signalez la conversation : nous l\'examinons.
-lib/presentation/features/chat/widgets/report_sheet.dart | Faites un appel vidéo avant de vous engager.
 lib/presentation/features/chat/widgets/report_sheet.dart | Harcèlement ou propos déplacés
-lib/presentation/features/chat/widgets/report_sheet.dart | Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.
-lib/presentation/features/chat/widgets/report_sheet.dart | N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.
-lib/presentation/features/chat/widgets/report_sheet.dart | Se protéger des arnaques
-lib/presentation/features/chat/widgets/report_sheet.dart | Signaler ce message
-lib/presentation/features/chat/widgets/scam_warning_card.dart | En savoir plus
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Ne transférez jamais d'argent à quelqu'un que vous n'avez pas rencontré.
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Restez prudent
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Signaler
-lib/presentation/features/chat/widgets/typing_indicator.dart | Votre correspondant écrit
-lib/presentation/features/chat/widgets/voice_bubble.dart | ${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll(
-lib/presentation/features/chat/widgets/voice_bubble.dart | Lecture impossible
-lib/presentation/features/chat/widgets/voice_bubble.dart | Lire le message vocal
-lib/presentation/features/chat/widgets/voice_bubble.dart | Mettre en pause
 lib/presentation/features/likes/screens/likes_screen.dart | ${_formatLikesCount(data.totalCount)} personnes attendent votre réponse.
 lib/presentation/features/likes/screens/likes_screen.dart | ${profile.distance!.round()} km
 lib/presentation/features/likes/screens/likes_screen.dart | Anonyme
@@ -749,26 +492,6 @@ lib/presentation/features/matching/widgets/match_sheet.dart | C\'est un match
 lib/presentation/features/matching/widgets/match_sheet.dart | Continuer à découvrir
 lib/presentation/features/matching/widgets/match_sheet.dart | Envoyer un message
 lib/presentation/features/matching/widgets/match_sheet.dart | Vous vous êtes plu.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | ${(index + 1).toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | )} / ${total.toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | AI Shadchan
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Activités et suggestions
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Bienvenue sur MAZL
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Calendrier juif partagé
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Commencer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Continuer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Découvrez des profils compatibles avec vos valeurs et votre pratique.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | L'application de rencontres pensée pour la communauté juive.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Milestones de couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Shabbat
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Notre intelligence artificielle vous aide à trouver la bonne personne.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Page ${current + 1} sur $total
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Passer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Questions quotidiennes
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Trouvez votre mazal
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | $count personnes vous ont aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | 1 personne vous a aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | Abonnement actif
@@ -902,11 +625,6 @@ lib/presentation/features/settings/screens/settings_screen.dart | Status: ${acti
 lib/presentation/features/settings/screens/settings_screen.dart | Swipes reset
 lib/presentation/features/settings/screens/settings_screen.dart | User ID: $userId
 lib/presentation/features/settings/screens/settings_screen.dart | ]} (partner: ${c[
-lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
-lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
-lib/presentation/features/video_call/screens/video_call_screen.dart | Fin
-lib/presentation/features/video_call/screens/video_call_screen.dart | Flip
-lib/presentation/features/video_call/screens/video_call_screen.dart | Micro
 lib/presentation/features/video_call/screens/video_call_screen.dart | Sarah
 lib/presentation/features/visitors/screens/visitors_screen.dart | $thisWeek cette semaine
 lib/presentation/features/visitors/screens/visitors_screen.dart | $total visite${total > 1 ? 

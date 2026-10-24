@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/chat/logic/chat_dates.dart';
 import 'package:mazl/presentation/features/chat/logic/chat_items.dart';
 
@@ -131,15 +134,20 @@ void main() {
 
   group('date labels', () {
     final now = DateTime(2026, 10, 23, 12);
+    late AppLocalizations fr;
+    setUpAll(() async {
+      await initializeDateFormatting();
+      fr = lookupAppLocalizations(const Locale('fr'));
+    });
     test('today, yesterday, then weekday and date', () {
-      expect(dayLabel(DateTime(2026, 10, 23), now), "Aujourd'hui");
-      expect(dayLabel(DateTime(2026, 10, 22), now), 'Hier');
-      expect(dayLabel(DateTime(2026, 10, 21), now), 'Mer. 21 oct.');
-      expect(dayLabel(DateTime(2025, 12, 31), now), 'Mer. 31 déc. 2025');
+      expect(dayLabel(fr, DateTime(2026, 10, 23), now), "Aujourd'hui");
+      expect(dayLabel(fr, DateTime(2026, 10, 22), now), 'Hier');
+      expect(dayLabel(fr, DateTime(2026, 10, 21), now), 'Mer. 21 oct.');
+      expect(dayLabel(fr, DateTime(2025, 12, 31), now), 'Mer. 31 déc. 2025');
     });
     test(
       'clock is zero padded',
-      () => expect(clock(DateTime(2026, 1, 1, 9, 5)), '09:05'),
+      () => expect(clock(fr, DateTime(2026, 1, 1, 9, 5)), '09:05'),
     );
     test(
       'voice duration',

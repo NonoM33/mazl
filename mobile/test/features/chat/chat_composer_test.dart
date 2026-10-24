@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/chat/voice.dart';
+import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 import 'package:mazl/presentation/features/chat/widgets/message_composer.dart';
 import 'package:mazl/presentation/features/chat/widgets/voice_capture.dart';
 
@@ -78,14 +79,14 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      final harness = ChatHarness()..actions.error = 'Message trop long.';
+      final harness = ChatHarness()..actions.error = ChatFailure.messageRejected;
       await harness.pump(tester);
       await tester.enterText(find.byType(TextField), 'Salut');
       await tester.pump(const Duration(milliseconds: 200));
       await tester.tap(_send);
       await tester.pump();
       await tester.pump();
-      expect(find.text('Message trop long.'), findsOneWidget);
+      expect(find.text('Message refusé.'), findsOneWidget);
       semantics.dispose();
     });
 
@@ -455,7 +456,7 @@ void blockedTests() {
     ) async {
       final semantics = tester.ensureSemantics();
       final harness = ChatHarness()
-        ..actions.error = 'Vous ne pouvez plus écrire dans cette conversation.';
+        ..actions.error = ChatFailure.blocked;
       await harness.pump(tester, safeBottom: 34);
       await tester.enterText(find.byType(TextField), 'Salut');
       await tester.pump(const Duration(milliseconds: 200));
@@ -476,7 +477,7 @@ void blockedTests() {
     testWidgets('a conversation that is gone is read-only too', (tester) async {
       final semantics = tester.ensureSemantics();
       final harness = ChatHarness()
-        ..actions.error = 'Cette conversation n’est plus disponible.';
+        ..actions.error = ChatFailure.conversationGone;
       await harness.pump(tester);
       await tester.enterText(find.byType(TextField), 'Salut');
       await tester.pump(const Duration(milliseconds: 200));

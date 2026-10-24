@@ -1,5 +1,655 @@
 {
   "@@locale": "fr",
+  "authLoginEyebrow": "Rencontres · Communauté juive",
+  "@authLoginEyebrow": {
+    "description": "Connexion : petite étiquette en majuscules espacées au-dessus du logo."
+  },
+  "authLoginTagline": "Des rencontres sérieuses, entre personnes qui partagent vos valeurs.",
+  "@authLoginTagline": {
+    "description": "Connexion : promesse en une phrase sous le logo (largeur 300 px, 3 lignes au plus)."
+  },
+  "authLoginApple": "Continuer avec Apple",
+  "@authLoginApple": {
+    "description": "Connexion : bouton « Sign in with Apple » (iPhone seulement)."
+  },
+  "authLoginGoogle": "Continuer avec Google",
+  "@authLoginGoogle": {
+    "description": "Connexion : bouton de connexion avec le compte Google."
+  },
+  "authLoginEmail": "Utiliser mon e-mail",
+  "@authLoginEmail": {
+    "description": "Connexion : bouton texte qui ouvre l'écran de connexion par e-mail."
+  },
+  "authLoginDev": "Connexion fictive (dev)",
+  "@authLoginDev": {
+    "description": "Connexion : bouton réservé au développement (versions de test uniquement), jamais montré aux membres."
+  },
+  "authLegal": "En continuant, vous acceptez les {terms} et la {privacy}.",
+  "@authLegal": {
+    "description": "Connexion : mention légale sous les boutons. {terms} et {privacy} sont deux liens (« Conditions », « Confidentialité ») insérés tels quels dans la phrase.",
+    "placeholders": {
+      "terms": {
+        "type": "String"
+      },
+      "privacy": {
+        "type": "String"
+      }
+    }
+  },
+  "authLegalTermsLink": "Conditions",
+  "@authLegalTermsLink": {
+    "description": "Connexion : mot cliquable « Conditions » dans la mention légale (insère dans la phrase {terms})."
+  },
+  "authLegalPrivacyLink": "Confidentialité",
+  "@authLegalPrivacyLink": {
+    "description": "Connexion : mot cliquable « Confidentialité » dans la mention légale (insère dans la phrase {privacy})."
+  },
+  "authErrorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+  "@authErrorGeneric": {
+    "description": "Connexion et inscription : erreur sans cause connue."
+  },
+  "authErrorInvalidCredentials": "Email ou mot de passe incorrect",
+  "@authErrorInvalidCredentials": {
+    "description": "Connexion par e-mail : l'adresse ou le mot de passe est faux."
+  },
+  "authErrorCancelled": "Connexion annulée.",
+  "@authErrorCancelled": {
+    "description": "Connexion avec Apple ou Google : le membre a fermé la fenêtre de connexion."
+  },
+  "authErrorEmailTaken": "Cette adresse e-mail est déjà utilisée.",
+  "@authErrorEmailTaken": {
+    "description": "Inscription : un compte existe déjà avec cette adresse e-mail."
+  },
+  "authErrorUnsupported": "Cette méthode de connexion n'est pas disponible sur cet appareil.",
+  "@authErrorUnsupported": {
+    "description": "Connexion avec Apple : proposée sur iPhone et Mac seulement."
+  },
+  "authErrorLoginFailed": "Erreur de connexion",
+  "@authErrorLoginFailed": {
+    "description": "Connexion par e-mail : échec dont la cause n'est pas connue."
+  },
+  "authErrorRegisterFailed": "Erreur d'inscription",
+  "@authErrorRegisterFailed": {
+    "description": "Inscription par e-mail : échec dont la cause n'est pas connue."
+  },
+  "authErrorTermsRequired": "Veuillez accepter les conditions d'utilisation",
+  "@authErrorTermsRequired": {
+    "description": "Inscription : le membre n'a pas coché la case des conditions d'utilisation."
+  },
+  "authEmailTitleLogin": "Connexion",
+  "@authEmailTitleLogin": {
+    "description": "Connexion par e-mail : grand titre en mode connexion."
+  },
+  "authEmailTitleRegister": "Inscription",
+  "@authEmailTitleRegister": {
+    "description": "Connexion par e-mail : grand titre en mode inscription."
+  },
+  "authEmailSubtitleLogin": "Ravi de vous revoir",
+  "@authEmailSubtitleLogin": {
+    "description": "Connexion par e-mail : phrase sous le titre en mode connexion."
+  },
+  "authEmailSubtitleRegister": "Créez votre compte MAZL",
+  "@authEmailSubtitleRegister": {
+    "description": "Connexion par e-mail : phrase sous le titre en mode inscription."
+  },
+  "authFieldName": "Prénom",
+  "@authFieldName": {
+    "description": "Inscription : titre du champ du prénom."
+  },
+  "authFieldEmail": "Email",
+  "@authFieldEmail": {
+    "description": "Connexion : titre du champ de l'adresse e-mail."
+  },
+  "authFieldPassword": "Mot de passe",
+  "@authFieldPassword": {
+    "description": "Connexion : titre du champ du mot de passe."
+  },
+  "authFieldPasswordConfirm": "Confirmer le mot de passe",
+  "@authFieldPasswordConfirm": {
+    "description": "Inscription : titre du champ qui redemande le mot de passe."
+  },
+  "authStrengthWeak": "Faible",
+  "@authStrengthWeak": {
+    "description": "Inscription : force du mot de passe, niveau le plus bas (à côté de la barre)."
+  },
+  "authStrengthFair": "Moyen",
+  "@authStrengthFair": {
+    "description": "Inscription : force du mot de passe, deuxième niveau."
+  },
+  "authStrengthGood": "Bon",
+  "@authStrengthGood": {
+    "description": "Inscription : force du mot de passe, troisième niveau."
+  },
+  "authStrengthExcellent": "Excellent",
+  "@authStrengthExcellent": {
+    "description": "Inscription : force du mot de passe, niveau le plus haut."
+  },
+  "authTermsCheckbox": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
+  "@authTermsCheckbox": {
+    "description": "Inscription : phrase à côté de la case à cocher des conditions (12 px, sur deux lignes au plus)."
+  },
+  "authForgotLink": "Mot de passe oublié ?",
+  "@authForgotLink": {
+    "description": "Connexion par e-mail : lien qui ouvre la réinitialisation du mot de passe."
+  },
+  "authSubmitLogin": "Se connecter",
+  "@authSubmitLogin": {
+    "description": "Connexion par e-mail : bouton principal en mode connexion."
+  },
+  "authSubmitRegister": "Créer mon compte",
+  "@authSubmitRegister": {
+    "description": "Connexion par e-mail : bouton principal en mode inscription."
+  },
+  "authToggleNoAccount": "Pas encore de compte ?",
+  "@authToggleNoAccount": {
+    "description": "Connexion par e-mail : question en bas du formulaire en mode connexion."
+  },
+  "authToggleHaveAccount": "Déjà un compte ?",
+  "@authToggleHaveAccount": {
+    "description": "Connexion par e-mail : question en bas du formulaire en mode inscription."
+  },
+  "authToggleCreate": "Créer un compte",
+  "@authToggleCreate": {
+    "description": "Connexion par e-mail : bouton texte qui passe en mode inscription."
+  },
+  "authToggleSignIn": "Se connecter",
+  "@authToggleSignIn": {
+    "description": "Connexion par e-mail : bouton texte qui repasse en mode connexion."
+  },
+  "authValidationEmailRequired": "Email requis",
+  "@authValidationEmailRequired": {
+    "description": "Formulaire e-mail : champ vide."
+  },
+  "authValidationEmailInvalid": "Email invalide",
+  "@authValidationEmailInvalid": {
+    "description": "Formulaire e-mail : adresse mal formée."
+  },
+  "authValidationPasswordRequired": "Mot de passe requis",
+  "@authValidationPasswordRequired": {
+    "description": "Formulaire e-mail : mot de passe vide."
+  },
+  "authValidationPasswordMin": "Minimum 8 caractères",
+  "@authValidationPasswordMin": {
+    "description": "Formulaire e-mail : mot de passe trop court (8 caractères)."
+  },
+  "authValidationPasswordUpper": "Au moins une majuscule",
+  "@authValidationPasswordUpper": {
+    "description": "Inscription : le mot de passe n'a pas de majuscule."
+  },
+  "authValidationPasswordDigit": "Au moins un chiffre",
+  "@authValidationPasswordDigit": {
+    "description": "Inscription : le mot de passe n'a pas de chiffre."
+  },
+  "authValidationPasswordMismatch": "Les mots de passe ne correspondent pas",
+  "@authValidationPasswordMismatch": {
+    "description": "Inscription : les deux mots de passe saisis diffèrent."
+  },
+  "authValidationNameRequired": "Prénom requis",
+  "@authValidationNameRequired": {
+    "description": "Inscription : prénom vide."
+  },
+  "authValidationNameMin": "Minimum 2 caractères",
+  "@authValidationNameMin": {
+    "description": "Inscription : prénom trop court (2 caractères)."
+  },
+  "authVerifyTitle": "Vérifiez votre email",
+  "@authVerifyTitle": {
+    "description": "Inscription : titre de la boîte de dialogue après la création du compte."
+  },
+  "authVerifySent": "Un email de vérification a été envoyé à :",
+  "@authVerifySent": {
+    "description": "Inscription : première ligne de la boîte de dialogue ; l'adresse du membre est affichée juste en dessous."
+  },
+  "authVerifyInstruction": "Cliquez sur le lien dans l'email pour activer votre compte.",
+  "@authVerifyInstruction": {
+    "description": "Inscription : consigne de la boîte de dialogue."
+  },
+  "authVerifyOk": "OK, je vais vérifier",
+  "@authVerifyOk": {
+    "description": "Inscription : bouton qui ferme la boîte de dialogue."
+  },
+  "authForgotTitle": "Mot de passe oublié",
+  "@authForgotTitle": {
+    "description": "Mot de passe oublié : titre de la boîte de dialogue."
+  },
+  "authForgotInstruction": "Entrez votre email pour recevoir un lien de réinitialisation.",
+  "@authForgotInstruction": {
+    "description": "Mot de passe oublié : consigne au-dessus du champ e-mail."
+  },
+  "authForgotSent": "Email de réinitialisation envoyé",
+  "@authForgotSent": {
+    "description": "Mot de passe oublié : confirmation après l'envoi du lien."
+  },
+  "authForgotSend": "Envoyer",
+  "@authForgotSend": {
+    "description": "Mot de passe oublié : bouton qui envoie le lien."
+  },
+  "authRouteErrorTitle": "Page introuvable",
+  "@authRouteErrorTitle": {
+    "description": "Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas."
+  },
+  "authRouteErrorBody": "Une erreur est survenue",
+  "@authRouteErrorBody": {
+    "description": "Page d'erreur de l'app : phrase sous le titre."
+  },
+  "authRouteErrorHome": "Retour à l'accueil",
+  "@authRouteErrorHome": {
+    "description": "Page d'erreur de l'app : bouton qui ramène à l'accueil."
+  },
+  "chatListTitle": "Messages",
+  "@chatListTitle": {
+    "description": "Conversations : titre de l'écran (grand titre, 40 px)."
+  },
+  "chatListSearchHint": "Rechercher",
+  "@chatListSearchHint": {
+    "description": "Conversations : texte d'aide du champ qui filtre la liste par prénom."
+  },
+  "chatListLoadErrorTitle": "Impossible de charger",
+  "@chatListLoadErrorTitle": {
+    "description": "Conversations : titre (34 px) quand la liste n'a pas pu être chargée."
+  },
+  "chatListLoadErrorBody": "Vérifiez votre connexion, puis réessayez.",
+  "@chatListLoadErrorBody": {
+    "description": "Conversations : phrase sous le titre d'erreur de chargement."
+  },
+  "chatListEmptyTitle": "Pas encore de conversations",
+  "@chatListEmptyTitle": {
+    "description": "Conversations : titre (34 px) quand le membre n'a encore aucune conversation."
+  },
+  "chatListEmptyBody": "Vos échanges apparaîtront ici dès votre premier match.",
+  "@chatListEmptyBody": {
+    "description": "Conversations : phrase sous le titre de l'état vide."
+  },
+  "chatListEmptyAction": "Découvrir",
+  "@chatListEmptyAction": {
+    "description": "Conversations : bouton de l'état vide qui ouvre l'écran de découverte des profils."
+  },
+  "chatListNoResults": "Aucun résultat pour « {query} ».",
+  "@chatListNoResults": {
+    "description": "Conversations : message quand la recherche par prénom ne trouve personne. {query} est ce que le membre a tapé.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "chatListUnknownMember": "Utilisateur",
+  "@chatListUnknownMember": {
+    "description": "Conversations : nom affiché quand le prénom de l'autre membre n'est pas connu."
+  },
+  "chatNewMatch": "Nouveau match",
+  "@chatNewMatch": {
+    "description": "Conversations et conversation vide : aperçu d'une conversation sans message, et petite étiquette au-dessus de « Dites bonjour »."
+  },
+  "chatListUnreadLabel": "{name}, message non lu",
+  "@chatListUnreadLabel": {
+    "description": "Conversations : phrase lue par le lecteur d'écran pour une ligne qui a des messages non lus. {name} est le prénom de l'autre membre.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatPhotoLabel": "Photo",
+  "@chatPhotoLabel": {
+    "description": "Chat : aperçu d'un message qui est une photo (liste des conversations, citation, bandeau de réponse)."
+  },
+  "chatVoiceLabel": "Message vocal",
+  "@chatVoiceLabel": {
+    "description": "Chat : aperçu d'un message vocal (liste des conversations, citation, bandeau de réponse)."
+  },
+  "chatRemovedLabel": "Message retiré",
+  "@chatRemovedLabel": {
+    "description": "Chat : texte d'un message que son auteur a retiré (bulle en italique, aperçu, citation)."
+  },
+  "chatOtherFallbackName": "Votre correspondant",
+  "@chatOtherFallbackName": {
+    "description": "Chat : mot qui remplace le prénom de l'autre membre tant qu'on ne le connaît pas (« Réponse à Votre correspondant »)."
+  },
+  "chatAuthorYou": "Vous",
+  "@chatAuthorYou": {
+    "description": "Chat : auteur d'un message quand c'est le membre lui-même (citation, liste des réactions)."
+  },
+  "chatHeaderLoading": "Chargement…",
+  "@chatHeaderLoading": {
+    "description": "Chat, en-tête : à la place du prénom pendant le chargement."
+  },
+  "chatHeaderTyping": "écrit…",
+  "@chatHeaderTyping": {
+    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre est en train d'écrire (couleur d'accent, une ligne)."
+  },
+  "chatHeaderOnline": "En ligne",
+  "@chatHeaderOnline": {
+    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
+  },
+  "chatHeaderVideoCall": "Appel vidéo",
+  "@chatHeaderVideoCall": {
+    "description": "Chat, en-tête : info-bulle du bouton qui lance un appel vidéo."
+  },
+  "chatHeaderOptions": "Options",
+  "@chatHeaderOptions": {
+    "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."
+  },
+  "chatOptionsViewProfile": "Voir le profil",
+  "@chatOptionsViewProfile": {
+    "description": "Chat, feuille d'options : ouvre le profil de l'autre membre."
+  },
+  "chatOptionsMute": "Couper les notifications",
+  "@chatOptionsMute": {
+    "description": "Chat, feuille d'options : coupe les notifications de cette conversation."
+  },
+  "chatOptionsBlock": "Bloquer",
+  "@chatOptionsBlock": {
+    "description": "Chat, feuille d'options : bloque l'autre membre (action destructive, en rouge)."
+  },
+  "chatMutedConfirmation": "Notifications coupées pour cette conversation",
+  "@chatMutedConfirmation": {
+    "description": "Chat : message bref après avoir coupé les notifications de la conversation."
+  },
+  "chatBlockFallbackName": "Cet utilisateur",
+  "@chatBlockFallbackName": {
+    "description": "Chat : nom donné à la boîte de dialogue de blocage ou de signalement quand le prénom n'est pas connu."
+  },
+  "chatLoading": "Chargement de la conversation",
+  "@chatLoading": {
+    "description": "Chat : libellé lu par le lecteur d'écran pendant le chargement des premiers messages (bulles grises)."
+  },
+  "chatEmptyTitle": "Dites bonjour.",
+  "@chatEmptyTitle": {
+    "description": "Chat : grand titre (40 px) d'une conversation sans aucun message."
+  },
+  "chatEmptyBody": "Envoyez le premier message pour briser la glace.",
+  "@chatEmptyBody": {
+    "description": "Chat : phrase sous le titre d'une conversation sans aucun message."
+  },
+  "chatMatchStart": "Match · {date}",
+  "@chatMatchStart": {
+    "description": "Chat : repère au-dessus du premier message, avec la date du match déjà mise en forme (« 21 oct. »). Affiché en majuscules espacées.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chatNewMessages": "{count, plural, =1{1 nouveau message} other{{count} nouveaux messages}}",
+  "@chatNewMessages": {
+    "description": "Chat : pilule flottante au-dessus de la zone de saisie quand des messages sont arrivés pendant que le membre lisait plus haut.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatTypingSemantics": "Votre correspondant écrit",
+  "@chatTypingSemantics": {
+    "description": "Chat : phrase lue par le lecteur d'écran pour la bulle aux trois points (l'autre membre écrit)."
+  },
+  "chatSeenAt": "Vu à {time}",
+  "@chatSeenAt": {
+    "description": "Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chatFailedRetry": "Échec · Réessayer",
+  "@chatFailedRetry": {
+    "description": "Chat : sous une bulle dont l'envoi a échoué (rouge, 12 px) ; un toucher ouvre le choix réessayer ou supprimer."
+  },
+  "chatMenuReply": "Répondre",
+  "@chatMenuReply": {
+    "description": "Chat, menu d'appui long : répondre à ce message."
+  },
+  "chatMenuCopy": "Copier",
+  "@chatMenuCopy": {
+    "description": "Chat, menu d'appui long : copie le texte du message."
+  },
+  "chatMenuUnsend": "Retirer",
+  "@chatMenuUnsend": {
+    "description": "Chat, menu d'appui long : retire un de ses propres messages envoyé il y a moins de 15 minutes (en rouge)."
+  },
+  "chatMenuClose": "Fermer le menu",
+  "@chatMenuClose": {
+    "description": "Chat : libellé lu par le lecteur d'écran pour le voile qui ferme le menu d'appui long."
+  },
+  "chatCopied": "Message copié",
+  "@chatCopied": {
+    "description": "Chat : message bref après avoir copié un message."
+  },
+  "chatReportThanks": "Merci, nous examinons ce message.",
+  "@chatReportThanks": {
+    "description": "Chat : message bref après avoir signalé un message."
+  },
+  "chatReactionsTitle": "Réactions",
+  "@chatReactionsTitle": {
+    "description": "Chat : titre de la feuille qui liste qui a réagi avec quel émoji."
+  },
+  "chatReportTitle": "Signaler ce message",
+  "@chatReportTitle": {
+    "description": "Chat : titre de la feuille qui demande pourquoi on signale un message."
+  },
+  "chatReportReasonScam": "Arnaque ou demande d'argent",
+  "@chatReportReasonScam": {
+    "description": "Chat, signalement : motif « arnaque »."
+  },
+  "chatReportReasonHarassment": "Harcèlement ou propos déplacés",
+  "@chatReportReasonHarassment": {
+    "description": "Chat, signalement : motif « harcèlement »."
+  },
+  "chatReportReasonInappropriate": "Contenu inapproprié",
+  "@chatReportReasonInappropriate": {
+    "description": "Chat, signalement : motif « contenu inapproprié »."
+  },
+  "chatReportReasonOther": "Autre",
+  "@chatReportReasonOther": {
+    "description": "Chat, signalement : motif « autre »."
+  },
+  "chatScamAdviceTitle": "Se protéger des arnaques",
+  "@chatScamAdviceTitle": {
+    "description": "Chat : titre de la feuille de conseils ouverte par « En savoir plus » sur la carte d'avertissement."
+  },
+  "chatScamAdviceMoney": "N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.",
+  "@chatScamAdviceMoney": {
+    "description": "Chat, conseils anti-arnaque : première ligne."
+  },
+  "chatScamAdviceApps": "Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.",
+  "@chatScamAdviceApps": {
+    "description": "Chat, conseils anti-arnaque : deuxième ligne. WhatsApp, Telegram et Signal sont des noms d'applications."
+  },
+  "chatScamAdviceVideo": "Faites un appel vidéo avant de vous engager.",
+  "@chatScamAdviceVideo": {
+    "description": "Chat, conseils anti-arnaque : troisième ligne."
+  },
+  "chatScamAdviceReport": "En cas de doute, signalez la conversation : nous l'examinons.",
+  "@chatScamAdviceReport": {
+    "description": "Chat, conseils anti-arnaque : dernière ligne."
+  },
+  "chatScamTitle": "Restez prudent",
+  "@chatScamTitle": {
+    "description": "Chat : titre (14 px) de la carte d'avertissement sous un message suspect."
+  },
+  "chatScamBody": "Ne transférez jamais d'argent à quelqu'un que vous n'avez pas rencontré.",
+  "@chatScamBody": {
+    "description": "Chat : phrase de la carte d'avertissement sous un message suspect."
+  },
+  "chatScamLearnMore": "En savoir plus",
+  "@chatScamLearnMore": {
+    "description": "Chat : lien de la carte d'avertissement qui ouvre les conseils."
+  },
+  "chatPhotoReveal": "Voir la photo",
+  "@chatPhotoReveal": {
+    "description": "Chat : pastille au centre d'une photo reçue et floutée ; un toucher la dévoile."
+  },
+  "chatVoicePlayFailed": "Lecture impossible",
+  "@chatVoicePlayFailed": {
+    "description": "Chat : message bref quand un message vocal ne peut pas être lu."
+  },
+  "chatVoicePlay": "Lire le message vocal",
+  "@chatVoicePlay": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton lecture d'un message vocal."
+  },
+  "chatVoicePause": "Mettre en pause",
+  "@chatVoicePause": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton pause d'un message vocal."
+  },
+  "chatComposerHint": "Message",
+  "@chatComposerHint": {
+    "description": "Chat : texte d'aide du champ de saisie du message."
+  },
+  "chatComposerAttach": "Joindre des photos",
+  "@chatComposerAttach": {
+    "description": "Chat : info-bulle du bouton « + » qui ouvre le choix de photos."
+  },
+  "chatComposerSend": "Envoyer",
+  "@chatComposerSend": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton flèche qui envoie le texte."
+  },
+  "chatComposerSendVoice": "Envoyer le vocal",
+  "@chatComposerSendVoice": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton qui envoie un vocal verrouillé."
+  },
+  "chatComposerPhotoError": "Impossible d'ajouter la photo. Vérifiez les autorisations.",
+  "@chatComposerPhotoError": {
+    "description": "Chat : message bref quand une photo n'a pas pu être ajoutée (autorisations refusées)."
+  },
+  "chatComposerMicDenied": "Autorisez le micro dans les réglages pour envoyer un vocal.",
+  "@chatComposerMicDenied": {
+    "description": "Chat : message bref quand l'accès au micro est refusé."
+  },
+  "chatComposerRecordError": "Impossible d'enregistrer pour le moment. Réessayez.",
+  "@chatComposerRecordError": {
+    "description": "Chat : message bref quand l'enregistrement n'a pas pu démarrer."
+  },
+  "chatComposerHoldLonger": "Maintenez le micro plus longtemps pour enregistrer.",
+  "@chatComposerHoldLonger": {
+    "description": "Chat : message bref quand le vocal est trop court."
+  },
+  "chatComposerHoldHint": "Maintenez le micro pour enregistrer un vocal.",
+  "@chatComposerHoldHint": {
+    "description": "Chat : message bref quand on touche le micro sans le maintenir."
+  },
+  "chatMicSemantics": "Maintenir pour enregistrer un vocal",
+  "@chatMicSemantics": {
+    "description": "Chat : libellé lu par le lecteur d'écran du bouton micro."
+  },
+  "chatAttachPhotos": "Photos",
+  "@chatAttachPhotos": {
+    "description": "Chat, feuille des pièces jointes : ligne qui ouvre la galerie."
+  },
+  "chatAttachPhotosLimit": "Jusqu'à 10 à la fois",
+  "@chatAttachPhotosLimit": {
+    "description": "Chat, feuille des pièces jointes : sous « Photos », combien on peut en choisir."
+  },
+  "chatAttachCamera": "Appareil photo",
+  "@chatAttachCamera": {
+    "description": "Chat, feuille des pièces jointes : ligne qui ouvre l'appareil photo."
+  },
+  "chatRecordingCancel": "Annuler l'enregistrement",
+  "@chatRecordingCancel": {
+    "description": "Chat : info-bulle de la corbeille qui annule un enregistrement verrouillé."
+  },
+  "chatRecordingRelease": "Relâchez pour annuler",
+  "@chatRecordingRelease": {
+    "description": "Chat, enregistrement : indication quand le doigt est assez loin pour annuler (rouge, 12 px)."
+  },
+  "chatRecordingSlide": "‹ Glisser pour annuler",
+  "@chatRecordingSlide": {
+    "description": "Chat, enregistrement : indication pendant qu'on maintient le micro. Le signe ‹ pointe vers le côté où glisser pour annuler ; il se retourne tout seul de droite à gauche."
+  },
+  "chatReplyCancel": "Annuler la réponse",
+  "@chatReplyCancel": {
+    "description": "Chat : info-bulle de la croix du bandeau « Réponse à… » au-dessus de la zone de saisie."
+  },
+  "chatReplyToOther": "Réponse à {name}",
+  "@chatReplyToOther": {
+    "description": "Chat : en haut du bandeau de réponse. {name} est le prénom de l'auteur du message cité.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatReplyToMine": "Réponse à votre message",
+  "@chatReplyToMine": {
+    "description": "Chat : en haut du bandeau de réponse quand le membre répond à l'un de ses propres messages."
+  },
+  "chatErrorSessionExpired": "Session expirée, reconnectez-vous.",
+  "@chatErrorSessionExpired": {
+    "description": "Chat : erreur 401, la connexion du membre a expiré."
+  },
+  "chatErrorCannotUnsend": "Ce message ne peut plus être retiré.",
+  "@chatErrorCannotUnsend": {
+    "description": "Chat : un message ne peut plus être retiré (au-delà de 15 minutes, ou pas le sien)."
+  },
+  "chatErrorConversationGone": "Cette conversation n’est plus disponible.",
+  "@chatErrorConversationGone": {
+    "description": "Chat : la conversation n'existe plus ou n'est plus accessible (404)."
+  },
+  "chatErrorBlocked": "Vous ne pouvez plus écrire dans cette conversation.",
+  "@chatErrorBlocked": {
+    "description": "Chat : l'un des deux membres a bloqué l'autre. Aussi affiché à la place de la zone de saisie."
+  },
+  "chatErrorTooLarge": "Fichier trop volumineux.",
+  "@chatErrorTooLarge": {
+    "description": "Chat : le fichier envoyé est trop lourd (413)."
+  },
+  "chatErrorRateLimited": "Trop d’envois, patientez un instant.",
+  "@chatErrorRateLimited": {
+    "description": "Chat : trop d'envois en peu de temps (429)."
+  },
+  "chatErrorServer": "Le serveur est indisponible, réessayez.",
+  "@chatErrorServer": {
+    "description": "Chat : le serveur est en panne (5xx)."
+  },
+  "chatErrorFileRejected": "Fichier refusé, essayez-en un autre.",
+  "@chatErrorFileRejected": {
+    "description": "Chat : le serveur a refusé le fichier (format ou contenu)."
+  },
+  "chatErrorMessageRejected": "Message refusé.",
+  "@chatErrorMessageRejected": {
+    "description": "Chat : le serveur a refusé le message (400 ou 422)."
+  },
+  "chatErrorTimeout": "Délai dépassé, vérifiez votre connexion.",
+  "@chatErrorTimeout": {
+    "description": "Chat : le serveur n'a pas répondu à temps."
+  },
+  "chatErrorNetwork": "Pas de connexion internet.",
+  "@chatErrorNetwork": {
+    "description": "Chat : le téléphone n'a pas de connexion."
+  },
+  "chatErrorUnknown": "Une erreur est survenue.",
+  "@chatErrorUnknown": {
+    "description": "Chat : erreur sans cause connue."
+  },
+  "chatErrorTooManyPhotos": "Dix photos au maximum par message.",
+  "@chatErrorTooManyPhotos": {
+    "description": "Chat : plus de dix photos choisies pour un seul message."
+  },
+  "chatErrorNotYetSent": "Ce message n’est pas encore envoyé.",
+  "@chatErrorNotYetSent": {
+    "description": "Chat : action impossible sur un message pas encore envoyé (réaction)."
+  },
+  "chatErrorMessageGone": "Ce message n’existe plus.",
+  "@chatErrorMessageGone": {
+    "description": "Chat : le message visé n'existe plus."
+  },
+  "chatErrorNotAuthor": "Seul l’auteur peut retirer un message.",
+  "@chatErrorNotAuthor": {
+    "description": "Chat : on ne peut retirer que ses propres messages."
+  },
+  "chatErrorReactionUnavailable": "Réaction indisponible.",
+  "@chatErrorReactionUnavailable": {
+    "description": "Chat : l'émoji choisi n'est pas l'une des six réactions permises."
+  },
+  "chatErrorSendUnavailable": "Impossible d’envoyer pour le moment.",
+  "@chatErrorSendUnavailable": {
+    "description": "Chat : l'envoi n'a pas pu démarrer (identité du membre introuvable)."
+  },
+  "chatErrorLoadFailed": "Impossible de charger la conversation.",
+  "@chatErrorLoadFailed": {
+    "description": "Chat : le premier chargement de la conversation a échoué."
+  },
   "commonCancel": "Annuler",
   "@commonCancel": {
     "description": "Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire."
@@ -1701,6 +2351,255 @@
       }
     }
   },
+  "icebreakerWidgetTitle": "Besoin d'inspiration ?",
+  "@icebreakerWidgetTitle": {
+    "description": "Suggestions de premier message : titre de la carte."
+  },
+  "icebreakerWidgetSubtitle": "Voici quelques idées pour briser la glace",
+  "@icebreakerWidgetSubtitle": {
+    "description": "Suggestions de premier message : sous-titre de la carte."
+  },
+  "icebreakerTopicFallback": "ça",
+  "@icebreakerTopicFallback": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Mot qui remplace le sujet de la question quand on n'en trouve pas (« …à la question sur ça »)."
+  },
+  "icebreakerPromptLoved": "J'ai adoré ta réponse à \"{promptText}\". {followUp}",
+  "@icebreakerPromptLoved": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil ; {followUp} est une phrase courte qui conclut.",
+    "placeholders": {
+      "promptText": {
+        "type": "String"
+      },
+      "followUp": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerPromptSmiled": "Ta réponse sur \"{promptText}\" m'a fait sourire. Tu peux m'en dire plus ?",
+  "@icebreakerPromptSmiled": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil.",
+    "placeholders": {
+      "promptText": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerPromptCurious": "Je suis curieux(se) de savoir pourquoi tu as répondu \"{answer}\" à la question sur {topic}",
+  "@icebreakerPromptCurious": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Curiosité sur une réponse du profil. {answer} est la réponse (raccourcie), {topic} deux mots de la question (ou « ça »).",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      },
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerFollowUpIntrigued": "Ça m'intrigue.",
+  "@icebreakerFollowUpIntrigued": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpKnowMore": "J'aimerais en savoir plus.",
+  "@icebreakerFollowUpKnowMore": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpTellMe": "Tu me racontes ?",
+  "@icebreakerFollowUpTellMe": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpInteresting": "Ça a l'air intéressant.",
+  "@icebreakerFollowUpInteresting": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerBioTravelRecent": "Tu as voyagé où récemment ? J'adorerais entendre tes histoires.",
+  "@icebreakerBioTravelRecent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage (la bio en parle)."
+  },
+  "icebreakerBioTravelDream": "Quelle est ta prochaine destination de rêve ?",
+  "@icebreakerBioTravelDream": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage."
+  },
+  "icebreakerBioMusicGenre": "Quel genre de musique tu écoutes en ce moment ?",
+  "@icebreakerBioMusicGenre": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
+  },
+  "icebreakerBioMusicConcert": "Tu as été à un bon concert récemment ?",
+  "@icebreakerBioMusicConcert": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
+  },
+  "icebreakerBioCookingNow": "Tu cuisines quoi de bon en ce moment ?",
+  "@icebreakerBioCookingNow": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
+  },
+  "icebreakerBioCookingSignature": "C'est quoi ton plat signature ?",
+  "@icebreakerBioCookingSignature": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
+  },
+  "icebreakerBioSportWhich": "Tu pratiques quel sport ?",
+  "@icebreakerBioSportWhich": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
+  },
+  "icebreakerBioSportWatchOrPlay": "Tu préfères regarder ou pratiquer ?",
+  "@icebreakerBioSportWatchOrPlay": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
+  },
+  "icebreakerBioReadingNow": "Tu lis quoi en ce moment ?",
+  "@icebreakerBioReadingNow": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
+  },
+  "icebreakerBioReadingLastBook": "C'est quoi le dernier livre qui t'a marqué ?",
+  "@icebreakerBioReadingLastBook": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
+  },
+  "icebreakerBioCinemaRecent": "Tu as vu un bon film récemment ?",
+  "@icebreakerBioCinemaRecent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
+  },
+  "icebreakerBioCinemaOrSeries": "Tu préfères cinéma ou séries ?",
+  "@icebreakerBioCinemaOrSeries": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
+  },
+  "icebreakerBioHikingTrails": "Tu connais de beaux sentiers dans le coin ?",
+  "@icebreakerBioHikingTrails": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
+  },
+  "icebreakerBioHikingBest": "C'est quoi ta plus belle rando ?",
+  "@icebreakerBioHikingBest": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
+  },
+  "icebreakerBioPhotoSubjects": "Tu prends des photos de quoi principalement ?",
+  "@icebreakerBioPhotoSubjects": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
+  },
+  "icebreakerBioPhotoCamera": "Tu utilises quoi comme appareil ?",
+  "@icebreakerBioPhotoCamera": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
+  },
+  "icebreakerOrthodoxSynagogue": "Tu as une synagogue préférée dans le coin ?",
+  "@icebreakerOrthodoxSynagogue": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerOrthodoxShabbat": "Comment tu passes généralement Shabbat ?",
+  "@icebreakerOrthodoxShabbat": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerOrthodoxKosherRestaurant": "Tu as un restaurant casher préféré ?",
+  "@icebreakerOrthodoxKosherRestaurant": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerTraditionalTraditions": "Quelles traditions juives sont les plus importantes pour toi ?",
+  "@icebreakerTraditionalTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerTraditionalShabbat": "Tu célèbres Shabbat comment généralement ?",
+  "@icebreakerTraditionalShabbat": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerTraditionalHoliday": "Tu as une fête juive préférée ?",
+  "@icebreakerTraditionalHoliday": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerSecularCulture": "C'est quoi ton rapport à la culture juive ?",
+  "@icebreakerSecularCulture": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerSecularFamilyTraditions": "Tu as des traditions familiales que tu gardes ?",
+  "@icebreakerSecularFamilyTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerSecularHolidays": "Tu célèbres quelles fêtes ?",
+  "@icebreakerSecularHolidays": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerDefaultHoliday": "C'est quoi ta fête juive préférée ?",
+  "@icebreakerDefaultHoliday": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerDefaultFamilyTraditions": "Tu as des traditions familiales spéciales ?",
+  "@icebreakerDefaultFamilyTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerDefaultPracticingFamily": "Tu as grandi dans une famille pratiquante ?",
+  "@icebreakerDefaultPracticingFamily": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerLocationKnowWell": "Tu connais bien {location} ? Tu me conseilles quoi ?",
+  "@icebreakerLocationKnowWell": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationFavoriteSpot": "C'est quoi ton coin préféré à {location} ?",
+  "@icebreakerLocationFavoriteSpot": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationOriginallyFrom": "Tu es originaire de {location} ou tu t'y es installé(e) ?",
+  "@icebreakerLocationOriginallyFrom": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationRestaurant": "Il y a un bon restaurant que tu recommandes à {location} ?",
+  "@icebreakerLocationRestaurant": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerGenericDinnerGuest": "Si tu pouvais dîner avec n'importe qui, vivant ou mort, ce serait qui ?",
+  "@icebreakerGenericDinnerGuest": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericPerfectDay": "C'est quoi ta définition d'une journée parfaite ?",
+  "@icebreakerGenericPerfectDay": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericHiddenTalent": "Tu as un talent caché que peu de gens connaissent ?",
+  "@icebreakerGenericHiddenTalent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericSpontaneous": "C'est quoi le truc le plus spontané que tu aies fait ?",
+  "@icebreakerGenericSpontaneous": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericSeaOrMountain": "Tu préfères vacances à la mer ou à la montagne ?",
+  "@icebreakerGenericSeaOrMountain": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericLottery": "Si tu gagnais au loto demain, tu ferais quoi en premier ?",
+  "@icebreakerGenericLottery": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericGuiltyPleasure": "C'est quoi ton guilty pleasure ?",
+  "@icebreakerGenericGuiltyPleasure": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericDream": "Tu as un rêve que tu n'as pas encore réalisé ?",
+  "@icebreakerGenericDream": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericBestAdvice": "C'est quoi le meilleur conseil qu'on t'ait donné ?",
+  "@icebreakerGenericBestAdvice": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericBreakfastOrDinner": "Tu préfères petit-déjeuner ou dîner dehors ?",
+  "@icebreakerGenericBreakfastOrDinner": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
   "jewishCalendarShabbatTitle": "Ce Shabbat",
   "@jewishCalendarShabbatTitle": {
     "description": "Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif."
@@ -2229,6 +3128,90 @@
   "navigationShowTabs": "Afficher les onglets",
   "@navigationShowTabs": {
     "description": "Barre d'onglets repliée en pastille : ce que lit le lecteur d'écran pour la pastille qui déplie la barre."
+  },
+  "onboardingStart": "Commencer",
+  "@onboardingStart": {
+    "description": "Présentation : bouton de la dernière page, qui ouvre la connexion."
+  },
+  "onboardingStep": "{current} / {total}",
+  "@onboardingStep": {
+    "description": "Présentation : repère en haut d'une page, numéro de la page sur le total, chiffres déjà complétés par un zéro (« 01 / 05 »).",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingPageOf": "Page {current} sur {total}",
+  "@onboardingPageOf": {
+    "description": "Présentation : libellé lu par le lecteur d'écran pour les barres de progression.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingPage1Title": "Bienvenue sur MAZL",
+  "@onboardingPage1Title": {
+    "description": "Présentation, page 1 : titre."
+  },
+  "onboardingPage1Body": "L'application de rencontres pensée pour la communauté juive.",
+  "@onboardingPage1Body": {
+    "description": "Présentation, page 1 : texte."
+  },
+  "onboardingPage2Title": "Trouvez votre mazal",
+  "@onboardingPage2Title": {
+    "description": "Présentation, page 2 : titre. « mazal » est le mot hébreu pour la chance."
+  },
+  "onboardingPage2Body": "Découvrez des profils compatibles avec vos valeurs et votre pratique.",
+  "@onboardingPage2Body": {
+    "description": "Présentation, page 2 : texte. « pratique » désigne la pratique religieuse."
+  },
+  "onboardingPage3Title": "Mode Couple",
+  "@onboardingPage3Title": {
+    "description": "Présentation, page 3 : titre (le mode Couple de l'app)."
+  },
+  "onboardingPage3Body": "Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.",
+  "@onboardingPage3Body": {
+    "description": "Présentation, page 3 : texte."
+  },
+  "onboardingPage3Feature1": "Questions quotidiennes",
+  "@onboardingPage3Feature1": {
+    "description": "Présentation, page 3 : première ligne de la liste du mode Couple."
+  },
+  "onboardingPage3Feature2": "Milestones de couple",
+  "@onboardingPage3Feature2": {
+    "description": "Présentation, page 3 : deuxième ligne de la liste."
+  },
+  "onboardingPage3Feature3": "Calendrier juif partagé",
+  "@onboardingPage3Feature3": {
+    "description": "Présentation, page 3 : troisième ligne de la liste."
+  },
+  "onboardingPage3Feature4": "Activités et suggestions",
+  "@onboardingPage3Feature4": {
+    "description": "Présentation, page 3 : quatrième ligne de la liste."
+  },
+  "onboardingPage4Title": "Mode Shabbat",
+  "@onboardingPage4Title": {
+    "description": "Présentation, page 4 : titre (le mode Shabbat de l'app)."
+  },
+  "onboardingPage4Body": "Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.",
+  "@onboardingPage4Body": {
+    "description": "Présentation, page 4 : texte."
+  },
+  "onboardingPage5Title": "AI Shadchan",
+  "@onboardingPage5Title": {
+    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+  },
+  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "@onboardingPage5Body": {
+    "description": "Présentation, page 5 : texte."
   },
   "profileMyProfile": "Mon profil",
   "@profileMyProfile": {
@@ -4424,5 +5407,25 @@
   "verificationNfcAlertDone": "Terminé.",
   "@verificationNfcAlertDone": {
     "description": "Feuille système NFC d'iPhone : message de fin quand la lecture a réussi."
+  },
+  "videoCallInProgress": "Appel en cours...",
+  "@videoCallInProgress": {
+    "description": "Appel vidéo : texte sous le prénom pendant l'appel."
+  },
+  "videoCallFlip": "Flip",
+  "@videoCallFlip": {
+    "description": "Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône)."
+  },
+  "videoCallCamera": "Caméra",
+  "@videoCallCamera": {
+    "description": "Appel vidéo : bouton qui coupe ou remet la caméra."
+  },
+  "videoCallMic": "Micro",
+  "@videoCallMic": {
+    "description": "Appel vidéo : bouton qui coupe ou remet le micro."
+  },
+  "videoCallEnd": "Fin",
+  "@videoCallEnd": {
+    "description": "Appel vidéo : bouton rouge qui raccroche."
   }
 }

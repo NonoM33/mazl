@@ -117,7 +117,10 @@ class _ReactionBarState extends State<ReactionBar>
         local.dy > size.height) {
       return null;
     }
-    final x = local.dx - ReactionBar.border - ReactionBar.padding;
+    // Slots run from the START side: right to left in a right-to-left language.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final fromStart = rtl ? size.width - local.dx : local.dx;
+    final x = fromStart - ReactionBar.border - ReactionBar.padding;
     final index = (x / (ReactionBar.slot + ReactionBar.gap)).floor();
     return index.clamp(0, allowedReactions.length - 1);
   }
@@ -197,7 +200,9 @@ class _ReactionBarState extends State<ReactionBar>
       child: capsule,
       builder: (context, child) => Transform.scale(
         scale: _grow.value,
-        alignment: widget.mine ? Alignment.bottomRight : Alignment.bottomLeft,
+        alignment: widget.mine
+            ? AlignmentDirectional.bottomEnd
+            : AlignmentDirectional.bottomStart,
         child: child,
       ),
     );

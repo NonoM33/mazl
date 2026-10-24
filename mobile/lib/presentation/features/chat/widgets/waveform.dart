@@ -45,17 +45,25 @@ class Waveform extends StatelessWidget {
     width: width,
     height: maxHeight,
     child: CustomPaint(
-      painter: _WaveformPainter(resample(values), progress, color),
+      painter: _WaveformPainter(
+        resample(values),
+        progress,
+        color,
+        rtl: Directionality.of(context) == TextDirection.rtl,
+      ),
     ),
   );
 }
 
 class _WaveformPainter extends CustomPainter {
-  _WaveformPainter(this.levels, this.progress, this.color);
+  _WaveformPainter(this.levels, this.progress, this.color, {required this.rtl});
 
   final List<double> levels;
   final double progress;
   final Color color;
+
+  /// Right to left: the clip is drawn, and plays, from the right.
+  final bool rtl;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -65,7 +73,8 @@ class _WaveformPainter extends CustomPainter {
       final height =
           Waveform.minHeight +
           (Waveform.maxHeight - Waveform.minHeight) * levels[i].clamp(0.0, 1.0);
-      final x = i * (Waveform.barWidth + Waveform.barGap);
+      final fromStart = i * (Waveform.barWidth + Waveform.barGap);
+      final x = rtl ? size.width - Waveform.barWidth - fromStart : fromStart;
       final rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(x, (size.height - height) / 2, Waveform.barWidth, height),
         const Radius.circular(1.5),
@@ -79,5 +88,8 @@ class _WaveformPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WaveformPainter old) =>
-      old.progress != progress || old.color != color || old.levels != levels;
+      old.progress != progress ||
+      old.color != color ||
+      old.levels != levels ||
+      old.rtl != rtl;
 }

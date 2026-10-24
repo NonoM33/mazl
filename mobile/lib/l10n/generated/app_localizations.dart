@@ -104,6 +104,924 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// Connexion : petite étiquette en majuscules espacées au-dessus du logo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rencontres · Communauté juive'**
+  String get authLoginEyebrow;
+
+  /// Connexion : promesse en une phrase sous le logo (largeur 300 px, 3 lignes au plus).
+  ///
+  /// In fr, this message translates to:
+  /// **'Des rencontres sérieuses, entre personnes qui partagent vos valeurs.'**
+  String get authLoginTagline;
+
+  /// Connexion : bouton « Sign in with Apple » (iPhone seulement).
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get authLoginApple;
+
+  /// Connexion : bouton de connexion avec le compte Google.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get authLoginGoogle;
+
+  /// Connexion : bouton texte qui ouvre l'écran de connexion par e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser mon e-mail'**
+  String get authLoginEmail;
+
+  /// Connexion : bouton réservé au développement (versions de test uniquement), jamais montré aux membres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion fictive (dev)'**
+  String get authLoginDev;
+
+  /// Connexion : mention légale sous les boutons. {terms} et {privacy} sont deux liens (« Conditions », « Confidentialité ») insérés tels quels dans la phrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'En continuant, vous acceptez les {terms} et la {privacy}.'**
+  String authLegal(String terms, String privacy);
+
+  /// Connexion : mot cliquable « Conditions » dans la mention légale (insère dans la phrase {terms}).
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions'**
+  String get authLegalTermsLink;
+
+  /// Connexion : mot cliquable « Confidentialité » dans la mention légale (insère dans la phrase {privacy}).
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get authLegalPrivacyLink;
+
+  /// Connexion et inscription : erreur sans cause connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Veuillez réessayer.'**
+  String get authErrorGeneric;
+
+  /// Connexion par e-mail : l'adresse ou le mot de passe est faux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email ou mot de passe incorrect'**
+  String get authErrorInvalidCredentials;
+
+  /// Connexion avec Apple ou Google : le membre a fermé la fenêtre de connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion annulée.'**
+  String get authErrorCancelled;
+
+  /// Inscription : un compte existe déjà avec cette adresse e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette adresse e-mail est déjà utilisée.'**
+  String get authErrorEmailTaken;
+
+  /// Connexion avec Apple : proposée sur iPhone et Mac seulement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette méthode de connexion n\'est pas disponible sur cet appareil.'**
+  String get authErrorUnsupported;
+
+  /// Connexion par e-mail : échec dont la cause n'est pas connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion'**
+  String get authErrorLoginFailed;
+
+  /// Inscription par e-mail : échec dont la cause n'est pas connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur d\'inscription'**
+  String get authErrorRegisterFailed;
+
+  /// Inscription : le membre n'a pas coché la case des conditions d'utilisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez accepter les conditions d\'utilisation'**
+  String get authErrorTermsRequired;
+
+  /// Connexion par e-mail : grand titre en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get authEmailTitleLogin;
+
+  /// Connexion par e-mail : grand titre en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription'**
+  String get authEmailTitleRegister;
+
+  /// Connexion par e-mail : phrase sous le titre en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ravi de vous revoir'**
+  String get authEmailSubtitleLogin;
+
+  /// Connexion par e-mail : phrase sous le titre en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre compte MAZL'**
+  String get authEmailSubtitleRegister;
+
+  /// Inscription : titre du champ du prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom'**
+  String get authFieldName;
+
+  /// Connexion : titre du champ de l'adresse e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get authFieldEmail;
+
+  /// Connexion : titre du champ du mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authFieldPassword;
+
+  /// Inscription : titre du champ qui redemande le mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get authFieldPasswordConfirm;
+
+  /// Inscription : force du mot de passe, niveau le plus bas (à côté de la barre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible'**
+  String get authStrengthWeak;
+
+  /// Inscription : force du mot de passe, deuxième niveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get authStrengthFair;
+
+  /// Inscription : force du mot de passe, troisième niveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon'**
+  String get authStrengthGood;
+
+  /// Inscription : force du mot de passe, niveau le plus haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get authStrengthExcellent;
+
+  /// Inscription : phrase à côté de la case à cocher des conditions (12 px, sur deux lignes au plus).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité'**
+  String get authTermsCheckbox;
+
+  /// Connexion par e-mail : lien qui ouvre la réinitialisation du mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié ?'**
+  String get authForgotLink;
+
+  /// Connexion par e-mail : bouton principal en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authSubmitLogin;
+
+  /// Connexion par e-mail : bouton principal en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get authSubmitRegister;
+
+  /// Connexion par e-mail : question en bas du formulaire en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ?'**
+  String get authToggleNoAccount;
+
+  /// Connexion par e-mail : question en bas du formulaire en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte ?'**
+  String get authToggleHaveAccount;
+
+  /// Connexion par e-mail : bouton texte qui passe en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get authToggleCreate;
+
+  /// Connexion par e-mail : bouton texte qui repasse en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authToggleSignIn;
+
+  /// Formulaire e-mail : champ vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email requis'**
+  String get authValidationEmailRequired;
+
+  /// Formulaire e-mail : adresse mal formée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide'**
+  String get authValidationEmailInvalid;
+
+  /// Formulaire e-mail : mot de passe vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe requis'**
+  String get authValidationPasswordRequired;
+
+  /// Formulaire e-mail : mot de passe trop court (8 caractères).
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 8 caractères'**
+  String get authValidationPasswordMin;
+
+  /// Inscription : le mot de passe n'a pas de majuscule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins une majuscule'**
+  String get authValidationPasswordUpper;
+
+  /// Inscription : le mot de passe n'a pas de chiffre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins un chiffre'**
+  String get authValidationPasswordDigit;
+
+  /// Inscription : les deux mots de passe saisis diffèrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les mots de passe ne correspondent pas'**
+  String get authValidationPasswordMismatch;
+
+  /// Inscription : prénom vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom requis'**
+  String get authValidationNameRequired;
+
+  /// Inscription : prénom trop court (2 caractères).
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 2 caractères'**
+  String get authValidationNameMin;
+
+  /// Inscription : titre de la boîte de dialogue après la création du compte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre email'**
+  String get authVerifyTitle;
+
+  /// Inscription : première ligne de la boîte de dialogue ; l'adresse du membre est affichée juste en dessous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un email de vérification a été envoyé à :'**
+  String get authVerifySent;
+
+  /// Inscription : consigne de la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez sur le lien dans l\'email pour activer votre compte.'**
+  String get authVerifyInstruction;
+
+  /// Inscription : bouton qui ferme la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK, je vais vérifier'**
+  String get authVerifyOk;
+
+  /// Mot de passe oublié : titre de la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié'**
+  String get authForgotTitle;
+
+  /// Mot de passe oublié : consigne au-dessus du champ e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre email pour recevoir un lien de réinitialisation.'**
+  String get authForgotInstruction;
+
+  /// Mot de passe oublié : confirmation après l'envoi du lien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email de réinitialisation envoyé'**
+  String get authForgotSent;
+
+  /// Mot de passe oublié : bouton qui envoie le lien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get authForgotSend;
+
+  /// Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page introuvable'**
+  String get authRouteErrorTitle;
+
+  /// Page d'erreur de l'app : phrase sous le titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue'**
+  String get authRouteErrorBody;
+
+  /// Page d'erreur de l'app : bouton qui ramène à l'accueil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à l\'accueil'**
+  String get authRouteErrorHome;
+
+  /// Conversations : titre de l'écran (grand titre, 40 px).
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages'**
+  String get chatListTitle;
+
+  /// Conversations : texte d'aide du champ qui filtre la liste par prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get chatListSearchHint;
+
+  /// Conversations : titre (34 px) quand la liste n'a pas pu être chargée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger'**
+  String get chatListLoadErrorTitle;
+
+  /// Conversations : phrase sous le titre d'erreur de chargement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre connexion, puis réessayez.'**
+  String get chatListLoadErrorBody;
+
+  /// Conversations : titre (34 px) quand le membre n'a encore aucune conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de conversations'**
+  String get chatListEmptyTitle;
+
+  /// Conversations : phrase sous le titre de l'état vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos échanges apparaîtront ici dès votre premier match.'**
+  String get chatListEmptyBody;
+
+  /// Conversations : bouton de l'état vide qui ouvre l'écran de découverte des profils.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir'**
+  String get chatListEmptyAction;
+
+  /// Conversations : message quand la recherche par prénom ne trouve personne. {query} est ce que le membre a tapé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat pour « {query} ».'**
+  String chatListNoResults(String query);
+
+  /// Conversations : nom affiché quand le prénom de l'autre membre n'est pas connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get chatListUnknownMember;
+
+  /// Conversations et conversation vide : aperçu d'une conversation sans message, et petite étiquette au-dessus de « Dites bonjour ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau match'**
+  String get chatNewMatch;
+
+  /// Conversations : phrase lue par le lecteur d'écran pour une ligne qui a des messages non lus. {name} est le prénom de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, message non lu'**
+  String chatListUnreadLabel(String name);
+
+  /// Chat : aperçu d'un message qui est une photo (liste des conversations, citation, bandeau de réponse).
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo'**
+  String get chatPhotoLabel;
+
+  /// Chat : aperçu d'un message vocal (liste des conversations, citation, bandeau de réponse).
+  ///
+  /// In fr, this message translates to:
+  /// **'Message vocal'**
+  String get chatVoiceLabel;
+
+  /// Chat : texte d'un message que son auteur a retiré (bulle en italique, aperçu, citation).
+  ///
+  /// In fr, this message translates to:
+  /// **'Message retiré'**
+  String get chatRemovedLabel;
+
+  /// Chat : mot qui remplace le prénom de l'autre membre tant qu'on ne le connaît pas (« Réponse à Votre correspondant »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre correspondant'**
+  String get chatOtherFallbackName;
+
+  /// Chat : auteur d'un message quand c'est le membre lui-même (citation, liste des réactions).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous'**
+  String get chatAuthorYou;
+
+  /// Chat, en-tête : à la place du prénom pendant le chargement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement…'**
+  String get chatHeaderLoading;
+
+  /// Chat, en-tête : statut sous le prénom quand l'autre membre est en train d'écrire (couleur d'accent, une ligne).
+  ///
+  /// In fr, this message translates to:
+  /// **'écrit…'**
+  String get chatHeaderTyping;
+
+  /// Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get chatHeaderOnline;
+
+  /// Chat, en-tête : info-bulle du bouton qui lance un appel vidéo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appel vidéo'**
+  String get chatHeaderVideoCall;
+
+  /// Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Options'**
+  String get chatHeaderOptions;
+
+  /// Chat, feuille d'options : ouvre le profil de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get chatOptionsViewProfile;
+
+  /// Chat, feuille d'options : coupe les notifications de cette conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper les notifications'**
+  String get chatOptionsMute;
+
+  /// Chat, feuille d'options : bloque l'autre membre (action destructive, en rouge).
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer'**
+  String get chatOptionsBlock;
+
+  /// Chat : message bref après avoir coupé les notifications de la conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications coupées pour cette conversation'**
+  String get chatMutedConfirmation;
+
+  /// Chat : nom donné à la boîte de dialogue de blocage ou de signalement quand le prénom n'est pas connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet utilisateur'**
+  String get chatBlockFallbackName;
+
+  /// Chat : libellé lu par le lecteur d'écran pendant le chargement des premiers messages (bulles grises).
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement de la conversation'**
+  String get chatLoading;
+
+  /// Chat : grand titre (40 px) d'une conversation sans aucun message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dites bonjour.'**
+  String get chatEmptyTitle;
+
+  /// Chat : phrase sous le titre d'une conversation sans aucun message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyez le premier message pour briser la glace.'**
+  String get chatEmptyBody;
+
+  /// Chat : repère au-dessus du premier message, avec la date du match déjà mise en forme (« 21 oct. »). Affiché en majuscules espacées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match · {date}'**
+  String chatMatchStart(String date);
+
+  /// Chat : pilule flottante au-dessus de la zone de saisie quand des messages sont arrivés pendant que le membre lisait plus haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 nouveau message} other{{count} nouveaux messages}}'**
+  String chatNewMessages(int count);
+
+  /// Chat : phrase lue par le lecteur d'écran pour la bulle aux trois points (l'autre membre écrit).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre correspondant écrit'**
+  String get chatTypingSemantics;
+
+  /// Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vu à {time}'**
+  String chatSeenAt(String time);
+
+  /// Chat : sous une bulle dont l'envoi a échoué (rouge, 12 px) ; un toucher ouvre le choix réessayer ou supprimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec · Réessayer'**
+  String get chatFailedRetry;
+
+  /// Chat, menu d'appui long : répondre à ce message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondre'**
+  String get chatMenuReply;
+
+  /// Chat, menu d'appui long : copie le texte du message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier'**
+  String get chatMenuCopy;
+
+  /// Chat, menu d'appui long : retire un de ses propres messages envoyé il y a moins de 15 minutes (en rouge).
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get chatMenuUnsend;
+
+  /// Chat : libellé lu par le lecteur d'écran pour le voile qui ferme le menu d'appui long.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer le menu'**
+  String get chatMenuClose;
+
+  /// Chat : message bref après avoir copié un message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message copié'**
+  String get chatCopied;
+
+  /// Chat : message bref après avoir signalé un message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci, nous examinons ce message.'**
+  String get chatReportThanks;
+
+  /// Chat : titre de la feuille qui liste qui a réagi avec quel émoji.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réactions'**
+  String get chatReactionsTitle;
+
+  /// Chat : titre de la feuille qui demande pourquoi on signale un message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler ce message'**
+  String get chatReportTitle;
+
+  /// Chat, signalement : motif « arnaque ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Arnaque ou demande d\'argent'**
+  String get chatReportReasonScam;
+
+  /// Chat, signalement : motif « harcèlement ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement ou propos déplacés'**
+  String get chatReportReasonHarassment;
+
+  /// Chat, signalement : motif « contenu inapproprié ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu inapproprié'**
+  String get chatReportReasonInappropriate;
+
+  /// Chat, signalement : motif « autre ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get chatReportReasonOther;
+
+  /// Chat : titre de la feuille de conseils ouverte par « En savoir plus » sur la carte d'avertissement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se protéger des arnaques'**
+  String get chatScamAdviceTitle;
+
+  /// Chat, conseils anti-arnaque : première ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'N\'envoyez jamais d\'argent, de carte cadeau ou de cryptomonnaie.'**
+  String get chatScamAdviceMoney;
+
+  /// Chat, conseils anti-arnaque : deuxième ligne. WhatsApp, Telegram et Signal sont des noms d'applications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.'**
+  String get chatScamAdviceApps;
+
+  /// Chat, conseils anti-arnaque : troisième ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faites un appel vidéo avant de vous engager.'**
+  String get chatScamAdviceVideo;
+
+  /// Chat, conseils anti-arnaque : dernière ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas de doute, signalez la conversation : nous l\'examinons.'**
+  String get chatScamAdviceReport;
+
+  /// Chat : titre (14 px) de la carte d'avertissement sous un message suspect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restez prudent'**
+  String get chatScamTitle;
+
+  /// Chat : phrase de la carte d'avertissement sous un message suspect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne transférez jamais d\'argent à quelqu\'un que vous n\'avez pas rencontré.'**
+  String get chatScamBody;
+
+  /// Chat : lien de la carte d'avertissement qui ouvre les conseils.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get chatScamLearnMore;
+
+  /// Chat : pastille au centre d'une photo reçue et floutée ; un toucher la dévoile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la photo'**
+  String get chatPhotoReveal;
+
+  /// Chat : message bref quand un message vocal ne peut pas être lu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture impossible'**
+  String get chatVoicePlayFailed;
+
+  /// Chat : libellé lu par le lecteur d'écran du bouton lecture d'un message vocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire le message vocal'**
+  String get chatVoicePlay;
+
+  /// Chat : libellé lu par le lecteur d'écran du bouton pause d'un message vocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre en pause'**
+  String get chatVoicePause;
+
+  /// Chat : texte d'aide du champ de saisie du message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get chatComposerHint;
+
+  /// Chat : info-bulle du bouton « + » qui ouvre le choix de photos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joindre des photos'**
+  String get chatComposerAttach;
+
+  /// Chat : libellé lu par le lecteur d'écran du bouton flèche qui envoie le texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get chatComposerSend;
+
+  /// Chat : libellé lu par le lecteur d'écran du bouton qui envoie un vocal verrouillé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le vocal'**
+  String get chatComposerSendVoice;
+
+  /// Chat : message bref quand une photo n'a pas pu être ajoutée (autorisations refusées).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ajouter la photo. Vérifiez les autorisations.'**
+  String get chatComposerPhotoError;
+
+  /// Chat : message bref quand l'accès au micro est refusé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez le micro dans les réglages pour envoyer un vocal.'**
+  String get chatComposerMicDenied;
+
+  /// Chat : message bref quand l'enregistrement n'a pas pu démarrer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer pour le moment. Réessayez.'**
+  String get chatComposerRecordError;
+
+  /// Chat : message bref quand le vocal est trop court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez le micro plus longtemps pour enregistrer.'**
+  String get chatComposerHoldLonger;
+
+  /// Chat : message bref quand on touche le micro sans le maintenir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez le micro pour enregistrer un vocal.'**
+  String get chatComposerHoldHint;
+
+  /// Chat : libellé lu par le lecteur d'écran du bouton micro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenir pour enregistrer un vocal'**
+  String get chatMicSemantics;
+
+  /// Chat, feuille des pièces jointes : ligne qui ouvre la galerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos'**
+  String get chatAttachPhotos;
+
+  /// Chat, feuille des pièces jointes : sous « Photos », combien on peut en choisir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu\'à 10 à la fois'**
+  String get chatAttachPhotosLimit;
+
+  /// Chat, feuille des pièces jointes : ligne qui ouvre l'appareil photo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareil photo'**
+  String get chatAttachCamera;
+
+  /// Chat : info-bulle de la corbeille qui annule un enregistrement verrouillé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler l\'enregistrement'**
+  String get chatRecordingCancel;
+
+  /// Chat, enregistrement : indication quand le doigt est assez loin pour annuler (rouge, 12 px).
+  ///
+  /// In fr, this message translates to:
+  /// **'Relâchez pour annuler'**
+  String get chatRecordingRelease;
+
+  /// Chat, enregistrement : indication pendant qu'on maintient le micro. Le signe ‹ pointe vers le côté où glisser pour annuler ; il se retourne tout seul de droite à gauche.
+  ///
+  /// In fr, this message translates to:
+  /// **'‹ Glisser pour annuler'**
+  String get chatRecordingSlide;
+
+  /// Chat : info-bulle de la croix du bandeau « Réponse à… » au-dessus de la zone de saisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la réponse'**
+  String get chatReplyCancel;
+
+  /// Chat : en haut du bandeau de réponse. {name} est le prénom de l'auteur du message cité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse à {name}'**
+  String chatReplyToOther(String name);
+
+  /// Chat : en haut du bandeau de réponse quand le membre répond à l'un de ses propres messages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse à votre message'**
+  String get chatReplyToMine;
+
+  /// Chat : erreur 401, la connexion du membre a expiré.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée, reconnectez-vous.'**
+  String get chatErrorSessionExpired;
+
+  /// Chat : un message ne peut plus être retiré (au-delà de 15 minutes, ou pas le sien).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce message ne peut plus être retiré.'**
+  String get chatErrorCannotUnsend;
+
+  /// Chat : la conversation n'existe plus ou n'est plus accessible (404).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette conversation n’est plus disponible.'**
+  String get chatErrorConversationGone;
+
+  /// Chat : l'un des deux membres a bloqué l'autre. Aussi affiché à la place de la zone de saisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne pouvez plus écrire dans cette conversation.'**
+  String get chatErrorBlocked;
+
+  /// Chat : le fichier envoyé est trop lourd (413).
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier trop volumineux.'**
+  String get chatErrorTooLarge;
+
+  /// Chat : trop d'envois en peu de temps (429).
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop d’envois, patientez un instant.'**
+  String get chatErrorRateLimited;
+
+  /// Chat : le serveur est en panne (5xx).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur est indisponible, réessayez.'**
+  String get chatErrorServer;
+
+  /// Chat : le serveur a refusé le fichier (format ou contenu).
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier refusé, essayez-en un autre.'**
+  String get chatErrorFileRejected;
+
+  /// Chat : le serveur a refusé le message (400 ou 422).
+  ///
+  /// In fr, this message translates to:
+  /// **'Message refusé.'**
+  String get chatErrorMessageRejected;
+
+  /// Chat : le serveur n'a pas répondu à temps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai dépassé, vérifiez votre connexion.'**
+  String get chatErrorTimeout;
+
+  /// Chat : le téléphone n'a pas de connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion internet.'**
+  String get chatErrorNetwork;
+
+  /// Chat : erreur sans cause connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue.'**
+  String get chatErrorUnknown;
+
+  /// Chat : plus de dix photos choisies pour un seul message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dix photos au maximum par message.'**
+  String get chatErrorTooManyPhotos;
+
+  /// Chat : action impossible sur un message pas encore envoyé (réaction).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce message n’est pas encore envoyé.'**
+  String get chatErrorNotYetSent;
+
+  /// Chat : le message visé n'existe plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce message n’existe plus.'**
+  String get chatErrorMessageGone;
+
+  /// Chat : on ne peut retirer que ses propres messages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul l’auteur peut retirer un message.'**
+  String get chatErrorNotAuthor;
+
+  /// Chat : l'émoji choisi n'est pas l'une des six réactions permises.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réaction indisponible.'**
+  String get chatErrorReactionUnavailable;
+
+  /// Chat : l'envoi n'a pas pu démarrer (identité du membre introuvable).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’envoyer pour le moment.'**
+  String get chatErrorSendUnavailable;
+
+  /// Chat : le premier chargement de la conversation a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger la conversation.'**
+  String get chatErrorLoadFailed;
+
   /// Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire.
   ///
   /// In fr, this message translates to:
@@ -2184,6 +3102,318 @@ abstract class AppLocalizations {
   /// **'Rejoignez-moi à \"{title}\" sur MAZL'**
   String eventsShareMessage(String title);
 
+  /// Suggestions de premier message : titre de la carte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoin d\'inspiration ?'**
+  String get icebreakerWidgetTitle;
+
+  /// Suggestions de premier message : sous-titre de la carte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici quelques idées pour briser la glace'**
+  String get icebreakerWidgetSubtitle;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Mot qui remplace le sujet de la question quand on n'en trouve pas (« …à la question sur ça »).
+  ///
+  /// In fr, this message translates to:
+  /// **'ça'**
+  String get icebreakerTopicFallback;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil ; {followUp} est une phrase courte qui conclut.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai adoré ta réponse à \"{promptText}\". {followUp}'**
+  String icebreakerPromptLoved(String promptText, String followUp);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse sur \"{promptText}\" m\'a fait sourire. Tu peux m\'en dire plus ?'**
+  String icebreakerPromptSmiled(String promptText);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Curiosité sur une réponse du profil. {answer} est la réponse (raccourcie), {topic} deux mots de la question (ou « ça »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis curieux(se) de savoir pourquoi tu as répondu \"{answer}\" à la question sur {topic}'**
+  String icebreakerPromptCurious(String answer, String topic);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça m\'intrigue.'**
+  String get icebreakerFollowUpIntrigued;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'aimerais en savoir plus.'**
+  String get icebreakerFollowUpKnowMore;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu me racontes ?'**
+  String get icebreakerFollowUpTellMe;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça a l\'air intéressant.'**
+  String get icebreakerFollowUpInteresting;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage (la bio en parle).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.'**
+  String get icebreakerBioTravelRecent;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ta prochaine destination de rêve ?'**
+  String get icebreakerBioTravelDream;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel genre de musique tu écoutes en ce moment ?'**
+  String get icebreakerBioMusicGenre;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as été à un bon concert récemment ?'**
+  String get icebreakerBioMusicConcert;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu cuisines quoi de bon en ce moment ?'**
+  String get icebreakerBioCookingNow;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ton plat signature ?'**
+  String get icebreakerBioCookingSignature;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pratiques quel sport ?'**
+  String get icebreakerBioSportWhich;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu préfères regarder ou pratiquer ?'**
+  String get icebreakerBioSportWatchOrPlay;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu lis quoi en ce moment ?'**
+  String get icebreakerBioReadingNow;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi le dernier livre qui t\'a marqué ?'**
+  String get icebreakerBioReadingLastBook;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as vu un bon film récemment ?'**
+  String get icebreakerBioCinemaRecent;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu préfères cinéma ou séries ?'**
+  String get icebreakerBioCinemaOrSeries;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu connais de beaux sentiers dans le coin ?'**
+  String get icebreakerBioHikingTrails;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ta plus belle rando ?'**
+  String get icebreakerBioHikingBest;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu prends des photos de quoi principalement ?'**
+  String get icebreakerBioPhotoSubjects;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu utilises quoi comme appareil ?'**
+  String get icebreakerBioPhotoCamera;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as une synagogue préférée dans le coin ?'**
+  String get icebreakerOrthodoxSynagogue;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment tu passes généralement Shabbat ?'**
+  String get icebreakerOrthodoxShabbat;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as un restaurant casher préféré ?'**
+  String get icebreakerOrthodoxKosherRestaurant;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelles traditions juives sont les plus importantes pour toi ?'**
+  String get icebreakerTraditionalTraditions;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu célèbres Shabbat comment généralement ?'**
+  String get icebreakerTraditionalShabbat;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as une fête juive préférée ?'**
+  String get icebreakerTraditionalHoliday;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ton rapport à la culture juive ?'**
+  String get icebreakerSecularCulture;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as des traditions familiales que tu gardes ?'**
+  String get icebreakerSecularFamilyTraditions;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu célèbres quelles fêtes ?'**
+  String get icebreakerSecularHolidays;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ta fête juive préférée ?'**
+  String get icebreakerDefaultHoliday;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as des traditions familiales spéciales ?'**
+  String get icebreakerDefaultFamilyTraditions;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as grandi dans une famille pratiquante ?'**
+  String get icebreakerDefaultPracticingFamily;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu connais bien {location} ? Tu me conseilles quoi ?'**
+  String icebreakerLocationKnowWell(String location);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ton coin préféré à {location} ?'**
+  String icebreakerLocationFavoriteSpot(String location);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es originaire de {location} ou tu t\'y es installé(e) ?'**
+  String icebreakerLocationOriginallyFrom(String location);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a un bon restaurant que tu recommandes à {location} ?'**
+  String icebreakerLocationRestaurant(String location);
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?'**
+  String get icebreakerGenericDinnerGuest;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ta définition d\'une journée parfaite ?'**
+  String get icebreakerGenericPerfectDay;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as un talent caché que peu de gens connaissent ?'**
+  String get icebreakerGenericHiddenTalent;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi le truc le plus spontané que tu aies fait ?'**
+  String get icebreakerGenericSpontaneous;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu préfères vacances à la mer ou à la montagne ?'**
+  String get icebreakerGenericSeaOrMountain;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu gagnais au loto demain, tu ferais quoi en premier ?'**
+  String get icebreakerGenericLottery;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi ton guilty pleasure ?'**
+  String get icebreakerGenericGuiltyPleasure;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as un rêve que tu n\'as pas encore réalisé ?'**
+  String get icebreakerGenericDream;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi le meilleur conseil qu\'on t\'ait donné ?'**
+  String get icebreakerGenericBestAdvice;
+
+  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu préfères petit-déjeuner ou dîner dehors ?'**
+  String get icebreakerGenericBreakfastOrDinner;
+
   /// Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif.
   ///
   /// In fr, this message translates to:
@@ -2957,6 +4187,108 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Afficher les onglets'**
   String get navigationShowTabs;
+
+  /// Présentation : bouton de la dernière page, qui ouvre la connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get onboardingStart;
+
+  /// Présentation : repère en haut d'une page, numéro de la page sur le total, chiffres déjà complétés par un zéro (« 01 / 05 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} / {total}'**
+  String onboardingStep(String current, String total);
+
+  /// Présentation : libellé lu par le lecteur d'écran pour les barres de progression.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {current} sur {total}'**
+  String onboardingPageOf(int current, int total);
+
+  /// Présentation, page 1 : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur MAZL'**
+  String get onboardingPage1Title;
+
+  /// Présentation, page 1 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application de rencontres pensée pour la communauté juive.'**
+  String get onboardingPage1Body;
+
+  /// Présentation, page 2 : titre. « mazal » est le mot hébreu pour la chance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouvez votre mazal'**
+  String get onboardingPage2Title;
+
+  /// Présentation, page 2 : texte. « pratique » désigne la pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez des profils compatibles avec vos valeurs et votre pratique.'**
+  String get onboardingPage2Body;
+
+  /// Présentation, page 3 : titre (le mode Couple de l'app).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Couple'**
+  String get onboardingPage3Title;
+
+  /// Présentation, page 3 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fois l\'amour trouvé, MAZL vous accompagne : trouvez l\'amour, et gardez-le.'**
+  String get onboardingPage3Body;
+
+  /// Présentation, page 3 : première ligne de la liste du mode Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions quotidiennes'**
+  String get onboardingPage3Feature1;
+
+  /// Présentation, page 3 : deuxième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Milestones de couple'**
+  String get onboardingPage3Feature2;
+
+  /// Présentation, page 3 : troisième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calendrier juif partagé'**
+  String get onboardingPage3Feature3;
+
+  /// Présentation, page 3 : quatrième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités et suggestions'**
+  String get onboardingPage3Feature4;
+
+  /// Présentation, page 4 : titre (le mode Shabbat de l'app).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Shabbat'**
+  String get onboardingPage4Title;
+
+  /// Présentation, page 4 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.'**
+  String get onboardingPage4Body;
+
+  /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI Shadchan'**
+  String get onboardingPage5Title;
+
+  /// Présentation, page 5 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre intelligence artificielle vous aide à trouver la bonne personne.'**
+  String get onboardingPage5Body;
 
   /// Profil du membre : étiquette en capitales tout en haut de son propre profil.
   ///
@@ -5873,6 +7205,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Terminé.'**
   String get verificationNfcAlertDone;
+
+  /// Appel vidéo : texte sous le prénom pendant l'appel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appel en cours...'**
+  String get videoCallInProgress;
+
+  /// Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône).
+  ///
+  /// In fr, this message translates to:
+  /// **'Flip'**
+  String get videoCallFlip;
+
+  /// Appel vidéo : bouton qui coupe ou remet la caméra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caméra'**
+  String get videoCallCamera;
+
+  /// Appel vidéo : bouton qui coupe ou remet le micro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Micro'**
+  String get videoCallMic;
+
+  /// Appel vidéo : bouton rouge qui raccroche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin'**
+  String get videoCallEnd;
 }
 
 class _AppLocalizationsDelegate

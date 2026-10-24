@@ -9,6 +9,7 @@ import '../di/providers/service_providers.dart';
 import '../../presentation/features/splash/splash_screen.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
+import '../../presentation/features/auth/screens/route_error_screen.dart';
 import '../../presentation/features/navigation/screens/main_navigation_screen.dart';
 import '../../presentation/features/matching/screens/discover_screen.dart';
 import '../../presentation/features/matching/screens/matches_screen.dart';
@@ -604,28 +605,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Page introuvable',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(state.error?.message ?? 'Une erreur est survenue'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.go(RoutePaths.discover),
-              child: const Text('Retour à l\'accueil'),
-            ),
-          ],
-        ),
-      ),
-    ),
+    errorBuilder: (context, state) => const RouteErrorScreen(),
   );
 });
 

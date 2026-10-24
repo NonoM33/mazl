@@ -1,10 +1,12 @@
 // Non-régression des défauts vus pendant la visite au simulateur du 2026-10-23.
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mazl/core/models/conversation.dart';
 import 'package:mazl/core/models/profile_labels.dart';
 import 'package:mazl/core/models/relationship_intention.dart';
 import 'package:mazl/core/services/push_permission.dart';
+import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/chat/conversation_lookup.dart';
 import 'package:mazl/presentation/features/chat/conversation_time.dart';
 import 'package:mazl/presentation/features/profile/l10n/profile_answer_labels.dart';
@@ -67,24 +69,30 @@ void main() {
 
   group('heure d\'une conversation en français', () {
     final now = DateTime(2026, 10, 23, 20, 30); // un vendredi
+    late AppLocalizations fr;
+
+    setUpAll(() async {
+      await initializeDateFormatting();
+      fr = lookupAppLocalizations(const Locale('fr'));
+    });
 
     test('aujourd\'hui : heure', () {
-      expect(formatConversationTime(DateTime(2026, 10, 23, 9, 5), now), '09:05');
+      expect(formatConversationTime(fr, DateTime(2026, 10, 23, 9, 5), now), '09:05');
     });
 
     test('hier', () {
-      expect(formatConversationTime(DateTime(2026, 10, 22, 18), now), 'Hier');
+      expect(formatConversationTime(fr, DateTime(2026, 10, 22, 18), now), 'Hier');
     });
 
     test('cette semaine : jour abrégé en français, jamais « Tue »', () {
       final tuesday = DateTime(2026, 10, 20, 12);
-      final label = formatConversationTime(tuesday, now);
+      final label = formatConversationTime(fr, tuesday, now);
       expect(label, 'Mar.');
       expect(label, isNot(contains('Tue')));
     });
 
     test('plus ancien : date en français, jamais « Oct 15 »', () {
-      final label = formatConversationTime(DateTime(2026, 10, 15, 12), now);
+      final label = formatConversationTime(fr, DateTime(2026, 10, 15, 12), now);
       expect(label, '15 oct.');
     });
   });

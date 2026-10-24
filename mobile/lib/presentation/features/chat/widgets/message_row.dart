@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../chat_providers.dart';
 import '../state/chat_controller_impl.dart';
@@ -120,7 +121,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   }) {
     final revealed = ref.watch(revealedPhotosProvider).contains(message.id);
     return BubbleContext(
-      authorOf: scope.authorOf,
+      authorOf: (userId) => scope.authorOf(context.l10n, userId),
       onQuoteTap: overlay ? null : scope.scrollToMessage,
       heroEnabled: !overlay,
       onPlayFailed: () => ref
@@ -223,10 +224,10 @@ class _MessageRowState extends ConsumerState<MessageRow> {
           child: gestures,
         ),
         if (hasReactions)
-          Positioned(
+          PositionedDirectional(
             bottom: 0,
-            left: item.mine ? 12 : null,
-            right: item.mine ? null : 12,
+            start: item.mine ? 12 : null,
+            end: item.mine ? null : 12,
             child: ReactionPill(
               reactions: message.reactions,
               myUserId: scope.myUserId,
@@ -256,9 +257,13 @@ class _MessageRowState extends ConsumerState<MessageRow> {
           ],
         ),
         Padding(
-          padding: EdgeInsets.only(left: item.mine ? 0 : _avatarSlot),
+          padding: EdgeInsetsDirectional.only(
+            start: item.mine ? 0 : _avatarSlot,
+          ),
           child: Align(
-            alignment: item.mine ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: item.mine
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
             child: AnimatedSize(
               duration: noMotion
                   ? Duration.zero
@@ -307,7 +312,7 @@ class _MessageRowState extends ConsumerState<MessageRow> {
   }
 
   Widget _avatar(ChatScope scope) => Padding(
-    padding: const EdgeInsets.only(right: 8),
+    padding: const EdgeInsetsDirectional.only(end: 8),
     child: SizedBox.square(
       dimension: 28,
       child: item.last
@@ -329,18 +334,19 @@ class _MessageRowState extends ConsumerState<MessageRow> {
         child: GestureDetector(
           onTap: ops.failedMenu,
           behavior: HitTestBehavior.opaque,
-          child: const Text(
-            'Échec · Réessayer',
-            style: TextStyle(fontSize: 12, color: AppColors.error),
+          child: Text(
+            context.l10n.chatFailedRetry,
+            style: const TextStyle(fontSize: 12, color: AppColors.error),
           ),
         ),
       );
     }
+    final l10n = context.l10n;
     final seenAt = item.seenAt;
     final text = seenAt != null
-        ? 'Vu à ${clock(seenAt)}'
+        ? l10n.chatSeenAt(clock(l10n, seenAt))
         : (item.last || _timeRevealed) && !message.isLocal
-        ? clock(message.createdAt)
+        ? clock(l10n, message.createdAt)
         : null;
     if (text == null) return const SizedBox.shrink();
     return Padding(

@@ -8,14 +8,33 @@ import 'package:http/http.dart' as http;
 import '../models/chat_message.dart';
 
 // Typed HTTP client for the chat. CONTRACT: docs/chat/CONTRAT.md §1 and §2.
-// Errors are mapped to short French messages here; the server's own error
-// text is never shown (nor logged), and no message content is ever logged.
+// Failures are typed here ([ChatApiErrorKind]) and the screens write the
+// sentence in the member's language; the server's own error text is never
+// shown (nor logged), and no message content is ever logged.
 
-/// A failed chat call. [message] is ready to show to the user.
+/// Why a chat call failed, from the HTTP status and, when the server sends
+/// one, its stable error code (`blocked`, `not_author`, `too_late`,
+/// `too_many_pending`, `rate_limited`).
+enum ChatApiErrorKind {
+  sessionExpired,
+  cannotUnsend,
+  conversationGone,
+  blocked,
+  tooLarge,
+  rateLimited,
+  server,
+  fileRejected,
+  messageRejected,
+  timeout,
+  network,
+  unknown,
+}
+
+/// A failed chat call. It carries a [kind], never a sentence.
 class ChatApiException implements Exception {
-  const ChatApiException(this.message, {this.status});
+  const ChatApiException(this.kind, {this.status});
 
-  final String message;
+  final ChatApiErrorKind kind;
 
   /// HTTP status, null for network failures.
   final int? status;
@@ -67,7 +86,6 @@ abstract class ChatApi {
   Future<void> report(int messageId, String reason);
 }
 
-const _genericError = 'Une erreur est survenue.';
 const _requestTimeout = Duration(seconds: 15);
 const _uploadTimeout = Duration(seconds: 60);
 
@@ -217,11 +235,19 @@ class HttpChatApi implements ChatApi {
       final response = await http.Response.fromStream(streamed).timeout(timeout);
       final status = response.statusCode;
       if (status < 200 || status >= 300) {
-        throw ChatApiException(_messageForStatus(status, upload: upload, unsend: _isUnsend(request)), status: status);
+        throw ChatApiException(
+          chatErrorKindFor(
+            status,
+            code: _serverCode(response.bodyBytes),
+            upload: upload,
+            unsend: _isUnsend(request),
+          ),
+          status: status,
+        );
       }
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
       if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
-        throw ChatApiException(_genericError, status: status);
+        throw ChatApiException(ChatApiErrorKind.unknown, status: status);
       }
       return decoded;
     } finally {
@@ -238,32 +264,61 @@ class HttpChatApi implements ChatApi {
     } on ChatApiException {
       rethrow;
     } on TimeoutException {
-      throw const ChatApiException('Délai dépassé, vérifiez votre connexion.');
+      throw const ChatApiException(ChatApiErrorKind.timeout);
     } on SocketException {
-      throw const ChatApiException('Pas de connexion internet.');
+      throw const ChatApiException(ChatApiErrorKind.network);
     } on http.ClientException {
-      throw const ChatApiException('Pas de connexion internet.');
+      throw const ChatApiException(ChatApiErrorKind.network);
     } catch (_) {
-      throw const ChatApiException(_genericError);
+      throw const ChatApiException(ChatApiErrorKind.unknown);
     }
   }
 }
 
-String _messageForStatus(int status, {required bool upload, required bool unsend}) {
-  if (status == 401) return 'Session expirée, reconnectez-vous.';
+/// The stable code of an error body (`{ success: false, error: "blocked" }`),
+/// only when it is one the app knows: free text from the server is dropped.
+String? _serverCode(List<int> body) {
+  try {
+    final decoded = jsonDecode(utf8.decode(body));
+    final code = decoded is Map<String, dynamic> ? decoded['error'] : null;
+    return code is String && _knownCodes.contains(code) ? code : null;
+  } on FormatException {
+    return null;
+  }
+}
+
+const _knownCodes = {'blocked', 'not_author', 'too_late', 'too_many_pending', 'rate_limited'};
+
+/// The kind of a refused call. The server code wins over the bare status:
+/// a 403 is « blocked » on a write and « cannot unsend » on a retraction.
+ChatApiErrorKind chatErrorKindFor(
+  int status, {
+  String? code,
+  bool upload = false,
+  bool unsend = false,
+}) {
+  switch (code) {
+    case 'blocked':
+      return ChatApiErrorKind.blocked;
+    case 'not_author' || 'too_late':
+      return ChatApiErrorKind.cannotUnsend;
+    case 'too_many_pending' || 'rate_limited':
+      return ChatApiErrorKind.rateLimited;
+  }
+  if (status == 401) return ChatApiErrorKind.sessionExpired;
   if (unsend && (status == 403 || status == 409 || status == 422)) {
-    return 'Ce message ne peut plus être retiré.';
+    return ChatApiErrorKind.cannotUnsend;
   }
   // 404: not a member or gone (the server never says which). 403: the pair
   // is blocked, the thread stays readable but nobody can write.
-  if (status == 404) return 'Cette conversation n’est plus disponible.';
-  if (status == 403) return 'Vous ne pouvez plus écrire dans cette conversation.';
-  if (status == 413) return 'Fichier trop volumineux.';
-  if (status == 429) return 'Trop d’envois, patientez un instant.';
-  if (status >= 500) return 'Le serveur est indisponible, réessayez.';
+  if (status == 404) return ChatApiErrorKind.conversationGone;
+  if (status == 403) return ChatApiErrorKind.blocked;
+  if (status == 413) return ChatApiErrorKind.tooLarge;
+  if (status == 429) return ChatApiErrorKind.rateLimited;
+  if (status >= 500) return ChatApiErrorKind.server;
   if (upload && (status == 400 || status == 415 || status == 422)) {
-    return 'Fichier refusé, essayez-en un autre.';
+    return ChatApiErrorKind.fileRejected;
   }
-  if (status == 400 || status == 422) return 'Message refusé.';
-  return _genericError;
+  if (status == 400 || status == 422) return ChatApiErrorKind.messageRejected;
+  return ChatApiErrorKind.unknown;
 }

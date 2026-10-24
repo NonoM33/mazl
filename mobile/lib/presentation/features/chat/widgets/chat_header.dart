@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/conversation.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// Back, avatar, name and status, video call, options (docs/design/CHAT.md §13).
@@ -27,10 +29,10 @@ class ChatHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.only(
+      padding: EdgeInsetsDirectional.only(
         top: MediaQuery.paddingOf(context).top,
-        left: 4,
-        right: 12,
+        start: 4,
+        end: 12,
       ),
       decoration: BoxDecoration(
         color: scheme.surface,
@@ -41,9 +43,9 @@ class ChatHeader extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              tooltip: 'Retour',
+              tooltip: context.l10n.commonBack,
               constraints: const BoxConstraints.tightFor(width: 44, height: 44),
-              icon: const Icon(LucideIcons.chevronLeft, size: 24),
+              icon: const DirectionalIcon(LucideIcons.chevronLeft, size: 24),
               onPressed: onBack,
             ),
             Expanded(
@@ -68,7 +70,7 @@ class ChatHeader extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user?.displayName ?? 'Chargement…',
+                            user?.displayName ?? context.l10n.chatHeaderLoading,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -78,7 +80,9 @@ class ChatHeader extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            isTyping ? 'écrit…' : 'En ligne',
+                            isTyping
+                                ? context.l10n.chatHeaderTyping
+                                : context.l10n.chatHeaderOnline,
                             style: TextStyle(
                               fontSize: 12,
                               color: isTyping
@@ -96,12 +100,12 @@ class ChatHeader extends StatelessWidget {
             const SizedBox(width: 8),
             RoundIconButton(
               icon: LucideIcons.video,
-              tooltip: 'Appel vidéo',
+              tooltip: context.l10n.chatHeaderVideoCall,
               size: 44,
               onPressed: onVideoCall,
             ),
             IconButton(
-              tooltip: 'Options',
+              tooltip: context.l10n.chatHeaderOptions,
               constraints: const BoxConstraints.tightFor(width: 44, height: 44),
               icon: const Icon(LucideIcons.ellipsis, size: 22),
               onPressed: onOptions,

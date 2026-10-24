@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/motion/mazl_motion.dart';
+import '../../../../l10n/l10n.dart';
 import '../state/chat_controller.dart';
 import 'chat_scope.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -155,7 +156,9 @@ class _ReactionPillState extends State<ReactionPill>
               children: [
                 for (final r in shown)
                   Padding(
-                    padding: EdgeInsets.only(right: r == shown.last ? 0 : 3),
+                    padding: EdgeInsetsDirectional.only(
+                      end: r == shown.last ? 0 : 3,
+                    ),
                     child: Text(
                       r.emoji,
                       style: const TextStyle(fontSize: 15, height: 1.2),
@@ -163,7 +166,7 @@ class _ReactionPillState extends State<ReactionPill>
                   ),
                 if (total > 1)
                   Padding(
-                    padding: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsetsDirectional.only(start: 5),
                     child: Text(
                       '$total',
                       style: TextStyle(
@@ -197,14 +200,14 @@ Future<void> showReactionsSheet(
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
           child: Text(
-            'Réactions',
+            context.l10n.chatReactionsTitle,
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         for (final reaction in reactions)
           for (final userId in reaction.userIds)
             ListTile(
-              title: Text(scope.authorOf(userId)),
+              title: Text(scope.authorOf(context.l10n, userId)),
               trailing: Text(
                 reaction.emoji,
                 style: const TextStyle(fontSize: 22),

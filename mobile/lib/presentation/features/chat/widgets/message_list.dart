@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/l10n.dart';
+import '../l10n/chat_failure_text.dart';
 import '../state/chat_controller_impl.dart';
 import '../logic/chat_dates.dart';
 import '../logic/chat_items.dart';
@@ -229,7 +231,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       topmost = item;
     }
     final label = topmost is MessageItem
-        ? dayLabel(dayOfItem(topmost)!, DateTime.now())
+        ? dayLabel(context.l10n, dayOfItem(topmost)!, DateTime.now())
         : null;
     if (label != _stickyLabel) setState(() => _stickyLabel = label);
   }
@@ -285,11 +287,18 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
           ),
         ),
       ),
-      StartItem(:final day) => DateSeparator('Match · ${shortDate(day)}'),
-      DateItem(:final day) => DateSeparator(dayLabel(day, DateTime.now())),
+      StartItem(:final day) => DateSeparator(
+        context.l10n.chatMatchStart(shortDate(context.l10n, day)),
+      ),
+      DateItem(:final day) => DateSeparator(
+        dayLabel(context.l10n, day, DateTime.now()),
+      ),
       TypingItem() => const Padding(
-        padding: EdgeInsets.fromLTRB(16 + 36, 12, 16, 0),
-        child: Align(alignment: Alignment.centerLeft, child: TypingIndicator()),
+        padding: EdgeInsetsDirectional.fromSTEB(16 + 36, 12, 16, 0),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TypingIndicator(),
+        ),
       ),
       MessageItem() => MessageRow(
         item: item,
@@ -305,7 +314,10 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
     if (s.messages.isEmpty) {
       if (s.loading) return const ListSkeleton();
       if (s.error != null) {
-        return ListError(message: s.error!, onRetry: _actions.load);
+        return ListError(
+          message: s.error!.text(context.l10n),
+          onRetry: _actions.load,
+        );
       }
       return const EmptyConversation();
     }

@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
+
 /// « Noémie écrit… » as a received bubble: three dots rising one after the
 /// other (docs/design/CHAT.md §3). Still when animations are disabled.
 class TypingIndicator extends StatefulWidget {
@@ -38,17 +40,17 @@ class _TypingIndicatorState extends State<TypingIndicator>
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Votre correspondant écrit',
+      label: context.l10n.chatTypingSemantics,
       child: Container(
         width: 56,
         height: 36,
         decoration: BoxDecoration(
           color: scheme.surfaceContainer,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(22),
-            topRight: Radius.circular(22),
-            bottomRight: Radius.circular(22),
-            bottomLeft: Radius.circular(6),
+          borderRadius: const BorderRadiusDirectional.only(
+            topStart: Radius.circular(22),
+            topEnd: Radius.circular(22),
+            bottomEnd: Radius.circular(22),
+            bottomStart: Radius.circular(6),
           ),
         ),
         child: AnimatedBuilder(

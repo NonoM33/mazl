@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// Grey bubbles while the first page loads. Still under reduced motion.
@@ -46,7 +47,7 @@ class _ListSkeletonState extends State<ListSkeleton>
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Chargement de la conversation',
+      label: context.l10n.chatLoading,
       child: AnimatedBuilder(
         animation: _pulse,
         builder: (context, _) => Opacity(
@@ -58,8 +59,8 @@ class _ListSkeletonState extends State<ListSkeleton>
               for (final (mine, factor) in _rows)
                 Align(
                   alignment: mine
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                      ? AlignmentDirectional.centerEnd
+                      : AlignmentDirectional.centerStart,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     width: MediaQuery.sizeOf(context).width * factor,
@@ -100,7 +101,7 @@ class ListError extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 16),
-          OutlinedButton(onPressed: onRetry, child: const Text('Réessayer')),
+          OutlinedButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
         ],
       ),
     ),
@@ -120,11 +121,11 @@ class EmptyConversation extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionLabel('Nouveau match'),
+          SectionLabel(context.l10n.chatNewMatch),
           const SizedBox(height: 12),
-          const Text(
-            'Dites bonjour.',
-            style: TextStyle(
+          Text(
+            context.l10n.chatEmptyTitle,
+            style: const TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.w700,
               letterSpacing: -2,
@@ -133,7 +134,7 @@ class EmptyConversation extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Envoyez le premier message pour briser la glace.',
+            context.l10n.chatEmptyBody,
             style: TextStyle(fontSize: 16, height: 1.45, color: muted),
           ),
         ],

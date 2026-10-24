@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/block_report_dialog.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import 'chat_conversation_screen.dart';
@@ -57,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
     BlockReportDialog.show(
       context,
       userId: user.userId,
-      userName: user.displayName ?? 'Cet utilisateur',
+      userName: user.displayName ?? context.l10n.chatBlockFallbackName,
       onBlocked: () {
         if (mounted) context.pop();
       },
@@ -69,9 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await prefs.setBool('muted_conversation_$_conversationId', true);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Notifications coupées pour cette conversation'),
-      ),
+      SnackBar(content: Text(context.l10n.chatMutedConfirmation)),
     );
   }
 
@@ -84,7 +83,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           ListTile(
             leading: const Icon(LucideIcons.user),
-            title: const Text('Voir le profil'),
+            title: Text(sheet.l10n.chatOptionsViewProfile),
             onTap: () {
               Navigator.pop(sheet);
               _openProfile();
@@ -92,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           ListTile(
             leading: const Icon(LucideIcons.bellOff),
-            title: const Text('Couper les notifications'),
+            title: Text(sheet.l10n.chatOptionsMute),
             onTap: () {
               Navigator.pop(sheet);
               _muteConversation();
@@ -100,7 +99,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           ListTile(
             leading: const Icon(LucideIcons.flag),
-            title: const Text('Signaler'),
+            title: Text(sheet.l10n.commonReport),
             onTap: () {
               Navigator.pop(sheet);
               _openBlockReportDialog();
@@ -108,9 +107,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           ListTile(
             leading: const Icon(LucideIcons.userX, color: AppColors.error),
-            title: const Text(
-              'Bloquer',
-              style: TextStyle(color: AppColors.error),
+            title: Text(
+              sheet.l10n.chatOptionsBlock,
+              style: const TextStyle(color: AppColors.error),
             ),
             onTap: () {
               Navigator.pop(sheet);

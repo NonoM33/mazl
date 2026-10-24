@@ -1,0 +1,251 @@
+{
+  "icebreakerWidgetTitle": "Besoin d'inspiration ?",
+  "@icebreakerWidgetTitle": {
+    "description": "Suggestions de premier message : titre de la carte."
+  },
+  "icebreakerWidgetSubtitle": "Voici quelques idées pour briser la glace",
+  "@icebreakerWidgetSubtitle": {
+    "description": "Suggestions de premier message : sous-titre de la carte."
+  },
+  "icebreakerTopicFallback": "ça",
+  "@icebreakerTopicFallback": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Mot qui remplace le sujet de la question quand on n'en trouve pas (« …à la question sur ça »)."
+  },
+  "icebreakerPromptLoved": "J'ai adoré ta réponse à \"{promptText}\". {followUp}",
+  "@icebreakerPromptLoved": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil ; {followUp} est une phrase courte qui conclut.",
+    "placeholders": {
+      "promptText": {
+        "type": "String"
+      },
+      "followUp": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerPromptSmiled": "Ta réponse sur \"{promptText}\" m'a fait sourire. Tu peux m'en dire plus ?",
+  "@icebreakerPromptSmiled": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil.",
+    "placeholders": {
+      "promptText": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerPromptCurious": "Je suis curieux(se) de savoir pourquoi tu as répondu \"{answer}\" à la question sur {topic}",
+  "@icebreakerPromptCurious": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Curiosité sur une réponse du profil. {answer} est la réponse (raccourcie), {topic} deux mots de la question (ou « ça »).",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      },
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerFollowUpIntrigued": "Ça m'intrigue.",
+  "@icebreakerFollowUpIntrigued": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpKnowMore": "J'aimerais en savoir plus.",
+  "@icebreakerFollowUpKnowMore": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpTellMe": "Tu me racontes ?",
+  "@icebreakerFollowUpTellMe": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerFollowUpInteresting": "Ça a l'air intéressant.",
+  "@icebreakerFollowUpInteresting": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
+  },
+  "icebreakerBioTravelRecent": "Tu as voyagé où récemment ? J'adorerais entendre tes histoires.",
+  "@icebreakerBioTravelRecent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage (la bio en parle)."
+  },
+  "icebreakerBioTravelDream": "Quelle est ta prochaine destination de rêve ?",
+  "@icebreakerBioTravelDream": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage."
+  },
+  "icebreakerBioMusicGenre": "Quel genre de musique tu écoutes en ce moment ?",
+  "@icebreakerBioMusicGenre": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
+  },
+  "icebreakerBioMusicConcert": "Tu as été à un bon concert récemment ?",
+  "@icebreakerBioMusicConcert": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
+  },
+  "icebreakerBioCookingNow": "Tu cuisines quoi de bon en ce moment ?",
+  "@icebreakerBioCookingNow": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
+  },
+  "icebreakerBioCookingSignature": "C'est quoi ton plat signature ?",
+  "@icebreakerBioCookingSignature": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
+  },
+  "icebreakerBioSportWhich": "Tu pratiques quel sport ?",
+  "@icebreakerBioSportWhich": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
+  },
+  "icebreakerBioSportWatchOrPlay": "Tu préfères regarder ou pratiquer ?",
+  "@icebreakerBioSportWatchOrPlay": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
+  },
+  "icebreakerBioReadingNow": "Tu lis quoi en ce moment ?",
+  "@icebreakerBioReadingNow": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
+  },
+  "icebreakerBioReadingLastBook": "C'est quoi le dernier livre qui t'a marqué ?",
+  "@icebreakerBioReadingLastBook": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
+  },
+  "icebreakerBioCinemaRecent": "Tu as vu un bon film récemment ?",
+  "@icebreakerBioCinemaRecent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
+  },
+  "icebreakerBioCinemaOrSeries": "Tu préfères cinéma ou séries ?",
+  "@icebreakerBioCinemaOrSeries": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
+  },
+  "icebreakerBioHikingTrails": "Tu connais de beaux sentiers dans le coin ?",
+  "@icebreakerBioHikingTrails": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
+  },
+  "icebreakerBioHikingBest": "C'est quoi ta plus belle rando ?",
+  "@icebreakerBioHikingBest": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
+  },
+  "icebreakerBioPhotoSubjects": "Tu prends des photos de quoi principalement ?",
+  "@icebreakerBioPhotoSubjects": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
+  },
+  "icebreakerBioPhotoCamera": "Tu utilises quoi comme appareil ?",
+  "@icebreakerBioPhotoCamera": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
+  },
+  "icebreakerOrthodoxSynagogue": "Tu as une synagogue préférée dans le coin ?",
+  "@icebreakerOrthodoxSynagogue": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerOrthodoxShabbat": "Comment tu passes généralement Shabbat ?",
+  "@icebreakerOrthodoxShabbat": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerOrthodoxKosherRestaurant": "Tu as un restaurant casher préféré ?",
+  "@icebreakerOrthodoxKosherRestaurant": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
+  },
+  "icebreakerTraditionalTraditions": "Quelles traditions juives sont les plus importantes pour toi ?",
+  "@icebreakerTraditionalTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerTraditionalShabbat": "Tu célèbres Shabbat comment généralement ?",
+  "@icebreakerTraditionalShabbat": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerTraditionalHoliday": "Tu as une fête juive préférée ?",
+  "@icebreakerTraditionalHoliday": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
+  },
+  "icebreakerSecularCulture": "C'est quoi ton rapport à la culture juive ?",
+  "@icebreakerSecularCulture": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerSecularFamilyTraditions": "Tu as des traditions familiales que tu gardes ?",
+  "@icebreakerSecularFamilyTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerSecularHolidays": "Tu célèbres quelles fêtes ?",
+  "@icebreakerSecularHolidays": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
+  },
+  "icebreakerDefaultHoliday": "C'est quoi ta fête juive préférée ?",
+  "@icebreakerDefaultHoliday": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerDefaultFamilyTraditions": "Tu as des traditions familiales spéciales ?",
+  "@icebreakerDefaultFamilyTraditions": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerDefaultPracticingFamily": "Tu as grandi dans une famille pratiquante ?",
+  "@icebreakerDefaultPracticingFamily": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
+  },
+  "icebreakerLocationKnowWell": "Tu connais bien {location} ? Tu me conseilles quoi ?",
+  "@icebreakerLocationKnowWell": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationFavoriteSpot": "C'est quoi ton coin préféré à {location} ?",
+  "@icebreakerLocationFavoriteSpot": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationOriginallyFrom": "Tu es originaire de {location} ou tu t'y es installé(e) ?",
+  "@icebreakerLocationOriginallyFrom": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerLocationRestaurant": "Il y a un bon restaurant que tu recommandes à {location} ?",
+  "@icebreakerLocationRestaurant": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "icebreakerGenericDinnerGuest": "Si tu pouvais dîner avec n'importe qui, vivant ou mort, ce serait qui ?",
+  "@icebreakerGenericDinnerGuest": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericPerfectDay": "C'est quoi ta définition d'une journée parfaite ?",
+  "@icebreakerGenericPerfectDay": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericHiddenTalent": "Tu as un talent caché que peu de gens connaissent ?",
+  "@icebreakerGenericHiddenTalent": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericSpontaneous": "C'est quoi le truc le plus spontané que tu aies fait ?",
+  "@icebreakerGenericSpontaneous": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericSeaOrMountain": "Tu préfères vacances à la mer ou à la montagne ?",
+  "@icebreakerGenericSeaOrMountain": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericLottery": "Si tu gagnais au loto demain, tu ferais quoi en premier ?",
+  "@icebreakerGenericLottery": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericGuiltyPleasure": "C'est quoi ton guilty pleasure ?",
+  "@icebreakerGenericGuiltyPleasure": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericDream": "Tu as un rêve que tu n'as pas encore réalisé ?",
+  "@icebreakerGenericDream": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericBestAdvice": "C'est quoi le meilleur conseil qu'on t'ait donné ?",
+  "@icebreakerGenericBestAdvice": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  },
+  "icebreakerGenericBreakfastOrDinner": "Tu préfères petit-déjeuner ou dîner dehors ?",
+  "@icebreakerGenericBreakfastOrDinner": {
+    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
+  }
+}
