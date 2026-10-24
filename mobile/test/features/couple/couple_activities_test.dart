@@ -1,7 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/l10n/generated/app_localizations_fr.dart';
+import 'package:mazl/presentation/features/couple/l10n/couple_feed_labels.dart';
 
 import '../../mocks/mock_data.dart';
 import '../../mocks/mock_couple_api_service.dart';
+
+final _fr = AppLocalizationsFr();
 
 void main() {
   group('CoupleActivities - Unit Tests', () {
@@ -62,18 +66,18 @@ void main() {
     });
 
     group('CoupleActivity model properties', () {
-      test('formattedPrice returns Gratuit for free activities', () {
+      test('priceEuros is null for free activities', () {
         final freeActivity = MockData.activities
             .firstWhere((a) => a.priceCents == 0 || a.priceCents == null);
 
-        expect(freeActivity.formattedPrice, equals('Gratuit'));
+        expect(freeActivity.priceEuros, isNull);
       });
 
-      test('formattedPrice returns price in euros', () {
+      test('priceEuros is the price in whole euros', () {
         final paidActivity =
             MockData.activities.firstWhere((a) => a.priceCents == 12000);
 
-        expect(paidActivity.formattedPrice, equals('120€'));
+        expect(paidActivity.priceEuros, equals(120));
       });
 
       test('categoryEmoji returns correct emoji', () {
@@ -92,18 +96,18 @@ void main() {
         expect(cultureActivity.categoryEmoji, equals('🎭'));
       });
 
-      test('formattedDuration returns correct format', () {
+      test('durationLabel writes hours and minutes', () {
         final activity =
             MockData.activities.firstWhere((a) => a.durationMinutes == 120);
-        expect(activity.formattedDuration, equals('2h'));
+        expect(activity.durationLabel(_fr), equals('2h'));
 
         final activity2 =
             MockData.activities.firstWhere((a) => a.durationMinutes == 180);
-        expect(activity2.formattedDuration, equals('3h'));
+        expect(activity2.durationLabel(_fr), equals('3h'));
 
         final activity3 =
             MockData.activities.firstWhere((a) => a.durationMinutes == 90);
-        expect(activity3.formattedDuration, equals('1h30min'));
+        expect(activity3.durationLabel(_fr), equals('1h30min'));
       });
     });
 

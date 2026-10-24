@@ -64,40 +64,12 @@ lib/core/models/compatibility_score.dart | Âge
 lib/core/models/compatibility_score.dart | Âge
 lib/core/models/compatibility_score.dart | Âge proche
 lib/core/models/compatibility_score.dart | Âge très proche
-lib/core/models/couple_activity.dart | Bien-être
-lib/core/models/couple_activity.dart | Culture
-lib/core/models/couple_activity.dart | Gastronomie
-lib/core/models/couple_activity.dart | Gratuit
-lib/core/models/couple_activity.dart | Romantique
-lib/core/models/couple_activity.dart | Spirituel
-lib/core/models/couple_activity.dart | Sport
-lib/core/models/couple_activity.dart | Voyage
 lib/core/models/couple_anniversary.dart | 1 an
 lib/core/models/couple_anniversary.dart | 1 mois
 lib/core/models/couple_anniversary.dart | 1 semaine
 lib/core/models/couple_anniversary.dart | 2 ans
 lib/core/models/couple_anniversary.dart | 3 mois
 lib/core/models/couple_anniversary.dart | 6 mois
-lib/core/models/couple_event.dart | Août
-lib/core/models/couple_event.dart | Avr
-lib/core/models/couple_event.dart | Dim
-lib/core/models/couple_event.dart | Déc
-lib/core/models/couple_event.dart | Fév
-lib/core/models/couple_event.dart | Gratuit
-lib/core/models/couple_event.dart | Jan
-lib/core/models/couple_event.dart | Jeu
-lib/core/models/couple_event.dart | Juil
-lib/core/models/couple_event.dart | Juin
-lib/core/models/couple_event.dart | Lun
-lib/core/models/couple_event.dart | Mai
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mer
-lib/core/models/couple_event.dart | Nov
-lib/core/models/couple_event.dart | Oct
-lib/core/models/couple_event.dart | Sam
-lib/core/models/couple_event.dart | Sep
-lib/core/models/couple_event.dart | Ven
 lib/core/models/couple_models.dart | Célibataire
 lib/core/models/couple_models.dart | En couple
 lib/core/models/couple_models.dart | En train de dater
@@ -179,9 +151,6 @@ lib/core/models/report_category.dart | Photos inappropriées
 lib/core/models/report_category.dart | Photos volées, identité fausse
 lib/core/models/report_category.dart | Publicité, demande d\'argent, liens suspects
 lib/core/models/report_category.dart | Spam / Arnaque
-lib/core/models/success_story.dart | En couple
-lib/core/models/success_story.dart | Fiancés
-lib/core/models/success_story.dart | Mariés
 lib/core/models/verification.dart | unknown challenge: $value
 lib/core/router/app_router.dart | Page introuvable
 lib/core/router/app_router.dart | Retour à l\'accueil
@@ -840,126 +809,6 @@ lib/presentation/features/chat/widgets/voice_bubble.dart | ${speed == speed.roun
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lecture impossible
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lire le message vocal
 lib/presentation/features/chat/widgets/voice_bubble.dart | Mettre en pause
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | ${activity.title} sauvegardé
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | -${activity.discountPercent} % Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Actualiser
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Aucune activité pour le moment
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Bien-être
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Culture
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | De nouvelles idées arrivent bientôt.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Gastro
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de passer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de sauvegarder « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Passer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Romantique
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Spirituel
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Sport
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Tout
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voyage
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | $rating ($count avis)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | -${activity.discountPercent} % Partenaire
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité introuvable
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité sauvegardée
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Appeler
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Cette activité n\'existe plus.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code $code copié
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code promo MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Contact
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Copier le code
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Elle n\'est plus proposée.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Idée de date pour nous : "${activity.title}" (via MAZL)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de retirer cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de sauvegarder cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retirer des activités sauvegardées
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Réserver
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Site web
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Tags
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | À partir de
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | $daysTogether jours ensemble
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Activités en couple
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Calendrier juif
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Cours de cuisine casher
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dimanche 20 janvier - 15h00
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dîner
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Entrée : 17h23 - Sortie : 18h34
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Envoyer
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Inspirez la communauté MAZL avec votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Moi
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Nos étapes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partenaire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Prière
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Question du jour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Repos
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réglages
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Répondre
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réponse envoyée. Votre partenaire sera notifié(e).
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Shabbat Beshalach
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir les histoires
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tous les événements
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tout
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir toutes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Votre réponse…
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Événements en couple
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | ${event.spotsLeft} places restantes
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Ce qui est inclus
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Cet événement n\'existe plus.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Il n\'est plus proposé.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscrits à « ${event.title} »
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Lieu
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Organisé par
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Tenue
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Événement introuvable
-lib/presentation/features/couple/screens/couple_events_screen.dart | ${event.spotsLeft} places
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler l\'inscription ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Aucun événement disponible
-lib/presentation/features/couple/screens/couple_events_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_events_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_events_screen.dart | Découvrir les événements
-lib/presentation/features/couple/screens/couple_events_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits (${_registeredEvents.length})
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits à "${event.title}"
-lib/presentation/features/couple/screens/couple_events_screen.dart | Non
-lib/presentation/features/couple/screens/couple_events_screen.dart | Oui, annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Voulez-vous vraiment annuler votre inscription à "${event.title}" ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Vous n\'êtes inscrit à aucun événement
-lib/presentation/features/couple/screens/couple_events_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_events_screen.dart | À venir
-lib/presentation/features/couple/screens/couple_events_screen.dart | Événements
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | $who doit accepter. Nous vous préviendrons dès sa réponse.
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Annuler la demande
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Aucun match pour l\'instant.
@@ -1057,39 +906,6 @@ lib/presentation/features/couple/screens/mazel_tov_screen.dart | Commencer notre
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Félicitations à vous et à ${widget.partnerName}
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | MAZL vous accompagne dans cette nouvelle étape.
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Mazal tov
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activité retirée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Annuler
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Aucune activité sauvegardée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Découvrir des activités
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Glissez une carte vers le haut pour la garder.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Impossible de retirer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer de la liste ?
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}
-lib/presentation/features/couple/screens/success_stories_screen.dart | Ajoutez des photos de couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…
-lib/presentation/features/couple/screens/success_stories_screen.dart | En couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Erreur lors de l\'envoi
-lib/presentation/features/couple/screens/success_stories_screen.dart | Fiancés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Inspirez la communauté MAZL en partageant votre histoire.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Les premières histoires d\'amour MAZL seront bientôt partagées.
-lib/presentation/features/couple/screens/success_stories_screen.dart | MMMM yyyy
-lib/presentation/features/couple/screens/success_stories_screen.dart | Mariés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Merci. Votre histoire sera publiée après validation.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partager
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Pas encore d\'histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Photos (optionnel)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Réessayer
-lib/presentation/features/couple/screens/success_stories_screen.dart | Soumettre notre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire (min. 100 caractères)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire doit faire au moins 100 caractères
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre statut
 lib/presentation/features/couple/widgets/anniversary_widget.dart | ${widget.anniversaryData.daysTogether} jours avec ${widget.anniversaryData.partnerName}
 lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire
 lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire MAZL
@@ -1112,24 +928,6 @@ lib/presentation/features/couple/widgets/couple_request_dialog.dart | $_name sou
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Accepter
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Cette personne
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Non merci
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Concert
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Jeux
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Tout
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Événement
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} / ${event.maxAttendees} places
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} inscrits
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
