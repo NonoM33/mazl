@@ -4,6 +4,11 @@ import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fr
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
 
+// Production must name its database: a silent fallback to the local
+// development credentials would hide a broken deployment.
+if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL must be set in production");
+}
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
 export const sql = postgres(connectionString);

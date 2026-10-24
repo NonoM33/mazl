@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
+import { z } from "zod";
 import { mkdir } from "node:fs/promises";
 import {
   sql,
@@ -69,10 +71,12 @@ import {
   getCoupleAchievements,
   getCoupleByUserId,
 } from "./db";
-import { sendVerificationRequestEmail } from "./email";
+import { isValidUnsubscribeToken, sendVerificationRequestEmail } from "./email";
 import { generateJWT, verifyJWT } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
+import { isAccountActive } from "./shared/http/account-state";
+import { createIpRateLimiter, createKeyedLimiter } from "./shared/http/rate-limit";
 import { parseBody, swipeBodySchema } from "./shared/http/validation";
 import {
   emitNewMatch,
@@ -126,7 +130,12 @@ const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
 // so that a malformed threshold stops the boot.
 const verification = createVerificationModule({ sql, uploadsDir: UPLOADS_DIR });
 
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+// Development routes (/api/dev/*: sign in as anyone, reset swipes...) exist
+// only when NODE_ENV says development or test. Any other value, unset
+// included, closes them: a staging server without NODE_ENV must not hand out
+// tokens for any e-mail.
+const DEV_ROUTES_ENABLED = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+if (DEV_ROUTES_ENABLED) console.warn(`Development routes are ENABLED (NODE_ENV=${process.env.NODE_ENV})`);
 
 // CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)
 const DEFAULT_CORS_ORIGINS = [
@@ -148,6 +157,32 @@ const ALLOWED_ORIGINS: readonly string[] = (() => {
   }
   return DEFAULT_CORS_ORIGINS;
 })();
+
+// Security headers on every response. The CSP is written for the console and
+// the landing pages (inline scripts and handlers, Google Sign-In, Google
+// Fonts); it mainly stops framing and keeps scripts and connections to the
+// listed origins.
+app.use(
+  "*",
+  secureHeaders({
+    crossOriginResourcePolicy: "same-site",
+    crossOriginOpenerPolicy: "same-origin-allow-popups",
+    referrerPolicy: "strict-origin-when-cross-origin",
+    contentSecurityPolicy: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com/gsi/client"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com/gsi/style"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'", "https://accounts.google.com/gsi/"],
+      frameSrc: ["https://accounts.google.com/gsi/"],
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'none'"],
+      formAction: ["'self'"],
+    },
+  }),
+);
 
 app.use(
   "/api/*",
@@ -183,38 +218,37 @@ app.use("/*", serveStatic({ root: "./public" }));
 
 
 // API Routes
-app.post("/api/subscribe", async (c) => {
+// Waitlist sign-up is public: limited per client address and per e-mail, so
+// that nobody can flood a stranger's inbox with MAZL e-mails. The answer is
+// the same whatever happens, so it tells nothing about who is registered.
+const subscribeLimiter = createIpRateLimiter({ max: 5, windowMs: 60 * 60_000 });
+const subscribeEmailsPerAddress = createKeyedLimiter({ max: 3, windowMs: 24 * 60 * 60_000 });
+const subscribeBodySchema = z.object({ email: z.email().max(254) });
+const SUBSCRIBED = { success: true, message: "Inscription OK ! Regarde tes emails pour envoyer tes documents." } as const;
+
+app.post("/api/subscribe", subscribeLimiter, async (c) => {
+  const parsed = subscribeBodySchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) {
+    return c.json({ success: false, error: "Email invalide" }, 400);
+  }
+  const email = parsed.data.email.trim();
+  const emailKey = email.toLowerCase();
+  if (subscribeEmailsPerAddress.retryAfter(emailKey) !== null) return c.json(SUBSCRIBED);
+  subscribeEmailsPerAddress.hit(emailKey);
+
   try {
-    const { email } = await c.req.json();
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      return c.json({ success: false, error: "Email invalide" }, 400);
-    }
-
     const waitlist = await upsertWaitlistAndGetVerification(email);
 
-    // Send verification request email (best-effort)
+    // The link always points at APP_URL (src/email.ts), never at a header.
     try {
-      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
-
-      await sendVerificationRequestEmail({
-        to: email,
-        verificationToken: waitlist.verificationToken,
-        baseUrl: requestOrigin,
-      });
+      await sendVerificationRequestEmail({ to: email, verificationToken: waitlist.verificationToken });
     } catch (err) {
-      console.error("Email send failed:", err);
+      console.error("Email send failed:", err instanceof Error ? err.name : "unknown error");
     }
 
-    return c.json({
-      success: true,
-      message: "Inscription OK ! Regarde tes emails pour envoyer tes documents.",
-    });
-  } catch (error: any) {
-    console.error("Subscribe error:", error);
+    return c.json(SUBSCRIBED);
+  } catch (error) {
+    console.error("Subscribe error:", error instanceof Error ? error.name : "unknown error");
     return c.json({ success: false, error: "Erreur serveur" }, 500);
   }
 });
@@ -324,11 +358,11 @@ registerSubscriptions(app, { sql, authenticate: requireAuth, transactions: apple
 
 // ============ DEV/DEBUG ENDPOINTS ============
 
-registerDocumentsDevRoutes(app, documents, IS_PRODUCTION);
+registerDocumentsDevRoutes(app, documents, !DEV_ROUTES_ENABLED);
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email, password, name } = body;
@@ -383,7 +417,7 @@ app.post("/api/dev/test-user", async (c) => {
 
 // Login test user (dev only)
 app.post("/api/dev/test-login", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email } = body;
@@ -414,7 +448,7 @@ app.post("/api/dev/test-login", async (c) => {
 
 // Enable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/enable", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId, partnerId } = body;
@@ -490,7 +524,7 @@ app.post("/api/dev/couple/enable", async (c) => {
 
 // Disable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/disable", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId } = body;
@@ -520,7 +554,7 @@ app.post("/api/dev/couple/disable", async (c) => {
 
 // Get couple status for debugging (dev endpoint)
 app.get("/api/dev/couple/status/:userId", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const userId = parseInt(c.req.param("userId"));
 
@@ -549,7 +583,7 @@ app.get("/api/dev/couple/status/:userId", async (c) => {
 
 // Reset swipes by email (dev endpoint)
 app.get("/api/dev/reset-swipes/:email", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   const email = c.req.param("email");
   if (!email) {
     return c.json({ success: false, error: "email required" }, 400);
@@ -608,8 +642,9 @@ app.get("/api/track/open", async (c) => {
 // Unsubscribe endpoint (public)
 app.get("/api/unsubscribe", async (c) => {
   const email = c.req.query("email");
-  if (!email) {
-    return c.html("<h1>Email manquant</h1>");
+  const token = c.req.query("t");
+  if (!email || !token || !isValidUnsubscribeToken(email, token)) {
+    return c.html("<h1>Lien de désinscription invalide</h1><p>Utilise le lien présent dans le dernier e-mail reçu.</p>", 400);
   }
 
   await unsubscribeEmail(email);
@@ -656,40 +691,48 @@ console.log(`Server running on http://localhost:${port}`);
 // Bun.serve with WebSocket support
 interface WebSocketData {
   userId: number;
+  // Seconds since the epoch: the socket lives no longer than its token.
+  expiresAt: number;
+}
+
+// The token rides in the query string (browsers cannot set headers on a
+// WebSocket); the account is checked like on every HTTP request.
+async function upgradeToSocket(req: Request, url: URL, server: Bun.Server<WebSocketData>): Promise<Response | undefined> {
+  const token = url.searchParams.get("token");
+  if (!token) {
+    return new Response("Token required", { status: 401 });
+  }
+
+  const payload = verifyJWT(token);
+  if (!payload) {
+    return new Response("Invalid token", { status: 401 });
+  }
+
+  const userId = Number(payload.sub);
+  if (!(await isAccountActive(userId))) {
+    return new Response("Account disabled", { status: 401 });
+  }
+
+  if (server.upgrade(req, { data: { userId, expiresAt: payload.exp } })) {
+    return undefined;
+  }
+  return new Response("WebSocket upgrade failed", { status: 500 });
 }
 
 const server = Bun.serve<WebSocketData>({
   port,
   fetch(req, server) {
     const url = new URL(req.url);
+    if (url.pathname === "/ws") return upgradeToSocket(req, url, server);
 
-    // Handle WebSocket upgrade for /ws path
-    if (url.pathname === "/ws") {
-      const token = url.searchParams.get("token");
-      if (!token) {
-        return new Response("Token required", { status: 401 });
-      }
-
-      const payload = verifyJWT(token);
-      if (!payload) {
-        return new Response("Invalid token", { status: 401 });
-      }
-
-      const userId = parseInt(payload.sub);
-      const upgraded = server.upgrade(req, {
-        data: { userId },
-      });
-
-      if (upgraded) {
-        return undefined;
-      }
-      return new Response("WebSocket upgrade failed", { status: 500 });
-    }
-
-    // Handle regular HTTP requests with Hono
-    return app.fetch(req);
+    // Regular HTTP requests go to Hono, which reads the client address from
+    // the Bun server (src/shared/http/client-ip.ts).
+    return app.fetch(req, { server });
   },
   websocket: {
+    // A chat frame is at most a few kilobytes; anything bigger is refused
+    // before it is buffered and parsed.
+    maxPayloadLength: 64 * 1024,
     open(ws) {
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
@@ -700,6 +743,10 @@ const server = Bun.serve<WebSocketData>({
     async message(ws, message) {
       const userId = (ws.data as any)?.userId as number;
       if (!userId) return;
+      if (ws.data.expiresAt <= Math.floor(Date.now() / 1000)) {
+        ws.close(4001, "token_expired");
+        return;
+      }
 
       try {
         const data = JSON.parse(message.toString());
@@ -726,7 +773,8 @@ const server = Bun.serve<WebSocketData>({
           }
         }
       } catch (err) {
-        console.error("WebSocket message error:", err);
+        // Never log the frame itself (docs/chat/CONTRAT.md §0.3).
+        console.error("WebSocket message error:", err instanceof Error ? err.name : "unknown error");
       }
     },
     close(ws) {
