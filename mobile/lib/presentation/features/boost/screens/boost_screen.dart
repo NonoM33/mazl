@@ -6,6 +6,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credit_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
@@ -84,33 +86,65 @@ class _BoostScreenState extends State<BoostScreen> {
     });
   }
 
+  /// Boosts the member can start now: the server's balance, else the older
+  /// `remaining_boosts` of a server that does not send it yet.
+  int? get _remaining =>
+      _boostStatus?.credits?.boost.available ?? _boostStatus?.remainingBoosts;
+
+  /// The button: with nothing left the packs sheet opens first, and the Boost
+  /// starts once a pack is bought.
+  Future<void> _onActivatePressed() async {
+    final remaining = _remaining;
+    if (remaining != null && remaining <= 0) {
+      final bought = await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (!bought || !mounted) return;
+    }
+    await _activateBoost();
+  }
+
   Future<void> _activateBoost() async {
     setState(() => _isActivating = true);
 
     final result = await _apiService.activateBoost();
 
-    if (mounted) {
-      setState(() => _isActivating = false);
+    if (!mounted) return;
+    setState(() => _isActivating = false);
 
-      if (result.success && result.data != null) {
-        setState(() {
-          _boostStatus = result.data;
-        });
-        _startTimer();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.boostActivated),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.boostActivateFailed),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (result.success && result.data != null) {
+      setState(() {
+        _boostStatus = result.data;
+      });
+      _startTimer();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.boostActivated),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } else if (result.isCreditsExhausted) {
+      // The server's balance (read from its answer) says none is left.
+      await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (mounted) await _loadBoostStatus();
+    } else if (result.isBoostAlreadyActive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(apiErrorText(context.l10n, result.errorKind))),
+      );
+      await _loadBoostStatus();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.boostActivateFailed),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -127,8 +161,8 @@ class _BoostScreenState extends State<BoostScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _loadFailed
-              ? _buildError()
-              : _buildContent(),
+          ? _buildError()
+          : _buildContent(),
     );
   }
 
@@ -166,23 +200,17 @@ class _BoostScreenState extends State<BoostScreen> {
         const SizedBox(height: 24),
 
         // Stats or benefits
-        if (isActive)
-          _buildActiveStats()
-        else
-          _buildBenefits(),
+        if (isActive) _buildActiveStats() else _buildBenefits(),
 
         const SizedBox(height: 24),
 
         // Action button
-        if (!isActive)
-          _buildActivateButton(),
+        if (!isActive) _buildActivateButton(),
 
         const SizedBox(height: 16),
 
         // Premium upsell if not premium
-        if (_boostStatus?.remainingBoosts != null &&
-            _boostStatus!.remainingBoosts! <= 1)
-          _buildPremiumUpsell(),
+        if (_remaining != null && _remaining! <= 1) _buildPremiumUpsell(),
       ],
     );
   }
@@ -329,10 +357,7 @@ class _BoostScreenState extends State<BoostScreen> {
           children: [
             Text(
               context.l10n.boostBenefitsTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _BenefitRow(
@@ -362,14 +387,14 @@ class _BoostScreenState extends State<BoostScreen> {
   }
 
   Widget _buildActivateButton() {
-    final remaining = _boostStatus?.remainingBoosts;
+    final remaining = _remaining;
 
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _isActivating ? null : _activateBoost,
+            onPressed: _isActivating ? null : _onActivatePressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6C5CE7),
               foregroundColor: Colors.white,
@@ -410,10 +435,7 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 8),
           Text(
             context.l10n.boostRemaining(remaining),
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
           ),
         ],
       ],
@@ -490,13 +512,7 @@ class _StatCard extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
-          ),
+          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
         ],
       ),
     );
@@ -529,12 +545,7 @@ class _BenefitRow extends StatelessWidget {
             child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
         ],
       ),
     );
