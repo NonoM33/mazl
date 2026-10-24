@@ -23,7 +23,7 @@ DoD final (toutes doivent passer) :
 ## 🧍 Actions humaines (bloquantes, hors agents)
 - [ ] Révoquer le credential Jenkins `renaud:24536Tetr@` (exposé `Jenkinsfile:235`) + purger l'historique git.
 - [ ] Régénérer le mot de passe keychain CI `ci2026` (`Jenkinsfile:75`).
-- [ ] Provisionner en prod (Coolify) : `JWT_SECRET`, `ADMIN_JWT_SECRET`, vraies clés RevenueCat `appl_`/`goog_`, `ADMIN_EMAILS`.
+- [ ] Provisionner en prod (Coolify) : `JWT_SECRET`, `ADMIN_JWT_SECRET`, `ADMIN_EMAILS`, et `APPLE_BUNDLE_ID` / `APPLE_PRODUCT_IDS` si différents des valeurs par défaut ; URL des notifications App Store (`/api/subscriptions/apple/notifications`) à saisir dans App Store Connect.
 - [ ] Décider produit : `profile_setup_screen.dart` → implémenter ou supprimer.
 
 ---
@@ -74,8 +74,8 @@ Fonctions data pour les endpoints ci-dessus ; **`getDiscoverProfiles` (db.ts:108
 ---
 
 ## 🌊 VAGUE 3 — Monétisation défendable (parallèle)
-- **3.1** `src/index.ts (stream)` — webhook RevenueCat signé (index.ts:1846), vérif premium serveur, mapper tous les plans. `deps: fin vague 2`.
-- **3.2** `revenuecat_service.dart` — annulation d'achat (PlatformException), init non-bloquant au boot.
+- **3.1** ✅ 2026-10-24 — RevenueCat retiré : vérification StoreKit 2 par le serveur (`src/features/subscriptions`), notifications App Store V2 (commit 7906e3d).
+- **3.2** ✅ 2026-10-24 — achats natifs `in_app_purchase` dans l'app (`mobile/lib/core/services/store`, commit 25ecd9d).
 - **3.3** `premium_gate.dart` — persister quotas (likes/super/boost), aligner sur enforcement serveur.
 
 ## ✅ Gate Vague 3

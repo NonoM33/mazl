@@ -11,14 +11,27 @@ hébreu, espagnol (Espagne), russe.
 
 Nom de référence et nom affiché : **mazl+** (identique dans toutes les langues).
 
+Groupe 22508803. Prix de base : la France ; Israël et les autres pays suivent la
+conversion d'Apple. Disponibles dans les 175 pays.
+
 ## Abonnements
 
-| produit | durée | prix FR / US / UK |
-|---|---|---|
-| `com.mazl.app.plus.1m` | 1 mois | 19,99 € / 19,99 $ / 17,99 £ (premier mois 9,99 €) |
-| `com.mazl.app.plus.3m` | 3 mois | 44,99 € / 49,99 $ / 39,99 £ (mis en avant) |
-| `com.mazl.app.plus.6m` | 6 mois | 69,99 € / 79,99 $ / 64,99 £ |
-| `com.mazl.app.plus.12m` | 1 an | 99,99 € / 119,99 $ / 89,99 £ |
+| produit | id Apple | niveau | durée | prix FR / US / UK |
+|---|---|---|---|---|
+| `com.mazl.app.plus.12m` | 6826540839 | 1 | 1 an (payé d'avance) | 99,99 € / 119,99 $ / 89,99 £ |
+| `com.mazl.app.plus.6m` | 6826539502 | 2 | 6 mois | 69,99 € / 79,99 $ / 64,99 £ |
+| `com.mazl.app.plus.3m` | 6826538779 | 3 | 3 mois | 44,99 € / 49,99 $ / 39,99 £ (mis en avant) |
+| `com.mazl.app.plus.1m` | 6826448080 | 4 | 1 mois | 19,99 € / 19,99 $ / 17,99 £ |
+
+Niveaux : la plus longue durée en haut. Passer à une durée plus longue est une montée
+de gamme, immédiate ; passer à une durée plus courte prend effet au renouvellement.
+
+Offre de bienvenue sur `plus.1m` : paiement au fur et à mesure, premier mois à
+9,99 € / 9,99 $ / 8,99 £, dans les 175 pays, du 2026-10-24 sans date de fin. Apple ne
+l'accorde qu'aux nouveaux abonnés du groupe.
+
+Non activé : la « facturation mensuelle avec engagement de 12 mois » que propose
+Apple sur `plus.12m` (iOS 26.4+ et SDK 26.5+).
 
 Noms affichés :
 
@@ -49,5 +62,13 @@ Description, la même pour les quatre durées :
 | `com.mazl.app.superlikes.5` | 4,99 € | 5 Super Likes — Pour qu'on vous remarque d'abord | 5 Super Likes — Get noticed first |
 | `com.mazl.app.superlikes.15` | 11,99 € | 15 Super Likes — Pour qu'on vous remarque d'abord | 15 Super Likes — Get noticed first |
 
-Les consommables sont localisés en fr et en d'abord ; he, es et ru suivront la
-traduction de l'app.
+Prix de base : la France ; tous les autres pays suivent la conversion d'Apple (par
+exemple 6,99 $ pour `boost.1`). Disponibles dans les 175 pays. Les consommables sont
+localisés en fr et en d'abord ; he, es et ru suivront la traduction de l'app.
+
+## Reste à faire avant la soumission
+
+- Une capture d'écran de l'écran d'achat pour l'équipe de vérification, sur chaque
+  produit.
+- Soumettre les produits avec la prochaine version de l'app (Apple l'exige pour le
+  premier abonnement et le premier consommable).

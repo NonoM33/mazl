@@ -2,7 +2,7 @@ import type { Context, Hono, MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import { handleAppleNotification } from "../application/handle-notification";
-import type { SubscriptionRepository } from "../application/ports";
+import type { ConsumableRefunds, SubscriptionRepository } from "../application/ports";
 import type { TransactionVerifier } from "../application/transaction-verifier";
 import { verifyApplePurchase } from "../application/verify-purchase";
 import { InvalidTransactionError, TransactionOwnedByAnotherUserError } from "../domain/errors";
@@ -15,6 +15,8 @@ export interface SubscriptionsRouteDeps {
   readonly authenticate: MiddlewareHandler<{ Variables: AppVariables }>;
   readonly transactions: TransactionVerifier;
   readonly repository: SubscriptionRepository;
+  // Refunds of the consumables the credits feature sells, when there is one.
+  readonly consumables?: ConsumableRefunds;
 }
 
 const MAX_TRANSACTION_CHARS = 20 * 1024;

@@ -27,3 +27,14 @@ export interface SubscriptionRepository {
   renew(subscription: ActiveSubscription): Promise<void>;
   markStatus(originalTransactionId: string, status: SubscriptionStatus): Promise<void>;
 }
+
+export type ConsumableRefundOutcome = "refunded" | "already_refunded" | "unknown";
+
+// What the subscriptions notification handler needs from whoever sells
+// consumables (the credits feature), so that it never imports it.
+export interface ConsumableRefunds {
+  // True when the product is a consumable sold by this app.
+  sells(productId: string): boolean;
+  // Takes a refunded purchase back, once only. "unknown" when never credited.
+  refund(transactionId: string): Promise<ConsumableRefundOutcome>;
+}
