@@ -1,0 +1,28 @@
+/* Charte « Encre & Tekhelet » (mobile/lib/core/theme/app_colors.dart). Un seul
+   accent : le tekhelet. L'or n'existe que dans la section chabbat. */
+@font-face { font-family: "Geist"; src: url("/l/fonts/Geist-400.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/l/fonts/Geist-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/l/fonts/Geist-600.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/l/fonts/Geist-700.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/l/fonts/GeistMono-400.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/l/fonts/GeistMono-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+
+:root {
+  --ink: #0b0b0f;
+  --paper: #ffffff;
+  --mist: #f3f3f5;
+  --hairline: #e2e2e6;
+  --muted: #6b6b76;
+  --on-ink-muted: #a3a3ae;
+  --tekhelet: #2747f5;
+  --tekhelet-light: #5b78ff;
+  --tekhelet-dark: #1a35c9;
+  --gold: #f2b544;
+  --candle: #f4f1ea;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nav-h: 52px;
+  --wrap: 1180px;
+  --gutter: clamp(20px, 5vw, 56px);
+}
