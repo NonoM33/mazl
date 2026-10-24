@@ -1,6 +1,7 @@
-// Deploys the MAZL API through Coolify with no data at risk:
-//   bun scripts/deploy/deploy.ts stg
-//   bun scripts/deploy/deploy.ts prod [git-ref]   (default: origin/main)
+// Deploys MAZL through Coolify with no data at risk:
+//   bun scripts/deploy/deploy.ts stg | web-stg | web-prod
+//   bun scripts/deploy/deploy.ts prod [git-ref]   (the API; default ref: origin/main)
+// The website containers (web-*) hold no data: no backup, they follow stg / main.
 // 1. production only: a fresh database backup must SUCCEED first, or nothing is deployed;
 // 2. production only: the API follows the `production` branch, which only this script moves,
 //    AFTER the backup (a push to main never redeploys the production API by itself);
@@ -15,6 +16,8 @@ const TARGETS = {
     health: "https://api.mazl.app/api/health",
     backup: { database: "w8w0s8gs8g4gsw4kk4ocs0g8", config: "sddndjuc8pf5x8pvnblbseib" },
   },
+  "web-stg": { app: "ewnu77cukvg1ddhcad1ratnn", health: "https://stg.mazl.157.180.43.90.sslip.io/health", backup: null },
+  "web-prod": { app: "ylbma45xdidvfiicnu3ssaxl", health: "https://mazl.app/health", backup: null },
 } as const;
 
 type Target = keyof typeof TARGETS;
@@ -23,7 +26,7 @@ const base = process.env.COOLIFY_URL;
 const token = process.env.COOLIFY_API_KEY;
 const target = process.argv[2] as Target | undefined;
 if (!base || !token || !target || !(target in TARGETS)) {
-  console.error("usage: COOLIFY_URL=... COOLIFY_API_KEY=... bun scripts/deploy/deploy.ts stg|prod");
+  console.error("usage: COOLIFY_URL=... COOLIFY_API_KEY=... bun scripts/deploy/deploy.ts stg|prod|web-stg|web-prod");
   process.exit(2);
 }
 const settings = TARGETS[target];
@@ -60,8 +63,9 @@ async function freshBackup(database: string, config: string): Promise<void> {
 
 async function waitQueueEmpty(): Promise<void> {
   for (let i = 0; i < 120; i++) {
-    const running = await coolify<unknown[]>("GET", "/deployments");
-    if (running.length === 0) return;
+    // Coolify answers a list, or an object keyed by position when several run.
+    const running = await coolify<unknown[] | Record<string, unknown>>("GET", "/deployments");
+    if (Object.keys(running).length === 0) return;
     await sleep(10_000);
   }
   throw new Error("another deployment is still running after 20 minutes");
