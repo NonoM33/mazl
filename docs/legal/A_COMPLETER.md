@@ -53,7 +53,7 @@ Chaque mention `[À COMPLÉTER : …]` des trois documents (`cgu.md`, `cgv.md`, 
 | E-mail dédié aux demandes RGPD | Conf. 1 et 10 |
 | DPO : désignation ou décision motivée de ne pas en désigner (données sensibles à grande échelle) | Conf. 1 |
 | Représentant UE : confirmer qu'il est sans objet | Conf. 1 |
-| **Consentement explicite pour les données de pratique religieuse** : vérifier qu'un écran dédié existe dans l'app (texte, version, date) ; seul le consentement à la reconnaissance faciale est visible dans le code (`consentText`) | Conf. 2.3 |
+| **Consentement explicite pour les données de pratique religieuse** : l'écran web existe (texte versionné `2026-10-24`, routes `/api/privacy/consents`, retrait = effacement, historique en base) ; **l'écran de l'app mobile reste à faire** (le serveur n'exige pas encore le consentement sur `PUT /api/profile`, voir `docs/web/adr/W06-rgpd-article9.md`) ; seul le consentement à la reconnaissance faciale est visible dans le code mobile (`consentText`) | Conf. 2.3 |
 | Base légale de la conservation de l'empreinte HMAC d'un membre banni, et durée maximale (aucune expiration dans le code) | Conf. 3 et 4 |
 | Régime de la prospection (consentement ou intérêt légitime) pour les e-mails de campagne | Conf. 3 |
 | Confirmer l'absence d'outil de mesure d'audience (site et app) et de tout traceur | Conf. 3, 12 |
