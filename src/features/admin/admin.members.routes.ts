@@ -12,6 +12,7 @@ import {
   deleteUserCompletely,
   setUserVerificationLevel,
 } from "../../db";
+import { ACCOUNT_DISABLED_CLOSE, closeUserConnections } from "../../shared/realtime/connections";
 import { assertAdmin } from "./admin.auth";
 import type { UserErasure } from "./admin.erasure";
 
@@ -72,6 +73,7 @@ export function registerAdminUsersOverviewRoutes(app: Hono<{ Variables: AppVaria
       }
 
       await setUserActiveStatus(userId, isActive);
+      if (!isActive) closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled");
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Update user status error:", error);
@@ -121,6 +123,7 @@ export function registerAdminMembersModuleRoutes(app: Hono<{ Variables: AppVaria
         expiresAt: body.expiresAt ? new Date(body.expiresAt) : undefined,
         isPermanent: body.isPermanent ?? false,
       });
+      closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled");
 
       return c.json({ success: true, ban });
     } catch (error: unknown) {

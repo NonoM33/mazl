@@ -98,6 +98,38 @@ describe("a token outlives nothing", () => {
   });
 });
 
+describe("open sockets end with the account", () => {
+  const adminHeaders = () => ({ "Content-Type": "application/json", "x-admin-password": process.env.ADMIN_PASSWORD ?? "", ...freshAddress() });
+
+  test("an admin ban closes the member's open sockets at once", async () => {
+    const member = await makeUser("wsban");
+    const { socket, outcome } = await connect(member.token);
+    expect(outcome).toBe("open");
+    const code = closed(socket as WebSocket);
+    const ban = await fetch(`${BASE_URL}/api/admin/users/${member.id}/ban`, { method: "POST", headers: adminHeaders(), body: JSON.stringify({ reason: "test" }) });
+    expect(ban.status).toBe(200);
+    expect(await code).toBe(4003);
+  });
+
+  test("an admin deactivation closes them too", async () => {
+    const member = await makeUser("wsdeactivate");
+    const { socket } = await connect(member.token);
+    const code = closed(socket as WebSocket);
+    const res = await fetch(`${BASE_URL}/api/admin/users/${member.id}/status`, { method: "PUT", headers: adminHeaders(), body: JSON.stringify({ isActive: false }) });
+    expect(res.status).toBe(200);
+    expect(await code).toBe(4003);
+  });
+
+  test("deleting one's account closes one's other sockets", async () => {
+    const member = await makeUser("wsdelete");
+    const { socket } = await connect(member.token);
+    const code = closed(socket as WebSocket);
+    const res = await fetch(`${BASE_URL}/api/users/me`, { method: "DELETE", headers: { ...auth(member.token), "Content-Type": "application/json" }, body: JSON.stringify({ reason: "test" }) });
+    expect(res.status).toBe(200);
+    expect(await code).toBe(4003);
+  });
+});
+
 describe("names outside Latin-1", () => {
   test("a member named in Hebrew gets a working token", async () => {
     const res = await fetch(`${BASE_URL}/api/dev/test-user`, {

@@ -82,6 +82,8 @@ import {
   emitNewMatch,
   addConnection,
   removeConnection,
+  closeUserConnections,
+  ACCOUNT_DISABLED_CLOSE,
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
@@ -280,9 +282,13 @@ registerDocumentsRoutes(app, documents);
 const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
 // GDPR erasure of a member: rows first (inside `deletion`), then their profile
 // photo files, then their chat files. A failed deletion touches no file.
+// Once erased, the member's open sockets are closed.
 const userErasure = {
-  around: <T,>(userId: number, deletion: () => Promise<T>): Promise<T> =>
-    chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion)),
+  around: async <T,>(userId: number, deletion: () => Promise<T>): Promise<T> => {
+    const erased = await chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion));
+    closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled");
+    return erased;
+  },
 };
 registerAdminRoutes(app, UPLOADS_DIR, userErasure);
 registerAccountRoutes(app, sql, userErasure);

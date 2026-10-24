@@ -24,6 +24,10 @@ const wsConnections = new Map<number, Set<WebSocket>>();
 // The next one closes the oldest.
 export const MAX_SOCKETS_PER_USER = 5;
 
+// Close code sent when the account behind a socket is banned, deactivated or
+// deleted: the app signs out instead of reconnecting.
+export const ACCOUNT_DISABLED_CLOSE = 4003;
+
 const TOO_MANY_CONNECTIONS_CODE = 4008;
 const TOO_MANY_CONNECTIONS_REASON = "too_many_connections";
 
