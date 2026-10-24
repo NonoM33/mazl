@@ -24,36 +24,6 @@ lib/core/chat/scam_rules.dart | plateformes? d'? ?investissements?|rendements? g
 lib/core/chat/scam_rules.dart | trading(?! card)|forex|revenus? passifs?|passive income|
 lib/core/chat/scam_rules.dart | virements?|iban|rib|western union|moneygram|mandat cash|bank transfer|wire transfer|money transfer|
 lib/core/chat/voice_impl.dart | only http(s) and data: addresses can be played
-lib/core/models/profile_labels.dart | Amitié d'abord
-lib/core/models/profile_labels.dart | Cacher strict
-lib/core/models/profile_labels.dart | Cacher strict
-lib/core/models/profile_labels.dart | Cacher à la maison
-lib/core/models/profile_labels.dart | Cacher à la maison
-lib/core/models/profile_labels.dart | Cacher à la maison
-lib/core/models/profile_labels.dart | Cacher à la maison
-lib/core/models/profile_labels.dart | Glatt cacher
-lib/core/models/profile_labels.dart | Habad
-lib/core/models/profile_labels.dart | Habad
-lib/core/models/profile_labels.dart | Laïque
-lib/core/models/profile_labels.dart | Libéral
-lib/core/models/profile_labels.dart | Libérale
-lib/core/models/profile_labels.dart | Mariage
-lib/core/models/profile_labels.dart | Mariage
-lib/core/models/profile_labels.dart | Massorti
-lib/core/models/profile_labels.dart | Orthodoxe
-lib/core/models/profile_labels.dart | Orthodoxe
-lib/core/models/profile_labels.dart | Orthodoxe moderne
-lib/core/models/profile_labels.dart | Orthodoxe moderne
-lib/core/models/profile_labels.dart | Ouvert à tout
-lib/core/models/profile_labels.dart | Relation sérieuse
-lib/core/models/profile_labels.dart | Shabbat en famille
-lib/core/models/profile_labels.dart | Shabbat en partie
-lib/core/models/profile_labels.dart | Shabbat en partie
-lib/core/models/profile_labels.dart | Shabbat en partie
-lib/core/models/profile_labels.dart | Shabbat observé
-lib/core/models/profile_labels.dart | Shabbat strict
-lib/core/models/profile_labels.dart | Shabbat strict
-lib/core/models/profile_labels.dart | Traditionaliste
 lib/core/models/verification.dart | unknown challenge: $value
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization

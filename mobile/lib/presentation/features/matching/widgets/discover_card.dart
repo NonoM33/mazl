@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/profile.dart' show Profile;
-import '../../../../core/models/profile_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
+import '../../profile/l10n/profile_answer_labels.dart';
 
 /// Carte de découverte : la photo, puis le nom, la ville et les puces dessous.
 ///
@@ -189,7 +189,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
     final scheme = Theme.of(context).colorScheme;
     final name = _profile.displayName ?? context.l10n.matchingCardAnonymous;
     final meta = _metaLine(context);
-    final tags = _tags();
+    final tags = _tags(context.l10n);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       child: Column(
@@ -266,11 +266,11 @@ class _DiscoverCardState extends State<DiscoverCard> {
     return parts.join(' · ');
   }
 
-  List<String> _tags() => [
-    ProfileLabels.denomination(_profile.denomination),
-    ProfileLabels.kashrut(_profile.kashrut),
-    ProfileLabels.shabbat(_profile.shabbatObservance),
-    ProfileLabels.intention(_profile.relationshipIntention),
+  List<String> _tags(AppLocalizations l10n) => [
+    denominationFact(l10n, _profile.denomination),
+    kashrutFact(l10n, _profile.kashrut),
+    shabbatFact(l10n, _profile.shabbatObservance),
+    intentionFact(l10n, _profile.relationshipIntention),
   ].whereType<String>().toList();
 
   static bool _hasText(String? value) =>
