@@ -2,21 +2,8 @@
 # Voir test/l10n/hardcoded_strings_test.dart.
 lib/core/chat/chat_api.dart | Authorization
 lib/core/chat/chat_api.dart | Bearer $jwt
-lib/core/chat/chat_api.dart | Ce message ne peut plus être retiré.
-lib/core/chat/chat_api.dart | Cette conversation n’est plus disponible.
 lib/core/chat/chat_api.dart | ChatApiException($status)
 lib/core/chat/chat_api.dart | Content-Type
-lib/core/chat/chat_api.dart | Délai dépassé, vérifiez votre connexion.
-lib/core/chat/chat_api.dart | Fichier refusé, essayez-en un autre.
-lib/core/chat/chat_api.dart | Fichier trop volumineux.
-lib/core/chat/chat_api.dart | Le serveur est indisponible, réessayez.
-lib/core/chat/chat_api.dart | Message refusé.
-lib/core/chat/chat_api.dart | Pas de connexion internet.
-lib/core/chat/chat_api.dart | Pas de connexion internet.
-lib/core/chat/chat_api.dart | Session expirée, reconnectez-vous.
-lib/core/chat/chat_api.dart | Trop d’envois, patientez un instant.
-lib/core/chat/chat_api.dart | Une erreur est survenue.
-lib/core/chat/chat_api.dart | Vous ne pouvez plus écrire dans cette conversation.
 lib/core/chat/chat_providers.dart | current user unavailable
 lib/core/chat/chat_realtime.dart | Message retiré
 lib/core/chat/chat_realtime.dart | Message vocal
@@ -37,76 +24,6 @@ lib/core/chat/scam_rules.dart | plateformes? d'? ?investissements?|rendements? g
 lib/core/chat/scam_rules.dart | trading(?! card)|forex|revenus? passifs?|passive income|
 lib/core/chat/scam_rules.dart | virements?|iban|rib|western union|moneygram|mandat cash|bank transfer|wire transfer|money transfer|
 lib/core/chat/voice_impl.dart | only http(s) and data: addresses can be played
-lib/core/models/compatibility_score.dart | Assez loin
-lib/core/models/compatibility_score.dart | Différence d\'âge modérée
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance modérée
-lib/core/models/compatibility_score.dart | Grande différence d\'âge
-lib/core/models/compatibility_score.dart | Intentions
-lib/core/models/compatibility_score.dart | Intentions
-lib/core/models/compatibility_score.dart | Intentions différentes
-lib/core/models/compatibility_score.dart | Même dénomination
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique différente
-lib/core/models/compatibility_score.dart | Pratique similaire
-lib/core/models/compatibility_score.dart | Proche (< 25 km)
-lib/core/models/compatibility_score.dart | Très proche (< 10 km)
-lib/core/models/compatibility_score.dart | Vous cherchez la même chose
-lib/core/models/compatibility_score.dart | modern orthodox
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge proche
-lib/core/models/compatibility_score.dart | Âge très proche
-lib/core/models/couple_activity.dart | Bien-être
-lib/core/models/couple_activity.dart | Culture
-lib/core/models/couple_activity.dart | Gastronomie
-lib/core/models/couple_activity.dart | Gratuit
-lib/core/models/couple_activity.dart | Romantique
-lib/core/models/couple_activity.dart | Spirituel
-lib/core/models/couple_activity.dart | Sport
-lib/core/models/couple_activity.dart | Voyage
-lib/core/models/couple_anniversary.dart | 1 an
-lib/core/models/couple_anniversary.dart | 1 mois
-lib/core/models/couple_anniversary.dart | 1 semaine
-lib/core/models/couple_anniversary.dart | 2 ans
-lib/core/models/couple_anniversary.dart | 3 mois
-lib/core/models/couple_anniversary.dart | 6 mois
-lib/core/models/couple_event.dart | Août
-lib/core/models/couple_event.dart | Avr
-lib/core/models/couple_event.dart | Dim
-lib/core/models/couple_event.dart | Déc
-lib/core/models/couple_event.dart | Fév
-lib/core/models/couple_event.dart | Gratuit
-lib/core/models/couple_event.dart | Jan
-lib/core/models/couple_event.dart | Jeu
-lib/core/models/couple_event.dart | Juil
-lib/core/models/couple_event.dart | Juin
-lib/core/models/couple_event.dart | Lun
-lib/core/models/couple_event.dart | Mai
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mer
-lib/core/models/couple_event.dart | Nov
-lib/core/models/couple_event.dart | Oct
-lib/core/models/couple_event.dart | Sam
-lib/core/models/couple_event.dart | Sep
-lib/core/models/couple_event.dart | Ven
-lib/core/models/couple_models.dart | Célibataire
-lib/core/models/couple_models.dart | En couple
-lib/core/models/couple_models.dart | En train de dater
-lib/core/models/couple_models.dart | Fiancé(e)
-lib/core/models/couple_models.dart | Marié(e)
-lib/core/models/event.dart | $left places restantes
-lib/core/models/event.dart | Complet
-lib/core/models/event.dart | Gratuit
-lib/core/models/event.dart | Places illimitées
 lib/core/models/profile_labels.dart | Amitié d'abord
 lib/core/models/profile_labels.dart | Cacher strict
 lib/core/models/profile_labels.dart | Cacher strict
@@ -137,41 +54,7 @@ lib/core/models/profile_labels.dart | Shabbat observé
 lib/core/models/profile_labels.dart | Shabbat strict
 lib/core/models/profile_labels.dart | Shabbat strict
 lib/core/models/profile_labels.dart | Traditionaliste
-lib/core/models/profile_prompt.dart | Apprenez-moi quelque chose sur…
-lib/core/models/profile_prompt.dart | Ce qui m\'énerve le plus...
-lib/core/models/profile_prompt.dart | Débattez avec moi sur…
-lib/core/models/profile_prompt.dart | En ce moment je regarde...
-lib/core/models/profile_prompt.dart | Ensemble on pourrait...
-lib/core/models/profile_prompt.dart | Je cherche quelqu\'un qui...
-lib/core/models/profile_prompt.dart | Je suis fier(e) de...
-lib/core/models/profile_prompt.dart | Le vendredi soir chez moi...
-lib/core/models/profile_prompt.dart | Ma fête juive préférée...
-lib/core/models/profile_prompt.dart | Mes vacances idéales...
-lib/core/models/profile_prompt.dart | Mon Shabbat idéal...
-lib/core/models/profile_prompt.dart | Mon dimanche parfait...
-lib/core/models/profile_prompt.dart | Mon meilleur souvenir en Israël...
-lib/core/models/profile_prompt.dart | Mon plat préféré...
-lib/core/models/profile_prompt.dart | Mon talent caché...
-lib/core/models/profile_prompt.dart | Premier date idéal...
-lib/core/models/profile_prompt.dart | Un de mes objectifs dans la vie...
-lib/core/models/profile_prompt.dart | Un fait surprenant sur moi...
-lib/core/models/profile_prompt.dart | Une tradition familiale que j\'adore...
-lib/core/models/profile_prompt.dart | Une valeur juive qui me guide...
-lib/core/models/relationship_intention.dart | Amitié d\'abord
-lib/core/models/relationship_intention.dart | Commençons par apprendre à se connaître
-lib/core/models/relationship_intention.dart | Je cherche mon/ma futur(e) mari/femme
-lib/core/models/relationship_intention.dart | Je cherche une relation durable
-lib/core/models/relationship_intention.dart | Mariage
-lib/core/models/relationship_intention.dart | On verra où ça nous mène
-lib/core/models/relationship_intention.dart | Ouvert(e) à tout
-lib/core/models/relationship_intention.dart | Relation sérieuse
-lib/core/models/success_story.dart | En couple
-lib/core/models/success_story.dart | Fiancés
-lib/core/models/success_story.dart | Mariés
 lib/core/models/verification.dart | unknown challenge: $value
-lib/core/router/app_router.dart | Page introuvable
-lib/core/router/app_router.dart | Retour à l\'accueil
-lib/core/router/app_router.dart | Une erreur est survenue
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
@@ -268,68 +151,21 @@ lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
-lib/core/services/auth_service.dart | Apple Sign-In is only available on iOS and macOS
-lib/core/services/auth_service.dart | Apple sign-in failed: $e
-lib/core/services/auth_service.dart | Apple sign-in was cancelled
-lib/core/services/auth_service.dart | Aucun utilisateur connecté
-lib/core/services/auth_service.dart | Authentication failed
-lib/core/services/auth_service.dart | Authentication failed
 lib/core/services/auth_service.dart | Authorization
-lib/core/services/auth_service.dart | Backend authentication failed
-lib/core/services/auth_service.dart | Backend authentication failed
 lib/core/services/auth_service.dart | Bearer ${_currentUser!.jwtToken}
-lib/core/services/auth_service.dart | Connexion échouée
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
-lib/core/services/auth_service.dart | Email ou mot de passe incorrect
-lib/core/services/auth_service.dart | Erreur d\'inscription: $e
-lib/core/services/auth_service.dart | Erreur de connexion: $e
-lib/core/services/auth_service.dart | Erreur lors de l\'envoi
-lib/core/services/auth_service.dart | Erreur lors de la suppression
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Google sign-in failed: $e
-lib/core/services/auth_service.dart | Google sign-in was cancelled
-lib/core/services/auth_service.dart | Inscription échouée
-lib/core/services/auth_service.dart | Inscription échouée
 lib/core/services/auth_service.dart | La connexion fictive est réservée au mode debug.
 lib/core/services/auth_service.dart | Léa (démo)
-lib/core/services/auth_service.dart | No ID token received from Google
-lib/core/services/auth_service.dart | No identity token received from Apple
 lib/core/services/auth_service.dart | Non spécifié
 lib/core/services/couple_api_service.dart | $key holds a non-object item
 lib/core/services/couple_api_service.dart | $key is not a list
 lib/core/services/couple_api_service.dart | $key is not an object
-lib/core/services/couple_api_service.dart | Activity not found
-lib/core/services/couple_api_service.dart | Cet événement est complet.
-lib/core/services/couple_api_service.dart | CoupleFailure(${kind.name}): $message ${detail ?? 
-lib/core/services/couple_api_service.dart | Délai dépassé. Vérifiez votre connexion.
-lib/core/services/couple_api_service.dart | Event is full
-lib/core/services/couple_api_service.dart | Event not found
-lib/core/services/couple_api_service.dart | Introuvable.
-lib/core/services/couple_api_service.dart | Le mode couple n\'est pas actif.
-lib/core/services/couple_api_service.dart | Le serveur n\'a pas pu répondre. Réessayez.
-lib/core/services/couple_api_service.dart | Not in a couple
-lib/core/services/couple_api_service.dart | Pas de connexion. Réessayez.
-lib/core/services/couple_api_service.dart | Réponse inattendue du serveur.
-lib/core/services/couple_api_service.dart | Réponse inattendue du serveur.
-lib/core/services/couple_api_service.dart | Réponse inattendue du serveur.
-lib/core/services/couple_api_service.dart | Serveur injoignable. Réessayez.
 lib/core/services/couple_api_service.dart | stats is not an object
-lib/core/services/couple_messages.dart | Cette demande n\'est plus en attente.
-lib/core/services/couple_messages.dart | Cette personne n\'est pas disponible.
-lib/core/services/couple_messages.dart | Connexion impossible, réessayez dans un instant.
-lib/core/services/couple_messages.dart | L\'un de vous est déjà en mode couple.
-lib/core/services/couple_messages.dart | Le mode couple ne s\'active qu\'avec un match.
-lib/core/services/couple_messages.dart | Une demande est déjà en attente avec cette personne.
-lib/core/services/couple_messages.dart | Une erreur est survenue, réessayez dans un instant.
-lib/core/services/couple_messages.dart | Vous ne pouvez pas vous envoyer une demande.
-lib/core/services/couple_messages.dart | already in a couple
-lib/core/services/couple_messages.dart | no longer
 lib/core/services/couple_service.dart | 3 mois de bonheur
 lib/core/services/couple_service.dart | 30 jours d\'amour
 lib/core/services/couple_service.dart | 365 jours de Mazl
@@ -348,9 +184,7 @@ lib/core/services/couple_service.dart | Cuisine Shabbat
 lib/core/services/couple_service.dart | Date night
 lib/core/services/couple_service.dart | Dîner romantique à la maison
 lib/core/services/couple_service.dart | Hesed ensemble
-lib/core/services/couple_service.dart | Impossible de quitter le mode couple pour le moment.
 lib/core/services/couple_service.dart | Invitation chez des amis
-lib/core/services/couple_service.dart | J'ai trouvé l'amour sur Mazl. Je ne suis plus disponible. Bonne chance dans votre recherche.
 lib/core/services/couple_service.dart | Judaïsme
 lib/core/services/couple_service.dart | Maison
 lib/core/services/couple_service.dart | Mi-année
@@ -372,8 +206,6 @@ lib/core/services/couple_service.dart | Sortie restaurant ou cinéma
 lib/core/services/couple_service.dart | Spirituel
 lib/core/services/couple_service.dart | Sport ensemble
 lib/core/services/couple_service.dart | Trimestre
-lib/core/services/couple_service.dart | Une erreur est survenue, réessayez dans un instant.
-lib/core/services/couple_service.dart | Une erreur est survenue, réessayez dans un instant.
 lib/core/services/couple_service.dart | Voyage
 lib/core/services/couple_service.dart | Étude Torah
 lib/core/services/http_verification_api.dart | Authorization
@@ -382,141 +214,8 @@ lib/core/services/http_verification_api.dart | Bearer $token
 lib/core/services/http_verification_api.dart | Bearer $token
 lib/core/services/http_verification_api.dart | Content-Type
 lib/core/services/http_verification_api.dart | unexpected response body
-lib/core/services/icebreaker_service.dart | C\'est quoi le dernier livre qui t\'a marqué ?
-lib/core/services/icebreaker_service.dart | C\'est quoi le meilleur conseil qu\'on t\'ait donné ?
-lib/core/services/icebreaker_service.dart | C\'est quoi le truc le plus spontané que tu aies fait ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta définition d\'une journée parfaite ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta fête juive préférée ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ta plus belle rando ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton coin préféré à $location ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton guilty pleasure ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton plat signature ?
-lib/core/services/icebreaker_service.dart | C\'est quoi ton rapport à la culture juive ?
-lib/core/services/icebreaker_service.dart | Comment tu passes généralement Shabbat ?
-lib/core/services/icebreaker_service.dart | Il y a un bon restaurant que tu recommandes à $location ?
-lib/core/services/icebreaker_service.dart | J\'ai adoré ta réponse à "${prompt.promptText}". ${_getFollowUp(prompt.answer)}
-lib/core/services/icebreaker_service.dart | J\'aimerais en savoir plus.
-lib/core/services/icebreaker_service.dart | Je suis curieux(se) de savoir pourquoi tu as répondu "${_truncate(prompt.answer, 30)}" à la question sur ${_extractTopic(prompt.promptText)}
-lib/core/services/icebreaker_service.dart | Quel genre de musique tu écoutes en ce moment ?
-lib/core/services/icebreaker_service.dart | Quelle est ta prochaine destination de rêve ?
-lib/core/services/icebreaker_service.dart | Quelles traditions juives sont les plus importantes pour toi ?
-lib/core/services/icebreaker_service.dart | Si tu gagnais au loto demain, tu ferais quoi en premier ?
-lib/core/services/icebreaker_service.dart | Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?
-lib/core/services/icebreaker_service.dart | Ta réponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?
-lib/core/services/icebreaker_service.dart | Tu as des traditions familiales que tu gardes ?
-lib/core/services/icebreaker_service.dart | Tu as des traditions familiales spéciales ?
-lib/core/services/icebreaker_service.dart | Tu as grandi dans une famille pratiquante ?
-lib/core/services/icebreaker_service.dart | Tu as un restaurant casher préféré ?
-lib/core/services/icebreaker_service.dart | Tu as un rêve que tu n\'as pas encore réalisé ?
-lib/core/services/icebreaker_service.dart | Tu as un talent caché que peu de gens connaissent ?
-lib/core/services/icebreaker_service.dart | Tu as une fête juive préférée ?
-lib/core/services/icebreaker_service.dart | Tu as une synagogue préférée dans le coin ?
-lib/core/services/icebreaker_service.dart | Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.
-lib/core/services/icebreaker_service.dart | Tu as vu un bon film récemment ?
-lib/core/services/icebreaker_service.dart | Tu as été à un bon concert récemment ?
-lib/core/services/icebreaker_service.dart | Tu connais bien $location ? Tu me conseilles quoi ?
-lib/core/services/icebreaker_service.dart | Tu connais de beaux sentiers dans le coin ?
-lib/core/services/icebreaker_service.dart | Tu cuisines quoi de bon en ce moment ?
-lib/core/services/icebreaker_service.dart | Tu célèbres Shabbat comment généralement ?
-lib/core/services/icebreaker_service.dart | Tu célèbres quelles fêtes ?
-lib/core/services/icebreaker_service.dart | Tu es originaire de $location ou tu t\'y es installé(e) ?
-lib/core/services/icebreaker_service.dart | Tu lis quoi en ce moment ?
-lib/core/services/icebreaker_service.dart | Tu me racontes ?
-lib/core/services/icebreaker_service.dart | Tu pratiques quel sport ?
-lib/core/services/icebreaker_service.dart | Tu prends des photos de quoi principalement ?
-lib/core/services/icebreaker_service.dart | Tu préfères cinéma ou séries ?
-lib/core/services/icebreaker_service.dart | Tu préfères petit-déjeuner ou dîner dehors ?
-lib/core/services/icebreaker_service.dart | Tu préfères regarder ou pratiquer ?
-lib/core/services/icebreaker_service.dart | Tu préfères vacances à la mer ou à la montagne ?
-lib/core/services/icebreaker_service.dart | Tu utilises quoi comme appareil ?
 lib/core/services/icebreaker_service.dart | modern orthodox
-lib/core/services/icebreaker_service.dart | Ça a l\'air intéressant.
-lib/core/services/icebreaker_service.dart | Ça m\'intrigue.
-lib/core/services/icebreaker_service.dart | ça
-lib/core/services/jewish_calendar_service.dart | 33eme jour du Omer
-lib/core/services/jewish_calendar_service.dart | Allumer les bougies
-lib/core/services/jewish_calendar_service.dart | Allumer les bougies ensemble
-lib/core/services/jewish_calendar_service.dart | Apprenez ensemble la portion de la semaine
-lib/core/services/jewish_calendar_service.dart | BBQ israélien
-lib/core/services/jewish_calendar_service.dart | Balade tranquille après le repas
-lib/core/services/jewish_calendar_service.dart | Cheesecake maison
-lib/core/services/jewish_calendar_service.dart | Concert/soirée
-lib/core/services/jewish_calendar_service.dart | Construire la Soucca ensemble
-lib/core/services/jewish_calendar_service.dart | Construire la Soucca ensemble
-lib/core/services/jewish_calendar_service.dart | Construire la Soucca ensemble
-lib/core/services/jewish_calendar_service.dart | Cuisinez la Halla et le repas de fête
-lib/core/services/jewish_calendar_service.dart | Danser avec la Torah
-lib/core/services/jewish_calendar_service.dart | Don de la Torah
-lib/core/services/jewish_calendar_service.dart | Déguisement en couple
-lib/core/services/jewish_calendar_service.dart | Déguisement en couple
-lib/core/services/jewish_calendar_service.dart | Détente
-lib/core/services/jewish_calendar_service.dart | Dîner festif
-lib/core/services/jewish_calendar_service.dart | Faire le ménage de Pessah
-lib/core/services/jewish_calendar_service.dart | Feu de camp
-lib/core/services/jewish_calendar_service.dart | Fête de la liberté
-lib/core/services/jewish_calendar_service.dart | Fête de la liberté
-lib/core/services/jewish_calendar_service.dart | Fête des cabanes
-lib/core/services/jewish_calendar_service.dart | Fête des cabanes
-lib/core/services/jewish_calendar_service.dart | Fête des cabanes
-lib/core/services/jewish_calendar_service.dart | Fête des lumières
-lib/core/services/jewish_calendar_service.dart | Fête des sorts
-lib/core/services/jewish_calendar_service.dart | Fête des sorts
-lib/core/services/jewish_calendar_service.dart | Hanoucca
-lib/core/services/jewish_calendar_service.dart | Huitième jour de rassemblement
-lib/core/services/jewish_calendar_service.dart | Inviter des amis
-lib/core/services/jewish_calendar_service.dart | Inviter des amis
-lib/core/services/jewish_calendar_service.dart | Inviter des amis
-lib/core/services/jewish_calendar_service.dart | Joie de la Torah
-lib/core/services/jewish_calendar_service.dart | Jour de l\'indépendance d\'Israël
-lib/core/services/jewish_calendar_service.dart | Jour de la réunification de Jérusalem
-lib/core/services/jewish_calendar_service.dart | Jour du Grand Pardon
-lib/core/services/jewish_calendar_service.dart | Jour du souvenir de la Shoah
-lib/core/services/jewish_calendar_service.dart | Jour du souvenir des soldats
-lib/core/services/jewish_calendar_service.dart | Lag BaOmer
-lib/core/services/jewish_calendar_service.dart | Mishloach Manot ensemble
-lib/core/services/jewish_calendar_service.dart | Mishloach Manot ensemble
-lib/core/services/jewish_calendar_service.dart | Moment de spiritualité partagé
-lib/core/services/jewish_calendar_service.dart | Nettoyage de printemps en équipe
-lib/core/services/jewish_calendar_service.dart | Nouvel an des arbres
-lib/core/services/jewish_calendar_service.dart | Nouvel an juif
-lib/core/services/jewish_calendar_service.dart | Nuit d\'étude
-lib/core/services/jewish_calendar_service.dart | Organisez la table ensemble
 lib/core/services/jewish_calendar_service.dart | Paris
-lib/core/services/jewish_calendar_service.dart | Pessah
-lib/core/services/jewish_calendar_service.dart | Pessah
-lib/core/services/jewish_calendar_service.dart | Pique-nique
-lib/core/services/jewish_calendar_service.dart | Pourim
-lib/core/services/jewish_calendar_service.dart | Pourim
-lib/core/services/jewish_calendar_service.dart | Prière pour la pluie
-lib/core/services/jewish_calendar_service.dart | Promenade Shabbat
-lib/core/services/jewish_calendar_service.dart | Préparation
-lib/core/services/jewish_calendar_service.dart | Préparation
-lib/core/services/jewish_calendar_service.dart | Préparation
-lib/core/services/jewish_calendar_service.dart | Préparer le Seder
-lib/core/services/jewish_calendar_service.dart | Préparer le dîner ensemble
-lib/core/services/jewish_calendar_service.dart | Rosh Hashana
-lib/core/services/jewish_calendar_service.dart | Se demander pardon mutuellement
-lib/core/services/jewish_calendar_service.dart | Seder romantique
-lib/core/services/jewish_calendar_service.dart | Seder romantique
-lib/core/services/jewish_calendar_service.dart | Shavouot
-lib/core/services/jewish_calendar_service.dart | Shemini Atseret
-lib/core/services/jewish_calendar_service.dart | Simhat Torah
-lib/core/services/jewish_calendar_service.dart | Souccot
-lib/core/services/jewish_calendar_service.dart | Souccot
-lib/core/services/jewish_calendar_service.dart | Souccot
-lib/core/services/jewish_calendar_service.dart | Soufganiot maison
-lib/core/services/jewish_calendar_service.dart | Spirituel
-lib/core/services/jewish_calendar_service.dart | Spirituel
-lib/core/services/jewish_calendar_service.dart | Tashlich ensemble
-lib/core/services/jewish_calendar_service.dart | Tou Bichvat
-lib/core/services/jewish_calendar_service.dart | Voyage en Israël
-lib/core/services/jewish_calendar_service.dart | Voyage en Israël
-lib/core/services/jewish_calendar_service.dart | Yom HaAtsmaout
-lib/core/services/jewish_calendar_service.dart | Yom HaShoah
-lib/core/services/jewish_calendar_service.dart | Yom HaZikaron
-lib/core/services/jewish_calendar_service.dart | Yom Kippour
-lib/core/services/jewish_calendar_service.dart | Yom Yeroushalayim
-lib/core/services/jewish_calendar_service.dart | Étude de la Parasha
 lib/core/services/premium_gate.dart | Boost
 lib/core/services/premium_gate.dart | Confirmations de lecture
 lib/core/services/premium_gate.dart | Faites-vous remarquer avec 5 Super Likes par jour.
@@ -533,16 +232,27 @@ lib/core/services/premium_gate.dart | Super Likes
 lib/core/services/premium_gate.dart | Support prioritaire
 lib/core/services/premium_gate.dart | Voir qui vous a aimé
 lib/core/services/premium_gate.dart | Voyez qui vous a aimé avant même de le croiser.
-lib/core/services/revenuecat_service.dart | Gratuit
-lib/core/services/revenuecat_service.dart | Gratuit
-lib/core/services/revenuecat_service.dart | Mazl Pro
-lib/core/services/revenuecat_service.dart | mazl+ (actif)
-lib/core/services/revenuecat_service.dart | mazl+ (expire bientôt)
-lib/core/services/subscription_format.dart | 1 mois
-lib/core/services/subscription_format.dart | 12 mois
-lib/core/services/subscription_format.dart | 2 mois
-lib/core/services/subscription_format.dart | 3 mois
-lib/core/services/subscription_format.dart | 6 mois
+lib/core/services/store/subscription_api.dart | Authorization
+lib/core/services/store/subscription_api.dart | Bearer $token
+lib/core/services/store/subscription_api.dart | Content-Type
+lib/core/services/store/subscription_models.dart | subscription.$key: texte attendu
+lib/core/services/store/subscription_models.dart | subscription.expires_at: texte attendu
+lib/core/services/store/subscription_models.dart | subscription: objet attendu
+lib/core/services/store/subscription_service.dart | Bientôt disponible sur Android
+lib/core/services/store/subscription_service.dart | Cet achat App Store est déjà associé à un autre compte mazl.
+lib/core/services/store/subscription_service.dart | Connexion impossible. Votre achat est conservé et sera validé dès que possible.
+lib/core/services/store/subscription_service.dart | Gratuit
+lib/core/services/store/subscription_service.dart | Il sera revérifié au prochain lancement.
+lib/core/services/store/subscription_service.dart | La restauration a échoué. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | L’achat n’a pas pu aboutir. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | Nous n’avons pas pu valider cet achat auprès de l’App Store. 
+lib/core/services/store/subscription_service.dart | Reconnectez-vous à mazl pour finaliser votre achat.
+lib/core/services/store/subscription_service.dart | Subscription: réponse de vérification illisible - ${error.message}
+lib/core/services/store/subscription_service.dart | Un achat est déjà en cours.
+lib/core/services/store/subscription_service.dart | Votre abonnement n’est pas actif.
+lib/core/services/store/subscription_service.dart | Votre achat n’a pas pu être transmis correctement. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | mazl+ (actif)
+lib/core/services/subscription_format.dart | $months mois
 lib/core/services/subscription_format.dart | août
 lib/core/services/subscription_format.dart | décembre
 lib/core/services/subscription_format.dart | février
@@ -550,561 +260,16 @@ lib/core/services/websocket_service.dart | (attempt $_reconnectAttempts)
 lib/core/services/websocket_service.dart | WebSocket: Reconnecting in ${delay.inMilliseconds}ms 
 lib/core/theme/app_typography.dart | Geist
 lib/core/theme/app_typography.dart | GeistMono
-lib/core/verification/chip/chip_read_procedure.dart | Approchez votre document du haut du téléphone.
-lib/core/verification/chip/chip_read_procedure.dart | La lecture a échoué.
-lib/core/verification/chip/chip_read_procedure.dart | Lecture de la photo… 40 %
-lib/core/verification/chip/chip_read_procedure.dart | Lecture de la signature… 85 %
-lib/core/verification/chip/chip_read_procedure.dart | Ne bouge pas. Connexion sécurisée…
-lib/core/verification/chip/chip_read_procedure.dart | Terminé.
-lib/core/verification/chip/chip_reader.dart | ChipReadException(${kind.name})
-lib/core/verification/chip/dmrtd_chip_reader.dart | ${error.code} ${error.message ?? 
-lib/core/verification/chip/dmrtd_chip_reader.dart | Pace
-lib/core/verification/chip/dmrtd_chip_reader.dart | communication error
-lib/core/verification/chip/dmrtd_chip_reader.dart | connection lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | invalidated by user
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc disabled
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc is disabled
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc is off
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc not available
-lib/core/verification/chip/dmrtd_chip_reader.dart | not supported
-lib/core/verification/chip/dmrtd_chip_reader.dart | not supported by this device
-lib/core/verification/chip/dmrtd_chip_reader.dart | session invalidated
-lib/core/verification/chip/dmrtd_chip_reader.dart | tag lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | tag was lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | timed out
-lib/core/verification/chip/dmrtd_chip_reader.dart | } ${error.details ?? 
-lib/core/verification/mrz/mrz_data.dart | ${(date.year % 100).toString().padLeft(2, 
-lib/core/verification/mrz/mrz_data.dart | MrzData(${format?.name ?? 
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Leah
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Lyon
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Miriam
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Paris
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Paris
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Rachel
-lib/presentation/features/auth/screens/email_auth_screen.dart | Annuler
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins un chiffre
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins une majuscule
-lib/presentation/features/auth/screens/email_auth_screen.dart | Bon
-lib/presentation/features/auth/screens/email_auth_screen.dart | Cliquez sur le lien dans l\'email pour activer votre compte.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Confirmer le mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer mon compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer un compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créez votre compte MAZL
-lib/presentation/features/auth/screens/email_auth_screen.dart | Déjà un compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email de réinitialisation envoyé
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email invalide
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Entrez votre email pour recevoir un lien de réinitialisation.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Envoyer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur d\'inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur de connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Excellent
-lib/presentation/features/auth/screens/email_auth_screen.dart | Faible
-lib/presentation/features/auth/screens/email_auth_screen.dart | Fermer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | J\'accepte les Conditions d\'utilisation et la Politique de confidentialité
-lib/presentation/features/auth/screens/email_auth_screen.dart | Les mots de passe ne correspondent pas
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 2 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 8 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Moyen
-lib/presentation/features/auth/screens/email_auth_screen.dart | OK, je vais vérifier
-lib/presentation/features/auth/screens/email_auth_screen.dart | Pas encore de compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Ravi de vous revoir
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Un email de vérification a été envoyé à :
-lib/presentation/features/auth/screens/email_auth_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Veuillez accepter les conditions d\'utilisation
-lib/presentation/features/auth/screens/email_auth_screen.dart | Vérifiez votre email
-lib/presentation/features/auth/screens/login_screen.dart |  et la 
-lib/presentation/features/auth/screens/login_screen.dart | Conditions
-lib/presentation/features/auth/screens/login_screen.dart | Confidentialité
-lib/presentation/features/auth/screens/login_screen.dart | Connexion fictive (dev)
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Apple
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Google
-lib/presentation/features/auth/screens/login_screen.dart | Des rencontres sérieuses, entre personnes qui partagent vos valeurs.
-lib/presentation/features/auth/screens/login_screen.dart | En continuant, vous acceptez les 
-lib/presentation/features/auth/screens/login_screen.dart | Rencontres · Communauté juive
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Utiliser mon e-mail
-lib/presentation/features/chat/conversation_time.dart | Hier
-lib/presentation/features/chat/logic/chat_dates.dart | ${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, 
-lib/presentation/features/chat/logic/chat_dates.dart | Aujourd'hui
-lib/presentation/features/chat/logic/chat_dates.dart | Hier
-lib/presentation/features/chat/logic/chat_dates.dart | août
-lib/presentation/features/chat/logic/chat_dates.dart | déc.
-lib/presentation/features/chat/logic/chat_dates.dart | févr.
-lib/presentation/features/chat/logic/chat_errors.dart | Cette conversation n’est plus disponible.
-lib/presentation/features/chat/logic/chat_errors.dart | Vous ne pouvez plus écrire dans cette conversation.
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Message vocal
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Photo
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Réponse à $_otherName
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Réponse à votre message
-lib/presentation/features/chat/screens/chat_conversation_screen.dart | Votre correspondant
-lib/presentation/features/chat/screens/chat_screen.dart | Bloquer
-lib/presentation/features/chat/screens/chat_screen.dart | Cet utilisateur
-lib/presentation/features/chat/screens/chat_screen.dart | Couper les notifications
-lib/presentation/features/chat/screens/chat_screen.dart | Notifications coupées pour cette conversation
-lib/presentation/features/chat/screens/chat_screen.dart | Signaler
-lib/presentation/features/chat/screens/chat_screen.dart | Voir le profil
-lib/presentation/features/chat/screens/conversations_screen.dart | $name, message non lu
-lib/presentation/features/chat/screens/conversations_screen.dart | Aucun résultat pour « ${_query.trim()} ».
-lib/presentation/features/chat/screens/conversations_screen.dart | Découvrir
-lib/presentation/features/chat/screens/conversations_screen.dart | Impossible de charger
-lib/presentation/features/chat/screens/conversations_screen.dart | Messages
-lib/presentation/features/chat/screens/conversations_screen.dart | Nouveau match
-lib/presentation/features/chat/screens/conversations_screen.dart | Pas encore de conversations
-lib/presentation/features/chat/screens/conversations_screen.dart | Rechercher
-lib/presentation/features/chat/screens/conversations_screen.dart | Réessayer
-lib/presentation/features/chat/screens/conversations_screen.dart | Utilisateur
-lib/presentation/features/chat/screens/conversations_screen.dart | Vos échanges apparaîtront ici dès votre premier match.
-lib/presentation/features/chat/screens/conversations_screen.dart | Vérifiez votre connexion, puis réessayez.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message ne peut plus être retiré.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’est pas encore envoyé.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’existe plus.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Ce message n’existe plus.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Dix photos au maximum par message.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Impossible de charger la conversation.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Impossible d’envoyer pour le moment.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Réaction indisponible.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Seul l’auteur peut retirer un message.
-lib/presentation/features/chat/state/chat_controller_impl.dart | Une erreur est survenue.
-lib/presentation/features/chat/state/chat_message_ops.dart | Message retiré
-lib/presentation/features/chat/state/chat_message_ops.dart | Message vocal
-lib/presentation/features/chat/state/chat_message_ops.dart | Photo
-lib/presentation/features/chat/widgets/attach_sheet.dart | Appareil photo
-lib/presentation/features/chat/widgets/attach_sheet.dart | Jusqu\'à 10 à la fois
-lib/presentation/features/chat/widgets/attach_sheet.dart | Photos
-lib/presentation/features/chat/widgets/chat_header.dart | Appel vidéo
-lib/presentation/features/chat/widgets/chat_header.dart | Chargement…
-lib/presentation/features/chat/widgets/chat_header.dart | En ligne
-lib/presentation/features/chat/widgets/chat_header.dart | Options
-lib/presentation/features/chat/widgets/chat_header.dart | Retour
-lib/presentation/features/chat/widgets/chat_header.dart | écrit…
-lib/presentation/features/chat/widgets/chat_scope.dart | Vous
-lib/presentation/features/chat/widgets/icebreakers_widget.dart | Besoin d\'inspiration ?
-lib/presentation/features/chat/widgets/icebreakers_widget.dart | Voici quelques idées pour briser la glace
-lib/presentation/features/chat/widgets/list_states.dart | Chargement de la conversation
-lib/presentation/features/chat/widgets/list_states.dart | Dites bonjour.
-lib/presentation/features/chat/widgets/list_states.dart | Envoyez le premier message pour briser la glace.
-lib/presentation/features/chat/widgets/list_states.dart | Nouveau match
-lib/presentation/features/chat/widgets/list_states.dart | Réessayer
-lib/presentation/features/chat/widgets/message_actions_overlay.dart | Fermer le menu
-lib/presentation/features/chat/widgets/message_bubble.dart | Message retiré
-lib/presentation/features/chat/widgets/message_composer.dart | Autorisez le micro dans les réglages pour envoyer un vocal.
-lib/presentation/features/chat/widgets/message_composer.dart | Envoyer
-lib/presentation/features/chat/widgets/message_composer.dart | Envoyer le vocal
-lib/presentation/features/chat/widgets/message_composer.dart | Impossible d\'ajouter la photo. Vérifiez les autorisations.
-lib/presentation/features/chat/widgets/message_composer.dart | Impossible d\'enregistrer pour le moment. Réessayez.
-lib/presentation/features/chat/widgets/message_composer.dart | Joindre des photos
-lib/presentation/features/chat/widgets/message_composer.dart | Maintenez le micro plus longtemps pour enregistrer.
-lib/presentation/features/chat/widgets/message_composer.dart | Maintenez le micro pour enregistrer un vocal.
-lib/presentation/features/chat/widgets/message_composer.dart | Message
-lib/presentation/features/chat/widgets/message_list.dart | Match · ${shortDate(day)}
-lib/presentation/features/chat/widgets/message_row.dart | Vu à ${clock(seenAt)}
-lib/presentation/features/chat/widgets/message_row.dart | Échec · Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Copier
-lib/presentation/features/chat/widgets/message_row_operations.dart | Merci, nous examinons ce message.
-lib/presentation/features/chat/widgets/message_row_operations.dart | Message copié
-lib/presentation/features/chat/widgets/message_row_operations.dart | Retirer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Réessayer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Répondre
-lib/presentation/features/chat/widgets/message_row_operations.dart | Signaler
-lib/presentation/features/chat/widgets/message_row_operations.dart | Supprimer
-lib/presentation/features/chat/widgets/message_row_operations.dart | Supprimer
-lib/presentation/features/chat/widgets/mic_button.dart | Maintenir pour enregistrer un vocal
-lib/presentation/features/chat/widgets/new_messages_pill.dart | $count nouveaux messages
-lib/presentation/features/chat/widgets/new_messages_pill.dart | 1 nouveau message
-lib/presentation/features/chat/widgets/photo_grid.dart | Voir la photo
-lib/presentation/features/chat/widgets/photo_viewer.dart | Fermer
-lib/presentation/features/chat/widgets/reaction_pill.dart | Réactions
-lib/presentation/features/chat/widgets/recording_strip.dart | Annuler l\'enregistrement
-lib/presentation/features/chat/widgets/recording_strip.dart | Relâchez pour annuler
-lib/presentation/features/chat/widgets/recording_strip.dart | ‹ Glisser pour annuler
-lib/presentation/features/chat/widgets/reply_quote.dart | Annuler la réponse
 lib/presentation/features/chat/widgets/report_sheet.dart | Arnaque ou demande d\'argent
 lib/presentation/features/chat/widgets/report_sheet.dart | Autre
 lib/presentation/features/chat/widgets/report_sheet.dart | Contenu inapproprié
-lib/presentation/features/chat/widgets/report_sheet.dart | En cas de doute, signalez la conversation : nous l\'examinons.
-lib/presentation/features/chat/widgets/report_sheet.dart | Faites un appel vidéo avant de vous engager.
 lib/presentation/features/chat/widgets/report_sheet.dart | Harcèlement ou propos déplacés
-lib/presentation/features/chat/widgets/report_sheet.dart | Méfiez-vous de qui vous demande de poursuivre sur WhatsApp, Telegram ou Signal très vite.
-lib/presentation/features/chat/widgets/report_sheet.dart | N'envoyez jamais d'argent, de carte cadeau ou de cryptomonnaie.
-lib/presentation/features/chat/widgets/report_sheet.dart | Se protéger des arnaques
-lib/presentation/features/chat/widgets/report_sheet.dart | Signaler ce message
-lib/presentation/features/chat/widgets/scam_warning_card.dart | En savoir plus
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Ne transférez jamais d'argent à quelqu'un que vous n'avez pas rencontré.
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Restez prudent
-lib/presentation/features/chat/widgets/scam_warning_card.dart | Signaler
-lib/presentation/features/chat/widgets/typing_indicator.dart | Votre correspondant écrit
-lib/presentation/features/chat/widgets/voice_bubble.dart | ${speed == speed.roundToDouble() ? speed.toInt() : speed.toString().replaceAll(
-lib/presentation/features/chat/widgets/voice_bubble.dart | Lecture impossible
-lib/presentation/features/chat/widgets/voice_bubble.dart | Lire le message vocal
-lib/presentation/features/chat/widgets/voice_bubble.dart | Mettre en pause
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | ${activity.title} sauvegardé
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | -${activity.discountPercent} % Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Actualiser
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Aucune activité pour le moment
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Bien-être
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Culture
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | De nouvelles idées arrivent bientôt.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Gastro
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de passer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de sauvegarder « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Passer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Romantique
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Spirituel
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Sport
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Tout
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voyage
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | $rating ($count avis)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | -${activity.discountPercent} % Partenaire
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité introuvable
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité sauvegardée
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Appeler
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Cette activité n\'existe plus.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code $code copié
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code promo MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Contact
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Copier le code
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Elle n\'est plus proposée.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Idée de date pour nous : "${activity.title}" (via MAZL)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de retirer cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de sauvegarder cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retirer des activités sauvegardées
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Réserver
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Site web
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Tags
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | À partir de
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | $daysTogether jours ensemble
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Activités en couple
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Calendrier juif
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Cours de cuisine casher
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dimanche 20 janvier - 15h00
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dîner
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Entrée : 17h23 - Sortie : 18h34
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Envoyer
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Inspirez la communauté MAZL avec votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Moi
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Nos étapes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partenaire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Prière
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Question du jour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Repos
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réglages
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Répondre
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réponse envoyée. Votre partenaire sera notifié(e).
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Shabbat Beshalach
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir les histoires
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tous les événements
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tout
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir toutes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Votre réponse…
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Événements en couple
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | ${event.spotsLeft} places restantes
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Ce qui est inclus
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Cet événement n\'existe plus.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Il n\'est plus proposé.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscrits à « ${event.title} »
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Lieu
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Organisé par
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Tenue
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Événement introuvable
-lib/presentation/features/couple/screens/couple_events_screen.dart | ${event.spotsLeft} places
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler l\'inscription ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Aucun événement disponible
-lib/presentation/features/couple/screens/couple_events_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_events_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_events_screen.dart | Découvrir les événements
-lib/presentation/features/couple/screens/couple_events_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits (${_registeredEvents.length})
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits à "${event.title}"
-lib/presentation/features/couple/screens/couple_events_screen.dart | Non
-lib/presentation/features/couple/screens/couple_events_screen.dart | Oui, annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Voulez-vous vraiment annuler votre inscription à "${event.title}" ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Vous n\'êtes inscrit à aucun événement
-lib/presentation/features/couple/screens/couple_events_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_events_screen.dart | À venir
-lib/presentation/features/couple/screens/couple_events_screen.dart | Événements
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | $who doit accepter. Nous vous préviendrons dès sa réponse.
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Annuler la demande
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Aucun match pour l\'instant.
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Avec qui ?
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Cette personne
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Compris
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Demande envoyée
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Envoyer la demande
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Impossible de charger vos matchs.
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Mode couple
-lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Réessayer
-lib/presentation/features/couple/screens/couple_space_screen.dart | Actions rapides
-lib/presentation/features/couple/screens/couple_space_screen.dart | Activités\nsauvegardées
-lib/presentation/features/couple/screens/couple_space_screen.dart | Actualisation impossible. ${failure.message}
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajouter à\nla bucket list
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajouter\nun souvenir
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajouter\nune date
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajoutez des expériences à vivre ensemble.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajoutez vos anniversaires, fêtes, etc.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ajoutez vos premiers souvenirs ensemble.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Aucun badge pour l\'instant
-lib/presentation/features/couple/screens/couple_space_screen.dart | Aucun souvenir pour l\'instant
-lib/presentation/features/couple/screens/couple_space_screen.dart | Aucune date importante
-lib/presentation/features/couple/screens/couple_space_screen.dart | Bucket list
-lib/presentation/features/couple/screens/couple_space_screen.dart | Bucket list · ${completed.length}/${_bucketList.length}
-lib/presentation/features/couple/screens/couple_space_screen.dart | Dates importantes
-lib/presentation/features/couple/screens/couple_space_screen.dart | Ensemble depuis $daysTogether jours
-lib/presentation/features/couple/screens/couple_space_screen.dart | Faites des activités ensemble pour débloquer des badges.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Impossible de valider cet objectif. Réessayez.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Nos badges
-lib/presentation/features/couple/screens/couple_space_screen.dart | Nos souvenirs
-lib/presentation/features/couple/screens/couple_space_screen.dart | Notre espace
-lib/presentation/features/couple/screens/couple_space_screen.dart | Objectif accompli
-lib/presentation/features/couple/screens/couple_space_screen.dart | Réglages
-lib/presentation/features/couple/screens/couple_space_screen.dart | Souvenirs\ncréés
-lib/presentation/features/couple/screens/couple_space_screen.dart | Voir tout
-lib/presentation/features/couple/screens/couple_space_screen.dart | Votre Moitié
-lib/presentation/features/couple/screens/couple_space_screen.dart | Votre bucket list est vide
-lib/presentation/features/couple/screens/couple_space_screen.dart | Votre histoire commence
-lib/presentation/features/couple/screens/couple_space_screen.dart | Vous
-lib/presentation/features/couple/screens/couple_space_screen.dart | août
-lib/presentation/features/couple/screens/couple_space_screen.dart | déc.
-lib/presentation/features/couple/screens/couple_space_screen.dart | févr.
-lib/presentation/features/couple/screens/couple_space_screen.dart | Événements\nà venir
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajout impossible. ${failure.message}
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajout impossible. ${failure.message}
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajout impossible. ${failure.message}
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajouter
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajouter un souvenir
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajouter une date importante
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ajouter à la bucket list
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Date
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Description
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ex: Notre anniversaire
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Ex: Voir les aurores boréales
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Que voulez-vous faire ensemble ?
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Titre
-lib/presentation/features/couple/screens/couple_space_sheets.dart | Titre
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Allumage
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Août
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Août
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Avr
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Avril
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Calendrier
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Ce Shabbat
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Déc
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Décembre
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | En cours
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Fév
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Février
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Havdala
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Idées en couple
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Idées pour ce Shabbat
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Jan
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Janvier
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Juil
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Juillet
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Juin
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Juin
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mai
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mai
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mar
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mars
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mois précédent
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Mois suivant
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Nov
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Novembre
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Oct
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Octobre
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Parashat ${shabbat.parasha}
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Prochaines fêtes
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Sep
-lib/presentation/features/couple/screens/jewish_calendar_screen.dart | Septembre
-lib/presentation/features/couple/screens/mazel_tov_screen.dart | Commencer notre aventure
-lib/presentation/features/couple/screens/mazel_tov_screen.dart | Félicitations à vous et à ${widget.partnerName}
-lib/presentation/features/couple/screens/mazel_tov_screen.dart | MAZL vous accompagne dans cette nouvelle étape.
-lib/presentation/features/couple/screens/mazel_tov_screen.dart | Mazal tov
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activité retirée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Annuler
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Aucune activité sauvegardée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Découvrir des activités
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Glissez une carte vers le haut pour la garder.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Impossible de retirer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer de la liste ?
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}
-lib/presentation/features/couple/screens/success_stories_screen.dart | Ajoutez des photos de couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…
-lib/presentation/features/couple/screens/success_stories_screen.dart | En couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Erreur lors de l\'envoi
-lib/presentation/features/couple/screens/success_stories_screen.dart | Fiancés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Inspirez la communauté MAZL en partageant votre histoire.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Les premières histoires d\'amour MAZL seront bientôt partagées.
-lib/presentation/features/couple/screens/success_stories_screen.dart | MMMM yyyy
-lib/presentation/features/couple/screens/success_stories_screen.dart | Mariés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Merci. Votre histoire sera publiée après validation.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partager
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Pas encore d\'histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Photos (optionnel)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Réessayer
-lib/presentation/features/couple/screens/success_stories_screen.dart | Soumettre notre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire (min. 100 caractères)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire doit faire au moins 100 caractères
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre statut
-lib/presentation/features/couple/widgets/anniversary_widget.dart | ${widget.anniversaryData.daysTogether} jours avec ${widget.anniversaryData.partnerName}
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire MAZL
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Merci
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Nous fêtons ${widget.anniversaryData.daysTogether} jours ensemble sur MAZL. ${widget.anniversaryData.currentMilestone?.label ?? ""}
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Partager
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Partager
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Prochain : ${next.label} dans ${next.daysUntil ?? 0} jours
-lib/presentation/features/couple/widgets/anniversary_widget.dart | Vos milestones
-lib/presentation/features/couple/widgets/anniversary_widget.dart | avec ${anniversaryData.partnerName}
-lib/presentation/features/couple/widgets/anniversary_widget.dart | dans ${milestone.daysUntil} jours
-lib/presentation/features/couple/widgets/anniversary_widget.dart | jours ensemble
-lib/presentation/features/couple/widgets/couple_flow_host.dart | $partnerName n\'a pas donné suite à votre demande.
-lib/presentation/features/couple/widgets/couple_flow_host.dart | Le mode couple a pris fin.
-lib/presentation/features/couple/widgets/couple_flow_host.dart | Votre demande n\'a pas abouti.
-lib/presentation/features/couple/widgets/couple_message_view.dart | Chargement impossible
-lib/presentation/features/couple/widgets/couple_message_view.dart | Réessayer
-lib/presentation/features/couple/widgets/couple_request_dialog.dart | $_name souhaite activer le mode couple avec vous
-lib/presentation/features/couple/widgets/couple_request_dialog.dart | Accepter
-lib/presentation/features/couple/widgets/couple_request_dialog.dart | Cette personne
-lib/presentation/features/couple/widgets/couple_request_dialog.dart | Non merci
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Concert
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Jeux
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Tout
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Événement
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} / ${event.maxAttendees} places
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} inscrits
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Cours
-lib/presentation/features/events/screens/event_detail_screen.dart | Date
-lib/presentation/features/events/screens/event_detail_screen.dart | Description
-lib/presentation/features/events/screens/event_detail_screen.dart | EEEE d MMMM yyyy
-lib/presentation/features/events/screens/event_detail_screen.dart | Fête
-lib/presentation/features/events/screens/event_detail_screen.dart | Gratuit
-lib/presentation/features/events/screens/event_detail_screen.dart | Heure
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription annulée
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription confirmée
-lib/presentation/features/events/screens/event_detail_screen.dart | Lieu
-lib/presentation/features/events/screens/event_detail_screen.dart | Participants
-lib/presentation/features/events/screens/event_detail_screen.dart | Presque complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Prix
-lib/presentation/features/events/screens/event_detail_screen.dart | Rejoignez-moi à "${event.title}" sur MAZL
-lib/presentation/features/events/screens/event_detail_screen.dart | Retour
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire - ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire gratuitement
-lib/presentation/features/events/screens/event_detail_screen.dart | Shabbat Dinner
-lib/presentation/features/events/screens/event_detail_screen.dart | Social
-lib/presentation/features/events/screens/event_detail_screen.dart | Speed Dating
-lib/presentation/features/events/screens/event_detail_screen.dart | Vous êtes inscrit(e) à cet événement
-lib/presentation/features/events/screens/event_detail_screen.dart | } par personne
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement introuvable
-lib/presentation/features/events/screens/events_list_screen.dart |  : event.currency}
-lib/presentation/features/events/screens/events_list_screen.dart | ${_formatDate(event.date)}${event.time != null ? 
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.attendeeCount} participants
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/events_list_screen.dart | Aucun événement
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Calendrier
-lib/presentation/features/events/screens/events_list_screen.dart | Chargement...
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Dans ${event.date.difference(DateTime.now()).inDays}j
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | EEEE d MMMM
-lib/presentation/features/events/screens/events_list_screen.dart | Fête
-lib/presentation/features/events/screens/events_list_screen.dart | Fêtes
-lib/presentation/features/events/screens/events_list_screen.dart | Gratuit
-lib/presentation/features/events/screens/events_list_screen.dart | Impossible de charger les événements
-lib/presentation/features/events/screens/events_list_screen.dart | Presque complet
-lib/presentation/features/events/screens/events_list_screen.dart | Revenez bientôt pour découvrir\nde nouveaux événements.
-lib/presentation/features/events/screens/events_list_screen.dart | Réessayer
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Tous
-lib/presentation/features/events/screens/events_list_screen.dart | Événement
-lib/presentation/features/events/screens/events_list_screen.dart | Événements
 lib/presentation/features/matching/l10n/filter_options.dart | Ashkénaze
 lib/presentation/features/matching/l10n/filter_options.dart | Bac
 lib/presentation/features/matching/l10n/filter_options.dart | Casher
@@ -1126,46 +291,6 @@ lib/presentation/features/matching/l10n/filter_options.dart | Toutes
 lib/presentation/features/matching/l10n/filter_options.dart | Traditionaliste
 lib/presentation/features/matching/l10n/filter_options.dart | Tsniout
 lib/presentation/features/matching/l10n/filter_options.dart | Yeshiva/Sem
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | ${score.factors.length} critères analysés
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Avec $userName
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compatibilité
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Complétez vos profils pour voir plus de détails
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compris
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Détails
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Le score est basé sur vos préférences et points communs
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Score de compatibilité
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
-lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Activités
-lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Calendrier
-lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Notre espace
-lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Événements
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Découvrir
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Matchs
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Messages
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Profil
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Événements
-lib/presentation/features/navigation/widgets/mazl_nav_bar.dart | Afficher les onglets
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | ${(index + 1).toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | )} / ${total.toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | AI Shadchan
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Activités et suggestions
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Bienvenue sur MAZL
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Calendrier juif partagé
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Commencer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Continuer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Découvrez des profils compatibles avec vos valeurs et votre pratique.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | L'application de rencontres pensée pour la communauté juive.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Milestones de couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Shabbat
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Notre intelligence artificielle vous aide à trouver la bonne personne.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Page ${current + 1} sur $total
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Passer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Questions quotidiennes
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Trouvez votre mazal
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | $count personnes vous ont aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | 1 personne vous a aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | Abonnement actif
@@ -1182,18 +307,16 @@ lib/presentation/features/premium/screens/plus_welcome_screen.dart | Tout est d�
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | Voir qui vous a aimé
 lib/presentation/features/premium/screens/premium_screen.dart | ${saving == null ? 
 lib/presentation/features/premium/screens/premium_screen.dart | 1 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 1 mois
+lib/presentation/features/premium/screens/premium_screen.dart | 11,67 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | 12 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 12 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 14,99 € par mois
-lib/presentation/features/premium/screens/premium_screen.dart | 2 mois
+lib/presentation/features/premium/screens/premium_screen.dart | 15,00 € par mois
+lib/presentation/features/premium/screens/premium_screen.dart | 19,99 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | 3 mois
 lib/presentation/features/premium/screens/premium_screen.dart | 5 Super Likes par jour
 lib/presentation/features/premium/screens/premium_screen.dart | 6 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 6 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 7,49 € par mois
-lib/presentation/features/premium/screens/premium_screen.dart | 9,99 € par mois
+lib/presentation/features/premium/screens/premium_screen.dart | 8,33 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | Abonnement restauré
+lib/presentation/features/premium/screens/premium_screen.dart | Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.
 lib/presentation/features/premium/screens/premium_screen.dart | Au lieu d’un seul.
 lib/presentation/features/premium/screens/premium_screen.dart | Aucun abonnement trouvé
 lib/presentation/features/premium/screens/premium_screen.dart | Avant même de les croiser.
@@ -1201,8 +324,6 @@ lib/presentation/features/premium/screens/premium_screen.dart | Conditions
 lib/presentation/features/premium/screens/premium_screen.dart | Confidentialité
 lib/presentation/features/premium/screens/premium_screen.dart | Continuer · ${plans[selected].price}
 lib/presentation/features/premium/screens/premium_screen.dart | En tête de pile pendant 30 minutes.
-lib/presentation/features/premium/screens/premium_screen.dart | Erreur: $e
-lib/presentation/features/premium/screens/premium_screen.dart | Erreur: $e
 lib/presentation/features/premium/screens/premium_screen.dart | Fermer
 lib/presentation/features/premium/screens/premium_screen.dart | Filtres avancés
 lib/presentation/features/premium/screens/premium_screen.dart | Fini les 10 par jour.
@@ -1229,7 +350,6 @@ lib/presentation/features/premium/screens/subscription_screen.dart | Aujourd\'hu
 lib/presentation/features/premium/screens/subscription_screen.dart | Boost
 lib/presentation/features/premium/screens/subscription_screen.dart | Disponible
 lib/presentation/features/premium/screens/subscription_screen.dart | Découvrir 
-lib/presentation/features/premium/screens/subscription_screen.dart | Erreur: $e
 lib/presentation/features/premium/screens/subscription_screen.dart | Expiration
 lib/presentation/features/premium/screens/subscription_screen.dart | Formule
 lib/presentation/features/premium/screens/subscription_screen.dart | Gérer dans Google Play
@@ -1259,581 +379,43 @@ lib/presentation/features/premium/widgets/plus_widgets.dart | Prochains likes da
 lib/presentation/features/premium/widgets/plus_widgets.dart | Réservé à mazl+
 lib/presentation/features/premium/widgets/plus_widgets.dart | Vos likes du jour sont partis.
 lib/presentation/features/profile/screens/edit_profile_screen.dart | A la maison
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Annuler
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Autre
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Cette action est irréversible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Dénomination
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Dénomination
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Enregistrer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Enregistrer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Entrez votre ${title.toLowerCase()}
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur d\'envoi
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de chargement
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de sauvegarde
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de suppression
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Glatt
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Habad
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Informations de base
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Kashrout
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Kashrout
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Laique
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ma pratique
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Maintenez appuyé pour définir comme principale
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Massorti
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Modern Orthodox
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Modifier le profil
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Non
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Non observant
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Observant
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Orthodox
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Parlez de vous…
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Partiellement
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo ajoutée
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo principale mise à jour
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo supprimée
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photos
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Principal
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Profil mis à jour
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Prénom
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Prénom
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Réessayer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Service temporairement indisponible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Service temporairement indisponible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Shabbat
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Shabbat
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Strict
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Supprimer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Supprimer la photo ?
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Traditionaliste
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Tres observant
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Upload non disponible pour le moment
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ville
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ville
-lib/presentation/features/profile/screens/edit_profile_screen.dart | À propos
-lib/presentation/features/profile/screens/profile_setup_screen.dart | ${_maxDistance.round()} km
-lib/presentation/features/profile/screens/profile_setup_screen.dart | A la maison
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Aidez-nous à trouver quelqu\'un qui vous correspond
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Aidez-nous à vous montrer les bons profils
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ajoutez au moins 2 photos pour continuer
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ajoutez des photos
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Autre
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ce que vous recherchez
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ces informations seront visibles sur votre profil
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Chaque semaine
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Comment vous appelez-vous ?
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Distance maximale
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Dénomination
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Erreur d\'envoi
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Erreur de sauvegarde
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Fetes
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Glatt
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Habad
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre genre
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre prénom pour continuer
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Je ne sais pas
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Je recherche
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Je suis
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Kashrout
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Laique
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Les profils avec des photos de bonne qualité reçoivent 3x plus de matchs.
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Mariage
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Massorti
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Modern Orthodox
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Non
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Non observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Objectif
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Orthodox
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Où habitez-vous ?
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Parlez-nous de vous
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Partiellement
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Principal
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Prénom
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Quotidien
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Rarement
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Relation serieuse
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Shabbat
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Strict
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Suivant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Synagogue
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Terminer
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Traditionaliste
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Tranche d\'âge
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Tres observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Un homme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Un homme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Une femme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Une femme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Upload non disponible pour le moment
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ville
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Votre pratique
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Étape ${_currentStep + 1}/$_totalSteps
-lib/presentation/features/profile/screens/profile_view_screen.dart | Cet utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | Demande envoyée à $userName.
-lib/presentation/features/profile/screens/profile_view_screen.dart | France
-lib/presentation/features/profile/screens/profile_view_screen.dart | France
-lib/presentation/features/profile/screens/profile_view_screen.dart | Signaler ce profil
-lib/presentation/features/profile/screens/profile_view_screen.dart | Utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | Utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | cette personne
-lib/presentation/features/profile/widgets/profile_prompts_display.dart | Apprenez à me connaître
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Ajouter un prompt
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Annuler
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Autre
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Cette action est irréversible.
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Choisissez un prompt
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Enregistrer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de l\'ajout
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de la mise à jour
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de la suppression
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Maximum $maxPrompts prompts atteint
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Mes Prompts
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Modifier
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Prompt supprimé
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Réessayer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Répondez à des questions pour montrer votre personnalité
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer ce prompt ?
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Tous les prompts sont déjà utilisés
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Votre réponse…
-lib/presentation/features/profile/widgets/profile_view/profile_action_bar.dart | J'aime $firstName
-lib/presentation/features/profile/widgets/profile_view/profile_action_bar.dart | Passer
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Calculé à partir de vos pratiques, vos intentions et vos valeurs.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Calculée à partir de vos deux profils.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité indisponible pour le moment.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité moyenne
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatible
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Débloquer avec mazl+
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Découvrez votre score de compatibilité avec $firstName.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Peu compatible
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Très compatible
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | $remaining étapes restantes
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | 1 étape restante
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Ajoutez au moins 2 photos
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Bio complétée
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Compléter maintenant
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Complétez votre profil
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Décrivez-vous en quelques lignes
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Faites vérifier votre profil
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | France
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Indiquez votre ville
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Photos ajoutées
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Profil vérifié
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Profil · $done/${steps.length}
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Ville renseignée
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | $userName n\'a pas encore répondu.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | $userName souhaite activer le mode couple avec vous.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Activer avec $userName
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Annuler la demande
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Demande envoyée
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Demande reçue
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Déjà en mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | En couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Passer au mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Répondre
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous avez matché. Activez le mode couple pour partager des activités ensemble.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous êtes déjà en mode couple avec quelqu\'un d\'autre.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous êtes en mode couple avec $userName.
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Statut de vérification : $label
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifier mon profil
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifié
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifié+
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | C'est un match.
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Continuer
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Envoyer un message
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Match
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Vous pouvez maintenant discuter avec $name.
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo $current sur $total
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo précédente
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo suivante
-lib/presentation/features/profile/widgets/profile_view/profile_sections.dart | En quelques mots
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Modifier
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Mon profil
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Plus d'options
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Retour
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Réglages
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | Ajouter des photos
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | À propos
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Cacherout
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Femme
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Genre
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Homme
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Pratique
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Shabbat
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | cette personne
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | à ${km.round()} km
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | à moins de 1 km
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Montrez aux autres ce que vous recherchez
-lib/presentation/features/settings/screens/blocked_users_screen.dart | ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Annuler
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Aucun utilisateur bloqué
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Bloqué le ${_formatDate(user.blockedAt)}
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Cette personne pourra à nouveau voir votre profil et vous contacter.
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer cet utilisateur ?
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur de chargement
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur lors du déblocage
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Les personnes que vous bloquez\napparaîtront ici
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Réessayer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Voulez-vous débloquer ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | } a été débloqué
-lib/presentation/features/settings/screens/settings_screen.dart | $_ageMin - $_ageMax ans
-lib/presentation/features/settings/screens/settings_screen.dart | $_distanceMax km
-lib/presentation/features/settings/screens/settings_screen.dart | ${revenueCat.willRenew ? 
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempDistance.round()} km
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempRange.start.round()} - ${tempRange.end.round()} ans
 lib/presentation/features/settings/screens/settings_screen.dart | - ID ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | Abonnement
-lib/presentation/features/settings/screens/settings_screen.dart | Achats restaurés avec succès.
 lib/presentation/features/settings/screens/settings_screen.dart | Activer Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Aide et support
-lib/presentation/features/settings/screens/settings_screen.dart | Alertes fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Autre raison
-lib/presentation/features/settings/screens/settings_screen.dart | Cette action est irréversible.
-lib/presentation/features/settings/screens/settings_screen.dart | Compte
-lib/presentation/features/settings/screens/settings_screen.dart | Conditions d\'utilisation
-lib/presentation/features/settings/screens/settings_screen.dart | Confidentialité et sécurité
-lib/presentation/features/settings/screens/settings_screen.dart | Confirmation finale
-lib/presentation/features/settings/screens/settings_screen.dart | Continuer
 lib/presentation/features/settings/screens/settings_screen.dart | Couple ID: ${activeCouple[
 lib/presentation/features/settings/screens/settings_screen.dart | Debug (Dev Only)
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Découverte
 lib/presentation/features/settings/screens/settings_screen.dart | Désactiver Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Email
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur lors de la suppression
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Garder mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Gérer les personnes bloquées
 lib/presentation/features/settings/screens/settings_screen.dart | Historique (${allCouples.length} couples):
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible d'annuler la demande. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible de quitter le mode couple. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | J\'ai trouvé quelqu\'un
-lib/presentation/features/settings/screens/settings_screen.dart | Je n\'utilise plus l\'application
-lib/presentation/features/settings/screens/settings_screen.dart | Je souhaite faire une pause
-lib/presentation/features/settings/screens/settings_screen.dart | Le service ne me convient pas
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
 lib/presentation/features/settings/screens/settings_screen.dart | Menu Debug
-lib/presentation/features/settings/screens/settings_screen.dart | Messages
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Shabbat
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple activé
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple désactivé
-lib/presentation/features/settings/screens/settings_screen.dart | Mode couple quitté
-lib/presentation/features/settings/screens/settings_screen.dart | Modifier le profil
-lib/presentation/features/settings/screens/settings_screen.dart | Non connecté
-lib/presentation/features/settings/screens/settings_screen.dart | Non défini
-lib/presentation/features/settings/screens/settings_screen.dart | Non vérifié
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications avant les fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Nouveaux matchs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres juifs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres sauvegardés
 lib/presentation/features/settings/screens/settings_screen.dart | Partner: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Pause automatique
-lib/presentation/features/settings/screens/settings_screen.dart | Politique de confidentialité
-lib/presentation/features/settings/screens/settings_screen.dart | Pourquoi souhaitez-vous nous quitter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Problèmes techniques
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter le mode couple
-lib/presentation/features/settings/screens/settings_screen.dart | Rechercher une ville...
 lib/presentation/features/settings/screens/settings_screen.dart | Refusé par le serveur
 lib/presentation/features/settings/screens/settings_screen.dart | Reset Swipes
-lib/presentation/features/settings/screens/settings_screen.dart | Restaurer les achats
-lib/presentation/features/settings/screens/settings_screen.dart | Saisissez le nom de votre ville et sélectionnez une suggestion
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple (Debug)
 lib/presentation/features/settings/screens/settings_screen.dart | Status: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Super Likes
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
 lib/presentation/features/settings/screens/settings_screen.dart | Swipes reset
-lib/presentation/features/settings/screens/settings_screen.dart | Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
 lib/presentation/features/settings/screens/settings_screen.dart | User ID: $userId
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/settings_screen.dart | Version
-lib/presentation/features/settings/screens/settings_screen.dart | Voulez-vous vraiment vous déconnecter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Vous pourrez le réactiver plus tard si vous le souhaitez.
-lib/presentation/features/settings/screens/settings_screen.dart | Vérification du profil
-lib/presentation/features/settings/screens/settings_screen.dart | Vérifié
 lib/presentation/features/settings/screens/settings_screen.dart | ]} (partner: ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | À propos
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | ${value.toInt()} minutes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Activer le mode Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Basé sur Paris, France
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Inclure les fêtes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Les notifications sont mises en pause et les messages attendent. 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Marge avant l\'allumage
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Modifier
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause aussi pendant Yom Tov
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause automatique des notifications pendant Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Réglages
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Vous recevrez tout après la fin de Shabbat, et votre statut 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | affichera « Mode Shabbat ».
-lib/presentation/features/settings/widgets/settings_couple_card.dart | $days jours
-lib/presentation/features/settings/widgets/settings_couple_card.dart | 1 jour
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Activer
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Annuler la demande
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Avec ${couple.partnerName ?? 
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Calendrier
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée à $name
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Depuis aujourd'hui
-lib/presentation/features/settings/widgets/settings_couple_card.dart | En attente de sa réponse
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Espace couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Mode couple actif
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Quitter le mode couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Vous avez trouvé l'amour ?
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Allumage
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Annuler
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Autoriser la caméra
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra indisponible
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra nécessaire
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Fermer
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Fermer
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Impossible de démarrer la caméra frontale.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Le temps imparti est écoulé. Vous pouvez recommencer.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | MAZL utilise la caméra frontale pour vérifier que vous êtes bien la personne de vos photos.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | No front camera
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Ouvrir les réglages
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Session expirée
-lib/presentation/features/verification/capture/liveness_stage.dart | Annuler
-lib/presentation/features/verification/capture/liveness_stage.dart | Pose ${math.min(done + 1, total)} / $total
-lib/presentation/features/verification/capture/liveness_stage.dart | Poses prises : $done sur $total
-lib/presentation/features/verification/capture/liveness_stage.dart | Seul dans le cadre, bien éclairé. Les images ne sont pas conservées.
-lib/presentation/features/verification/capture/liveness_texts.dart | Centrez votre visage dans le cercle
-lib/presentation/features/verification/capture/liveness_texts.dart | Pas autant, revenez un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Placez votre visage dans le cercle
-lib/presentation/features/verification/capture/liveness_texts.dart | Rapprochez-vous un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Regardez droit devant vous
-lib/presentation/features/verification/capture/liveness_texts.dart | Regardez l\'objectif
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez de l\'autre côté
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez doucement la tête vers la droite
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez doucement la tête vers la gauche
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez encore un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Une seule personne dans le cadre
-lib/presentation/features/verification/identity/chip_location_illustration.dart | Le haut du téléphone posé contre la couverture fermée du passeport
-lib/presentation/features/verification/identity/identity_flow_controller.dart | Réessayer
-lib/presentation/features/verification/identity/identity_intro_view.dart | Commencer
-lib/presentation/features/verification/identity/identity_intro_view.dart | Comparé à la photo de la puce.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Il faut un passeport ou une carte d\'identité biométrique, deux minutes et un peu de lumière.
-lib/presentation/features/verification/identity/identity_intro_view.dart | La puce signée par l\'État fait foi.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Le badge « Identité vérifiée » dit aux autres que vous êtes bien la personne des photos. 
-lib/presentation/features/verification/identity/identity_intro_view.dart | Photographier la page photo
-lib/presentation/features/verification/identity/identity_intro_view.dart | Poser le téléphone sur la puce
-lib/presentation/features/verification/identity/identity_intro_view.dart | Pour lire les deux lignes du bas.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Rien n\'est conservé : nous ne gardons que le résultat.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Un selfie en mouvement
-lib/presentation/features/verification/identity/identity_intro_view.dart | Vérifiez votre identité.
-lib/presentation/features/verification/identity/identity_layout.dart | Envoyer mon document pour relecture
-lib/presentation/features/verification/identity/identity_layout.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Activez le NFC dans les réglages du téléphone.
-lib/presentation/features/verification/identity/identity_messages.dart | Ajoutez d\'abord une photo à votre profil.
-lib/presentation/features/verification/identity/identity_messages.dart | Aucun visage détecté.
-lib/presentation/features/verification/identity/identity_messages.dart | Autre document
-lib/presentation/features/verification/identity/identity_messages.dart | Bougez la tête comme demandé.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document est déjà associé à un autre compte.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document est expiré.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document ne peut pas être lu.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document ne peut pas être utilisé.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce téléphone n\'a pas de lecteur NFC.
-lib/presentation/features/verification/identity/identity_messages.dart | Connexion impossible. Vérifiez votre connexion.
-lib/presentation/features/verification/identity/identity_messages.dart | Document non reconnu.
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Il faut avoir 18 ans pour vérifier son identité.
-lib/presentation/features/verification/identity/identity_messages.dart | La caméra n\'est pas disponible.
-lib/presentation/features/verification/identity/identity_messages.dart | La lecture a échoué.
-lib/presentation/features/verification/identity/identity_messages.dart | La puce n\'a pas répondu.
-lib/presentation/features/verification/identity/identity_messages.dart | La session a expiré.
-lib/presentation/features/verification/identity/identity_messages.dart | La signature du document n\'a pas pu être vérifiée.
-lib/presentation/features/verification/identity/identity_messages.dart | La vérification a échoué.
-lib/presentation/features/verification/identity/identity_messages.dart | Le document a bougé. Gardez-le immobile contre le téléphone.
-lib/presentation/features/verification/identity/identity_messages.dart | Le visage a changé pendant la capture.
-lib/presentation/features/verification/identity/identity_messages.dart | Les données de la puce sont illisibles.
-lib/presentation/features/verification/identity/identity_messages.dart | Les images n\'ont pas pu être lues.
-lib/presentation/features/verification/identity/identity_messages.dart | Les informations saisies ne correspondent pas à la puce.
-lib/presentation/features/verification/identity/identity_messages.dart | Les mouvements demandés n\'ont pas été reconnus.
-lib/presentation/features/verification/identity/identity_messages.dart | Rapprochez-vous de la caméra.
-lib/presentation/features/verification/identity/identity_messages.dart | Relire le document
-lib/presentation/features/verification/identity/identity_messages.dart | Relire le document
-lib/presentation/features/verification/identity/identity_messages.dart | Réessayer
-lib/presentation/features/verification/identity/identity_messages.dart | Scanner à nouveau
-lib/presentation/features/verification/identity/identity_messages.dart | Un seul visage doit apparaître.
-lib/presentation/features/verification/identity/identity_messages.dart | Votre visage ne correspond pas à la photo du document.
-lib/presentation/features/verification/identity/identity_messages.dart | Votre visage ne correspond pas à votre photo de profil.
-lib/presentation/features/verification/identity/identity_messages.dart | Vous avez atteint la limite d\'essais du jour. Revenez demain.
-lib/presentation/features/verification/identity/identity_status_views.dart | Bientôt disponible
-lib/presentation/features/verification/identity/identity_status_views.dart | Ce que les autres voient sur votre profil.
-lib/presentation/features/verification/identity/identity_status_views.dart | Ce téléphone n\'a pas de lecteur NFC.
-lib/presentation/features/verification/identity/identity_status_views.dart | Conservé
-lib/presentation/features/verification/identity/identity_status_views.dart | Date de naissance du document
-lib/presentation/features/verification/identity/identity_status_views.dart | Fermer
-lib/presentation/features/verification/identity/identity_status_views.dart | Identité vérifiée
-lib/presentation/features/verification/identity/identity_status_views.dart | Identité vérifiée.
-lib/presentation/features/verification/identity/identity_status_views.dart | Il reste un selfie en mouvement, comparé à la photo de la puce.
-lib/presentation/features/verification/identity/identity_status_views.dart | Jamais enregistrées
-lib/presentation/features/verification/identity/identity_status_views.dart | La puce de votre document et votre selfie correspondent. Votre profil porte maintenant le badge.
-lib/presentation/features/verification/identity/identity_status_views.dart | Pays, expiration, empreinte anonyme
-lib/presentation/features/verification/identity/identity_status_views.dart | Photos et puce
-lib/presentation/features/verification/identity/identity_status_views.dart | Prendre le selfie
-lib/presentation/features/verification/identity/identity_status_views.dart | Profil
-lib/presentation/features/verification/identity/identity_status_views.dart | Préparation…
-lib/presentation/features/verification/identity/identity_status_views.dart | Puce lue.
-lib/presentation/features/verification/identity/identity_status_views.dart | Terminer
-lib/presentation/features/verification/identity/identity_status_views.dart | Vérification en cours…
-lib/presentation/features/verification/identity/identity_status_views.dart | Étape 2 / 3
-lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
-lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Continuer
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Date d\'expiration
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Date de naissance
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Numéro du document
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Recopiez-les depuis la page photo de votre document.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Saisissez les informations.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Scanner avec la caméra
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_review_format.dart |  * hidden}${number.substring(hidden)}
-lib/presentation/features/verification/identity/mrz_review_view.dart | C\'est bien moi
-lib/presentation/features/verification/identity/mrz_review_view.dart | Date d\'expiration
-lib/presentation/features/verification/identity/mrz_review_view.dart | Date de naissance
-lib/presentation/features/verification/identity/mrz_review_view.dart | Numéro du document
-lib/presentation/features/verification/identity/mrz_review_view.dart | Scanner à nouveau
-lib/presentation/features/verification/identity/mrz_review_view.dart | Vérifiez ces informations.
-lib/presentation/features/verification/identity/mrz_review_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Aperçu de la caméra : placez les deux lignes du bas du document dans le cadre mis en évidence
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Cadrez la page photo.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | La caméra n\'est pas disponible.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Les deux lignes de « < » du bas suffisent. Évitez les reflets.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Saisir les informations
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Saisir à la main
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Vous pouvez saisir les informations de la page photo à la main.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/nfc_read_view.dart | Cela arrive souvent au premier essai. Rien n\'a été envoyé.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Gardez le document contre le haut du téléphone jusqu\'à la fin de la lecture.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Le haut du téléphone contre la couverture fermée du passeport, 
-lib/presentation/features/verification/identity/nfc_read_view.dart | Lecture de la puce
-lib/presentation/features/verification/identity/nfc_read_view.dart | Lire le document
-lib/presentation/features/verification/identity/nfc_read_view.dart | Ne bougez plus.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Posez le haut du téléphone au centre de la couverture, passeport fermé.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Posez votre document sur le téléphone.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Relire la page photo
-lib/presentation/features/verification/identity/nfc_read_view.dart | Restez immobile une dizaine de secondes.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Retirez la coque du téléphone.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Rien n\'a été envoyé. Relisez la page photo pour repartir sur de bonnes données.
-lib/presentation/features/verification/identity/nfc_read_view.dart | ou contre le dos de la carte d\'identité. Retirez la coque si besoin.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Étape 2 / 3
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Connexion sécurisée
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Détection du document
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Lecture de la photo
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Lecture de la signature
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | en attente
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | en cours
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | terminé
-lib/presentation/features/verification/screens/verification_screen.dart | $mismatches de vos photos ne vous ressemblent pas : elles ne comptent pas.
-lib/presentation/features/verification/screens/verification_screen.dart | Annuler
-lib/presentation/features/verification/screens/verification_screen.dart | Retirer
-lib/presentation/features/verification/screens/verification_screen.dart | Retirer ma vérification ?
-lib/presentation/features/verification/screens/verification_screen.dart | Retour
-lib/presentation/features/verification/screens/verification_screen.dart | Une de vos photos ne vous ressemble pas : elle ne compte pas.
-lib/presentation/features/verification/screens/verification_screen.dart | Votre badge et l\'empreinte de votre visage seront supprimés.
-lib/presentation/features/verification/screens/verification_screen.dart | Votre profil
-lib/presentation/features/verification/screens/verification_screen.dart | Vérification
-lib/presentation/features/verification/screens/verification_sections.dart | ).format(local)} à $time
-lib/presentation/features/verification/screens/verification_sections.dart | Contrôlée le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | Document contrôlé par sa puce.
-lib/presentation/features/verification/screens/verification_sections.dart | Identité vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Limite atteinte, nouvel essai possible ${_whenText(blockedUntil)}.
-lib/presentation/features/verification/screens/verification_sections.dart | Niveau 1
-lib/presentation/features/verification/screens/verification_sections.dart | Niveau 2
-lib/presentation/features/verification/screens/verification_sections.dart | Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; 
-lib/presentation/features/verification/screens/verification_sections.dart | Passeport ou carte d\'identité, lu par sa puce. Un selfie confirme que c\'est bien vous.
-lib/presentation/features/verification/screens/verification_sections.dart | Photo vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Retirer ma vérification
-lib/presentation/features/verification/screens/verification_sections.dart | Réessayer
-lib/presentation/features/verification/screens/verification_sections.dart | Votre visage correspond à vos photos.
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifier ma photo
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifier mon identité
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifiée le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | seule une empreinte chiffrée l\'est, supprimable à tout moment.
-lib/presentation/features/verification/verification_reasons.dart | Ajoutez d\'abord à votre profil une photo où votre visage est bien visible.
-lib/presentation/features/verification/verification_reasons.dart | Aucun visage détecté. Mettez-vous face à la caméra, dans un endroit bien éclairé.
-lib/presentation/features/verification/verification_reasons.dart | Ce document est déjà associé à un autre compte.
-lib/presentation/features/verification/verification_reasons.dart | Ce document est expiré.
-lib/presentation/features/verification/verification_reasons.dart | Ce document ne peut pas être utilisé.
-lib/presentation/features/verification/verification_reasons.dart | Connexion impossible. Vérifiez votre réseau et réessayez.
-lib/presentation/features/verification/verification_reasons.dart | La puce du document n\'a pas pu être authentifiée.
-lib/presentation/features/verification/verification_reasons.dart | La session a expiré. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | La session n\'est plus valide. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | Les images n\'ont pas pu être lues. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | Les images ne montrent pas la même personne. Recommencez seul(e).
-lib/presentation/features/verification/verification_reasons.dart | Les images sont trop semblables. Bougez la tête comme demandé.
-lib/presentation/features/verification/verification_reasons.dart | Les poses demandées n\'ont pas été reconnues. Suivez bien les consignes.
-lib/presentation/features/verification/verification_reasons.dart | Mettez à jour l\'application pour vérifier votre profil.
-lib/presentation/features/verification/verification_reasons.dart | Plusieurs visages détectés. Restez seul(e) dans le cadre.
-lib/presentation/features/verification/verification_reasons.dart | Une erreur est survenue. Réessayez dans un instant.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage est trop loin. Rapprochez-vous de la caméra.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage ne correspond pas à la photo du document.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage ne correspond pas à votre photo principale. Choisissez une photo récente où vous êtes bien visible.
-lib/presentation/features/verification/verification_reasons.dart | Vous avez atteint la limite d\'essais pour aujourd\'hui. Revenez demain.
-lib/presentation/features/verification/verification_reasons.dart | Vous devez avoir au moins 18 ans.
-lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
-lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
-lib/presentation/features/video_call/screens/video_call_screen.dart | Fin
-lib/presentation/features/video_call/screens/video_call_screen.dart | Flip
-lib/presentation/features/video_call/screens/video_call_screen.dart | Micro
 lib/presentation/features/video_call/screens/video_call_screen.dart | Sarah
