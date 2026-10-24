@@ -2156,15 +2156,58 @@ export async function getEventById(eventId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function createRsvp(eventId: number, userId: number, status = 'going') {
+// An event as the public sees it: published only. A draft, like an unknown id,
+// is simply absent.
+export async function getPublishedEventById(eventId: number) {
   const result = await sql`
-    INSERT INTO event_rsvps (event_id, user_id, status)
-    VALUES (${eventId}, ${userId}, ${status})
-    ON CONFLICT (event_id, user_id)
-    DO UPDATE SET status = ${status}
-    RETURNING *
+    SELECT e.*,
+      (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+    FROM events e
+    WHERE e.id = ${eventId} AND e.is_published = true
   `;
-  return result[0];
+  return result.length ? result[0] : null;
+}
+
+export type RsvpOutcome =
+  | { readonly kind: "registered"; readonly rsvp: Record<string, unknown> }
+  | { readonly kind: "not_found" }
+  | { readonly kind: "over" }
+  | { readonly kind: "full" };
+
+// Registers a member for a published, not yet past event. The event row is
+// locked for the duration of the transaction, so the seat count and the
+// insertion cannot be raced by other registrations of the same event.
+export async function rsvpToEvent(eventId: number, userId: number, status: string): Promise<RsvpOutcome> {
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const events = await tx`
+      SELECT max_attendees, date >= CURRENT_DATE AS is_open
+      FROM events
+      WHERE id = ${eventId} AND is_published = true
+      FOR UPDATE
+    `;
+    const event = events[0] as { max_attendees: number | null; is_open: boolean } | undefined;
+    if (!event) return { kind: "not_found" } as const;
+    if (!event.is_open) return { kind: "over" } as const;
+
+    if (status === "going" && event.max_attendees !== null) {
+      // The member's own seat does not count against them when they confirm again.
+      const taken = await tx`
+        SELECT COUNT(*) AS n FROM event_rsvps
+        WHERE event_id = ${eventId} AND status = 'going' AND user_id <> ${userId}
+      `;
+      if (Number((taken[0] as { n: string }).n) >= event.max_attendees) return { kind: "full" } as const;
+    }
+
+    const result = await tx`
+      INSERT INTO event_rsvps (event_id, user_id, status)
+      VALUES (${eventId}, ${userId}, ${status})
+      ON CONFLICT (event_id, user_id)
+      DO UPDATE SET status = ${status}
+      RETURNING *
+    `;
+    return { kind: "registered", rsvp: result[0] as Record<string, unknown> } as const;
+  });
 }
 
 export async function deleteRsvp(eventId: number, userId: number) {

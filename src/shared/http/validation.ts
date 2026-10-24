@@ -173,6 +173,17 @@ export const legacyReportBodySchema = z
   })
   .passthrough();
 
+// ============ EVENTS ============
+
+// POST /api/events/:id/rsvp. The app sends 'going'; only 'going' takes a seat.
+export const RSVP_STATUSES = ["going", "interested"] as const;
+export const rsvpBodySchema = z.object({ status: z.enum(RSVP_STATUSES).optional() }).passthrough();
+
+// A real calendar date written YYYY-MM-DD (any age).
+export function isIsoDate(raw: string): boolean {
+  return ageFromIsoDate(raw) !== null;
+}
+
 // ============ PROMPTS BODY ============
 
 export const MAX_PROMPT_ANSWER = 300;

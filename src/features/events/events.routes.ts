@@ -2,26 +2,42 @@ import { Hono } from "hono";
 import { verifyJWT, extractBearerToken } from "../../auth";
 import {
   getEvents,
-  getEventById,
-  createRsvp,
+  getPublishedEventById,
+  rsvpToEvent,
   deleteRsvp,
   getUserRsvp,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
+import { isIsoDate, parseBody, parseId, parsePage, rsvpBodySchema } from "../../shared/http/validation";
 
 // Presentation layer for the EVENTS feature (classic events only — NOT couple
-// events). These routes are moved verbatim from the monolith (src/index.ts).
-// Behaviour, payloads, status codes and ordering are identical to the original
-// inline handlers. `GET /api/events/:id` keeps its OPTIONAL auth: a Bearer token
-// is read best-effort to populate `userRsvp`, but no token is required.
+// events). `GET /api/events/:id` keeps its OPTIONAL auth: a Bearer token is read
+// best-effort to populate `userRsvp`, but no token is required. Only published
+// events exist for the public; a draft answers like an unknown id.
+
+const EVENTS_DEFAULT_LIMIT = 50;
+const EVENTS_MAX_LIMIT = 50;
+
+// The organiser is a member: the app has no use for their id, the public gets none.
+function withoutOrganizer<T extends Record<string, unknown>>(event: T): Omit<T, "organizer_id"> {
+  const { organizer_id: _organizer, ...publicFields } = event;
+  return publicFields;
+}
+
 export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): void {
   // Get public events
   app.get("/api/events", async (c) => {
     try {
       const type = c.req.query("type");
-      const fromDate = c.req.query("from") || new Date().toISOString().split("T")[0];
-      const limit = parseInt(c.req.query("limit") || "50");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const from = c.req.query("from");
+      if (from !== undefined && !isIsoDate(from)) {
+        return c.json({ success: false, error: "from: must be a valid YYYY-MM-DD date" }, 400);
+      }
+      const fromDate = from || new Date().toISOString().split("T")[0];
+      const { limit, offset } = parsePage(c.req.query("limit"), c.req.query("offset"), {
+        defaultLimit: EVENTS_DEFAULT_LIMIT,
+        maxLimit: EVENTS_MAX_LIMIT,
+      });
 
       const events = await getEvents({
         type: type || undefined,
@@ -31,7 +47,7 @@ export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): vo
         offset,
       });
 
-      return c.json({ success: true, events });
+      return c.json({ success: true, events: events.map((event) => withoutOrganizer(event)) });
     } catch (error: unknown) {
       console.error("Events error:", error);
       return c.json({ success: false, error: "Failed to get events" }, 500);
@@ -41,8 +57,11 @@ export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): vo
   // Get event by ID
   app.get("/api/events/:id", async (c) => {
     try {
-      const eventId = parseInt(c.req.param("id"));
-      const event = await getEventById(eventId);
+      const eventId = parseId(c.req.param("id"));
+      if (eventId === null) {
+        return c.json({ success: false, error: "Invalid event id" }, 400);
+      }
+      const event = await getPublishedEventById(eventId);
 
       if (!event) {
         return c.json({ success: false, error: "Event not found" }, 404);
@@ -59,7 +78,7 @@ export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): vo
         }
       }
 
-      return c.json({ success: true, event, userRsvp });
+      return c.json({ success: true, event: withoutOrganizer(event), userRsvp });
     } catch (error: unknown) {
       console.error("Event error:", error);
       return c.json({ success: false, error: "Failed to get event" }, 500);
@@ -70,26 +89,26 @@ export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): vo
   app.post("/api/events/:id/rsvp", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const eventId = parseInt(c.req.param("id"));
-      const { status } = await c.req.json().catch(() => ({ status: "going" }));
-
-      const event = await getEventById(eventId);
-      if (!event) {
-        return c.json({ success: false, error: "Event not found" }, 404);
+      const eventId = parseId(c.req.param("id"));
+      if (eventId === null) {
+        return c.json({ success: false, error: "Invalid event id" }, 400);
+      }
+      const parsed = await parseBody(rsvpBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
       }
 
-      // Check max attendees
-      const eventRecord = event as { max_attendees?: number; attendee_count?: number };
-      if (
-        eventRecord.max_attendees &&
-        (eventRecord.attendee_count ?? 0) >= eventRecord.max_attendees
-      ) {
-        return c.json({ success: false, error: "Event is full" }, 400);
+      const outcome = await rsvpToEvent(eventId, userId, parsed.data.status ?? "going");
+      switch (outcome.kind) {
+        case "not_found":
+          return c.json({ success: false, error: "Event not found" }, 404);
+        case "over":
+          return c.json({ success: false, error: "Event is over" }, 400);
+        case "full":
+          return c.json({ success: false, error: "Event is full" }, 400);
+        case "registered":
+          return c.json({ success: true, rsvp: outcome.rsvp });
       }
-
-      const rsvp = await createRsvp(eventId, userId, status || "going");
-
-      return c.json({ success: true, rsvp });
     } catch (error: unknown) {
       console.error("RSVP error:", error);
       return c.json({ success: false, error: "Failed to RSVP" }, 500);
@@ -100,7 +119,10 @@ export function registerEventsRoutes(app: Hono<{ Variables: AppVariables }>): vo
   app.delete("/api/events/:id/rsvp", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseId(c.req.param("id"));
+      if (eventId === null) {
+        return c.json({ success: false, error: "Invalid event id" }, 400);
+      }
 
       await deleteRsvp(eventId, userId);
 
