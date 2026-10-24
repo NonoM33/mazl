@@ -3,6 +3,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/l10n.dart';
+import '../l10n/report_category_text.dart';
 import 'mazl_sheet.dart';
 
 /// Dialog for blocking or reporting a user
@@ -64,8 +66,8 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         _buildOption(
           icon: LucideIcons.ban,
           iconColor: Colors.orange,
-          title: 'Bloquer',
-          subtitle: 'Cette personne ne pourra plus vous voir ni vous contacter',
+          title: context.l10n.safetyBlock,
+          subtitle: context.l10n.safetyBlockSubtitle,
           onTap: () => _showBlockConfirmation(context),
         ),
 
@@ -75,8 +77,8 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         _buildOption(
           icon: LucideIcons.flag,
           iconColor: Colors.red,
-          title: 'Signaler',
-          subtitle: 'Signaler un comportement inapproprié',
+          title: context.l10n.commonReport,
+          subtitle: context.l10n.safetyReportSubtitle,
           onTap: () => _showReportDialog(context),
         ),
 
@@ -85,9 +87,9 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         // Cancel button
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Annuler',
-            style: TextStyle(fontSize: 16),
+          child: Text(
+            context.l10n.commonCancel,
+            style: const TextStyle(fontSize: 16),
           ),
         ),
         const SizedBox(height: 12),
@@ -187,14 +189,14 @@ class _BlockConfirmationDialogState extends State<_BlockConfirmationDialog> {
         widget.onBlocked?.call();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${widget.userName} a été bloqué'),
+            content: Text(context.l10n.safetyBlocked(widget.userName)),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors du blocage'),
+            content: Text(context.l10n.safetyBlockFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -206,26 +208,26 @@ class _BlockConfirmationDialogState extends State<_BlockConfirmationDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Bloquer cet utilisateur ?'),
+      title: Text(context.l10n.safetyBlockConfirmTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'En bloquant ${widget.userName} :',
+            context.l10n.safetyBlockConfirmIntro(widget.userName),
             style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 12),
-          _buildBulletPoint('Cette personne ne pourra plus voir votre profil'),
-          _buildBulletPoint('Vous ne verrez plus son profil'),
-          _buildBulletPoint('Vos conversations seront supprimées'),
-          _buildBulletPoint('Cette personne ne sera pas notifiée'),
+          _buildBulletPoint(context.l10n.safetyBlockEffectHidden),
+          _buildBulletPoint(context.l10n.safetyBlockEffectNotSeen),
+          _buildBulletPoint(context.l10n.safetyBlockEffectChats),
+          _buildBulletPoint(context.l10n.safetyBlockEffectNotNotified),
         ],
       ),
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text('Annuler'),
+          child: Text(context.l10n.commonCancel),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _blockUser,
@@ -242,7 +244,7 @@ class _BlockConfirmationDialogState extends State<_BlockConfirmationDialog> {
                     valueColor: AlwaysStoppedAnimation(Colors.white),
                   ),
                 )
-              : const Text('Bloquer'),
+              : Text(context.l10n.safetyBlock),
         ),
       ],
     );
@@ -315,15 +317,15 @@ class _ReportDialogState extends State<_ReportDialog> {
         Navigator.pop(context);
         widget.onReported?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Merci pour votre signalement. Notre équipe va l\'examiner.'),
+          SnackBar(
+            content: Text(context.l10n.safetyReportThanks),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors du signalement'),
+            content: Text(context.l10n.safetyReportFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -347,16 +349,16 @@ class _ReportDialogState extends State<_ReportDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                const Text(
-                  'Signaler un problème',
-                  style: TextStyle(
+                Text(
+                  context.l10n.safetyReportTitle,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Pourquoi signalez-vous ${widget.userName} ?',
+                  context.l10n.safetyReportWhy(widget.userName),
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 20),
@@ -391,13 +393,13 @@ class _ReportDialogState extends State<_ReportDialog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    category.label,
+                                    category.label(context.l10n),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
-                                    category.description,
+                                    category.description(context.l10n),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[600],
@@ -420,7 +422,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                   controller: _commentController,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Détails supplémentaires (optionnel)',
+                    hintText: context.l10n.safetyReportDetailsHint,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -432,9 +434,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                 CheckboxListTile(
                   value: _alsoBlock,
                   onChanged: (value) => setState(() => _alsoBlock = value ?? false),
-                  title: const Text('Bloquer également cet utilisateur'),
+                  title: Text(context.l10n.safetyReportAlsoBlock),
                   subtitle: Text(
-                    'Vous ne verrez plus ce profil',
+                    context.l10n.safetyReportAlsoBlockHint,
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   controlAffinity: ListTileControlAffinity.leading,
@@ -466,9 +468,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                               valueColor: AlwaysStoppedAnimation(Colors.white),
                             ),
                           )
-                        : const Text(
-                            'Envoyer le signalement',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        : Text(
+                            context.l10n.safetyReportSend,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                   ),
                 ),
@@ -478,7 +480,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                 Center(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Annuler'),
+                    child: Text(context.l10n.commonCancel),
                   ),
                 ),
               ],

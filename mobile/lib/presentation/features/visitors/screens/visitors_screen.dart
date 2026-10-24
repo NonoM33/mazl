@@ -7,22 +7,29 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen showing users who visited my profile (Premium feature)
 class VisitorsScreen extends StatefulWidget {
-  const VisitorsScreen({super.key});
+  const VisitorsScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<VisitorsScreen> createState() => _VisitorsScreenState();
 }
 
 class _VisitorsScreenState extends State<VisitorsScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
 
   VisitorsData? _visitorsData;
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
+  ApiErrorKind? _errorKind;
 
   @override
   void initState() {
@@ -33,7 +40,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   Future<void> _loadVisitors() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _loadFailed = false;
     });
 
     final result = await _apiService.getProfileVisitors();
@@ -44,7 +51,8 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
         if (result.success && result.data != null) {
           _visitorsData = result.data;
         } else {
-          _error = result.error;
+          _loadFailed = true;
+          _errorKind = result.errorKind;
         }
       });
     }
@@ -54,15 +62,15 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qui a visité mon profil'),
+        title: Text(context.l10n.visitorsTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
+          : _loadFailed
               ? _buildError()
               : _buildContent(),
     );
@@ -75,11 +83,15 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
         children: [
           Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text(_error!, style: TextStyle(color: Colors.grey[600])),
+          Text(
+            apiErrorText(context.l10n, _errorKind),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadVisitors,
-            child: const Text('Réessayer'),
+            child: Text(context.l10n.commonRetry),
           ),
         ],
       ),
@@ -184,7 +196,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$total visite${total > 1 ? 's' : ''}',
+                  context.l10n.visitorsTotal(total),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -192,7 +204,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                   ),
                 ),
                 Text(
-                  '$thisWeek cette semaine',
+                  context.l10n.visitorsThisWeek(thisWeek),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
@@ -230,15 +242,15 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Découvrez qui vous a visité',
-                  style: TextStyle(
+                Text(
+                  context.l10n.visitorsBannerTitle,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
                 Text(
-                  'Passez à mazl+ pour voir les profils',
+                  context.l10n.visitorsBannerBody,
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -253,7 +265,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text('Voir'),
+            child: Text(context.l10n.commonSee),
           ),
         ],
       ),
@@ -279,7 +291,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Pas encore de visiteurs',
+            context.l10n.visitorsEmptyTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -290,7 +302,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.',
+              context.l10n.visitorsEmptyBody,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[500],
@@ -302,7 +314,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           ElevatedButton.icon(
             onPressed: () => context.push(RoutePaths.boost),
             icon: const Icon(LucideIcons.rocket, size: 18),
-            label: const Text('Activer un Boost'),
+            label: Text(context.l10n.visitorsEmptyAction),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6C5CE7),
               foregroundColor: Colors.white,
@@ -340,16 +352,16 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Réservé à mazl+',
-            style: TextStyle(
+          Text(
+            context.l10n.visitorsLockedTitle,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.',
+            context.l10n.visitorsLockedBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey[600],
@@ -372,9 +384,9 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: const Text(
-                'Découvrir mazl+',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              child: Text(
+                context.l10n.visitorsLockedAction,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -382,7 +394,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Plus tard',
+              context.l10n.commonLater,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ),
@@ -403,20 +415,26 @@ class _VisitorCard extends StatelessWidget {
   final bool isPremium;
   final VoidCallback onTap;
 
-  String _formatVisitTime() {
+  /// The first letter of the name, or a question mark: what a free member sees.
+  String _maskedInitial() {
+    const unknown = '?';
+    return visitor.displayName?.substring(0, 1) ?? unknown;
+  }
+
+  String _formatVisitTime(AppLocalizations l10n) {
     final now = DateTime.now();
     final diff = now.difference(visitor.visitedAt);
 
     if (diff.inMinutes < 60) {
-      return 'Il y a ${diff.inMinutes} min';
+      return l10n.visitorsAgoMinutes(diff.inMinutes);
     } else if (diff.inHours < 24) {
-      return 'Il y a ${diff.inHours}h';
+      return l10n.visitorsAgoHours(diff.inHours);
     } else if (diff.inDays == 1) {
-      return 'Hier';
+      return l10n.commonYesterday;
     } else if (diff.inDays < 7) {
-      return 'Il y a ${diff.inDays} jours';
+      return l10n.visitorsAgoDays(diff.inDays);
     } else {
-      return 'Il y a ${(diff.inDays / 7).floor()} sem.';
+      return l10n.visitorsAgoWeeks((diff.inDays / 7).floor());
     }
   }
 
@@ -501,8 +519,8 @@ class _VisitorCard extends StatelessWidget {
                   children: [
                     Text(
                       isPremium
-                          ? '${visitor.displayName ?? 'Anonyme'}, ${visitor.age}'
-                          : '${visitor.displayName?.substring(0, 1) ?? '?'}***',
+                          ? '${visitor.displayName ?? context.l10n.matchingCardAnonymous}, ${visitor.age}'
+                          : '${_maskedInitial()}***',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -518,11 +536,15 @@ class _VisitorCard extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.8),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          _formatVisitTime(),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 12,
+                        Flexible(
+                          child: Text(
+                            _formatVisitTime(context.l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -534,9 +556,9 @@ class _VisitorCard extends StatelessWidget {
               // "New" badge if visited recently
               if (visitor.visitedAt.isAfter(
                   DateTime.now().subtract(const Duration(hours: 24))))
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -546,9 +568,9 @@ class _VisitorCard extends StatelessWidget {
                       color: AppColors.secondary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'NEW',
-                      style: TextStyle(
+                    child: Text(
+                      context.l10n.visitorsNew,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,

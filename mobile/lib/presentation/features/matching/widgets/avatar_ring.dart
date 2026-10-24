@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// Pastille ronde d'un match : anneau tekhelet quand il est récent, filet
@@ -28,7 +29,9 @@ class AvatarRing extends StatelessWidget {
     final ringColor = isNew ? scheme.primary : scheme.outline;
     return Semantics(
       button: true,
-      label: isNew ? 'Nouveau match, $name' : 'Match, $name',
+      label: isNew
+          ? context.l10n.matchingAvatarNewMatch(name)
+          : context.l10n.matchingAvatarMatch(name),
       excludeSemantics: true,
       onTap: onTap,
       child: InkWell(

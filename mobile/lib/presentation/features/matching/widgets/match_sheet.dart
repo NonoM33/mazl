@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/profile.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import '../../../common/widgets/paired_avatars.dart';
 
@@ -126,16 +127,17 @@ class _MatchSheetContentState extends State<MatchSheetContent> with TickerProvid
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final name = widget.matched.displayName?.trim();
+    final l10n = context.l10n;
     final line = name == null || name.isEmpty
-        ? 'Vous vous êtes plu.'
-        : '$name et vous vous êtes plu.';
+        ? l10n.matchingMatchLineAnonymous
+        : l10n.matchingMatchLineNamed(name);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(child: _buildPair(scheme)),
         const SizedBox(height: 24),
-        Text('C\'est un match', textAlign: TextAlign.center, style: textTheme.headlineSmall),
+        Text(l10n.matchingMatchTitle, textAlign: TextAlign.center, style: textTheme.headlineSmall),
         const SizedBox(height: 8),
         Text(
           line,
@@ -145,12 +147,12 @@ class _MatchSheetContentState extends State<MatchSheetContent> with TickerProvid
         const SizedBox(height: 28),
         ElevatedButton(
           onPressed: () => _choose(MatchSheetChoice.message),
-          child: const Text('Envoyer un message'),
+          child: Text(l10n.matchingMatchSendMessage),
         ),
         const SizedBox(height: 4),
         TextButton(
           onPressed: () => _choose(MatchSheetChoice.keepDiscovering),
-          child: const Text('Continuer à découvrir'),
+          child: Text(l10n.matchingMatchKeepDiscovering),
         ),
       ],
     );

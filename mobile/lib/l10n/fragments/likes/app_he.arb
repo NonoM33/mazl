@@ -1,0 +1,20 @@
+{
+  "likesTitle": "לייקים",
+  "likesSection": "אהבו אותך · {count}",
+  "likesWaiting": "{count, plural, one{אדם אחד ממתין לתשובה שלך.} two{שני אנשים ממתינים לתשובה שלך.} other{{label} אנשים ממתינים לתשובה שלך.}}",
+  "likesSeeWhoWithPlus": "לראות מי אהב אותך עם mazl+‎",
+  "likesMatchWith": "יש מאץ' עם {name}",
+  "likesMessageAction": "הודעה",
+  "likesYouLiked": "נשלח לייק ל-{name}",
+  "likesEmptyTitle": "עדיין אין לייקים",
+  "likesEmptyBody": "כדאי להמשיך לגלות פרופילים ולהשלים את הפרופיל כדי לקבל יותר לייקים.",
+  "likesEmptyAction": "לגלות פרופילים",
+  "likesPremiumBody": "אפשר לגלות מי אהב אותך וליצור מאץ' מיד עם מי שמוצא חן בעיניך.",
+  "likesPremiumOffers": "לצפייה במסלולים",
+  "likesCardOpen": "לצפייה בלייק של {title}",
+  "likesCardPass": "לדלג על {name}",
+  "likesCardLike": "לתת לייק ל-{name}",
+  "likesLockedLabel": "פרופיל מוסתר",
+  "likesLockedHint": "זמין עם mazl+‎",
+  "likesDistance": "{km} ק״מ"
+}

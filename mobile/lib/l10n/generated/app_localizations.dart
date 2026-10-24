@@ -446,6 +446,120 @@ abstract class AppLocalizations {
   /// **'Retour à l\'accueil'**
   String get authRouteErrorHome;
 
+  /// Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes).
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get boostTitle;
+
+  /// Titre de la carte colorée quand un Boost est en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost actif'**
+  String get boostHeadlineActive;
+
+  /// Titre de la carte colorée quand aucun Boost n'est en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boostez votre profil'**
+  String get boostHeadlineIdle;
+
+  /// Sous le titre de la carte colorée, hors Boost en cours : la promesse de la fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soyez vu par 10x plus de personnes.'**
+  String get boostTagline;
+
+  /// Temps restant d'un Boost en cours, sous le titre de la carte colorée. {minutes} est un entier de minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes, plural, one{{minutes} min restante} other{{minutes} min restantes}}'**
+  String boostMinutesLeft(int minutes);
+
+  /// Titre de la carte de statistiques d'un Boost en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant ce boost'**
+  String get boostDuringTitle;
+
+  /// Légende sous le nombre de vues du profil pendant le Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vues'**
+  String get boostViews;
+
+  /// Légende sous le nombre de likes reçus pendant le Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get boostLikes;
+
+  /// Titre de la carte qui liste les avantages du Boost (hors Boost en cours).
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantages du Boost'**
+  String get boostBenefitsTitle;
+
+  /// Premier avantage du Boost (une ligne, après une icône).
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparaissez en premier dans les suggestions'**
+  String get boostBenefitFirst;
+
+  /// Deuxième avantage du Boost. {minutes} est la durée du Boost en minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'10x plus de visibilité pendant {minutes} min'**
+  String boostBenefitVisibility(int minutes);
+
+  /// Troisième avantage du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus de chances de matcher'**
+  String get boostBenefitMatches;
+
+  /// Quatrième avantage du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stats en temps réel pendant le boost'**
+  String get boostBenefitStats;
+
+  /// Gros bouton violet qui active un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le Boost'**
+  String get boostActivate;
+
+  /// Sous le bouton d'activation : combien de Boosts le membre peut encore lancer. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} boost restant} other{{count} boosts restants}}'**
+  String boostRemaining(int count);
+
+  /// Message bref (fond vert) après l'activation d'un Boost depuis l'écran Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost activé. Votre profil est maintenant en avant.'**
+  String get boostActivated;
+
+  /// Message bref (fond rouge) quand l'activation du Boost a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'activation'**
+  String get boostActivateFailed;
+
+  /// Titre de l'encart qui propose mazl+ quand il reste au plus un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boosts illimités'**
+  String get boostUpsellTitle;
+
+  /// Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boostez sans limite avec mazl+'**
+  String get boostUpsellBody;
+
   /// Conversations : titre de l'écran (grand titre, 40 px).
   ///
   /// In fr, this message translates to:
@@ -4152,6 +4266,690 @@ abstract class AppLocalizations {
   /// **'Vezos Habracha'**
   String get jewishCalendarParshaVzosHaberacha;
 
+  /// Titre de l'écran qui liste les membres qui ont aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get likesTitle;
+
+  /// Petit titre au-dessus de la liste des likes. {count} est le nombre de likes reçus, arrondi par tranches (« 3 », « 10+ », « 25+ »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ils vous ont aimé · {count}'**
+  String likesSection(String count);
+
+  /// Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}'**
+  String likesWaiting(int count, String label);
+
+  /// Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir qui vous a aimé avec mazl+'**
+  String get likesSeeWhoWithPlus;
+
+  /// Message bref quand aimer un profil crée un match. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match avec {name}'**
+  String likesMatchWith(String name);
+
+  /// Bouton du message bref « Match avec … » : ouvre la messagerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get likesMessageAction;
+
+  /// Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez liké {name}'**
+  String likesYouLiked(String name);
+
+  /// Titre de l'écran des likes quand personne n'a encore aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de likes'**
+  String get likesEmptyTitle;
+
+  /// Texte sous le titre de l'écran des likes vide : conseil pour recevoir des likes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.'**
+  String get likesEmptyBody;
+
+  /// Bouton de l'écran des likes vide : retourne à Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir des profils'**
+  String get likesEmptyAction;
+
+  /// Texte de la feuille qui présente mazl+ quand on touche un like verrouillé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.'**
+  String get likesPremiumBody;
+
+  /// Bouton de la feuille mazl+ : ouvre l'écran des offres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les offres'**
+  String get likesPremiumOffers;
+
+  /// Libellé d'accessibilité d'une carte de like : ouvre l'aperçu. {title} est « Prénom, âge ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le like de {title}'**
+  String likesCardOpen(String title);
+
+  /// Info-bulle du bouton rond (croix) sous une carte de like. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer {name}'**
+  String likesCardPass(String name);
+
+  /// Info-bulle du bouton rond (cœur) sous une carte de like. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aimer {name}'**
+  String likesCardLike(String name);
+
+  /// Libellé d'accessibilité d'une tuile de like verrouillée (compte gratuit).
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil masqué'**
+  String get likesLockedLabel;
+
+  /// Indication d'accessibilité d'une tuile de like verrouillée. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible avec mazl+'**
+  String get likesLockedHint;
+
+  /// Pastille de distance dans l'aperçu d'un like. {km} est un nombre entier de kilomètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'{km} km'**
+  String likesDistance(int km);
+
+  /// Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélections du jour'**
+  String get matchingDiscoverDailyPicks;
+
+  /// Info-bulle du bouton filtres en haut de Découvrir, et titre de l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get matchingFilters;
+
+  /// Titre de Découvrir quand tous les profils proposés ont été vus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez tout vu.'**
+  String get matchingDiscoverEmptyTitle;
+
+  /// Texte sous le titre de Découvrir quand il n'y a plus de profil à voir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.'**
+  String get matchingDiscoverEmptyBody;
+
+  /// Bouton de Découvrir (état vide) qui ouvre l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir les filtres'**
+  String get matchingDiscoverOpenFilters;
+
+  /// Bouton de Découvrir (état vide) qui recharge les profils.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get matchingDiscoverRefresh;
+
+  /// Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get matchingDiscoverUndo;
+
+  /// Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super like'**
+  String get matchingDiscoverSuperLike;
+
+  /// Info-bulle du petit bouton rond de la carte qui active un Boost (fonction mazl+). Nom de la fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get matchingDiscoverBoost;
+
+  /// Message bref après l'activation d'un Boost. {minutes} est la durée du Boost en minutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost activé. Vous êtes en tête de pile pendant {minutes, plural, one{{minutes} minute} other{{minutes} minutes}}.'**
+  String matchingDiscoverBoostOn(int minutes);
+
+  /// Message bref quand le Boost n'a pas pu être activé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'activer le boost'**
+  String get matchingDiscoverBoostFailed;
+
+  /// Info-bulle du gros bouton rond de la carte qui passe le profil (équivalent d'un balayage à gauche).
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get matchingCardPass;
+
+  /// Info-bulle du gros bouton rond de la carte (cœur) qui aime le profil (équivalent d'un balayage à droite).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'aime'**
+  String get matchingCardLike;
+
+  /// Indication d'accessibilité sur le nom de la carte : toucher ouvre le profil complet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get matchingCardViewProfile;
+
+  /// Nom affiché quand un profil n'a pas de prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anonyme'**
+  String get matchingCardAnonymous;
+
+  /// Distance sous le nom, après la ville, séparée par un point médian. {km} est un nombre entier de kilomètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'à {km} km'**
+  String matchingCardDistance(int km);
+
+  /// Pastille blanche en haut de la photo : le profil a passé la vérification d'identité. Doit tenir sur une ligne de 12 px de haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiée'**
+  String get matchingCardVerified;
+
+  /// Libellé d'accessibilité d'un match récent dans la rangée des matchs. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau match, {name}'**
+  String matchingAvatarNewMatch(String name);
+
+  /// Libellé d'accessibilité d'un match dans la rangée des matchs. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match, {name}'**
+  String matchingAvatarMatch(String name);
+
+  /// Titre de la feuille qui s'ouvre quand deux membres se plaisent mutuellement.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un match'**
+  String get matchingMatchTitle;
+
+  /// Phrase sous le titre de la feuille de match. {name} est le prénom de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} et vous vous êtes plu.'**
+  String matchingMatchLineNamed(String name);
+
+  /// Phrase sous le titre de la feuille de match quand l'autre membre n'a pas de prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous êtes plu.'**
+  String get matchingMatchLineAnonymous;
+
+  /// Bouton principal de la feuille de match : ouvre la conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer un message'**
+  String get matchingMatchSendMessage;
+
+  /// Bouton secondaire de la feuille de match : ferme la feuille et revient aux profils.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer à découvrir'**
+  String get matchingMatchKeepDiscovering;
+
+  /// Bouton en contour sous les likes visibles de l'écran Matchs. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel. {count} est le nombre de likes encore cachés.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Voir {count} autre avec mazl+} other{Voir les {count} autres avec mazl+}}'**
+  String matchingSeeMoreWithPlus(int count);
+
+  /// Titre de l'onglet et de l'écran des matchs (gros titre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs'**
+  String get matchingMatchesTitle;
+
+  /// Info-bulle du bouton cœur en haut de l'écran des matchs : ouvre la liste des membres qui ont aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui vous a aimé'**
+  String get matchingMatchesWhoLikedYou;
+
+  /// Petit titre au-dessus de la rangée des pastilles de matchs. {count} est le nombre de matchs récents (moins de 7 jours).
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux · {count}'**
+  String matchingMatchesNewSection(int count);
+
+  /// Petit titre au-dessus de la liste des matchs avec lesquels on peut discuter. {count} est leur nombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversations · {count}'**
+  String matchingMatchesConversationsSection(int count);
+
+  /// Texte de l'écran des matchs quand leur chargement a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger les matchs'**
+  String get matchingMatchesLoadFailed;
+
+  /// Titre de l'écran des matchs quand il n'y en a pas encore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de match'**
+  String get matchingMatchesEmptyTitle;
+
+  /// Texte sous le titre de l'écran des matchs vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuez à découvrir des profils.'**
+  String get matchingMatchesEmptyBody;
+
+  /// Nom affiché pour un match dont le prénom n'est pas connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inconnu'**
+  String get matchingMatchesUnknownName;
+
+  /// Ligne discrète sous le nom d'un match qui n'a pas de ville : invite à écrire le premier message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrivez-lui'**
+  String get matchingMatchesWriteHint;
+
+  /// Libellé d'accessibilité de la photo ronde d'un match : ouvre son profil. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil de {name}'**
+  String matchingMatchesViewProfileOf(String name);
+
+  /// Bouton en contour sous les likes visibles (compte mazl+) quand il y en a d'autres. {count} est le nombre restant.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Voir {count} autre} other{Voir les {count} autres}}'**
+  String matchingMatchesSeeMore(int count);
+
+  /// Ancienneté d'un match (2 à 6 jours), à droite de sa ligne. {count} est un entier de jours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}'**
+  String matchingMatchedDaysAgo(int count);
+
+  /// Ancienneté d'un match (7 à 29 jours), à droite de sa ligne. {count} est un entier de semaines.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} semaine} other{Il y a {count} semaines}}'**
+  String matchingMatchedWeeksAgo(int count);
+
+  /// Ancienneté d'un match (30 jours ou plus), à droite de sa ligne. {count} est un entier de mois.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} mois} other{Il y a {count} mois}}'**
+  String matchingMatchedMonthsAgo(int count);
+
+  /// Titre de la bannière qui propose le mode couple dans l'écran des matchs (gros texte, jusqu'à deux lignes).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça y est, vous avez matché ?'**
+  String get matchingCouplePromoTitle;
+
+  /// Info-bulle de la croix qui masque la bannière du mode couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer'**
+  String get matchingCouplePromoDismiss;
+
+  /// Texte de la bannière du mode couple : ce que le mode couple apporte. « mazl » est le nom de la marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions quotidiennes, étapes, calendrier juif partagé : construisez votre relation avec mazl.'**
+  String get matchingCouplePromoBody;
+
+  /// Bouton de la bannière du mode couple : ouvre l'activation du mode couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le mode couple'**
+  String get matchingCouplePromoAction;
+
+  /// Titre de l'écran des sélections du jour quand toutes ont été vues.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez vu toutes vos sélections.'**
+  String get matchingPicksSeenAll;
+
+  /// Sous le titre de l'écran vide des sélections : dans combien de temps les suivantes arrivent. {hours} et {minutes} sont des entiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaines sélections dans {hours}h {minutes}m'**
+  String matchingPicksNextIn(int hours, int minutes);
+
+  /// Sous le compteur de profils de l'écran des sélections : dans combien de temps elles se renouvellent. {hours} et {minutes} sont des entiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour dans {hours}h {minutes}m'**
+  String matchingPicksUpdatedIn(int hours, int minutes);
+
+  /// Phrase en haut de l'écran des sélections du jour. {count} est le nombre de profils proposés.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} profil sélectionné pour vous} other{{count} profils sélectionnés pour vous}}'**
+  String matchingPicksCount(int count);
+
+  /// Bouton de l'écran des sélections vides : ouvre Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir plus de profils'**
+  String get matchingPicksDiscoverMore;
+
+  /// Petit badge doré sur la photo d'un profil sélectionné (10 px de haut, un mot).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pick'**
+  String get matchingPicksBadge;
+
+  /// Texte de la boîte de dialogue de match depuis les sélections. {name} est le prénom de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez matché avec {name}.'**
+  String matchingPicksMatchBody(String name);
+
+  /// Bouton en haut à droite de l'écran des filtres : remet tous les filtres à leur valeur de départ.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser'**
+  String get matchingFiltersReset;
+
+  /// Titre de la section « tranche d'âge » de l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranche d\'âge'**
+  String get matchingFiltersAge;
+
+  /// Âge minimal ou maximal affiché au-dessus du curseur d'âge. {count} est un entier entre 18 et 70.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} an} other{{count} ans}}'**
+  String matchingFiltersYears(int count);
+
+  /// Titre de la section « distance maximale » de l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance maximale'**
+  String get matchingFiltersDistance;
+
+  /// Distance maximale choisie, en gros chiffres au-dessus du curseur. {count} est un entier de kilomètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} km'**
+  String matchingFiltersKm(int count);
+
+  /// Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Courant religieux'**
+  String get matchingFiltersDenomination;
+
+  /// Choix du filtre « courant religieux » : aucun filtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes'**
+  String get matchingFiltersDenominationAll;
+
+  /// Choix du filtre « courant religieux » : judaïsme orthodoxe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Orthodoxe'**
+  String get matchingFiltersDenominationOrthodox;
+
+  /// Choix du filtre « courant religieux » : mouvement massorti (conservative).
+  ///
+  /// In fr, this message translates to:
+  /// **'Massorti'**
+  String get matchingFiltersDenominationMasorti;
+
+  /// Choix du filtre « courant religieux » : judaïsme libéral ou réformé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Libéral'**
+  String get matchingFiltersDenominationLiberal;
+
+  /// Choix du filtre « courant religieux » : traditionaliste, attaché aux traditions sans suivre un mouvement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traditionaliste'**
+  String get matchingFiltersDenominationTraditional;
+
+  /// Choix du filtre « courant religieux » : mouvement loubavitch (Habad).
+  ///
+  /// In fr, this message translates to:
+  /// **'Loubavitch'**
+  String get matchingFiltersDenominationChabad;
+
+  /// Choix du filtre « courant religieux » : tradition séfarade.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séfarade'**
+  String get matchingFiltersDenominationSephardi;
+
+  /// Choix du filtre « courant religieux » : tradition ashkénaze.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ashkénaze'**
+  String get matchingFiltersDenominationAshkenazi;
+
+  /// Titre de la section « pratiques religieuses » de l'écran des filtres (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratiques religieuses'**
+  String get matchingFiltersObservances;
+
+  /// Choix du filtre « pratiques » : observer le chabbat (shomer shabbat).
+  ///
+  /// In fr, this message translates to:
+  /// **'Shomer Shabbat'**
+  String get matchingFiltersShabbat;
+
+  /// Choix du filtre « pratiques » : manger casher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casher'**
+  String get matchingFiltersKosher;
+
+  /// Choix du filtre « pratiques » : casher strict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casher strict'**
+  String get matchingFiltersKosherStrict;
+
+  /// Choix du filtre « pratiques » : prière quotidienne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prière quotidienne'**
+  String get matchingFiltersDailyPrayer;
+
+  /// Choix du filtre « pratiques » : pratique du mikvé (bain rituel).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mikvé'**
+  String get matchingFiltersMikveh;
+
+  /// Choix du filtre « pratiques » : tsniout (pudeur dans l'habillement et le comportement).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tsniout'**
+  String get matchingFiltersTzniut;
+
+  /// Titre de la section « niveau d'études » de l'écran des filtres (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau d\'études'**
+  String get matchingFiltersEducation;
+
+  /// Choix du filtre « niveau d'études » : aucun filtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get matchingFiltersEducationAll;
+
+  /// Choix du filtre « niveau d'études » : lycée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lycée'**
+  String get matchingFiltersEducationHighSchool;
+
+  /// Choix du filtre « niveau d'études » : baccalauréat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bac'**
+  String get matchingFiltersEducationBaccalaureate;
+
+  /// Choix du filtre « niveau d'études » : licence (bac+3).
+  ///
+  /// In fr, this message translates to:
+  /// **'Licence'**
+  String get matchingFiltersEducationBachelor;
+
+  /// Choix du filtre « niveau d'études » : master (bac+5).
+  ///
+  /// In fr, this message translates to:
+  /// **'Master'**
+  String get matchingFiltersEducationMaster;
+
+  /// Choix du filtre « niveau d'études » : doctorat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doctorat'**
+  String get matchingFiltersEducationDoctorate;
+
+  /// Choix du filtre « niveau d'études » : yeshiva (hommes) ou séminaire (femmes), études religieuses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Yeshiva/Sem'**
+  String get matchingFiltersEducationYeshiva;
+
+  /// Titre de la section « taille » de l'écran des filtres (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille'**
+  String get matchingFiltersHeight;
+
+  /// Valeur minimale de taille quand aucun filtre n'est posé, à gauche du curseur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Min'**
+  String get matchingFiltersHeightMin;
+
+  /// Valeur maximale de taille quand aucun filtre n'est posé, à droite du curseur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Max'**
+  String get matchingFiltersHeightMax;
+
+  /// Taille minimale ou maximale choisie. {count} est un entier de centimètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} cm'**
+  String matchingFiltersCm(int count);
+
+  /// Bouton qui retire le filtre de taille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer le filtre taille'**
+  String get matchingFiltersHeightClear;
+
+  /// Titre de la section des options à bascule (profils vérifiés, avec photo, en ligne).
+  ///
+  /// In fr, this message translates to:
+  /// **'Options'**
+  String get matchingFiltersOptions;
+
+  /// Interrupteur : ne montrer que les profils dont l'identité est vérifiée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profils vérifiés uniquement'**
+  String get matchingFiltersVerifiedTitle;
+
+  /// Explication sous l'interrupteur « profils vérifiés uniquement ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir seulement les profils vérifiés'**
+  String get matchingFiltersVerifiedHint;
+
+  /// Interrupteur : ne montrer que les profils qui ont une photo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec photo uniquement'**
+  String get matchingFiltersPhotoTitle;
+
+  /// Explication sous l'interrupteur « avec photo uniquement ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Exclure les profils sans photo'**
+  String get matchingFiltersPhotoHint;
+
+  /// Interrupteur : ne montrer que les membres connectés en ce moment (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne maintenant'**
+  String get matchingFiltersOnlineTitle;
+
+  /// Explication sous l'interrupteur « en ligne maintenant ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les utilisateurs actifs'**
+  String get matchingFiltersOnlineHint;
+
+  /// Titre de l'encart dégradé qui propose mazl+ aux comptes gratuits, en bas de l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer tous les filtres'**
+  String get matchingFiltersUpsellTitle;
+
+  /// Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez à mazl+ pour des recherches précises'**
+  String get matchingFiltersUpsellBody;
+
+  /// Gros bouton qui apparaît dès qu'un filtre change : enregistre les filtres et revient à Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer les filtres'**
+  String get matchingFiltersApply;
+
+  /// Message bref (fond vert) après l'enregistrement des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres enregistrés'**
+  String get matchingFiltersSaved;
+
+  /// Message bref (fond rouge) quand l'enregistrement des filtres a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la sauvegarde'**
+  String get matchingFiltersSaveFailed;
+
   /// Barre d'onglets : onglet des profils à découvrir. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
   ///
   /// In fr, this message translates to:
@@ -5604,6 +6402,204 @@ abstract class AppLocalizations {
   /// **'Signaler ce profil'**
   String get profileReportThisProfile;
 
+  /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer'**
+  String get safetyBlock;
+
+  /// Sous le titre « Bloquer », dans la feuille « Bloquer / Signaler » : ce que le blocage fait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne pourra plus vous voir ni vous contacter'**
+  String get safetyBlockSubtitle;
+
+  /// Sous le titre « Signaler », dans la feuille « Bloquer / Signaler » : ce que le signalement permet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un comportement inapproprié'**
+  String get safetyReportSubtitle;
+
+  /// Titre de la boîte de dialogue qui demande de confirmer le blocage d'un membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer cet utilisateur ?'**
+  String get safetyBlockConfirmTitle;
+
+  /// Introduit la liste des conséquences du blocage, dans la boîte de confirmation. {name} est le prénom du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'En bloquant {name} :'**
+  String safetyBlockConfirmIntro(String name);
+
+  /// Conséquence du blocage (puce de la liste) : le membre bloqué ne voit plus le profil de la personne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne pourra plus voir votre profil'**
+  String get safetyBlockEffectHidden;
+
+  /// Conséquence du blocage (puce de la liste) : la personne ne voit plus le profil du membre bloqué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne verrez plus son profil'**
+  String get safetyBlockEffectNotSeen;
+
+  /// Conséquence du blocage (puce de la liste) : les conversations avec ce membre disparaissent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos conversations seront supprimées'**
+  String get safetyBlockEffectChats;
+
+  /// Conséquence du blocage (puce de la liste) : le membre bloqué n'est pas prévenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne sera pas notifiée'**
+  String get safetyBlockEffectNotNotified;
+
+  /// Message bref en bas de l'écran après un blocage réussi. {name} est le prénom du membre bloqué.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a été bloqué'**
+  String safetyBlocked(String name);
+
+  /// Message bref en bas de l'écran quand le blocage a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du blocage'**
+  String get safetyBlockFailed;
+
+  /// Titre de la feuille de signalement d'un membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un problème'**
+  String get safetyReportTitle;
+
+  /// Question sous le titre de la feuille de signalement. {name} est le prénom du membre signalé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi signalez-vous {name} ?'**
+  String safetyReportWhy(String name);
+
+  /// Texte d'aide du champ libre où l'on peut préciser le signalement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails supplémentaires (optionnel)'**
+  String get safetyReportDetailsHint;
+
+  /// Case à cocher de la feuille de signalement : bloquer aussi le membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer également cet utilisateur'**
+  String get safetyReportAlsoBlock;
+
+  /// Sous la case « Bloquer également » : ce que ça change.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne verrez plus ce profil'**
+  String get safetyReportAlsoBlockHint;
+
+  /// Bouton rouge qui envoie le signalement à la modération.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le signalement'**
+  String get safetyReportSend;
+
+  /// Message bref en bas de l'écran après l'envoi d'un signalement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci pour votre signalement. Notre équipe va l\'examiner.'**
+  String get safetyReportThanks;
+
+  /// Message bref en bas de l'écran quand l'envoi du signalement a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du signalement'**
+  String get safetyReportFailed;
+
+  /// Motif de signalement (liste de choix) : profil qui usurpe une identité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux profil'**
+  String get safetyCategoryFakeProfile;
+
+  /// Précision sous le motif « Faux profil ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos volées, identité fausse'**
+  String get safetyCategoryFakeProfileHint;
+
+  /// Motif de signalement (liste de choix) : photos choquantes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos inappropriées'**
+  String get safetyCategoryInappropriatePhotos;
+
+  /// Précision sous le motif « Photos inappropriées ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu sexuel, violent ou choquant'**
+  String get safetyCategoryInappropriatePhotosHint;
+
+  /// Motif de signalement (liste de choix) : harcèlement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement'**
+  String get safetyCategoryHarassment;
+
+  /// Précision sous le motif « Harcèlement ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages insistants, menaces, insultes'**
+  String get safetyCategoryHarassmentHint;
+
+  /// Motif de signalement (liste de choix) : spam ou arnaque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spam / Arnaque'**
+  String get safetyCategorySpam;
+
+  /// Précision sous le motif « Spam / Arnaque ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Publicité, demande d\'argent, liens suspects'**
+  String get safetyCategorySpamHint;
+
+  /// Motif de signalement (liste de choix) : la personne est mineure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mineur'**
+  String get safetyCategoryUnderage;
+
+  /// Précision sous le motif « Mineur ».
+  ///
+  /// In fr, this message translates to:
+  /// **'La personne semble avoir moins de 18 ans'**
+  String get safetyCategoryUnderageHint;
+
+  /// Motif de signalement (liste de choix) : comportement en dehors de l'app, lors d'une rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comportement hors app'**
+  String get safetyCategoryOfflineBehavior;
+
+  /// Précision sous le motif « Comportement hors app ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Comportement inapproprié lors d\'une rencontre'**
+  String get safetyCategoryOfflineBehaviorHint;
+
+  /// Motif de signalement (liste de choix) : tout autre motif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get safetyCategoryOther;
+
+  /// Précision sous le motif « Autre ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre raison (précisez)'**
+  String get safetyCategoryOtherHint;
+
   /// Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app.
   ///
   /// In fr, this message translates to:
@@ -6239,6 +7235,156 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
+
+  /// Titre de la barre d'en-tête de l'écran des suggestions de l'IA. « Shadchan » signifie marieur, marieuse (entremetteur dans la tradition juive) ; garder le mot tel quel quand la langue l'utilise.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI Shadchan'**
+  String get shadchanTitle;
+
+  /// Titre dans l'en-tête dégradé de l'écran des suggestions de l'IA. « Shadchan » = marieur, marieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Shadchan personnel'**
+  String get shadchanHeaderTitle;
+
+  /// Texte sous le titre de l'en-tête dégradé : ce que fait l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles'**
+  String get shadchanHeaderBody;
+
+  /// Titre de la section des suggestions du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestions du jour'**
+  String get shadchanTodayTitle;
+
+  /// Pastille à droite du titre de section (12 px) : combien de suggestions restent. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} nouvelle} other{{count} nouvelles}}'**
+  String shadchanNewCount(int count);
+
+  /// Titre de la carte affichée quand toutes les suggestions du jour ont été traitées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez parcouru toutes vos suggestions.'**
+  String get shadchanEmptyTitle;
+
+  /// Texte sous le titre de la carte « toutes les suggestions vues ». « Shadchan » = marieur, marieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez demain pour de nouvelles propositions de votre Shadchan.'**
+  String get shadchanEmptyBody;
+
+  /// Bouton de la carte « toutes les suggestions vues » : ouvre Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir plus de profils'**
+  String get shadchanEmptyAction;
+
+  /// Message bref après avoir passé une suggestion. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ignorée'**
+  String shadchanPassed(String name);
+
+  /// Message bref (fond vert) après avoir aimé une suggestion. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ajoutée à vos likes'**
+  String shadchanLiked(String name);
+
+  /// Titre de la carte qui explique le fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça marche ?'**
+  String get shadchanHowTitle;
+
+  /// Étape 1 du fonctionnement de l'IA (une ligne de 13 px, après un numéro).
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre IA analyse votre profil et vos préférences'**
+  String get shadchanHowStepAnalyze;
+
+  /// Étape 2 du fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle compare avec les profils compatibles'**
+  String get shadchanHowStepCompare;
+
+  /// Étape 3 du fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous recevez des suggestions personnalisées chaque jour'**
+  String get shadchanHowStepDaily;
+
+  /// Titre (12 px) du bloc vert qui liste les raisons d'une suggestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi cette suggestion ?'**
+  String get shadchanWhy;
+
+  /// Petit mot sous le pourcentage de compatibilité d'une suggestion (10 px). Mot d'usage des apps de rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match'**
+  String get shadchanMatchBadge;
+
+  /// Raison d'une suggestion : même niveau de pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même niveau de pratique'**
+  String get shadchanReasonSamePractice;
+
+  /// Raison d'une suggestion : centres d'intérêt communs (exemple : voyages et cuisine).
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts communs : voyages, cuisine'**
+  String get shadchanReasonInterests;
+
+  /// Raison d'une suggestion : objectifs de vie proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs similaires'**
+  String get shadchanReasonGoals;
+
+  /// Raison d'une suggestion : valeurs familiales proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs familiales alignées'**
+  String get shadchanReasonFamily;
+
+  /// Raison d'une suggestion : même passion pour la musique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passion commune pour la musique'**
+  String get shadchanReasonMusic;
+
+  /// Raison d'une suggestion : lieux de vie proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zones de vie compatibles'**
+  String get shadchanReasonLocation;
+
+  /// Raison d'une suggestion : pratique religieuse proche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique religieuse similaire'**
+  String get shadchanReasonReligion;
+
+  /// Raison d'une suggestion : métiers dans le même secteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Secteur professionnel proche'**
+  String get shadchanReasonProfession;
+
+  /// Raison d'une suggestion : même idée de la vie de couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même vision du couple'**
+  String get shadchanReasonCouple;
 
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
@@ -7241,6 +8387,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Fin'**
   String get videoCallEnd;
+
+  /// Titre de la barre d'en-tête de l'écran des visiteurs du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui a visité mon profil'**
+  String get visitorsTitle;
+
+  /// Grand chiffre de l'en-tête violet : le nombre total de visites. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} visite} other{{count} visites}}'**
+  String visitorsTotal(int count);
+
+  /// Sous le total des visites : combien datent des 7 derniers jours. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} cette semaine'**
+  String visitorsThisWeek(int count);
+
+  /// Titre de la bannière qui propose mazl+ à un compte gratuit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez qui vous a visité'**
+  String get visitorsBannerTitle;
+
+  /// Sous le titre de la bannière mazl+ : une ligne courte (12 px). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez à mazl+ pour voir les profils'**
+  String get visitorsBannerBody;
+
+  /// Titre de l'écran des visiteurs quand personne n'a encore visité le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de visiteurs'**
+  String get visitorsEmptyTitle;
+
+  /// Texte sous le titre de l'écran des visiteurs vide : conseil pour attirer des visiteurs. « Boost » est le nom d'une fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.'**
+  String get visitorsEmptyBody;
+
+  /// Bouton de l'écran des visiteurs vide : ouvre l'écran du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer un Boost'**
+  String get visitorsEmptyAction;
+
+  /// Titre de la feuille qui s'ouvre quand un compte gratuit touche une visite verrouillée. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé à mazl+'**
+  String get visitorsLockedTitle;
+
+  /// Texte de la feuille « Réservé à mazl+ ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.'**
+  String get visitorsLockedBody;
+
+  /// Bouton principal de la feuille « Réservé à mazl+ » : ouvre l'abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mazl+'**
+  String get visitorsLockedAction;
+
+  /// Pastille sur la photo d'une visite de moins de 24 heures. 10 px de haut, une seule ligne courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'NEW'**
+  String get visitorsNew;
+
+  /// Il y a moins d'une heure, sous le prénom d'un visiteur. {count} est un entier de minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count} min'**
+  String visitorsAgoMinutes(int count);
+
+  /// Il y a moins d'un jour, sous le prénom d'un visiteur. {count} est un entier d'heures (« h » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count}h'**
+  String visitorsAgoHours(int count);
+
+  /// Il y a 2 à 6 jours, sous le prénom d'un visiteur. {count} est un entier de jours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}'**
+  String visitorsAgoDays(int count);
+
+  /// Il y a une semaine ou plus, sous le prénom d'un visiteur. {count} est un entier de semaines (« sem. » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count} sem.'**
+  String visitorsAgoWeeks(int count);
 }
 
 class _AppLocalizationsDelegate

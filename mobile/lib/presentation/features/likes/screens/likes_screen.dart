@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/back_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/like_widgets.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -11,18 +13,21 @@ import '../../../common/widgets/mazl_sheet.dart';
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
 class LikesScreen extends StatefulWidget {
-  const LikesScreen({super.key});
+  const LikesScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<LikesScreen> createState() => _LikesScreenState();
 }
 
 class _LikesScreenState extends State<LikesScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
 
   bool _isLoading = true;
   LikesData? _likesData;
-  String? _error;
+  bool _loadFailed = false;
 
   @override
   void initState() {
@@ -33,7 +38,7 @@ class _LikesScreenState extends State<LikesScreen> {
   Future<void> _loadLikes() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _loadFailed = false;
     });
 
     final result = await _apiService.getReceivedLikes();
@@ -44,18 +49,20 @@ class _LikesScreenState extends State<LikesScreen> {
         if (result.success && result.data != null) {
           _likesData = result.data;
         } else {
-          _error = result.error;
+          _loadFailed = true;
         }
       });
     }
   }
 
-  String _formatLikesCount(int count) {
-    if (count <= 10) return '$count';
-    if (count <= 25) return '10+';
-    if (count <= 50) return '25+';
-    if (count <= 99) return '50+';
-    return '99+';
+  /// The count shown to a free member, by bands (« 10+ »), and the number
+  /// that picks the plural form of the sentence around it.
+  ({String label, int plural}) _likesBand(int count) {
+    if (count <= 10) return (label: '$count', plural: count);
+    if (count <= 25) return (label: '10+', plural: 10);
+    if (count <= 50) return (label: '25+', plural: 25);
+    if (count <= 99) return (label: '50+', plural: 50);
+    return (label: '99+', plural: 99);
   }
 
   Future<void> _handleLike(LikeProfile profile) async {
@@ -75,16 +82,18 @@ class _LikesScreenState extends State<LikesScreen> {
         if (result.data?['matched'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Match avec ${profile.displayName}'),
+              content: Text(context.l10n.likesMatchWith(profile.displayName ?? '')),
               action: SnackBarAction(
-                label: 'Message',
+                label: context.l10n.likesMessageAction,
                 onPressed: () => context.push(RoutePaths.chat),
               ),
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Vous avez liké ${profile.displayName}')),
+            SnackBar(
+              content: Text(context.l10n.likesYouLiked(profile.displayName ?? '')),
+            ),
           );
         }
       }
@@ -113,26 +122,26 @@ class _LikesScreenState extends State<LikesScreen> {
     final data = _likesData;
     final hasLikes = data != null && data.totalCount > 0;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final band = hasLikes ? _likesBand(data.totalCount) : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RoundIconButton(
-          icon: LucideIcons.arrowLeft,
-          tooltip: 'Retour',
+          icon: backArrowIcon(context),
+          tooltip: l10n.commonBack,
           onPressed: () => context.pop(),
         ),
         const SizedBox(height: 24),
-        Text('Likes', style: Theme.of(context).textTheme.displaySmall),
-        if (hasLikes) ...[
+        Text(l10n.likesTitle, style: Theme.of(context).textTheme.displaySmall),
+        if (band != null) ...[
           const SizedBox(height: 12),
-          SectionLabel(
-            'Ils vous ont aimé · ${_formatLikesCount(data.totalCount)}',
-          ),
+          SectionLabel(l10n.likesSection(band.label)),
         ],
-        if (hasLikes && !data.isPremium) ...[
+        if (data != null && band != null && !data.isPremium) ...[
           const SizedBox(height: 8),
           Text(
-            '${_formatLikesCount(data.totalCount)} personnes attendent votre réponse.',
+            l10n.likesWaiting(band.plural, band.label),
             style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
           ),
         ],
@@ -163,7 +172,7 @@ class _LikesScreenState extends State<LikesScreen> {
       ]);
     }
 
-    if (_error != null) return _scrollable([_buildError()]);
+    if (_loadFailed) return _scrollable([_buildError()]);
 
     if (_likesData == null || _likesData!.likes.isEmpty) {
       return _scrollable([_buildEmptyState()]);
@@ -191,7 +200,7 @@ class _LikesScreenState extends State<LikesScreen> {
             return LockedLikeTile(onTap: _showPremiumPrompt);
           }
           return LikeCard(
-            name: like.displayName ?? 'Anonyme',
+            name: like.displayName ?? context.l10n.matchingCardAnonymous,
             age: like.age,
             pictureUrl: like.photoUrl,
             isVerified: like.isVerified,
@@ -205,7 +214,7 @@ class _LikesScreenState extends State<LikesScreen> {
       if (!isPremium) ...[
         const SizedBox(height: 24),
         MazlPlusPill(
-          prefix: 'Voir qui vous a aimé avec ',
+          label: context.l10n.likesSeeWhoWithPlus,
           onPressed: () => context.push(RoutePaths.premium),
         ),
       ],
@@ -225,11 +234,14 @@ class _LikesScreenState extends State<LikesScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Erreur de chargement',
+            context.l10n.commonLoadError,
             style: TextStyle(fontSize: 16, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
-          OutlinedButton(onPressed: _loadLikes, child: const Text('Réessayer')),
+          OutlinedButton(
+            onPressed: _loadLikes,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     );
@@ -244,12 +256,12 @@ class _LikesScreenState extends State<LikesScreen> {
           Icon(LucideIcons.heart, size: 32, color: scheme.onSurfaceVariant),
           const SizedBox(height: 16),
           Text(
-            'Pas encore de likes',
+            context.l10n.likesEmptyTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.',
+            context.l10n.likesEmptyBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -260,7 +272,7 @@ class _LikesScreenState extends State<LikesScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => context.go(RoutePaths.discover),
-            child: const Text('Découvrir des profils'),
+            child: Text(context.l10n.likesEmptyAction),
           ),
         ],
       ),
@@ -303,7 +315,8 @@ class _LikesScreenState extends State<LikesScreen> {
                 text: 'mazl',
                 children: [
                   TextSpan(
-                    text: '+',
+                    // A left-to-right mark keeps the plus glued to « mazl » in Hebrew.
+                    text: '+\u200E',
                     style: TextStyle(color: scheme.primary),
                   ),
                 ],
@@ -312,7 +325,7 @@ class _LikesScreenState extends State<LikesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
+              context.l10n.likesPremiumBody,
               style: TextStyle(
                 fontSize: 16,
                 height: 1.45,
@@ -327,7 +340,7 @@ class _LikesScreenState extends State<LikesScreen> {
                   Navigator.pop(context);
                   context.push(RoutePaths.premium);
                 },
-                child: const Text('Voir les offres'),
+                child: Text(context.l10n.likesPremiumOffers),
               ),
             ),
             const SizedBox(height: 8),
@@ -335,7 +348,7 @@ class _LikesScreenState extends State<LikesScreen> {
               width: double.infinity,
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Plus tard'),
+                child: Text(context.l10n.commonLater),
               ),
             ),
           ],
@@ -361,7 +374,7 @@ class _ProfilePreviewSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final name = profile.displayName ?? 'Anonyme';
+    final name = profile.displayName ?? context.l10n.matchingCardAnonymous;
     final title = profile.age != null ? '$name, ${profile.age}' : name;
     return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.75,
@@ -406,7 +419,7 @@ class _ProfilePreviewSheet extends StatelessWidget {
                 if (profile.distance != null) ...[
                   const SizedBox(height: 8),
                   TagPill(
-                    '${profile.distance!.round()} km',
+                    context.l10n.likesDistance(profile.distance!.round()),
                     icon: LucideIcons.mapPin,
                   ),
                 ],
@@ -420,13 +433,13 @@ class _ProfilePreviewSheet extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onPass,
-                    child: const Text('Passer'),
+                    child: Text(context.l10n.matchingCardPass),
                   ),
                 ),
                 const SizedBox(width: 12),
                 RoundIconButton(
                   icon: LucideIcons.user,
-                  tooltip: 'Voir le profil',
+                  tooltip: context.l10n.matchingCardViewProfile,
                   size: 56,
                   onPressed: onViewProfile,
                 ),
@@ -434,7 +447,7 @@ class _ProfilePreviewSheet extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: onLike,
-                    child: const Text("J'aime"),
+                    child: Text(context.l10n.matchingCardLike),
                   ),
                 ),
               ],
