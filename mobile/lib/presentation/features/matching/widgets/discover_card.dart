@@ -116,6 +116,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
             left: 16,
             bottom: 8,
             child: Row(
+              textDirection: TextDirection.ltr,
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < widget.secondaryActions.length; i++) ...[
@@ -128,7 +129,10 @@ class _DiscoverCardState extends State<DiscoverCard> {
         Positioned(
           right: 16,
           bottom: 0,
+          // Swiping right likes in every language: the buttons keep the same
+          // sides as the gesture, so they do not mirror in Hebrew.
           child: Row(
+            textDirection: TextDirection.ltr,
             mainAxisSize: MainAxisSize.min,
             children: [
               _followsSwipe(

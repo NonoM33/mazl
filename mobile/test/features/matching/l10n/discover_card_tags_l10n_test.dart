@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/models/profile.dart';
 import 'package:mazl/presentation/features/matching/widgets/discover_card.dart';
 
@@ -58,6 +59,17 @@ void main() {
     expect(find.text('Orthodoxe moderne'), findsOneWidget);
     expect(find.text('Cacher à la maison'), findsOneWidget);
   });
+
+  testWidgets(
+    'en hébreu, J\'aime reste à droite de Passer, comme le balayage',
+    (tester) async {
+      await _pump(tester, const Locale('he'));
+
+      final pass = tester.getCenter(find.byIcon(LucideIcons.x));
+      final like = tester.getCenter(find.byIcon(LucideIcons.heart));
+      expect(like.dx, greaterThan(pass.dx));
+    },
+  );
 
   testWidgets('en hébreu, les puces sont en hébreu', (tester) async {
     await _pump(tester, const Locale('he'));
