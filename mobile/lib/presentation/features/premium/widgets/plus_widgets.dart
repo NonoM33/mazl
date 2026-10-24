@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/services/daily_limit.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,6 +10,42 @@ import '../../../common/widgets/mazl_components.dart';
 
 /// Les deux morceaux du nom du produit : « mazl » en gras, « + » en accent.
 /// À glisser dans un `TextSpan.children` pour écrire « Découvrir mazl+ ».
+/// Total of a plan, in the store product's own currency (« 18,99 \$US »,
+/// « 89,99 € »), formatted for French.
+String planTotalLabel({required double price, required String currencyCode}) =>
+    _planCurrency(currencyCode).format(price);
+
+/// Price per month of a plan, in the same currency as its total: never a
+/// hand-written « € » next to a store that sells in another currency.
+String planMonthlyLabel({
+  required double price,
+  required int months,
+  required String currencyCode,
+}) =>
+    '${_planCurrency(currencyCode).format(_perMonthCents(price, months) / 100)} par mois';
+
+/// Rounded to the cent from the price in cents, so 18,99 over 2 months reads
+/// 9,50 and not a float artefact (9,4949… shown as 9,49).
+int _perMonthCents(double price, int months) =>
+    ((price * 100).round() / (months > 0 ? months : 1)).round();
+
+/// French notation: « € » for the euro; a bare « $ » would be ambiguous, so
+/// dollars carry their country (« $US », « $CA »), as in French typography.
+NumberFormat _planCurrency(String currencyCode) {
+  final simple = NumberFormat.simpleCurrency(
+    locale: 'fr_FR',
+    name: currencyCode,
+  );
+  final symbol = simple.currencySymbol == r'$' && currencyCode.length == 3
+      ? '\$${currencyCode.substring(0, 2)}'
+      : simple.currencySymbol;
+  return NumberFormat.currency(
+    locale: 'fr_FR',
+    name: currencyCode,
+    symbol: symbol,
+  );
+}
+
 List<InlineSpan> plusWordSpans({Color? plusColor}) => [
   const TextSpan(
     text: 'mazl',

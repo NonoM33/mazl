@@ -104,7 +104,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     return packages.map((package) {
       final months = _getMonthsFromPackage(package);
       final price = package.storeProduct.price;
-      final pricePerMonth = months > 0 ? price / months : price;
+      final currency = package.storeProduct.currencyCode;
       final normalCost = monthlyPrice * months;
       final savingsPercent = months > 1 && normalCost > 0
           ? ((normalCost - price) / normalCost * 100).round()
@@ -113,9 +113,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
       return _SubscriptionPlan(
         id: package.identifier,
         duration: _getPackageLabel(package),
-        price: package.storeProduct.priceString,
-        pricePerMonth:
-            '${pricePerMonth.toStringAsFixed(2).replaceAll('.', ',')} € par mois',
+        price: planTotalLabel(price: price, currencyCode: currency),
+        pricePerMonth: planMonthlyLabel(
+          price: price,
+          months: months,
+          currencyCode: currency,
+        ),
         savings: savingsPercent > 0 ? '-$savingsPercent %' : null,
         package: package,
       );
