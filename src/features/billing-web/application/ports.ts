@@ -68,7 +68,8 @@ export type BillingEvent = EventBase &
       }
     | { readonly kind: "subscription_changed"; readonly subscriptionId: string }
     | { readonly kind: "payment_failed"; readonly subscriptionId: string | undefined }
-    | { readonly kind: "charge_refunded"; readonly paymentIntentId: string | undefined; readonly offerId: string | undefined; readonly fullyRefunded: boolean }
+    | { readonly kind: "charge_refunded"; readonly paymentIntentId: string | undefined; readonly fullyRefunded: boolean }
+    | { readonly kind: "charge_disputed"; readonly paymentIntentId: string | undefined }
     | { readonly kind: "ignored" }
   );
 

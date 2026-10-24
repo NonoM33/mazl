@@ -179,15 +179,40 @@ describe("webhook: credit packs", () => {
     expect(credits.balance(1, "boost")).toBe(3);
   });
 
-  test("a full refund takes the credits back once; partial refunds and other charges change nothing", async () => {
+  test("a full refund takes the credits back once; partial refunds and other charges change no balance", async () => {
     const { webhook, credits } = setup();
     await send(webhook, completedPack("pi_9", "boost_1"));
-    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", offerId: "boost_1", fullyRefunded: false });
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", fullyRefunded: false });
     expect(credits.balance(1, "boost")).toBe(1);
-    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_other", offerId: undefined, fullyRefunded: true });
-    expect(credits.revoked.size).toBe(0);
-    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", offerId: "boost_1", fullyRefunded: true });
-    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", offerId: "boost_1", fullyRefunded: true });
+    // A refunded charge that bought no credits: only remembered as revoked.
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_other", fullyRefunded: true });
+    expect(credits.balance(1, "boost")).toBe(1);
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", fullyRefunded: true });
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_9", fullyRefunded: true });
+    expect(credits.balance(1, "boost")).toBe(0);
+  });
+
+  // Security review M6: the refund used to depend on charge.metadata.offer,
+  // which Stripe does not copy from the PaymentIntent.
+  test("the credit purchase is found by its PaymentIntent, whatever the charge metadata says", async () => {
+    const { webhook, credits } = setup();
+    await send(webhook, completedPack("pi_12", "superlikes_15"));
+    expect(credits.balance(1, "super_like")).toBe(15);
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_12", fullyRefunded: true });
+    expect(credits.balance(1, "super_like")).toBe(0);
+  });
+
+  test("a refund that arrives before the purchase means the purchase is never credited", async () => {
+    const { webhook, credits } = setup();
+    await send(webhook, { kind: "charge_refunded", paymentIntentId: "pi_13", fullyRefunded: true });
+    await send(webhook, completedPack("pi_13", "boost_3"));
+    expect(credits.balance(1, "boost")).toBe(0);
+  });
+
+  test("a dispute on a credit purchase takes the credits back", async () => {
+    const { webhook, credits } = setup();
+    await send(webhook, completedPack("pi_14", "boost_3"));
+    await send(webhook, { kind: "charge_disputed", paymentIntentId: "pi_14" });
     expect(credits.balance(1, "boost")).toBe(0);
   });
 

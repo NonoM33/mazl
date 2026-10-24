@@ -39,6 +39,8 @@ export class WebhookService {
         return;
       case "charge_refunded":
         return await this.onRefund(event);
+      case "charge_disputed":
+        return await this.onDispute(event.paymentIntentId);
       case "ignored":
         return;
     }
@@ -70,10 +72,21 @@ export class WebhookService {
     if (outcome === "owned_by_another_user") console.error(`Stripe checkout ${event.sessionId}: transaction already credited to another member`);
   }
 
+  // The credit purchase is found by its PaymentIntent in credit_purchases,
+  // never by the charge metadata, which Stripe does not copy from the
+  // PaymentIntent (security review M6). A charge that bought no credits is
+  // only remembered as revoked, so a purchase whose refund came first is never
+  // credited. Partial refunds keep the credits.
   private async onRefund(event: ChargeRefunded): Promise<void> {
-    // Partial refunds keep the credits; so do charges of subscriptions (no credit offer in metadata).
     if (!event.fullyRefunded || event.paymentIntentId === undefined) return;
-    if (offerById(event.offerId ?? "")?.kind !== "credits") return;
     await this.deps.credits.refundPurchase(event.paymentIntentId);
+  }
+
+  // A chargeback takes the credits back like a refund; it is also reported,
+  // as the dispute has to be answered in the Stripe dashboard.
+  private async onDispute(paymentIntentId: string | undefined): Promise<void> {
+    if (paymentIntentId === undefined) return;
+    const outcome = await this.deps.credits.refundPurchase(paymentIntentId);
+    console.warn(`Stripe dispute on PaymentIntent ${paymentIntentId}: credits ${outcome}`);
   }
 }

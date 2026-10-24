@@ -21,7 +21,7 @@ Date : 2026-10-24. Statut : accepté. Mode TEST uniquement dans ce chantier.
   avant toute projection, ce qui rend l'ordre d'arrivée sans importance. Événements traités :
   `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
   `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`,
-  `charge.refunded`.
+  `charge.refunded`, `charge.dispute.created`.
 - **Un seul droit mazl+ par membre**, quelle que soit la source : la ligne unique
   `subscriptions` (lue par `PgPlusStatus`) reste la projection du droit. Stripe y écrit avec
   `store = 'stripe'` et `original_transaction_id = sub_…`. L'état complet Stripe vit dans
@@ -43,7 +43,9 @@ Date : 2026-10-24. Statut : accepté. Mode TEST uniquement dans ce chantier.
 - **Crédits** : `checkout.session.completed` payé → `CreditsRepository.recordPurchase` avec
   l'identifiant du PaymentIntent (`pi_…`), donc la même idempotence, le même verrou et la même
   table de révocations que les achats Apple : pas de double crédit, pas de double dépense.
-  `charge.refunded` → `refundPurchase` (le solde peut devenir négatif, comme pour Apple).
+  `charge.refunded` (total) et `charge.dispute.created` → `refundPurchase(paymentIntent)`, qui
+  décide d'après `credit_purchases` et non d'après les métadonnées du paiement (relecture M6) ;
+  le solde peut devenir négatif, comme pour Apple.
 - **Suppression du compte** : l'abonnement Stripe est résilié immédiatement (`subscriptions.cancel`)
   avant l'effacement ; le client Stripe est conservé chez Stripe pour les factures (obligation
   comptable de 10 ans), détaché de MAZL.

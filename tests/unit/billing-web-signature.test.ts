@@ -54,8 +54,10 @@ describe("webhook signature", () => {
   test("charge.refunded and invoice.payment_failed carry what the handlers need", async () => {
     const refund = payload("charge.refunded", { id: "ch_1", object: "charge", refunded: true, payment_intent: "pi_5", metadata: { offer: "boost_1" } });
     expect(await verifier.verify(refund, await stripe.webhooks.generateTestHeaderStringAsync({ payload: refund, secret }))).toMatchObject({
-      kind: "charge_refunded", paymentIntentId: "pi_5", offerId: "boost_1", fullyRefunded: true,
+      kind: "charge_refunded", paymentIntentId: "pi_5", fullyRefunded: true,
     });
+    const dispute = payload("charge.dispute.created", { id: "dp_1", object: "dispute", charge: "ch_1", payment_intent: "pi_6", reason: "fraudulent", status: "needs_response" });
+    expect(await verifier.verify(dispute, await stripe.webhooks.generateTestHeaderStringAsync({ payload: dispute, secret }))).toMatchObject({ kind: "charge_disputed", paymentIntentId: "pi_6" });
     const failed = payload("invoice.payment_failed", { id: "in_1", object: "invoice", parent: { type: "subscription_details", subscription_details: { subscription: "sub_8" } } });
     expect(await verifier.verify(failed, await stripe.webhooks.generateTestHeaderStringAsync({ payload: failed, secret }))).toMatchObject({ kind: "payment_failed", subscriptionId: "sub_8" });
   });

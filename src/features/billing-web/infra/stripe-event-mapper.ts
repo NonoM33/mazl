@@ -42,14 +42,10 @@ export function mapStripeEvent(event: Stripe.Event): BillingEvent {
       return { ...base, kind: "payment_failed", subscriptionId: idOf(event.data.object.parent?.subscription_details?.subscription) };
     case "charge.refunded": {
       const charge = event.data.object;
-      return {
-        ...base,
-        kind: "charge_refunded",
-        paymentIntentId: idOf(charge.payment_intent),
-        offerId: charge.metadata.offer,
-        fullyRefunded: charge.refunded,
-      };
+      return { ...base, kind: "charge_refunded", paymentIntentId: idOf(charge.payment_intent), fullyRefunded: charge.refunded };
     }
+    case "charge.dispute.created":
+      return { ...base, kind: "charge_disputed", paymentIntentId: idOf(event.data.object.payment_intent) };
     default:
       return { ...base, kind: "ignored" };
   }
