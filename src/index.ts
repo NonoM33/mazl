@@ -93,6 +93,7 @@ import { registerMediaRoutes } from "./features/media/presentation/media.routes"
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
 import { assertKeysConfigured } from "./shared/crypto/keys";
+import { createObjectStore, readStorageConfig } from "./shared/storage";
 import {
   createDocumentsModule,
   ensureDocumentsSchema,
@@ -120,11 +121,23 @@ const app = new Hono<{ Variables: AppVariables }>();
 // `src/shared/http/validation.ts` (imported above). The schemas below are
 // used only by handlers in this file.
 
-const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
+// Every stored file (profile photos, chat files, identity documents) goes through
+// this store: disk under UPLOADS_DIR by default, an S3 bucket when the S3_*
+// variables are set. A half-set S3 configuration stops the boot: it never falls
+// back to disk by itself.
+const storageConfig = (() => {
+  try {
+    return readStorageConfig(process.env);
+  } catch (error: unknown) {
+    console.error(`Storage configuration error: ${error instanceof Error ? error.message : "unknown"}`);
+    process.exit(1);
+  }
+})();
+const objectStore = createObjectStore(storageConfig);
 
 // Member verification (selfie): models load lazily, configuration is read now
 // so that a malformed threshold stops the boot.
-const verification = createVerificationModule({ sql, uploadsDir: UPLOADS_DIR });
+const verification = createVerificationModule({ sql, store: objectStore });
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
@@ -231,8 +244,8 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
-const chat = createChatModule({ uploadsDir: UPLOADS_DIR });
-const documents = createDocumentsModule(UPLOADS_DIR);
+const chat = createChatModule({ store: objectStore });
+const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 
 // ============ ADMIN FEATURE ============
@@ -241,14 +254,14 @@ registerDocumentsRoutes(app, documents);
 // preserving the exact relative declaration order of the admin routes.
 // Admin auth (admin JWT + email whitelist via assertAdmin /
 // assertAdminFileDownload) lives in src/features/admin/admin.auth.ts.
-const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
+const media = createMediaModule({ store: objectStore, faceChecker: verification.photoFaceChecker });
 // GDPR erasure of a member: rows first (inside `deletion`), then their profile
 // photo files, then their chat files. A failed deletion touches no file.
 const userErasure = {
   around: <T,>(userId: number, deletion: () => Promise<T>): Promise<T> =>
     chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion)),
 };
-registerAdminRoutes(app, UPLOADS_DIR, userErasure);
+registerAdminRoutes(app, documents, userErasure);
 registerAccountRoutes(app, sql, userErasure);
 
 // ============ AUTH ENDPOINTS ============
@@ -293,7 +306,7 @@ registerEngagementRoutes(app, { credits });
 // ============ MEMBER VERIFICATION (level 1: live selfie) ============
 // /api/verification/* (face session + submit, reference deletion, status and
 // the legacy start/submit). Registered next to the engagement routes it was
-// split from. The module is built above, next to UPLOADS_DIR, so that
+// split from. The module is built above, next to the object store, so that
 // `verification.photoFaceChecker` can be handed to the profile feature.
 registerVerification(app, verification);
 
@@ -630,7 +643,16 @@ app.get("/api/health", (c) => c.json({ status: "ok" }));
 // Initialize and start
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 
-await mkdir(UPLOADS_DIR, { recursive: true });
+if (storageConfig.kind === "disk") {
+  await mkdir(storageConfig.uploadsDir, { recursive: true });
+} else {
+  console.log(`Files are stored in the bucket "${storageConfig.s3.bucket}" (old files on disk are still read until they are copied)`);
+  // A bucket that is down or refuses our keys must show at boot, not at the
+  // first upload. Not fatal: the app and the bucket may restart in any order.
+  await objectStore.list("", { recursive: false }).catch((error: unknown) => {
+    console.error(`WARNING: the bucket is not reachable with the configured credentials: ${error instanceof Error ? error.message : "unknown"}`);
+  });
+}
 
 // Fail fast in production when a data-protection key is missing.
 assertKeysConfigured();

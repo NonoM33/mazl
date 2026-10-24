@@ -8,7 +8,8 @@ import { createChatMediaService } from "../src/features/chat/application/chat-me
 import { postgresMediaRepository } from "../src/features/chat/infra/postgres-media-repository";
 import { postgresMessageRepository } from "../src/features/chat/infra/postgres-message-repository";
 import { sharpChatImages } from "../src/features/chat/infra/sharp-chat-images";
-import { createChatDiskStorage } from "../src/features/chat/infra/disk-chat-storage";
+import { createChatStorage } from "../src/features/chat/infra/chat-storage";
+import { createDiskObjectStore } from "../src/shared/storage/disk-object-store";
 
 // CONTRAT.md §0.2 and §2 (POST /media, GET /media/chat/:id): same pipeline as
 // profile photos, audio checked by its bytes, nothing served unsigned.
@@ -282,7 +283,7 @@ describe("orphan purge (24 h), with the real repositories and disk", () => {
 
     const service = createChatMediaService({
       messages: postgresMessageRepository, media: postgresMediaRepository,
-      storage: createChatDiskStorage(process.env.UPLOADS_DIR ?? "uploads"), images: sharpChatImages, now: () => new Date(),
+      storage: createChatStorage(createDiskObjectStore(process.env.UPLOADS_DIR ?? "uploads")), images: sharpChatImages, now: () => new Date(),
     });
     expect(await service.purgeOrphans()).toBeGreaterThanOrEqual(1);
 

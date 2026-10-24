@@ -3,7 +3,8 @@ import { mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promise
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createUploadDocument } from "../../src/features/documents/application/upload-document";
-import { DiskFileStore } from "../../src/features/documents/infra/disk-file-store";
+import { ObjectDocumentFileStore } from "../../src/features/documents/infra/object-document-file-store";
+import { createDiskObjectStore } from "../../src/shared/storage/disk-object-store";
 import { containsBytes, fakeJpeg, MemoryRepo, SECRET_MARKER } from "./documents-fakes";
 
 let root = "";
@@ -14,9 +15,9 @@ afterEach(async () => {
   await rm(root, { recursive: true, force: true });
 });
 
-describe("DiskFileStore", () => {
+describe("document file store on disk", () => {
   test("after an upload nothing under the uploads root contains the plaintext", async () => {
-    const store = new DiskFileStore(root);
+    const store = new ObjectDocumentFileStore(createDiskObjectStore(root));
     const upload = createUploadDocument({ repo: new MemoryRepo(), store });
     const { filename } = await upload({ waitlistId: 1, type: "selfie_id", bytes: fakeJpeg() });
 
@@ -37,25 +38,25 @@ describe("DiskFileStore", () => {
   });
 
   test("files are private to the server user", async () => {
-    const store = new DiskFileStore(root);
+    const store = new ObjectDocumentFileStore(createDiskObjectStore(root));
     await store.write("documents/x.enc", new Uint8Array([1]));
     expect((await stat(join(root, "documents/x.enc"))).mode & 0o077).toBe(0);
   });
 
   test("read returns null for a missing file and remove is idempotent", async () => {
-    const store = new DiskFileStore(root);
+    const store = new ObjectDocumentFileStore(createDiskObjectStore(root));
     expect(await store.read("documents/none.enc")).toBeNull();
     await store.remove("documents/none.enc");
   });
 
   test("names that escape the root are refused", async () => {
-    const store = new DiskFileStore(root);
+    const store = new ObjectDocumentFileStore(createDiskObjectStore(root));
     await expect(store.read("../etc/passwd")).rejects.toThrow();
     await expect(store.remove("documents/../../x")).rejects.toThrow();
   });
 
   test("listLegacyFiles lists only root-level document files", async () => {
-    const store = new DiskFileStore(root);
+    const store = new ObjectDocumentFileStore(createDiskObjectStore(root));
     await writeFile(join(root, "12-selfie_id-0b9a1f3e-aaaa-4bbb-8ccc-1234567890ab.jpg"), "x");
     await writeFile(join(root, "notes.txt"), "x");
     await store.write("documents/x.enc", new Uint8Array([1]));

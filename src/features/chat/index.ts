@@ -1,5 +1,6 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
+import type { ObjectStore } from "../../shared/storage/object-store";
 import { createChatMediaService, type ChatMediaService } from "./application/chat-media-service";
 import { createChatService, type ChatService } from "./application/chat-service";
 import { createGuardedFetcher } from "./application/guarded-fetch";
@@ -7,7 +8,7 @@ import { createLinkPreviewService, type LinkPreviewService } from "./application
 import { createMessagePresenter } from "./application/message-presenter";
 import { signChatMediaUrl } from "./application/media-signer";
 import { createPinnedHttpTransport } from "./infra/pinned-http-transport";
-import { createChatDiskStorage } from "./infra/disk-chat-storage";
+import { createChatStorage } from "./infra/chat-storage";
 import { postgresMediaRepository } from "./infra/postgres-media-repository";
 import { postgresMessageRepository } from "./infra/postgres-message-repository";
 import { postgresPreviewCache } from "./infra/postgres-preview-cache";
@@ -28,8 +29,8 @@ export interface ChatModule {
   readonly sockets: ChatSocketHandlers;
 }
 
-export function createChatModule(options: { uploadsDir: string }): ChatModule {
-  const storage = createChatDiskStorage(options.uploadsDir);
+export function createChatModule(options: { store: ObjectStore }): ChatModule {
+  const storage = createChatStorage(options.store);
   const now = (): Date => new Date();
   const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
 

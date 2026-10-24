@@ -7,7 +7,7 @@ import {
   getWaitlistEmailById,
   requestReuploadAndRotateToken,
 } from "../../db";
-import { createDocumentsModule, findMissingRequired } from "../documents";
+import { findMissingRequired, type DocumentsModule } from "../documents";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail } from "../../email";
 import { verifyGoogleIdToken } from "../../auth";
 import {
@@ -23,11 +23,10 @@ import {
 // verified, document/profile review actions, then the file-download endpoint.
 export function registerAdminVerificationRoutes(
   app: Hono<{ Variables: AppVariables }>,
-  uploadsDir: string,
+  documents: DocumentsModule,
 ): void {
   // Every decision goes through documents.review, which also purges the files
   // it decides (CONTRAT §2.4); the file endpoint decrypts on the fly.
-  const documents = createDocumentsModule(uploadsDir);
 
   // Admin Authentication
   app.post("/api/admin/login", async (c) => {
