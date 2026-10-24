@@ -43,3 +43,19 @@ export const coupleRespondBodySchema = z
     action: z.enum(["accept", "reject"]),
   })
   .passthrough();
+
+// What a client is told when something unexpected fails: the cause is logged
+// on the server, never sent (it can name tables, columns or internals).
+export const GENERIC_SERVER_ERROR = "Internal server error";
+
+// Longest farewell message posted into an archived conversation.
+export const ARCHIVE_MESSAGE_MAX_LENGTH = 500;
+
+// POST /api/couple/archive-conversations body. The partner is optional: the
+// server always keeps the couple's own partner, and refuses any other one.
+export const archiveConversationsBodySchema = z
+  .object({
+    partner_user_id: z.number().int().nullable().optional(),
+    message: z.string().max(ARCHIVE_MESSAGE_MAX_LENGTH).nullable().optional(),
+  })
+  .passthrough();

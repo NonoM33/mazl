@@ -282,3 +282,76 @@ describe("repeated couple requests", () => {
     expect((await sendRequest(a, b)).status).toBe(429);
   });
 });
+
+// ---------- 5. archive-conversations ----------
+
+describe("archive-conversations", () => {
+  const archive = (who: TestUser, body: unknown) => api(who.token, "POST", "/api/couple/archive-conversations", body);
+  const archivedCount = async (userId: number): Promise<number> => {
+    const rows = await db<{ n: string }[]>`SELECT COUNT(*)::text AS n FROM archived_conversations WHERE user_id = ${userId}`;
+    return Number(rows[0]?.n ?? 0);
+  };
+  const messagesFrom = async (senderId: number, otherId: number): Promise<number> => {
+    const rows = await db<{ n: string }[]>`
+      SELECT COUNT(*)::text AS n FROM messages m JOIN conversations c ON c.id = m.conversation_id
+      WHERE m.sender_id = ${senderId} AND (c.user1_id = ${otherId} OR c.user2_id = ${otherId})`;
+    return Number(rows[0]?.n ?? 0);
+  };
+
+  test("someone who is not in a couple cannot archive anything", async () => {
+    const a = await makeUser("arc-a");
+    const b = await makeUser("arc-b");
+    await match(a, b);
+    const res = await archive(a, { partner_user_id: 0, message: "bye" });
+    expect(res.status).toBe(403);
+    expect(await archivedCount(a.id)).toBe(0);
+    expect(await messagesFrom(a.id, b.id)).toBe(0);
+  });
+
+  test("the partner is the one of the couple, a different one in the body is refused", async () => {
+    const couple = await makeCouple("arc1");
+    const other = await makeUser("arc1x");
+    await match(couple.a, other);
+    const res = await archive(couple.a, { partner_user_id: other.id, message: "bye" });
+    expect(res.status).toBe(403);
+    expect(await archivedCount(couple.a.id)).toBe(0);
+    expect(await messagesFrom(couple.a.id, other.id)).toBe(0);
+  });
+
+  test("the message is limited to 500 characters", async () => {
+    const couple = await makeCouple("arc2");
+    const other = await makeUser("arc2x");
+    await match(couple.a, other);
+    const res = await archive(couple.a, { partner_user_id: couple.b.id, message: "x".repeat(501) });
+    expect(res.status).toBe(400);
+    expect(await archivedCount(couple.a.id)).toBe(0);
+  });
+
+  test("nothing is written in a conversation with a blocked person", async () => {
+    const couple = await makeCouple("arc3");
+    const friend = await makeUser("arc3f");
+    const harasser = await makeUser("arc3h");
+    await match(couple.a, friend);
+    await match(couple.a, harasser);
+    await block(harasser, couple.a);
+
+    const res = await archive(couple.a, { partner_user_id: couple.b.id, message: "Je suis en couple" });
+    expect(res.status).toBe(200);
+    expect(await messagesFrom(couple.a.id, friend.id)).toBe(1);
+    expect(await messagesFrom(couple.a.id, harasser.id)).toBe(0);
+    expect(await messagesFrom(couple.a.id, couple.b.id)).toBe(0);
+  });
+
+  test("without partner in the body the couple's partner is kept", async () => {
+    const couple = await makeCouple("arc4");
+    const other = await makeUser("arc4x");
+    await match(couple.a, other);
+    const res = await archive(couple.a, { message: "bye" });
+    expect(res.status).toBe(200);
+    const kept = await db`
+      SELECT 1 FROM archived_conversations ac JOIN conversations c ON c.id = ac.conversation_id
+      WHERE ac.user_id = ${couple.a.id} AND (c.user1_id = ${couple.b.id} OR c.user2_id = ${couple.b.id})`;
+    expect(kept.length).toBe(0);
+    expect(await archivedCount(couple.a.id)).toBe(1);
+  });
+});

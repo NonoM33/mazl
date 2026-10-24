@@ -17,9 +17,11 @@ import {
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody } from "../../shared/http/validation";
 import {
+  archiveConversationsBodySchema,
   assertCoupleMembership,
   coupleRequestBodySchema,
   coupleRespondBodySchema,
+  GENERIC_SERVER_ERROR,
 } from "./couple.shared";
 import {
   canRequestCouple,
@@ -230,32 +232,35 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
     }
   });
 
-  // Archive the user's conversations except with the partner
+  // Archive the user's conversations except with the partner. Only a member of
+  // an active couple may do it, and the partner kept is always the couple's own.
   app.post("/api/couple/archive-conversations", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const body = await c.req.json().catch(() => ({}));
-      const rawPartner = (body as { partner_user_id?: unknown }).partner_user_id;
-      const partnerUserId =
-        rawPartner === undefined || rawPartner === null
-          ? null
-          : Number(rawPartner);
-      if (partnerUserId !== null && !Number.isInteger(partnerUserId)) {
-        return c.json({ success: false, error: "Invalid partner_user_id" }, 400);
+      const parsed = await parseBody(archiveConversationsBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
       }
-      const rawMessage = (body as { message?: unknown }).message;
-      const message = typeof rawMessage === "string" ? rawMessage : undefined;
+
+      const couple = await getCoupleViewFor(userId);
+      if (!couple) {
+        return c.json({ success: false, error: "Not in a couple" }, 403);
+      }
+      const requestedPartner = parsed.data.partner_user_id;
+      if (requestedPartner !== undefined && requestedPartner !== null && requestedPartner !== couple.partner_id) {
+        return c.json({ success: false, error: "Forbidden" }, 403);
+      }
 
       const { archived } = await archiveConversationsExceptPartner(
         userId,
-        partnerUserId,
-        message
+        couple.partner_id,
+        parsed.data.message ?? undefined,
       );
 
       return c.json({ success: true, archived });
     } catch (error) {
       console.error("Archive conversations error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 

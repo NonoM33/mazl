@@ -2797,7 +2797,9 @@ export async function getCoupleStatusWith(
 /**
  * Archive (per-user) all of the user's conversations except the one(s) with the
  * given partner. Purely additive: getConversations is untouched, callers opt in.
- * Optionally posts a farewell message into each archived conversation.
+ * Optionally posts a farewell message into each archived conversation, except
+ * the ones with a person who is in a block relationship with the user, either
+ * way: a block must never be a way to keep writing to someone.
  */
 export async function archiveConversationsExceptPartner(
   userId: number,
@@ -2812,6 +2814,7 @@ export async function archiveConversationsExceptPartner(
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
   `;
 
+  const blockedIds = await getBlockedUserIds(userId);
   let archived = 0;
   for (const conv of conversations as unknown as Array<{ id: number; other_user_id: number }>) {
     if (partnerUserId !== null && conv.other_user_id === partnerUserId) continue;
@@ -2823,7 +2826,7 @@ export async function archiveConversationsExceptPartner(
     `;
     archived += 1;
 
-    if (message && message.trim().length > 0) {
+    if (message && message.trim().length > 0 && !blockedIds.has(conv.other_user_id)) {
       await sql`
         INSERT INTO messages (conversation_id, sender_id, content)
         VALUES (${conv.id}, ${userId}, ${message})
