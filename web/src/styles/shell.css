@@ -5,7 +5,7 @@
   position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; align-items: center;
   gap: 6px; padding: 20px 0 16px; background: var(--rail); border-right: 1px solid var(--rail-border); z-index: 10;
 }
-.rail-logo { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 18px; border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; font-size: 22px; letter-spacing: -1.2px; }
+.rail-logo { display: flex; align-items: baseline; justify-content: center; padding-top: 6px; width: 44px; height: 44px; margin-bottom: 18px; border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; font-size: 22px; letter-spacing: -1.2px; }
 .rail-logo .dot { color: var(--accent); }
 .rail-nav { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .rail-item {
