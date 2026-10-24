@@ -272,6 +272,48 @@ export async function initDb() {
     )
   `;
 
+  // A member is in ONE active couple, whichever column (user1_id / user2_id)
+  // holds them. Two partial unique indexes cannot say that (a member can be
+  // user2_id of one row and user1_id of another), so a trigger enforces it.
+  // It takes a transaction-scoped advisory lock per member, in id order, so two
+  // concurrent acceptances serialise instead of both passing the check.
+  // First, repair any legacy duplicate: the older active couple of a member who
+  // also belongs to a newer active one is ended (nothing is deleted).
+  await sql`
+    UPDATE couples old SET status = 'ended', updated_at = NOW()
+    WHERE old.status = 'active' AND EXISTS (
+      SELECT 1 FROM couples newer
+      WHERE newer.status = 'active' AND newer.id > old.id
+        AND (newer.user1_id IN (old.user1_id, old.user2_id)
+          OR newer.user2_id IN (old.user1_id, old.user2_id))
+    )
+  `;
+  await sql`
+    CREATE OR REPLACE FUNCTION enforce_single_active_couple() RETURNS trigger AS $$
+    BEGIN
+      IF NEW.status = 'active' THEN
+        PERFORM pg_advisory_xact_lock(7301, LEAST(NEW.user1_id, NEW.user2_id));
+        PERFORM pg_advisory_xact_lock(7301, GREATEST(NEW.user1_id, NEW.user2_id));
+        IF EXISTS (
+          SELECT 1 FROM couples c
+          WHERE c.status = 'active' AND c.id IS DISTINCT FROM NEW.id
+            AND (c.user1_id IN (NEW.user1_id, NEW.user2_id)
+              OR c.user2_id IN (NEW.user1_id, NEW.user2_id))
+        ) THEN
+          RAISE EXCEPTION 'a member is already in an active couple' USING ERRCODE = '23505';
+        END IF;
+      END IF;
+      RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql
+  `;
+  await sql`DROP TRIGGER IF EXISTS trg_single_active_couple ON couples`;
+  await sql`
+    CREATE TRIGGER trg_single_active_couple
+    BEFORE INSERT OR UPDATE OF user1_id, user2_id, status ON couples
+    FOR EACH ROW EXECUTE FUNCTION enforce_single_active_couple()
+  `;
+
   // Couple daily questions
   await sql`
     CREATE TABLE IF NOT EXISTS couple_questions (
@@ -2307,16 +2349,23 @@ export async function setUserActiveStatus(userId: number, isActive: boolean) {
 
 // ============ COUPLE MODE ============
 
+// Advisory-lock class shared with the enforce_single_active_couple trigger
+// (the literal 7301 in the trigger body): one lock per member id.
+const COUPLE_MEMBER_LOCK_CLASS = 7301;
+
+type SqlExecutor = typeof sql;
+
 export async function createCouple(
   userId: number,
   partnerId: number,
   relationshipStatus: string = 'dating',
-  startedAt?: Date
+  startedAt?: Date,
+  executor: SqlExecutor = sql
 ) {
   // Order user IDs to prevent duplicates
   const [user1, user2] = userId < partnerId ? [userId, partnerId] : [partnerId, userId];
 
-  const result = await sql`
+  const result = await executor`
     INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at)
     VALUES (${user1}, ${user2}, ${relationshipStatus}, ${startedAt || new Date()}, ${new Date()})
     ON CONFLICT (user1_id, user2_id) DO UPDATE SET
@@ -2343,6 +2392,8 @@ export async function getCouple(userId: number) {
     LEFT JOIN users u2 ON u2.id = c.user2_id
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
       AND c.status = 'active'
+    ORDER BY c.id DESC
+    LIMIT 1
   `;
 
   const couple = result[0];
@@ -2475,9 +2526,15 @@ export type RespondToCoupleRequestResult =
   | { ok: true; action: 'rejected' }
   | { ok: false; status: number; error: string };
 
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === '23505';
+}
+
 /**
  * Accept or reject a couple request. Only the target may respond (IDOR guard).
- * On accept, the existing createCouple() is reused to build the couple.
+ * Everything an acceptance depends on is re-checked inside one transaction that
+ * holds a lock on both members, so two simultaneous acceptances cannot both
+ * pass: the second one sees the couple the first one created.
  */
 export async function respondToCoupleRequest(
   requestId: number,
@@ -2491,26 +2548,65 @@ export async function respondToCoupleRequest(
   if (request.target_id !== userId) {
     return { ok: false, status: 403, error: 'Forbidden' };
   }
-  if (request.status !== 'pending') {
-    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
-  }
 
-  if (action === 'reject') {
-    await sql`
-      UPDATE couple_requests
-      SET status = 'rejected', updated_at = NOW()
-      WHERE id = ${requestId}
-    `;
-    return { ok: true, action: 'rejected' };
-  }
+  try {
+    return await sql.begin(async (transaction) => {
+      const tx = transaction as unknown as SqlExecutor;
+      const [low, high] = request.requester_id < request.target_id
+        ? [request.requester_id, request.target_id]
+        : [request.target_id, request.requester_id];
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${low})`;
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${high})`;
 
-  const couple = await createCouple(request.requester_id, request.target_id);
-  await sql`
-    UPDATE couple_requests
-    SET status = 'accepted', updated_at = NOW()
-    WHERE id = ${requestId}
-  `;
-  return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> };
+      const [current] = await tx<{ status: CoupleRequestStatus }[]>`
+        SELECT status FROM couple_requests WHERE id = ${requestId} FOR UPDATE
+      `;
+      if (!current || current.status !== 'pending') {
+        return { ok: false, status: 409, error: 'Couple request is no longer pending' } as const;
+      }
+
+      if (action === 'reject') {
+        await tx`
+          UPDATE couple_requests
+          SET status = 'rejected', updated_at = NOW()
+          WHERE id = ${requestId}
+        `;
+        return { ok: true, action: 'rejected' } as const;
+      }
+
+      const alreadyCoupled = await tx`
+        SELECT 1 FROM couples
+        WHERE status = 'active'
+          AND (user1_id IN (${low}, ${high}) OR user2_id IN (${low}, ${high}))
+        LIMIT 1
+      `;
+      if (alreadyCoupled.length > 0) {
+        return { ok: false, status: 409, error: 'One of the users is already in a couple' } as const;
+      }
+
+      const couple = await createCouple(request.requester_id, request.target_id, 'dating', undefined, tx);
+      await tx`
+        UPDATE couple_requests
+        SET status = 'accepted', updated_at = NOW()
+        WHERE id = ${requestId}
+      `;
+      // The two people are taken: whatever else was waiting for either of them is void.
+      await tx`
+        UPDATE couple_requests
+        SET status = 'cancelled', updated_at = NOW()
+        WHERE status = 'pending' AND id <> ${requestId}
+          AND (requester_id IN (${low}, ${high}) OR target_id IN (${low}, ${high}))
+      `;
+      return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> } as const;
+    });
+  } catch (error: unknown) {
+    // The database guard (one active couple per member) caught a race the
+    // checks above could not see.
+    if (isUniqueViolation(error)) {
+      return { ok: false, status: 409, error: 'One of the users is already in a couple' };
+    }
+    throw error;
+  }
 }
 
 export type CancelCoupleRequestResult =

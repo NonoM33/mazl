@@ -129,3 +129,61 @@ describe("daily question isolation", () => {
     expect([row[0]?.user1_answer, row[0]?.user2_answer]).toContain("oui");
   });
 });
+
+// ---------- 2. a member is in one active couple, never two ----------
+
+describe("one active couple per member", () => {
+  test("accepting is refused when the accepter already joined another couple", async () => {
+    const mine = await makeCouple("one1");
+    const stranger = await makeUser("one1c");
+    await match(mine.a, stranger);
+    // A request that was pending before `mine.a` coupled up (inserted directly: the
+    // API already refuses to create it now).
+    const inserted = await db<{ id: number }[]>`
+      INSERT INTO couple_requests (requester_id, target_id, status) VALUES (${stranger.id}, ${mine.a.id}, 'pending') RETURNING id`;
+    const res = await respond(mine.a, inserted[0]!.id, "accept");
+    expect(res.status).toBe(409);
+    expect(await activeCouplesOf(mine.a.id)).toBe(1);
+  });
+
+  test("two simultaneous acceptances cannot create two couples", async () => {
+    const a = await makeUser("race-a");
+    const b = await makeUser("race-b");
+    const c = await makeUser("race-c");
+    await match(a, b);
+    await match(a, c);
+    const fromB = await requestId(b, a);
+    const fromC = await requestId(c, a);
+    const results = await Promise.all([respond(a, fromB, "accept"), respond(a, fromC, "accept")]);
+    const statuses = results.map((r) => r.status).sort();
+    expect(statuses).toEqual([200, 409]);
+    expect(await activeCouplesOf(a.id)).toBe(1);
+  });
+
+  test("accepting cancels the other pending requests of both people", async () => {
+    const a = await makeUser("cancel-a");
+    const b = await makeUser("cancel-b");
+    const c = await makeUser("cancel-c");
+    await match(a, b);
+    await match(a, c);
+    const fromB = await requestId(b, a);
+    const fromC = await requestId(c, a);
+    expect((await respond(a, fromB, "accept")).status).toBe(200);
+    const rows = await db<{ status: string }[]>`SELECT status FROM couple_requests WHERE id = ${fromC}`;
+    expect(rows[0]?.status).toBe("cancelled");
+  });
+
+  test("the database itself refuses a second active couple, whatever the id order", async () => {
+    const users = [await makeUser("db1"), await makeUser("db2"), await makeUser("db3")].sort((x, y) => x.id - y.id);
+    const [u1, u2, u3] = users as [TestUser, TestUser, TestUser];
+    await db`INSERT INTO couples (user1_id, user2_id, status) VALUES (${u1.id}, ${u2.id}, 'active')`;
+    // u2 is user2 of the first couple and would be user1 of this one.
+    await expect(db`INSERT INTO couples (user1_id, user2_id, status) VALUES (${u2.id}, ${u3.id}, 'active')`).rejects.toThrow();
+    // u1 is user1 of the first couple and would be user1 again.
+    await expect(db`INSERT INTO couples (user1_id, user2_id, status) VALUES (${u1.id}, ${u3.id}, 'active')`).rejects.toThrow();
+    // An ended couple does not count.
+    await db`INSERT INTO couples (user1_id, user2_id, status) VALUES (${u2.id}, ${u3.id}, 'ended')`;
+    // Reactivating it while u2 is still coupled is refused as well.
+    await expect(db`UPDATE couples SET status = 'active' WHERE user1_id = ${u2.id} AND user2_id = ${u3.id}`).rejects.toThrow();
+  });
+});
