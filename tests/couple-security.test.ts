@@ -464,3 +464,110 @@ describe("couple bookings", () => {
     expect((await bodyOf<{ success: boolean }>(res)).success).toBe(true);
   });
 });
+
+// ---------- 7. validation ----------
+
+describe("input validation", () => {
+  test("the relationship status is picked in a list", async () => {
+    const couple = await makeCouple("val1");
+    const path = `/api/couple/${couple.id}/status`;
+    expect((await api(couple.a.token, "PATCH", path, { relationshipStatus: "hacked" })).status).toBe(400);
+    expect((await api(couple.a.token, "PATCH", path, {})).status).toBe(400);
+    const row = await db<{ relationship_status: string }[]>`SELECT relationship_status FROM couples WHERE id = ${couple.id}`;
+    expect(row[0]?.relationship_status).not.toBe("hacked");
+    expect((await api(couple.a.token, "PATCH", path, { relationshipStatus: "engaged" })).status).toBe(200);
+  });
+
+  test("memories are validated", async () => {
+    const couple = await makeCouple("val2");
+    const add = (body: Record<string, unknown>) => api(couple.a.token, "POST", "/api/couple/memories", { type: "note", ...body });
+    expect((await add({ type: "x".repeat(50) })).status).toBe(400);
+    expect((await add({ title: "t".repeat(300) })).status).toBe(400);
+    expect((await add({ location: "l".repeat(300) })).status).toBe(400);
+    expect((await add({ memoryDate: "n'importe quoi" })).status).toBe(400);
+    expect((await add({ memoryDate: "2024-02-30" })).status).toBe(400);
+    expect((await add({ title: "Notre premier voyage", memoryDate: "2024-01-15" })).status).toBe(200);
+  });
+
+  test("a memory picture must be an https url", async () => {
+    const couple = await makeCouple("val3");
+    const add = (imageUrl: string) =>
+      api(couple.a.token, "POST", "/api/couple/memories", { type: "photo", imageUrl });
+    for (const bad of ["javascript:alert(1)", "http://example.com/a.jpg", "data:text/html;base64,PHNjcmlwdD4=", "//example.com/a.jpg", "https://"]) {
+      expect((await add(bad)).status).toBe(400);
+    }
+    expect((await add("https://example.com/a.jpg")).status).toBe(200);
+    const stored = await db`SELECT image_url FROM couple_memories WHERE couple_id = ${couple.id}`;
+    expect(stored.map((r) => r.image_url)).toEqual(["https://example.com/a.jpg"]);
+  });
+
+  test("important dates and bucket-list items reject impossible dates", async () => {
+    const couple = await makeCouple("val4");
+    const date = (body: Record<string, unknown>) =>
+      api(couple.a.token, "POST", "/api/couple/dates", { title: "Anniversaire", type: "anniversary", ...body });
+    expect((await date({ date: "2024-13-45" })).status).toBe(400);
+    expect((await date({ date: "demain" })).status).toBe(400);
+    expect((await date({})).status).toBe(400);
+    expect((await date({ date: "2024-06-15" })).status).toBe(200);
+    const item = (body: Record<string, unknown>) => api(couple.a.token, "POST", "/api/couple/bucket-list", body);
+    expect((await item({ title: "Voir l'aurore", targetDate: "2026-99-99" })).status).toBe(400);
+    expect((await item({})).status).toBe(400);
+    expect((await item({ title: "Voir l'aurore", targetDate: "2027-03-01" })).status).toBe(200);
+  });
+
+  test("limit and offset are bounded integers", async () => {
+    const couple = await makeCouple("val5");
+    for (const path of ["/api/couple/activities", "/api/couple/events"]) {
+      for (const bad of ["limit=1000", "limit=0", "limit=-5", "limit=abc", "limit=1.5", "offset=-1", "offset=abc"]) {
+        expect((await api(couple.a.token, "GET", `${path}?${bad}`)).status).toBe(400);
+      }
+      expect((await api(couple.a.token, "GET", `${path}?limit=100&offset=0`)).status).toBe(200);
+      expect((await api(couple.a.token, "GET", path)).status).toBe(200);
+    }
+  });
+
+  test("a broken json body is a 400 that does not leak the parser's message", async () => {
+    const couple = await makeCouple("val6");
+    const send = async (method: string, path: string): Promise<Response> =>
+      fetch(`${BASE_URL}${path}`, { method, headers: json(couple.a.token), body: "{pas du json" });
+    const q = await bodyOf<{ question: { id: number } }>(await api(couple.a.token, "GET", `/api/couple/${couple.id}/question`));
+    const responses = await Promise.all([
+      send("PATCH", `/api/couple/${couple.id}/status`),
+      send("POST", `/api/couple/${couple.id}/question/${q.question.id}/answer`),
+      send("POST", "/api/couple/memories"),
+      send("POST", "/api/couple/dates"),
+      send("POST", "/api/couple/bookings"),
+      send("POST", "/api/couple/bucket-list"),
+    ]);
+    for (const res of responses) {
+      expect(res.status).toBe(400);
+      const text = JSON.stringify(await res.json());
+      expect(text).not.toMatch(/JSON at position|Unexpected token|SyntaxError/i);
+    }
+  });
+
+  test("an answer must be a non-empty string of reasonable length", async () => {
+    const couple = await makeCouple("val7");
+    const q = await bodyOf<{ question: { id: number } }>(await api(couple.a.token, "GET", `/api/couple/${couple.id}/question`));
+    const path = `/api/couple/${couple.id}/question/${q.question.id}/answer`;
+    expect((await api(couple.a.token, "POST", path, { answer: "" })).status).toBe(400);
+    expect((await api(couple.a.token, "POST", path, { answer: 12 })).status).toBe(400);
+    expect((await api(couple.a.token, "POST", path, { answer: "a".repeat(2001) })).status).toBe(400);
+  });
+});
+
+describe("error messages", () => {
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      return statSync(full).isDirectory() ? sourceFiles(full) : full.endsWith(".ts") ? [full] : [];
+    });
+  }
+
+  test("no couple route sends a raw exception message to the client", () => {
+    const offenders = sourceFiles(join(import.meta.dir, "..", "src", "features", "couple")).filter((file) =>
+      /error as Error\)\.message|error\.message|err\.message|e\.message/.test(readFileSync(file, "utf8")),
+    );
+    expect(offenders).toEqual([]);
+  });
+});

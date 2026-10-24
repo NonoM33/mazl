@@ -21,7 +21,9 @@ import {
   assertCoupleMembership,
   coupleRequestBodySchema,
   coupleRespondBodySchema,
+  dailyAnswerBodySchema,
   GENERIC_SERVER_ERROR,
+  relationshipStatusBodySchema,
 } from "./couple.shared";
 import {
   canRequestCouple,
@@ -72,7 +74,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, couple, milestones });
     } catch (error: unknown) {
       console.error("Get couple error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -127,7 +129,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       });
     } catch (error) {
       console.error("Create couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -172,7 +174,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, action: "rejected" });
     } catch (error) {
       console.error("Respond couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -193,7 +195,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error) {
       console.error("Cancel couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -206,7 +208,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, sent, received });
     } catch (error) {
       console.error("Get couple requests error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -228,7 +230,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       });
     } catch (error) {
       console.error("Check couple status error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -271,16 +273,19 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
-      const { relationshipStatus } = await c.req.json();
+      const parsed = await parseBody(relationshipStatusBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
+      }
 
-      await updateRelationshipStatus(coupleId, relationshipStatus);
+      await updateRelationshipStatus(coupleId, parsed.data.relationshipStatus);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Update couple status error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -291,7 +296,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const couple = await getCoupleViewFor(userId);
       await deleteCouple(coupleId);
@@ -300,7 +305,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete couple error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -311,14 +316,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const question = await getDailyQuestion(coupleId);
 
       return c.json({ success: true, question });
     } catch (error: unknown) {
       console.error("Get daily question error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -329,15 +334,18 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const questionId = parseInt(c.req.param("questionId"));
       if (!Number.isInteger(questionId)) {
         return c.json({ success: false, error: "Question not found" }, 404);
       }
-      const { answer } = await c.req.json();
+      const parsed = await parseBody(dailyAnswerBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
+      }
 
-      const recorded = await answerDailyQuestion(coupleId, questionId, userId, answer);
+      const recorded = await answerDailyQuestion(coupleId, questionId, userId, parsed.data.answer);
       if (!recorded) {
         return c.json({ success: false, error: "Question not found" }, 404);
       }
@@ -345,7 +353,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Answer question error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -356,14 +364,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const questions = await getCoupleQuestionHistory(coupleId);
 
       return c.json({ success: true, questions });
     } catch (error: unknown) {
       console.error("Get questions error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -374,14 +382,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const milestones = await getCoupleMilestones(coupleId);
 
       return c.json({ success: true, milestones });
     } catch (error: unknown) {
       console.error("Get milestones error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 }

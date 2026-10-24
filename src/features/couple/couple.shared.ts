@@ -102,3 +102,91 @@ export const bookingBodySchema = z
   .refine((body) => body.activityId != null || body.eventId != null, {
     message: "activityId or eventId is required",
   });
+
+// PATCH /api/couple/:coupleId/status body.
+export const RELATIONSHIP_STATUSES = ["dating", "in_relationship", "engaged", "married"] as const;
+export const relationshipStatusBodySchema = z
+  .object({ relationshipStatus: z.enum(RELATIONSHIP_STATUSES) })
+  .passthrough();
+
+// POST /api/couple/:coupleId/question/:questionId/answer body.
+export const dailyAnswerBodySchema = z
+  .object({ answer: z.string().trim().min(1).max(2000) })
+  .passthrough();
+
+// A picture link: https only (javascript:, data:, http: and relative links are refused).
+const httpsUrlSchema = z
+  .string()
+  .max(2048)
+  .refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.hostname.length > 0;
+    } catch {
+      return false;
+    }
+  }, "must be an https url");
+
+// POST /api/couple/memories body. `type` is stored in a VARCHAR(20).
+export const memoryBodySchema = z
+  .object({
+    type: z.string().min(1).max(20).regex(/^[a-z_]+$/i, "must be letters and underscores"),
+    title: z.string().max(255).nullable().optional(),
+    content: z.string().max(5000).nullable().optional(),
+    imageUrl: httpsUrlSchema.nullable().optional(),
+    memoryDate: calendarDateSchema.nullable().optional(),
+    location: z.string().max(255).nullable().optional(),
+  })
+  .passthrough();
+
+// POST /api/couple/dates body.
+export const dateBodySchema = z
+  .object({
+    title: z.string().trim().min(1).max(255),
+    date: calendarDateSchema,
+    type: z.string().trim().min(1).max(50),
+    isRecurring: z.boolean().nullable().optional(),
+    remindDaysBefore: z.number().int().min(0).max(365).nullable().optional(),
+    notes: z.string().max(2000).nullable().optional(),
+  })
+  .passthrough();
+
+// PUT /api/couple/dates/:id body: every field optional, unknown ones dropped.
+export const dateUpdateBodySchema = z.object({
+  title: z.string().trim().min(1).max(255).optional(),
+  date: calendarDateSchema.optional(),
+  notes: z.string().max(2000).optional(),
+  remindDaysBefore: z.number().int().min(0).max(365).optional(),
+});
+
+// POST /api/couple/bucket-list body.
+export const bucketItemBodySchema = z
+  .object({
+    title: z.string().trim().min(1).max(255),
+    description: z.string().max(2000).nullable().optional(),
+    category: z.string().max(50).nullable().optional(),
+    targetDate: calendarDateSchema.nullable().optional(),
+  })
+  .passthrough();
+
+// POST /api/couple/activities/:id/save body (an empty body is fine).
+export const saveActivityBodySchema = z
+  .object({ notes: z.string().max(1000).nullable().optional() })
+  .passthrough();
+
+const PAGE_SIZE_DEFAULT = 20;
+const PAGE_SIZE_MAX = 100;
+const PAGE_OFFSET_MAX = 100_000;
+
+// `limit` (1..100, default 20) and `offset` (>= 0, default 0) of a list route,
+// or null when one of them is not a plain integer in range.
+export function parsePagination(
+  limit: string | undefined,
+  offset: string | undefined,
+): { limit: number; offset: number } | null {
+  const parsedLimit = limit === undefined || limit === "" ? PAGE_SIZE_DEFAULT : /^\d+$/.test(limit) ? Number(limit) : NaN;
+  const parsedOffset = offset === undefined || offset === "" ? 0 : /^\d+$/.test(offset) ? Number(offset) : NaN;
+  if (!(parsedLimit >= 1 && parsedLimit <= PAGE_SIZE_MAX)) return null;
+  if (!(parsedOffset >= 0 && parsedOffset <= PAGE_OFFSET_MAX)) return null;
+  return { limit: parsedLimit, offset: parsedOffset };
+}
