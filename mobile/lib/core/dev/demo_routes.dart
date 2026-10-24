@@ -98,7 +98,37 @@ abstract final class DemoRoutes {
   static DemoReply _json(Map<String, dynamic> body) => DemoReply(body);
   static int _id(RegExpMatch m) => int.parse(m.group(1)!);
 
+  /// Le `credits` du serveur (`GET /api/credits`), pour un membre gratuit.
+  static Map<String, dynamic> _credits() => {
+    'super_like': {
+      'daily_allowance': 1,
+      'daily_remaining': DemoStore.superLikesLeft,
+      'purchased_balance': 0,
+      'available': DemoStore.superLikesLeft,
+    },
+    'boost': {
+      'daily_allowance': 0,
+      'daily_remaining': 0,
+      'purchased_balance': DemoStore.boostsLeft,
+      'available': DemoStore.boostsLeft,
+    },
+    'resets_at': _nextMidnightUtc(),
+  };
+
+  static String _nextMidnightUtc() {
+    final now = DemoStore.clock().toUtc();
+    return DateTime.utc(now.year, now.month, now.day + 1).toIso8601String();
+  }
+
   static DemoReply _swipe(DemoRequest r, RegExpMatch m) {
+    final superLike = r.body['action'] == 'super_like';
+    if (superLike && !DemoStore.spendSuperLike()) {
+      return DemoReply({
+        'success': false,
+        'error': 'super_likes_exhausted',
+        'credits': _credits(),
+      }, status: 402);
+    }
     final matched =
         r.body['target_user_id'] == DemoFixtures.matchOnLikeUserId &&
         r.body['action'] != 'pass';
@@ -106,7 +136,12 @@ abstract final class DemoRoutes {
       DemoStore.openMatchConversation(DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!);
     }
     // `match` (découverte, sélection du jour) et `matched` (likes, profil).
-    return _json({'success': true, 'match': matched, 'matched': matched});
+    return _json({
+      'success': true,
+      'match': matched,
+      'matched': matched,
+      if (superLike) 'credits': _credits(),
+    });
   }
 
   static DemoReply _page(
@@ -124,9 +159,10 @@ abstract final class DemoRoutes {
     'expires_at': DemoStore.boostActive
         ? DemoFixtures.isoIn(const Duration(minutes: 30))
         : null,
-    'remaining_boosts': DemoStore.boostActive ? 0 : 1,
+    'remaining_boosts': DemoStore.boostsLeft,
     'views_during_boost': 0,
     'likes_during_boost': 0,
+    'credits': _credits(),
   };
 
   static final List<DemoRoute> _routes = [
@@ -257,9 +293,23 @@ abstract final class DemoRoutes {
     ),
     DemoRoute('GET', '/api/boost/status', (r, m) => _json(_boost())),
     DemoRoute('POST', '/api/boost/activate', (r, m) {
+      if (DemoStore.boostActive) {
+        return const DemoReply({
+          'success': false,
+          'error': 'boost_already_active',
+        }, status: 409);
+      }
+      if (!DemoStore.spendBoost()) {
+        return DemoReply({
+          'success': false,
+          'error': 'boosts_exhausted',
+          'credits': _credits(),
+        }, status: 402);
+      }
       DemoStore.activateBoost();
-      return _json(_boost());
+      return DemoReply(_boost(), status: 201);
     }),
+    DemoRoute('GET', '/api/credits', (r, m) => _json({'success': true, 'credits': _credits()})),
     DemoRoute(
       'GET',
       '/api/users/blocked',

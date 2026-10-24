@@ -10,6 +10,8 @@ abstract final class DemoStore {
   static Map<String, dynamic> _profilePatch = {};
   static List<Map<String, dynamic>> _prompts = DemoFixtures.myPrompts();
   static bool _boostActive = false;
+  static int _superLikesLeft = _freeSuperLikesPerDay;
+  static int _boostsLeft = _boostsBought;
   static bool _photoVerified = false;
   static bool _identityVerified = false;
   static int _nextId = 9000;
@@ -40,6 +42,8 @@ abstract final class DemoStore {
     _profilePatch = {};
     _prompts = DemoFixtures.myPrompts();
     _boostActive = false;
+    _superLikesLeft = _freeSuperLikesPerDay;
+    _boostsLeft = _boostsBought;
     _photoVerified = false;
     _identityVerified = false;
     _nextId = 9000;
@@ -186,5 +190,30 @@ abstract final class DemoStore {
       _prompts.removeWhere((p) => p['id'] == id);
 
   static bool get boostActive => _boostActive;
+
+  /// Allumé : le boost tourne, et un second n'est pas débité (HTTP 409).
   static void activateBoost() => _boostActive = true;
+
+  // --- Crédits : un membre gratuit (1 Super Like par jour) qui a déjà acheté
+  // un Boost. La démo n'a pas de store : une fois épuisés, le serveur fictif
+  // répond 402 comme le vrai.
+  static const int _freeSuperLikesPerDay = 1;
+  static const int _boostsBought = 1;
+
+  static int get superLikesLeft => _superLikesLeft;
+  static int get boostsLeft => _boostsLeft;
+
+  /// Dépense un Super Like ; faux s'il n'en reste pas.
+  static bool spendSuperLike() {
+    if (_superLikesLeft <= 0) return false;
+    _superLikesLeft--;
+    return true;
+  }
+
+  /// Dépense un Boost ; faux s'il n'en reste pas.
+  static bool spendBoost() {
+    if (_boostsLeft <= 0) return false;
+    _boostsLeft--;
+    return true;
+  }
 }

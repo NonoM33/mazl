@@ -62,4 +62,33 @@ void main() {
     expect(creditsApi.getCalls, 0);
     expect(credits.balance, isNull);
   });
+
+  test(
+    'un changement d\'abonnement relit le solde : l\'inclus du jour change',
+    () async {
+      subscriptionApi.onGetSubscription = () =>
+          const ApiReply(200, noSubscriptionBody);
+      await session.onSignedIn('jwt');
+      creditsApi.getCalls = 0;
+
+      // L'abonnement est acheté : le serveur donne 5 Super Likes par jour.
+      creditsApi.onGet = () => ApiReply(
+        200,
+        creditsEnvelope(credits: serverCredits(superLikeRemaining: 5)),
+      );
+      subscriptionApi.onGetSubscription = () =>
+          ApiReply(200, activeSubscriptionBody());
+      await subscriptions.refresh();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(subscriptions.isMazlPro, isTrue);
+      expect(creditsApi.getCalls, 1);
+      expect(credits.available(CreditKind.superLike), 17);
+
+      // Un rafraîchissement sans changement ne relit rien.
+      await subscriptions.refresh();
+      await Future<void>.delayed(Duration.zero);
+      expect(creditsApi.getCalls, 1);
+    },
+  );
 }

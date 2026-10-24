@@ -230,6 +230,8 @@ class AuthService extends ChangeNotifier {
     await CoupleService().reset();
     _currentUser = user;
     debugPrint('AuthService: session fictive démarrée');
+    // Le solde de Boosts et de Super Likes fictif, servi par DemoHttpClient.
+    unawaited(_store.onDemoSignedIn());
     notifyListeners();
     return AuthResult.success(user);
   }
@@ -526,7 +528,9 @@ class AuthService extends ChangeNotifier {
   /// Sign out current user
   Future<void> signOut() async {
     if (DevSession.isActive) {
-      // Session fictive : rien à révoquer côté abonnement / push / stockage.
+      // Session fictive : rien à révoquer côté push / stockage, mais le solde
+      // fictif et son jeton ne doivent pas survivre à la démo.
+      _store.onSignedOut();
       DevSession.stop();
       _currentUser = null;
       debugPrint('AuthService: session fictive terminée');
