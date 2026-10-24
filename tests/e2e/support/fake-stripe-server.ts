@@ -62,19 +62,19 @@ export async function startFakeStripe(serverWebhookUrl = `${process.env.TEST_API
     const months = PRICES[Object.entries(priceIds).find(([, v]) => v === session.price)?.[0] ?? ""]?.recurring ?? 1;
     const end = now + months * 30 * 86_400;
     return {
-      id: subscriptionId, object: "subscription", status, customer: session.customer, livemode: false, cancel_at_period_end: false, metadata: session.metadata,
+      id: subscriptionId, object: "subscription", start_date: now, status, customer: session.customer, livemode: false, cancel_at_period_end: false, metadata: session.metadata,
       items: { object: "list", data: [{ id: id("si"), object: "subscription_item", price: priceObject(session.price, priceIds), current_period_start: now, current_period_end: end, quantity: 1 }] },
     };
   };
 
   async function sendWebhook(type: string, object: Record<string, unknown>, url: string): Promise<void> {
     const payload = JSON.stringify({ id: id("evt"), object: "event", api_version: "2026-09-30.endive", created: Math.floor(Date.now() / 1000), livemode: false, type, data: { object } });
-    const signature = stripe.webhooks.generateTestHeaderString({ payload, secret: webhookSecret });
+    const signature = await stripe.webhooks.generateTestHeaderStringAsync({ payload, secret: webhookSecret });
     await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "Stripe-Signature": signature }, body: payload });
   }
 
   async function pay(session: Session): Promise<void> {
-    const base = { id: session.id, object: "checkout.session", mode: session.mode, customer: session.customer, client_reference_id: session.clientReference, metadata: session.metadata, livemode: false, status: "complete", payment_status: "paid" };
+    const base = { id: session.id, object: "checkout.session", created: Math.floor(Date.now() / 1000), mode: session.mode, customer: session.customer, client_reference_id: session.clientReference, metadata: session.metadata, livemode: false, status: "complete", payment_status: "paid" };
     if (session.mode === "subscription") {
       const subscriptionId = id("sub");
       subscriptions.set(subscriptionId, subscriptionObject(subscriptionId, session));
