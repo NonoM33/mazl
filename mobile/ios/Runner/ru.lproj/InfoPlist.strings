@@ -1,0 +1,6 @@
+/* iOS permission prompts, in Russian (« Вы », capitalised). Translated from fr.lproj. */
+"NSCameraUsageDescription" = "MAZL использует камеру, чтобы сделать фото для Вашего профиля и убедиться, что это действительно Вы.";
+"NSPhotoLibraryUsageDescription" = "MAZL получает доступ к Вашим фото, чтобы Вы могли выбрать снимки для профиля.";
+"NSLocationWhenInUseUsageDescription" = "MAZL использует Ваше приблизительное местоположение, чтобы предлагать профили поблизости. Ваше точное местоположение никогда не передаётся.";
+"NSMicrophoneUsageDescription" = "MAZL использует микрофон для голосовых сообщений и видеозвонков.";
+"NFCReaderUsageDescription" = "MAZL считывает чип Вашего паспорта или удостоверения личности, чтобы подтвердить Вашу личность. Ничего не сохраняется.";
