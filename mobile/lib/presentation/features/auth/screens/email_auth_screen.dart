@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
@@ -375,6 +376,23 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
     );
   }
 
+  /// Entrance of a block: a fade, plus a slide or a shake. Under reduced
+  /// motion only the short fade, with no stagger.
+  List<Effect<dynamic>> _entrance({double? slideBegin, bool shake = false}) {
+    if (MazlMotion.reduced(context)) {
+      return [FadeEffect(duration: MazlMotion.reducedEntrance)];
+    }
+    return [
+      const FadeEffect(),
+      if (slideBegin != null)
+        SlideEffect(begin: Offset(0, slideBegin), end: Offset.zero),
+      if (shake) const ShakeEffect(),
+    ];
+  }
+
+  Duration _delay(Duration delay) =>
+      MazlMotion.reduced(context) ? Duration.zero : delay;
+
   @override
   Widget build(BuildContext context) {
     final passwordStrength = _getPasswordStrength(_passwordController.text);
@@ -412,7 +430,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                ).animate().fadeIn().slideY(begin: 0.3, end: 0),
+                ).animate(effects: _entrance(slideBegin: 0.3)),
 
                 const SizedBox(height: 8),
 
@@ -424,7 +442,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     fontSize: 16,
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
-                ).animate(delay: 100.ms).fadeIn(),
+                ).animate(delay: _delay(100.ms), effects: _entrance()),
 
                 const SizedBox(height: 32),
 
@@ -450,7 +468,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                         ),
                       ],
                     ),
-                  ).animate().fadeIn().shake(),
+                  ).animate(effects: _entrance(shake: true)),
 
                 // Form
                 GlassContainer(
@@ -695,7 +713,10 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                       ],
                     ),
                   ),
-                ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.2, end: 0),
+                ).animate(
+                  delay: _delay(200.ms),
+                  effects: _entrance(slideBegin: 0.2),
+                ),
               ],
             ),
           ),
