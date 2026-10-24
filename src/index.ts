@@ -90,7 +90,7 @@ import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
-import { createWebApp } from "./features/web-app";
+import { API_HOST_STATIC_FILES, LEGAL_PAGES, LEGAL_REDIRECTS, createWebApp, createWebsiteMoved, websiteServed } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
@@ -223,11 +223,14 @@ app.get("/verify", async (c) => {
 });
 
 // Legal pages. The app's Premium screen links to /terms and /privacy.
-for (const page of ["cgu", "cgv", "confidentialite"] as const) {
-  app.get(`/${page}`, (c) => c.html(Bun.file(`./public/${page}.html`).text()));
+// With SERVE_WEBSITE=false the website container serves them (web/front).
+const SERVE_WEBSITE = websiteServed();
+if (SERVE_WEBSITE) {
+  for (const page of LEGAL_PAGES) {
+    app.get(`/${page}`, (c) => c.html(Bun.file(`./public/${page}.html`).text()));
+  }
+  for (const [from, to] of Object.entries(LEGAL_REDIRECTS)) app.get(from, (c) => c.redirect(to, 301));
 }
-app.get("/terms", (c) => c.redirect("/cgu", 301));
-app.get("/privacy", (c) => c.redirect("/confidentialite", 301));
 
 app.get("/admin", async (c) => {
   return new Response(Bun.file("./public/admin-login.html"));
@@ -243,7 +246,10 @@ app.use("/uploads/*", async (c) => {
 });
 
 // Static files
-app.use("/*", serveStatic({ root: "./public" }));
+// Whole folder while this process serves the website; otherwise only the
+// files of the pages that stay on the API host (verify, old admin).
+const publicFiles = serveStatic({ root: "./public" });
+app.use("/*", SERVE_WEBSITE ? publicFiles : (c, next) => (API_HOST_STATIC_FILES.has(c.req.path) ? publicFiles(c, next) : next()));
 
 
 // API Routes
@@ -347,11 +353,15 @@ registerAuthRoutes(app);
 const webSession = createWebSessionModule({ sql });
 registerWebSession(app, webSession);
 // The built web client under /app, with its own headers (docs/web/adr/W01).
-const webApp = createWebApp({
-  distDir: process.env.WEB_DIST_DIR || "web/dist",
-  webOrigin: process.env.WEB_ORIGIN || null,
-  mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
-});
+// With SERVE_WEBSITE=false the client is served by the website container; this
+// process only sends the old website addresses there.
+const webApp = SERVE_WEBSITE
+  ? createWebApp({
+      distDir: process.env.WEB_DIST_DIR || "web/dist",
+      webOrigin: process.env.WEB_ORIGIN || null,
+      mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
+    })
+  : createWebsiteMoved(process.env.WEB_ORIGIN || null);
 
 // ============ PROFILE, PHOTOS & PROMPTS ============
 // Profile feature routes (PUT /api/profile, photos upload/delete/reorder/
