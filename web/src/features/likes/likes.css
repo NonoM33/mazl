@@ -1,0 +1,9 @@
+.likes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.like-card { position: relative; padding: 0; border: 0; background: none; text-align: left; border-radius: 24px; overflow: hidden; display: block; width: 100%; }
+.like-card[disabled] { cursor: default; }
+.like-photo { width: 100%; aspect-ratio: 3 / 4; }
+.like-photo.blurred img { filter: blur(20px); transform: scale(1.15); }
+.like-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px; color: #fff; background: rgba(11, 11, 15, 0.36); font-size: 16px; font-weight: 600; }
+.likes-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.like-actions { display: flex; gap: 12px; }
+.like-actions .btn { flex: 1; }
