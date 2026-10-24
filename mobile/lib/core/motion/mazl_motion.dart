@@ -92,6 +92,23 @@ abstract final class MazlMotion {
   /// The matching action button under the card grows up to this scale.
   static const deckButtonMaxScale = 1.1;
 
+  /// The photo position indicator of a card slides from one photo to the
+  /// next instead of jumping (instant under reduced motion).
+  static const photoIndicatorSlide = Duration(milliseconds: 200);
+  static const photoIndicatorCurve = Curves.easeOutCubic;
+
+  // --- Profile gallery (profile page) ---------------------------------------
+
+  /// A tap on a half of the photo turns the page; reduced motion jumps.
+  static const galleryPageTurn = Duration(milliseconds: 250);
+  static const galleryPageCurve = Curves.easeOut;
+
+  // --- Everything else that moves on its own ---------------------------------
+
+  /// What an entrance (staggered list, pop-in badge, logo) becomes under
+  /// reduced motion: no scale, no slide, no bounce; at most this fade.
+  static const reducedEntrance = reducedFade;
+
   // --- Swipe to reply (chat) ----------------------------------------------
 
   static const replyThreshold = 64.0;
