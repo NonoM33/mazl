@@ -27,11 +27,12 @@ export const reportSchema = z
 
 export const readSchema = z.object({ up_to_id: z.number().int().positive().optional() }).passthrough();
 
-// WebSocket `chat:send` keeps the shape installed apps already use.
+// WebSocket `chat:send` keeps the shape installed apps already use; its text is
+// bounded like the REST body (the service enforces the exact limit after trim).
 export const socketSendSchema = z
   .object({
     conversationId: z.number().int().positive(),
-    content: z.string().min(1),
+    content: z.string().min(1).max(5000),
     clientId: clientId.optional(),
     replyToId: z.number().int().positive().nullable().optional(),
   })

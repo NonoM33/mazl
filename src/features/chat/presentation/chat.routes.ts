@@ -1,17 +1,20 @@
 import type { Context, Hono } from "hono";
 import { getConversationById, getConversations } from "../../../db";
 import { requireAuth, type AppVariables } from "../../../shared/http/middleware";
-import { createRateLimiter } from "../../../shared/http/rate-limit";
+import { bodyLimit } from "hono/body-limit";
 import { parseBody } from "../../../shared/http/validation";
+import type { ChatLimits } from "../application/chat-limits";
 import type { ChatService } from "../application/chat-service";
 import { notFound } from "../domain/errors";
 import { notFoundResponse, respondToFailure } from "./http-errors";
+import { limitBy } from "./limit-middleware";
 import { parseId, readSchema, sendMessageSchema } from "./schemas";
 
 type ChatApp = Hono<{ Variables: AppVariables }>;
 type ChatContext = Context<{ Variables: AppVariables }>;
 
-const sendLimiter = createRateLimiter({ max: 90, windowMs: 60_000 });
+// A text message is at most 5000 characters; the JSON around it never needs more.
+export const MAX_SEND_BODY_BYTES = 16 * 1024;
 
 // Digits only, or the default; anything else is the caller's mistake.
 function queryNumber(raw: string | undefined): number | null | "invalid" {
@@ -33,7 +36,7 @@ async function optionalReadBody(c: ChatContext) {
 }
 
 // Conversation list and detail (unchanged URLs), message history, send and read.
-export function registerChatRoutes(app: ChatApp, chat: ChatService): void {
+export function registerChatRoutes(app: ChatApp, chat: ChatService, limits: ChatLimits): void {
   app.get("/api/conversations", requireAuth, async (c) => {
     try {
       return c.json({ success: true, conversations: await getConversations(c.get("userId")) });
@@ -56,7 +59,7 @@ export function registerChatRoutes(app: ChatApp, chat: ChatService): void {
     }
   });
 
-  app.get("/api/conversations/:id/messages", requireAuth, async (c) => {
+  app.get("/api/conversations/:id/messages", requireAuth, limitBy(limits.history), async (c) => {
     try {
       const conversationId = parseId(c.req.param("id"));
       if (conversationId === null) return notFoundResponse(c);
@@ -72,7 +75,12 @@ export function registerChatRoutes(app: ChatApp, chat: ChatService): void {
     }
   });
 
-  app.post("/api/conversations/:id/messages", requireAuth, sendLimiter, async (c) => {
+  const tooLarge = bodyLimit({
+    maxSize: MAX_SEND_BODY_BYTES,
+    onError: (c) => c.json({ success: false, error: "Message too large" }, 413),
+  });
+
+  app.post("/api/conversations/:id/messages", requireAuth, limitBy(limits.send), tooLarge, async (c) => {
     try {
       const conversationId = parseId(c.req.param("id"));
       if (conversationId === null) return notFoundResponse(c);
@@ -92,7 +100,7 @@ export function registerChatRoutes(app: ChatApp, chat: ChatService): void {
     }
   });
 
-  app.put("/api/conversations/:id/read", requireAuth, async (c) => {
+  app.put("/api/conversations/:id/read", requireAuth, limitBy(limits.markRead), async (c) => {
     try {
       const conversationId = parseId(c.req.param("id"));
       if (conversationId === null) return notFoundResponse(c);

@@ -1,5 +1,6 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
+import { createChatLimits, type ChatLimits } from "./application/chat-limits";
 import { createChatMediaService, type ChatMediaService } from "./application/chat-media-service";
 import { createChatService, type ChatService } from "./application/chat-service";
 import { createGuardedFetcher } from "./application/guarded-fetch";
@@ -26,12 +27,14 @@ export interface ChatModule {
   readonly media: ChatMediaService;
   readonly previews: LinkPreviewService;
   readonly sockets: ChatSocketHandlers;
+  readonly limits: ChatLimits;
 }
 
 export function createChatModule(options: { uploadsDir: string }): ChatModule {
   const storage = createChatDiskStorage(options.uploadsDir);
   const now = (): Date => new Date();
   const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
+  const limits = createChatLimits();
 
   const previews = createLinkPreviewService({
     fetcher: createGuardedFetcher({ resolver: systemDnsResolver, transport: createPinnedHttpTransport() }),
@@ -53,12 +56,12 @@ export function createChatModule(options: { uploadsDir: string }): ChatModule {
   const media = createChatMediaService({
     messages: postgresMessageRepository, media: postgresMediaRepository, storage, images: sharpChatImages, now,
   });
-  return { chat, media, previews, sockets: createChatSocketHandlers(chat) };
+  return { chat, media, previews, sockets: createChatSocketHandlers(chat, limits), limits };
 }
 
 export function registerChat(app: Hono<{ Variables: AppVariables }>, module: ChatModule): void {
-  registerChatRoutes(app, module.chat);
-  registerMessageRoutes(app, module.chat);
+  registerChatRoutes(app, module.chat, module.limits);
+  registerMessageRoutes(app, module.chat, module.limits);
   registerChatMediaRoutes(app, module.media);
 }
 
