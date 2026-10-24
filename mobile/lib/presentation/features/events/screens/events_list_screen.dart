@@ -7,7 +7,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../widgets/skeletons.dart';
+import '../l10n/event_texts.dart';
 
 class EventsListScreen extends StatefulWidget {
   const EventsListScreen({super.key});
@@ -36,14 +38,8 @@ class _EventsListScreenState extends State<EventsListScreen>
     'social',
   ];
 
-  final Map<String, String> _typeLabels = {
-    'all': 'Tous',
-    'shabbat_dinner': 'Shabbat',
-    'speed_dating': 'Speed Dating',
-    'holiday': 'Fêtes',
-    'lecture': 'Cours',
-    'social': 'Social',
-  };
+  String _filterLabel(AppLocalizations l10n, String type) =>
+      type == 'all' ? l10n.eventsFilterAll : EventKind.fromApi(type).filterLabel(l10n);
 
   @override
   bool get wantKeepAlive => true;
@@ -146,12 +142,12 @@ class _EventsListScreenState extends State<EventsListScreen>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Événements'),
+        title: Text(context.l10n.eventsTitle),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.calendarDays),
             onPressed: () {},
-            tooltip: 'Calendrier',
+            tooltip: context.l10n.eventsCalendarTooltip,
           ),
         ],
       ),
@@ -179,7 +175,7 @@ class _EventsListScreenState extends State<EventsListScreen>
                 final isSelected = (_selectedType ?? 'all') == type ||
                     (_selectedType == null && type == 'all');
                 return Padding(
-                  padding: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsetsDirectional.only(end: 10),
                   child: GestureDetector(
                     onTap: () => _onTypeSelected(type),
                     child: AnimatedContainer(
@@ -205,7 +201,7 @@ class _EventsListScreenState extends State<EventsListScreen>
                             const SizedBox(width: 6),
                           ],
                           Text(
-                            _typeLabels[type] ?? type,
+                            _filterLabel(context.l10n, type),
                             style: TextStyle(
                               color: isSelected ? Colors.white : Colors.grey[700],
                               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
@@ -245,11 +241,11 @@ class _EventsListScreenState extends State<EventsListScreen>
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
-            const Text('Impossible de charger les événements'),
+            Text(context.l10n.eventsLoadError),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadEvents,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -274,8 +270,8 @@ class _EventsListScreenState extends State<EventsListScreen>
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Aucun événement',
+            Text(
+              context.l10n.eventsEmptyTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -283,7 +279,7 @@ class _EventsListScreenState extends State<EventsListScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Revenez bientôt pour découvrir\nde nouveaux événements.',
+              context.l10n.eventsEmptyHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -329,10 +325,10 @@ class _EventsListScreenState extends State<EventsListScreen>
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
@@ -340,10 +336,10 @@ class _EventsListScreenState extends State<EventsListScreen>
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
-                      'Chargement...',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      context.l10n.eventsLoading,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ],
                 ),
@@ -368,38 +364,22 @@ class _EventCard extends StatelessWidget {
   final IconData typeIcon;
   final VoidCallback onTap;
 
-  String _formatDate(DateTime date) {
+  String _formatDate(AppLocalizations l10n, DateTime date) {
     final now = DateTime.now();
     final diff = date.difference(now);
 
     if (diff.inDays == 0) {
-      return "Aujourd'hui";
+      return l10n.commonToday;
     } else if (diff.inDays == 1) {
-      return 'Demain';
+      return l10n.eventsTomorrow;
     } else {
-      return DateFormat('EEEE d MMMM', 'fr_FR').format(date);
-    }
-  }
-
-  String _getTypeLabel(String? type) {
-    switch (type) {
-      case 'shabbat_dinner':
-        return 'Shabbat';
-      case 'speed_dating':
-        return 'Speed Dating';
-      case 'holiday':
-        return 'Fête';
-      case 'lecture':
-        return 'Cours';
-      case 'social':
-        return 'Social';
-      default:
-        return 'Événement';
+      return DateFormat.MMMMEEEEd(l10n.localeName).format(date);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final spotsLeft = event.maxAttendees != null
         ? event.maxAttendees! - event.attendeeCount
         : null;
@@ -430,8 +410,8 @@ class _EventCard extends StatelessWidget {
                     gradient: event.imageUrl == null
                         ? LinearGradient(
                             colors: [typeColor, typeColor.withValues(alpha: 0.7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                            begin: AlignmentDirectional.topStart,
+                            end: AlignmentDirectional.bottomEnd,
                           )
                         : null,
                   ),
@@ -485,9 +465,9 @@ class _EventCard extends StatelessWidget {
                   ),
                 ),
                 // Type badge
-                Positioned(
+                PositionedDirectional(
                   top: 12,
-                  left: 12,
+                  start: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -507,7 +487,7 @@ class _EventCard extends StatelessWidget {
                         Icon(typeIcon, size: 14, color: Colors.white),
                         const SizedBox(width: 4),
                         Text(
-                          _getTypeLabel(event.eventType),
+                          event.kind.label(l10n),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -520,9 +500,9 @@ class _EventCard extends StatelessWidget {
                 ),
                 // "Bientot" badge if within 3 days
                 if (isSoon)
-                  Positioned(
+                  PositionedDirectional(
                     top: 12,
-                    right: 12,
+                    end: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
@@ -536,10 +516,10 @@ class _EventCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             event.date.difference(DateTime.now()).inDays == 0
-                                ? "Aujourd'hui"
+                                ? l10n.commonToday
                                 : event.date.difference(DateTime.now()).inDays == 1
-                                    ? 'Demain'
-                                    : 'Dans ${event.date.difference(DateTime.now()).inDays}j',
+                                    ? l10n.eventsTomorrow
+                                    : l10n.eventsInDays(event.date.difference(DateTime.now()).inDays),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -551,9 +531,9 @@ class _EventCard extends StatelessWidget {
                     ),
                   ),
                 // Price badge at bottom right
-                Positioned(
+                PositionedDirectional(
                   bottom: 12,
-                  right: 12,
+                  end: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -569,8 +549,8 @@ class _EventCard extends StatelessWidget {
                     ),
                     child: Text(
                       event.price > 0
-                          ? '${event.price.toStringAsFixed(0)}${event.currency == 'EUR' ? '€' : event.currency}'
-                          : 'Gratuit',
+                          ? eventPriceText(event, l10n.localeName)
+                          : l10n.eventsFree,
                       style: TextStyle(
                         color: event.price > 0 ? AppColors.primary : Colors.white,
                         fontSize: 13,
@@ -615,7 +595,9 @@ class _EventCard extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${_formatDate(event.date)}${event.time != null ? ' a ${event.time}' : ''}',
+                          event.time != null
+                              ? l10n.eventsDateAtTime(_formatDate(l10n, event.date), event.time!)
+                              : _formatDate(l10n, event.date),
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontWeight: FontWeight.w500,
@@ -659,7 +641,7 @@ class _EventCard extends StatelessWidget {
                       Text(
                         event.maxAttendees != null
                             ? '${event.attendeeCount} / ${event.maxAttendees}'
-                            : '${event.attendeeCount} participants',
+                            : l10n.eventsAttendeesCount(event.attendeeCount),
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 13,
@@ -667,27 +649,33 @@ class _EventCard extends StatelessWidget {
                       ),
                       if (isAlmostFull) ...[
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.warning.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(LucideIcons.alertCircle, size: 12, color: AppColors.warning),
-                              const SizedBox(width: 4),
-                              const Text(
-                                'Presque complet',
-                                style: TextStyle(
-                                  color: AppColors.warning,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.warning.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(LucideIcons.alertCircle, size: 12, color: AppColors.warning),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    l10n.eventsAlmostFull,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: AppColors.warning,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],

@@ -278,6 +278,276 @@ abstract class AppLocalizations {
   /// **'Erreur de chargement'**
   String get commonLoadError;
 
+  /// Titre de la liste des événements (soirées, cours, fêtes).
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements'**
+  String get eventsTitle;
+
+  /// Liste des événements : info-bulle du bouton calendrier de la barre du haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calendrier'**
+  String get eventsCalendarTooltip;
+
+  /// Liste des événements : puce de filtre qui montre tous les types.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get eventsFilterAll;
+
+  /// Liste des événements : puce de filtre des fêtes (pluriel).
+  ///
+  /// In fr, this message translates to:
+  /// **'Fêtes'**
+  String get eventsFilterHolidays;
+
+  /// Type d'événement : repas ou moment de Shabbat. Puce de filtre et badge d'une carte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat'**
+  String get eventsTypeShabbat;
+
+  /// Type d'événement : dîner de Shabbat. Badge de l'écran de détail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat Dinner'**
+  String get eventsTypeShabbatDinner;
+
+  /// Type d'événement : soirée de rencontres rapides (speed dating).
+  ///
+  /// In fr, this message translates to:
+  /// **'Speed Dating'**
+  String get eventsTypeSpeedDating;
+
+  /// Type d'événement : fête juive. Badge d'une carte (singulier).
+  ///
+  /// In fr, this message translates to:
+  /// **'Fête'**
+  String get eventsTypeHoliday;
+
+  /// Type d'événement : cours ou conférence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours'**
+  String get eventsTypeLecture;
+
+  /// Type d'événement : rencontre conviviale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Social'**
+  String get eventsTypeSocial;
+
+  /// Type d'événement inconnu ou non classé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement'**
+  String get eventsTypeOther;
+
+  /// Liste des événements : petit texte du bandeau qui apparaît pendant un changement de filtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement...'**
+  String get eventsLoading;
+
+  /// Liste des événements : message quand le chargement échoue et qu'il n'y a rien à montrer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger les événements'**
+  String get eventsLoadError;
+
+  /// Liste des événements : titre de l'état vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement'**
+  String get eventsEmptyTitle;
+
+  /// Liste des événements : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu).
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez bientôt pour découvrir\nde nouveaux événements.'**
+  String get eventsEmptyHint;
+
+  /// Carte d'événement : « demain », en tête de la ligne de date et sur le badge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demain'**
+  String get eventsTomorrow;
+
+  /// Carte d'événement : badge orange qui annonce un événement dans quelques jours (2 ou 3). Très court, abrégé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {days}j'**
+  String eventsInDays(int days);
+
+  /// Carte d'événement : la date puis l'heure. {date} est déjà écrite, par exemple « samedi 24 octobre » ou « Demain ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{date} à {time}'**
+  String eventsDateAtTime(String date, String time);
+
+  /// Événement gratuit : badge de prix et ligne Prix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit'**
+  String get eventsFree;
+
+  /// Carte d'événement sans limite de places : nombre de participants.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 participants} one{{count} participant} other{{count} participants}}'**
+  String eventsAttendeesCount(int count);
+
+  /// Carte et détail d'événement : petit badge orange quand il reste peu de places.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque complet'**
+  String get eventsAlmostFull;
+
+  /// Détail d'événement : badge rouge et bouton désactivé quand il n'y a plus de place.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complet'**
+  String get eventsFull;
+
+  /// Détail d'événement : message quand l'événement n'existe plus ou ne charge pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement introuvable'**
+  String get eventsNotFound;
+
+  /// Détail d'événement : petit libellé au-dessus de la date.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get eventsInfoDate;
+
+  /// Détail d'événement : petit libellé au-dessus de l'heure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure'**
+  String get eventsInfoTime;
+
+  /// Détail d'événement : petit libellé au-dessus du lieu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu'**
+  String get eventsInfoPlace;
+
+  /// Détail d'événement : petit libellé au-dessus du nombre de participants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participants'**
+  String get eventsInfoParticipants;
+
+  /// Détail d'événement : petit libellé au-dessus du prix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix'**
+  String get eventsInfoPrice;
+
+  /// Détail d'événement : titre du texte de présentation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get eventsDescription;
+
+  /// Détail d'événement avec places limitées : inscrits sur capacité, par exemple « 12 / 20 places ». Le pluriel suit la capacité.
+  ///
+  /// In fr, this message translates to:
+  /// **'{max, plural, one{{count} / {max} place} other{{count} / {max} places}}'**
+  String eventsCapacity(int count, int max);
+
+  /// Détail d'événement sans limite de places : nombre de personnes inscrites.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 inscrits} one{{count} inscrit} other{{count} inscrits}}'**
+  String eventsRegisteredCount(int count);
+
+  /// Détail d'événement : le prix par personne. {price} est déjà formaté avec sa devise, par exemple « 25 € ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{price} par personne'**
+  String eventsPricePerPerson(String price);
+
+  /// Détail d'événement : bandeau vert quand le membre est inscrit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes inscrit(e) à cet événement'**
+  String get eventsRsvpConfirmedBanner;
+
+  /// Détail d'événement : bouton rouge qui annule l'inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler mon inscription'**
+  String get eventsRsvpCancel;
+
+  /// Détail d'événement payant : bouton d'inscription avec le prix. {price} est déjà formaté, par exemple « 25 € ».
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'inscrire - {price}'**
+  String eventsRsvpJoinPaid(String price);
+
+  /// Détail d'événement gratuit : bouton d'inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'inscrire gratuitement'**
+  String get eventsRsvpJoinFree;
+
+  /// Message bref : l'inscription à l'événement est annulée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription annulée'**
+  String get eventsRsvpCancelled;
+
+  /// Message bref : l'inscription à l'événement est confirmée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription confirmée'**
+  String get eventsRsvpDone;
+
+  /// Message pré-écrit envoyé par le bouton Partager d'un événement. Les guillemets entourent le titre. MAZL est le nom de l'app.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoignez-moi à \"{title}\" sur MAZL'**
+  String eventsShareMessage(String title);
+
+  /// Barre d'onglets : onglet des profils à découvrir. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir'**
+  String get navigationDiscover;
+
+  /// Barre d'onglets : onglet des matchs. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs'**
+  String get navigationMatches;
+
+  /// Barre d'onglets : onglet des conversations. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages'**
+  String get navigationMessages;
+
+  /// Barre d'onglets : onglet des événements. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements'**
+  String get navigationEvents;
+
+  /// Barre d'onglets : onglet du profil du membre. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil'**
+  String get navigationProfile;
+
+  /// Barre d'onglets repliée en pastille : ce que lit le lecteur d'écran pour la pastille qui déplie la barre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher les onglets'**
+  String get navigationShowTabs;
+
   /// Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app.
   ///
   /// In fr, this message translates to:

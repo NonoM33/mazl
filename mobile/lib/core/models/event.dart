@@ -65,15 +65,27 @@ class Event {
     );
   }
 
-  String get formattedPrice {
-    if (price == 0) return 'Gratuit';
-    return '${price.toStringAsFixed(0)} $currency';
-  }
+  /// The kind of event, normalised from the API's `event_type`.
+  EventKind get kind => EventKind.fromApi(eventType);
+}
 
-  String get spotsLeft {
-    if (maxAttendees == null) return 'Places illimitées';
-    final left = maxAttendees! - attendeeCount;
-    if (left <= 0) return 'Complet';
-    return '$left places restantes';
-  }
+/// What an event is. The screens write the kind in the member's language;
+/// the core only knows the stable identifiers the API sends.
+enum EventKind {
+  shabbatDinner('shabbat_dinner'),
+  speedDating('speed_dating'),
+  holiday('holiday'),
+  lecture('lecture'),
+  social('social'),
+  other('');
+
+  const EventKind(this.apiValue);
+
+  /// The `event_type` the API uses for this kind (also its filter value).
+  final String apiValue;
+
+  static EventKind fromApi(String? value) => values.firstWhere(
+    (kind) => kind != other && kind.apiValue == value,
+    orElse: () => other,
+  );
 }

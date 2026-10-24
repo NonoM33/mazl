@@ -96,6 +96,175 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLoadError => 'Couldn’t load';
 
   @override
+  String get eventsTitle => 'Events';
+
+  @override
+  String get eventsCalendarTooltip => 'Calendar';
+
+  @override
+  String get eventsFilterAll => 'All';
+
+  @override
+  String get eventsFilterHolidays => 'Holidays';
+
+  @override
+  String get eventsTypeShabbat => 'Shabbat';
+
+  @override
+  String get eventsTypeShabbatDinner => 'Shabbat dinner';
+
+  @override
+  String get eventsTypeSpeedDating => 'Speed dating';
+
+  @override
+  String get eventsTypeHoliday => 'Holiday';
+
+  @override
+  String get eventsTypeLecture => 'Class';
+
+  @override
+  String get eventsTypeSocial => 'Social';
+
+  @override
+  String get eventsTypeOther => 'Event';
+
+  @override
+  String get eventsLoading => 'Loading...';
+
+  @override
+  String get eventsLoadError => 'Couldn\'t load events';
+
+  @override
+  String get eventsEmptyTitle => 'No events';
+
+  @override
+  String get eventsEmptyHint => 'Come back soon to discover\nnew events.';
+
+  @override
+  String get eventsTomorrow => 'Tomorrow';
+
+  @override
+  String eventsInDays(int days) {
+    return 'In ${days}d';
+  }
+
+  @override
+  String eventsDateAtTime(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String get eventsFree => 'Free';
+
+  @override
+  String eventsAttendeesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count participants',
+      one: '1 participant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventsAlmostFull => 'Almost full';
+
+  @override
+  String get eventsFull => 'Full';
+
+  @override
+  String get eventsNotFound => 'Event not found';
+
+  @override
+  String get eventsInfoDate => 'Date';
+
+  @override
+  String get eventsInfoTime => 'Time';
+
+  @override
+  String get eventsInfoPlace => 'Place';
+
+  @override
+  String get eventsInfoParticipants => 'Participants';
+
+  @override
+  String get eventsInfoPrice => 'Price';
+
+  @override
+  String get eventsDescription => 'Description';
+
+  @override
+  String eventsCapacity(int count, int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: '$count / $max spots',
+      one: '$count / $max spot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventsRegisteredCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people registered',
+      one: '1 person registered',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventsPricePerPerson(String price) {
+    return '$price per person';
+  }
+
+  @override
+  String get eventsRsvpConfirmedBanner => 'You\'re registered for this event';
+
+  @override
+  String get eventsRsvpCancel => 'Cancel my registration';
+
+  @override
+  String eventsRsvpJoinPaid(String price) {
+    return 'Register - $price';
+  }
+
+  @override
+  String get eventsRsvpJoinFree => 'Register for free';
+
+  @override
+  String get eventsRsvpCancelled => 'Registration cancelled';
+
+  @override
+  String get eventsRsvpDone => 'Registration confirmed';
+
+  @override
+  String eventsShareMessage(String title) {
+    return 'Join me at \"$title\" on MAZL';
+  }
+
+  @override
+  String get navigationDiscover => 'Discover';
+
+  @override
+  String get navigationMatches => 'Matches';
+
+  @override
+  String get navigationMessages => 'Messages';
+
+  @override
+  String get navigationEvents => 'Events';
+
+  @override
+  String get navigationProfile => 'Profile';
+
+  @override
+  String get navigationShowTabs => 'Show tabs';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override

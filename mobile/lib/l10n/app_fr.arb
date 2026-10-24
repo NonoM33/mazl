@@ -116,6 +116,242 @@
   "@commonLoadError": {
     "description": "Titre d'un écran ou d'un bloc dont le chargement a échoué."
   },
+  "eventsTitle": "Événements",
+  "@eventsTitle": {
+    "description": "Titre de la liste des événements (soirées, cours, fêtes)."
+  },
+  "eventsCalendarTooltip": "Calendrier",
+  "@eventsCalendarTooltip": {
+    "description": "Liste des événements : info-bulle du bouton calendrier de la barre du haut."
+  },
+  "eventsFilterAll": "Tous",
+  "@eventsFilterAll": {
+    "description": "Liste des événements : puce de filtre qui montre tous les types."
+  },
+  "eventsFilterHolidays": "Fêtes",
+  "@eventsFilterHolidays": {
+    "description": "Liste des événements : puce de filtre des fêtes (pluriel)."
+  },
+  "eventsTypeShabbat": "Shabbat",
+  "@eventsTypeShabbat": {
+    "description": "Type d'événement : repas ou moment de Shabbat. Puce de filtre et badge d'une carte."
+  },
+  "eventsTypeShabbatDinner": "Shabbat Dinner",
+  "@eventsTypeShabbatDinner": {
+    "description": "Type d'événement : dîner de Shabbat. Badge de l'écran de détail."
+  },
+  "eventsTypeSpeedDating": "Speed Dating",
+  "@eventsTypeSpeedDating": {
+    "description": "Type d'événement : soirée de rencontres rapides (speed dating)."
+  },
+  "eventsTypeHoliday": "Fête",
+  "@eventsTypeHoliday": {
+    "description": "Type d'événement : fête juive. Badge d'une carte (singulier)."
+  },
+  "eventsTypeLecture": "Cours",
+  "@eventsTypeLecture": {
+    "description": "Type d'événement : cours ou conférence."
+  },
+  "eventsTypeSocial": "Social",
+  "@eventsTypeSocial": {
+    "description": "Type d'événement : rencontre conviviale."
+  },
+  "eventsTypeOther": "Événement",
+  "@eventsTypeOther": {
+    "description": "Type d'événement inconnu ou non classé."
+  },
+  "eventsLoading": "Chargement...",
+  "@eventsLoading": {
+    "description": "Liste des événements : petit texte du bandeau qui apparaît pendant un changement de filtre."
+  },
+  "eventsLoadError": "Impossible de charger les événements",
+  "@eventsLoadError": {
+    "description": "Liste des événements : message quand le chargement échoue et qu'il n'y a rien à montrer."
+  },
+  "eventsEmptyTitle": "Aucun événement",
+  "@eventsEmptyTitle": {
+    "description": "Liste des événements : titre de l'état vide."
+  },
+  "eventsEmptyHint": "Revenez bientôt pour découvrir\nde nouveaux événements.",
+  "@eventsEmptyHint": {
+    "description": "Liste des événements : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu)."
+  },
+  "eventsTomorrow": "Demain",
+  "@eventsTomorrow": {
+    "description": "Carte d'événement : « demain », en tête de la ligne de date et sur le badge."
+  },
+  "eventsInDays": "Dans {days}j",
+  "@eventsInDays": {
+    "description": "Carte d'événement : badge orange qui annonce un événement dans quelques jours (2 ou 3). Très court, abrégé.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "eventsDateAtTime": "{date} à {time}",
+  "@eventsDateAtTime": {
+    "description": "Carte d'événement : la date puis l'heure. {date} est déjà écrite, par exemple « samedi 24 octobre » ou « Demain ».",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "samedi 24 octobre"
+      },
+      "time": {
+        "type": "String",
+        "example": "19:30"
+      }
+    }
+  },
+  "eventsFree": "Gratuit",
+  "@eventsFree": {
+    "description": "Événement gratuit : badge de prix et ligne Prix."
+  },
+  "eventsAttendeesCount": "{count, plural, =0{0 participants} one{{count} participant} other{{count} participants}}",
+  "@eventsAttendeesCount": {
+    "description": "Carte d'événement sans limite de places : nombre de participants.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "eventsAlmostFull": "Presque complet",
+  "@eventsAlmostFull": {
+    "description": "Carte et détail d'événement : petit badge orange quand il reste peu de places."
+  },
+  "eventsFull": "Complet",
+  "@eventsFull": {
+    "description": "Détail d'événement : badge rouge et bouton désactivé quand il n'y a plus de place."
+  },
+  "eventsNotFound": "Événement introuvable",
+  "@eventsNotFound": {
+    "description": "Détail d'événement : message quand l'événement n'existe plus ou ne charge pas."
+  },
+  "eventsInfoDate": "Date",
+  "@eventsInfoDate": {
+    "description": "Détail d'événement : petit libellé au-dessus de la date."
+  },
+  "eventsInfoTime": "Heure",
+  "@eventsInfoTime": {
+    "description": "Détail d'événement : petit libellé au-dessus de l'heure."
+  },
+  "eventsInfoPlace": "Lieu",
+  "@eventsInfoPlace": {
+    "description": "Détail d'événement : petit libellé au-dessus du lieu."
+  },
+  "eventsInfoParticipants": "Participants",
+  "@eventsInfoParticipants": {
+    "description": "Détail d'événement : petit libellé au-dessus du nombre de participants."
+  },
+  "eventsInfoPrice": "Prix",
+  "@eventsInfoPrice": {
+    "description": "Détail d'événement : petit libellé au-dessus du prix."
+  },
+  "eventsDescription": "Description",
+  "@eventsDescription": {
+    "description": "Détail d'événement : titre du texte de présentation."
+  },
+  "eventsCapacity": "{max, plural, one{{count} / {max} place} other{{count} / {max} places}}",
+  "@eventsCapacity": {
+    "description": "Détail d'événement avec places limitées : inscrits sur capacité, par exemple « 12 / 20 places ». Le pluriel suit la capacité.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "max": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "eventsRegisteredCount": "{count, plural, =0{0 inscrits} one{{count} inscrit} other{{count} inscrits}}",
+  "@eventsRegisteredCount": {
+    "description": "Détail d'événement sans limite de places : nombre de personnes inscrites.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "eventsPricePerPerson": "{price} par personne",
+  "@eventsPricePerPerson": {
+    "description": "Détail d'événement : le prix par personne. {price} est déjà formaté avec sa devise, par exemple « 25 € ».",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "25 €"
+      }
+    }
+  },
+  "eventsRsvpConfirmedBanner": "Vous êtes inscrit(e) à cet événement",
+  "@eventsRsvpConfirmedBanner": {
+    "description": "Détail d'événement : bandeau vert quand le membre est inscrit."
+  },
+  "eventsRsvpCancel": "Annuler mon inscription",
+  "@eventsRsvpCancel": {
+    "description": "Détail d'événement : bouton rouge qui annule l'inscription."
+  },
+  "eventsRsvpJoinPaid": "S'inscrire - {price}",
+  "@eventsRsvpJoinPaid": {
+    "description": "Détail d'événement payant : bouton d'inscription avec le prix. {price} est déjà formaté, par exemple « 25 € ».",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "25 €"
+      }
+    }
+  },
+  "eventsRsvpJoinFree": "S'inscrire gratuitement",
+  "@eventsRsvpJoinFree": {
+    "description": "Détail d'événement gratuit : bouton d'inscription."
+  },
+  "eventsRsvpCancelled": "Inscription annulée",
+  "@eventsRsvpCancelled": {
+    "description": "Message bref : l'inscription à l'événement est annulée."
+  },
+  "eventsRsvpDone": "Inscription confirmée",
+  "@eventsRsvpDone": {
+    "description": "Message bref : l'inscription à l'événement est confirmée."
+  },
+  "eventsShareMessage": "Rejoignez-moi à \"{title}\" sur MAZL",
+  "@eventsShareMessage": {
+    "description": "Message pré-écrit envoyé par le bouton Partager d'un événement. Les guillemets entourent le titre. MAZL est le nom de l'app.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Dîner de Shabbat"
+      }
+    }
+  },
+  "navigationDiscover": "Découvrir",
+  "@navigationDiscover": {
+    "description": "Barre d'onglets : onglet des profils à découvrir. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationMatches": "Matchs",
+  "@navigationMatches": {
+    "description": "Barre d'onglets : onglet des matchs. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationMessages": "Messages",
+  "@navigationMessages": {
+    "description": "Barre d'onglets : onglet des conversations. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationEvents": "Événements",
+  "@navigationEvents": {
+    "description": "Barre d'onglets : onglet des événements. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationProfile": "Profil",
+  "@navigationProfile": {
+    "description": "Barre d'onglets : onglet du profil du membre. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône."
+  },
+  "navigationShowTabs": "Afficher les onglets",
+  "@navigationShowTabs": {
+    "description": "Barre d'onglets repliée en pastille : ce que lit le lecteur d'écran pour la pastille qui déplie la barre."
+  },
   "settingsLanguage": "Langue",
   "@settingsLanguage": {
     "description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."

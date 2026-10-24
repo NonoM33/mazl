@@ -96,6 +96,177 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonLoadError => 'שגיאה בטעינה';
 
   @override
+  String get eventsTitle => 'אירועים';
+
+  @override
+  String get eventsCalendarTooltip => 'לוח שנה';
+
+  @override
+  String get eventsFilterAll => 'הכול';
+
+  @override
+  String get eventsFilterHolidays => 'חגים';
+
+  @override
+  String get eventsTypeShabbat => 'שבת';
+
+  @override
+  String get eventsTypeShabbatDinner => 'ארוחת שבת';
+
+  @override
+  String get eventsTypeSpeedDating => 'ספיד דייטינג';
+
+  @override
+  String get eventsTypeHoliday => 'חג';
+
+  @override
+  String get eventsTypeLecture => 'שיעור';
+
+  @override
+  String get eventsTypeSocial => 'חברתי';
+
+  @override
+  String get eventsTypeOther => 'אירוע';
+
+  @override
+  String get eventsLoading => 'טוען...';
+
+  @override
+  String get eventsLoadError => 'לא ניתן לטעון את האירועים';
+
+  @override
+  String get eventsEmptyTitle => 'אין אירועים';
+
+  @override
+  String get eventsEmptyHint => 'כדאי לחזור בקרוב\nכדי לגלות אירועים חדשים.';
+
+  @override
+  String get eventsTomorrow => 'מחר';
+
+  @override
+  String eventsInDays(int days) {
+    return 'בעוד $days ימים';
+  }
+
+  @override
+  String eventsDateAtTime(String date, String time) {
+    return '$date בשעה $time';
+  }
+
+  @override
+  String get eventsFree => 'חינם';
+
+  @override
+  String eventsAttendeesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתתפים',
+      two: 'שני משתתפים',
+      one: 'משתתף אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventsAlmostFull => 'כמעט מלא';
+
+  @override
+  String get eventsFull => 'מלא';
+
+  @override
+  String get eventsNotFound => 'האירוע לא נמצא';
+
+  @override
+  String get eventsInfoDate => 'תאריך';
+
+  @override
+  String get eventsInfoTime => 'שעה';
+
+  @override
+  String get eventsInfoPlace => 'מקום';
+
+  @override
+  String get eventsInfoParticipants => 'משתתפים';
+
+  @override
+  String get eventsInfoPrice => 'מחיר';
+
+  @override
+  String get eventsDescription => 'תיאור';
+
+  @override
+  String eventsCapacity(int count, int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: '$count / $max מקומות',
+      one: '$count / $max מקום',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventsRegisteredCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'נרשמו $count',
+      two: 'נרשמו שניים',
+      one: 'נרשם אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String eventsPricePerPerson(String price) {
+    return '$price לאדם';
+  }
+
+  @override
+  String get eventsRsvpConfirmedBanner => 'ההרשמה לאירוע אושרה';
+
+  @override
+  String get eventsRsvpCancel => 'ביטול ההרשמה';
+
+  @override
+  String eventsRsvpJoinPaid(String price) {
+    return 'הרשמה - $price';
+  }
+
+  @override
+  String get eventsRsvpJoinFree => 'הרשמה בחינם';
+
+  @override
+  String get eventsRsvpCancelled => 'ההרשמה בוטלה';
+
+  @override
+  String get eventsRsvpDone => 'ההרשמה אושרה';
+
+  @override
+  String eventsShareMessage(String title) {
+    return 'הצטרפו אליי ל\"$title\" ב-MAZL';
+  }
+
+  @override
+  String get navigationDiscover => 'גילוי';
+
+  @override
+  String get navigationMatches => 'התאמות';
+
+  @override
+  String get navigationMessages => 'הודעות';
+
+  @override
+  String get navigationEvents => 'אירועים';
+
+  @override
+  String get navigationProfile => 'פרופיל';
+
+  @override
+  String get navigationShowTabs => 'הצגת הלשוניות';
+
+  @override
   String get settingsLanguage => 'שפה';
 
   @override

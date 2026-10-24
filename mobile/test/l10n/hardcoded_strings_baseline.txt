@@ -103,10 +103,6 @@ lib/core/models/couple_models.dart | En couple
 lib/core/models/couple_models.dart | En train de dater
 lib/core/models/couple_models.dart | Fiancé(e)
 lib/core/models/couple_models.dart | Marié(e)
-lib/core/models/event.dart | $left places restantes
-lib/core/models/event.dart | Complet
-lib/core/models/event.dart | Gratuit
-lib/core/models/event.dart | Places illimitées
 lib/core/models/profile_labels.dart | Amitié d'abord
 lib/core/models/profile_labels.dart | Cacher strict
 lib/core/models/profile_labels.dart | Cacher strict
@@ -1130,67 +1126,6 @@ lib/presentation/features/couple/widgets/event_category.dart | Tout
 lib/presentation/features/couple/widgets/event_category.dart | Week-end
 lib/presentation/features/couple/widgets/event_category.dart | Week-end
 lib/presentation/features/couple/widgets/event_category.dart | Événement
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} / ${event.maxAttendees} places
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} inscrits
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Cours
-lib/presentation/features/events/screens/event_detail_screen.dart | Date
-lib/presentation/features/events/screens/event_detail_screen.dart | Description
-lib/presentation/features/events/screens/event_detail_screen.dart | EEEE d MMMM yyyy
-lib/presentation/features/events/screens/event_detail_screen.dart | Fête
-lib/presentation/features/events/screens/event_detail_screen.dart | Gratuit
-lib/presentation/features/events/screens/event_detail_screen.dart | Heure
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription annulée
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription confirmée
-lib/presentation/features/events/screens/event_detail_screen.dart | Lieu
-lib/presentation/features/events/screens/event_detail_screen.dart | Participants
-lib/presentation/features/events/screens/event_detail_screen.dart | Presque complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Prix
-lib/presentation/features/events/screens/event_detail_screen.dart | Rejoignez-moi à "${event.title}" sur MAZL
-lib/presentation/features/events/screens/event_detail_screen.dart | Retour
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire - ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire gratuitement
-lib/presentation/features/events/screens/event_detail_screen.dart | Shabbat Dinner
-lib/presentation/features/events/screens/event_detail_screen.dart | Social
-lib/presentation/features/events/screens/event_detail_screen.dart | Speed Dating
-lib/presentation/features/events/screens/event_detail_screen.dart | Vous êtes inscrit(e) à cet événement
-lib/presentation/features/events/screens/event_detail_screen.dart | } par personne
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement introuvable
-lib/presentation/features/events/screens/events_list_screen.dart |  : event.currency}
-lib/presentation/features/events/screens/events_list_screen.dart | ${_formatDate(event.date)}${event.time != null ? 
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.attendeeCount} participants
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/events_list_screen.dart | Aucun événement
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Calendrier
-lib/presentation/features/events/screens/events_list_screen.dart | Chargement...
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Dans ${event.date.difference(DateTime.now()).inDays}j
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | EEEE d MMMM
-lib/presentation/features/events/screens/events_list_screen.dart | Fête
-lib/presentation/features/events/screens/events_list_screen.dart | Fêtes
-lib/presentation/features/events/screens/events_list_screen.dart | Gratuit
-lib/presentation/features/events/screens/events_list_screen.dart | Impossible de charger les événements
-lib/presentation/features/events/screens/events_list_screen.dart | Presque complet
-lib/presentation/features/events/screens/events_list_screen.dart | Revenez bientôt pour découvrir\nde nouveaux événements.
-lib/presentation/features/events/screens/events_list_screen.dart | Réessayer
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Tous
-lib/presentation/features/events/screens/events_list_screen.dart | Événement
-lib/presentation/features/events/screens/events_list_screen.dart | Événements
 lib/presentation/features/likes/screens/likes_screen.dart | ${_formatLikesCount(data.totalCount)} personnes attendent votre réponse.
 lib/presentation/features/likes/screens/likes_screen.dart | ${profile.distance!.round()} km
 lib/presentation/features/likes/screens/likes_screen.dart | Anonyme
@@ -1352,12 +1287,6 @@ lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Act
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Calendrier
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Notre espace
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Événements
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Découvrir
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Matchs
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Messages
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Profil
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Événements
-lib/presentation/features/navigation/widgets/mazl_nav_bar.dart | Afficher les onglets
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | ${(index + 1).toString().padLeft(2, 
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | )} / ${total.toString().padLeft(2, 
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | AI Shadchan
