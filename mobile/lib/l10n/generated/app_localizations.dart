@@ -560,6 +560,90 @@ abstract class AppLocalizations {
   /// **'Langue du téléphone'**
   String get settingsLanguageSystem;
 
+  /// Titre de l'écran des réglages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get settingsTitle;
+
+  /// Réglages : titre de la section qui regroupe le profil, l'e-mail et la langue. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get settingsSectionAccount;
+
+  /// Réglages, ligne qui ouvre la modification du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le profil'**
+  String get settingsEditProfile;
+
+  /// Réglages, ligne qui montre l'adresse e-mail du compte (le libellé, pas l'adresse).
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get settingsEmail;
+
+  /// Réglages : texte à la place de l'adresse e-mail quand aucun compte n'est connecté.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non connecté'**
+  String get settingsNotSignedIn;
+
+  /// Réglages : nom affiché en tête de l'écran quand le profil n'a pas de nom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get settingsDefaultUserName;
+
+  /// Réglages : titre de la section des préférences de recherche (lieu, distance, âge). Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découverte'**
+  String get settingsSectionDiscovery;
+
+  /// Réglages : ligne et titre de la feuille où l'on choisit sa ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localisation'**
+  String get settingsLocation;
+
+  /// Réglages : sous-titre de la ligne Localisation quand aucune ville n'est choisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non défini'**
+  String get settingsLocationNotSet;
+
+  /// Réglages : ligne et titre de la feuille où l'on règle la distance maximale des profils proposés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance maximale'**
+  String get settingsMaxDistance;
+
+  /// Une distance en kilomètres, par exemple « 50 km ». Sous-titre de la ligne et grand chiffre de la feuille.
+  ///
+  /// In fr, this message translates to:
+  /// **'{distance} km'**
+  String settingsDistanceKm(int distance);
+
+  /// Réglages : ligne et titre de la feuille où l'on règle l'âge minimal et maximal des profils proposés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranche d\'âge'**
+  String get settingsAgeRange;
+
+  /// Une tranche d'âge, par exemple « 25 - 35 ans ». Sous-titre de la ligne et grand chiffre de la feuille.
+  ///
+  /// In fr, this message translates to:
+  /// **'{min} - {max} ans'**
+  String settingsAgeRangeValue(int min, int max);
+
+  /// Réglages : titre de la section Shabbat et fêtes. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres juifs'**
+  String get settingsSectionJewish;
+
   /// Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom.
   ///
   /// In fr, this message translates to:
@@ -572,6 +656,90 @@ abstract class AppLocalizations {
   /// **'Pause automatique'**
   String get settingsShabbatAutoPause;
 
+  /// Réglages : interrupteur qui prévient avant les fêtes juives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes fêtes'**
+  String get settingsHolidayAlerts;
+
+  /// Réglages : sous-titre de l'interrupteur Alertes fêtes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications avant les fêtes'**
+  String get settingsHolidayAlertsHint;
+
+  /// Réglages : titre de la section des notifications. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get settingsSectionNotifications;
+
+  /// Réglages : interrupteur des notifications de nouveaux matchs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux matchs'**
+  String get settingsNotifMatches;
+
+  /// Réglages : interrupteur des notifications de messages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages'**
+  String get settingsNotifMessages;
+
+  /// Réglages : interrupteur des notifications de Super Likes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Likes'**
+  String get settingsNotifSuperLikes;
+
+  /// Réglages : titre de la section qui contient la carte du mode couple. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Couple'**
+  String get settingsSectionCouple;
+
+  /// Réglages : titre de la section de l'abonnement mazl+. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get settingsSectionSubscription;
+
+  /// Réglages : ligne qui retrouve les achats déjà faits avec le même compte de la boutique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer les achats'**
+  String get settingsRestorePurchases;
+
+  /// Message bref : les achats ont bien été restaurés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achats restaurés avec succès.'**
+  String get settingsRestoreSuccess;
+
+  /// Message bref : la restauration des achats a échoué, le membre peut réessayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'La restauration des achats a échoué. Réessayez.'**
+  String get settingsRestoreError;
+
+  /// Détail de l'abonnement, après la durée de la formule : date du prochain renouvellement. Exemple : « 6 mois · renouvellement le 12 mars 2027 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'renouvellement le {date}'**
+  String settingsSubscriptionRenewsOn(DateTime date);
+
+  /// Détail de l'abonnement quand il ne se renouvelle pas : date de fin. Exemple : « 6 mois · jusqu’au 12 mars 2027 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'jusqu’au {date}'**
+  String settingsSubscriptionEndsOn(DateTime date);
+
+  /// Réglages : titre de la section confidentialité (personnes bloquées, vérification du profil). Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité et sécurité'**
+  String get settingsSectionPrivacy;
+
   /// Titre de l'écran et ligne des réglages qui listent les personnes que le membre a bloquées.
   ///
   /// In fr, this message translates to:
@@ -583,6 +751,276 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Gérer les personnes bloquées'**
   String get settingsBlockedUsersHint;
+
+  /// Réglages : ligne qui ouvre la vérification du profil (photo de contrôle).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification du profil'**
+  String get settingsProfileVerification;
+
+  /// Réglages : sous-titre de la vérification quand le profil est vérifié.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifié'**
+  String get settingsVerified;
+
+  /// Réglages : sous-titre de la vérification quand le profil n'est pas encore vérifié.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non vérifié'**
+  String get settingsNotVerified;
+
+  /// Réglages : titre de la section d'informations (aide, conditions, version). Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get settingsSectionAbout;
+
+  /// Réglages : ligne d'aide et de support.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide et support'**
+  String get settingsHelp;
+
+  /// Réglages : ligne des conditions d'utilisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d\'utilisation'**
+  String get settingsTerms;
+
+  /// Réglages : ligne de la politique de confidentialité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get settingsPrivacyPolicy;
+
+  /// Réglages : ligne qui montre le numéro de version de l'app (le libellé, pas le numéro).
+  ///
+  /// In fr, this message translates to:
+  /// **'Version'**
+  String get settingsVersion;
+
+  /// Bouton en bas des réglages, titre et bouton de confirmation de la feuille de déconnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get settingsLogOut;
+
+  /// Feuille de déconnexion : la question posée avant de se déconnecter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment vous déconnecter ?'**
+  String get settingsLogOutMessage;
+
+  /// Bouton discret en bas des réglages et titre de la première feuille de suppression du compte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte'**
+  String get settingsDeleteAccount;
+
+  /// Suppression du compte, première feuille : la question sur la raison du départ.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi souhaitez-vous nous quitter ?'**
+  String get settingsDeleteReasonPrompt;
+
+  /// Suppression du compte : raison « le membre a trouvé quelqu'un ».
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai trouvé quelqu\'un'**
+  String get settingsDeleteReasonFoundSomeone;
+
+  /// Suppression du compte : raison « le membre n'utilise plus l'app ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'utilise plus l\'application'**
+  String get settingsDeleteReasonNoLongerUsing;
+
+  /// Suppression du compte : raison « le membre veut faire une pause ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Je souhaite faire une pause'**
+  String get settingsDeleteReasonBreak;
+
+  /// Suppression du compte : raison « problèmes techniques ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Problèmes techniques'**
+  String get settingsDeleteReasonTechnical;
+
+  /// Suppression du compte : raison « le service ne convient pas ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service ne me convient pas'**
+  String get settingsDeleteReasonService;
+
+  /// Suppression du compte : raison « autre ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre raison'**
+  String get settingsDeleteReasonOther;
+
+  /// Suppression du compte, seconde feuille : titre de la confirmation finale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmation finale'**
+  String get settingsDeleteFinalTitle;
+
+  /// Suppression du compte, confirmation finale : avertissement en rouge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action est irréversible.'**
+  String get settingsDeleteIrreversible;
+
+  /// Suppression du compte, confirmation finale : la liste de ce qui sera effacé. Les retours à la ligne et les puces « • » sont voulus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres'**
+  String get settingsDeleteDataList;
+
+  /// Suppression du compte, confirmation finale : bouton qui renonce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder mon compte'**
+  String get settingsDeleteKeep;
+
+  /// Message bref : la suppression du compte a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la suppression'**
+  String get settingsDeleteError;
+
+  /// Feuille Localisation : texte grisé du champ de recherche de ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une ville...'**
+  String get settingsCitySearchHint;
+
+  /// Feuille Localisation : phrase d'aide sous le champ de recherche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le nom de votre ville et sélectionnez une suggestion'**
+  String get settingsCitySearchHelp;
+
+  /// Message bref : les réglages (ville, distance, âge) ont été enregistrés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres sauvegardés'**
+  String get settingsSaved;
+
+  /// Titre de la feuille de sortie du mode couple et bouton de la carte du mode couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter le mode couple'**
+  String get settingsCoupleLeave;
+
+  /// Feuille de sortie du mode couple : rassurance, le mode peut être réactivé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pourrez le réactiver plus tard si vous le souhaitez.'**
+  String get settingsCoupleLeaveMessage;
+
+  /// Feuille de sortie du mode couple : bouton rouge qui confirme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get settingsCoupleLeaveConfirm;
+
+  /// Message bref : le mode couple est terminé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode couple quitté'**
+  String get settingsCoupleLeft;
+
+  /// Message bref : la sortie du mode couple a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de quitter le mode couple. Réessayez.'**
+  String get settingsCoupleLeaveError;
+
+  /// Message bref : l'annulation de la demande de couple a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'annuler la demande. Réessayez.'**
+  String get settingsCoupleCancelRequestError;
+
+  /// Carte du mode couple : titre quand le couple est actif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode couple actif'**
+  String get settingsCoupleActive;
+
+  /// Carte du mode couple, sous le titre : avec qui le membre est en couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec {name}'**
+  String settingsCoupleWithPartner(String name);
+
+  /// Carte du mode couple, sous le titre, quand le prénom du partenaire est inconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec votre partenaire'**
+  String get settingsCoupleWithYourPartner;
+
+  /// Carte du mode couple : bouton qui ouvre l'espace du couple. Une seule ligne, environ 15 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace couple'**
+  String get settingsCoupleOpenSpace;
+
+  /// Carte du mode couple : bouton qui ouvre le calendrier. Une seule ligne, environ 12 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calendrier'**
+  String get settingsCoupleOpenCalendar;
+
+  /// Carte du mode couple : le couple vient d'être formé aujourd'hui. Suit « Avec Myriam · ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis aujourd\'hui'**
+  String get settingsCoupleSinceToday;
+
+  /// Carte du mode couple : depuis combien de jours le couple existe (au moins 1). Suit « Avec Myriam · ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{days, plural, one{{days} jour} other{{days} jours}}'**
+  String settingsCoupleDays(int days);
+
+  /// Carte du mode couple : titre quand une demande est partie et que le prénom du destinataire est inconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get settingsCoupleRequestSent;
+
+  /// Carte du mode couple : titre quand une demande est partie vers une personne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée à {name}'**
+  String settingsCoupleRequestSentTo(String name);
+
+  /// Carte du mode couple, sous le titre : la personne n'a pas encore répondu.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de sa réponse'**
+  String get settingsCoupleWaiting;
+
+  /// Carte du mode couple : bouton qui retire la demande envoyée. Une seule ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la demande'**
+  String get settingsCoupleCancelRequest;
+
+  /// Carte du mode couple : question d'invitation à activer le mode quand aucun couple n'existe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez trouvé l\'amour ?'**
+  String get settingsCoupleInvitation;
+
+  /// Carte du mode couple : bouton qui commence l'activation du mode couple. Environ 10 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get settingsCoupleActivate;
 
   /// Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu.
   ///

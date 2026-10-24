@@ -271,16 +271,283 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguageSystem => 'Язык телефона';
 
   @override
+  String get settingsTitle => 'Настройки';
+
+  @override
+  String get settingsSectionAccount => 'Аккаунт';
+
+  @override
+  String get settingsEditProfile => 'Изменить профиль';
+
+  @override
+  String get settingsEmail => 'Эл. почта';
+
+  @override
+  String get settingsNotSignedIn => 'Вход не выполнен';
+
+  @override
+  String get settingsDefaultUserName => 'Пользователь';
+
+  @override
+  String get settingsSectionDiscovery => 'Поиск';
+
+  @override
+  String get settingsLocation => 'Местоположение';
+
+  @override
+  String get settingsLocationNotSet => 'Не задано';
+
+  @override
+  String get settingsMaxDistance => 'Максимальное расстояние';
+
+  @override
+  String settingsDistanceKm(int distance) {
+    final intl.NumberFormat distanceNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String distanceString = distanceNumberFormat.format(distance);
+
+    return '$distanceString км';
+  }
+
+  @override
+  String get settingsAgeRange => 'Возрастной диапазон';
+
+  @override
+  String settingsAgeRangeValue(int min, int max) {
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String minString = minNumberFormat.format(min);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String maxString = maxNumberFormat.format(max);
+
+    return '$minString - $maxString лет';
+  }
+
+  @override
+  String get settingsSectionJewish => 'Еврейские настройки';
+
+  @override
   String get settingsShabbatMode => 'Режим Шаббата';
 
   @override
   String get settingsShabbatAutoPause => 'Автопауза';
 
   @override
+  String get settingsHolidayAlerts => 'Уведомления о праздниках';
+
+  @override
+  String get settingsHolidayAlertsHint => 'Напоминания перед праздниками';
+
+  @override
+  String get settingsSectionNotifications => 'Уведомления';
+
+  @override
+  String get settingsNotifMatches => 'Новые совпадения';
+
+  @override
+  String get settingsNotifMessages => 'Сообщения';
+
+  @override
+  String get settingsNotifSuperLikes => 'Суперлайки';
+
+  @override
+  String get settingsSectionCouple => 'Режим пары';
+
+  @override
+  String get settingsSectionSubscription => 'Подписка';
+
+  @override
+  String get settingsRestorePurchases => 'Восстановить покупки';
+
+  @override
+  String get settingsRestoreSuccess => 'Покупки успешно восстановлены.';
+
+  @override
+  String get settingsRestoreError =>
+      'Не удалось восстановить покупки. Попробуйте ещё раз.';
+
+  @override
+  String settingsSubscriptionRenewsOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'продление $dateString';
+  }
+
+  @override
+  String settingsSubscriptionEndsOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'до $dateString';
+  }
+
+  @override
+  String get settingsSectionPrivacy => 'Конфиденциальность и безопасность';
+
+  @override
   String get settingsBlockedUsers => 'Заблокированные пользователи';
 
   @override
   String get settingsBlockedUsersHint => 'Управление заблокированными';
+
+  @override
+  String get settingsProfileVerification => 'Подтверждение профиля';
+
+  @override
+  String get settingsVerified => 'Подтверждён';
+
+  @override
+  String get settingsNotVerified => 'Не подтверждён';
+
+  @override
+  String get settingsSectionAbout => 'О приложении';
+
+  @override
+  String get settingsHelp => 'Помощь и поддержка';
+
+  @override
+  String get settingsTerms => 'Условия использования';
+
+  @override
+  String get settingsPrivacyPolicy => 'Политика конфиденциальности';
+
+  @override
+  String get settingsVersion => 'Версия';
+
+  @override
+  String get settingsLogOut => 'Выйти';
+
+  @override
+  String get settingsLogOutMessage => 'Вы действительно хотите выйти?';
+
+  @override
+  String get settingsDeleteAccount => 'Удалить аккаунт';
+
+  @override
+  String get settingsDeleteReasonPrompt => 'Почему Вы хотите уйти?';
+
+  @override
+  String get settingsDeleteReasonFoundSomeone => 'У меня появилась пара';
+
+  @override
+  String get settingsDeleteReasonNoLongerUsing =>
+      'Я больше не пользуюсь приложением';
+
+  @override
+  String get settingsDeleteReasonBreak => 'Хочу сделать паузу';
+
+  @override
+  String get settingsDeleteReasonTechnical => 'Технические проблемы';
+
+  @override
+  String get settingsDeleteReasonService => 'Сервис мне не подходит';
+
+  @override
+  String get settingsDeleteReasonOther => 'Другая причина';
+
+  @override
+  String get settingsDeleteFinalTitle => 'Окончательное подтверждение';
+
+  @override
+  String get settingsDeleteIrreversible => 'Это действие необратимо.';
+
+  @override
+  String get settingsDeleteDataList =>
+      'Все Ваши данные будут удалены:\n• Ваш профиль и фотографии\n• Ваши совпадения и переписки\n• История лайков\n• Ваши настройки';
+
+  @override
+  String get settingsDeleteKeep => 'Оставить аккаунт';
+
+  @override
+  String get settingsDeleteError => 'Не удалось удалить аккаунт';
+
+  @override
+  String get settingsCitySearchHint => 'Найти город...';
+
+  @override
+  String get settingsCitySearchHelp =>
+      'Введите название города и выберите подсказку';
+
+  @override
+  String get settingsSaved => 'Настройки сохранены';
+
+  @override
+  String get settingsCoupleLeave => 'Выйти из режима пары';
+
+  @override
+  String get settingsCoupleLeaveMessage =>
+      'Позже Вы сможете включить его снова.';
+
+  @override
+  String get settingsCoupleLeaveConfirm => 'Выйти';
+
+  @override
+  String get settingsCoupleLeft => 'Режим пары отключён';
+
+  @override
+  String get settingsCoupleLeaveError =>
+      'Не удалось выйти из режима пары. Попробуйте ещё раз.';
+
+  @override
+  String get settingsCoupleCancelRequestError =>
+      'Не удалось отменить запрос. Попробуйте ещё раз.';
+
+  @override
+  String get settingsCoupleActive => 'Режим пары включён';
+
+  @override
+  String settingsCoupleWithPartner(String name) {
+    return 'С $name';
+  }
+
+  @override
+  String get settingsCoupleWithYourPartner => 'С Вашим партнёром';
+
+  @override
+  String get settingsCoupleOpenSpace => 'Пространство пары';
+
+  @override
+  String get settingsCoupleOpenCalendar => 'Календарь';
+
+  @override
+  String get settingsCoupleSinceToday => 'С сегодняшнего дня';
+
+  @override
+  String settingsCoupleDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days дня',
+      many: '$days дней',
+      few: '$days дня',
+      one: '$days день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsCoupleRequestSent => 'Запрос отправлен';
+
+  @override
+  String settingsCoupleRequestSentTo(String name) {
+    return 'Запрос отправлен: $name';
+  }
+
+  @override
+  String get settingsCoupleWaiting => 'Ожидаем ответа';
+
+  @override
+  String get settingsCoupleCancelRequest => 'Отменить запрос';
+
+  @override
+  String get settingsCoupleInvitation => 'Вы нашли любовь?';
+
+  @override
+  String get settingsCoupleActivate => 'Включить';
 
   @override
   String get settingsShabbatCity => 'По Парижу, Франция';

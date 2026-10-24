@@ -1620,122 +1620,29 @@ lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | 
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Montrez aux autres ce que vous recherchez
-lib/presentation/features/settings/screens/settings_screen.dart | $_ageMin - $_ageMax ans
-lib/presentation/features/settings/screens/settings_screen.dart | $_distanceMax km
-lib/presentation/features/settings/screens/settings_screen.dart | ${revenueCat.willRenew ? 
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempDistance.round()} km
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempRange.start.round()} - ${tempRange.end.round()} ans
 lib/presentation/features/settings/screens/settings_screen.dart | - ID ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | Abonnement
-lib/presentation/features/settings/screens/settings_screen.dart | Achats restaurés avec succès.
 lib/presentation/features/settings/screens/settings_screen.dart | Activer Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Aide et support
-lib/presentation/features/settings/screens/settings_screen.dart | Alertes fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Autre raison
-lib/presentation/features/settings/screens/settings_screen.dart | Cette action est irréversible.
-lib/presentation/features/settings/screens/settings_screen.dart | Compte
-lib/presentation/features/settings/screens/settings_screen.dart | Conditions d\'utilisation
-lib/presentation/features/settings/screens/settings_screen.dart | Confidentialité et sécurité
-lib/presentation/features/settings/screens/settings_screen.dart | Confirmation finale
-lib/presentation/features/settings/screens/settings_screen.dart | Continuer
 lib/presentation/features/settings/screens/settings_screen.dart | Couple ID: ${activeCouple[
 lib/presentation/features/settings/screens/settings_screen.dart | Debug (Dev Only)
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Découverte
 lib/presentation/features/settings/screens/settings_screen.dart | Désactiver Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Email
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur lors de la suppression
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Garder mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Gérer les personnes bloquées
 lib/presentation/features/settings/screens/settings_screen.dart | Historique (${allCouples.length} couples):
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible d'annuler la demande. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible de quitter le mode couple. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | J\'ai trouvé quelqu\'un
-lib/presentation/features/settings/screens/settings_screen.dart | Je n\'utilise plus l\'application
-lib/presentation/features/settings/screens/settings_screen.dart | Je souhaite faire une pause
-lib/presentation/features/settings/screens/settings_screen.dart | Le service ne me convient pas
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
 lib/presentation/features/settings/screens/settings_screen.dart | Menu Debug
-lib/presentation/features/settings/screens/settings_screen.dart | Messages
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Shabbat
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple activé
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple désactivé
-lib/presentation/features/settings/screens/settings_screen.dart | Mode couple quitté
-lib/presentation/features/settings/screens/settings_screen.dart | Modifier le profil
-lib/presentation/features/settings/screens/settings_screen.dart | Non connecté
-lib/presentation/features/settings/screens/settings_screen.dart | Non défini
-lib/presentation/features/settings/screens/settings_screen.dart | Non vérifié
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications avant les fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Nouveaux matchs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres juifs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres sauvegardés
 lib/presentation/features/settings/screens/settings_screen.dart | Partner: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Pause automatique
-lib/presentation/features/settings/screens/settings_screen.dart | Politique de confidentialité
-lib/presentation/features/settings/screens/settings_screen.dart | Pourquoi souhaitez-vous nous quitter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Problèmes techniques
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter le mode couple
-lib/presentation/features/settings/screens/settings_screen.dart | Rechercher une ville...
 lib/presentation/features/settings/screens/settings_screen.dart | Refusé par le serveur
 lib/presentation/features/settings/screens/settings_screen.dart | Reset Swipes
-lib/presentation/features/settings/screens/settings_screen.dart | Restaurer les achats
-lib/presentation/features/settings/screens/settings_screen.dart | Saisissez le nom de votre ville et sélectionnez une suggestion
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple (Debug)
 lib/presentation/features/settings/screens/settings_screen.dart | Status: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Super Likes
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
 lib/presentation/features/settings/screens/settings_screen.dart | Swipes reset
-lib/presentation/features/settings/screens/settings_screen.dart | Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
 lib/presentation/features/settings/screens/settings_screen.dart | User ID: $userId
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/settings_screen.dart | Version
-lib/presentation/features/settings/screens/settings_screen.dart | Voulez-vous vraiment vous déconnecter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Vous pourrez le réactiver plus tard si vous le souhaitez.
-lib/presentation/features/settings/screens/settings_screen.dart | Vérification du profil
-lib/presentation/features/settings/screens/settings_screen.dart | Vérifié
 lib/presentation/features/settings/screens/settings_screen.dart | ]} (partner: ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | À propos
-lib/presentation/features/settings/widgets/settings_couple_card.dart | $days jours
-lib/presentation/features/settings/widgets/settings_couple_card.dart | 1 jour
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Activer
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Annuler la demande
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Avec ${couple.partnerName ?? 
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Calendrier
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée à $name
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Depuis aujourd'hui
-lib/presentation/features/settings/widgets/settings_couple_card.dart | En attente de sa réponse
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Espace couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Mode couple actif
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Quitter le mode couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Vous avez trouvé l'amour ?
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Annuler
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Autoriser la caméra
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra indisponible

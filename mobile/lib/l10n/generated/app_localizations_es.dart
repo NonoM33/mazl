@@ -276,16 +276,280 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsLanguageSystem => 'Idioma del teléfono';
 
   @override
+  String get settingsTitle => 'Ajustes';
+
+  @override
+  String get settingsSectionAccount => 'Cuenta';
+
+  @override
+  String get settingsEditProfile => 'Editar perfil';
+
+  @override
+  String get settingsEmail => 'Correo electrónico';
+
+  @override
+  String get settingsNotSignedIn => 'Sin sesión iniciada';
+
+  @override
+  String get settingsDefaultUserName => 'Usuario';
+
+  @override
+  String get settingsSectionDiscovery => 'Descubrir';
+
+  @override
+  String get settingsLocation => 'Ubicación';
+
+  @override
+  String get settingsLocationNotSet => 'Sin definir';
+
+  @override
+  String get settingsMaxDistance => 'Distancia máxima';
+
+  @override
+  String settingsDistanceKm(int distance) {
+    final intl.NumberFormat distanceNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String distanceString = distanceNumberFormat.format(distance);
+
+    return '$distanceString km';
+  }
+
+  @override
+  String get settingsAgeRange => 'Rango de edad';
+
+  @override
+  String settingsAgeRangeValue(int min, int max) {
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String minString = minNumberFormat.format(min);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String maxString = maxNumberFormat.format(max);
+
+    return '$minString - $maxString años';
+  }
+
+  @override
+  String get settingsSectionJewish => 'Ajustes judíos';
+
+  @override
   String get settingsShabbatMode => 'Modo Shabat';
 
   @override
   String get settingsShabbatAutoPause => 'Pausa automática';
 
   @override
+  String get settingsHolidayAlerts => 'Alertas de fiestas';
+
+  @override
+  String get settingsHolidayAlertsHint => 'Avisos antes de las fiestas';
+
+  @override
+  String get settingsSectionNotifications => 'Notificaciones';
+
+  @override
+  String get settingsNotifMatches => 'Nuevos matches';
+
+  @override
+  String get settingsNotifMessages => 'Mensajes';
+
+  @override
+  String get settingsNotifSuperLikes => 'Super Likes';
+
+  @override
+  String get settingsSectionCouple => 'Modo Pareja';
+
+  @override
+  String get settingsSectionSubscription => 'Suscripción';
+
+  @override
+  String get settingsRestorePurchases => 'Restaurar compras';
+
+  @override
+  String get settingsRestoreSuccess => 'Compras restauradas correctamente.';
+
+  @override
+  String get settingsRestoreError =>
+      'No se pudieron restaurar las compras. Inténtalo de nuevo.';
+
+  @override
+  String settingsSubscriptionRenewsOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'se renueva el $dateString';
+  }
+
+  @override
+  String settingsSubscriptionEndsOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'hasta el $dateString';
+  }
+
+  @override
+  String get settingsSectionPrivacy => 'Privacidad y seguridad';
+
+  @override
   String get settingsBlockedUsers => 'Usuarios bloqueados';
 
   @override
   String get settingsBlockedUsersHint => 'Gestionar las personas bloqueadas';
+
+  @override
+  String get settingsProfileVerification => 'Verificación del perfil';
+
+  @override
+  String get settingsVerified => 'Verificado';
+
+  @override
+  String get settingsNotVerified => 'Sin verificar';
+
+  @override
+  String get settingsSectionAbout => 'Acerca de';
+
+  @override
+  String get settingsHelp => 'Ayuda y soporte';
+
+  @override
+  String get settingsTerms => 'Condiciones de uso';
+
+  @override
+  String get settingsPrivacyPolicy => 'Política de privacidad';
+
+  @override
+  String get settingsVersion => 'Versión';
+
+  @override
+  String get settingsLogOut => 'Cerrar sesión';
+
+  @override
+  String get settingsLogOutMessage => '¿Seguro que quieres cerrar sesión?';
+
+  @override
+  String get settingsDeleteAccount => 'Eliminar mi cuenta';
+
+  @override
+  String get settingsDeleteReasonPrompt => '¿Por qué quieres dejarnos?';
+
+  @override
+  String get settingsDeleteReasonFoundSomeone => 'He encontrado a alguien';
+
+  @override
+  String get settingsDeleteReasonNoLongerUsing => 'Ya no uso la aplicación';
+
+  @override
+  String get settingsDeleteReasonBreak => 'Quiero tomarme un descanso';
+
+  @override
+  String get settingsDeleteReasonTechnical => 'Problemas técnicos';
+
+  @override
+  String get settingsDeleteReasonService => 'El servicio no es lo que busco';
+
+  @override
+  String get settingsDeleteReasonOther => 'Otro motivo';
+
+  @override
+  String get settingsDeleteFinalTitle => 'Confirmación final';
+
+  @override
+  String get settingsDeleteIrreversible => 'Esta acción es irreversible.';
+
+  @override
+  String get settingsDeleteDataList =>
+      'Se eliminarán todos tus datos:\n• Tu perfil y tus fotos\n• Tus matches y conversaciones\n• Tu historial de likes\n• Tus ajustes';
+
+  @override
+  String get settingsDeleteKeep => 'Conservar mi cuenta';
+
+  @override
+  String get settingsDeleteError => 'No se pudo eliminar la cuenta';
+
+  @override
+  String get settingsCitySearchHint => 'Buscar una ciudad...';
+
+  @override
+  String get settingsCitySearchHelp =>
+      'Escribe el nombre de tu ciudad y elige una sugerencia';
+
+  @override
+  String get settingsSaved => 'Ajustes guardados';
+
+  @override
+  String get settingsCoupleLeave => 'Salir del modo pareja';
+
+  @override
+  String get settingsCoupleLeaveMessage =>
+      'Podrás volver a activarlo más tarde si quieres.';
+
+  @override
+  String get settingsCoupleLeaveConfirm => 'Salir';
+
+  @override
+  String get settingsCoupleLeft => 'Has salido del modo pareja';
+
+  @override
+  String get settingsCoupleLeaveError =>
+      'No se pudo salir del modo pareja. Inténtalo de nuevo.';
+
+  @override
+  String get settingsCoupleCancelRequestError =>
+      'No se pudo cancelar la solicitud. Inténtalo de nuevo.';
+
+  @override
+  String get settingsCoupleActive => 'Modo pareja activo';
+
+  @override
+  String settingsCoupleWithPartner(String name) {
+    return 'Con $name';
+  }
+
+  @override
+  String get settingsCoupleWithYourPartner => 'Con tu pareja';
+
+  @override
+  String get settingsCoupleOpenSpace => 'Espacio de pareja';
+
+  @override
+  String get settingsCoupleOpenCalendar => 'Calendario';
+
+  @override
+  String get settingsCoupleSinceToday => 'Desde hoy';
+
+  @override
+  String settingsCoupleDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days días',
+      one: '1 día',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsCoupleRequestSent => 'Solicitud enviada';
+
+  @override
+  String settingsCoupleRequestSentTo(String name) {
+    return 'Solicitud enviada a $name';
+  }
+
+  @override
+  String get settingsCoupleWaiting => 'Esperando su respuesta';
+
+  @override
+  String get settingsCoupleCancelRequest => 'Cancelar solicitud';
+
+  @override
+  String get settingsCoupleInvitation => '¿Has encontrado el amor?';
+
+  @override
+  String get settingsCoupleActivate => 'Activar';
 
   @override
   String get settingsShabbatCity => 'Basado en París, Francia';
