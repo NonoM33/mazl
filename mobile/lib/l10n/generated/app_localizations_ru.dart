@@ -464,6 +464,101 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguageSystem => 'Язык телефона';
 
   @override
+  String get shadchanTitle => 'Шадхан с ИИ';
+
+  @override
+  String get shadchanHeaderTitle => 'Ваш личный шадхан';
+
+  @override
+  String get shadchanHeaderBody =>
+      'Наш ИИ изучает Ваши предпочтения и предлагает очень подходящие профили';
+
+  @override
+  String get shadchanTodayTitle => 'Предложения на сегодня';
+
+  @override
+  String shadchanNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count новой',
+      many: '$count новых',
+      few: '$count новые',
+      one: '$count новая',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shadchanEmptyTitle => 'Вы просмотрели все предложения.';
+
+  @override
+  String get shadchanEmptyBody =>
+      'Возвращайтесь завтра за новыми предложениями от Вашего шадхана.';
+
+  @override
+  String get shadchanEmptyAction => 'Смотреть другие профили';
+
+  @override
+  String shadchanPassed(String name) {
+    return 'Вы пропустили $name';
+  }
+
+  @override
+  String shadchanLiked(String name) {
+    return 'Вы добавили $name в лайки';
+  }
+
+  @override
+  String get shadchanHowTitle => 'Как это работает?';
+
+  @override
+  String get shadchanHowStepAnalyze =>
+      'Наш ИИ изучает Ваш профиль и предпочтения';
+
+  @override
+  String get shadchanHowStepCompare =>
+      'Он сравнивает их с подходящими профилями';
+
+  @override
+  String get shadchanHowStepDaily =>
+      'Каждый день Вы получаете персональные предложения';
+
+  @override
+  String get shadchanWhy => 'Почему это предложение?';
+
+  @override
+  String get shadchanMatchBadge => 'Мэтч';
+
+  @override
+  String get shadchanReasonSamePractice => 'Одинаковый уровень соблюдения';
+
+  @override
+  String get shadchanReasonInterests =>
+      'Общие интересы: путешествия, кулинария';
+
+  @override
+  String get shadchanReasonGoals => 'Похожие цели';
+
+  @override
+  String get shadchanReasonFamily => 'Совпадающие семейные ценности';
+
+  @override
+  String get shadchanReasonMusic => 'Общая страсть к музыке';
+
+  @override
+  String get shadchanReasonLocation => 'Подходящие места проживания';
+
+  @override
+  String get shadchanReasonReligion => 'Схожая религиозная практика';
+
+  @override
+  String get shadchanReasonProfession => 'Близкие сферы работы';
+
+  @override
+  String get shadchanReasonCouple => 'Одинаковый взгляд на отношения';
+
+  @override
   String get visitorsTitle => 'Кто посещал мой профиль';
 
   @override

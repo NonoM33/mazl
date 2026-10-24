@@ -860,6 +860,156 @@ abstract class AppLocalizations {
   /// **'Langue du téléphone'**
   String get settingsLanguageSystem;
 
+  /// Titre de la barre d'en-tête de l'écran des suggestions de l'IA. « Shadchan » signifie marieur, marieuse (entremetteur dans la tradition juive) ; garder le mot tel quel quand la langue l'utilise.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI Shadchan'**
+  String get shadchanTitle;
+
+  /// Titre dans l'en-tête dégradé de l'écran des suggestions de l'IA. « Shadchan » = marieur, marieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre Shadchan personnel'**
+  String get shadchanHeaderTitle;
+
+  /// Texte sous le titre de l'en-tête dégradé : ce que fait l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles'**
+  String get shadchanHeaderBody;
+
+  /// Titre de la section des suggestions du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestions du jour'**
+  String get shadchanTodayTitle;
+
+  /// Pastille à droite du titre de section (12 px) : combien de suggestions restent. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} nouvelle} other{{count} nouvelles}}'**
+  String shadchanNewCount(int count);
+
+  /// Titre de la carte affichée quand toutes les suggestions du jour ont été traitées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez parcouru toutes vos suggestions.'**
+  String get shadchanEmptyTitle;
+
+  /// Texte sous le titre de la carte « toutes les suggestions vues ». « Shadchan » = marieur, marieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez demain pour de nouvelles propositions de votre Shadchan.'**
+  String get shadchanEmptyBody;
+
+  /// Bouton de la carte « toutes les suggestions vues » : ouvre Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir plus de profils'**
+  String get shadchanEmptyAction;
+
+  /// Message bref après avoir passé une suggestion. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ignorée'**
+  String shadchanPassed(String name);
+
+  /// Message bref (fond vert) après avoir aimé une suggestion. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ajoutée à vos likes'**
+  String shadchanLiked(String name);
+
+  /// Titre de la carte qui explique le fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça marche ?'**
+  String get shadchanHowTitle;
+
+  /// Étape 1 du fonctionnement de l'IA (une ligne de 13 px, après un numéro).
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre IA analyse votre profil et vos préférences'**
+  String get shadchanHowStepAnalyze;
+
+  /// Étape 2 du fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle compare avec les profils compatibles'**
+  String get shadchanHowStepCompare;
+
+  /// Étape 3 du fonctionnement de l'IA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous recevez des suggestions personnalisées chaque jour'**
+  String get shadchanHowStepDaily;
+
+  /// Titre (12 px) du bloc vert qui liste les raisons d'une suggestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi cette suggestion ?'**
+  String get shadchanWhy;
+
+  /// Petit mot sous le pourcentage de compatibilité d'une suggestion (10 px). Mot d'usage des apps de rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match'**
+  String get shadchanMatchBadge;
+
+  /// Raison d'une suggestion : même niveau de pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même niveau de pratique'**
+  String get shadchanReasonSamePractice;
+
+  /// Raison d'une suggestion : centres d'intérêt communs (exemple : voyages et cuisine).
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts communs : voyages, cuisine'**
+  String get shadchanReasonInterests;
+
+  /// Raison d'une suggestion : objectifs de vie proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectifs similaires'**
+  String get shadchanReasonGoals;
+
+  /// Raison d'une suggestion : valeurs familiales proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeurs familiales alignées'**
+  String get shadchanReasonFamily;
+
+  /// Raison d'une suggestion : même passion pour la musique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passion commune pour la musique'**
+  String get shadchanReasonMusic;
+
+  /// Raison d'une suggestion : lieux de vie proches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zones de vie compatibles'**
+  String get shadchanReasonLocation;
+
+  /// Raison d'une suggestion : pratique religieuse proche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique religieuse similaire'**
+  String get shadchanReasonReligion;
+
+  /// Raison d'une suggestion : métiers dans le même secteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Secteur professionnel proche'**
+  String get shadchanReasonProfession;
+
+  /// Raison d'une suggestion : même idée de la vie de couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même vision du couple'**
+  String get shadchanReasonCouple;
+
   /// Titre de la barre d'en-tête de l'écran des visiteurs du profil.
   ///
   /// In fr, this message translates to:

@@ -575,38 +575,12 @@ lib/core/verification/chip/dmrtd_chip_reader.dart | timed out
 lib/core/verification/chip/dmrtd_chip_reader.dart | } ${error.details ?? 
 lib/core/verification/mrz/mrz_data.dart | ${(date.year % 100).toString().padLeft(2, 
 lib/core/verification/mrz/mrz_data.dart | MrzData(${format?.name ?? 
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${_suggestions.length} nouvelles
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${suggestion.name} ajoutée à vos likes
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${suggestion.name} ignorée
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | AI Shadchan
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Comment ça marche ?
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Découvrir plus de profils
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Elle compare avec les profils compatibles
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Intérêts communs : voyages, cuisine
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Leah
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Lyon
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Match
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Miriam
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Même niveau de pratique
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Même vision du couple
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Notre IA analyse votre profil et vos préférences
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Objectifs similaires
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Paris
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Paris
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Passer
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Passion commune pour la musique
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Pourquoi cette suggestion ?
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Pratique religieuse similaire
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Rachel
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Revenez demain pour de nouvelles propositions de votre Shadchan.
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Secteur professionnel proche
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Suggestions du jour
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Valeurs familiales alignées
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Votre Shadchan personnel
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous avez parcouru toutes vos suggestions.
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous recevez des suggestions personnalisées chaque jour
-lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Zones de vie compatibles
 lib/presentation/features/auth/screens/email_auth_screen.dart | Annuler
 lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins un chiffre
 lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins une majuscule

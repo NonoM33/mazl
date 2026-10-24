@@ -461,6 +461,95 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsLanguageSystem => 'שפת הטלפון';
 
   @override
+  String get shadchanTitle => 'השדכן הדיגיטלי';
+
+  @override
+  String get shadchanHeaderTitle => 'שידוכים אישיים בשבילך';
+
+  @override
+  String get shadchanHeaderBody =>
+      'הבינה המלאכותית שלנו בוחנת את ההעדפות שלך כדי להציע פרופילים תואמים מאוד';
+
+  @override
+  String get shadchanTodayTitle => 'הצעות להיום';
+
+  @override
+  String shadchanNewCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count חדשות',
+      one: '$count חדשה',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shadchanEmptyTitle => 'כל ההצעות נבדקו.';
+
+  @override
+  String get shadchanEmptyBody => 'כדאי לחזור מחר להצעות שידוך חדשות.';
+
+  @override
+  String get shadchanEmptyAction => 'לגלות עוד פרופילים';
+
+  @override
+  String shadchanPassed(String name) {
+    return 'ההצעה של $name הוסרה';
+  }
+
+  @override
+  String shadchanLiked(String name) {
+    return 'ההצעה של $name נוספה ללייקים שלך';
+  }
+
+  @override
+  String get shadchanHowTitle => 'איך זה עובד?';
+
+  @override
+  String get shadchanHowStepAnalyze =>
+      'הבינה המלאכותית שלנו בוחנת את הפרופיל וההעדפות שלך';
+
+  @override
+  String get shadchanHowStepCompare => 'היא משווה אותם לפרופילים תואמים';
+
+  @override
+  String get shadchanHowStepDaily => 'מדי יום מתקבלות הצעות מותאמות אישית';
+
+  @override
+  String get shadchanWhy => 'למה ההצעה הזו?';
+
+  @override
+  String get shadchanMatchBadge => 'מאץ\'';
+
+  @override
+  String get shadchanReasonSamePractice => 'אותה רמת שמירת מצוות';
+
+  @override
+  String get shadchanReasonInterests => 'תחומי עניין משותפים: טיולים, בישול';
+
+  @override
+  String get shadchanReasonGoals => 'מטרות דומות';
+
+  @override
+  String get shadchanReasonFamily => 'ערכי משפחה תואמים';
+
+  @override
+  String get shadchanReasonMusic => 'תשוקה משותפת למוזיקה';
+
+  @override
+  String get shadchanReasonLocation => 'אזורי מגורים תואמים';
+
+  @override
+  String get shadchanReasonReligion => 'אורח חיים דתי דומה';
+
+  @override
+  String get shadchanReasonProfession => 'תחומי עיסוק קרובים';
+
+  @override
+  String get shadchanReasonCouple => 'תפיסה זהה של זוגיות';
+
+  @override
   String get visitorsTitle => 'מי ביקר בפרופיל שלי';
 
   @override

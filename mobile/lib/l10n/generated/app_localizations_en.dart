@@ -457,6 +457,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageSystem => 'Phone language';
 
   @override
+  String get shadchanTitle => 'AI Shadchan';
+
+  @override
+  String get shadchanHeaderTitle => 'Your personal Shadchan';
+
+  @override
+  String get shadchanHeaderBody =>
+      'Our AI looks at your preferences to suggest highly compatible profiles';
+
+  @override
+  String get shadchanTodayTitle => 'Today\'s suggestions';
+
+  @override
+  String shadchanNewCount(int count) {
+    return '$count new';
+  }
+
+  @override
+  String get shadchanEmptyTitle => 'You\'ve been through all your suggestions.';
+
+  @override
+  String get shadchanEmptyBody =>
+      'Come back tomorrow for new suggestions from your Shadchan.';
+
+  @override
+  String get shadchanEmptyAction => 'Discover more profiles';
+
+  @override
+  String shadchanPassed(String name) {
+    return '$name skipped';
+  }
+
+  @override
+  String shadchanLiked(String name) {
+    return '$name added to your likes';
+  }
+
+  @override
+  String get shadchanHowTitle => 'How does it work?';
+
+  @override
+  String get shadchanHowStepAnalyze =>
+      'Our AI looks at your profile and preferences';
+
+  @override
+  String get shadchanHowStepCompare =>
+      'It compares them with compatible profiles';
+
+  @override
+  String get shadchanHowStepDaily =>
+      'You get personalized suggestions every day';
+
+  @override
+  String get shadchanWhy => 'Why this suggestion?';
+
+  @override
+  String get shadchanMatchBadge => 'Match';
+
+  @override
+  String get shadchanReasonSamePractice => 'Same level of observance';
+
+  @override
+  String get shadchanReasonInterests => 'Shared interests: travel, cooking';
+
+  @override
+  String get shadchanReasonGoals => 'Similar goals';
+
+  @override
+  String get shadchanReasonFamily => 'Aligned family values';
+
+  @override
+  String get shadchanReasonMusic => 'A shared passion for music';
+
+  @override
+  String get shadchanReasonLocation => 'Compatible places to live';
+
+  @override
+  String get shadchanReasonReligion => 'Similar religious practice';
+
+  @override
+  String get shadchanReasonProfession => 'Close professional fields';
+
+  @override
+  String get shadchanReasonCouple => 'The same vision of a relationship';
+
+  @override
   String get visitorsTitle => 'Who visited my profile';
 
   @override
