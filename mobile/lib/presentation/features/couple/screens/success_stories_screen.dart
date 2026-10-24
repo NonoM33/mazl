@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/services/api_service.dart';
+import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen displaying success stories from MAZL couples
 class SuccessStoriesScreen extends StatefulWidget {
@@ -106,7 +108,9 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
           statusDate: story.statusDate,
           matchDate: story.matchDate,
           submittedAt: story.submittedAt,
-          likesCount: story.isLikedByMe ? story.likesCount - 1 : story.likesCount + 1,
+          likesCount: story.isLikedByMe
+              ? story.likesCount - 1
+              : story.likesCount + 1,
           isLikedByMe: !story.isLikedByMe,
           isApproved: story.isApproved,
         );
@@ -118,7 +122,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
 
   void _shareStory(SuccessStory story) {
     Share.share(
-      '${story.couple1Name} et ${story.couple2Name} se sont rencontres sur MAZL ! ${story.statusEmoji} Leur histoire: ${story.story.substring(0, story.story.length.clamp(0, 100))}...',
+      '${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...',
     );
   }
 
@@ -126,7 +130,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Success Stories'),
+        title: const Text('Histoires de couples'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -135,24 +139,26 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? _buildError()
-              : _buildContent(),
+          ? _buildError()
+          : _buildContent(),
     );
   }
 
   Widget _buildError() {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(_error!, style: TextStyle(color: Colors.grey[600])),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _loadStories,
-            child: const Text('Reessayer'),
+          Icon(
+            LucideIcons.circleAlert,
+            size: 32,
+            color: scheme.onSurfaceVariant,
           ),
+          const SizedBox(height: 16),
+          Text(_error!, style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: 8),
+          TextButton(onPressed: _loadStories, child: const Text('Réessayer')),
         ],
       ),
     );
@@ -163,11 +169,12 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
       return _buildEmptyState();
     }
 
+    final bottom = MediaQuery.paddingOf(context).bottom;
     return RefreshIndicator(
       onRefresh: _loadStories,
       child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(24, 8, 24, bottom + 16),
         itemCount: _stories.length + (_isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _stories.length) {
@@ -190,44 +197,28 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              LucideIcons.heart,
-              size: 48,
-              color: AppColors.secondary,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Pas encore de success stories',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'Les premieres histoires d\'amour MAZL seront bientot partagees !',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(LucideIcons.heart, size: 32, color: scheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text(
+              'Pas encore d\'histoires de couples',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 14,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Les premières histoires d\'amour MAZL seront bientôt partagées.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -246,43 +237,43 @@ class _SuccessStoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final dateFormat = DateFormat('MMMM yyyy', 'fr_FR');
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(24),
+      ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with photos
-          Container(
+          Padding(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withOpacity(0.1),
-                  AppColors.secondary.withOpacity(0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
             child: Row(
               children: [
-                // Couple photos
                 SizedBox(
-                  width: 70,
-                  height: 50,
+                  width: 76,
+                  height: 48,
                   child: Stack(
                     children: [
                       Positioned(
                         left: 0,
-                        child: _buildPhotoCircle(story.couple1PhotoUrl),
+                        child: _buildPhotoCircle(
+                          context,
+                          story.couple1PhotoUrl,
+                          0,
+                        ),
                       ),
                       Positioned(
-                        left: 25,
-                        child: _buildPhotoCircle(story.couple2PhotoUrl),
+                        left: 28,
+                        child: _buildPhotoCircle(
+                          context,
+                          story.couple2PhotoUrl,
+                          1,
+                        ),
                       ),
                     ],
                   ),
@@ -294,41 +285,15 @@ class _SuccessStoryCard extends StatelessWidget {
                     children: [
                       Text(
                         '${story.couple1Name} & ${story.couple2Name}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(story.status),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${story.statusEmoji} ${story.statusLabel}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Depuis ${dateFormat.format(story.matchDate)}',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}',
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -349,18 +314,19 @@ class _SuccessStoryCard extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       child: Image.network(
                         story.photoUrls[index],
                         height: 200,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 150,
                           height: 200,
-                          color: Colors.grey[200],
-                          child: Icon(
+                          color: AppColors
+                              .photoTints[index % AppColors.photoTints.length],
+                          child: const Icon(
                             LucideIcons.image,
-                            color: Colors.grey[400],
+                            color: AppColors.textTertiaryLight,
                           ),
                         ),
                       ),
@@ -370,93 +336,31 @@ class _SuccessStoryCard extends StatelessWidget {
               ),
             ),
 
-          // Story text
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
               story.story,
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 14, height: 1.5),
               maxLines: 5,
               overflow: TextOverflow.ellipsis,
             ),
           ),
 
-          // Actions
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Row(
               children: [
-                // Like button
-                InkWell(
+                _ActionPill(
+                  icon: LucideIcons.heart,
+                  label: '${story.likesCount}',
+                  highlighted: story.isLikedByMe,
                   onTap: onLike,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: story.isLikedByMe
-                          ? AppColors.secondary.withOpacity(0.1)
-                          : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          story.isLikedByMe
-                              ? LucideIcons.heart
-                              : LucideIcons.heart,
-                          size: 18,
-                          color: story.isLikedByMe
-                              ? AppColors.secondary
-                              : Colors.grey[600],
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${story.likesCount}',
-                          style: TextStyle(
-                            color: story.isLikedByMe
-                                ? AppColors.secondary
-                                : Colors.grey[600],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
-                const SizedBox(width: 12),
-                // Share button
-                InkWell(
+                const SizedBox(width: 8),
+                _ActionPill(
+                  icon: LucideIcons.share2,
+                  label: 'Partager',
                   onTap: onShare,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          LucideIcons.share2,
-                          size: 18,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Partager',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -466,47 +370,63 @@ class _SuccessStoryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPhotoCircle(String? photoUrl) {
+  Widget _buildPhotoCircle(BuildContext context, String? photoUrl, int seed) {
     return Container(
-      width: 45,
-      height: 45,
+      width: 48,
+      height: 48,
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-          ),
-        ],
       ),
-      child: ClipOval(
-        child: photoUrl != null
-            ? Image.network(
-                photoUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: Colors.grey[300],
-                  child: Icon(LucideIcons.user, color: Colors.grey[400], size: 20),
-                ),
-              )
-            : Container(
-                color: Colors.grey[300],
-                child: Icon(LucideIcons.user, color: Colors.grey[400], size: 20),
-              ),
-      ),
+      child: ProfilePhoto(url: photoUrl, seed: seed, radius: 22, iconSize: 20),
     );
   }
+}
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'engaged':
-        return const Color(0xFF9B59B6);
-      case 'married':
-        return AppColors.accentGold;
-      default:
-        return AppColors.secondary;
-    }
+/// Bouton en pilule d'une carte d'histoire : fond blanc, contour filet ; le
+/// « j'aime » actif passe à l'accent.
+class _ActionPill extends StatelessWidget {
+  const _ActionPill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.highlighted = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = highlighted ? scheme.primary : scheme.onSurfaceVariant;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: highlighted ? scheme.primary : scheme.outline,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -515,12 +435,9 @@ class SubmitSuccessStoryDialog extends StatefulWidget {
   const SubmitSuccessStoryDialog({super.key});
 
   static Future<bool?> show(BuildContext context) {
-    return showModalBottomSheet<bool>(
-      context: context,
+    return showMazlSheet<bool>(
+      context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (context) => const SubmitSuccessStoryDialog(),
     );
   }
@@ -535,7 +452,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
   final _apiService = ApiService();
   String _selectedStatus = 'dating';
   DateTime? _statusDate;
-  List<String> _photoUrls = [];
+  final List<String> _photoUrls = [];
   bool _isSubmitting = false;
 
   @override
@@ -548,8 +465,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
     if (_storyController.text.length < 100) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Votre histoire doit faire au moins 100 caracteres'),
-          backgroundColor: Colors.orange,
+          content: Text('Votre histoire doit faire au moins 100 caractères'),
         ),
       );
       return;
@@ -571,8 +487,9 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content:
-                Text('Merci ! Votre histoire sera publiee apres validation.'),
+            content: Text(
+              'Merci. Votre histoire sera publiée après validation.',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -580,7 +497,7 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result.error ?? 'Erreur lors de l\'envoi'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -589,168 +506,102 @@ class _SubmitSuccessStoryDialogState extends State<SubmitSuccessStoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        24,
-        24,
-        MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Partagez votre histoire', style: textTheme.headlineSmall),
+          const SizedBox(height: 8),
+          Text(
+            'Inspirez la communauté MAZL en partageant votre histoire.',
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 24),
 
-            // Title
-            const Row(
+          const SectionLabel('Votre statut'),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _buildStatusChip('dating', 'En couple'),
+              _buildStatusChip('engaged', 'Fiancés'),
+              _buildStatusChip('married', 'Mariés'),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          const SectionLabel('Votre histoire (min. 100 caractères)'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _storyController,
+            maxLines: 5,
+            maxLength: 1000,
+            decoration: const InputDecoration(
+              hintText:
+                  'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…',
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          const SectionLabel('Photos (optionnel)'),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              border: Border.all(color: scheme.outline),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
               children: [
-                Icon(LucideIcons.heart, color: AppColors.secondary),
-                SizedBox(width: 8),
+                Icon(
+                  LucideIcons.camera,
+                  color: scheme.onSurfaceVariant,
+                  size: 28,
+                ),
+                const SizedBox(height: 8),
                 Text(
-                  'Partagez votre histoire',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Ajoutez des photos de couple',
+                  style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Inspirez la communaute MAZL en partageant votre success story !',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 24),
 
-            // Status selection
-            const Text(
-              'Votre statut',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _buildStatusChip('dating', 'En couple', '❤️'),
-                _buildStatusChip('engaged', 'Fiances', '💍'),
-                _buildStatusChip('married', 'Maries', '👰'),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Story text
-            const Text(
-              'Votre histoire (min. 100 caracteres)',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _storyController,
-              maxLines: 5,
-              maxLength: 1000,
-              decoration: InputDecoration(
-                hintText:
-                    'Comment vous etes-vous rencontres ? Qu\'est-ce qui vous a plu chez l\'autre ?...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Photo upload (placeholder)
-            const Text(
-              'Photos (optionnel)',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(LucideIcons.camera, color: Colors.grey[400], size: 32),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Ajoutez des photos de couple',
-                      style: TextStyle(color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Submit button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Soumettre notre histoire',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: scheme.surface,
                       ),
-              ),
+                    )
+                  : const Text('Soumettre notre histoire'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatusChip(String value, String label, String emoji) {
-    final isSelected = _selectedStatus == value;
-
+  Widget _buildStatusChip(String value, String label) {
     return ChoiceChip(
-      label: Text('$emoji $label'),
-      selected: isSelected,
+      label: Text(label),
+      selected: _selectedStatus == value,
       onSelected: (selected) {
         if (selected) {
           setState(() => _selectedStatus = value);
         }
       },
-      selectedColor: AppColors.secondary.withOpacity(0.2),
-      labelStyle: TextStyle(
-        color: isSelected ? AppColors.secondary : Colors.grey[700],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
     );
   }
 }

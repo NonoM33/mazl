@@ -1,214 +1,127 @@
+import '../dev/dev_session.dart';
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'api_service.dart';
 
-/// Couple request status
-enum CoupleRequestStatus {
-  none,
-  pending,    // Request sent, waiting for response
-  received,   // Request received from someone else
-  accepted,
-  rejected,
+import '../models/couple_models.dart';
+import 'api_service.dart' hide CoupleMilestone;
+import 'couple_api.dart';
+import 'couple_messages.dart';
+
+export '../models/couple_models.dart';
+export 'couple_messages.dart' show CoupleActionResult;
+
+/// What the couple flow tells the rest of the app (screens subscribe through
+/// the host widget, never through the service's internals).
+sealed class CoupleFlowEvent {
+  const CoupleFlowEvent();
 }
 
-/// Couple request model
-class CoupleRequest {
-  final int id;
-  final int requesterId;
-  final String requesterName;
-  final String? requesterPicture;
-  final int targetId;
-  final CoupleRequestStatus status;
-  final DateTime createdAt;
-
-  CoupleRequest({
-    required this.id,
-    required this.requesterId,
-    required this.requesterName,
-    this.requesterPicture,
-    required this.targetId,
-    required this.status,
-    required this.createdAt,
-  });
-
-  factory CoupleRequest.fromJson(Map<String, dynamic> json) {
-    return CoupleRequest(
-      id: json['id'] as int,
-      requesterId: json['requester_id'] as int,
-      requesterName: json['requester_name'] as String? ?? 'Utilisateur',
-      requesterPicture: json['requester_picture'] as String?,
-      targetId: json['target_id'] as int,
-      status: CoupleRequestStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-        orElse: () => CoupleRequestStatus.pending,
-      ),
-      createdAt: DateTime.parse(json['created_at'] as String),
-    );
-  }
+/// A couple was just formed. [asRequester] is true for the member who sent the
+/// request (the acceptor sees the celebration from the dialog itself).
+class CoupleFormed extends CoupleFlowEvent {
+  const CoupleFormed(this.couple, {required this.asRequester});
+  final CoupleData couple;
+  final bool asRequester;
 }
 
-/// Relationship status for the user
-enum RelationshipStatus {
-  single,
-  dating,
-  inRelationship,
-  engaged,
-  married,
+/// Somebody asked this member to activate the couple mode.
+class CoupleRequestReceived extends CoupleFlowEvent {
+  const CoupleRequestReceived(this.request);
+  final CoupleRequest request;
 }
 
-extension RelationshipStatusExtension on RelationshipStatus {
-  String get displayName {
-    switch (this) {
-      case RelationshipStatus.single:
-        return 'Celibataire';
-      case RelationshipStatus.dating:
-        return 'En train de dater';
-      case RelationshipStatus.inRelationship:
-        return 'En couple';
-      case RelationshipStatus.engaged:
-        return 'Fiance(e)';
-      case RelationshipStatus.married:
-        return 'Marie(e)';
-    }
-  }
-
-  String get emoji {
-    switch (this) {
-      case RelationshipStatus.single:
-        return '';
-      case RelationshipStatus.dating:
-        return '';
-      case RelationshipStatus.inRelationship:
-        return '';
-      case RelationshipStatus.engaged:
-        return '';
-      case RelationshipStatus.married:
-        return '';
-    }
-  }
-
-  bool get isInCouple {
-    return this == RelationshipStatus.inRelationship ||
-        this == RelationshipStatus.engaged ||
-        this == RelationshipStatus.married;
-  }
-}
-
-/// Model for couple data
-class CoupleData {
-  final int? partnerId;
+/// The request this member sent is no longer pending and no couple came out of it.
+class CoupleRequestDeclined extends CoupleFlowEvent {
+  const CoupleRequestDeclined({this.partnerName});
   final String? partnerName;
-  final String? partnerPicture;
-  final DateTime? relationshipStartDate;
-  final DateTime? metOnMazlDate;
-  final RelationshipStatus status;
-  final int daysTogetherStreak;
-  final List<CoupleMilestone> milestones;
-
-  CoupleData({
-    this.partnerId,
-    this.partnerName,
-    this.partnerPicture,
-    this.relationshipStartDate,
-    this.metOnMazlDate,
-    this.status = RelationshipStatus.single,
-    this.daysTogetherStreak = 0,
-    this.milestones = const [],
-  });
-
-  int get daysTogether {
-    if (relationshipStartDate == null) return 0;
-    return DateTime.now().difference(relationshipStartDate!).inDays;
-  }
-
-  Map<String, dynamic> toJson() => {
-        'partnerId': partnerId,
-        'partnerName': partnerName,
-        'partnerPicture': partnerPicture,
-        'relationshipStartDate': relationshipStartDate?.toIso8601String(),
-        'metOnMazlDate': metOnMazlDate?.toIso8601String(),
-        'status': status.index,
-        'daysTogetherStreak': daysTogetherStreak,
-      };
-
-  factory CoupleData.fromJson(Map<String, dynamic> json) => CoupleData(
-        partnerId: json['partnerId'],
-        partnerName: json['partnerName'],
-        partnerPicture: json['partnerPicture'],
-        relationshipStartDate: json['relationshipStartDate'] != null
-            ? DateTime.parse(json['relationshipStartDate'])
-            : null,
-        metOnMazlDate: json['metOnMazlDate'] != null
-            ? DateTime.parse(json['metOnMazlDate'])
-            : null,
-        status: RelationshipStatus.values[json['status'] ?? 0],
-        daysTogetherStreak: json['daysTogetherStreak'] ?? 0,
-      );
 }
 
-/// Model for couple milestones
-class CoupleMilestone {
-  final String id;
-  final String title;
-  final String description;
-  final String emoji;
-  final DateTime? achievedAt;
-  final bool isAchieved;
-
-  CoupleMilestone({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.emoji,
-    this.achievedAt,
-    this.isAchieved = false,
-  });
+/// The other member ended the couple.
+class CoupleEnded extends CoupleFlowEvent {
+  const CoupleEnded({this.partnerName});
+  final String? partnerName;
 }
 
-/// Daily question for couples
-class DailyQuestion {
-  final String id;
-  final String question;
-  final String category;
-  final List<String>? options;
-  final bool isAnswered;
-  final String? myAnswer;
-  final String? partnerAnswer;
-
-  DailyQuestion({
-    required this.id,
-    required this.question,
-    required this.category,
-    this.options,
-    this.isAnswered = false,
-    this.myAnswer,
-    this.partnerAnswer,
-  });
+/// How this member relates to another member, for a profile screen.
+enum CoupleRelation {
+  none,
+  requestSent,
+  requestReceived,
+  partner,
+  coupleWithSomeoneElse,
 }
 
-/// Service to manage couple mode
-class CoupleService {
-  static final CoupleService _instance = CoupleService._internal();
+/// Service to manage couple mode.
+///
+/// The server is the truth (contract §0.3): everything held here is a cache
+/// that [refresh] re-aligns on `GET /api/couple` and `GET /api/couple/requests`.
+class CoupleService extends ChangeNotifier {
+  static CoupleService _instance = CoupleService._internal();
   factory CoupleService() => _instance;
-  CoupleService._internal();
+
+  /// Swaps the application-wide instance (tests only).
+  @visibleForTesting
+  static set instanceForTesting(CoupleService service) => _instance = service;
+  CoupleService._internal()
+      : _api = ApiService(),
+        _pollInterval = const Duration(seconds: 10);
+
+  /// A service wired to a fake [CoupleApi]; never use it in production code.
+  @visibleForTesting
+  CoupleService.forTesting({
+    required CoupleApi api,
+    Duration pollInterval = const Duration(seconds: 10),
+  })  : _api = api,
+        _pollInterval = pollInterval;
 
   static const _coupleDataKey = 'couple_data';
   static const _coupleModeEnabledKey = 'couple_mode_enabled';
+  static const _pendingRequestKey = 'couple_pending_request';
+  static const _archiveMessage =
+      "J'ai trouvé l'amour sur Mazl. Je ne suis plus disponible. Bonne chance dans votre recherche.";
 
-  final ApiService _apiService = ApiService();
+  final CoupleApi _api;
+  final Duration _pollInterval;
+
+  /// How often a pending request is re-read while the app is in front. The
+  /// demo has no realtime channel (no WebSocket), so it re-reads faster: its
+  /// fictitious partner accepts 3 s after the request.
+  @visibleForTesting
+  Duration get pollInterval => DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
+  final StreamController<CoupleFlowEvent> _events =
+      StreamController<CoupleFlowEvent>.broadcast();
+
   CoupleData? _coupleData;
   bool _isCoupleModeEnabled = false;
+  CoupleRequest? _pendingRequest;
+  CoupleRequest? _receivedRequest;
+  bool _isForeground = true;
+  Timer? _pollTimer;
+  Future<void>? _refreshing;
 
+  Stream<CoupleFlowEvent> get events => _events.stream;
   bool get isCoupleModeEnabled => _isCoupleModeEnabled;
   CoupleData? get coupleData => _coupleData;
   bool get hasPartner => _coupleData?.partnerId != null;
 
-  /// Initialize the service
+  /// The request this member sent and that nobody answered yet.
+  CoupleRequest? get pendingRequest => _pendingRequest;
+
+  /// The request somebody sent to this member and that is still unanswered.
+  CoupleRequest? get receivedRequest => _receivedRequest;
+
+  /// Whether the 10 s re-read is running (only while a request is pending and
+  /// the app is in the foreground).
+  bool get isPolling => _pollTimer != null;
+
+  // ===== Lifecycle =====
+
+  /// Loads the cache for a fast start, then aligns it on the server.
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // First, load from local storage for fast startup
     _isCoupleModeEnabled = prefs.getBool(_coupleModeEnabledKey) ?? false;
 
     final coupleDataJson = prefs.getString(_coupleDataKey);
@@ -219,106 +132,418 @@ class CoupleService {
         _coupleData = null;
       }
     }
+    final pendingJson = prefs.getString(_pendingRequestKey);
+    if (pendingJson != null) {
+      try {
+        _pendingRequest =
+            CoupleRequest.fromJson(jsonDecode(pendingJson) as Map<String, dynamic>);
+      } catch (e) {
+        _pendingRequest = null;
+      }
+    }
+    notifyListeners();
 
-    // Then, sync with backend to get the real status
-    await _syncWithBackend();
+    await refresh();
   }
 
-  /// Sync couple status with backend
-  Future<void> _syncWithBackend() async {
+  /// Forgets everything (sign-out): another member may sign in next.
+  Future<void> reset() async {
+    _stopPolling();
+    _isCoupleModeEnabled = false;
+    _coupleData = null;
+    _pendingRequest = null;
+    _receivedRequest = null;
+    notifyListeners();
+    // Memory is the source of truth for this session; a storage failure must
+    // not block a sign-in or a sign-out.
     try {
-      final apiService = ApiService();
-      final response = await apiService.getCoupleData();
-
-      if (response.success && response.data != null) {
-        final data = response.data!;
-        final couple = data['couple'];
-
-        if (couple != null) {
-          // User is in couple mode
-          _coupleData = CoupleData(
-            partnerId: couple['partner_id'] as int? ?? 0,
-            partnerName: couple['partner_name'] as String? ?? 'Partenaire',
-            partnerPicture: couple['partner_picture'] as String?,
-            relationshipStartDate: DateTime.tryParse(couple['started_at']?.toString() ?? '') ?? DateTime.now(),
-            metOnMazlDate: DateTime.tryParse(couple['created_at']?.toString() ?? '') ?? DateTime.now(),
-            status: RelationshipStatus.inRelationship,
-          );
-          _isCoupleModeEnabled = true;
-          await _saveData();
-          debugPrint('CoupleService: Synced - couple mode enabled');
-        } else {
-          // User is NOT in couple mode - clear local data if inconsistent
-          if (_isCoupleModeEnabled) {
-            _isCoupleModeEnabled = false;
-            _coupleData = null;
-            await _saveData();
-            debugPrint('CoupleService: Synced - couple mode disabled (was inconsistent)');
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('CoupleService: Error syncing with backend: $e');
-      // Keep local data on error
+      await _clearData();
+    } on Exception catch (e) {
+      debugPrint('CoupleService: could not clear the couple cache: ${e.runtimeType}');
     }
   }
 
-  /// Enable couple mode
-  Future<void> enableCoupleMode({
-    required int partnerId,
-    required String partnerName,
-    String? partnerPicture,
-    DateTime? relationshipStartDate,
-  }) async {
-    _coupleData = CoupleData(
-      partnerId: partnerId,
-      partnerName: partnerName,
-      partnerPicture: partnerPicture,
-      relationshipStartDate: relationshipStartDate ?? DateTime.now(),
-      metOnMazlDate: DateTime.now(),
-      status: RelationshipStatus.inRelationship,
-    );
-    _isCoupleModeEnabled = true;
-
-    await _saveData();
-
-    // Notify backend
-    // await _apiService.enableCoupleMode(partnerId);
+  void onPaused() {
+    _isForeground = false;
+    _updatePolling();
   }
 
-  /// Disable couple mode
-  Future<void> disableCoupleMode() async {
-    _isCoupleModeEnabled = false;
-    _coupleData = null;
+  /// Back in the foreground: re-align on the server right away (contract §3).
+  Future<void> onResumed() async {
+    _isForeground = true;
+    await refresh();
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_coupleDataKey);
-    await prefs.setBool(_coupleModeEnabledKey, false);
+  // ===== Server alignment =====
+
+  /// Re-reads the couple then the requests. Calls overlap safely: a second
+  /// call while one is in flight waits for that one.
+  Future<void> refresh() {
+    return _refreshing ??= _refreshOnce().whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refreshOnce() async {
+    final inCouple = await _syncCouple();
+    await _syncRequests(coupleKnown: inCouple != null);
+    _updatePolling();
+  }
+
+  /// Returns whether the server says "in a couple", or null when unknown
+  /// (network error: the local state is kept, never silently disabled).
+  Future<bool?> _syncCouple() async {
+    try {
+      final response = await _api.getCoupleData();
+      if (!response.success || response.data == null) return null;
+
+      final raw = response.data!['couple'];
+      if (raw is Map<String, dynamic>) {
+        final couple = CoupleData.fromServer(raw);
+        final formedFromMyRequest = !_isCoupleModeEnabled && _pendingRequest != null;
+        await _enterCouple(couple);
+        if (formedFromMyRequest) {
+          await _archiveOtherConversations();
+          _events.add(CoupleFormed(couple, asRequester: true));
+        }
+        return true;
+      }
+
+      if (_isCoupleModeEnabled || _coupleData != null) {
+        final partnerName = _coupleData?.partnerName;
+        await _leaveLocally();
+        _events.add(CoupleEnded(partnerName: partnerName));
+      }
+      return false;
+    } catch (e) {
+      debugPrint('CoupleService: sync of the couple failed: $e');
+      return null;
+    }
+  }
+
+  Future<void> _syncRequests({required bool coupleKnown}) async {
+    try {
+      final response = await _api.getCoupleRequests();
+      if (!response.success || response.data == null) return;
+
+      if (_isCoupleModeEnabled) {
+        await _setRequests(pending: null, received: null);
+        return;
+      }
+
+      final sent = response.data!['sent'];
+      final received = response.data!['received'];
+      final pending = sent is List && sent.isNotEmpty
+          ? CoupleRequest.fromJson(sent.first as Map<String, dynamic>)
+          : null;
+      final incoming = received is List && received.isNotEmpty
+          ? CoupleRequest.fromJson(received.first as Map<String, dynamic>)
+          : null;
+
+      final previousPending = _pendingRequest;
+      final previousIncomingId = _receivedRequest?.id;
+      await _setRequests(pending: pending, received: incoming);
+
+      if (pending == null && previousPending != null && coupleKnown) {
+        _events.add(CoupleRequestDeclined(partnerName: previousPending.targetName));
+      }
+      if (incoming != null && incoming.id != previousIncomingId) {
+        _events.add(CoupleRequestReceived(incoming));
+      }
+    } catch (e) {
+      debugPrint('CoupleService: sync of the requests failed: $e');
+    }
+  }
+
+  // ===== Actions =====
+
+  /// Sends a couple request to a match. Nothing is pending on failure.
+  Future<CoupleActionResult> sendCoupleRequest({
+    required int targetUserId,
+    required String targetName,
+    String? targetPicture,
+  }) async {
+    final response = await _api.sendCoupleRequest(targetUserId);
+    if (!response.success) {
+      return CoupleActionResult.failure(
+        coupleErrorMessage(response.error, response.errorKind),
+      );
+    }
+
+    // Contract §2: the request is wrapped in `{ request: {...} }`.
+    final raw = response.data?['request'];
+    if (raw is! Map<String, dynamic>) {
+      await refresh();
+      return _pendingRequest != null
+          ? const CoupleActionResult.ok()
+          : const CoupleActionResult.failure(
+              'Une erreur est survenue, réessayez dans un instant.');
+    }
+
+    final sent = CoupleRequest.fromJson(raw);
+    await _setRequests(
+      pending: CoupleRequest(
+        id: sent.id,
+        requesterId: sent.requesterId,
+        targetId: sent.targetId == 0 ? targetUserId : sent.targetId,
+        targetName: sent.targetName ?? targetName,
+        targetPicture: sent.targetPicture ?? targetPicture,
+        status: CoupleRequestStatus.pending,
+        createdAt: sent.createdAt,
+      ),
+      received: _receivedRequest,
+    );
+    _updatePolling();
+    return const CoupleActionResult.ok();
+  }
+
+  /// Cancels the request this member sent, using its real server id.
+  Future<CoupleActionResult> cancelCoupleRequest() async {
+    final pending = _pendingRequest;
+    if (pending == null) return const CoupleActionResult.ok();
+
+    final response = await _api.cancelCoupleRequest(pending.id);
+    if (!response.success) {
+      // It may have been answered meanwhile: re-align before reporting.
+      await refresh();
+      return CoupleActionResult.failure(
+        coupleErrorMessage(response.error, response.errorKind),
+      );
+    }
+    await _setRequests(pending: null, received: _receivedRequest);
+    _updatePolling();
+    return const CoupleActionResult.ok();
+  }
+
+  /// Accepts a received request. The couple comes from the response itself
+  /// (no second call), then the other conversations are archived.
+  Future<CoupleActionResult> acceptCoupleRequest(CoupleRequest request) async {
+    final response = await _api.respondToCoupleRequest(
+      requestId: request.id,
+      accept: true,
+    );
+    if (!response.success) {
+      await refresh();
+      return CoupleActionResult.failure(
+        coupleErrorMessage(response.error, response.errorKind),
+      );
+    }
+
+    final raw = response.data?['couple'];
+    if (raw is! Map<String, dynamic>) {
+      await refresh();
+      return _isCoupleModeEnabled
+          ? const CoupleActionResult.ok()
+          : const CoupleActionResult.failure(
+              'Une erreur est survenue, réessayez dans un instant.');
+    }
+
+    final couple = CoupleData.fromServer(raw);
+    await _enterCouple(couple);
+    await _archiveOtherConversations();
+    _events.add(CoupleFormed(couple, asRequester: false));
+    return const CoupleActionResult.ok();
+  }
+
+  /// Declines a received request.
+  Future<CoupleActionResult> rejectCoupleRequest(CoupleRequest request) async {
+    final response = await _api.respondToCoupleRequest(
+      requestId: request.id,
+      accept: false,
+    );
+    if (!response.success) {
+      await refresh();
+      return CoupleActionResult.failure(
+        coupleErrorMessage(response.error, response.errorKind),
+      );
+    }
+    await _setRequests(pending: _pendingRequest, received: null);
+    return const CoupleActionResult.ok();
+  }
+
+  /// Ends the couple for both members. Awaits the server: on failure nothing
+  /// changes locally.
+  Future<CoupleActionResult> leaveCouple() async {
+    final coupleId = _coupleData?.coupleId;
+    if (coupleId == null) {
+      return const CoupleActionResult.failure(
+        'Impossible de quitter le mode couple pour le moment.',
+      );
+    }
+    final response = await _api.endCouple(coupleId);
+    if (!response.success) {
+      return CoupleActionResult.failure(
+        coupleErrorMessage(response.error, response.errorKind),
+      );
+    }
+    await _leaveLocally();
+    return const CoupleActionResult.ok();
+  }
+
+  // ===== Real time (contract §3): an accelerator, the sync stays the truth =====
+
+  /// Applies a `couple:*` WebSocket message.
+  Future<void> handleRealtime(String type, Map<String, dynamic> payload) async {
+    switch (type) {
+      case 'couple:request':
+        final raw = payload['request'];
+        if (raw is! Map<String, dynamic> || _isCoupleModeEnabled) return;
+        final incoming = CoupleRequest.fromJson(raw);
+        final isNew = incoming.id != _receivedRequest?.id;
+        await _setRequests(pending: _pendingRequest, received: incoming);
+        if (isNew) _events.add(CoupleRequestReceived(incoming));
+      case 'couple:accepted':
+        final raw = payload['couple'];
+        if (raw is! Map<String, dynamic>) {
+          await refresh();
+          return;
+        }
+        final couple = CoupleData.fromServer(raw);
+        if (_isCoupleModeEnabled && _coupleData?.coupleId == couple.coupleId) return;
+        await _enterCouple(couple);
+        await _archiveOtherConversations();
+        _events.add(CoupleFormed(couple, asRequester: true));
+      case 'couple:rejected':
+        final pending = _pendingRequest;
+        if (pending == null) return;
+        final id = parseCoupleId(payload['request_id']);
+        if (id != null && id != pending.id) return;
+        await _setRequests(pending: null, received: _receivedRequest);
+        _updatePolling();
+        _events.add(CoupleRequestDeclined(partnerName: pending.targetName));
+      case 'couple:ended':
+        if (!_isCoupleModeEnabled) return;
+        final id = parseCoupleId(payload['couple_id']);
+        final current = _coupleData?.coupleId;
+        if (id != null && current != null && id != current) return;
+        final partnerName = _coupleData?.partnerName;
+        await _leaveLocally();
+        _events.add(CoupleEnded(partnerName: partnerName));
+    }
+  }
+
+  // ===== Per-member state =====
+
+  /// How this member relates to [userId] (profile of a match).
+  CoupleRelation relationWithUser(int userId) {
+    if (_isCoupleModeEnabled) {
+      return _coupleData?.partnerId == userId
+          ? CoupleRelation.partner
+          : CoupleRelation.coupleWithSomeoneElse;
+    }
+    if (_pendingRequest?.targetId == userId) return CoupleRelation.requestSent;
+    if (_receivedRequest?.requesterId == userId) return CoupleRelation.requestReceived;
+    return CoupleRelation.none;
+  }
+
+  /// Check if there's a pending request with a specific user
+  CoupleRequestStatus getRequestStatusWithUser(int userId) {
+    switch (relationWithUser(userId)) {
+      case CoupleRelation.requestSent:
+        return CoupleRequestStatus.pending;
+      case CoupleRelation.requestReceived:
+        return CoupleRequestStatus.received;
+      case CoupleRelation.none:
+      case CoupleRelation.partner:
+      case CoupleRelation.coupleWithSomeoneElse:
+        return CoupleRequestStatus.none;
+    }
   }
 
   /// Update relationship status
   Future<void> updateStatus(RelationshipStatus status) async {
-    if (_coupleData != null) {
-      _coupleData = CoupleData(
-        partnerId: _coupleData!.partnerId,
-        partnerName: _coupleData!.partnerName,
-        partnerPicture: _coupleData!.partnerPicture,
-        relationshipStartDate: _coupleData!.relationshipStartDate,
-        metOnMazlDate: _coupleData!.metOnMazlDate,
-        status: status,
-        daysTogetherStreak: _coupleData!.daysTogetherStreak,
-      );
-      await _saveData();
+    final current = _coupleData;
+    if (current == null) return;
+    _coupleData = CoupleData(
+      coupleId: current.coupleId,
+      partnerId: current.partnerId,
+      partnerName: current.partnerName,
+      partnerPicture: current.partnerPicture,
+      relationshipStartDate: current.relationshipStartDate,
+      metOnMazlDate: current.metOnMazlDate,
+      status: status,
+      daysTogetherStreak: current.daysTogetherStreak,
+    );
+    await _saveData();
+    notifyListeners();
+  }
+
+  // ===== Internals =====
+
+  Future<void> _enterCouple(CoupleData couple) async {
+    _coupleData = couple;
+    _isCoupleModeEnabled = true;
+    _pendingRequest = null;
+    _receivedRequest = null;
+    _stopPolling();
+    await _saveData();
+    notifyListeners();
+  }
+
+  Future<void> _leaveLocally() async {
+    _isCoupleModeEnabled = false;
+    _coupleData = null;
+    await _clearData();
+    notifyListeners();
+  }
+
+  Future<void> _setRequests({
+    required CoupleRequest? pending,
+    required CoupleRequest? received,
+  }) async {
+    _pendingRequest = pending;
+    _receivedRequest = received;
+    final prefs = await SharedPreferences.getInstance();
+    if (pending == null) {
+      await prefs.remove(_pendingRequestKey);
+    } else {
+      await prefs.setString(_pendingRequestKey, jsonEncode(pending.toJson()));
+    }
+    notifyListeners();
+  }
+
+  Future<void> _archiveOtherConversations() async {
+    final partnerId = _coupleData?.partnerId;
+    if (partnerId == null) return;
+    try {
+      await _api.archiveAllConversationsExcept(partnerId, message: _archiveMessage);
+    } catch (e) {
+      debugPrint('CoupleService: Error archiving conversations: $e');
     }
   }
 
-  /// Save data to preferences
+  void _updatePolling() {
+    final shouldPoll = _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
+    if (shouldPoll && _pollTimer == null) {
+      _pollTimer = Timer.periodic(pollInterval, (_) => refresh());
+    } else if (!shouldPoll) {
+      _stopPolling();
+    }
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_coupleModeEnabledKey, _isCoupleModeEnabled);
     if (_coupleData != null) {
       await prefs.setString(_coupleDataKey, jsonEncode(_coupleData!.toJson()));
     }
+    await prefs.remove(_pendingRequestKey);
+  }
+
+  Future<void> _clearData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_coupleDataKey);
+    await prefs.remove(_pendingRequestKey);
+    await prefs.setBool(_coupleModeEnabledKey, false);
+  }
+
+  @override
+  void dispose() {
+    _stopPolling();
+    super.dispose();
   }
 
   /// Get daily questions for couple
@@ -326,34 +551,34 @@ class CoupleService {
     return [
       DailyQuestion(
         id: '1',
-        question: 'Quel est ton moment prefere de la semaine ensemble ?',
-        category: 'Connection',
+        question: 'Quel est votre moment préféré de la semaine ensemble ?',
+        category: 'Connexion',
       ),
       DailyQuestion(
         id: '2',
-        question: 'Si on pouvait voyager n\'importe ou, ou irais-tu ?',
-        category: 'Reves',
+        question: 'Si vous pouviez voyager n\'importe où, où iriez-vous ?',
+        category: 'Rêves',
       ),
       DailyQuestion(
         id: '3',
-        question: 'Qu\'est-ce qui t\'a fait sourire aujourd\'hui ?',
+        question: 'Qu\'est-ce qui vous a fait sourire aujourd\'hui ?',
         category: 'Quotidien',
       ),
       DailyQuestion(
         id: '4',
-        question: 'Comment aimerais-tu celebrer notre prochain Shabbat ?',
-        category: 'Judaisme',
+        question: 'Comment aimeriez-vous célébrer votre prochain Shabbat ?',
+        category: 'Judaïsme',
         options: [
-          'Diner romantique a la maison',
+          'Dîner romantique à la maison',
           'Invitation chez des amis',
-          'Restaurant cacher',
+          'Restaurant casher',
           'Shabbaton communautaire',
         ],
       ),
       DailyQuestion(
         id: '5',
-        question: 'Quel trait de caractere admires-tu le plus chez moi ?',
-        category: 'Appreciation',
+        question: 'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
+        category: 'Appréciation',
       ),
     ];
   }
@@ -365,7 +590,7 @@ class CoupleService {
     return [
       CoupleMilestone(
         id: 'first_week',
-        title: 'Premiere semaine',
+        title: 'Première semaine',
         description: '7 jours ensemble',
         emoji: '',
         isAchieved: daysTogether >= 7,
@@ -395,7 +620,7 @@ class CoupleService {
       ),
       CoupleMilestone(
         id: 'six_months',
-        title: 'Mi-annee',
+        title: 'Mi-année',
         description: '6 mois main dans la main',
         emoji: '',
         isAchieved: daysTogether >= 180,
@@ -405,7 +630,7 @@ class CoupleService {
       ),
       CoupleMilestone(
         id: 'first_year',
-        title: 'Premiere annee',
+        title: 'Première année',
         description: '365 jours de Mazl',
         emoji: '',
         isAchieved: daysTogether >= 365,
@@ -421,33 +646,33 @@ class CoupleService {
     return [
       {
         'title': 'Cuisine Shabbat',
-        'description': 'Preparez le repas de Shabbat ensemble',
+        'description': 'Préparez le repas de Shabbat ensemble',
         'icon': 'utensils',
         'category': 'Maison',
       },
       {
-        'title': 'Etude Torah',
+        'title': 'Étude Torah',
         'description': 'Apprenez la Paracha ensemble',
         'icon': 'book',
         'category': 'Spirituel',
       },
       {
         'title': 'Date night',
-        'description': 'Sortie restaurant ou cinema',
+        'description': 'Sortie restaurant ou cinéma',
         'icon': 'heart',
         'category': 'Romance',
       },
       {
         'title': 'Sport ensemble',
-        'description': 'Course, yoga, randonnee...',
+        'description': 'Course, yoga, randonnée…',
         'icon': 'dumbbell',
-        'category': 'Bien-etre',
+        'category': 'Bien-être',
       },
       {
         'title': 'Hesed ensemble',
         'description': 'Action caritative en couple',
         'icon': 'hand-heart',
-        'category': 'Communaute',
+        'category': 'Communauté',
       },
       {
         'title': 'Voyage',
@@ -456,152 +681,5 @@ class CoupleService {
         'category': 'Aventure',
       },
     ];
-  }
-
-  // ===== COUPLE REQUEST SYSTEM =====
-
-  CoupleRequest? _pendingRequest;
-  CoupleRequest? _receivedRequest;
-
-  CoupleRequest? get pendingRequest => _pendingRequest;
-  CoupleRequest? get receivedRequest => _receivedRequest;
-
-  /// Check if there's a pending request with a specific user
-  CoupleRequestStatus getRequestStatusWithUser(int userId) {
-    if (_pendingRequest != null && _pendingRequest!.targetId == userId) {
-      return CoupleRequestStatus.pending;
-    }
-    if (_receivedRequest != null && _receivedRequest!.requesterId == userId) {
-      return CoupleRequestStatus.received;
-    }
-    return CoupleRequestStatus.none;
-  }
-
-  /// Send a couple mode request to a match
-  Future<bool> sendCoupleRequest({
-    required int targetUserId,
-    required String targetName,
-    String? targetPicture,
-  }) async {
-    try {
-      // Call API to send request
-      final response = await _apiService.sendCoupleRequest(targetUserId);
-
-      if (response.success) {
-        _pendingRequest = CoupleRequest(
-          id: response.data?['id'] ?? 0,
-          requesterId: 0, // Will be filled by backend
-          requesterName: '',
-          targetId: targetUserId,
-          status: CoupleRequestStatus.pending,
-          createdAt: DateTime.now(),
-        );
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('CoupleService: Error sending couple request: $e');
-      return false;
-    }
-  }
-
-  /// Accept a couple request
-  Future<bool> acceptCoupleRequest(CoupleRequest request) async {
-    try {
-      final response = await _apiService.respondToCoupleRequest(
-        requestId: request.id,
-        accept: true,
-      );
-
-      if (response.success) {
-        // Enable couple mode with the requester
-        await enableCoupleMode(
-          partnerId: request.requesterId,
-          partnerName: request.requesterName,
-          partnerPicture: request.requesterPicture,
-        );
-        _receivedRequest = null;
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('CoupleService: Error accepting couple request: $e');
-      return false;
-    }
-  }
-
-  /// Reject a couple request
-  Future<bool> rejectCoupleRequest(CoupleRequest request) async {
-    try {
-      final response = await _apiService.respondToCoupleRequest(
-        requestId: request.id,
-        accept: false,
-      );
-
-      if (response.success) {
-        _receivedRequest = null;
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('CoupleService: Error rejecting couple request: $e');
-      return false;
-    }
-  }
-
-  /// Cancel a pending request
-  Future<bool> cancelCoupleRequest() async {
-    if (_pendingRequest == null) return false;
-
-    try {
-      final response = await _apiService.cancelCoupleRequest(_pendingRequest!.id);
-
-      if (response.success) {
-        _pendingRequest = null;
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('CoupleService: Error cancelling couple request: $e');
-      return false;
-    }
-  }
-
-  /// Fetch pending requests (sent and received)
-  Future<void> fetchPendingRequests() async {
-    try {
-      final response = await _apiService.getCoupleRequests();
-
-      if (response.success && response.data != null) {
-        final sent = response.data!['sent'] as List<dynamic>?;
-        final received = response.data!['received'] as List<dynamic>?;
-
-        if (sent != null && sent.isNotEmpty) {
-          _pendingRequest = CoupleRequest.fromJson(sent.first);
-        } else {
-          _pendingRequest = null;
-        }
-
-        if (received != null && received.isNotEmpty) {
-          _receivedRequest = CoupleRequest.fromJson(received.first);
-        } else {
-          _receivedRequest = null;
-        }
-      }
-    } catch (e) {
-      debugPrint('CoupleService: Error fetching couple requests: $e');
-    }
-  }
-
-  /// Archive all other conversations when entering couple mode
-  Future<void> archiveOtherConversations() async {
-    try {
-      await _apiService.archiveAllConversationsExcept(
-        _coupleData?.partnerId ?? 0,
-        message: "J'ai trouve l'amour sur Mazl! Je ne suis plus disponible. Bonne chance dans ta recherche!",
-      );
-    } catch (e) {
-      debugPrint('CoupleService: Error archiving conversations: $e');
-    }
   }
 }

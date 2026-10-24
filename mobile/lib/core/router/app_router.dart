@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'couple_guard.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
+import '../di/providers/service_providers.dart';
 import '../../presentation/features/splash/splash_screen.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
@@ -22,9 +24,11 @@ import '../../presentation/features/settings/screens/settings_screen.dart';
 import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
+import '../../presentation/features/premium/screens/plus_welcome_screen.dart';
+import '../../presentation/features/verification/identity/identity_flow_screen.dart';
 import '../../presentation/features/premium/screens/premium_screen.dart';
+import '../../presentation/features/premium/screens/subscription_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
-import '../../presentation/features/couple/screens/couple_dashboard_screen.dart';
 import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
 import '../../presentation/features/couple/screens/couple_activities_feed_screen.dart';
@@ -43,6 +47,9 @@ import '../../presentation/features/navigation/screens/couple_navigation_screen.
 
 /// Global navigator key
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+/// The root navigator, for the screens that open dialogs from outside the tree.
+final GlobalKey<NavigatorState> rootNavigatorKey = _rootNavigatorKey;
 
 /// Shell navigator keys for each tab
 final GlobalKey<NavigatorState> _shellNavigatorKeyDiscover =
@@ -68,24 +75,39 @@ final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleProfile =
 
 /// Provider for the GoRouter instance
 final appRouterProvider = Provider<GoRouter>((ref) {
+  // The AuthService singleton is a ChangeNotifier: use it as the router's
+  // refreshListenable so the redirect/guard is re-evaluated whenever the
+  // authentication state changes (login / logout / init / user refresh).
+  final authService = ref.watch(authServiceProvider.notifier);
+  // Same for the couple state: the guard below re-runs when a couple forms or ends.
+  final coupleService = ref.watch(coupleServiceProvider.notifier);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
+    refreshListenable: Listenable.merge([authService, coupleService]),
     redirect: (context, state) {
-      // TODO: Add auth state check here
-      // final isAuthenticated = ref.read(authStateProvider);
-      // final isOnboarded = ref.read(onboardingStateProvider);
+      final location = state.matchedLocation;
 
-      // If on splash, allow
-      if (state.matchedLocation == RoutePaths.splash) {
+      // Splash handles its own auth-based routing
+      if (location == RoutePaths.splash) {
         return null;
       }
 
-      // TODO: Redirect based on auth state
-      // if (!isAuthenticated && !_publicRoutes.contains(state.matchedLocation)) {
-      //   return RoutePaths.login;
-      // }
+      // Block protected routes for unauthenticated users (e.g. deep links)
+      final isAuthenticated = ref.read(isAuthenticatedProvider);
+      if (!isAuthenticated && !_publicRoutes.contains(location)) {
+        return RoutePaths.onboarding;
+      }
+
+      // One navigation at a time: dating or couple, never both.
+      if (isAuthenticated) {
+        return coupleRedirect(
+          location: location,
+          inCouple: coupleService.isCoupleModeEnabled,
+        );
+      }
 
       return null;
     },
@@ -137,6 +159,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: const PremiumScreen(),
           transitionsBuilder: slideUpTransition,
         ),
+      ),
+
+      // mazl+ : bienvenue après l'achat
+      GoRoute(
+        path: RoutePaths.plusWelcome,
+        name: RouteNames.plusWelcome,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PlusWelcomeScreen(),
+          transitionsBuilder: fadeTransition,
+        ),
+      ),
+
+      // mazl+ : gestion de l'abonnement
+      GoRoute(
+        path: RoutePaths.subscription,
+        name: RouteNames.subscription,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SubscriptionScreen(),
+          transitionsBuilder: slideLeftTransition,
+        ),
+      ),
+
+      // Level 2 verification (identity from the NFC chip)
+      GoRoute(
+        path: RoutePaths.verificationIdentity,
+        name: RouteNames.verificationIdentity,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const IdentityFlowScreen(),
       ),
 
       // Likes Screen

@@ -1,30 +1,106 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/env.dart';
 import 'auth_service.dart';
 
+// Data-model classes extracted out of this file into `lib/core/models/`.
+// Imported so `ApiService` method signatures resolve the model types, and
+// re-exported so every existing `import '.../api_service.dart'` keeps seeing
+// the models without any change at the call sites (barrel re-export).
+import '../models/profile.dart';
+import '../models/conversation.dart';
+import '../models/message.dart';
+import '../models/event.dart';
+import '../models/blocked_user.dart';
+import '../models/likes.dart';
+import '../models/profile_prompt.dart';
+import '../models/boost_status.dart';
+import '../models/visitors.dart';
+import '../models/couple_anniversary.dart';
+import 'couple_api.dart';
+import '../models/success_story.dart';
+
+export '../models/profile.dart';
+export '../models/conversation.dart';
+export '../models/message.dart';
+export '../models/event.dart';
+export '../models/blocked_user.dart';
+export '../models/report_category.dart';
+export '../models/likes.dart';
+export '../models/profile_prompt.dart';
+export '../models/relationship_intention.dart';
+export '../models/compatibility_score.dart';
+export '../models/boost_status.dart';
+export '../models/visitors.dart';
+export '../models/couple_anniversary.dart';
+export '../models/success_story.dart';
+
 /// API Configuration
+///
+/// The base URL is resolved per-environment from `--dart-define` via [Env].
+/// See `lib/core/config/env.dart` for launch instructions.
 class ApiConfig {
-  static const String baseUrl = 'https://api.mazl.app';
-  // For local development:
-  // static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = Env.apiBaseUrl;
+
+  /// Maximum time to wait for any single network request before failing fast.
+  /// Prevents an unresponsive backend from leaving the UI on an infinite spinner.
+  static const Duration requestTimeout = Duration(seconds: 15);
 }
+
+/// Kind of failure surfaced by a failed [ApiResponse].
+///
+/// Lets callers differentiate transient network problems (timeout, no
+/// connectivity, server unreachable) from application-level errors without
+/// parsing message strings. Existing call sites that only read [ApiResponse.error]
+/// keep working unchanged.
+enum ApiErrorKind { timeout, network, server, unknown }
 
 /// API Response wrapper
 class ApiResponse<T> {
   final bool success;
   final T? data;
   final String? error;
+  final ApiErrorKind? errorKind;
 
-  ApiResponse({required this.success, this.data, this.error});
+  ApiResponse({required this.success, this.data, this.error, this.errorKind});
 
   factory ApiResponse.success(T data) => ApiResponse(success: true, data: data);
-  factory ApiResponse.failure(String error) => ApiResponse(success: false, error: error);
+  factory ApiResponse.failure(String error, [ApiErrorKind kind = ApiErrorKind.unknown]) =>
+      ApiResponse(success: false, error: error, errorKind: kind);
 }
 
-/// Helper functions for safe JSON parsing (handles strings and numbers)
+/// Translates a caught network exception into a user-facing [ApiResponse.failure].
+///
+/// Centralises the timeout vs. connectivity vs. generic distinction so every
+/// endpoint reports clear, differentiated messages instead of a raw
+/// `e.toString()`.
+ApiResponse<T> _networkFailure<T>(Object error) {
+  if (error is TimeoutException) {
+    return ApiResponse.failure(
+      'Délai d\'attente dépassé, vérifiez votre connexion.',
+      ApiErrorKind.timeout,
+    );
+  }
+  if (error is SocketException) {
+    return ApiResponse.failure(
+      'Pas de connexion internet ou serveur injoignable.',
+      ApiErrorKind.network,
+    );
+  }
+  if (error is http.ClientException) {
+    return ApiResponse.failure(
+      'Serveur injoignable, réessayez plus tard.',
+      ApiErrorKind.network,
+    );
+  }
+  return ApiResponse.failure(error.toString(), ApiErrorKind.unknown);
+}
+
+/// Helper function for safe JSON parsing (handles strings and numbers)
 int? _parseIntSafe(dynamic value) {
   if (value == null) return null;
   if (value is int) return value;
@@ -33,145 +109,8 @@ int? _parseIntSafe(dynamic value) {
   return null;
 }
 
-double? _parseDoubleSafe(dynamic value) {
-  if (value == null) return null;
-  if (value is double) return value;
-  if (value is num) return value.toDouble();
-  if (value is String) return double.tryParse(value);
-  return null;
-}
-
-/// Profile model
-class Profile {
-  final int id;
-  final int userId;
-  final String? displayName;
-  final int? age;
-  final String? gender;
-  final String? bio;
-  final String? location;
-  final double? latitude;
-  final double? longitude;
-  final String? denomination;
-  final String? kashrut;
-  final String? shabbatObservance;
-  final String? relationshipIntention;
-  final List<String> photos;
-  final bool isVerified;
-  final String? verificationLevel;
-  final double? distance;
-  final int? ageMin;
-  final int? ageMax;
-  final int? distanceMax;
-  final String? lookingFor;
-
-  Profile({
-    required this.id,
-    required this.userId,
-    this.displayName,
-    this.age,
-    this.gender,
-    this.bio,
-    this.location,
-    this.latitude,
-    this.longitude,
-    this.denomination,
-    this.kashrut,
-    this.shabbatObservance,
-    this.relationshipIntention,
-    this.photos = const [],
-    this.isVerified = false,
-    this.verificationLevel,
-    this.distance,
-    this.ageMin,
-    this.ageMax,
-    this.distanceMax,
-    this.lookingFor,
-  });
-
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      id: _parseIntSafe(json['id']) ?? 0,
-      userId: _parseIntSafe(json['user_id']) ?? 0,
-      displayName: json['display_name'] as String?,
-      age: _parseIntSafe(json['age']),
-      gender: json['gender'] as String?,
-      bio: json['bio'] as String?,
-      location: json['location'] as String?,
-      latitude: _parseDoubleSafe(json['latitude']),
-      longitude: _parseDoubleSafe(json['longitude']),
-      denomination: json['denomination'] as String?,
-      kashrut: json['kashrut_level'] as String?,
-      shabbatObservance: json['shabbat_observance'] as String?,
-      relationshipIntention: json['relationship_intention'] as String?,
-      photos: (json['photos'] as List<dynamic>?)?.cast<String>() ?? [],
-      isVerified: json['is_verified'] == true,
-      verificationLevel: json['verification_level'] as String?,
-      distance: _parseDoubleSafe(json['distance']),
-      ageMin: _parseIntSafe(json['age_min']),
-      ageMax: _parseIntSafe(json['age_max']),
-      distanceMax: _parseIntSafe(json['distance_max']),
-      lookingFor: json['looking_for'] as String?,
-    );
-  }
-}
-
-/// Current user profile with more details
-class UserProfile {
-  final int id;
-  final String email;
-  final String? name;
-  final String? picture;
-  final Profile? profile;
-
-  UserProfile({
-    required this.id,
-    required this.email,
-    this.name,
-    this.picture,
-    this.profile,
-  });
-
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
-      id: _parseIntSafe(json['id']) ?? 0,
-      email: json['email'] as String,
-      name: json['name'] as String?,
-      picture: json['picture'] as String?,
-      profile: json['profile'] != null ? Profile.fromJson(json['profile']) : null,
-    );
-  }
-}
-
-/// Profile photo model
-class ProfilePhoto {
-  final int id;
-  final String url;
-  final int position;
-  final bool isPrimary;
-  final DateTime? createdAt;
-
-  ProfilePhoto({
-    required this.id,
-    required this.url,
-    required this.position,
-    this.isPrimary = false,
-    this.createdAt,
-  });
-
-  factory ProfilePhoto.fromJson(Map<String, dynamic> json) {
-    return ProfilePhoto(
-      id: _parseIntSafe(json['id']) ?? 0,
-      url: json['url'] as String,
-      position: _parseIntSafe(json['position']) ?? 0,
-      isPrimary: json['is_primary'] == true,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-    );
-  }
-}
-
 /// API Service for backend communication
-class ApiService {
+class ApiService implements CoupleApi {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
@@ -191,28 +130,32 @@ class ApiService {
   Future<http.Response> _get(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API GET: $url');
-    return http.get(url, headers: _headers);
+    return http.get(url, headers: _headers).timeout(ApiConfig.requestTimeout);
   }
 
   /// POST request
   Future<http.Response> _post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API POST: $url');
-    return http.post(url, headers: _headers, body: jsonEncode(body));
+    return http
+        .post(url, headers: _headers, body: jsonEncode(body))
+        .timeout(ApiConfig.requestTimeout);
   }
 
   /// PUT request
   Future<http.Response> _put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API PUT: $url');
-    return http.put(url, headers: _headers, body: jsonEncode(body));
+    return http
+        .put(url, headers: _headers, body: jsonEncode(body))
+        .timeout(ApiConfig.requestTimeout);
   }
 
   /// DELETE request
   Future<http.Response> _delete(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API DELETE: $url');
-    return http.delete(url, headers: _headers);
+    return http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
   }
 
   /// Public POST request (returns parsed JSON)
@@ -254,7 +197,7 @@ class ApiService {
       return ApiResponse.success(UserProfile.fromJson(userData));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -275,7 +218,7 @@ class ApiService {
       return ApiResponse.success(Profile.fromJson(data['profile']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -303,7 +246,7 @@ class ApiService {
       return ApiResponse.success(profiles);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -328,7 +271,7 @@ class ApiService {
       return ApiResponse.success(profiles);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -351,7 +294,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -372,7 +315,7 @@ class ApiService {
       return ApiResponse.success(Profile.fromJson(data['profile']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -399,7 +342,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -414,7 +357,7 @@ class ApiService {
       request.files.add(await http.MultipartFile.fromPath('photo', filePath));
       request.fields['is_primary'] = isPrimary.toString();
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200) {
@@ -429,7 +372,7 @@ class ApiService {
       return ApiResponse.success(ProfilePhoto.fromJson(data['photo']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -450,7 +393,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -475,7 +418,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -500,7 +443,7 @@ class ApiService {
       return ApiResponse.success(photos);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -524,7 +467,7 @@ class ApiService {
       return ApiResponse.success(matches);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -551,7 +494,7 @@ class ApiService {
       return ApiResponse.success(conversations);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -576,7 +519,7 @@ class ApiService {
       return ApiResponse.success(messages);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -599,7 +542,7 @@ class ApiService {
       return ApiResponse.success(Message.fromJson(data['message']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -621,7 +564,7 @@ class ApiService {
         imageFile.path,
       ));
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -636,7 +579,7 @@ class ApiService {
       return ApiResponse.success(Message.fromJson(data['message']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -652,7 +595,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -685,7 +628,7 @@ class ApiService {
       return ApiResponse.success(events);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -706,7 +649,7 @@ class ApiService {
       return ApiResponse.success(Event.fromJson(data['event']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -727,7 +670,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -735,7 +678,8 @@ class ApiService {
   Future<ApiResponse<void>> cancelRsvp(int eventId) async {
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/api/events/$eventId/rsvp');
-      final response = await http.delete(url, headers: _headers);
+      final response =
+          await http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
 
       if (response.statusCode != 200) {
         return ApiResponse.failure('Failed to cancel RSVP');
@@ -744,13 +688,31 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   // ============ COUPLE MODE ============
 
+  /// Failure of a couple route: keeps the server's `error` (e.g. `not_matched`)
+  /// even on a 4xx, so the screens can say what really happened.
+  ApiResponse<T> _coupleFailure<T>(http.Response response, String fallback) {
+    try {
+      final data = jsonDecode(response.body);
+      if (data is Map && data['error'] is String) {
+        return ApiResponse.failure(
+          data['error'] as String,
+          ApiErrorKind.server,
+        );
+      }
+    } catch (_) {
+      // Body is not JSON: fall back to the generic message below.
+    }
+    return ApiResponse.failure(fallback, ApiErrorKind.server);
+  }
+
   /// Send a couple mode request to a user
+  @override
   Future<ApiResponse<Map<String, dynamic>>> sendCoupleRequest(int targetUserId) async {
     try {
       final response = await _post('/api/couple/request', {
@@ -758,7 +720,7 @@ class ApiService {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to send couple request');
+        return _coupleFailure(response, 'Failed to send couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -769,11 +731,12 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   /// Respond to a couple request (accept or reject)
+  @override
   Future<ApiResponse<Map<String, dynamic>>> respondToCoupleRequest({
     required int requestId,
     required bool accept,
@@ -784,7 +747,7 @@ class ApiService {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to respond to couple request');
+        return _coupleFailure(response, 'Failed to respond to couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -795,17 +758,18 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   /// Cancel a pending couple request
+  @override
   Future<ApiResponse<void>> cancelCoupleRequest(int requestId) async {
     try {
       final response = await _delete('/api/couple/request/$requestId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to cancel couple request');
+        return _coupleFailure(response, 'Failed to cancel couple request');
       }
 
       final data = jsonDecode(response.body);
@@ -816,11 +780,12 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   /// Get all couple requests (sent and received)
+  @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleRequests() async {
     try {
       final response = await _get('/api/couple/requests');
@@ -837,11 +802,12 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   /// Archive all conversations except with partner
+  @override
   Future<ApiResponse<void>> archiveAllConversationsExcept(
     int partnerUserId, {
     required String message,
@@ -864,17 +830,18 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
-  /// Exit couple mode
-  Future<ApiResponse<void>> exitCoupleMode() async {
+  /// End the couple for both members.
+  @override
+  Future<ApiResponse<void>> endCouple(int coupleId) async {
     try {
-      final response = await _delete('/api/couple');
+      final response = await _delete('/api/couple/$coupleId');
 
       if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to exit couple mode');
+        return _coupleFailure(response, 'Failed to end couple');
       }
 
       final data = jsonDecode(response.body);
@@ -885,11 +852,12 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
   /// Get couple data
+  @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleData() async {
     try {
       final response = await _get('/api/couple');
@@ -906,7 +874,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -923,7 +891,7 @@ class ApiService {
       return ApiResponse.success(data['in_couple_mode'] == true);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -948,7 +916,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -969,7 +937,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -994,7 +962,7 @@ class ApiService {
       return ApiResponse.success(blockedList);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1026,67 +994,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
-    }
-  }
-
-  // ============ VERIFICATION ============
-
-  /// Start photo verification process
-  Future<ApiResponse<Map<String, dynamic>>> startVerification() async {
-    try {
-      final response = await _post('/api/verification/start', {});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to start verification');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['success'] != true) {
-        return ApiResponse.failure(data['error'] ?? 'Unknown error');
-      }
-
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
-    }
-  }
-
-  /// Submit verification selfie
-  Future<ApiResponse<Map<String, dynamic>>> submitVerification(String selfieBase64, String gestureId) async {
-    try {
-      final response = await _post('/api/verification/submit', {
-        'selfie': selfieBase64,
-        'gesture_id': gestureId,
-      });
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to submit verification');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
-    }
-  }
-
-  /// Get verification status
-  Future<ApiResponse<Map<String, dynamic>>> getVerificationStatus() async {
-    try {
-      final response = await _get('/api/verification/status');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.failure('Failed to get verification status');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1109,7 +1017,7 @@ class ApiService {
       return ApiResponse.success(LikesData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1126,7 +1034,7 @@ class ApiService {
       return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1149,7 +1057,7 @@ class ApiService {
       return ApiResponse.success(prompts);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1170,7 +1078,7 @@ class ApiService {
       return ApiResponse.success(prompts);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1199,7 +1107,7 @@ class ApiService {
       return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1222,7 +1130,7 @@ class ApiService {
       return ApiResponse.success(ProfilePrompt.fromJson(data['prompt']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1243,7 +1151,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1266,7 +1174,7 @@ class ApiService {
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1285,7 +1193,7 @@ class ApiService {
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1303,7 +1211,7 @@ class ApiService {
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1322,7 +1230,7 @@ class ApiService {
       return ApiResponse.success(VisitorsData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1339,7 +1247,7 @@ class ApiService {
       return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1358,7 +1266,7 @@ class ApiService {
       return ApiResponse.success(CoupleAnniversaryData.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1380,7 +1288,7 @@ class ApiService {
       return ApiResponse.success(milestones);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1397,7 +1305,7 @@ class ApiService {
       return ApiResponse.success(data['card_url'] as String? ?? '');
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1421,7 +1329,7 @@ class ApiService {
       return ApiResponse.success(stories);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1452,7 +1360,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1468,7 +1376,7 @@ class ApiService {
       return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 
@@ -1493,932 +1401,8 @@ class ApiService {
       return ApiResponse.success(SuccessStory.fromJson(data['story']));
     } catch (e) {
       debugPrint('API Error: $e');
-      return ApiResponse.failure(e.toString());
+      return _networkFailure(e);
     }
   }
 }
 
-// ============ MODELS ============
-
-/// Conversation model
-class Conversation {
-  final int id;
-  final int matchId;
-  final String? lastMessage;
-  final DateTime? lastMessageAt;
-  final int unreadCount;
-  final ConversationUser? otherUser;
-
-  Conversation({
-    required this.id,
-    required this.matchId,
-    this.lastMessage,
-    this.lastMessageAt,
-    this.unreadCount = 0,
-    this.otherUser,
-  });
-
-  factory Conversation.fromJson(Map<String, dynamic> json) {
-    return Conversation(
-      id: _parseIntSafe(json['id']) ?? 0,
-      matchId: _parseIntSafe(json['matchId']) ?? 0,
-      lastMessage: json['lastMessage'] as String?,
-      lastMessageAt: json['lastMessageAt'] != null
-          ? DateTime.parse(json['lastMessageAt'])
-          : null,
-      unreadCount: _parseIntSafe(json['unreadCount']) ?? 0,
-      otherUser: json['otherUser'] != null
-          ? ConversationUser.fromJson(json['otherUser'])
-          : null,
-    );
-  }
-}
-
-/// Conversation user model
-class ConversationUser {
-  final int userId;
-  final String? displayName;
-  final String? picture;
-  final bool isVerified;
-
-  ConversationUser({
-    required this.userId,
-    this.displayName,
-    this.picture,
-    this.isVerified = false,
-  });
-
-  factory ConversationUser.fromJson(Map<String, dynamic> json) {
-    return ConversationUser(
-      userId: _parseIntSafe(json['user_id']) ?? 0,
-      displayName: json['display_name'] as String?,
-      picture: json['picture'] as String?,
-      isVerified: json['is_verified'] == true,
-    );
-  }
-}
-
-/// Message model
-class Message {
-  final int id;
-  final int senderId;
-  final String content;
-  final String? imageUrl;
-  final String messageType; // 'text' or 'image'
-  final bool isRead;
-  final DateTime createdAt;
-
-  Message({
-    required this.id,
-    required this.senderId,
-    required this.content,
-    this.imageUrl,
-    this.messageType = 'text',
-    this.isRead = false,
-    required this.createdAt,
-  });
-
-  bool get isImage => messageType == 'image' || imageUrl != null;
-
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
-      id: _parseIntSafe(json['id']) ?? 0,
-      senderId: _parseIntSafe(json['sender_id']) ?? 0,
-      content: json['content'] as String? ?? '',
-      imageUrl: json['image_url'] as String?,
-      messageType: json['message_type'] as String? ?? 'text',
-      isRead: json['is_read'] == true,
-      createdAt: DateTime.parse(json['created_at']),
-    );
-  }
-}
-
-/// Event model
-class Event {
-  final int id;
-  final String title;
-  final String? description;
-  final String? eventType;
-  final String? location;
-  final String? address;
-  final double? latitude;
-  final double? longitude;
-  final DateTime date;
-  final String? time;
-  final String? endTime;
-  final double price;
-  final String currency;
-  final int? maxAttendees;
-  final int attendeeCount;
-  final String? imageUrl;
-  final bool isPublished;
-  final String? userRsvpStatus;
-
-  Event({
-    required this.id,
-    required this.title,
-    this.description,
-    this.eventType,
-    this.location,
-    this.address,
-    this.latitude,
-    this.longitude,
-    required this.date,
-    this.time,
-    this.endTime,
-    this.price = 0,
-    this.currency = 'EUR',
-    this.maxAttendees,
-    this.attendeeCount = 0,
-    this.imageUrl,
-    this.isPublished = false,
-    this.userRsvpStatus,
-  });
-
-  factory Event.fromJson(Map<String, dynamic> json) {
-    return Event(
-      id: _parseIntSafe(json['id']) ?? 0,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      eventType: json['event_type'] as String?,
-      location: json['location'] as String?,
-      address: json['address'] as String?,
-      latitude: _parseDoubleSafe(json['latitude']),
-      longitude: _parseDoubleSafe(json['longitude']),
-      date: DateTime.parse(json['date']),
-      time: json['time'] as String?,
-      endTime: json['end_time'] as String?,
-      price: _parseDoubleSafe(json['price']) ?? 0,
-      currency: json['currency'] as String? ?? 'EUR',
-      maxAttendees: _parseIntSafe(json['max_attendees']),
-      attendeeCount: _parseIntSafe(json['attendee_count']) ?? 0,
-      imageUrl: json['image_url'] as String?,
-      isPublished: json['is_published'] == true,
-      userRsvpStatus: json['user_rsvp_status'] as String?,
-    );
-  }
-
-  String get formattedPrice {
-    if (price == 0) return 'Gratuit';
-    return '${price.toStringAsFixed(0)} $currency';
-  }
-
-  String get spotsLeft {
-    if (maxAttendees == null) return 'Places illimitées';
-    final left = maxAttendees! - attendeeCount;
-    if (left <= 0) return 'Complet';
-    return '$left places restantes';
-  }
-}
-
-/// Blocked user model
-class BlockedUser {
-  final int id;
-  final int userId;
-  final String? displayName;
-  final String? picture;
-  final DateTime blockedAt;
-
-  BlockedUser({
-    required this.id,
-    required this.userId,
-    this.displayName,
-    this.picture,
-    required this.blockedAt,
-  });
-
-  factory BlockedUser.fromJson(Map<String, dynamic> json) {
-    return BlockedUser(
-      id: _parseIntSafe(json['id']) ?? 0,
-      userId: _parseIntSafe(json['user_id']) ?? 0,
-      displayName: json['display_name'] as String?,
-      picture: json['picture'] as String?,
-      blockedAt: json['blocked_at'] != null
-          ? DateTime.parse(json['blocked_at'])
-          : DateTime.now(),
-    );
-  }
-}
-
-/// Report categories
-class ReportCategory {
-  final String id;
-  final String label;
-  final String description;
-  final String severity;
-
-  const ReportCategory({
-    required this.id,
-    required this.label,
-    required this.description,
-    required this.severity,
-  });
-
-  static const List<ReportCategory> categories = [
-    ReportCategory(
-      id: 'fake_profile',
-      label: 'Faux profil',
-      description: 'Photos volées, identité fausse',
-      severity: 'high',
-    ),
-    ReportCategory(
-      id: 'inappropriate_photos',
-      label: 'Photos inappropriées',
-      description: 'Contenu sexuel, violent ou choquant',
-      severity: 'high',
-    ),
-    ReportCategory(
-      id: 'harassment',
-      label: 'Harcèlement',
-      description: 'Messages insistants, menaces, insultes',
-      severity: 'critical',
-    ),
-    ReportCategory(
-      id: 'spam',
-      label: 'Spam / Arnaque',
-      description: 'Publicité, demande d\'argent, liens suspects',
-      severity: 'high',
-    ),
-    ReportCategory(
-      id: 'underage',
-      label: 'Mineur',
-      description: 'La personne semble avoir moins de 18 ans',
-      severity: 'critical',
-    ),
-    ReportCategory(
-      id: 'offline_behavior',
-      label: 'Comportement hors app',
-      description: 'Comportement inapproprié lors d\'une rencontre',
-      severity: 'medium',
-    ),
-    ReportCategory(
-      id: 'other',
-      label: 'Autre',
-      description: 'Autre raison (précisez)',
-      severity: 'low',
-    ),
-  ];
-}
-
-/// Likes data model
-class LikesData {
-  final int count;
-  final bool isPremium;
-  final List<LikeProfile> likes;
-
-  LikesData({
-    required this.count,
-    required this.isPremium,
-    required this.likes,
-  });
-
-  // Alias for count
-  int get totalCount => count;
-
-  factory LikesData.fromJson(Map<String, dynamic> json) {
-    return LikesData(
-      count: _parseIntSafe(json['count']) ?? 0,
-      isPremium: json['is_premium'] == true,
-      likes: (json['likes'] as List<dynamic>?)
-          ?.map((e) => LikeProfile.fromJson(e))
-          .toList() ?? [],
-    );
-  }
-
-  String get displayCount {
-    if (count <= 10) return '$count';
-    if (count <= 25) return '10+';
-    if (count <= 50) return '25+';
-    if (count <= 99) return '50+';
-    return '99+';
-  }
-}
-
-/// Like profile model
-class LikeProfile {
-  final int userId;
-  final String? displayName;
-  final String? picture;
-  final int? age;
-  final bool isVerified;
-  final DateTime likedAt;
-  final double? distance;
-
-  LikeProfile({
-    required this.userId,
-    this.displayName,
-    this.picture,
-    this.age,
-    this.isVerified = false,
-    required this.likedAt,
-    this.distance,
-  });
-
-  // Alias for picture
-  String? get photoUrl => picture;
-
-  factory LikeProfile.fromJson(Map<String, dynamic> json) {
-    return LikeProfile(
-      userId: _parseIntSafe(json['user_id']) ?? 0,
-      displayName: json['display_name'] as String?,
-      picture: json['picture'] as String?,
-      age: _parseIntSafe(json['age']),
-      isVerified: json['is_verified'] == true,
-      likedAt: json['liked_at'] != null
-          ? DateTime.parse(json['liked_at'])
-          : DateTime.now(),
-      distance: _parseDoubleSafe(json['distance']),
-    );
-  }
-}
-
-/// Prompt template model
-class PromptTemplate {
-  final String id;
-  final String text;
-  final String? category;
-
-  PromptTemplate({
-    required this.id,
-    required this.text,
-    this.category,
-  });
-
-  factory PromptTemplate.fromJson(Map<String, dynamic> json) {
-    return PromptTemplate(
-      id: json['id'] as String,
-      text: json['text'] as String,
-      category: json['category'] as String?,
-    );
-  }
-
-  /// Default prompts list (used if API unavailable)
-  static const List<Map<String, String>> defaultPrompts = [
-    // Personnalité
-    {'id': 'perfect_sunday', 'text': 'Mon dimanche parfait...', 'category': 'personality'},
-    {'id': 'fun_fact', 'text': 'Un fait surprenant sur moi...', 'category': 'personality'},
-    {'id': 'life_goal', 'text': 'Un de mes objectifs dans la vie...', 'category': 'personality'},
-    {'id': 'pet_peeve', 'text': 'Ce qui m\'énerve le plus...', 'category': 'personality'},
-    {'id': 'proud_of', 'text': 'Je suis fier(e) de...', 'category': 'personality'},
-    {'id': 'looking_for', 'text': 'Je cherche quelqu\'un qui...', 'category': 'personality'},
-    // Lifestyle
-    {'id': 'ideal_vacation', 'text': 'Mes vacances idéales...', 'category': 'lifestyle'},
-    {'id': 'favorite_food', 'text': 'Mon plat préféré...', 'category': 'lifestyle'},
-    {'id': 'hidden_talent', 'text': 'Mon talent caché...', 'category': 'lifestyle'},
-    {'id': 'binge_watching', 'text': 'En ce moment je regarde...', 'category': 'lifestyle'},
-    // Judaïsme
-    {'id': 'shabbat_ideal', 'text': 'Mon Shabbat idéal...', 'category': 'jewish'},
-    {'id': 'family_tradition', 'text': 'Une tradition familiale que j\'adore...', 'category': 'jewish'},
-    {'id': 'favorite_holiday', 'text': 'Ma fête juive préférée...', 'category': 'jewish'},
-    {'id': 'friday_night', 'text': 'Le vendredi soir chez moi...', 'category': 'jewish'},
-    {'id': 'israel_memory', 'text': 'Mon meilleur souvenir en Israël...', 'category': 'jewish'},
-    {'id': 'jewish_value', 'text': 'Une valeur juive qui me guide...', 'category': 'jewish'},
-    // Conversation starters
-    {'id': 'debate_me', 'text': 'Débats moi sur...', 'category': 'conversation'},
-    {'id': 'teach_me', 'text': 'Apprends-moi quelque chose sur...', 'category': 'conversation'},
-    {'id': 'together_we_could', 'text': 'Ensemble on pourrait...', 'category': 'conversation'},
-    {'id': 'first_date', 'text': 'Premier date idéal...', 'category': 'conversation'},
-  ];
-}
-
-/// Profile prompt model
-class ProfilePrompt {
-  final int id;
-  final String promptId;
-  final String promptText;
-  final String answer;
-  final int position;
-
-  ProfilePrompt({
-    required this.id,
-    required this.promptId,
-    required this.promptText,
-    required this.answer,
-    required this.position,
-  });
-
-  factory ProfilePrompt.fromJson(Map<String, dynamic> json) {
-    return ProfilePrompt(
-      id: _parseIntSafe(json['id']) ?? 0,
-      promptId: json['prompt_id'] as String,
-      promptText: json['prompt_text'] as String? ?? '',
-      answer: json['answer'] as String,
-      position: _parseIntSafe(json['position']) ?? 1,
-    );
-  }
-}
-
-/// Relationship intention
-class RelationshipIntention {
-  final String id;
-  final String label;
-  final String icon;
-  final String description;
-
-  const RelationshipIntention({
-    required this.id,
-    required this.label,
-    required this.icon,
-    required this.description,
-  });
-
-  static const List<RelationshipIntention> intentions = [
-    RelationshipIntention(
-      id: 'marriage',
-      label: 'Mariage',
-      icon: 'ring',
-      description: 'Je cherche mon/ma futur(e) mari/femme',
-    ),
-    RelationshipIntention(
-      id: 'serious',
-      label: 'Relation sérieuse',
-      icon: 'heart',
-      description: 'Je cherche une relation durable',
-    ),
-    RelationshipIntention(
-      id: 'open',
-      label: 'Ouvert(e) à tout',
-      icon: 'sparkles',
-      description: 'On verra où ça nous mène',
-    ),
-    RelationshipIntention(
-      id: 'friends_first',
-      label: 'Amitié d\'abord',
-      icon: 'users',
-      description: 'Commençons par apprendre à se connaître',
-    ),
-  ];
-}
-
-/// Compatibility score between two users
-class CompatibilityScore {
-  final int score; // 0-100
-  final bool isSuperCompatible; // score > 85
-  final List<CompatibilityFactor> factors;
-
-  CompatibilityScore({
-    required this.score,
-    required this.isSuperCompatible,
-    required this.factors,
-  });
-
-  factory CompatibilityScore.fromJson(Map<String, dynamic> json) {
-    final score = _parseIntSafe(json['score']) ?? 0;
-    return CompatibilityScore(
-      score: score,
-      isSuperCompatible: score >= 85,
-      factors: (json['factors'] as List<dynamic>?)
-              ?.map((f) => CompatibilityFactor.fromJson(f))
-              .toList() ??
-          [],
-    );
-  }
-
-  /// Calculate compatibility locally (fallback if API not available)
-  static CompatibilityScore calculate({
-    required Profile myProfile,
-    required Profile otherProfile,
-  }) {
-    final factors = <CompatibilityFactor>[];
-    int totalScore = 0;
-    int factorCount = 0;
-
-    // 1. Relationship intention match (30 points)
-    if (myProfile.relationshipIntention != null &&
-        otherProfile.relationshipIntention != null) {
-      factorCount++;
-      if (myProfile.relationshipIntention == otherProfile.relationshipIntention) {
-        totalScore += 30;
-        factors.add(CompatibilityFactor(
-          name: 'Intentions',
-          score: 100,
-          description: 'Vous cherchez la meme chose',
-          icon: 'heart',
-        ));
-      } else {
-        factors.add(CompatibilityFactor(
-          name: 'Intentions',
-          score: 40,
-          description: 'Intentions differentes',
-          icon: 'heart',
-        ));
-        totalScore += 12;
-      }
-    }
-
-    // 2. Jewish practice alignment (25 points)
-    if (myProfile.denomination != null && otherProfile.denomination != null) {
-      factorCount++;
-      final denom1 = myProfile.denomination!.toLowerCase();
-      final denom2 = otherProfile.denomination!.toLowerCase();
-      if (denom1 == denom2) {
-        totalScore += 25;
-        factors.add(CompatibilityFactor(
-          name: 'Pratique',
-          score: 100,
-          description: 'Meme denomination',
-          icon: 'star',
-        ));
-      } else {
-        // Partial match for similar denominations
-        final similarGroups = [
-          ['orthodox', 'modern orthodox', 'habad'],
-          ['massorti', 'traditionaliste'],
-          ['laique'],
-        ];
-        bool similar = false;
-        for (final group in similarGroups) {
-          if (group.contains(denom1) && group.contains(denom2)) {
-            similar = true;
-            break;
-          }
-        }
-        if (similar) {
-          totalScore += 18;
-          factors.add(CompatibilityFactor(
-            name: 'Pratique',
-            score: 70,
-            description: 'Pratique similaire',
-            icon: 'star',
-          ));
-        } else {
-          totalScore += 8;
-          factors.add(CompatibilityFactor(
-            name: 'Pratique',
-            score: 30,
-            description: 'Pratique differente',
-            icon: 'star',
-          ));
-        }
-      }
-    }
-
-    // 3. Age compatibility (20 points)
-    if (myProfile.age != null && otherProfile.age != null) {
-      factorCount++;
-      final ageDiff = (myProfile.age! - otherProfile.age!).abs();
-      if (ageDiff <= 3) {
-        totalScore += 20;
-        factors.add(CompatibilityFactor(
-          name: 'Age',
-          score: 100,
-          description: 'Age tres proche',
-          icon: 'calendar',
-        ));
-      } else if (ageDiff <= 5) {
-        totalScore += 16;
-        factors.add(CompatibilityFactor(
-          name: 'Age',
-          score: 80,
-          description: 'Age proche',
-          icon: 'calendar',
-        ));
-      } else if (ageDiff <= 10) {
-        totalScore += 10;
-        factors.add(CompatibilityFactor(
-          name: 'Age',
-          score: 50,
-          description: 'Difference d\'age moderee',
-          icon: 'calendar',
-        ));
-      } else {
-        totalScore += 4;
-        factors.add(CompatibilityFactor(
-          name: 'Age',
-          score: 20,
-          description: 'Grande difference d\'age',
-          icon: 'calendar',
-        ));
-      }
-    }
-
-    // 4. Location/Distance (25 points)
-    if (otherProfile.distance != null) {
-      factorCount++;
-      final dist = otherProfile.distance!;
-      if (dist <= 10) {
-        totalScore += 25;
-        factors.add(CompatibilityFactor(
-          name: 'Distance',
-          score: 100,
-          description: 'Tres proche (< 10km)',
-          icon: 'map-pin',
-        ));
-      } else if (dist <= 25) {
-        totalScore += 20;
-        factors.add(CompatibilityFactor(
-          name: 'Distance',
-          score: 80,
-          description: 'Proche (< 25km)',
-          icon: 'map-pin',
-        ));
-      } else if (dist <= 50) {
-        totalScore += 12;
-        factors.add(CompatibilityFactor(
-          name: 'Distance',
-          score: 50,
-          description: 'Distance moderee',
-          icon: 'map-pin',
-        ));
-      } else {
-        totalScore += 5;
-        factors.add(CompatibilityFactor(
-          name: 'Distance',
-          score: 20,
-          description: 'Assez loin',
-          icon: 'map-pin',
-        ));
-      }
-    }
-
-    // Normalize score if we have factors
-    final finalScore = factorCount > 0 ? (totalScore * 100 ~/ (factorCount * 25)) : 50;
-    final clampedScore = finalScore.clamp(0, 100);
-
-    return CompatibilityScore(
-      score: clampedScore,
-      isSuperCompatible: clampedScore >= 85,
-      factors: factors,
-    );
-  }
-}
-
-/// Individual compatibility factor
-class CompatibilityFactor {
-  final String name;
-  final int score; // 0-100
-  final String description;
-  final String icon;
-
-  CompatibilityFactor({
-    required this.name,
-    required this.score,
-    required this.description,
-    required this.icon,
-  });
-
-  factory CompatibilityFactor.fromJson(Map<String, dynamic> json) {
-    return CompatibilityFactor(
-      name: json['name'] as String? ?? '',
-      score: _parseIntSafe(json['score']) ?? 0,
-      description: json['description'] as String? ?? '',
-      icon: json['icon'] as String? ?? 'star',
-    );
-  }
-}
-
-/// Profile boost status
-class BoostStatus {
-  final bool isActive;
-  final DateTime? expiresAt;
-  final int? remainingBoosts; // null if unlimited (premium)
-  final int viewsDuringBoost;
-  final int likesDuringBoost;
-
-  BoostStatus({
-    required this.isActive,
-    this.expiresAt,
-    this.remainingBoosts,
-    this.viewsDuringBoost = 0,
-    this.likesDuringBoost = 0,
-  });
-
-  int get minutesRemaining {
-    if (!isActive || expiresAt == null) return 0;
-    return expiresAt!.difference(DateTime.now()).inMinutes.clamp(0, 999);
-  }
-
-  factory BoostStatus.fromJson(Map<String, dynamic> json) {
-    return BoostStatus(
-      isActive: json['is_active'] == true,
-      expiresAt: json['expires_at'] != null
-          ? DateTime.tryParse(json['expires_at'])
-          : null,
-      remainingBoosts: _parseIntSafe(json['remaining_boosts']),
-      viewsDuringBoost: _parseIntSafe(json['views_during_boost']) ?? 0,
-      likesDuringBoost: _parseIntSafe(json['likes_during_boost']) ?? 0,
-    );
-  }
-}
-
-/// Profile visitor
-class ProfileVisitor {
-  final int userId;
-  final String? displayName;
-  final String? photoUrl;
-  final int? age;
-  final bool isVerified;
-  final DateTime visitedAt;
-  final bool isBlurred; // true for free users
-
-  ProfileVisitor({
-    required this.userId,
-    this.displayName,
-    this.photoUrl,
-    this.age,
-    this.isVerified = false,
-    required this.visitedAt,
-    this.isBlurred = true,
-  });
-
-  factory ProfileVisitor.fromJson(Map<String, dynamic> json) {
-    return ProfileVisitor(
-      userId: _parseIntSafe(json['user_id']) ?? 0,
-      displayName: json['display_name'] as String?,
-      photoUrl: json['photo_url'] as String?,
-      age: _parseIntSafe(json['age']),
-      isVerified: json['is_verified'] == true,
-      visitedAt: DateTime.tryParse(json['visited_at'] ?? '') ?? DateTime.now(),
-      isBlurred: json['is_blurred'] == true,
-    );
-  }
-}
-
-/// Visitors data (includes premium status)
-class VisitorsData {
-  final List<ProfileVisitor> visitors;
-  final int totalCount;
-  final bool isPremium;
-
-  VisitorsData({
-    required this.visitors,
-    required this.totalCount,
-    required this.isPremium,
-  });
-
-  factory VisitorsData.fromJson(Map<String, dynamic> json) {
-    return VisitorsData(
-      visitors: (json['visitors'] as List<dynamic>?)
-              ?.map((v) => ProfileVisitor.fromJson(v))
-              .toList() ??
-          [],
-      totalCount: _parseIntSafe(json['total_count']) ?? 0,
-      isPremium: json['is_premium'] == true,
-    );
-  }
-}
-
-/// Couple anniversary data
-class CoupleAnniversaryData {
-  final DateTime matchDate;
-  final int daysTogether;
-  final String partnerName;
-  final String? partnerPhotoUrl;
-  final String? myPhotoUrl;
-  final CoupleMilestone? currentMilestone;
-  final CoupleMilestone? nextMilestone;
-  final bool isAnniversaryToday;
-
-  CoupleAnniversaryData({
-    required this.matchDate,
-    required this.daysTogether,
-    required this.partnerName,
-    this.partnerPhotoUrl,
-    this.myPhotoUrl,
-    this.currentMilestone,
-    this.nextMilestone,
-    this.isAnniversaryToday = false,
-  });
-
-  factory CoupleAnniversaryData.fromJson(Map<String, dynamic> json) {
-    return CoupleAnniversaryData(
-      matchDate: DateTime.tryParse(json['match_date'] ?? '') ?? DateTime.now(),
-      daysTogether: _parseIntSafe(json['days_together']) ?? 0,
-      partnerName: json['partner_name'] as String? ?? '',
-      partnerPhotoUrl: json['partner_photo_url'] as String?,
-      myPhotoUrl: json['my_photo_url'] as String?,
-      currentMilestone: json['current_milestone'] != null
-          ? CoupleMilestone.fromJson(json['current_milestone'])
-          : null,
-      nextMilestone: json['next_milestone'] != null
-          ? CoupleMilestone.fromJson(json['next_milestone'])
-          : null,
-      isAnniversaryToday: json['is_anniversary_today'] == true,
-    );
-  }
-}
-
-/// Couple milestone
-class CoupleMilestone {
-  final int days;
-  final String label;
-  final String icon;
-  final bool isSpecial;
-  final DateTime? date;
-  final int? daysUntil;
-  final bool isReached;
-
-  CoupleMilestone({
-    required this.days,
-    required this.label,
-    required this.icon,
-    this.isSpecial = false,
-    this.date,
-    this.daysUntil,
-    this.isReached = false,
-  });
-
-  factory CoupleMilestone.fromJson(Map<String, dynamic> json) {
-    return CoupleMilestone(
-      days: _parseIntSafe(json['days']) ?? 0,
-      label: json['label'] as String? ?? '',
-      icon: json['icon'] as String? ?? 'heart',
-      isSpecial: json['is_special'] == true,
-      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
-      daysUntil: _parseIntSafe(json['days_until']),
-      isReached: json['is_reached'] == true,
-    );
-  }
-
-  /// Predefined milestones
-  static List<CoupleMilestone> get defaultMilestones => [
-        CoupleMilestone(days: 7, label: '1 semaine', icon: 'seedling'),
-        CoupleMilestone(days: 30, label: '1 mois', icon: 'heart'),
-        CoupleMilestone(days: 90, label: '3 mois', icon: 'star'),
-        CoupleMilestone(days: 180, label: '6 mois', icon: 'fire'),
-        CoupleMilestone(days: 365, label: '1 an', icon: 'crown', isSpecial: true),
-        CoupleMilestone(days: 730, label: '2 ans', icon: 'diamond', isSpecial: true),
-      ];
-}
-
-/// Success story
-class SuccessStory {
-  final int id;
-  final String couple1Name;
-  final String couple2Name;
-  final String? couple1PhotoUrl;
-  final String? couple2PhotoUrl;
-  final String story;
-  final List<String> photoUrls;
-  final String status; // 'dating', 'engaged', 'married'
-  final DateTime? statusDate;
-  final DateTime matchDate;
-  final DateTime submittedAt;
-  final int likesCount;
-  final bool isLikedByMe;
-  final bool isApproved;
-
-  SuccessStory({
-    required this.id,
-    required this.couple1Name,
-    required this.couple2Name,
-    this.couple1PhotoUrl,
-    this.couple2PhotoUrl,
-    required this.story,
-    this.photoUrls = const [],
-    this.status = 'dating',
-    this.statusDate,
-    required this.matchDate,
-    required this.submittedAt,
-    this.likesCount = 0,
-    this.isLikedByMe = false,
-    this.isApproved = false,
-  });
-
-  String get statusLabel {
-    switch (status) {
-      case 'engaged':
-        return 'Fiances';
-      case 'married':
-        return 'Maries';
-      default:
-        return 'En couple';
-    }
-  }
-
-  String get statusEmoji {
-    switch (status) {
-      case 'engaged':
-        return '💍';
-      case 'married':
-        return '👰';
-      default:
-        return '❤️';
-    }
-  }
-
-  factory SuccessStory.fromJson(Map<String, dynamic> json) {
-    return SuccessStory(
-      id: _parseIntSafe(json['id']) ?? 0,
-      couple1Name: json['couple1_name'] as String? ?? '',
-      couple2Name: json['couple2_name'] as String? ?? '',
-      couple1PhotoUrl: json['couple1_photo_url'] as String?,
-      couple2PhotoUrl: json['couple2_photo_url'] as String?,
-      story: json['story'] as String? ?? '',
-      photoUrls: (json['photo_urls'] as List<dynamic>?)
-              ?.map((p) => p as String)
-              .toList() ??
-          [],
-      status: json['status'] as String? ?? 'dating',
-      statusDate: json['status_date'] != null
-          ? DateTime.tryParse(json['status_date'])
-          : null,
-      matchDate: DateTime.tryParse(json['match_date'] ?? '') ?? DateTime.now(),
-      submittedAt:
-          DateTime.tryParse(json['submitted_at'] ?? '') ?? DateTime.now(),
-      likesCount: _parseIntSafe(json['likes_count']) ?? 0,
-      isLikedByMe: json['is_liked_by_me'] == true,
-      isApproved: json['is_approved'] == true,
-    );
-  }
-}

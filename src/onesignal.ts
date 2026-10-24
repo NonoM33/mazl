@@ -76,7 +76,11 @@ export async function sendPushNotification(params: PushNotificationParams): Prom
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
+    const result = (await response.json()) as {
+      id?: string;
+      recipients?: number;
+      errors?: string[];
+    };
 
     if (!response.ok) {
       console.error("OneSignal error:", result);

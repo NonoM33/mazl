@@ -79,9 +79,9 @@ void main() {
 
       test('spotsLeft calculates correctly', () {
         final event = MockData.events.firstWhere(
-            (e) => e.maxCouples != null && e.currentCouples != null);
+            (e) => e.maxCouples != null);
 
-        final expected = event.maxCouples! - event.currentCouples!;
+        final expected = event.maxCouples! - event.currentCouples;
         expect(event.spotsLeft, equals(expected));
       });
 

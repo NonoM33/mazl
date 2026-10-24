@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Widget to manage profile prompts (Hinge-style Q&A)
 class ProfilePromptsSection extends StatefulWidget {
@@ -81,7 +82,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     if (availableToAdd.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Tous les prompts sont deja utilises'),
+          content: Text('Tous les prompts sont déjà utilisés'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -89,10 +90,10 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     }
 
     // Show prompt selection dialog
-    final selectedTemplate = await showModalBottomSheet<PromptTemplate>(
-      context: context,
+    final selectedTemplate = await showMazlSheet<PromptTemplate>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => _PromptSelectionSheet(prompts: availableToAdd),
     );
 
@@ -146,7 +147,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de la mise a jour'),
+            content: Text(result.error ?? 'Erreur lors de la mise à jour'),
             backgroundColor: Colors.red,
           ),
         );
@@ -160,7 +161,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Supprimer ce prompt ?'),
-        content: const Text('Cette action est irreversible.'),
+        content: const Text('Cette action est irréversible.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -189,7 +190,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         });
         widget.onPromptsChanged?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prompt supprime')),
+          const SnackBar(content: Text('Prompt supprimé')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -205,95 +206,65 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   Future<String?> _showAnswerDialog(String question, {String? currentAnswer}) async {
     final controller = TextEditingController(text: currentAnswer);
 
-    return showModalBottomSheet<String>(
-      context: context,
+    return showMazlSheet<String>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Question
+          Text(
+            question,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-                  // Question
-                  Text(
-                    question,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Answer field
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    maxLines: 4,
-                    maxLength: 150,
-                    decoration: InputDecoration(
-                      hintText: 'Ta reponse...',
-                      filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Save button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final text = controller.text.trim();
-                        if (text.isNotEmpty) {
-                          Navigator.pop(context, text);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Enregistrer'),
-                    ),
-                  ),
-                ],
+          // Answer field
+          TextField(
+            controller: controller,
+            autofocus: true,
+            maxLines: 4,
+            maxLength: 150,
+            decoration: InputDecoration(
+              hintText: 'Votre réponse…',
+              filled: true,
+              fillColor: Colors.grey.withValues(alpha: 0.1),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary, width: 2),
               ),
             ),
           ),
-        ),
+          const SizedBox(height: 16),
+
+          // Save button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty) {
+                  Navigator.pop(context, text);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Enregistrer'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -325,7 +296,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Reponds a des questions pour montrer ta personnalite',
+          'Répondez à des questions pour montrer votre personnalité',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -345,7 +316,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
             child: Column(
               children: [
                 Text(_error!, style: TextStyle(color: Colors.grey[600])),
-                TextButton(onPressed: _loadData, child: const Text('Reessayer')),
+                TextButton(onPressed: _loadData, child: const Text('Réessayer')),
               ],
             ),
           )
@@ -390,7 +361,7 @@ class _PromptCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -403,7 +374,7 @@ class _PromptCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Row(
@@ -420,6 +391,8 @@ class _PromptCard extends StatelessWidget {
                 ),
                 // Actions
                 PopupMenuButton<String>(
+                  // Above the floating tab bar, like every overlay (sheet_rules_test).
+                  useRootNavigator: true,
                   icon: Icon(LucideIcons.moreVertical, size: 18, color: AppColors.primary),
                   onSelected: (value) {
                     if (value == 'edit') onEdit();
@@ -521,29 +494,15 @@ class _PromptSelectionSheet extends StatelessWidget {
       grouped.putIfAbsent(category, () => []).add(prompt);
     }
 
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       child: Column(
         children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
           // Title
           const Padding(
             padding: EdgeInsets.all(20),
             child: Text(
-              'Choisis un prompt',
+              'Choisissez un prompt',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

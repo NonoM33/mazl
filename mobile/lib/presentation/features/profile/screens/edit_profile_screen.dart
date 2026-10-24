@@ -2,12 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/profile_prompts_section.dart';
 import '../widgets/relationship_intention_selector.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -113,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Profil mis a jour !'),
+            content: Text('Profil mis à jour'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -159,7 +160,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Photo ajoutee !'),
+              content: Text('Photo ajoutée'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -168,7 +169,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(response.error ?? 'Erreur d\'upload'),
+              content: Text(response.error ?? 'Erreur d\'envoi'),
               backgroundColor: Colors.red,
             ),
           );
@@ -188,98 +189,79 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _deletePhoto(ProfilePhoto photo) async {
-    final confirmed = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.trash2,
-                  color: Colors.red,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Supprimer la photo ?',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Cette action est irreversible',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Buttons
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Text('Annuler'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Text('Supprimer'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+    final confirmed = await showMazlSheet<bool>(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Icon
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              LucideIcons.trash2,
+              color: Colors.red,
+              size: 32,
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+          const Text(
+            'Supprimer la photo ?',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Cette action est irréversible',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Annuler'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Supprimer'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
 
@@ -294,7 +276,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo supprimee')),
+            const SnackBar(content: Text('Photo supprimée')),
           );
         }
       } else {
@@ -329,7 +311,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo principale mise a jour')),
+            const SnackBar(content: Text('Photo principale mise à jour')),
           );
         }
       }
@@ -347,189 +329,148 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _showEditSheet(String title, String? currentValue, Function(String) onSave) {
     final controller = TextEditingController(text: currentValue);
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle bar
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                // Title
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                // Text field
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    controller: controller,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText: 'Entrez votre ${title.toLowerCase()}',
-                      filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        onSave(controller.text);
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Enregistrer',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
+          // Text field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Entrez votre ${title.toLowerCase()}',
+                filled: true,
+                fillColor: Colors.grey.withValues(alpha: 0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  onSave(controller.text);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  'Enregistrer',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
 
   void _showSelectionSheet(String title, String? currentValue, List<String> options, Function(String) onSave) {
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
-              // Title
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              // Options
-              ...options.map((option) {
-                final isSelected = currentValue == option;
-                return InkWell(
-                  onTap: () {
-                    onSave(option);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary.withOpacity(0.1)
-                          : Colors.grey.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(16),
-                      border: isSelected
-                          ? Border.all(color: AppColors.primary, width: 2)
-                          : Border.all(color: Colors.transparent),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            option,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                              color: isSelected ? AppColors.primary : null,
-                            ),
-                          ),
-                        ),
-                        if (isSelected)
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              LucideIcons.check,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
+          // Options
+          ...options.map((option) {
+            final isSelected = currentValue == option;
+            return InkWell(
+              onTap: () {
+                onSave(option);
+                Navigator.pop(context);
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: isSelected
+                      ? Border.all(color: AppColors.primary, width: 2)
+                      : Border.all(color: Colors.transparent),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        option,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: isSelected ? AppColors.primary : null,
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          LucideIcons.check,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -574,7 +515,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadProfile,
-              child: const Text('Reessayer'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -605,7 +546,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Maintiens appuye pour definir comme principale',
+          'Maintenez appuyé pour définir comme principale',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -618,7 +559,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         // Bio
         const Text(
-          'A propos',
+          'À propos',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -630,7 +571,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           maxLines: 4,
           maxLength: 500,
           decoration: const InputDecoration(
-            hintText: 'Parle de toi...',
+            hintText: 'Parlez de vous…',
             border: OutlineInputBorder(),
           ),
         ),
@@ -660,13 +601,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Prenom',
-          value: _displayName ?? 'Non renseigne',
-          onTap: () => _showEditSheet('Prenom', _displayName, (v) => setState(() => _displayName = v)),
+          label: 'Prénom',
+          value: _displayName ?? 'Non renseigné',
+          onTap: () => _showEditSheet('Prénom', _displayName, (v) => setState(() => _displayName = v)),
         ),
         _EditField(
           label: 'Ville',
-          value: _location ?? 'Non renseigne',
+          value: _location ?? 'Non renseigné',
           onTap: () => _showEditSheet('Ville', _location, (v) => setState(() => _location = v)),
         ),
 
@@ -682,10 +623,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Denomination',
-          value: _denomination ?? 'Non renseigne',
+          label: 'Dénomination',
+          value: _denomination ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
-            'Denomination',
+            'Dénomination',
             _denomination,
             ['Laique', 'Traditionaliste', 'Massorti', 'Modern Orthodox', 'Orthodox', 'Habad', 'Autre'],
             (v) => setState(() => _denomination = v),
@@ -693,7 +634,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         _EditField(
           label: 'Kashrout',
-          value: _kashrut ?? 'Non renseigne',
+          value: _kashrut ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
             'Kashrout',
             _kashrut,
@@ -703,7 +644,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         _EditField(
           label: 'Shabbat',
-          value: _shabbatObservance ?? 'Non renseigne',
+          value: _shabbatObservance ?? 'Non renseigné',
           onTap: () => _showSelectionSheet(
             'Shabbat',
             _shabbatObservance,
@@ -784,7 +725,7 @@ class _PhotoSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: hasPhoto
               ? AppColors.primary
-              : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: isPrimary
               ? Border.all(color: AppColors.accentGold, width: 3)
@@ -885,7 +826,7 @@ class _EditField extends StatelessWidget {
       title: Text(
         label,
         style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           fontSize: 14,
         ),
       ),

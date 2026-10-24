@@ -1,7 +1,6 @@
 // Simple Bun server for the landing page
 // Run with: bun run landing-server.ts
 
-import { readdir } from "node:fs/promises";
 import { join, extname } from "node:path";
 
 const PUBLIC_DIR = join(import.meta.dir, "public");
@@ -21,56 +20,71 @@ const MIME_TYPES: Record<string, string> = {
   ".ico": "image/x-icon",
 };
 
-const server = Bun.serve({
-  port: 3000,
-  async fetch(req) {
-    const url = new URL(req.url);
-    let path = url.pathname;
+// Old addresses (linked from the app's premium screen) that moved to the French-named pages.
+const PERMANENT_REDIRECTS: Readonly<Record<string, string>> = {
+  "/terms": "/cgu",
+  "/privacy": "/confidentialite",
+};
 
-    // Default to index.html
-    if (path === "/" || path === "") {
-      path = "/index.html";
-    }
+export async function handleLandingRequest(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  let path = url.pathname;
 
-    const filePath = join(PUBLIC_DIR, path);
+  const redirectTarget = Object.hasOwn(PERMANENT_REDIRECTS, path) ? PERMANENT_REDIRECTS[path] : undefined;
+  if (redirectTarget !== undefined) {
+    return new Response(null, { status: 301, headers: { Location: redirectTarget } });
+  }
 
-    try {
-      const file = Bun.file(filePath);
-      const exists = await file.exists();
+  // Default to index.html
+  if (path === "/" || path === "") {
+    path = "/index.html";
+  }
 
-      if (!exists) {
-        // Try adding .html extension
-        const htmlFile = Bun.file(filePath + ".html");
-        if (await htmlFile.exists()) {
-          const ext = ".html";
-          return new Response(htmlFile, {
-            headers: {
-              "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
-            },
-          });
-        }
+  const filePath = join(PUBLIC_DIR, path);
 
-        // 404
-        return new Response("Not Found", { status: 404 });
+  try {
+    const file = Bun.file(filePath);
+    const exists = await file.exists();
+
+    if (!exists) {
+      // Try adding .html extension
+      const htmlFile = Bun.file(filePath + ".html");
+      if (await htmlFile.exists()) {
+        const ext = ".html";
+        return new Response(htmlFile, {
+          headers: {
+            "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
+          },
+        });
       }
 
-      const ext = extname(path).toLowerCase();
-      return new Response(file, {
-        headers: {
-          "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
-          "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=31536000",
-        },
-      });
-    } catch (error) {
-      return new Response("Server Error", { status: 500 });
+      // 404
+      return new Response("Not Found", { status: 404 });
     }
-  },
-});
 
-console.log(`
+    const ext = extname(path).toLowerCase();
+    return new Response(file, {
+      headers: {
+        "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
+        "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=31536000",
+      },
+    });
+  } catch (error) {
+    return new Response("Server Error", { status: 500 });
+  }
+}
+
+if (import.meta.main) {
+  const server = Bun.serve({
+    port: 3000,
+    fetch: handleLandingRequest,
+  });
+
+  console.log(`
 🚀 MAZL Landing Page Server
    ─────────────────────────
    Local:   http://localhost:${server.port}
 
    Press Ctrl+C to stop
 `);
+}

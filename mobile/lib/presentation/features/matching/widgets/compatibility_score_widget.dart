@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Compact badge showing compatibility score
 class CompatibilityBadge extends StatelessWidget {
@@ -53,9 +54,9 @@ class CompatibilityBadge extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: _padding * 1.5, vertical: _padding),
         decoration: BoxDecoration(
-          color: _color.withOpacity(0.15),
+          color: _color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _color.withOpacity(0.3)),
+          border: Border.all(color: _color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -111,14 +112,14 @@ class CompatibilityScoreCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              _mainColor.withOpacity(0.15),
-              _mainColor.withOpacity(0.05),
+              _mainColor.withValues(alpha: 0.15),
+              _mainColor.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _mainColor.withOpacity(0.3)),
+          border: Border.all(color: _mainColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -138,8 +139,8 @@ class CompatibilityScoreCard extends StatelessWidget {
                       ],
                       Text(
                         score.isSuperCompatible
-                            ? 'Super compatible !'
-                            : 'Compatibilite',
+                            ? 'Très compatible'
+                            : 'Compatibilité',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _mainColor,
@@ -149,7 +150,7 @@ class CompatibilityScoreCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${score.factors.length} criteres analyses',
+                    '${score.factors.length} critères analysés',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -167,10 +168,9 @@ class CompatibilityScoreCard extends StatelessWidget {
   }
 
   void _showDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CompatibilityDetailsSheet(
         score: score,
         userName: userName,
@@ -200,7 +200,7 @@ class _ScoreCircle extends StatelessWidget {
           CircularProgressIndicator(
             value: 1,
             strokeWidth: 4,
-            valueColor: AlwaysStoppedAnimation(color.withOpacity(0.2)),
+            valueColor: AlwaysStoppedAnimation(color.withValues(alpha: 0.2)),
           ),
           // Progress circle
           CircularProgressIndicator(
@@ -258,147 +258,125 @@ class CompatibilityDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Header with score
-              Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header with score
+        Row(
+          children: [
+            _ScoreCircle(score: score.score, color: _mainColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ScoreCircle(score: score.score, color: _mainColor),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            if (score.isSuperCompatible) ...[
-                              Icon(LucideIcons.sparkles, size: 20, color: _mainColor),
-                              const SizedBox(width: 6),
-                            ],
-                            Flexible(
-                              child: Text(
-                                score.isSuperCompatible
-                                    ? 'Super compatible !'
-                                    : 'Score de compatibilite',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: _mainColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (userName != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'Avec $userName',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
+                  Row(
+                    children: [
+                      if (score.isSuperCompatible) ...[
+                        Icon(LucideIcons.sparkles, size: 20, color: _mainColor),
+                        const SizedBox(width: 6),
                       ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Factors list
-              if (score.factors.isNotEmpty) ...[
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...score.factors.map((factor) => _FactorRow(
-                      factor: factor,
-                      icon: _getIcon(factor.icon),
-                    )),
-              ] else
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    'Completez vos profils pour voir plus de details',
-                    style: TextStyle(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-              const SizedBox(height: 16),
-
-              // Info text
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.info.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(LucideIcons.info, size: 18, color: AppColors.info),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Le score est base sur vos preferences et points communs',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
+                      Flexible(
+                        child: Text(
+                          score.isSuperCompatible
+                              ? 'Très compatible'
+                              : 'Score de compatibilité',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: _mainColor,
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                  if (userName != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Avec $userName',
+                      style: TextStyle(
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
+            ),
+          ],
+        ),
 
-              const SizedBox(height: 16),
+        const SizedBox(height: 24),
 
-              // Close button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+        // Factors list
+        if (score.factors.isNotEmpty) ...[
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Détails',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...score.factors.map((factor) => _FactorRow(
+                factor: factor,
+                icon: _getIcon(factor.icon),
+              )),
+        ] else
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              'Complétez vos profils pour voir plus de détails',
+              style: TextStyle(color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+        const SizedBox(height: 16),
+
+        // Info text
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.info.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(LucideIcons.info, size: 18, color: AppColors.info),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Le score est basé sur vos préférences et points communs',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
                   ),
-                  child: const Text('Compris'),
                 ),
               ),
             ],
           ),
         ),
-      ),
+
+        const SizedBox(height: 16),
+
+        // Close button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Compris'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -435,7 +413,7 @@ class _FactorRow extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _color.withOpacity(0.1),
+              color: _color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: _color, size: 20),
@@ -466,7 +444,7 @@ class _FactorRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _color.withOpacity(0.1),
+              color: _color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

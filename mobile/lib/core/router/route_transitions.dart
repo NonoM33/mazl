@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Fade transition for smooth page changes
+import '../motion/mazl_motion.dart';
+
+/// Fade transition for smooth page changes. Under reduced motion every other
+/// transition here becomes this one: no slide, no scale.
 Widget fadeTransition(
   BuildContext context,
   Animation<double> animation,
@@ -20,6 +23,10 @@ Widget slideUpTransition(
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
+  if (MazlMotion.reduced(context)) {
+    return fadeTransition(context, animation, secondaryAnimation, child);
+  }
+
   const begin = Offset(0.0, 1.0);
   const end = Offset.zero;
   const curve = Curves.easeOutCubic;
@@ -40,6 +47,10 @@ Widget slideLeftTransition(
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
+  if (MazlMotion.reduced(context)) {
+    return fadeTransition(context, animation, secondaryAnimation, child);
+  }
+
   const begin = Offset(1.0, 0.0);
   const end = Offset.zero;
   const curve = Curves.easeOutCubic;
@@ -66,6 +77,10 @@ Widget scaleTransition(
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
+  if (MazlMotion.reduced(context)) {
+    return fadeTransition(context, animation, secondaryAnimation, child);
+  }
+
   const curve = Curves.easeOutCubic;
 
   var scaleTween =
@@ -91,6 +106,10 @@ Widget heroTransition(
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
+  if (MazlMotion.reduced(context)) {
+    return fadeTransition(context, animation, secondaryAnimation, child);
+  }
+
   const curve = Curves.easeOutCubic;
 
   var scaleTween =
@@ -117,6 +136,10 @@ Widget sharedAxisTransition(
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
+  if (MazlMotion.reduced(context)) {
+    return fadeTransition(context, animation, secondaryAnimation, child);
+  }
+
   const curve = Curves.easeInOutCubic;
 
   // Outgoing page fades out and scales down slightly
@@ -135,7 +158,13 @@ Widget sharedAxisTransition(
     opacity: animation.drive(primaryFadeTween),
     child: ScaleTransition(
       scale: animation.drive(primaryScaleTween),
-      child: child,
+      child: FadeTransition(
+        opacity: secondaryAnimation.drive(secondaryFadeTween),
+        child: ScaleTransition(
+          scale: secondaryAnimation.drive(secondaryScaleTween),
+          child: child,
+        ),
+      ),
     ),
   );
 }

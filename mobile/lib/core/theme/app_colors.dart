@@ -1,98 +1,111 @@
 import 'package:flutter/material.dart';
 
-/// App color palette
+/// Palette « Encre & Tekhelet » : un fond blanc, une encre presque noire et
+/// un seul accent, le bleu tekhelet. Les anciens noms (secondary, accentGold,
+/// gradients...) restent pour les écrans existants mais pointent tous vers
+/// cette palette : il n'y a plus qu'un accent dans l'application.
 abstract class AppColors {
-  // Primary colors - Blue/Indigo (trust, connection)
-  static const primary = Color(0xFF6366F1);
-  static const primaryLight = Color(0xFF818CF8);
-  static const primaryDark = Color(0xFF4F46E5);
+  // Fondamentaux
+  static const ink = Color(0xFF0B0B0F);
+  static const paper = Color(0xFFFFFFFF);
+  static const tekhelet = Color(0xFF2747F5);
+  static const tekheletLight = Color(0xFF5B78FF);
+  static const tekheletDark = Color(0xFF1A35C9);
 
-  // Secondary colors - Pink/Rose (love, warmth)
-  static const secondary = Color(0xFFEC4899);
-  static const secondaryLight = Color(0xFFF472B6);
-  static const secondaryDark = Color(0xFFDB2777);
+  /// Fond des puces, champs et cartes en mode clair.
+  static const mist = Color(0xFFF3F3F5);
 
-  // Accent colors
-  static const accent = Color(0xFF8B5CF6);
-  static const accentGold = Color(0xFFD4AF37); // Gold for premium features
+  /// Contour des boutons secondaires et des champs.
+  static const hairline = Color(0xFFE2E2E6);
 
-  // Semantic colors
-  static const success = Color(0xFF22C55E);
-  static const warning = Color(0xFFF59E0B);
-  static const error = Color(0xFFEF4444);
-  static const info = Color(0xFF3B82F6);
+  /// Texte secondaire : 5,3:1 sur blanc.
+  static const muted = Color(0xFF6B6B76);
 
-  // Neutral colors - Light mode
-  static const backgroundLight = Color(0xFFF8FAFC);
-  static const surfaceLight = Color(0xFFFFFFFF);
-  static const cardLight = Color(0xFFFFFFFF);
-  static const textPrimaryLight = Color(0xFF1E293B);
-  static const textSecondaryLight = Color(0xFF64748B);
-  static const textTertiaryLight = Color(0xFF94A3B8);
-  static const dividerLight = Color(0xFFE2E8F0);
+  /// Icônes inactives sur l'encre (barre de navigation) : 6:1 sur [ink].
+  static const iconOnInk = Color(0xFF9A9AA5);
 
-  // Neutral colors - Dark mode
-  static const backgroundDark = Color(0xFF0F172A);
-  static const surfaceDark = Color(0xFF1E293B);
-  static const cardDark = Color(0xFF334155);
-  static const textPrimaryDark = Color(0xFFF8FAFC);
-  static const textSecondaryDark = Color(0xFF94A3B8);
-  static const textTertiaryDark = Color(0xFF64748B);
-  static const dividerDark = Color(0xFF334155);
-
-  // Glassmorphism colors
-  static const glassLight = Color(0x80FFFFFF);
-  static const glassDark = Color(0x40000000);
-  static const glassBorderLight = Color(0x40FFFFFF);
-  static const glassBorderDark = Color(0x20FFFFFF);
-
-  // Gradient colors
-  static const gradientStart = Color(0xFF6366F1);
-  static const gradientEnd = Color(0xFFEC4899);
-
-  // Swipe card colors
-  static const likeGreen = Color(0xFF22C55E);
-  static const passRed = Color(0xFFEF4444);
-  static const superLikeBlue = Color(0xFF3B82F6);
-
-  // Special - Shabbat mode
-  static const shabbatGold = Color(0xFFD4AF37);
-  static const shabbatBackground = Color(0xFF1A1A2E);
-  static const candleFlame = Color(0xFFFFB347);
-
-  // Premium gradients
-  static const premiumGradient = [
-    Color(0xFFD4AF37),
-    Color(0xFFF5E6A3),
-    Color(0xFFD4AF37),
+  /// Teintes neutres des emplacements photo, sans dégradé.
+  static const photoTints = [
+    Color(0xFFE7E4DF),
+    Color(0xFFE1E5EA),
+    Color(0xFFE8E2E5),
+    Color(0xFFE1E8E4),
+    Color(0xFFE3E1EA),
   ];
 
-  /// Primary gradient for buttons and highlights
+  // Noms historiques, remappés sur la palette
+  static const primary = tekhelet;
+  static const primaryLight = tekheletLight;
+  static const primaryDark = tekheletDark;
+
+  static const secondary = tekhelet;
+  static const secondaryLight = tekheletLight;
+  static const secondaryDark = tekheletDark;
+
+  static const accent = tekhelet;
+  static const accentGold = tekhelet;
+
+  // Sémantique
+  static const success = Color(0xFF15803D);
+  static const warning = Color(0xFFB45309);
+  static const error = Color(0xFFC8281C);
+  static const info = tekhelet;
+
+  // Neutres — clair
+  static const backgroundLight = paper;
+  static const surfaceLight = paper;
+  static const cardLight = mist;
+  static const textPrimaryLight = ink;
+  static const textSecondaryLight = muted;
+  static const textTertiaryLight = Color(0xFF8A8A94);
+  static const dividerLight = Color(0xFFEDEDF0);
+
+  // Neutres — sombre
+  static const backgroundDark = ink;
+  static const surfaceDark = Color(0xFF141418);
+  static const cardDark = Color(0xFF1C1C22);
+  static const textPrimaryDark = Color(0xFFF4F4F5);
+  static const textSecondaryDark = Color(0xFFA1A1AA);
+  static const textTertiaryDark = Color(0xFF71717A);
+  static const dividerDark = Color(0xFF26262C);
+
+  // Verre : neutres, sans teinte
+  static const glassLight = Color(0xCCFFFFFF);
+  static const glassDark = Color(0x660B0B0F);
+  static const glassBorderLight = Color(0x14000000);
+  static const glassBorderDark = Color(0x1FFFFFFF);
+
+  // Les « dégradés » sont désormais pleins
+  static const gradientStart = tekhelet;
+  static const gradientEnd = tekhelet;
+
+  // Cartes de découverte
+  static const likeGreen = tekhelet;
+  static const passRed = muted;
+  static const superLikeBlue = tekhelet;
+
+  // Mode Shabbat
+  static const shabbatGold = Color(0xFFF2B544);
+  static const shabbatBackground = ink;
+  static const candleFlame = Color(0xFFF2B544);
+  static const shabbatText = Color(0xFFF4F1EA);
+  static const shabbatMuted = Color(0xFFB9B6AE);
+
+  static const premiumGradient = [tekhelet, tekhelet, tekhelet];
+
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [gradientStart, gradientEnd],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
   );
 
-  /// Shimmer gradient for loading states
   static const LinearGradient shimmerGradient = LinearGradient(
-    colors: [
-      Color(0xFFE2E8F0),
-      Color(0xFFF8FAFC),
-      Color(0xFFE2E8F0),
-    ],
+    colors: [mist, Color(0xFFFAFAFB), mist],
     stops: [0.0, 0.5, 1.0],
     begin: Alignment(-1.0, -0.3),
     end: Alignment(1.0, 0.3),
   );
 
-  /// Dark shimmer gradient
   static const LinearGradient shimmerGradientDark = LinearGradient(
-    colors: [
-      Color(0xFF334155),
-      Color(0xFF475569),
-      Color(0xFF334155),
-    ],
+    colors: [cardDark, Color(0xFF26262C), cardDark],
     stops: [0.0, 0.5, 1.0],
     begin: Alignment(-1.0, -0.3),
     end: Alignment(1.0, 0.3),

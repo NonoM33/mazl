@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
@@ -67,7 +68,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       return 'Mot de passe requis';
     }
     if (value.length < 8) {
-      return 'Minimum 8 caracteres';
+      return 'Minimum 8 caractères';
     }
     if (!_isLogin) {
       if (!RegExp(r'[A-Z]').hasMatch(value)) {
@@ -89,10 +90,10 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Prenom requis';
+      return 'Prénom requis';
     }
     if (value.length < 2) {
-      return 'Minimum 2 caracteres';
+      return 'Minimum 2 caractères';
     }
     return null;
   }
@@ -177,7 +178,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Une erreur est survenue. Veuillez reessayer.';
+          _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
         });
       }
     } finally {
@@ -200,13 +201,13 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(LucideIcons.mail, color: AppColors.success),
             ),
             const SizedBox(width: 12),
-            const Text('Verifie ton email'),
+            const Text('Vérifiez votre email'),
           ],
         ),
         content: Column(
@@ -214,7 +215,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Un email de verification a ete envoye a:',
+              'Un email de vérification a été envoyé à :',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
@@ -224,7 +225,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Clique sur le lien dans l\'email pour activer ton compte.',
+              'Cliquez sur le lien dans l\'email pour activer votre compte.',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -239,7 +240,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                 _passwordController.clear();
               });
             },
-            child: const Text('OK, je vais verifier'),
+            child: const Text('OK, je vais vérifier'),
           ),
         ],
       ),
@@ -261,7 +262,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             children: [
               Icon(LucideIcons.keyRound, color: AppColors.primary),
               SizedBox(width: 12),
-              Text('Mot de passe oublie'),
+              Text('Mot de passe oublié'),
             ],
           ),
           content: Column(
@@ -270,7 +271,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             children: [
               if (!isSuccess) ...[
                 Text(
-                  'Entre ton email pour recevoir un lien de reinitialisation.',
+                  'Entrez votre email pour recevoir un lien de réinitialisation.',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
@@ -292,8 +293,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isSuccess
-                        ? AppColors.success.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -348,7 +349,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                           isLoading = false;
                           if (result.success) {
                             isSuccess = true;
-                            message = 'Email de reinitialisation envoye !';
+                            message = 'Email de réinitialisation envoyé';
                           } else {
                             message = result.errorMessage ?? 'Erreur';
                           }
@@ -374,6 +375,23 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       ),
     );
   }
+
+  /// Entrance of a block: a fade, plus a slide or a shake. Under reduced
+  /// motion only the short fade, with no stagger.
+  List<Effect<dynamic>> _entrance({double? slideBegin, bool shake = false}) {
+    if (MazlMotion.reduced(context)) {
+      return [FadeEffect(duration: MazlMotion.reducedEntrance)];
+    }
+    return [
+      const FadeEffect(),
+      if (slideBegin != null)
+        SlideEffect(begin: Offset(0, slideBegin), end: Offset.zero),
+      if (shake) const ShakeEffect(),
+    ];
+  }
+
+  Duration _delay(Duration delay) =>
+      MazlMotion.reduced(context) ? Duration.zero : delay;
 
   @override
   Widget build(BuildContext context) {
@@ -412,19 +430,19 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                ).animate().fadeIn().slideY(begin: 0.3, end: 0),
+                ).animate(effects: _entrance(slideBegin: 0.3)),
 
                 const SizedBox(height: 8),
 
                 Text(
                   _isLogin
-                      ? 'Content de te revoir !'
-                      : 'Cree ton compte MAZL',
+                      ? 'Ravi de vous revoir'
+                      : 'Créez votre compte MAZL',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
-                ).animate(delay: 100.ms).fadeIn(),
+                ).animate(delay: _delay(100.ms), effects: _entrance()),
 
                 const SizedBox(height: 32),
 
@@ -434,9 +452,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.red.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.withOpacity(0.5)),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
@@ -450,7 +468,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                         ),
                       ],
                     ),
-                  ).animate().fadeIn().shake(),
+                  ).animate(effects: _entrance(shake: true)),
 
                 // Form
                 GlassContainer(
@@ -467,7 +485,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             textCapitalization: TextCapitalization.words,
                             style: const TextStyle(color: Colors.white),
                             decoration: _inputDecoration(
-                              label: 'Prenom',
+                              label: 'Prénom',
                               icon: LucideIcons.user,
                             ),
                             validator: _validateName,
@@ -525,7 +543,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
                                     value: passwordStrength,
-                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
                                     valueColor: AlwaysStoppedAnimation(
                                       _getPasswordStrengthColor(passwordStrength),
                                     ),
@@ -599,9 +617,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'J\'accepte les Conditions d\'utilisation et la Politique de confidentialite',
+                                  'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -617,9 +635,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             child: TextButton(
                               onPressed: _showForgotPasswordDialog,
                               child: Text(
-                                'Mot de passe oublie ?',
+                                'Mot de passe oublié ?',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                             ),
@@ -651,7 +669,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                     ),
                                   )
                                 : Text(
-                                    _isLogin ? 'Se connecter' : 'Creer mon compte',
+                                    _isLogin ? 'Se connecter' : 'Créer mon compte',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -669,9 +687,9 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                             Text(
                               _isLogin
                                   ? 'Pas encore de compte ?'
-                                  : 'Deja un compte ?',
+                                  : 'Déjà un compte ?',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                               ),
                             ),
                             TextButton(
@@ -683,7 +701,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                                 });
                               },
                               child: Text(
-                                _isLogin ? 'Inscris-toi' : 'Connecte-toi',
+                                _isLogin ? 'Créer un compte' : 'Se connecter',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -695,7 +713,10 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                       ],
                     ),
                   ),
-                ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.2, end: 0),
+                ).animate(
+                  delay: _delay(200.ms),
+                  effects: _entrance(slideBegin: 0.2),
+                ),
               ],
             ),
           ),
@@ -711,12 +732,12 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
   }) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
       prefixIcon: Icon(icon, color: Colors.white70),
       suffixIcon: suffixIcon,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -724,7 +745,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.withOpacity(0.7)),
+        borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.7)),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

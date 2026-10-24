@@ -1,25 +1,29 @@
-import 'dart:ui';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../../core/services/api_service.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/api_service.dart' hide ProfilePhoto;
+import '../../../common/widgets/mazl_components.dart';
+import '../../chat/conversation_lookup.dart';
+import '../../matching/widgets/match_sheet.dart';
+import '../widgets/like_widgets.dart';
+import '../../../common/widgets/mazl_sheet.dart';
 
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
 class LikesScreen extends StatefulWidget {
-  const LikesScreen({super.key});
+  const LikesScreen({super.key, this.apiService});
+
+  final ApiService? apiService;
 
   @override
   State<LikesScreen> createState() => _LikesScreenState();
 }
 
 class _LikesScreenState extends State<LikesScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
 
   bool _isLoading = true;
   LikesData? _likesData;
@@ -72,29 +76,41 @@ class _LikesScreenState extends State<LikesScreen> {
           _likesData?.likes.removeWhere((l) => l.userId == profile.userId);
         });
 
-        // Check if it's a match
-        if (result.data?['matched'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Match avec ${profile.displayName} !'),
-              backgroundColor: AppColors.success,
-              action: SnackBarAction(
-                label: 'Message',
-                textColor: Colors.white,
-                onPressed: () => context.push(RoutePaths.chat),
-              ),
-            ),
-          );
+        if (swipeMatched(result.data)) {
+          await _showMatch(profile);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Tu as like ${profile.displayName}'),
-              backgroundColor: AppColors.primary,
-            ),
+            SnackBar(content: Text('Vous avez liké ${profile.displayName}')),
           );
         }
       }
     }
+  }
+
+  Future<void> _showMatch(LikeProfile like) async {
+    final matched = Profile(
+      id: like.userId,
+      userId: like.userId,
+      displayName: like.displayName,
+      age: like.age,
+      photos: [if (like.picture != null) like.picture!],
+      isVerified: like.isVerified,
+    );
+    final choice = await showMatchSheet(context, matched: matched);
+    if (choice != MatchSheetChoice.message || !mounted) return;
+    final route = await conversationRouteWith(_apiService, like.userId);
+    if (mounted) context.go(route);
+  }
+
+  /// The profile page sends the choice itself and leaves with it.
+  Future<void> _openProfile(LikeProfile profile) async {
+    final action = await context.push<String>(
+      RoutePaths.profileViewPath(profile.userId.toString()),
+    );
+    if (action == null || !mounted) return;
+    setState(() {
+      _likesData?.likes.removeWhere((l) => l.userId == profile.userId);
+    });
   }
 
   Future<void> _handlePass(LikeProfile profile) async {
@@ -112,231 +128,161 @@ class _LikesScreenState extends State<LikesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Qui t\'a like'),
-            if (_likesData != null && _likesData!.totalCount > 0) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _formatLikesCount(_likesData!.totalCount),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+    return Scaffold(body: SafeArea(bottom: false, child: _buildBody()));
+  }
+
+  Widget _buildHeader() {
+    final data = _likesData;
+    final hasLikes = data != null && data.totalCount > 0;
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RoundIconButton(
+          icon: LucideIcons.arrowLeft,
+          tooltip: 'Retour',
           onPressed: () => context.pop(),
         ),
+        const SizedBox(height: 24),
+        Text('Likes', style: Theme.of(context).textTheme.displaySmall),
+        if (hasLikes) ...[
+          const SizedBox(height: 12),
+          SectionLabel(
+            'Ils vous ont aimé · ${_formatLikesCount(data.totalCount)}',
+          ),
+        ],
+        if (hasLikes && !data.isPremium) ...[
+          const SizedBox(height: 8),
+          Text(
+            '${_formatLikesCount(data.totalCount)} personnes attendent votre réponse.',
+            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+          ),
+        ],
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _scrollable(List<Widget> children) {
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return RefreshIndicator(
+      onRefresh: _loadLikes,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),
+        children: [_buildHeader(), ...children],
       ),
-      body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _scrollable(const [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 48),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ]);
     }
 
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'Erreur de chargement',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _loadLikes,
-              child: const Text('Reessayer'),
-            ),
-          ],
-        ),
-      );
-    }
+    if (_error != null) return _scrollable([_buildError()]);
 
     if (_likesData == null || _likesData!.likes.isEmpty) {
-      return _buildEmptyState();
+      return _scrollable([_buildEmptyState()]);
     }
 
-    final isPremium = _likesData!.isPremium;
+    final data = _likesData!;
+    final isPremium = data.isPremium;
+    final likes = data.likes;
 
-    return RefreshIndicator(
-      onRefresh: _loadLikes,
+    return _scrollable([
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          mainAxisExtent: isPremium ? 200 + LikeCard.actionsExtent : 120,
+        ),
+        itemCount: likes.length,
+        itemBuilder: (context, index) {
+          final like = likes[index];
+          if (!isPremium) {
+            return LockedLikeTile(onTap: _showPremiumPrompt);
+          }
+          return LikeCard(
+            name: like.displayName ?? 'Anonyme',
+            age: like.age,
+            pictureUrl: like.photoUrl,
+            isVerified: like.isVerified,
+            seed: like.userId,
+            onTap: () => _showProfilePreview(like),
+            onLike: () => _handleLike(like),
+            onPass: () => _handlePass(like),
+          );
+        },
+      ),
+      if (!isPremium) ...[
+        const SizedBox(height: 24),
+        MazlPlusPill(
+          prefix: 'Voir qui vous a aimé avec ',
+          onPressed: () => context.push(RoutePaths.premium),
+        ),
+      ],
+    ]);
+  }
+
+  Widget _buildError() {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
       child: Column(
         children: [
-          // Premium upsell banner for free users
-          if (!isPremium)
-            _buildPremiumBanner(),
-
-          // Likes grid
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: _likesData!.likes.length,
-              itemBuilder: (context, index) {
-                final like = _likesData!.likes[index];
-                return _LikeCard(
-                  profile: like,
-                  isPremium: isPremium,
-                  onTap: isPremium
-                      ? () => _showProfilePreview(like)
-                      : () => _showPremiumPrompt(),
-                  onLike: isPremium ? () => _handleLike(like) : null,
-                  onPass: isPremium ? () => _handlePass(like) : null,
-                );
-              },
-            ),
+          Icon(
+            LucideIcons.circleAlert,
+            size: 32,
+            color: scheme.onSurfaceVariant,
           ),
+          const SizedBox(height: 16),
+          Text(
+            'Erreur de chargement',
+            style: TextStyle(fontSize: 16, color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(onPressed: _loadLikes, child: const Text('Réessayer')),
         ],
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                LucideIcons.heart,
-                size: 48,
-                color: AppColors.secondary.withOpacity(0.5),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Pas encore de likes',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Continue a swiper et complete ton profil pour attirer plus de likes !',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[600],
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => context.go(RoutePaths.discover),
-              icon: const Icon(LucideIcons.compass),
-              label: const Text('Decouvrir des profils'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPremiumBanner() {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6C5CE7), Color(0xFFa29bfe)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C5CE7).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              LucideIcons.crown,
-              color: Colors.amber,
-              size: 24,
+          Icon(LucideIcons.heart, size: 32, color: scheme.onSurfaceVariant),
+          const SizedBox(height: 16),
+          Text(
+            'Pas encore de likes',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Decouvre qui t\'aime',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${_formatLikesCount(_likesData!.totalCount)} personnes attendent ta reponse',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => context.push(RoutePaths.premium),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF6C5CE7),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              'Voir',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            onPressed: () => context.go(RoutePaths.discover),
+            child: const Text('Découvrir des profils'),
           ),
         ],
       ),
@@ -344,10 +290,9 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   void _showProfilePreview(LikeProfile profile) {
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet<void>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => _ProfilePreviewSheet(
         profile: profile,
         onLike: () {
@@ -360,58 +305,40 @@ class _LikesScreenState extends State<LikesScreen> {
         },
         onViewProfile: () {
           Navigator.pop(context);
-          context.push(RoutePaths.profileViewPath(profile.userId.toString()));
+          _openProfile(profile);
         },
       ),
     );
   }
 
   void _showPremiumPrompt() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          24,
-          24,
-          24 + MediaQuery.of(context).padding.bottom,
-        ),
-        child: Column(
+    showMazlSheet<void>(
+      context,
+      builder: (context) {
+        final scheme = Theme.of(context).colorScheme;
+        return Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6C5CE7), Color(0xFFa29bfe)],
-                ),
-                shape: BoxShape.circle,
+            Text.rich(
+              TextSpan(
+                text: 'mazl',
+                children: [
+                  TextSpan(
+                    text: '+',
+                    style: TextStyle(color: scheme.primary),
+                  ),
+                ],
               ),
-              child: const Icon(
-                LucideIcons.crown,
-                color: Colors.amber,
-                size: 40,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Passe Premium',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 12),
             Text(
-              'Decouvre qui t\'a like et match instantanement avec les personnes qui te plaisent !',
-              textAlign: TextAlign.center,
+              'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
               style: TextStyle(
-                color: Colors.grey[600],
-                height: 1.4,
+                fontSize: 16,
+                height: 1.45,
+                color: scheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
@@ -422,296 +349,20 @@ class _LikesScreenState extends State<LikesScreen> {
                   Navigator.pop(context);
                   context.push(RoutePaths.premium);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6C5CE7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Voir les offres Premium',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Voir les offres'),
               ),
             ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Plus tard'),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Plus tard'),
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LikeCard extends StatelessWidget {
-  const _LikeCard({
-    required this.profile,
-    required this.isPremium,
-    required this.onTap,
-    this.onLike,
-    this.onPass,
-  });
-
-  final LikeProfile profile;
-  final bool isPremium;
-  final VoidCallback onTap;
-  final VoidCallback? onLike;
-  final VoidCallback? onPass;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Photo (blurred for free users)
-              _buildPhoto(),
-
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.5, 1.0],
-                  ),
-                ),
-              ),
-
-              // Name and info
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: isPremium ? 60 : 12,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            isPremium
-                                ? '${profile.displayName ?? 'Anonyme'}${profile.age != null ? ', ${profile.age}' : ''}'
-                                : profile.displayName ?? 'Anonyme',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (profile.isVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(
-                            LucideIcons.badgeCheck,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (isPremium && profile.distance != null) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            LucideIcons.mapPin,
-                            color: Colors.white70,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${profile.distance!.round()} km',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Lock icon for free users
-              if (!isPremium)
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      LucideIcons.lock,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                ),
-
-              // Action buttons for premium users
-              if (isPremium && onLike != null && onPass != null)
-                Positioned(
-                  left: 12,
-                  right: 12,
-                  bottom: 12,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _ActionButton(
-                          icon: LucideIcons.x,
-                          color: Colors.grey,
-                          onTap: onPass!,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _ActionButton(
-                          icon: LucideIcons.heart,
-                          color: AppColors.secondary,
-                          onTap: onLike!,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Time badge
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _formatLikedAt(profile.likedAt),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPhoto() {
-    if (profile.photoUrl == null) {
-      return Container(
-        color: AppColors.primary.withOpacity(0.3),
-        child: Center(
-          child: Text(
-            (profile.displayName?.isNotEmpty ?? false) ? profile.displayName![0].toUpperCase() : '?',
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final imageWidget = CachedNetworkImage(
-      imageUrl: profile.photoUrl!,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => Container(
-        color: AppColors.primary.withOpacity(0.3),
-        child: const Center(child: CircularProgressIndicator(color: Colors.white)),
-      ),
-      errorWidget: (context, url, error) => Container(
-        color: AppColors.primary.withOpacity(0.3),
-        child: const Icon(LucideIcons.user, color: Colors.white, size: 48),
-      ),
-    );
-
-    // Apply blur for free users
-    if (!isPremium) {
-      return ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: imageWidget,
-      );
-    }
-
-    return imageWidget;
-  }
-
-  String _formatLikedAt(DateTime likedAt) {
-    final now = DateTime.now();
-    final diff = now.difference(likedAt);
-
-    if (diff.inMinutes < 60) {
-      return 'Il y a ${diff.inMinutes}m';
-    } else if (diff.inHours < 24) {
-      return 'Il y a ${diff.inHours}h';
-    } else if (diff.inDays < 7) {
-      return 'Il y a ${diff.inDays}j';
-    } else {
-      return '${likedAt.day}/${likedAt.month}';
-    }
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: color, size: 20),
-      ),
+        );
+      },
     );
   }
 }
@@ -731,177 +382,81 @@ class _ProfilePreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    final scheme = Theme.of(context).colorScheme;
+    final name = profile.displayName ?? 'Anonyme';
+    final title = profile.age != null ? '$name, ${profile.age}' : name;
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.75,
       child: Column(
         children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          // Photo
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  fit: StackFit.expand,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ProfilePhoto(
+                      url: profile.photoUrl,
+                      seed: profile.userId,
+                      radius: 24,
+                      iconSize: 64,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    if (profile.photoUrl != null)
-                      CachedNetworkImage(
-                        imageUrl: profile.photoUrl!,
-                        fit: BoxFit.cover,
-                      )
-                    else
-                      Container(
-                        color: AppColors.primary.withOpacity(0.3),
-                        child: Center(
-                          child: Text(
-                            (profile.displayName?.isNotEmpty ?? false)
-                                ? profile.displayName![0].toUpperCase()
-                                : '?',
-                            style: const TextStyle(
-                              fontSize: 72,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    // Gradient
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: const [0.6, 1.0],
-                        ),
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
-                    // Info
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  '${profile.displayName}${profile.age != null ? ', ${profile.age}' : ''}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              if (profile.isVerified) ...[
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  LucideIcons.badgeCheck,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ],
-                            ],
-                          ),
-                          if (profile.distance != null) ...[
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  LucideIcons.mapPin,
-                                  color: Colors.white70,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${profile.distance!.round()} km',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
+                    if (profile.isVerified) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        LucideIcons.badgeCheck,
+                        size: 22,
+                        color: scheme.primary,
                       ),
-                    ),
+                    ],
                   ],
                 ),
-              ),
+                if (profile.distance != null) ...[
+                  const SizedBox(height: 8),
+                  TagPill(
+                    '${profile.distance!.round()} km',
+                    icon: LucideIcons.mapPin,
+                  ),
+                ],
+              ],
             ),
           ),
-
-          // Action buttons
           Padding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              8,
-              16,
-              16 + MediaQuery.of(context).padding.bottom,
-            ),
+            padding: const EdgeInsets.only(top: 16),
             child: Row(
               children: [
-                // Pass button
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     onPressed: onPass,
-                    icon: const Icon(LucideIcons.x),
-                    label: const Text('Passer'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                    child: const Text('Passer'),
                   ),
                 ),
                 const SizedBox(width: 12),
-                // View profile button
-                IconButton(
+                RoundIconButton(
+                  icon: LucideIcons.user,
+                  tooltip: 'Voir le profil',
+                  size: 56,
                   onPressed: onViewProfile,
-                  icon: const Icon(LucideIcons.user),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey[200],
-                    padding: const EdgeInsets.all(14),
-                  ),
                 ),
                 const SizedBox(width: 12),
-                // Like button
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: FilledButton(
                     onPressed: onLike,
-                    icon: const Icon(LucideIcons.heart),
-                    label: const Text('J\'aime'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                    child: const Text("J'aime"),
                   ),
                 ),
               ],

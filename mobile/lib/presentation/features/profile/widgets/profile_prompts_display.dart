@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -34,7 +35,7 @@ class ProfilePromptsDisplay extends StatelessWidget {
               Icon(LucideIcons.messageCircle, size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
               const Text(
-                'Apprends a me connaitre',
+                'Apprenez à me connaître',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -72,7 +73,7 @@ class _PromptDisplayCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -88,8 +89,8 @@ class _PromptDisplayCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.15),
-                  AppColors.primary.withOpacity(0.05),
+                  AppColors.primary.withValues(alpha: 0.15),
+                  AppColors.primary.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -165,6 +166,11 @@ class _LikeButtonState extends State<_LikeButton> with SingleTickerProviderState
   }
 
   void _handleTap() {
+    // Reduced motion: no press scale, the like goes straight through.
+    if (MazlMotion.reduced(context)) {
+      widget.onTap();
+      return;
+    }
     _controller.forward().then((_) {
       _controller.reverse();
       widget.onTap();
@@ -184,7 +190,7 @@ class _LikeButtonState extends State<_LikeButton> with SingleTickerProviderState
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.secondary.withOpacity(0.1),
+            color: AppColors.secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -217,7 +223,7 @@ class InlinePromptsDisplay extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

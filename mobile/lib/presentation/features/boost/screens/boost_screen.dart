@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -88,7 +88,7 @@ class _BoostScreenState extends State<BoostScreen> {
         _startTimer();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Boost active ! Ton profil est maintenant en avant.'),
+            content: Text('Boost activé. Votre profil est maintenant en avant.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -132,7 +132,7 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadBoostStatus,
-            child: const Text('Reessayer'),
+            child: const Text('Réessayer'),
           ),
         ],
       ),
@@ -178,7 +178,7 @@ class _BoostScreenState extends State<BoostScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isActive
-              ? [AppColors.success, AppColors.success.withOpacity(0.7)]
+              ? [AppColors.success, AppColors.success.withValues(alpha: 0.7)]
               : [const Color(0xFF6C5CE7), const Color(0xFFa29bfe)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -187,7 +187,7 @@ class _BoostScreenState extends State<BoostScreen> {
         boxShadow: [
           BoxShadow(
             color: (isActive ? AppColors.success : const Color(0xFF6C5CE7))
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -200,7 +200,7 @@ class _BoostScreenState extends State<BoostScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -212,7 +212,7 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 16),
 
           Text(
-            isActive ? 'Boost Actif !' : 'Boost ton Profil',
+            isActive ? 'Boost actif' : 'Boostez votre profil',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -225,7 +225,7 @@ class _BoostScreenState extends State<BoostScreen> {
             Text(
               '${_boostStatus!.minutesRemaining} min restantes',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 18,
               ),
             ),
@@ -235,16 +235,16 @@ class _BoostScreenState extends State<BoostScreen> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: _boostStatus!.minutesRemaining / 30,
-                backgroundColor: Colors.white.withOpacity(0.3),
+                backgroundColor: Colors.white.withValues(alpha: 0.3),
                 valueColor: const AlwaysStoppedAnimation(Colors.white),
                 minHeight: 6,
               ),
             ),
           ] else
             Text(
-              'Sois vu par 10x plus de personnes !',
+              'Soyez vu par 10x plus de personnes.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
               ),
             ),
@@ -318,12 +318,12 @@ class _BoostScreenState extends State<BoostScreen> {
             const SizedBox(height: 16),
             _BenefitRow(
               icon: LucideIcons.trendingUp,
-              text: 'Apparais en premier dans les suggestions',
+              text: 'Apparaissez en premier dans les suggestions',
               color: Colors.purple,
             ),
             _BenefitRow(
               icon: LucideIcons.eye,
-              text: '10x plus de visibilite pendant 30 min',
+              text: '10x plus de visibilité pendant 30 min',
               color: Colors.blue,
             ),
             _BenefitRow(
@@ -333,7 +333,7 @@ class _BoostScreenState extends State<BoostScreen> {
             ),
             _BenefitRow(
               icon: LucideIcons.barChart2,
-              text: 'Stats en temps reel pendant le boost',
+              text: 'Stats en temps réel pendant le boost',
               color: AppColors.success,
             ),
           ],
@@ -402,24 +402,24 @@ class _BoostScreenState extends State<BoostScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentGold.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGold.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.crown, color: AppColors.accentGold),
+          Icon(LucideIcons.plus, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Boosts illimites',
+                  'Boosts illimités',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Passe Premium pour booster sans limite',
+                  'Boostez sans limite avec mazl+',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -453,7 +453,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -501,7 +501,7 @@ class _BenefitRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 18),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -9,9 +10,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../dev/dev_login.dart';
+import 'couple_service.dart';
+import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'push_notification_service.dart';
-import 'revenuecat_service.dart';
+import 'store/subscription_service.dart';
 
 /// User authentication data
 class AuthUser {
@@ -102,13 +106,13 @@ class AuthResult {
 }
 
 /// Authentication Service handling Google and Apple Sign-In
-class AuthService {
+class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final RevenueCatService _revenueCat = RevenueCatService();
+  final SubscriptionService _subscriptions = SubscriptionService();
   final PushNotificationService _pushService = PushNotificationService();
 
   static const String _userKey = 'current_user';
@@ -140,9 +144,9 @@ class AuthService {
         _currentUser = AuthUser.fromJson(jsonDecode(userJson));
         debugPrint('AuthService: Restored user session - ${_currentUser?.email}');
 
-        // Login to RevenueCat and OneSignal with restored user
+        // Relit l'abonnement et connecte OneSignal avec l'utilisateur restauré
         if (_currentUser != null) {
-          await _revenueCat.login(_currentUser!.id);
+          unawaited(_subscriptions.onSignedIn(_currentUser!.jwtToken));
           await _pushService.loginUser(int.parse(_currentUser!.id));
         }
       }
@@ -151,6 +155,32 @@ class AuthService {
       debugPrint('AuthService: Initialization error - $e');
       _isInitialized = true;
     }
+    notifyListeners();
+  }
+
+  /// Connexion fictive, réservée au développement local.
+  ///
+  /// Session purement en mémoire : pas de JWT, aucun appel au vrai serveur,
+  /// rien d'écrit en stockage sécurisé, ni abonnement ni notifications push.
+  /// Les requêtes sont servies par `DemoHttpClient` tant que la session dure.
+  Future<AuthResult> signInAsDemo() async {
+    if (!kDevLoginAvailable) {
+      throw StateError('La connexion fictive est réservée au mode debug.');
+    }
+    final user = AuthUser(
+      id: '0',
+      email: 'demo@example.com',
+      displayName: 'Léa (démo)',
+      provider: AuthProvider.email,
+    );
+    DevSession.start();
+    // A demo session always starts empty: drop the couple cached by a previous
+    // run, or the first sync would announce « Le mode couple a pris fin ».
+    await CoupleService().reset();
+    _currentUser = user;
+    debugPrint('AuthService: session fictive démarrée');
+    notifyListeners();
+    return AuthResult.success(user);
   }
 
   /// Sign in with Google
@@ -207,9 +237,9 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -292,9 +322,9 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -347,9 +377,9 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email login successful - user ID: ${user.id}');
@@ -402,9 +432,9 @@ class AuthService {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
@@ -446,22 +476,32 @@ class AuthService {
 
   /// Sign out current user
   Future<void> signOut() async {
+    if (DevSession.isActive) {
+      // Session fictive : rien à révoquer côté abonnement / push / stockage.
+      DevSession.stop();
+      _currentUser = null;
+      debugPrint('AuthService: session fictive terminée');
+      notifyListeners();
+      return;
+    }
     try {
       // Sign out from Google if applicable
       if (_currentUser?.provider == AuthProvider.google) {
         await _googleSignIn.signOut();
       }
 
-      // Logout from RevenueCat and OneSignal
-      await _revenueCat.logout();
+      // Efface l'abonnement en mémoire et déconnecte OneSignal
+      _subscriptions.onSignedOut();
       await _pushService.logoutUser();
 
       // Clear stored user data
       await _secureStorage.delete(key: _userKey);
       await _secureStorage.delete(key: _tokenKey);
 
+      DevSession.stop();
       _currentUser = null;
       debugPrint('AuthService: User signed out');
+      notifyListeners();
     } catch (e) {
       debugPrint('AuthService: Sign out error - $e');
       rethrow;
@@ -516,6 +556,7 @@ class AuthService {
       key: _userKey,
       value: jsonEncode(user.toJson()),
     );
+    notifyListeners();
   }
 
   /// Generate random nonce for Apple Sign-In

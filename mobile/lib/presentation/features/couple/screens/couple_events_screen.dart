@@ -1,14 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_event.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../common/widgets/mazl_components.dart';
+import '../widgets/couple_message_view.dart';
+import '../widgets/event_category.dart';
 
 class CoupleEventsScreen extends StatefulWidget {
-  const CoupleEventsScreen({super.key});
+  const CoupleEventsScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final CoupleApiService? apiService;
 
   @override
   State<CoupleEventsScreen> createState() => _CoupleEventsScreenState();
@@ -16,27 +23,16 @@ class CoupleEventsScreen extends StatefulWidget {
 
 class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     with SingleTickerProviderStateMixin {
-  final CoupleApiService _apiService = CoupleApiService();
+  late final CoupleApiService _apiService =
+      widget.apiService ?? CoupleApiService();
   late TabController _tabController;
 
   List<CoupleEvent> _allEvents = [];
   List<CoupleEvent> _registeredEvents = [];
   bool _isLoading = true;
+  CoupleFailure? _failure;
+  int _loadToken = 0;
   String? _selectedCategory;
-
-  static const coupleAccent = Color(0xFFFF6B9D);
-
-  // Event categories
-  static const categories = [
-    {'key': null, 'label': 'Tout', 'emoji': '📅'},
-    {'key': 'dinner', 'label': 'Dîner', 'emoji': '🍽️'},
-    {'key': 'tasting', 'label': 'Dégustation', 'emoji': '🍷'},
-    {'key': 'party', 'label': 'Soirée', 'emoji': '🎉'},
-    {'key': 'workshop', 'label': 'Atelier', 'emoji': '🎨'},
-    {'key': 'brunch', 'label': 'Brunch', 'emoji': '🥐'},
-    {'key': 'spiritual', 'label': 'Spirituel', 'emoji': '✡️'},
-    {'key': 'travel', 'label': 'Week-end', 'emoji': '✈️'},
-  ];
 
   @override
   void initState() {
@@ -52,180 +48,153 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
   }
 
   Future<void> _loadEvents() async {
-    setState(() => _isLoading = true);
+    final token = ++_loadToken;
+    setState(() {
+      _isLoading = true;
+      _failure = null;
+    });
 
-    try {
-      final results = await Future.wait([
-        _apiService.getEvents(limit: 50, category: _selectedCategory),
-        _apiService.getRegisteredEvents(),
-      ]);
+    final results = await Future.wait([
+      _apiService.getEvents(limit: 50, category: _selectedCategory),
+      _apiService.getRegisteredEvents(),
+    ]);
+    if (!mounted || token != _loadToken) return;
 
-      setState(() {
-        _allEvents = results[0];
-        _registeredEvents = results[1];
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
+    final all = results[0];
+    final registered = results[1];
+    setState(() {
+      _isLoading = false;
+      if (all is CoupleOk<List<CoupleEvent>> &&
+          registered is CoupleOk<List<CoupleEvent>>) {
+        _allEvents = all.value;
+        _registeredEvents = registered.value;
+      } else {
+        _failure = all.failureOrNull ?? registered.failureOrNull;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+      body: Padding(
+        padding: EdgeInsets.only(top: top + 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Événements'),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: coupleAccent.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                '💑 Couples',
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Événements',
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: coupleAccent,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -2,
+                  height: 1.05,
                 ),
               ),
             ),
-          ],
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: coupleAccent,
-          labelColor: coupleAccent,
-          tabs: [
-            Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(LucideIcons.calendar, size: 18),
-                  const SizedBox(width: 6),
-                  const Text('À venir'),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TabBar(
+                controller: _tabController,
+                tabs: [
+                  const Tab(text: 'À venir'),
+                  Tab(text: 'Inscrits (${_registeredEvents.length})'),
                 ],
               ),
             ),
-            Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 12),
+            _buildCategoryFilter(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  const Icon(LucideIcons.checkCircle, size: 18),
-                  const SizedBox(width: 6),
-                  Text('Inscrits (${_registeredEvents.length})'),
+                  _buildEventsList(_allEvents, showRegisterButton: true),
+                  _buildEventsList(
+                    _registeredEvents,
+                    showRegisterButton: false,
+                  ),
                 ],
               ),
             ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          // Category filter
-          _buildCategoryFilter(),
-
-          // Tab content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildEventsList(_allEvents, showRegisterButton: true),
-                _buildEventsList(_registeredEvents, showRegisterButton: false),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildCategoryFilter() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: categories.length,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: eventCategoryFilters.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isSelected = _selectedCategory == cat['key'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(
-                '${cat['emoji']} ${cat['label']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isSelected ? Colors.white : null,
-                ),
-              ),
-              selected: isSelected,
-              selectedColor: coupleAccent,
-              checkmarkColor: Colors.white,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedCategory = cat['key'] as String?;
-                });
-                _loadEvents();
-              },
-            ),
+          final cat = eventCategoryFilters[index];
+          return _FilterPill(
+            key: Key('events-filter-${cat.key ?? 'all'}'),
+            label: cat.label,
+            selected: _selectedCategory == cat.key,
+            onTap: () {
+              setState(() => _selectedCategory = cat.key);
+              _loadEvents();
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildEventsList(List<CoupleEvent> events,
-      {required bool showRegisterButton}) {
+  Widget _buildEventsList(
+    List<CoupleEvent> events, {
+    required bool showRegisterButton,
+  }) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final failure = _failure;
+    if (failure != null) {
+      return CoupleMessageView.failure(failure, onRetry: _loadEvents);
+    }
+
     if (events.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.calendar, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              showRegisterButton
-                  ? 'Aucun événement disponible'
-                  : 'Vous n\'êtes inscrit à aucun événement',
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
-            ),
-            if (!showRegisterButton) ...[
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => _tabController.animateTo(0),
-                child: const Text('Découvrir les événements'),
+      return CoupleMessageView(
+        icon: LucideIcons.calendar,
+        title: showRegisterButton
+            ? 'Aucun événement disponible'
+            : 'Vous n\'êtes inscrit à aucun événement',
+        actionLabel: showRegisterButton ? null : 'Découvrir les événements',
+        onAction: showRegisterButton
+            ? null
+            : () => _tabController.animateTo(
+                0,
+                duration: MazlMotion.reduced(context) ? Duration.zero : null,
               ),
-            ],
-          ],
-        ),
       );
     }
 
+    final bottom = MediaQuery.paddingOf(context).bottom;
     return RefreshIndicator(
       onRefresh: _loadEvents,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),
         itemCount: events.length,
         itemBuilder: (context, index) {
           final event = events[index];
           return _EventCard(
             event: event,
+            seed: index,
             showRegisterButton: showRegisterButton,
             onTap: () => context.push('/couple/events/${event.id}'),
             onRegister: () => _registerForEvent(event),
             onCancel: () => _cancelRegistration(event),
-            isRegistered:
-                _registeredEvents.any((e) => e.id == event.id),
+            isRegistered: _registeredEvents.any((e) => e.id == event.id),
           );
         },
       ),
@@ -233,23 +202,25 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
   }
 
   Future<void> _registerForEvent(CoupleEvent event) async {
-    final success = await _apiService.registerForEvent(event.id);
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Inscrit à "${event.title}" !'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      _loadEvents();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erreur lors de l\'inscription'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+    final result = await _apiService.registerForEvent(event.id);
+    if (!mounted) return;
+    switch (result) {
+      case CoupleOk():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Inscrits à "${event.title}"'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _loadEvents();
+      case CoupleFailed(:final failure):
+        showCoupleError(
+          context,
+          failure.kind == CoupleFailureKind.full
+              ? failure.message
+              : 'Inscription impossible. Réessayez.',
+        );
     }
   }
 
@@ -259,16 +230,18 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
       builder: (context) => AlertDialog(
         title: const Text('Annuler l\'inscription ?'),
         content: Text(
-            'Voulez-vous vraiment annuler votre inscription à "${event.title}" ?'),
+          'Voulez-vous vraiment annuler votre inscription à "${event.title}" ?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Non'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
+            style: FilledButton.styleFrom(
               backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
             ),
             child: const Text('Oui, annuler'),
           ),
@@ -277,23 +250,75 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     );
 
     if (confirmed == true) {
-      final success = await _apiService.cancelEventRegistration(event.id);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inscription annulée'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        _loadEvents();
+      final result = await _apiService.cancelEventRegistration(event.id);
+      if (!mounted) return;
+      switch (result) {
+        case CoupleOk():
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Inscription annulée'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          _loadEvents();
+        case CoupleFailed():
+          showCoupleError(
+            context,
+            'Impossible d\'annuler l\'inscription. Réessayez.',
+          );
       }
     }
+  }
+}
+
+/// Puce de filtre : choisie, elle est pleine d'encre.
+class _FilterPill extends StatelessWidget {
+  const _FilterPill({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.onSurface : scheme.surfaceContainer,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: selected ? scheme.surface : scheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class _EventCard extends StatelessWidget {
   const _EventCard({
     required this.event,
+    required this.seed,
     required this.showRegisterButton,
     required this.onTap,
     required this.onRegister,
@@ -302,330 +327,172 @@ class _EventCard extends StatelessWidget {
   });
 
   final CoupleEvent event;
+  final int seed;
   final bool showRegisterButton;
   final VoidCallback onTap;
   final VoidCallback onRegister;
   final VoidCallback onCancel;
   final bool isRegistered;
 
-  static const coupleAccent = Color(0xFFFF6B9D);
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image header
-            Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: event.imageUrl != null
-                      ? CachedNetworkImage(
-                          imageUrl: event.imageUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color: coupleAccent.withOpacity(0.3),
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.white),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) =>
-                              _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
-                ),
+    final scheme = Theme.of(context).colorScheme;
+    final when = [
+      event.formattedDate,
+      if (event.formattedTime.isNotEmpty) event.formattedTime,
+    ].join(' · ');
 
-                // Date badge
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                        ),
-                      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Material(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(24),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImage(),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SectionLabel(when),
+                    const SizedBox(height: 8),
+                    Text(
+                      event.title,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(fontSize: 22),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: Column(
+                    const SizedBox(height: 10),
+                    _buildMeta(scheme),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
-                        Text(
-                          event.eventDate.day.toString(),
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: coupleAccent,
-                          ),
+                        TagPill(
+                          eventCategoryLabel(event.category),
+                          icon: eventCategoryIcon(event.category),
+                          onDark: true,
                         ),
-                        Text(
-                          _getMonthAbbr(event.eventDate.month),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                        TagPill(event.formattedPrice, onDark: true),
                       ],
                     ),
-                  ),
+                    ..._buildAction(),
+                  ],
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                // Featured badge
-                if (event.isFeatured)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentGold,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(LucideIcons.star, size: 14, color: Colors.white),
-                          SizedBox(width: 4),
-                          Text(
-                            'À la une',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                // Kosher badge
-                if (event.isKosher)
-                  Positioned(
-                    bottom: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        '✡️ Casher',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildImage() {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (event.imageUrl != null)
+            CachedNetworkImage(
+              imageUrl: event.imageUrl!,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => _placeholder(),
+              errorWidget: (_, _, _) => _placeholder(),
+            )
+          else
+            _placeholder(),
+          if (event.isFeatured || event.isKosher)
+            Positioned(
+              top: 12,
+              left: 12,
+              child: Wrap(
+                spacing: 8,
                 children: [
-                  // Category
-                  Text(
-                    '${event.categoryEmoji} ${event.category ?? 'Événement'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: coupleAccent,
+                  if (event.isFeatured)
+                    const TagPill(
+                      'À la une',
+                      icon: LucideIcons.star,
+                      onDark: true,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Title
-                  Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Info row
-                  Row(
-                    children: [
-                      Icon(
-                        LucideIcons.clock,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${event.formattedDate} ${event.formattedTime}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      if (event.city != null) ...[
-                        Icon(
-                          LucideIcons.mapPin,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            event.city!,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 13,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Bottom row: Price + Spots
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          event.formattedPrice,
-                          style: const TextStyle(
-                            color: AppColors.success,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      if (event.maxCouples != null)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              LucideIcons.users,
-                              size: 16,
-                              color: event.isFull
-                                  ? AppColors.error
-                                  : Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              event.isFull
-                                  ? 'Complet'
-                                  : '${event.spotsLeft} places',
-                              style: TextStyle(
-                                color: event.isFull
-                                    ? AppColors.error
-                                    : Colors.grey[600],
-                                fontSize: 13,
-                                fontWeight:
-                                    event.isFull ? FontWeight.w600 : FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      _buildActionButton(),
-                    ],
-                  ),
+                  if (event.isKosher) const TagPill('Casher', onDark: true),
                 ],
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildActionButton() {
-    if (showRegisterButton && !isRegistered && !event.isFull) {
-      return ElevatedButton(
-        onPressed: onRegister,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: coupleAccent,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+  Widget _placeholder() =>
+      EventImagePlaceholder(category: event.category, seed: seed);
+
+  Widget _buildMeta(ColorScheme scheme) {
+    final muted = scheme.onSurfaceVariant;
+    final style = TextStyle(color: muted, fontSize: 14);
+    final full = event.isFull;
+    return Wrap(
+      spacing: 16,
+      runSpacing: 6,
+      children: [
+        if (event.city != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.mapPin, size: 16, color: muted),
+              const SizedBox(width: 6),
+              Text(event.city!, style: style),
+            ],
           ),
-        ),
+        if (event.maxCouples != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                LucideIcons.users,
+                size: 16,
+                color: full ? AppColors.error : muted,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                full ? 'Complet' : '${event.spotsLeft} places',
+                style: style.copyWith(
+                  color: full ? AppColors.error : muted,
+                  fontWeight: full ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  List<Widget> _buildAction() {
+    final Widget button;
+    if (showRegisterButton && !isRegistered && !event.isFull) {
+      button = ElevatedButton(
+        onPressed: onRegister,
         child: const Text('S\'inscrire'),
       );
     } else if (isRegistered) {
-      return OutlinedButton(
+      button = OutlinedButton(
         onPressed: onCancel,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.error,
-          side: const BorderSide(color: AppColors.error),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
         child: const Text('Annuler'),
       );
+    } else {
+      return const [];
     }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: coupleAccent.withOpacity(0.3),
-      child: Center(
-        child: Text(
-          event.categoryEmoji,
-          style: const TextStyle(fontSize: 48),
-        ),
-      ),
-    );
-  }
-
-  String _getMonthAbbr(int month) {
-    const months = [
-      'Jan',
-      'Fév',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Août',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Déc'
+    return [
+      const SizedBox(height: 16),
+      SizedBox(width: double.infinity, child: button),
     ];
-    return months[month - 1];
   }
 }

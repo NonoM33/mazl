@@ -2,23 +2,29 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/swipe_result.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../chat/conversation_lookup.dart';
+import '../widgets/match_sheet.dart';
 
 /// Daily Picks Screen - Curated profiles for the user each day
 class DailyPicksScreen extends StatefulWidget {
-  const DailyPicksScreen({super.key});
+  const DailyPicksScreen({super.key, this.apiService});
+
+  final ApiService? apiService;
 
   @override
   State<DailyPicksScreen> createState() => _DailyPicksScreenState();
 }
 
 class _DailyPicksScreenState extends State<DailyPicksScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
   List<Profile> _dailyPicks = [];
   bool _isLoading = true;
   String? _error;
@@ -71,12 +77,14 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   }
 
   Future<void> _handleLike(Profile profile) async {
+    if (!PremiumGate.guardLike(context)) return;
+
     final response = await _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: 'like',
     );
 
-    if (response.success && response.data?['match'] == true && mounted) {
+    if (response.success && swipeMatched(response.data) && mounted) {
       _showMatchDialog(profile);
     }
 
@@ -98,7 +106,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
       action: 'super_like',
     );
 
-    if (response.success && response.data?['match'] == true && mounted) {
+    if (response.success && swipeMatched(response.data) && mounted) {
       _showMatchDialog(profile);
     }
 
@@ -107,34 +115,28 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
     });
   }
 
-  void _showMatchDialog(Profile profile) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('It\'s a Match! '),
-        content: Text('Tu as matche avec ${profile.displayName}!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Continuer'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Navigate to chat
-            },
-            child: const Text('Envoyer un message'),
-          ),
-        ],
-      ),
+  Future<void> _showMatchDialog(Profile profile) async {
+    final choice = await showMatchSheet(context, matched: profile);
+    if (choice != MatchSheetChoice.message || !mounted) return;
+    final route = await conversationRouteWith(_apiService, profile.userId);
+    if (mounted) context.go(route);
+  }
+
+  /// The profile page sends the choice itself and leaves with it: the pick
+  /// it was about leaves the grid.
+  Future<void> _openProfile(Profile profile) async {
+    final action = await context.push<String>(
+      RoutePaths.profileViewPath(profile.userId.toString()),
     );
+    if (action == null || !mounted) return;
+    setState(() => _dailyPicks.removeWhere((p) => p.userId == profile.userId));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Selections du jour'),
+        title: const Text('Sélections du jour'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -160,7 +162,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadDailyPicks,
-              child: const Text('Reessayer'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -175,7 +177,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
+                color: AppColors.secondary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -186,7 +188,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Tu as vu toutes tes selections !',
+              'Vous avez vu toutes vos sélections.',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -194,14 +196,14 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Prochaines selections dans ${_getTimeUntilRefresh()}',
+              'Prochaines sélections dans ${_getTimeUntilRefresh()}',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => context.go(RoutePaths.discover),
               icon: const Icon(LucideIcons.compass),
-              label: const Text('Decouvrir plus de profils'),
+              label: const Text('Découvrir plus de profils'),
             ),
           ],
         ),
@@ -221,7 +223,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.accentGold.withOpacity(0.2),
+                      color: AppColors.accentGold.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -231,18 +233,21 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    '${_dailyPicks.length} profils selectionnes pour toi',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  // Wraps instead of overflowing with a large text size.
+                  Flexible(
+                    child: Text(
+                      '${_dailyPicks.length} profils sélectionnés pour vous',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
-                'Mis a jour dans ${_getTimeUntilRefresh()}',
+                'Mis à jour dans ${_getTimeUntilRefresh()}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -264,14 +269,16 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             ),
             itemCount: _dailyPicks.length,
             itemBuilder: (context, index) {
-              return _DailyPickCard(
-                profile: _dailyPicks[index],
-                onTap: () => context.push(
-                  RoutePaths.profileViewPath(_dailyPicks[index].userId.toString()),
-                ),
-                onLike: () => _handleLike(_dailyPicks[index]),
-                onSuperLike: () => _handleSuperLike(_dailyPicks[index]),
-              ).animate(delay: (index * 100).ms).fadeIn().scale(
+              final pick = _dailyPicks[index];
+              final card = _DailyPickCard(
+                profile: pick,
+                onTap: () => _openProfile(pick),
+                onLike: () => _handleLike(pick),
+                onSuperLike: () => _handleSuperLike(pick),
+              );
+              // Reduced motion: the grid is simply there, no staggered pop.
+              if (MazlMotion.reduced(context)) return card;
+              return card.animate(delay: (index * 100).ms).fadeIn().scale(
                     begin: const Offset(0.9, 0.9),
                     end: const Offset(1, 1),
                   );
@@ -307,7 +314,7 @@ class _DailyPickCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -324,7 +331,7 @@ class _DailyPickCard extends StatelessWidget {
                   imageUrl: imageUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     child: const Center(
                       child: CircularProgressIndicator(color: Colors.white),
                     ),
@@ -336,7 +343,7 @@ class _DailyPickCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         AppColors.primary,
-                        AppColors.primary.withOpacity(0.7),
+                        AppColors.primary.withValues(alpha: 0.7),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -345,7 +352,7 @@ class _DailyPickCard extends StatelessWidget {
                   child: Icon(
                     LucideIcons.user,
                     size: 60,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
 
@@ -356,7 +363,7 @@ class _DailyPickCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -470,6 +477,7 @@ class _DailyPickCard extends StatelessWidget {
                     Expanded(
                       child: _ActionButton(
                         icon: LucideIcons.heart,
+                        label: "J'aime",
                         color: AppColors.likeGreen,
                         onPressed: onLike,
                       ),
@@ -478,6 +486,7 @@ class _DailyPickCard extends StatelessWidget {
                     Expanded(
                       child: _ActionButton(
                         icon: LucideIcons.star,
+                        label: 'Super like',
                         color: AppColors.superLikeBlue,
                         onPressed: onSuperLike,
                       ),
@@ -496,25 +505,32 @@ class _DailyPickCard extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.icon,
+    required this.label,
     required this.color,
     required this.onPressed,
   });
 
   final IconData icon;
+
+  /// Read by VoiceOver and shown on long press: the button is an icon only.
+  final String label;
   final Color color;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onPressed,
+    return Tooltip(
+      message: label,
+      child: Material(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Icon(icon, color: color, size: 20),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Icon(icon, color: color, size: 20),
+          ),
         ),
       ),
     );

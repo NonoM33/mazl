@@ -298,11 +298,11 @@ void main() {
 
     group('RelationshipStatus', () {
       test('displayName returns French labels', () {
-        expect(RelationshipStatus.single.displayName, equals('Celibataire'));
+        expect(RelationshipStatus.single.displayName, equals('Célibataire'));
         expect(RelationshipStatus.dating.displayName, equals('En train de dater'));
         expect(RelationshipStatus.inRelationship.displayName, equals('En couple'));
-        expect(RelationshipStatus.engaged.displayName, equals('Fiance(e)'));
-        expect(RelationshipStatus.married.displayName, equals('Marie(e)'));
+        expect(RelationshipStatus.engaged.displayName, equals('Fiancé(e)'));
+        expect(RelationshipStatus.married.displayName, equals('Marié(e)'));
       });
 
       test('isInCouple returns correct values', () {

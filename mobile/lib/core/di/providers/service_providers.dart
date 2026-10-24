@@ -2,15 +2,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/couple_service.dart';
-import '../../services/revenuecat_service.dart';
+import '../../services/store/subscription_service.dart';
 
-/// RevenueCat Service Provider
-final revenueCatServiceProvider = Provider<RevenueCatService>((ref) {
-  return RevenueCatService();
-});
+/// Subscription Service Provider
+///
+/// [SubscriptionService] est un singleton [ChangeNotifier] : les providers qui
+/// en dépendent se recalculent à chaque changement du statut d'abonnement
+/// (achat, restauration, rafraîchissement, déconnexion).
+final subscriptionServiceProvider = ChangeNotifierProvider<SubscriptionService>(
+  (ref) => SubscriptionService(),
+);
 
 /// Auth Service Provider
-final authServiceProvider = Provider<AuthService>((ref) {
+///
+/// [AuthService] is an application-wide singleton that extends [ChangeNotifier].
+/// Exposing it through a [ChangeNotifierProvider] makes every dependent provider
+/// (and the router's [refreshListenable]) recompute whenever the authentication
+/// state changes (login / logout / init / user refresh).
+final authServiceProvider = ChangeNotifierProvider<AuthService>((ref) {
   return AuthService();
 });
 
@@ -28,18 +37,23 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 
 /// Is Mazl Pro Provider
 final isMazlProProvider = Provider<bool>((ref) {
-  final revenueCat = ref.watch(revenueCatServiceProvider);
-  return revenueCat.isMazlPro;
+  final subscriptions = ref.watch(subscriptionServiceProvider);
+  return subscriptions.isMazlPro;
 });
 
 /// Subscription Status Provider
 final subscriptionStatusProvider = Provider<String>((ref) {
-  final revenueCat = ref.watch(revenueCatServiceProvider);
-  return revenueCat.subscriptionStatusText;
+  final subscriptions = ref.watch(subscriptionServiceProvider);
+  return subscriptions.subscriptionStatusText;
 });
 
 /// Couple Service Provider
-final coupleServiceProvider = Provider<CoupleService>((ref) {
+///
+/// [CoupleService] is an application-wide singleton that extends [ChangeNotifier].
+/// Exposing it through a [ChangeNotifierProvider] makes every dependent provider
+/// recompute whenever the couple state changes (activation / deactivation /
+/// data sync / couple request updates).
+final coupleServiceProvider = ChangeNotifierProvider<CoupleService>((ref) {
   return CoupleService();
 });
 

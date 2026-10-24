@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/motion/mazl_motion.dart';
 
 /// MAZL Logo widget with customizable size and color
 class MazlLogo extends StatelessWidget {
@@ -56,7 +56,7 @@ class MazlLogoContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: elevation * 2,
             offset: Offset(0, elevation),
           ),
@@ -89,6 +89,7 @@ class _AnimatedMazlLogoState extends State<AnimatedMazlLogo>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+  bool _started = false;
 
   @override
   void initState() {
@@ -111,8 +112,19 @@ class _AnimatedMazlLogoState extends State<AnimatedMazlLogo>
         curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
       ),
     );
+  }
 
-    _controller.forward();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    // Reduced motion: the logo is simply there, already at full size.
+    if (MazlMotion.reduced(context)) {
+      _controller.value = 1;
+    } else {
+      _controller.forward();
+    }
   }
 
   @override

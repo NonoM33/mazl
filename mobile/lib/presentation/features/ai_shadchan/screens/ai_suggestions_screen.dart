@@ -1,13 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
 
-class AISuggestionsScreen extends StatelessWidget {
+class AISuggestionsScreen extends StatefulWidget {
   const AISuggestionsScreen({super.key});
+
+  @override
+  State<AISuggestionsScreen> createState() => _AISuggestionsScreenState();
+}
+
+class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
+  final List<_Suggestion> _suggestions = [
+    const _Suggestion(
+      name: 'Rachel',
+      age: 26,
+      city: 'Paris',
+      compatibilityScore: 95,
+      reasons: [
+        'Même niveau de pratique',
+        'Intérêts communs : voyages, cuisine',
+        'Objectifs similaires',
+      ],
+      color: AppColors.secondary,
+    ),
+    const _Suggestion(
+      name: 'Leah',
+      age: 24,
+      city: 'Lyon',
+      compatibilityScore: 88,
+      reasons: [
+        'Valeurs familiales alignées',
+        'Passion commune pour la musique',
+        'Zones de vie compatibles',
+      ],
+      color: AppColors.accent,
+    ),
+    const _Suggestion(
+      name: 'Miriam',
+      age: 27,
+      city: 'Paris',
+      compatibilityScore: 82,
+      reasons: [
+        'Pratique religieuse similaire',
+        'Secteur professionnel proche',
+        'Même vision du couple',
+      ],
+      color: AppColors.primary,
+    ),
+  ];
+
+  void _handlePass(_Suggestion suggestion) {
+    setState(() => _suggestions.remove(suggestion));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${suggestion.name} ignorée')),
+    );
+  }
+
+  void _handleLike(_Suggestion suggestion) {
+    setState(() => _suggestions.remove(suggestion));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${suggestion.name} ajoutée à vos likes'),
+        backgroundColor: AppColors.likeGreen,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +93,19 @@ class AISuggestionsScreen extends StatelessWidget {
                 const Text(
                   '🤖',
                   style: TextStyle(fontSize: 48),
-                ).animate().scale(
-                      duration: 600.ms,
-                      curve: Curves.elasticOut,
+                ).animate(
+                      effects: MazlMotion.reduced(context)
+                          ? [FadeEffect(duration: MazlMotion.reducedEntrance)]
+                          : [
+                              ScaleEffect(
+                                duration: 600.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                            ],
                     ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Ton Shadchan Personnel',
+                  'Votre Shadchan personnel',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -45,10 +114,10 @@ class AISuggestionsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Notre IA analyse tes préférences pour te proposer des profils ultra-compatibles',
+                  'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -71,16 +140,16 @@ class AISuggestionsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.1),
+                  color: AppColors.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(LucideIcons.sparkles, size: 14, color: AppColors.accent),
-                    SizedBox(width: 4),
+                    const Icon(LucideIcons.sparkles, size: 14, color: AppColors.accent),
+                    const SizedBox(width: 4),
                     Text(
-                      '3 nouvelles',
-                      style: TextStyle(
+                      '${_suggestions.length} nouvelles',
+                      style: const TextStyle(
                         color: AppColors.accent,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -95,42 +164,16 @@ class AISuggestionsScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Suggestion cards
-          _SuggestionCard(
-            name: 'Rachel',
-            age: 26,
-            city: 'Paris',
-            compatibilityScore: 95,
-            reasons: [
-              'Même niveau de pratique',
-              'Intérêts communs: voyages, cuisine',
-              'Objectifs similaires',
-            ],
-            color: AppColors.secondary,
-          ),
-          _SuggestionCard(
-            name: 'Leah',
-            age: 24,
-            city: 'Lyon',
-            compatibilityScore: 88,
-            reasons: [
-              'Valeurs familiales alignées',
-              'Passion commune pour la musique',
-              'Zones de vie compatibles',
-            ],
-            color: AppColors.accent,
-          ),
-          _SuggestionCard(
-            name: 'Miriam',
-            age: 27,
-            city: 'Paris',
-            compatibilityScore: 82,
-            reasons: [
-              'Pratique religieuse similaire',
-              'Secteur professionnel proche',
-              'Même vision du couple',
-            ],
-            color: AppColors.primary,
-          ),
+          if (_suggestions.isEmpty)
+            _EmptySuggestions(onDiscover: () => context.go(RoutePaths.discover))
+          else
+            ..._suggestions.map(
+              (suggestion) => _SuggestionCard(
+                suggestion: suggestion,
+                onPass: () => _handlePass(suggestion),
+                onLike: () => _handleLike(suggestion),
+              ),
+            ),
 
           const SizedBox(height: 24),
 
@@ -154,7 +197,7 @@ class AISuggestionsScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _HowItWorksStep(
                     number: '1',
-                    text: 'Notre IA analyse ton profil et tes préférences',
+                    text: 'Notre IA analyse votre profil et vos préférences',
                   ),
                   _HowItWorksStep(
                     number: '2',
@@ -162,7 +205,7 @@ class AISuggestionsScreen extends StatelessWidget {
                   ),
                   _HowItWorksStep(
                     number: '3',
-                    text: 'Tu reçois des suggestions personnalisées chaque jour',
+                    text: 'Vous recevez des suggestions personnalisées chaque jour',
                   ),
                 ],
               ),
@@ -174,8 +217,8 @@ class AISuggestionsScreen extends StatelessWidget {
   }
 }
 
-class _SuggestionCard extends StatelessWidget {
-  const _SuggestionCard({
+class _Suggestion {
+  const _Suggestion({
     required this.name,
     required this.age,
     required this.city,
@@ -190,6 +233,56 @@ class _SuggestionCard extends StatelessWidget {
   final int compatibilityScore;
   final List<String> reasons;
   final Color color;
+}
+
+class _EmptySuggestions extends StatelessWidget {
+  const _EmptySuggestions({required this.onDiscover});
+
+  final VoidCallback onDiscover;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Icon(LucideIcons.sparkles, size: 40, color: AppColors.accent),
+            const SizedBox(height: 12),
+            const Text(
+              'Vous avez parcouru toutes vos suggestions.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Revenez demain pour de nouvelles propositions de votre Shadchan.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onDiscover,
+              icon: const Icon(LucideIcons.compass),
+              label: const Text('Découvrir plus de profils'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SuggestionCard extends StatelessWidget {
+  const _SuggestionCard({
+    required this.suggestion,
+    required this.onPass,
+    required this.onLike,
+  });
+
+  final _Suggestion suggestion;
+  final VoidCallback onPass;
+  final VoidCallback onLike;
 
   @override
   Widget build(BuildContext context) {
@@ -203,9 +296,9 @@ class _SuggestionCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: color,
+                  backgroundColor: suggestion.color,
                   child: Text(
-                    name[0],
+                    suggestion.name[0],
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -219,7 +312,7 @@ class _SuggestionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '$name, $age',
+                        '${suggestion.name}, ${suggestion.age}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -230,7 +323,7 @@ class _SuggestionCard extends StatelessWidget {
                           const Icon(LucideIcons.mapPin, size: 14, color: Colors.grey),
                           const SizedBox(width: 4),
                           Text(
-                            city,
+                            suggestion.city,
                             style: const TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -238,14 +331,14 @@ class _SuggestionCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                _CompatibilityBadge(score: compatibilityScore),
+                _CompatibilityBadge(score: suggestion.compatibilityScore),
               ],
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
+                color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -266,7 +359,7 @@ class _SuggestionCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  ...reasons.map((reason) => Padding(
+                  ...suggestion.reasons.map((reason) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
@@ -289,18 +382,14 @@ class _SuggestionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
-                      // TODO: Pass
-                    },
+                    onPressed: onPass,
                     child: const Text('Passer'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Like
-                    },
+                    onPressed: onLike,
                     child: const Text('J\'aime'),
                   ),
                 ),
@@ -329,7 +418,7 @@ class _CompatibilityBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -372,7 +461,7 @@ class _HowItWorksStep extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 12,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: Text(
               number,
               style: const TextStyle(

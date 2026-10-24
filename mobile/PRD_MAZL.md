@@ -78,7 +78,7 @@ MAZL est une application de rencontre premium conçue exclusivement pour la comm
 ### 2.6 Premium
 | Fonctionnalité | Statut | Notes |
 |----------------|--------|-------|
-| Abonnement (RevenueCat) | ✅ | Monthly/6mo/Yearly |
+| Abonnement (achat natif, StoreKit 2) | ✅ | iOS : mazl+ 1 mois ; Android : bientôt |
 | Likes floutés | ✅ | Clear pour premium |
 | Qui a visité mon profil | ✅ | Premium only |
 | Boost profil | ✅ | 30 min, stats |
@@ -635,7 +635,7 @@ Critères d'acceptation:
 - **Database**: PostgreSQL
 - **Real-time**: WebSocket
 - **Auth**: Google, Apple, (à ajouter: Email)
-- **Payments**: RevenueCat
+- **Payments**: achats natifs (`in_app_purchase`, StoreKit 2), vérifiés par le backend
 - **Analytics**: (à définir)
 - **Push**: OneSignal (à implémenter)
 - **Storage**: (à définir: Cloudinary/S3)

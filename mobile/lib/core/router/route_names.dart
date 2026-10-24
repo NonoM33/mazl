@@ -21,6 +21,7 @@ abstract class RouteNames {
   static const settings = 'settings';
   static const aiShadchan = 'aiShadchan';
   static const verification = 'verification';
+  static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
 
   // Couple mode
@@ -40,6 +41,8 @@ abstract class RouteNames {
   static const profileView = 'profileView';
   static const matchProfile = 'matchProfile';
   static const premium = 'premium';
+  static const plusWelcome = 'plusWelcome';
+  static const subscription = 'subscription';
   static const likes = 'likes';
   static const boost = 'boost';
   static const visitors = 'visitors';
@@ -71,6 +74,7 @@ abstract class RoutePaths {
   static const settings = '/profile/settings';
   static const aiShadchan = '/profile/ai-shadchan';
   static const verification = '/profile/verification';
+  static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
 
   // Couple mode
@@ -93,6 +97,8 @@ abstract class RoutePaths {
   static const profileView = '/discover/profile/:userId';
   static const matchProfile = '/matches/profile/:userId';
   static const premium = '/premium';
+  static const plusWelcome = '/premium/welcome';
+  static const subscription = '/subscription';
   static const likes = '/likes';
   static const boost = '/boost';
   static const visitors = '/visitors';

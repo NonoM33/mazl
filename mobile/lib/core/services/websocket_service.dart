@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../chat/chat_realtime.dart';
+import '../config/env.dart';
+import '../models/_json_parsing.dart';
 import 'auth_service.dart';
 
 /// Events emitted by the WebSocket service
@@ -63,6 +67,23 @@ class NewMatchEvent extends ChatEvent {
   });
 }
 
+/// A `couple:*` message (contract §3): `couple:request`, `couple:accepted`,
+/// `couple:rejected` or `couple:ended`, with its raw payload.
+class CoupleRealtimeEvent extends ChatEvent {
+  final String type;
+  final Map<String, dynamic> payload;
+
+  CoupleRealtimeEvent({required this.type, required this.payload});
+}
+
+/// A chat event decoded against docs/chat/CONTRAT.md §3. The legacy events
+/// above are still emitted next to it for the conversation list.
+class ChatContractEvent extends ChatEvent {
+  final ChatRealtimeEvent event;
+
+  ChatContractEvent(this.event);
+}
+
 class ConnectionStatusEvent extends ChatEvent {
   final bool isConnected;
 
@@ -80,10 +101,20 @@ class WebSocketService {
   Timer? _pingTimer;
   bool _isConnecting = false;
   bool _shouldReconnect = true;
+  int _reconnectAttempts = 0;
+  final Random _random = Random();
 
-  static const String _wsUrl = 'wss://api.mazl.app/ws';
-  static const Duration _reconnectDelay = Duration(seconds: 3);
+  static const String _wsUrl = Env.wsUrl;
   static const Duration _pingInterval = Duration(seconds: 30);
+
+  /// Base delay for the exponential backoff (doubles each consecutive failure).
+  static const Duration _reconnectBaseDelay = Duration(seconds: 2);
+
+  /// Upper bound for the exponential backoff, before jitter is applied.
+  static const Duration _reconnectMaxDelay = Duration(seconds: 60);
+
+  /// Maximum random jitter added to each reconnect delay, in milliseconds.
+  static const int _reconnectMaxJitterMs = 1000;
 
   Stream<ChatEvent> get events => _eventController.stream;
 
@@ -108,6 +139,10 @@ class WebSocketService {
       _channel = WebSocketChannel.connect(uri);
 
       await _channel!.ready;
+
+      // Connection succeeded: reset the backoff so the next disconnect
+      // starts again from the base delay.
+      _reconnectAttempts = 0;
 
       debugPrint('WebSocket: Connected');
       _eventController.add(ConnectionStatusEvent(isConnected: true));
@@ -160,34 +195,10 @@ class WebSocketService {
 
       switch (type) {
         case 'chat:message':
-          if (payload != null) {
-            _eventController.add(NewMessageEvent(
-              conversationId: payload['conversationId'] as int,
-              messageId: payload['messageId'] as int,
-              senderId: payload['senderId'] as int,
-              content: payload['content'] as String,
-              createdAt: DateTime.parse(payload['createdAt'] as String),
-            ));
-          }
-          break;
-
+        case 'chat:updated':
         case 'chat:typing':
-          if (payload != null) {
-            _eventController.add(TypingEvent(
-              conversationId: payload['conversationId'] as int,
-              userId: payload['userId'] as int,
-              isTyping: payload['isTyping'] as bool? ?? true,
-            ));
-          }
-          break;
-
         case 'chat:read':
-          if (payload != null) {
-            _eventController.add(MessagesReadEvent(
-              conversationId: payload['conversationId'] as int,
-              userId: payload['userId'] as int,
-            ));
-          }
+          if (payload != null) _handleChatPayload(type!, payload);
           break;
 
         case 'match:new':
@@ -202,6 +213,16 @@ class WebSocketService {
           }
           break;
 
+        case 'couple:request':
+        case 'couple:accepted':
+        case 'couple:rejected':
+        case 'couple:ended':
+          _eventController.add(CoupleRealtimeEvent(
+            type: type!,
+            payload: payload ?? const <String, dynamic>{},
+          ));
+          break;
+
         case 'pong':
           // Keep-alive response, ignore
           break;
@@ -211,6 +232,57 @@ class WebSocketService {
       }
     } catch (e) {
       debugPrint('WebSocket: Error parsing message: $e');
+    }
+  }
+
+  @visibleForTesting
+  void debugHandleMessage(String raw) => _handleMessage(raw);
+
+  /// Emits the contract event (when the payload follows the contract) and the
+  /// legacy event the conversation list and the old screen still read.
+  void _handleChatPayload(String type, Map<String, dynamic> payload) {
+    final contract = parseChatEnvelope(type, payload);
+    if (contract != null) _eventController.add(ChatContractEvent(contract));
+
+    switch (type) {
+      case 'chat:message':
+        if (contract is ChatMessageArrived) {
+          final m = contract.message;
+          _eventController.add(NewMessageEvent(
+            conversationId: m.conversationId,
+            messageId: m.id,
+            senderId: m.senderId,
+            content: chatPreviewText(m),
+            createdAt: m.createdAt,
+          ));
+        } else if (payload['messageId'] != null) {
+          _eventController.add(NewMessageEvent(
+            conversationId: payload['conversationId'] as int,
+            messageId: payload['messageId'] as int,
+            senderId: payload['senderId'] as int,
+            content: payload['content'] as String,
+            createdAt: DateTime.parse(payload['createdAt'] as String),
+          ));
+        }
+        break;
+      case 'chat:typing':
+        final conversationId = parseIntSafe(payload['conversationId'] ?? payload['conversation_id']);
+        final userId = parseIntSafe(payload['userId'] ?? payload['user_id']);
+        if (conversationId != null && userId != null) {
+          _eventController.add(TypingEvent(
+            conversationId: conversationId,
+            userId: userId,
+            isTyping: (payload['isTyping'] ?? payload['is_typing']) as bool? ?? true,
+          ));
+        }
+        break;
+      case 'chat:read':
+        final conversationId = parseIntSafe(payload['conversationId'] ?? payload['conversation_id']);
+        final userId = parseIntSafe(payload['userId'] ?? payload['user_id']);
+        if (conversationId != null && userId != null) {
+          _eventController.add(MessagesReadEvent(conversationId: conversationId, userId: userId));
+        }
+        break;
     }
   }
 
@@ -233,9 +305,32 @@ class WebSocketService {
     if (!_shouldReconnect) return;
 
     _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(_reconnectDelay, () {
+
+    final delay = _nextReconnectDelay();
+    _reconnectAttempts++;
+    debugPrint(
+      'WebSocket: Reconnecting in ${delay.inMilliseconds}ms '
+      '(attempt $_reconnectAttempts)',
+    );
+
+    _reconnectTimer = Timer(delay, () {
       connect();
     });
+  }
+
+  /// Computes the next reconnect delay using exponential backoff capped at
+  /// [_reconnectMaxDelay], plus a small random jitter to avoid a thundering
+  /// herd of clients reconnecting in lockstep.
+  Duration _nextReconnectDelay() {
+    // Exponential: base * 2^attempts (2s, 4s, 8s, 16s, ...).
+    // Guard the exponent so the multiplier never overflows before clamping.
+    final exponent = _reconnectAttempts.clamp(0, 30);
+    final backoffMs = _reconnectBaseDelay.inMilliseconds * (1 << exponent);
+    final cappedMs =
+        backoffMs.clamp(0, _reconnectMaxDelay.inMilliseconds).toInt();
+
+    final jitterMs = _random.nextInt(_reconnectMaxJitterMs + 1);
+    return Duration(milliseconds: cappedMs + jitterMs);
   }
 
   void _send(Map<String, dynamic> message) {

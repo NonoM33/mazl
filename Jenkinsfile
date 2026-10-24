@@ -26,6 +26,14 @@ pipeline {
             }
         }
 
+        stage('Backend') {
+            steps {
+                sh 'bun install --frozen-lockfile'
+                sh 'bunx tsc --noEmit'
+                sh 'bun test'
+            }
+        }
+
         stage('Flutter Setup') {
             steps {
                 dir("${params.FLUTTER_DIR}") {
@@ -38,7 +46,7 @@ pipeline {
         stage('Analyze') {
             steps {
                 dir("${params.FLUTTER_DIR}") {
-                    sh 'dart analyze --no-fatal-infos --no-fatal-warnings || true'
+                    sh 'dart analyze'
                 }
             }
         }
@@ -66,7 +74,7 @@ pipeline {
 
         stage('Build iOS') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                catchError(message: 'iOS build failed', buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     dir("${params.FLUTTER_DIR}") {
                         sh '''#!/bin/bash
                             set -e
@@ -134,7 +142,7 @@ pipeline {
                 }
             }
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                catchError(message: 'DEPLOY FAILED: Google Play', buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     dir("${params.FLUTTER_DIR}") {
                         script {
                             def packageName = sh(
@@ -168,7 +176,7 @@ pipeline {
                 }
             }
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                catchError(message: 'DEPLOY FAILED: TestFlight', buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     dir("${params.FLUTTER_DIR}") {
                         sh '''
                             fastlane pilot upload \
@@ -223,16 +231,19 @@ pipeline {
             }
         }
         failure {
+            // 'jenkins-api-user' must be created in Jenkins (Credentials > usernamePassword)
+            // holding a Jenkins user id + API token allowed to read the build console log.
             withCredentials([
                 string(credentialsId: 'telegram-bot-token', variable: 'TG_TOKEN'),
                 string(credentialsId: 'telegram-chat-id', variable: 'TG_CHAT'),
-                string(credentialsId: 'anthropic-api-key', variable: 'ANTHROPIC_KEY')
+                string(credentialsId: 'anthropic-api-key', variable: 'ANTHROPIC_KEY'),
+                usernamePassword(credentialsId: 'jenkins-api-user', usernameVariable: 'CI_USER', passwordVariable: 'CI_PASS')
             ]) {
                 sh '''#!/bin/bash
                     set +e
 
                     # Fetch last 150 lines of build log via Jenkins API
-                    BUILD_LOG=$(curl -s -u "renaud:24536Tetr@" "${BUILD_URL}consoleText" | tail -150)
+                    BUILD_LOG=$(curl -s -u "$CI_USER:$CI_PASS" "${BUILD_URL}consoleText" | tail -150)
 
                     if [ -z "$BUILD_LOG" ]; then
                         echo "[WARN] Could not fetch build log, skipping Claude analysis"

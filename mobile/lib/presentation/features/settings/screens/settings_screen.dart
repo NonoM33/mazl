@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -10,10 +10,15 @@ import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_models.dart';
+import '../../../../core/services/store/subscription_service.dart';
+import '../../../../core/services/subscription_format.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
+import '../../../common/widgets/mazl_sheet.dart';
+import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -27,6 +32,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _isSaving = false;
   UserProfile? _userProfile;
   final ApiService _apiService = ApiService();
+  final CoupleService _coupleService = CoupleService();
 
   // Settings values
   String? _location;
@@ -46,7 +52,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _coupleService.addListener(_onCoupleChanged);
     _loadUserProfile();
+  }
+
+  @override
+  void dispose() {
+    _coupleService.removeListener(_onCoupleChanged);
+    super.dispose();
+  }
+
+  void _onCoupleChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadUserProfile() async {
@@ -88,7 +105,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (response.success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Parametres sauvegardes'),
+          content: Text('Paramètres sauvegardés'),
           backgroundColor: AppColors.success,
         ),
       );
@@ -101,185 +118,175 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     CitySuggestion? selectedCity;
     bool isSearching = false;
 
-    showModalBottomSheet(
-      context: context,
+    showMazlSheet(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildSheetHandle(),
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text('Localisation', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        builder: (context, setSheetState) => ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('Localisation', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              // Current location display
+              if (_location != null && selectedCity == null)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
-                  // Current location display
-                  if (_location != null && selectedCity == null)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _location!,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          Icon(LucideIcons.check, size: 20, color: AppColors.primary),
-                        ],
-                      ),
-                    ),
-                  // Selected city display
-                  if (selectedCity != null)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.success.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(LucideIcons.mapPin, size: 20, color: AppColors.success),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              selectedCity!.displayName,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => setSheetState(() {
-                              selectedCity = null;
-                              controller.clear();
-                            }),
-                            child: Icon(LucideIcons.x, size: 20, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  // Search input
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
-                      controller: controller,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: 'Rechercher une ville...',
-                        filled: true,
-                        fillColor: Colors.grey.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _location!,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        prefixIcon: const Icon(LucideIcons.search),
-                        suffixIcon: isSearching
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              )
-                            : null,
                       ),
-                      onChanged: (value) async {
-                        if (value.length < 2) {
-                          setSheetState(() => suggestions = []);
-                          return;
-                        }
-                        setSheetState(() => isSearching = true);
-                        final results = await _placesService.searchCities(value);
-                        if (context.mounted) {
-                          setSheetState(() {
-                            suggestions = results;
-                            isSearching = false;
-                          });
-                        }
-                      },
-                    ),
+                      Icon(LucideIcons.check, size: 20, color: AppColors.primary),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  // Hint text
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Tape le nom de ta ville et selectionne une suggestion',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
+                ),
+              // Selected city display
+              if (selectedCity != null)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                   ),
-                  // Suggestions list
-                  if (suggestions.isNotEmpty)
-                    Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        itemCount: suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = suggestions[index];
-                          return ListTile(
-                            leading: Icon(LucideIcons.mapPin, color: AppColors.primary),
-                            title: Text(suggestion.displayName),
-                            contentPadding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.success),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          selectedCity!.displayName,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => setSheetState(() {
+                          selectedCity = null;
+                          controller.clear();
+                        }),
+                        child: Icon(LucideIcons.x, size: 20, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // Search input
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher une ville...',
+                    filled: true,
+                    fillColor: Colors.grey.withValues(alpha: 0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    prefixIcon: const Icon(LucideIcons.search),
+                    suffixIcon: isSearching
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            onTap: () {
-                              setSheetState(() {
-                                selectedCity = suggestion;
-                                suggestions = [];
-                                controller.clear();
-                              });
-                            },
-                          );
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) async {
+                    if (value.length < 2) {
+                      setSheetState(() => suggestions = []);
+                      return;
+                    }
+                    setSheetState(() => isSearching = true);
+                    final results = await _placesService.searchCities(value);
+                    if (context.mounted) {
+                      setSheetState(() {
+                        suggestions = results;
+                        isSearching = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Hint text
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Saisissez le nom de votre ville et sélectionnez une suggestion',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ),
+              // Suggestions list
+              if (suggestions.isNotEmpty)
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    itemCount: suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = suggestions[index];
+                      return ListTile(
+                        leading: Icon(LucideIcons.mapPin, color: AppColors.primary),
+                        title: Text(suggestion.displayName),
+                        contentPadding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        onTap: () {
+                          setSheetState(() {
+                            selectedCity = suggestion;
+                            suggestions = [];
+                            controller.clear();
+                          });
                         },
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  // Save button
-                  _buildSheetButton(
-                    selectedCity != null ? 'Enregistrer' : 'Fermer',
-                    () {
-                      if (selectedCity != null) {
-                        setState(() {
-                          _location = selectedCity!.displayName;
-                          _latitude = selectedCity!.latitude;
-                          _longitude = selectedCity!.longitude;
-                        });
-                        Navigator.pop(context);
-                        _saveSettings();
-                      } else {
-                        Navigator.pop(context);
-                      }
+                      );
                     },
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
+              const SizedBox(height: 16),
+              // Save button
+              _buildSheetButton(
+                selectedCity != null ? 'Enregistrer' : 'Fermer',
+                () {
+                  if (selectedCity != null) {
+                    setState(() {
+                      _location = selectedCity!.displayName;
+                      _latitude = selectedCity!.latitude;
+                      _longitude = selectedCity!.longitude;
+                    });
+                    Navigator.pop(context);
+                    _saveSettings();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
-            ),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
@@ -288,61 +295,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showDistanceSheet() {
     double tempDistance = _distanceMax.toDouble();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
+    showMazlSheet(
+      context,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('Distance maximale', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${tempDistance.round()} km',
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Slider(
-                    value: tempDistance,
-                    min: 5,
-                    max: 200,
-                    divisions: 39,
-                    activeColor: AppColors.primary,
-                    onChanged: (value) => setSheetState(() => tempDistance = value),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildSheetButton('Enregistrer', () {
-                  setState(() => _distanceMax = tempDistance.round());
-                  Navigator.pop(context);
-                  _saveSettings();
-                }),
-                const SizedBox(height: 20),
-              ],
+        builder: (context, setSheetState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Distance maximale', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${tempDistance.round()} km',
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Slider(
+                value: tempDistance,
+                min: 5,
+                max: 200,
+                divisions: 39,
+                activeColor: AppColors.primary,
+                onChanged: (value) => setSheetState(() => tempDistance = value),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildSheetButton('Enregistrer', () {
+              setState(() => _distanceMax = tempDistance.round());
+              Navigator.pop(context);
+              _saveSettings();
+            }),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -350,77 +348,56 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showAgeRangeSheet() {
     RangeValues tempRange = RangeValues(_ageMin.toDouble(), _ageMax.toDouble());
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
+    showMazlSheet(
+      context,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('Tranche d\'age', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${tempRange.start.round()} - ${tempRange.end.round()} ans',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: RangeSlider(
-                    values: tempRange,
-                    min: 18,
-                    max: 99,
-                    divisions: 81,
-                    activeColor: AppColors.primary,
-                    onChanged: (values) => setSheetState(() => tempRange = values),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildSheetButton('Enregistrer', () {
-                  setState(() {
-                    _ageMin = tempRange.start.round();
-                    _ageMax = tempRange.end.round();
-                  });
-                  Navigator.pop(context);
-                  _saveSettings();
-                }),
-                const SizedBox(height: 20),
-              ],
+        builder: (context, setSheetState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Tranche d\'âge', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${tempRange.start.round()} - ${tempRange.end.round()} ans',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: RangeSlider(
+                values: tempRange,
+                min: 18,
+                max: 99,
+                divisions: 81,
+                activeColor: AppColors.primary,
+                onChanged: (values) => setSheetState(() => tempRange = values),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildSheetButton('Enregistrer', () {
+              setState(() {
+                _ageMin = tempRange.start.round();
+                _ageMax = tempRange.end.round();
+              });
+              Navigator.pop(context);
+              _saveSettings();
+            }),
+            const SizedBox(height: 20),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSheetHandle() {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(2),
       ),
     );
   }
@@ -444,34 +421,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Future<void> _handleShowPaywall() async {
-    await context.push<bool>(RoutePaths.premium);
+  Future<void> _handleOpenSubscription() async {
+    final isPremium = SubscriptionService().isMazlPro;
+    await context.push<bool>(isPremium ? RoutePaths.subscription : RoutePaths.premium);
     if (mounted) setState(() {});
-  }
-
-  Future<void> _handleShowCustomerCenter() async {
-    try {
-      await RevenueCatService().showCustomerCenter();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
-    }
   }
 
   Future<void> _handleRestorePurchases() async {
     setState(() => _isLoading = true);
     try {
-      await RevenueCatService().restorePurchases();
+      final result = await SubscriptionService().restore();
       if (mounted) {
+        final message = switch (result) {
+          RestoreFound() => 'Achats restaurés avec succès.',
+          RestoreNothing() => 'Aucun abonnement trouvé.',
+          RestoreFailed(:final message) => message,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Achats restaures avec succes!')),
+          SnackBar(content: Text(message)),
         );
         setState(() {});
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -480,9 +449,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _handleLogout() async {
     final confirmed = await _showConfirmSheet(
-      title: 'Se deconnecter',
-      message: 'Es-tu sur de vouloir te deconnecter ?',
-      confirmText: 'Se deconnecter',
+      title: 'Se déconnecter',
+      message: 'Voulez-vous vraiment vous déconnecter ?',
+      confirmText: 'Se déconnecter',
       isDestructive: false,
     );
 
@@ -530,213 +499,108 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'Je n\'utilise plus l\'application',
       'Je souhaite faire une pause',
       'Problèmes techniques',
-      'Je ne suis pas satisfait(e) du service',
+      'Le service ne me convient pas',
       'Autre raison',
     ];
 
-    return showModalBottomSheet<String>(
-      context: context,
+    return showMazlSheet<String>(
+      context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      padded: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Container(
+        builder: (context, setSheetState) => ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.7,
           ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSheetHandle(),
-                const SizedBox(height: 16),
-                const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
-                const SizedBox(height: 16),
-                const Text(
-                  'Supprimer mon compte',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Pourquoi souhaites-tu nous quitter ?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: reasons.length,
-                    itemBuilder: (context, index) {
-                      final reason = reasons[index];
-                      final isSelected = selectedReason == reason;
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () => setSheetState(() => selectedReason = reason),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.error.withOpacity(0.1)
-                                  : Colors.grey.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected
-                                    ? AppColors.error
-                                    : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  isSelected
-                                      ? LucideIcons.checkCircle
-                                      : LucideIcons.circle,
-                                  color: isSelected
-                                      ? AppColors.error
-                                      : Colors.grey,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(child: Text(reason)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Annuler'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: selectedReason != null
-                              ? () => Navigator.pop(context, selectedReason)
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.error,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Continuer'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<bool?> _showDeleteConfirmationSheet(String reason) {
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildSheetHandle(),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.alertTriangle,
-                  color: AppColors.error,
-                  size: 40,
+              const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
+              const SizedBox(height: 16),
+              const Text(
+                'Supprimer mon compte',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Pourquoi souhaitez-vous nous quitter ?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Confirmation finale',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Cette action est irréversible !',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.w600,
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: reasons.length,
+                  itemBuilder: (context, index) {
+                    final reason = reasons[index];
+                    final isSelected = selectedReason == reason;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: InkWell(
+                        onTap: () => setSheetState(() => selectedReason = reason),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.error.withValues(alpha: 0.1)
+                                : Colors.grey.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.error
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isSelected
+                                    ? LucideIcons.checkCircle
+                                    : LucideIcons.circle,
+                                color: isSelected
+                                    ? AppColors.error
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(reason)),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Toutes tes données seront supprimées :\n• Ton profil et tes photos\n• Tes matchs et conversations\n• Ton historique de likes\n• Tes paramètres',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
+                        onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Garder mon compte'),
+                        child: const Text('Annuler'),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
+                        onPressed: selectedReason != null
+                            ? () => Navigator.pop(context, selectedReason)
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.error,
                           foregroundColor: Colors.white,
@@ -745,7 +609,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text('Supprimer'),
+                        child: const Text('Continuer'),
                       ),
                     ),
                   ],
@@ -759,21 +623,113 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Future<bool?> _showDeleteConfirmationSheet(String reason) {
+    return showMazlSheet<bool>(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              LucideIcons.alertTriangle,
+              color: AppColors.error,
+              size: 40,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Confirmation finale',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const Text(
+                  'Cette action est irréversible.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Garder mon compte'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Supprimer'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleDeactivateCoupleMode() async {
     final confirmed = await _showConfirmSheet(
       title: 'Quitter le mode couple',
-      message: 'Tu pourras le reactiver plus tard si tu le souhaites.',
+      message: 'Vous pourrez le réactiver plus tard si vous le souhaitez.',
       confirmText: 'Quitter',
       isDestructive: true,
     );
 
-    if (confirmed == true && mounted) {
-      CoupleService().disableCoupleMode();
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mode couple desactive')),
-      );
-    }
+    if (confirmed != true || !mounted) return;
+
+    // The server answers first: on failure nothing changes. On success the
+    // router guard brings the member back to the dating screens.
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await _coupleService.leaveCouple();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? 'Impossible de quitter le mode couple. Réessayez.'),
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Future<bool?> _showConfirmSheet({
@@ -782,253 +738,119 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required String confirmText,
     required bool isDestructive,
   }) {
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSheetHandle(),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: (isDestructive ? Colors.red : AppColors.primary).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-                  color: isDestructive ? Colors.red : AppColors.primary,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: const Text('Annuler'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDestructive ? Colors.red : AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: Text(confirmText),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+    return showMazlSheet<bool>(
+      context,
+      padded: false,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: (isDestructive ? AppColors.error : AppColors.primary).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
+              color: isDestructive ? AppColors.error : AppColors.primary,
+              size: 32,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCoupleModeCard(BuildContext context) {
-    final coupleService = CoupleService();
-    final isCoupleModeEnabled = coupleService.isCoupleModeEnabled;
-    final coupleData = coupleService.coupleData;
-
-    if (isCoupleModeEnabled && coupleData != null) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
           ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Annuler'),
                   ),
-                  child: const Icon(LucideIcons.heartHandshake, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Mode Couple Actif',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        'Avec ${coupleData.partnerName ?? 'ton/ta partenaire'}',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${coupleData.daysTogether} jours',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context.push(RoutePaths.coupleActivities),
-                    style: OutlinedButton.styleFrom(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDestructive ? AppColors.error : AppColors.primary,
                       foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: const Text('Mode Couple'),
+                    child: Text(confirmText),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context.push(RoutePaths.jewishCalendar),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
-                    ),
-                    child: const Text('Calendrier'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _handleDeactivateCoupleMode,
-                  icon: const Icon(LucideIcons.logOut, color: Colors.white70, size: 20),
-                  tooltip: 'Quitter le mode couple',
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Show activate couple mode card
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.secondary.withOpacity(0.1), AppColors.primary.withOpacity(0.1)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(LucideIcons.heartHandshake, color: AppColors.secondary),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Tu as trouve l\'amour ?', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  'Active le mode couple pour des features exclusives',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () => context.push(RoutePaths.coupleSetup),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(80, 36),
-            ),
-            child: const Text('Activer'),
-          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
+  Widget _buildCoupleModeCard(BuildContext context) {
+    return SettingsCoupleCard(
+      service: _coupleService,
+      onOpenSpace: () => context.push(RoutePaths.coupleActivities),
+      onOpenCalendar: () => context.push(RoutePaths.jewishCalendar),
+      onActivate: () => context.push(RoutePaths.coupleSetup),
+      onLeave: _handleDeactivateCoupleMode,
+      onCancelRequest: _handleCancelCoupleRequest,
+    );
+  }
+
+  Future<void> _handleCancelCoupleRequest() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await _coupleService.cancelCoupleRequest();
+    if (!result.ok) {
+      messenger.showSnackBar(SnackBar(content: Text(result.message ?? "Impossible d'annuler la demande. Réessayez.")));
+    }
+    if (mounted) setState(() {});
+  }
+
   // ============ DEBUG METHODS ============
 
-  Future<void> _debugEnableCoupleMode() async {
+  /// Runs a /api/dev/couple/* call and reports what really happened: a refused
+  /// call (503 outside dev, no success flag) is an error, never a green message.
+  Future<void> _debugCoupleCall(String route, String fallbackMessage) async {
     setState(() => _isLoading = true);
 
     try {
       final userId = _userProfile?.id ?? 22; // Default to user 22 if not loaded
-      final response = await _apiService.post('/api/dev/couple/enable', {
-        'userId': userId,
-      });
+      final response = await _apiService.post(route, {'userId': userId});
+      final succeeded = response['success'] == true;
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final message = response['message'] ?? 'Couple mode enabled';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: AppColors.success),
-        );
-
-        // Refresh couple service
-        final coupleService = CoupleService();
-        await coupleService.initialize();
-
-        // Navigate to couple activities (main couple mode screen)
-        if (coupleService.isCoupleModeEnabled) {
-          context.go('/couple/activities');
-        }
+      if (succeeded) {
+        // Align on the server; the router guard moves to the right mode.
+        await CoupleService().refresh();
       }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      final message = succeeded
+          ? (response['message'] as String? ?? fallbackMessage)
+          : (response['error'] as String? ?? 'Refusé par le serveur');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: succeeded ? AppColors.success : AppColors.error,
+        ),
+      );
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -1039,38 +861,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _debugDisableCoupleMode() async {
-    setState(() => _isLoading = true);
+  Future<void> _debugEnableCoupleMode() =>
+      _debugCoupleCall('/api/dev/couple/enable', 'Mode couple activé');
 
-    try {
-      final userId = _userProfile?.id ?? 22;
-      final response = await _apiService.post('/api/dev/couple/disable', {
-        'userId': userId,
-      });
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final message = response['message'] ?? 'Couple mode disabled';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: AppColors.success),
-        );
-
-        // Clear local couple data
-        final coupleService = CoupleService();
-        await coupleService.disableCoupleMode();
-
-        // Go back to discover
-        context.go('/discover');
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
-        );
-      }
-    }
-  }
+  Future<void> _debugDisableCoupleMode() =>
+      _debugCoupleCall('/api/dev/couple/disable', 'Mode couple désactivé');
 
   Future<void> _debugResetSwipes() async {
     setState(() => _isLoading = true);
@@ -1157,19 +952,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final revenueCat = RevenueCatService();
-    final isMazlPro = revenueCat.isMazlPro;
-    final subscriptionStatus = revenueCat.subscriptionStatusText;
+    final subscriptions = SubscriptionService();
+    final isMazlPro = subscriptions.isMazlPro;
+    final renewal = subscriptions.expirationDate;
+    final subscriptionDetail = [
+      ?subscriptions.activePlanLabel,
+      if (renewal != null)
+        '${subscriptions.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
+    ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
+    final inCouple = _coupleService.isCoupleModeEnabled;
 
-    final profile = _userProfile?.profile;
-    final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecte';
+    final userEmail = _userProfile?.email ?? currentUser?.email ?? 'Non connecté';
     final userName = _userProfile?.name ?? currentUser?.displayName ?? 'Utilisateur';
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Parametres'),
+        title: const Text('Paramètres'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () {
@@ -1192,7 +992,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: AppColors.primary.withOpacity(0.2),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                       backgroundImage: userPicture != null ? CachedNetworkImageProvider(userPicture) : null,
                       child: userPicture == null
                           ? Icon(LucideIcons.user, size: 40, color: AppColors.primary)
@@ -1228,29 +1028,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {},
               ),
 
-              // Discovery section
-              _SectionHeader(title: 'Decouverte'),
-              _SettingTile(
-                icon: LucideIcons.mapPin,
-                title: 'Localisation',
-                subtitle: _location ?? 'Non defini',
-                onTap: _showLocationSheet,
-              ),
-              _SettingTile(
-                icon: LucideIcons.radar,
-                title: 'Distance maximale',
-                subtitle: '$_distanceMax km',
-                onTap: _showDistanceSheet,
-              ),
-              _SettingTile(
-                icon: LucideIcons.users,
-                title: 'Tranche d\'age',
-                subtitle: '$_ageMin - $_ageMax ans',
-                onTap: _showAgeRangeSheet,
-              ),
+              // Discovery section (meaningless once the member is in a couple)
+              if (!inCouple) ...[
+                _SectionHeader(title: 'Découverte'),
+                _SettingTile(
+                  icon: LucideIcons.mapPin,
+                  title: 'Localisation',
+                  subtitle: _location ?? 'Non défini',
+                  onTap: _showLocationSheet,
+                ),
+                _SettingTile(
+                  icon: LucideIcons.radar,
+                  title: 'Distance maximale',
+                  subtitle: '$_distanceMax km',
+                  onTap: _showDistanceSheet,
+                ),
+                _SettingTile(
+                  icon: LucideIcons.users,
+                  title: 'Tranche d\'âge',
+                  subtitle: '$_ageMin - $_ageMax ans',
+                  onTap: _showAgeRangeSheet,
+                ),
+              ],
 
               // Jewish settings
-              _SectionHeader(title: 'Parametres juifs'),
+              _SectionHeader(title: 'Paramètres juifs'),
               _SettingTile(
                 icon: LucideIcons.moonStar,
                 iconColor: AppColors.accentGold,
@@ -1260,48 +1062,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.calendarHeart,
-                title: 'Alertes fetes',
-                subtitle: 'Notifications avant les fetes',
+                title: 'Alertes fêtes',
+                subtitle: 'Notifications avant les fêtes',
                 trailing: Switch(
                   value: _notifHolidays,
                   onChanged: (value) => setState(() => _notifHolidays = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifHolidays = !_notifHolidays),
               ),
 
               // Notifications
               _SectionHeader(title: 'Notifications'),
-              _SettingTile(
-                icon: LucideIcons.heartHandshake,
-                title: 'Nouveaux matchs',
-                trailing: Switch(
-                  value: _notifMatches,
-                  onChanged: (value) => setState(() => _notifMatches = value),
-                  activeColor: AppColors.primary,
+              if (!inCouple)
+                _SettingTile(
+                  icon: LucideIcons.heartHandshake,
+                  title: 'Nouveaux matchs',
+                  trailing: Switch(
+                    value: _notifMatches,
+                    onChanged: (value) => setState(() => _notifMatches = value),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                  onTap: () => setState(() => _notifMatches = !_notifMatches),
                 ),
-                onTap: () => setState(() => _notifMatches = !_notifMatches),
-              ),
               _SettingTile(
                 icon: LucideIcons.messageCircle,
                 title: 'Messages',
                 trailing: Switch(
                   value: _notifMessages,
                   onChanged: (value) => setState(() => _notifMessages = value),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 onTap: () => setState(() => _notifMessages = !_notifMessages),
               ),
-              _SettingTile(
-                icon: LucideIcons.star,
-                title: 'Super Likes',
-                trailing: Switch(
-                  value: _notifSuperLikes,
-                  onChanged: (value) => setState(() => _notifSuperLikes = value),
-                  activeColor: AppColors.primary,
+              if (!inCouple)
+                _SettingTile(
+                  icon: LucideIcons.star,
+                  title: 'Super Likes',
+                  trailing: Switch(
+                    value: _notifSuperLikes,
+                    onChanged: (value) => setState(() => _notifSuperLikes = value),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                  onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
                 ),
-                onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
-              ),
 
               // Couple Mode Section
               _SectionHeader(title: 'Mode Couple'),
@@ -1309,92 +1113,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // Premium / Subscription
               _SectionHeader(title: 'Abonnement'),
-              if (isMazlPro) ...[
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: AppColors.premiumGradient),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(LucideIcons.crown, color: Colors.white),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Mazl Pro',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                                ),
-                                Text(subscriptionStatus, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text('Actif', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: _handleShowCustomerCenter,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white54),
-                          ),
-                          child: const Text('Gerer mon abonnement'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: AppColors.premiumGradient),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(LucideIcons.crown, color: Colors.white),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Passe a Mazl Pro', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                            Text('Likes illimites, voir qui t\'aime, boost', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _handleShowPaywall,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.accentGold,
-                          minimumSize: const Size(80, 36),
-                        ),
-                        child: const Text('Voir'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              PlusSettingsCard(
+                isPremium: isMazlPro,
+                detail: subscriptionDetail,
+                onTap: _handleOpenSubscription,
+              ),
               _SettingTile(
                 icon: LucideIcons.refreshCw,
                 title: 'Restaurer les achats',
@@ -1402,11 +1125,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               // Privacy & Safety
-              _SectionHeader(title: 'Confidentialite & Securite'),
+              _SectionHeader(title: 'Confidentialité et sécurité'),
               _SettingTile(
                 icon: LucideIcons.ban,
-                title: 'Utilisateurs bloques',
-                subtitle: 'Gerer les personnes bloquees',
+                title: 'Utilisateurs bloqués',
+                subtitle: 'Gérer les personnes bloquées',
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const BlockedUsersScreen()),
@@ -1414,16 +1137,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.shieldCheck,
-                title: 'Verification du profil',
-                subtitle: _userProfile?.profile?.isVerified == true ? 'Verifie' : 'Non verifie',
+                title: 'Vérification du profil',
+                subtitle: _userProfile?.profile?.isVerified == true ? 'Vérifié' : 'Non vérifié',
                 onTap: () => context.push(RoutePaths.verification),
               ),
 
               // About
-              _SectionHeader(title: 'A propos'),
+              _SectionHeader(title: 'À propos'),
               _SettingTile(
                 icon: LucideIcons.helpCircle,
-                title: 'Aide & Support',
+                title: 'Aide et support',
                 onTap: () {},
               ),
               _SettingTile(
@@ -1433,7 +1156,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: LucideIcons.shield,
-                title: 'Politique de confidentialite',
+                title: 'Politique de confidentialité',
                 onTap: () {},
               ),
               _SettingTile(
@@ -1451,9 +1174,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1476,7 +1199,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onPressed: _debugEnableCoupleMode,
                           ),
                           _DebugButton(
-                            label: 'Desactiver Couple',
+                            label: 'Désactiver Couple',
                             icon: LucideIcons.heartOff,
                             onPressed: _debugDisableCoupleMode,
                           ),
@@ -1507,7 +1230,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     foregroundColor: AppColors.error,
                     side: const BorderSide(color: AppColors.error),
                   ),
-                  child: const Text('Se deconnecter'),
+                  child: const Text('Se déconnecter'),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1545,7 +1268,7 @@ class _SectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           letterSpacing: 1,
         ),
       ),

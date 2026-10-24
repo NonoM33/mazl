@@ -47,11 +47,11 @@ void main() {
       test('milestones have correct order', () {
         final milestones = service.getMilestones();
 
-        expect(milestones[0].title, equals('Premiere semaine'));
+        expect(milestones[0].title, equals('Première semaine'));
         expect(milestones[1].title, equals('Premier mois'));
         expect(milestones[2].title, equals('Trimestre'));
-        expect(milestones[3].title, equals('Mi-annee'));
-        expect(milestones[4].title, equals('Premiere annee'));
+        expect(milestones[3].title, equals('Mi-année'));
+        expect(milestones[4].title, equals('Première année'));
       });
 
       test('all milestones have required fields', () {
@@ -142,12 +142,12 @@ void main() {
 
   group('RelationshipStatus', () {
     test('displayName returns correct French text', () {
-      expect(RelationshipStatus.single.displayName, equals('Celibataire'));
+      expect(RelationshipStatus.single.displayName, equals('Célibataire'));
       expect(RelationshipStatus.dating.displayName, equals('En train de dater'));
       expect(
           RelationshipStatus.inRelationship.displayName, equals('En couple'));
-      expect(RelationshipStatus.engaged.displayName, equals('Fiance(e)'));
-      expect(RelationshipStatus.married.displayName, equals('Marie(e)'));
+      expect(RelationshipStatus.engaged.displayName, equals('Fiancé(e)'));
+      expect(RelationshipStatus.married.displayName, equals('Marié(e)'));
     });
 
     test('isInCouple returns correct values', () {

@@ -55,9 +55,9 @@ class IcebreakerService {
 
   Icebreaker _generatePromptIcebreaker(ProfilePrompt prompt) {
     final templates = [
-      'J\'ai adore ta reponse a "${prompt.promptText}" ! ${_getFollowUp(prompt.answer)}',
-      'Ta reponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?',
-      'Je suis curieux(se) de savoir pourquoi tu as repondu "${_truncate(prompt.answer, 30)}" a la question sur ${_extractTopic(prompt.promptText)}',
+      'J\'ai adoré ta réponse à "${prompt.promptText}". ${_getFollowUp(prompt.answer)}',
+      'Ta réponse sur "${prompt.promptText}" m\'a fait sourire. Tu peux m\'en dire plus ?',
+      'Je suis curieux(se) de savoir pourquoi tu as répondu "${_truncate(prompt.answer, 30)}" à la question sur ${_extractTopic(prompt.promptText)}',
     ];
 
     return Icebreaker(
@@ -72,12 +72,12 @@ class IcebreakerService {
 
     // Look for interests/topics
     final topics = <String, List<String>>{
-      'voyage': ['Tu as voyage ou recemment ? J\'adorerais entendre tes histoires !', 'Quelle est ta prochaine destination de reve ?'],
-      'musique': ['Quel genre de musique tu ecoutes en ce moment ?', 'Tu as ete a un bon concert recemment ?'],
+      'voyage': ['Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.', 'Quelle est ta prochaine destination de rêve ?'],
+      'musique': ['Quel genre de musique tu écoutes en ce moment ?', 'Tu as été à un bon concert récemment ?'],
       'cuisine': ['Tu cuisines quoi de bon en ce moment ?', 'C\'est quoi ton plat signature ?'],
-      'sport': ['Tu pratiques quel sport ?', 'Tu preferes regarder ou pratiquer ?'],
-      'lecture': ['Tu lis quoi en ce moment ?', 'C\'est quoi le dernier livre qui t\'a marque ?'],
-      'cinema': ['Tu as vu un bon film recemment ?', 'Tu preferes cinema ou series ?'],
+      'sport': ['Tu pratiques quel sport ?', 'Tu préfères regarder ou pratiquer ?'],
+      'lecture': ['Tu lis quoi en ce moment ?', 'C\'est quoi le dernier livre qui t\'a marqué ?'],
+      'cinema': ['Tu as vu un bon film récemment ?', 'Tu préfères cinéma ou séries ?'],
       'randonnee': ['Tu connais de beaux sentiers dans le coin ?', 'C\'est quoi ta plus belle rando ?'],
       'photo': ['Tu prends des photos de quoi principalement ?', 'Tu utilises quoi comme appareil ?'],
     };
@@ -102,30 +102,30 @@ class IcebreakerService {
       case 'orthodox':
       case 'modern orthodox':
         templates.addAll([
-          'Tu as une synagogue preferee dans le coin ?',
-          'Comment tu passes generalement Shabbat ?',
-          'Tu as un restaurant casher prefere ?',
+          'Tu as une synagogue préférée dans le coin ?',
+          'Comment tu passes généralement Shabbat ?',
+          'Tu as un restaurant casher préféré ?',
         ]);
         break;
       case 'massorti':
       case 'traditionaliste':
         templates.addAll([
           'Quelles traditions juives sont les plus importantes pour toi ?',
-          'Tu celebres Shabbat comment generalement ?',
-          'Tu as une fete juive preferee ?',
+          'Tu célèbres Shabbat comment généralement ?',
+          'Tu as une fête juive préférée ?',
         ]);
         break;
       case 'laique':
         templates.addAll([
-          'C\'est quoi ton rapport a la culture juive ?',
+          'C\'est quoi ton rapport à la culture juive ?',
           'Tu as des traditions familiales que tu gardes ?',
-          'Tu celebres quelles fetes ?',
+          'Tu célèbres quelles fêtes ?',
         ]);
         break;
       default:
         templates.addAll([
-          'C\'est quoi ta fete juive preferee ?',
-          'Tu as des traditions familiales speciales ?',
+          'C\'est quoi ta fête juive préférée ?',
+          'Tu as des traditions familiales spéciales ?',
           'Tu as grandi dans une famille pratiquante ?',
         ]);
     }
@@ -140,9 +140,9 @@ class IcebreakerService {
   Icebreaker _generateLocationIcebreaker(String location) {
     final templates = [
       'Tu connais bien $location ? Tu me conseilles quoi ?',
-      'C\'est quoi ton coin prefere a $location ?',
-      'Tu es originaire de $location ou tu t\'y es installe(e) ?',
-      'Il y a un bon restaurant que tu recommandes a $location ?',
+      'C\'est quoi ton coin préféré à $location ?',
+      'Tu es originaire de $location ou tu t\'y es installé(e) ?',
+      'Il y a un bon restaurant que tu recommandes à $location ?',
     ];
 
     return Icebreaker(
@@ -154,16 +154,16 @@ class IcebreakerService {
 
   Icebreaker _getGenericIcebreaker() {
     final templates = [
-      'Si tu pouvais diner avec n\'importe qui, vivant ou mort, ce serait qui ?',
-      'C\'est quoi ta definition d\'une journee parfaite ?',
-      'Tu as un talent cache que peu de gens connaissent ?',
-      'C\'est quoi le truc le plus spontane que tu aies fait ?',
-      'Tu preferes vacances a la mer ou a la montagne ?',
+      'Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?',
+      'C\'est quoi ta définition d\'une journée parfaite ?',
+      'Tu as un talent caché que peu de gens connaissent ?',
+      'C\'est quoi le truc le plus spontané que tu aies fait ?',
+      'Tu préfères vacances à la mer ou à la montagne ?',
       'Si tu gagnais au loto demain, tu ferais quoi en premier ?',
       'C\'est quoi ton guilty pleasure ?',
-      'Tu as un reve que tu n\'as pas encore realise ?',
-      'C\'est quoi le meilleur conseil qu\'on t\'ait donne ?',
-      'Tu preferes petit-dejeuner ou diner dehors ?',
+      'Tu as un rêve que tu n\'as pas encore réalisé ?',
+      'C\'est quoi le meilleur conseil qu\'on t\'ait donné ?',
+      'Tu préfères petit-déjeuner ou dîner dehors ?',
     ];
 
     return Icebreaker(
@@ -175,10 +175,10 @@ class IcebreakerService {
 
   String _getFollowUp(String answer) {
     final followUps = [
-      'Ca m\'intrigue !',
+      'Ça m\'intrigue.',
       'J\'aimerais en savoir plus.',
       'Tu me racontes ?',
-      'Ca a l\'air interessant !',
+      'Ça a l\'air intéressant.',
     ];
     return followUps[_random.nextInt(followUps.length)];
   }
@@ -193,7 +193,7 @@ class IcebreakerService {
     final words = question.toLowerCase().split(' ');
     final stopWords = {'est', 'que', 'quoi', 'qui', 'tu', 'ton', 'ta', 'tes', 'le', 'la', 'les', 'un', 'une', 'des', 'ce', 'cette', 'pour', 'avec', 'dans', 'sur', 'par'};
     final keywords = words.where((w) => !stopWords.contains(w) && w.length > 3).take(2);
-    return keywords.isEmpty ? 'ca' : keywords.join(' ');
+    return keywords.isEmpty ? 'ça' : keywords.join(' ');
   }
 }
 
