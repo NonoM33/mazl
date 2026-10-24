@@ -1,8 +1,11 @@
 // Deploys the MAZL API through Coolify with no data at risk:
-//   bun scripts/deploy/deploy.ts stg|prod
+//   bun scripts/deploy/deploy.ts stg
+//   bun scripts/deploy/deploy.ts prod [git-ref]   (default: origin/main)
 // 1. production only: a fresh database backup must SUCCEED first, or nothing is deployed;
-// 2. one deployment at a time on the server (two builds at once take Traefik down);
-// 3. after the deploy, /api/health must answer 200 six times in a row.
+// 2. production only: the API follows the `production` branch, which only this script moves,
+//    AFTER the backup (a push to main never redeploys the production API by itself);
+// 3. one deployment at a time on the server (two builds at once take Traefik down);
+// 4. after the deploy, /api/health must answer 200 six times in a row.
 // COOLIFY_URL and COOLIFY_API_KEY come from the environment, never from this file.
 
 const TARGETS = {
@@ -47,7 +50,8 @@ async function freshBackup(database: string, config: string): Promise<void> {
     await sleep(5000);
     const configs = await coolify<BackupConfig[]>("GET", `/databases/${database}/backups`);
     const runs = configs.find((c) => c.uuid === config)?.executions ?? [];
-    const latest = runs.find((run) => Date.parse(`${run.created_at.replace(" ", "T")}`) >= startedAt - 60_000);
+    // Only a run started by THIS request counts, never an older one.
+    const latest = runs.find((run) => Date.parse(`${run.created_at.replace(" ", "T")}`) >= startedAt - 5_000);
     if (latest?.status === "success") { console.log(`backup ok (${latest.size ?? "?"} bytes)`); return; }
     if (latest?.status === "failed") throw new Error("database backup FAILED: nothing deployed");
   }
@@ -63,9 +67,38 @@ async function waitQueueEmpty(): Promise<void> {
   throw new Error("another deployment is still running after 20 minutes");
 }
 
-async function deploy(app: string): Promise<void> {
-  const queued = await coolify<{ deployments: { deployment_uuid: string }[] }>("POST", `/deploy?uuid=${app}`);
-  const id = queued.deployments[0]?.deployment_uuid;
+interface Deployment { readonly deployment_uuid: string }
+
+// Moves the production branch; the GitHub webhook may queue the deployment itself.
+async function moveProductionBranch(ref: string): Promise<void> {
+  const run = async (...args: string[]) => {
+    const proc = Bun.spawn(["git", ...args], { stdout: "pipe", stderr: "pipe" });
+    if ((await proc.exited) !== 0) throw new Error(`git ${args.join(" ")}: ${await new Response(proc.stderr).text()}`);
+  };
+  await run("fetch", "--quiet", "origin");
+  await run("push", "--quiet", "origin", `${ref}:refs/heads/production`);
+  console.log(`production branch -> ${ref}`);
+}
+
+interface AppDeployments { readonly deployments?: readonly (Deployment & { readonly created_at: string })[] }
+
+// The deployment the webhook queued for this push, if any (else the script queues one).
+async function webhookDeployment(app: string, pushedAt: number): Promise<string | undefined> {
+  for (let i = 0; i < 6; i++) {
+    await sleep(5000);
+    const history = await coolify<AppDeployments>("GET", `/deployments/applications/${app}?take=1`);
+    const latest = history.deployments?.[0];
+    if (latest && Date.parse(latest.created_at) >= pushedAt - 5_000) return latest.deployment_uuid;
+  }
+  return undefined;
+}
+
+async function deploy(app: string, alreadyQueued?: string): Promise<void> {
+  let id = alreadyQueued;
+  if (!id) {
+    const queued = await coolify<{ deployments: { deployment_uuid: string }[] }>("POST", `/deploy?uuid=${app}`);
+    id = queued.deployments[0]?.deployment_uuid;
+  }
   if (!id) throw new Error("Coolify did not queue the deployment");
   for (let i = 0; i < 120; i++) {
     await sleep(10_000);
@@ -89,8 +122,14 @@ async function healthy(url: string): Promise<void> {
 
 try {
   await waitQueueEmpty();
-  if (settings.backup) await freshBackup(settings.backup.database, settings.backup.config);
-  await deploy(settings.app);
+  let queued: string | undefined;
+  if (settings.backup) {
+    await freshBackup(settings.backup.database, settings.backup.config);
+    const pushedAt = Date.now();
+    await moveProductionBranch(process.argv[3] ?? "origin/main");
+    queued = await webhookDeployment(settings.app, pushedAt);
+  }
+  await deploy(settings.app, queued);
   await healthy(settings.health);
   console.log(`${target}: deployed`);
 } catch (error: unknown) {

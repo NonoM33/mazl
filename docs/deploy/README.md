@@ -22,6 +22,27 @@ Le Caddyfile n'est pas écrit à la main : `web/front/entrypoint.sh` le produit 
 diverger ; les tests `tests/unit/web-front-*.test.ts` lisent le texte généré et le comparent à
 ces modules. Réglages faux ou absents : le conteneur s'arrête avant de servir quoi que ce soit.
 
+## Mettre l'API en production : uniquement par le script
+
+Décision de Renaud du 2026-10-24 : plus aucune perte de données à une mise en production.
+
+| environnement | application Coolify | branche suivie | qui la fait avancer |
+|---|---|---|---|
+| staging | `mazl-api-staging`, `mazl-web-stg` | `stg` | un push (webhook GitHub) |
+| production, API | `mazl-api` | **`production`** | **seulement** `bun scripts/deploy/deploy.ts prod [ref]` |
+| production, site | `mazl-web-prod` | `main` | un push (le site ne stocke aucune donnée) |
+
+Le script sauvegarde la base de production et attend que la sauvegarde ait RÉUSSI, puis fait
+avancer `production` (par défaut sur `origin/main`), attend le déploiement et exige six réponses
+200 de suite sur `/api/health` ; Coolify garde l'ancien conteneur si le nouveau n'est pas sain.
+Ne jamais pousser sur `production` à la main : un push sur `main` ne redéploie plus l'API.
+Les fichiers envoyés vivent dans le S3 (`mazl-prod`), jamais dans un volume du conteneur.
+
+```bash
+COOLIFY_URL=http://157.180.43.90:8000 COOLIFY_API_KEY=... bun scripts/deploy/deploy.ts stg
+COOLIFY_URL=http://157.180.43.90:8000 COOLIFY_API_KEY=... bun scripts/deploy/deploy.ts prod
+```
+
 ## Variables d'environnement
 
 ### Conteneur API (variables existantes inchangées)
