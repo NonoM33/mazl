@@ -13,12 +13,21 @@ class ManualMrzInput {
   final String expiryDate;
 }
 
+/// What is wrong with a field. The form says it in the member's language.
+enum ManualMrzError {
+  /// The document number does not have 5 to 12 letters or digits.
+  documentNumberFormat,
+
+  /// Not a real date, or one that cannot be on this field.
+  invalidDate,
+}
+
 class ManualMrzErrors {
   const ManualMrzErrors({this.documentNumber, this.birthDate, this.expiryDate});
 
-  final String? documentNumber;
-  final String? birthDate;
-  final String? expiryDate;
+  final ManualMrzError? documentNumber;
+  final ManualMrzError? birthDate;
+  final ManualMrzError? expiryDate;
 
   bool get isEmpty => documentNumber == null && birthDate == null && expiryDate == null;
 }
@@ -31,9 +40,9 @@ class ManualMrzErrors {
   final expiry = parseFrenchDate(input.expiryDate);
 
   final errors = ManualMrzErrors(
-    documentNumber: RegExp(r'^[A-Z0-9]{5,12}$').hasMatch(number) ? null : 'Entre 5 et 12 lettres ou chiffres.',
-    birthDate: birth != null && birth.year >= 1900 && birth.isBefore(today) ? null : 'Date invalide.',
-    expiryDate: expiry != null && expiry.year >= 2000 && expiry.year <= 2100 ? null : 'Date invalide.',
+    documentNumber: RegExp(r'^[A-Z0-9]{5,12}$').hasMatch(number) ? null : ManualMrzError.documentNumberFormat,
+    birthDate: birth != null && birth.year >= 1900 && birth.isBefore(today) ? null : ManualMrzError.invalidDate,
+    expiryDate: expiry != null && expiry.year >= 2000 && expiry.year <= 2100 ? null : ManualMrzError.invalidDate,
   );
   if (!errors.isEmpty) return (data: null, errors: errors);
   return (data: MrzData.fromDates(documentNumber: number, birthDate: birth!, expiryDate: expiry!), errors: errors);

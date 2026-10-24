@@ -6,15 +6,24 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/di/providers/verification_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/verification_api.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../identity/identity_parts.dart';
 import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
 import 'verification_sections.dart';
 
-export 'verification_sections.dart' show consentText;
-
 enum _Stage { loading, ready, working }
+
+/// A refusal or failure as the server's code (null when there is none), kept
+/// until the screen is built so the sentence is in the language then in use.
+class _Reason {
+  const _Reason(this.code);
+
+  final String? code;
+
+  String text(AppLocalizations l10n) => verificationReasonText(l10n, code);
+}
 
 class VerificationScreen extends ConsumerStatefulWidget {
   const VerificationScreen({super.key});
@@ -26,9 +35,14 @@ class VerificationScreen extends ConsumerStatefulWidget {
 class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   _Stage _stage = _Stage.loading;
   VerificationStatus? _status;
-  String? _loadError;
-  String? _problem;
-  String? _note;
+
+  /// Set when the status could not be read; the text is made at build time
+  /// from the server code (null: no code), so a language change follows.
+  _Reason? _loadError;
+  _Reason? _problem;
+
+  /// How many profile photos were set aside by the last selfie, 0 for none.
+  int _mismatches = 0;
 
   VerificationApi get _api => ref.read(verificationApiProvider);
 
@@ -50,7 +64,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       if (response.success && response.data != null) {
         _status = response.data;
       } else {
-        _loadError = verificationReasonText(response.error);
+        _loadError = _Reason(response.error);
       }
     });
   }
@@ -59,7 +73,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     setState(() {
       _stage = _Stage.working;
       _problem = null;
-      _note = null;
+      _mismatches = 0;
     });
 
     final session = await _api.startFaceSession(FacePurpose.photo);
@@ -74,7 +88,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       final expired = !DateTime.now().isBefore(session.data!.expiresAt);
       setState(() {
         _stage = _Stage.ready;
-        if (expired) _problem = verificationReasonText('session_expired');
+        if (expired) _problem = const _Reason('session_expired');
       });
       return;
     }
@@ -85,19 +99,14 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     if (!result.success || outcome == null) return _fail(result.error);
     if (!outcome.verified) return _fail(outcome.reason);
 
-    final mismatches = outcome.photoMatches.where((m) => !m.match).length;
-    _note = mismatches == 0
-        ? null
-        : mismatches == 1
-        ? 'Une de vos photos ne vous ressemble pas : elle ne compte pas.'
-        : '$mismatches de vos photos ne vous ressemblent pas : elles ne comptent pas.';
+    _mismatches = outcome.photoMatches.where((m) => !m.match).length;
     await _loadStatus();
   }
 
   void _fail(String? code) {
     setState(() {
       _stage = _Stage.ready;
-      _problem = verificationReasonText(code);
+      _problem = _Reason(code);
     });
     if (code == 'daily_limit_reached') _loadStatus();
   }
@@ -106,11 +115,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Retirer ma vérification ?'),
-        content: const Text('Votre badge et l\'empreinte de votre visage seront supprimés.'),
+        title: Text(context.l10n.verificationRemoveDialogTitle),
+        content: Text(context.l10n.verificationRemoveDialogBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Retirer')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.l10n.commonCancel)),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(context.l10n.commonRemove)),
         ],
       ),
     );
@@ -118,7 +127,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     setState(() {
       _stage = _Stage.working;
       _problem = null;
-      _note = null;
+      _mismatches = 0;
     });
     final response = await _api.deleteFaceReference();
     if (!mounted) return;
@@ -140,8 +149,13 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Align(
-                alignment: Alignment.centerLeft,
-                child: RoundIconButton(icon: LucideIcons.arrowLeft, tooltip: 'Retour', onPressed: () => context.pop()),
+                alignment: AlignmentDirectional.centerStart,
+                child: RoundIconButton(
+                  // « back » points right in a right-to-left language
+                  icon: Directionality.of(context) == TextDirection.rtl ? LucideIcons.arrowRight : LucideIcons.arrowLeft,
+                  tooltip: context.l10n.commonBack,
+                  onPressed: () => context.pop(),
+                ),
               ),
             ),
             Expanded(child: _body(context)),
@@ -153,20 +167,21 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
 
   Widget _body(BuildContext context) {
     if (_stage == _Stage.loading) return const Center(child: CircularProgressIndicator());
+    final l10n = context.l10n;
     final status = _status;
     if (status == null) {
-      return VerificationRetry(message: _loadError ?? verificationReasonText(null), onRetry: _loadStatus);
+      return VerificationRetry(message: (_loadError ?? const _Reason(null)).text(l10n), onRetry: _loadStatus);
     }
     final busy = _stage == _Stage.working;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       children: [
-        const SectionLabel('Votre profil'),
+        SectionLabel(l10n.verificationProfileEyebrow),
         const SizedBox(height: 10),
-        const IdentityHeadline('Vérification', size: 34),
+        IdentityHeadline(l10n.verificationTitle, size: 34),
         const SizedBox(height: 24),
-        if (_problem != null) VerificationNotice(text: _problem!, error: true),
-        if (_note != null) VerificationNotice(text: _note!, error: false),
+        if (_problem != null) VerificationNotice(text: _problem!.text(l10n), error: true),
+        if (_mismatches > 0) VerificationNotice(text: l10n.verificationPhotosMismatch(_mismatches), error: false),
         PhotoLevel(
           step: status.photo,
           nextAttempt: status.nextAttemptTime,

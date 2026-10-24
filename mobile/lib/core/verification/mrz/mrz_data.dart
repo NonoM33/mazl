@@ -63,10 +63,9 @@ class MrzData {
         expiryYymmdd: yymmdd(expiryDate),
       );
 
-  static String yymmdd(DateTime date) =>
-      '${(date.year % 100).toString().padLeft(2, '0')}'
-      '${date.month.toString().padLeft(2, '0')}'
-      '${date.day.toString().padLeft(2, '0')}';
+  static String yymmdd(DateTime date) => '${_two(date.year % 100)}${_two(date.month)}${_two(date.day)}';
+
+  static String _two(int number) => number.toString().padLeft(2, '0');
 
   @override
   bool operator ==(Object other) =>
@@ -81,5 +80,8 @@ class MrzData {
 
   /// Never prints the data: it identifies a person.
   @override
-  String toString() => 'MrzData(${format?.name ?? 'manual'})';
+  String toString() {
+    final layout = format?.name ?? 'manual';
+    return '$runtimeType($layout)';
+  }
 }

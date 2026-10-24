@@ -10,6 +10,16 @@ import 'package:mazl/core/verification/mrz/mrz_data.dart';
 /// Specimen data of ICAO 9303 (fictional state UTO), expiring far in the future.
 const futureDoc = MrzData(documentNumber: 'L898902C3', birthYymmdd: '740812', expiryYymmdd: '450415');
 
+/// Sentences of the iOS NFC sheet for tests that do not look at them.
+const testAlerts = ChipAlertTexts(
+  approach: 'approach',
+  authenticating: 'authenticating',
+  readingPhoto: 'reading photo',
+  readingSignature: 'reading signature',
+  done: 'done',
+  failure: 'failure',
+);
+
 class FakeContext extends Fake implements BuildContext {
   @override
   bool get mounted => true;
@@ -23,15 +33,21 @@ class FakeChipReader implements ChipReader {
   final Uint8List dg1;
   int reads = 0;
   MrzData? lastMrz;
+  ChipAlertTexts? lastAlerts;
   ChipReadResult? lastResult;
 
   @override
   Future<NfcAvailability> availability() async => nfc;
 
   @override
-  Future<ChipReadResult> read(MrzData mrz, {void Function(ChipReadProgress progress)? onProgress}) async {
+  Future<ChipReadResult> read(
+    MrzData mrz, {
+    required ChipAlertTexts alerts,
+    void Function(ChipReadProgress progress)? onProgress,
+  }) async {
     reads++;
     lastMrz = mrz;
+    lastAlerts = alerts;
     onProgress?.call(const ChipReadProgress(ChipReadStep.readingPhoto, 40));
     final kind = failure;
     if (kind != null) throw ChipReadException(kind);

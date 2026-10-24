@@ -3706,5 +3706,723 @@
         "example": "24/10/2026"
       }
     }
+  },
+  "verificationProfileEyebrow": "Votre profil",
+  "@verificationProfileEyebrow": {
+    "description": "Page Vérification : petite étiquette au-dessus du grand titre."
+  },
+  "verificationTitle": "Vérification",
+  "@verificationTitle": {
+    "description": "Page Vérification : grand titre de l'écran où le membre prouve que ses photos sont les siennes (niveau 1 : photo, niveau 2 : identité)."
+  },
+  "verificationLevel1": "Niveau 1",
+  "@verificationLevel1": {
+    "description": "Étiquette en capitales au-dessus du niveau « photo » de la page Vérification."
+  },
+  "verificationLevel2": "Niveau 2",
+  "@verificationLevel2": {
+    "description": "Étiquette en capitales au-dessus du niveau « identité » de la page Vérification."
+  },
+  "verificationPhotoTitle": "Photo vérifiée",
+  "@verificationPhotoTitle": {
+    "description": "Titre du niveau 1 : le selfie en direct est comparé aux photos du profil."
+  },
+  "verificationIdentityTitle": "Identité vérifiée",
+  "@verificationIdentityTitle": {
+    "description": "Titre du niveau 2 : l'identité est lue sur la puce du passeport ou de la carte d'identité."
+  },
+  "verificationVerifiedPill": "Vérifiée",
+  "@verificationVerifiedPill": {
+    "description": "Pastille posée à côté du titre d'un niveau déjà vérifié (photo ou identité). Court."
+  },
+  "verificationConsent": "Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; seule une empreinte chiffrée l'est, supprimable à tout moment.",
+  "@verificationConsent": {
+    "description": "Niveau 1, avant la vérification : ce qui est comparé et ce qui est gardé. Promesse validée : les images ne sont jamais conservées, seule une empreinte chiffrée l'est, supprimable à tout moment."
+  },
+  "verificationPhotoVerifiedLine": "Votre visage correspond à vos photos.",
+  "@verificationPhotoVerifiedLine": {
+    "description": "Niveau 1 vérifié, quand la date de vérification est inconnue."
+  },
+  "verificationPhotoVerifiedOn": "Vérifiée le {date}.",
+  "@verificationPhotoVerifiedOn": {
+    "description": "Niveau 1 vérifié : la date à laquelle la photo a été vérifiée ({date} = date courte selon la langue).",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "verificationRemoveAction": "Retirer ma vérification",
+  "@verificationRemoveAction": {
+    "description": "Bouton du niveau 1 vérifié : retire le badge (ouvre une confirmation)."
+  },
+  "verificationVerifyPhotoAction": "Vérifier ma photo",
+  "@verificationVerifyPhotoAction": {
+    "description": "Bouton du niveau 1 : lance le selfie en direct."
+  },
+  "verificationVerifyIdentityAction": "Vérifier mon identité",
+  "@verificationVerifyIdentityAction": {
+    "description": "Bouton du niveau 2 : ouvre le parcours passeport ou carte d'identité à puce."
+  },
+  "verificationBlockedToday": "Limite atteinte, nouvel essai possible à {time}.",
+  "@verificationBlockedToday": {
+    "description": "Sous le bouton désactivé du niveau 1 : le quota d'essais du jour est atteint ; le prochain essai a lieu aujourd'hui à {time}.",
+    "placeholders": {
+      "time": {
+        "type": "DateTime",
+        "format": "Hm"
+      }
+    }
+  },
+  "verificationBlockedLater": "Limite atteinte, nouvel essai possible le {date} à {time}.",
+  "@verificationBlockedLater": {
+    "description": "Comme verificationBlockedToday, mais le prochain essai a lieu un autre jour : {date} = jour et mois, {time} = heure.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "Md"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "Hm"
+      }
+    }
+  },
+  "verificationIdentityCheckedNoDate": "Document contrôlé par sa puce.",
+  "@verificationIdentityCheckedNoDate": {
+    "description": "Niveau 2 vérifié, quand la date est inconnue."
+  },
+  "verificationIdentityCheckedOn": "Contrôlée le {date}.",
+  "@verificationIdentityCheckedOn": {
+    "description": "Niveau 2 vérifié : la date du contrôle ({date} = date courte selon la langue).",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "verificationIdentityPitch": "Passeport ou carte d'identité, lu par sa puce. Un selfie confirme que c'est bien vous.",
+  "@verificationIdentityPitch": {
+    "description": "Niveau 2 pas encore vérifié : ce que le membre doit présenter et à quoi sert le selfie."
+  },
+  "verificationRemoveDialogTitle": "Retirer ma vérification ?",
+  "@verificationRemoveDialogTitle": {
+    "description": "Titre de la boîte de dialogue qui demande de confirmer le retrait du badge de niveau 1."
+  },
+  "verificationRemoveDialogBody": "Votre badge et l'empreinte de votre visage seront supprimés.",
+  "@verificationRemoveDialogBody": {
+    "description": "Corps de la boîte de dialogue de retrait : ce qui est supprimé."
+  },
+  "verificationPhotosMismatch": "{count, plural, =1{Une de vos photos ne vous ressemble pas : elle ne compte pas.} other{{count} de vos photos ne vous ressemblent pas : elles ne comptent pas.}}",
+  "@verificationPhotosMismatch": {
+    "description": "Remarque après un selfie réussi : {count} photos du profil ne ressemblent pas au membre (au moins 1) et sont écartées.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationLivenessFront": "Regardez l'objectif",
+  "@verificationLivenessFront": {
+    "description": "Selfie en direct : consigne affichée en grand quand le membre doit regarder droit vers l'objectif."
+  },
+  "verificationLivenessLeft": "Tournez doucement la tête vers la gauche",
+  "@verificationLivenessLeft": {
+    "description": "Selfie en direct : consigne en grand ; le membre tourne la tête vers SA gauche."
+  },
+  "verificationLivenessRight": "Tournez doucement la tête vers la droite",
+  "@verificationLivenessRight": {
+    "description": "Selfie en direct : consigne en grand ; le membre tourne la tête vers SA droite."
+  },
+  "verificationLivenessHintNoFace": "Placez votre visage dans le cercle",
+  "@verificationLivenessHintNoFace": {
+    "description": "Selfie en direct : petite aide sous la consigne, aucun visage n'est vu. Une ligne."
+  },
+  "verificationLivenessHintMultipleFaces": "Une seule personne dans le cadre",
+  "@verificationLivenessHintMultipleFaces": {
+    "description": "Selfie en direct : petite aide, plusieurs personnes sont dans le cadre. Une ligne."
+  },
+  "verificationLivenessHintTooSmall": "Rapprochez-vous un peu",
+  "@verificationLivenessHintTooSmall": {
+    "description": "Selfie en direct : petite aide, le visage est trop loin. Une ligne."
+  },
+  "verificationLivenessHintOffCenter": "Centrez votre visage dans le cercle",
+  "@verificationLivenessHintOffCenter": {
+    "description": "Selfie en direct : petite aide, le visage n'est pas au centre du cercle. Une ligne."
+  },
+  "verificationLivenessHintLookStraight": "Regardez droit devant vous",
+  "@verificationLivenessHintLookStraight": {
+    "description": "Selfie en direct : petite aide, le visage n'est pas de face. Une ligne."
+  },
+  "verificationLivenessHintTurnMore": "Tournez encore un peu",
+  "@verificationLivenessHintTurnMore": {
+    "description": "Selfie en direct : petite aide, la tête n'est pas assez tournée. Une ligne."
+  },
+  "verificationLivenessHintTurnLess": "Pas autant, revenez un peu",
+  "@verificationLivenessHintTurnLess": {
+    "description": "Selfie en direct : petite aide, la tête est trop tournée. Une ligne."
+  },
+  "verificationLivenessHintTurnOtherWay": "Tournez de l'autre côté",
+  "@verificationLivenessHintTurnOtherWay": {
+    "description": "Selfie en direct : petite aide, la tête est tournée du mauvais côté. Une ligne."
+  },
+  "verificationLivenessPoseCounter": "Pose {current} / {total}",
+  "@verificationLivenessPoseCounter": {
+    "description": "Selfie en direct : étiquette en capitales en haut de l'écran, la pose en cours ({current}) sur le nombre de poses ({total}).",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationLivenessPosesTaken": "Poses prises : {done} sur {total}",
+  "@verificationLivenessPosesTaken": {
+    "description": "Selfie en direct : texte lu par les lecteurs d'écran pour les barres de progression ({done} poses prises sur {total}).",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationLivenessPrivacy": "Seul dans le cadre, bien éclairé. Les images ne sont pas conservées.",
+  "@verificationLivenessPrivacy": {
+    "description": "Selfie en direct : rappel en bas de l'écran, sous le cercle. Promesse validée : les images ne sont pas conservées."
+  },
+  "verificationLivenessExpiredTitle": "Session expirée",
+  "@verificationLivenessExpiredTitle": {
+    "description": "Selfie en direct : titre de l'écran quand le temps de la session est écoulé."
+  },
+  "verificationLivenessExpiredBody": "Le temps imparti est écoulé. Vous pouvez recommencer.",
+  "@verificationLivenessExpiredBody": {
+    "description": "Selfie en direct : explication quand le temps de la session est écoulé."
+  },
+  "verificationCameraNeededTitle": "Caméra nécessaire",
+  "@verificationCameraNeededTitle": {
+    "description": "Selfie en direct : titre de l'écran quand l'accès à la caméra est refusé."
+  },
+  "verificationCameraNeededBody": "MAZL utilise la caméra frontale pour vérifier que vous êtes bien la personne de vos photos.",
+  "@verificationCameraNeededBody": {
+    "description": "Selfie en direct : pourquoi l'app demande la caméra frontale. MAZL est un nom de marque, ne se traduit pas."
+  },
+  "verificationCameraOpenSettings": "Ouvrir les réglages",
+  "@verificationCameraOpenSettings": {
+    "description": "Bouton quand la caméra est refusée pour de bon : ouvre les réglages du téléphone."
+  },
+  "verificationCameraAllow": "Autoriser la caméra",
+  "@verificationCameraAllow": {
+    "description": "Bouton quand la caméra est refusée mais redemandable : relance la demande d'autorisation."
+  },
+  "verificationCameraUnavailableTitle": "Caméra indisponible",
+  "@verificationCameraUnavailableTitle": {
+    "description": "Selfie en direct : titre de l'écran quand la caméra frontale ne démarre pas."
+  },
+  "verificationCameraUnavailableBody": "Impossible de démarrer la caméra frontale.",
+  "@verificationCameraUnavailableBody": {
+    "description": "Selfie en direct : explication quand la caméra frontale ne démarre pas."
+  },
+  "verificationIntroTitle": "Vérifiez votre identité.",
+  "@verificationIntroTitle": {
+    "description": "Parcours passeport/carte à puce, écran d'accueil : grand titre."
+  },
+  "verificationIntroSubtitle": "Le badge « Identité vérifiée » dit aux autres que vous êtes bien la personne des photos. Il faut un passeport ou une carte d'identité biométrique, deux minutes et un peu de lumière.",
+  "@verificationIntroSubtitle": {
+    "description": "Accueil du parcours identité : à quoi sert le badge « Identité vérifiée » (même texte que verificationBadgeLabel) et ce qu'il faut avoir sous la main."
+  },
+  "verificationIntroStep1": "Photographier la page photo",
+  "@verificationIntroStep1": {
+    "description": "Accueil du parcours identité, étape 1 sur la liste numérotée : titre court."
+  },
+  "verificationIntroStep1Detail": "Pour lire les deux lignes du bas.",
+  "@verificationIntroStep1Detail": {
+    "description": "Accueil du parcours identité, détail de l'étape 1 : on lit la bande de lecture automatique (MRZ), les deux lignes en bas de la page photo."
+  },
+  "verificationIntroStep2": "Poser le téléphone sur la puce",
+  "@verificationIntroStep2": {
+    "description": "Accueil du parcours identité, étape 2 : titre court."
+  },
+  "verificationIntroStep2Detail": "La puce signée par l'État fait foi.",
+  "@verificationIntroStep2Detail": {
+    "description": "Accueil du parcours identité, détail de l'étape 2 : la puce est signée par l'État qui a émis le document, c'est elle qui fait foi."
+  },
+  "verificationIntroStep3": "Un selfie en mouvement",
+  "@verificationIntroStep3": {
+    "description": "Accueil du parcours identité, étape 3 : titre court."
+  },
+  "verificationIntroStep3Detail": "Comparé à la photo de la puce.",
+  "@verificationIntroStep3Detail": {
+    "description": "Accueil du parcours identité, détail de l'étape 3."
+  },
+  "verificationIntroPrivacy": "Rien n'est conservé : nous ne gardons que le résultat.",
+  "@verificationIntroPrivacy": {
+    "description": "Accueil du parcours identité : promesse de confidentialité sous la liste, avec un cadenas. Traduire fidèlement, sans rien ajouter."
+  },
+  "verificationIntroStart": "Commencer",
+  "@verificationIntroStart": {
+    "description": "Accueil du parcours identité : bouton principal."
+  },
+  "verificationStepLabel": "Étape {step} / {total}",
+  "@verificationStepLabel": {
+    "description": "Étiquette en capitales en haut des écrans du parcours identité : l'étape en cours ({step}) sur le nombre d'étapes ({total}).",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationScanTitle": "Cadrez la page photo.",
+  "@verificationScanTitle": {
+    "description": "Parcours identité, scan de la bande de lecture automatique (MRZ) : titre."
+  },
+  "verificationScanHint": "Les deux lignes de « < » du bas suffisent. Évitez les reflets.",
+  "@verificationScanHint": {
+    "description": "Scan de la page photo : conseil sous le titre. Les deux lignes du bas du document (MRZ) sont faites de chiffres, de lettres et de signes « < » ; en hébreu on nomme les lignes MRZ."
+  },
+  "verificationScanManual": "Saisir à la main",
+  "@verificationScanManual": {
+    "description": "Scan de la page photo : lien qui passe à la saisie à la main."
+  },
+  "verificationScanFrameSemantics": "Aperçu de la caméra : placez les deux lignes du bas du document dans le cadre mis en évidence",
+  "@verificationScanFrameSemantics": {
+    "description": "Scan de la page photo : description de l'aperçu de la caméra lue par les lecteurs d'écran."
+  },
+  "verificationCameraNotAvailable": "La caméra n'est pas disponible.",
+  "@verificationCameraNotAvailable": {
+    "description": "Message « la caméra ne marche pas » : titre de l'écran de scan sans caméra, et message d'échec quand la caméra frontale ne peut pas servir au selfie."
+  },
+  "verificationScanUnavailableBody": "Vous pouvez saisir les informations de la page photo à la main.",
+  "@verificationScanUnavailableBody": {
+    "description": "Scan de la page photo sans caméra : explication sous le titre."
+  },
+  "verificationScanEnterDetails": "Saisir les informations",
+  "@verificationScanEnterDetails": {
+    "description": "Scan de la page photo sans caméra : bouton principal qui ouvre la saisie."
+  },
+  "verificationManualTitle": "Saisissez les informations.",
+  "@verificationManualTitle": {
+    "description": "Parcours identité, saisie à la main : titre."
+  },
+  "verificationManualSubtitle": "Recopiez-les depuis la page photo de votre document.",
+  "@verificationManualSubtitle": {
+    "description": "Saisie à la main : sous le titre, d'où recopier les valeurs."
+  },
+  "verificationFieldDocumentNumber": "Numéro du document",
+  "@verificationFieldDocumentNumber": {
+    "description": "Libellé du champ (saisie) et de la ligne (relecture) : numéro du passeport ou de la carte."
+  },
+  "verificationFieldBirthDate": "Date de naissance",
+  "@verificationFieldBirthDate": {
+    "description": "Libellé du champ (saisie) et de la ligne (relecture) : date de naissance du titulaire."
+  },
+  "verificationFieldExpiryDate": "Date d'expiration",
+  "@verificationFieldExpiryDate": {
+    "description": "Libellé du champ (saisie) et de la ligne (relecture) : date d'expiration du document."
+  },
+  "verificationDateHint": "JJ/MM/AAAA",
+  "@verificationDateHint": {
+    "description": "Indication grisée dans un champ de date : l'ordre à taper, jour puis mois puis année, sur 8 chiffres."
+  },
+  "verificationManualUseCamera": "Scanner avec la caméra",
+  "@verificationManualUseCamera": {
+    "description": "Saisie à la main : lien qui revient au scan par la caméra."
+  },
+  "verificationErrorDocumentNumber": "Entre 5 et 12 lettres ou chiffres.",
+  "@verificationErrorDocumentNumber": {
+    "description": "Saisie à la main : erreur sous le champ du numéro de document quand il n'a pas 5 à 12 caractères."
+  },
+  "verificationErrorInvalidDate": "Date invalide.",
+  "@verificationErrorInvalidDate": {
+    "description": "Saisie à la main : erreur sous un champ de date qui n'est pas une vraie date."
+  },
+  "verificationReviewTitle": "Vérifiez ces informations.",
+  "@verificationReviewTitle": {
+    "description": "Relecture des informations lues sur la page photo : titre, avant d'ouvrir la puce avec elles."
+  },
+  "verificationReviewConfirm": "C'est bien moi",
+  "@verificationReviewConfirm": {
+    "description": "Relecture : bouton principal par lequel le membre confirme que les informations sont les siennes."
+  },
+  "verificationRescan": "Scanner à nouveau",
+  "@verificationRescan": {
+    "description": "Lien (relecture) et bouton (échec de la puce) pour repartir de la page photo et la scanner à nouveau."
+  },
+  "verificationNfcWaitingTitle": "Posez votre document sur le téléphone.",
+  "@verificationNfcWaitingTitle": {
+    "description": "Lecture de la puce, avant la lecture : titre."
+  },
+  "verificationNfcPlacement": "Le haut du téléphone contre la couverture fermée du passeport, ou contre le dos de la carte d'identité. Retirez la coque si besoin.",
+  "@verificationNfcPlacement": {
+    "description": "Lecture de la puce, avant la lecture : où poser le document. NFC se garde tel quel."
+  },
+  "verificationNfcRead": "Lire le document",
+  "@verificationNfcRead": {
+    "description": "Lecture de la puce : bouton principal qui lance la lecture NFC."
+  },
+  "verificationNfcIllustration": "Le haut du téléphone posé contre la couverture fermée du passeport",
+  "@verificationNfcIllustration": {
+    "description": "Lecture de la puce : description du dessin (un téléphone posé sur la couverture d'un passeport) lue par les lecteurs d'écran."
+  },
+  "verificationNfcReadingTitle": "Ne bougez plus.",
+  "@verificationNfcReadingTitle": {
+    "description": "Lecture de la puce, pendant la lecture : titre."
+  },
+  "verificationNfcReadingSubtitle": "Gardez le document contre le haut du téléphone jusqu'à la fin de la lecture.",
+  "@verificationNfcReadingSubtitle": {
+    "description": "Lecture de la puce, pendant la lecture : consigne sous le titre."
+  },
+  "verificationNfcProgressLabel": "Lecture de la puce",
+  "@verificationNfcProgressLabel": {
+    "description": "Lecture de la puce : nom de la barre de progression lu par les lecteurs d'écran."
+  },
+  "verificationNfcProgressValue": "{percent} %",
+  "@verificationNfcProgressValue": {
+    "description": "Lecture de la puce : valeur de la barre de progression lue par les lecteurs d'écran ({percent} de 0 à 100).",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "verificationNfcStepDetect": "Détection du document",
+  "@verificationNfcStepDetect": {
+    "description": "Lecture de la puce : première ligne de la liste d'avancement."
+  },
+  "verificationNfcStepConnect": "Connexion sécurisée",
+  "@verificationNfcStepConnect": {
+    "description": "Lecture de la puce : deuxième ligne de la liste d'avancement (canal chiffré avec la puce)."
+  },
+  "verificationNfcStepPhoto": "Lecture de la photo",
+  "@verificationNfcStepPhoto": {
+    "description": "Lecture de la puce : troisième ligne de la liste d'avancement (la photo du titulaire)."
+  },
+  "verificationNfcStepSignature": "Lecture de la signature",
+  "@verificationNfcStepSignature": {
+    "description": "Lecture de la puce : quatrième ligne de la liste d'avancement (la signature de l'État)."
+  },
+  "verificationNfcStepSemantics": "{state, select, done{{label}, terminé} active{{label}, en cours} waiting{{label}, en attente} other{{label}}}",
+  "@verificationNfcStepSemantics": {
+    "description": "Lecture de la puce : phrase lue par les lecteurs d'écran pour une ligne d'avancement. {label} = l'une des quatre lignes, {state} = done (terminé), active (en cours) ou waiting (en attente).",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "verificationNfcSilentBody": "Cela arrive souvent au premier essai. Rien n'a été envoyé.",
+  "@verificationNfcSilentBody": {
+    "description": "Lecture de la puce, échec « la puce n'a pas répondu » : réassurance sous le titre."
+  },
+  "verificationNfcRescanBody": "Rien n'a été envoyé. Relisez la page photo pour repartir sur de bonnes données.",
+  "@verificationNfcRescanBody": {
+    "description": "Lecture de la puce, échec « les informations saisies ne correspondent pas à la puce » : explication sous le titre."
+  },
+  "verificationNfcTip1": "Retirez la coque du téléphone.",
+  "@verificationNfcTip1": {
+    "description": "Lecture de la puce, échec : premier conseil de la liste numérotée."
+  },
+  "verificationNfcTip2": "Posez le haut du téléphone au centre de la couverture, passeport fermé.",
+  "@verificationNfcTip2": {
+    "description": "Lecture de la puce, échec : deuxième conseil de la liste numérotée."
+  },
+  "verificationNfcTip3": "Restez immobile une dizaine de secondes.",
+  "@verificationNfcTip3": {
+    "description": "Lecture de la puce, échec : troisième conseil de la liste numérotée."
+  },
+  "verificationNfcRereadPhotoPage": "Relire la page photo",
+  "@verificationNfcRereadPhotoPage": {
+    "description": "Lecture de la puce, échec : lien qui repart de la page photo."
+  },
+  "verificationManualReviewLink": "Envoyer mon document pour relecture",
+  "@verificationManualReviewLink": {
+    "description": "Lien qui ouvre la page web où une personne relit le document à la main (quand la puce n'est pas lisible)."
+  },
+  "verificationFaceTitle": "Puce lue.",
+  "@verificationFaceTitle": {
+    "description": "Parcours identité, la puce est lue : titre avant le selfie."
+  },
+  "verificationFaceSubtitle": "Il reste un selfie en mouvement, comparé à la photo de la puce.",
+  "@verificationFaceSubtitle": {
+    "description": "Parcours identité, la puce est lue : ce qui reste à faire."
+  },
+  "verificationFaceAction": "Prendre le selfie",
+  "@verificationFaceAction": {
+    "description": "Parcours identité, la puce est lue : bouton qui ouvre le selfie en direct."
+  },
+  "verificationSubmitSending": "Vérification en cours…",
+  "@verificationSubmitSending": {
+    "description": "Parcours identité : texte sous l'indicateur d'attente pendant l'envoi et la vérification côté serveur."
+  },
+  "verificationSubmitPreparing": "Préparation…",
+  "@verificationSubmitPreparing": {
+    "description": "Parcours identité : texte sous l'indicateur d'attente avant le selfie."
+  },
+  "verificationDoneTitle": "Identité vérifiée.",
+  "@verificationDoneTitle": {
+    "description": "Parcours identité réussi : très grand titre."
+  },
+  "verificationDoneSubtitle": "La puce de votre document et votre selfie correspondent. Votre profil porte maintenant le badge.",
+  "@verificationDoneSubtitle": {
+    "description": "Parcours identité réussi : phrase sous le titre."
+  },
+  "verificationDoneAction": "Terminer",
+  "@verificationDoneAction": {
+    "description": "Parcours identité réussi : bouton qui termine le parcours."
+  },
+  "verificationBadgeLabel": "Identité vérifiée",
+  "@verificationBadgeLabel": {
+    "description": "Texte du badge tel que les autres membres le voient sur le profil (pastille)."
+  },
+  "verificationDoneBadgeCaption": "Ce que les autres voient sur votre profil.",
+  "@verificationDoneBadgeCaption": {
+    "description": "Parcours identité réussi : légende sous l'aperçu du badge."
+  },
+  "verificationDoneStoredLabel": "Photos et puce",
+  "@verificationDoneStoredLabel": {
+    "description": "Parcours identité réussi, tableau de ce qui est gardé : libellé de la ligne sur les photos et la puce."
+  },
+  "verificationDoneStoredValue": "Jamais enregistrées",
+  "@verificationDoneStoredValue": {
+    "description": "Valeur de la ligne précédente. Promesse validée : la puce et les selfies ne sont jamais enregistrés."
+  },
+  "verificationDoneKeptLabel": "Conservé",
+  "@verificationDoneKeptLabel": {
+    "description": "Parcours identité réussi, tableau de ce qui est gardé : libellé de la ligne sur ce qui est conservé."
+  },
+  "verificationDoneKeptValue": "Pays, expiration, empreinte anonyme",
+  "@verificationDoneKeptValue": {
+    "description": "Valeur de la ligne précédente. Promesse validée : seuls le pays, la date d'expiration et une empreinte (HMAC) qui n'identifie pas la personne sont gardés."
+  },
+  "verificationDoneProfileLabel": "Profil",
+  "@verificationDoneProfileLabel": {
+    "description": "Parcours identité réussi, tableau de ce qui est gardé : libellé de la ligne sur le profil."
+  },
+  "verificationDoneProfileValue": "Date de naissance du document",
+  "@verificationDoneProfileValue": {
+    "description": "Valeur de la ligne précédente : la date de naissance du document est verrouillée sur le profil."
+  },
+  "verificationComingSoon": "Bientôt disponible",
+  "@verificationComingSoon": {
+    "description": "Parcours identité pas encore ouvert dans cette version de l'app : titre de l'écran."
+  },
+  "verificationFailureChipDataInvalid": "Les données de la puce sont illisibles.",
+  "@verificationFailureChipDataInvalid": {
+    "description": "Parcours identité, échec : les données lues sur la puce sont inutilisables."
+  },
+  "verificationFailureChipSignatureInvalid": "La signature du document n'a pas pu être vérifiée.",
+  "@verificationFailureChipSignatureInvalid": {
+    "description": "Parcours identité, échec : la signature de l'État sur le document n'est pas valide."
+  },
+  "verificationFailureNotRecognized": "Document non reconnu.",
+  "@verificationFailureNotRecognized": {
+    "description": "Parcours identité, échec : l'autorité qui a signé le document n'est pas connue."
+  },
+  "verificationDocumentExpired": "Ce document est expiré.",
+  "@verificationDocumentExpired": {
+    "description": "Échec : le document est périmé (parcours identité et selfie)."
+  },
+  "verificationFailureUnderage": "Il faut avoir 18 ans pour vérifier son identité.",
+  "@verificationFailureUnderage": {
+    "description": "Parcours identité, échec : le titulaire a moins de 18 ans."
+  },
+  "verificationDocumentAlreadyUsed": "Ce document est déjà associé à un autre compte.",
+  "@verificationDocumentAlreadyUsed": {
+    "description": "Échec : le document est déjà lié à un autre compte MAZL."
+  },
+  "verificationDocumentBanned": "Ce document ne peut pas être utilisé.",
+  "@verificationDocumentBanned": {
+    "description": "Échec : le document est refusé (exclu de l'app)."
+  },
+  "verificationDocumentFaceMismatch": "Votre visage ne correspond pas à la photo du document.",
+  "@verificationDocumentFaceMismatch": {
+    "description": "Échec : le visage du selfie ne ressemble pas à la photo lue sur la puce."
+  },
+  "verificationFailureSessionExpired": "La session a expiré.",
+  "@verificationFailureSessionExpired": {
+    "description": "Parcours identité, échec : la session de selfie a expiré."
+  },
+  "verificationFailureImagesUnreadable": "Les images n'ont pas pu être lues.",
+  "@verificationFailureImagesUnreadable": {
+    "description": "Parcours identité, échec : le serveur n'a pas pu lire les images du selfie."
+  },
+  "verificationFailureNoFace": "Aucun visage détecté.",
+  "@verificationFailureNoFace": {
+    "description": "Parcours identité, échec : aucun visage sur le selfie."
+  },
+  "verificationFailureMultipleFaces": "Un seul visage doit apparaître.",
+  "@verificationFailureMultipleFaces": {
+    "description": "Parcours identité, échec : plusieurs visages sur le selfie."
+  },
+  "verificationFailureFaceTooSmall": "Rapprochez-vous de la caméra.",
+  "@verificationFailureFaceTooSmall": {
+    "description": "Parcours identité, échec : le visage du selfie est trop petit."
+  },
+  "verificationFailurePoseMismatch": "Les mouvements demandés n'ont pas été reconnus.",
+  "@verificationFailurePoseMismatch": {
+    "description": "Parcours identité, échec : les mouvements de tête demandés n'ont pas été reconnus."
+  },
+  "verificationFailureDuplicateFrames": "Bougez la tête comme demandé.",
+  "@verificationFailureDuplicateFrames": {
+    "description": "Parcours identité, échec : les images du selfie sont presque identiques (la tête n'a pas bougé)."
+  },
+  "verificationFailureInconsistentIdentity": "Le visage a changé pendant la capture.",
+  "@verificationFailureInconsistentIdentity": {
+    "description": "Parcours identité, échec : les images du selfie ne montrent pas la même personne."
+  },
+  "verificationFailureNoProfilePhoto": "Ajoutez d'abord une photo à votre profil.",
+  "@verificationFailureNoProfilePhoto": {
+    "description": "Parcours identité, échec : le profil n'a aucune photo à comparer."
+  },
+  "verificationFailureProfileMismatch": "Votre visage ne correspond pas à votre photo de profil.",
+  "@verificationFailureProfileMismatch": {
+    "description": "Parcours identité, échec : le visage du selfie ne ressemble pas à la photo de profil."
+  },
+  "verificationFailureDailyLimit": "Vous avez atteint la limite d'essais du jour. Revenez demain.",
+  "@verificationFailureDailyLimit": {
+    "description": "Parcours identité, échec : le quota d'essais du jour est atteint."
+  },
+  "verificationFailureGeneric": "La vérification a échoué.",
+  "@verificationFailureGeneric": {
+    "description": "Parcours identité, échec : cause inconnue."
+  },
+  "verificationFailureNoNfc": "Ce téléphone n'a pas de lecteur NFC.",
+  "@verificationFailureNoNfc": {
+    "description": "Ce téléphone n'a pas de lecteur NFC : titre de l'écran, et message d'échec de la lecture. NFC se garde tel quel."
+  },
+  "verificationFailureNfcDisabled": "Activez le NFC dans les réglages du téléphone.",
+  "@verificationFailureNfcDisabled": {
+    "description": "Lecture de la puce, échec : le NFC est éteint dans les réglages du téléphone."
+  },
+  "verificationFailureTagLost": "Le document a bougé. Gardez-le immobile contre le téléphone.",
+  "@verificationFailureTagLost": {
+    "description": "Lecture de la puce, échec : le document a bougé pendant la lecture."
+  },
+  "verificationFailureChipMismatch": "Les informations saisies ne correspondent pas à la puce.",
+  "@verificationFailureChipMismatch": {
+    "description": "Lecture de la puce, échec : la puce a refusé la clé calculée à partir des informations saisies (elles sont fausses)."
+  },
+  "verificationFailureUnreadableDocument": "Ce document ne peut pas être lu.",
+  "@verificationFailureUnreadableDocument": {
+    "description": "Lecture de la puce, échec : le document n'a pas de puce lisible par l'app."
+  },
+  "verificationFailureChipSilent": "La puce n'a pas répondu.",
+  "@verificationFailureChipSilent": {
+    "description": "Lecture de la puce, échec : la puce n'a rien répondu dans le temps imparti."
+  },
+  "verificationFailureReadFailed": "La lecture a échoué.",
+  "@verificationFailureReadFailed": {
+    "description": "Lecture de la puce, échec sans cause connue ; sert aussi de message final dans la feuille système NFC d'iPhone."
+  },
+  "verificationFailureConnection": "Connexion impossible. Vérifiez votre connexion.",
+  "@verificationFailureConnection": {
+    "description": "Parcours identité, échec : le serveur n'a pas pu être joint."
+  },
+  "verificationActionRereadDocument": "Relire le document",
+  "@verificationActionRereadDocument": {
+    "description": "Parcours identité, échec : bouton qui relance la lecture de la puce."
+  },
+  "verificationActionOtherDocument": "Autre document",
+  "@verificationActionOtherDocument": {
+    "description": "Parcours identité, échec « document expiré » : bouton qui repart avec un autre document."
+  },
+  "verificationReasonNoFace": "Aucun visage détecté. Mettez-vous face à la caméra, dans un endroit bien éclairé.",
+  "@verificationReasonNoFace": {
+    "description": "Page Vérification, refus du selfie : aucun visage."
+  },
+  "verificationReasonMultipleFaces": "Plusieurs visages détectés. Restez seul(e) dans le cadre.",
+  "@verificationReasonMultipleFaces": {
+    "description": "Page Vérification, refus du selfie : plusieurs visages."
+  },
+  "verificationReasonFaceTooSmall": "Votre visage est trop loin. Rapprochez-vous de la caméra.",
+  "@verificationReasonFaceTooSmall": {
+    "description": "Page Vérification, refus du selfie : visage trop petit."
+  },
+  "verificationReasonPoseMismatch": "Les poses demandées n'ont pas été reconnues. Suivez bien les consignes.",
+  "@verificationReasonPoseMismatch": {
+    "description": "Page Vérification, refus du selfie : poses non reconnues."
+  },
+  "verificationReasonDuplicateFrames": "Les images sont trop semblables. Bougez la tête comme demandé.",
+  "@verificationReasonDuplicateFrames": {
+    "description": "Page Vérification, refus du selfie : images trop semblables."
+  },
+  "verificationReasonInconsistentIdentity": "Les images ne montrent pas la même personne. Recommencez seul(e).",
+  "@verificationReasonInconsistentIdentity": {
+    "description": "Page Vérification, refus du selfie : ce n'est pas la même personne sur toutes les images."
+  },
+  "verificationReasonNoProfilePhoto": "Ajoutez d'abord à votre profil une photo où votre visage est bien visible.",
+  "@verificationReasonNoProfilePhoto": {
+    "description": "Page Vérification, refus du selfie : le profil n'a aucune photo exploitable."
+  },
+  "verificationReasonProfileMismatch": "Votre visage ne correspond pas à votre photo principale. Choisissez une photo récente où vous êtes bien visible.",
+  "@verificationReasonProfileMismatch": {
+    "description": "Page Vérification, refus du selfie : le visage ne ressemble pas à la photo principale."
+  },
+  "verificationReasonDailyLimit": "Vous avez atteint la limite d'essais pour aujourd'hui. Revenez demain.",
+  "@verificationReasonDailyLimit": {
+    "description": "Page Vérification : le quota d'essais du jour est atteint."
+  },
+  "verificationReasonSessionExpired": "La session a expiré. Recommencez.",
+  "@verificationReasonSessionExpired": {
+    "description": "Page Vérification : la session de selfie a expiré."
+  },
+  "verificationReasonSessionInvalid": "La session n'est plus valide. Recommencez.",
+  "@verificationReasonSessionInvalid": {
+    "description": "Page Vérification : la session de selfie est inconnue ou déjà utilisée."
+  },
+  "verificationReasonImagesUnreadable": "Les images n'ont pas pu être lues. Recommencez.",
+  "@verificationReasonImagesUnreadable": {
+    "description": "Page Vérification : le serveur n'a pas pu lire les images."
+  },
+  "verificationReasonAppUpdate": "Mettez à jour l'application pour vérifier votre profil.",
+  "@verificationReasonAppUpdate": {
+    "description": "Page Vérification : cette version de l'app est trop ancienne pour la vérification."
+  },
+  "verificationReasonChipAuth": "La puce du document n'a pas pu être authentifiée.",
+  "@verificationReasonChipAuth": {
+    "description": "Refus : la puce du document n'a pas pu être authentifiée (données ou signature invalides, autorité inconnue)."
+  },
+  "verificationReasonUnderage": "Vous devez avoir au moins 18 ans.",
+  "@verificationReasonUnderage": {
+    "description": "Refus : le titulaire a moins de 18 ans."
+  },
+  "verificationReasonNetwork": "Connexion impossible. Vérifiez votre réseau et réessayez.",
+  "@verificationReasonNetwork": {
+    "description": "Page Vérification : le serveur n'a pas pu être joint (délai ou réseau)."
+  },
+  "verificationReasonGeneric": "Une erreur est survenue. Réessayez dans un instant.",
+  "@verificationReasonGeneric": {
+    "description": "Page Vérification : erreur sans cause connue."
+  },
+  "verificationNfcAlertApproach": "Approchez votre document du haut du téléphone.",
+  "@verificationNfcAlertApproach": {
+    "description": "Feuille système NFC d'iPhone (affichée par iOS, pas par l'app) : invite à approcher le document. Une phrase."
+  },
+  "verificationNfcAlertAuthenticating": "Ne bouge pas. Connexion sécurisée…",
+  "@verificationNfcAlertAuthenticating": {
+    "description": "Feuille système NFC d'iPhone : établissement du canal sécurisé avec la puce. Le membre ne doit pas bouger."
+  },
+  "verificationNfcAlertReadingPhoto": "Lecture de la photo… 40 %",
+  "@verificationNfcAlertReadingPhoto": {
+    "description": "Feuille système NFC d'iPhone : lecture de la photo de la puce, avancement à 40 %."
+  },
+  "verificationNfcAlertReadingSignature": "Lecture de la signature… 85 %",
+  "@verificationNfcAlertReadingSignature": {
+    "description": "Feuille système NFC d'iPhone : lecture de la signature de la puce, avancement à 85 %."
+  },
+  "verificationNfcAlertDone": "Terminé.",
+  "@verificationNfcAlertDone": {
+    "description": "Feuille système NFC d'iPhone : message de fin quand la lecture a réussi."
   }
 }

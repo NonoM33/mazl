@@ -20,9 +20,11 @@ import 'package:mazl/presentation/features/verification/identity/mrz_manual_view
 import 'package:mazl/presentation/features/verification/identity/mrz_review_format.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_review_view.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_scanner_view.dart';
+import 'package:mazl/presentation/features/verification/l10n/identity_failure_text.dart';
 import 'package:mazl/presentation/features/verification/identity/nfc_read_view.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
 import '../../helpers/l10n_helpers.dart';
+import '../verification/verification_l10n.dart';
 
 const _mrz = MrzData(documentNumber: 'L898902C3', birthYymmdd: '740812', expiryYymmdd: '450415');
 
@@ -109,10 +111,10 @@ void main() {
       expect(find.text('01'), findsOneWidget);
       expect(find.text('02'), findsOneWidget);
       expect(find.text('03'), findsOneWidget);
-      for (final step in IdentityIntroView.steps) {
-        expect(find.text(step), findsOneWidget);
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(find.text(step.title), findsOneWidget);
       }
-      expect(find.text(IdentityIntroView.privacyNote), findsOneWidget);
+      expect(find.text(frenchL10n.verificationIntroPrivacy), findsOneWidget);
       expect(find.bySemanticsLabel('Commencer'), findsOneWidget);
       expect(find.bySemanticsLabel('Fermer'), findsOneWidget);
       expect(tester.getSize(find.byType(ElevatedButton)).height, 56);
@@ -265,9 +267,9 @@ void main() {
 
       expect(find.text('Vérifiez ces informations.'), findsOneWidget);
       expect(find.text(_mrz.documentNumber), findsNothing, reason: 'le numéro complet ne s\'affiche jamais');
-      expect(find.text(maskDocumentNumber(_mrz.documentNumber)), findsOneWidget);
-      expect(find.text(formatReviewDate(_mrz.birthDate())), findsOneWidget);
-      expect(find.text(formatReviewDate(_mrz.expiryDate())), findsOneWidget);
+      expect(find.text(reviewDocumentNumber(_mrz.documentNumber)), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.birthDate(), 'fr')), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.expiryDate(), 'fr')), findsOneWidget);
       _expectTouchTargets(tester);
 
       await tester.tap(find.text('C\'est bien moi'));
@@ -323,8 +325,9 @@ void main() {
       for (final code in ['underage', 'document_already_used', 'daily_limit_reached', 'session_expired']) {
         final info = describeIdentityRejection(code);
         await _pump(tester, IdentityFailedView(info: info, onAction: () {}, onClose: () {}));
-        expect(find.text(info.message), findsOneWidget, reason: code);
-        expect(info.message, isNot(matches(RegExp(r'\b(ton|ta|tes|tu|toi)\b', caseSensitive: false))), reason: code);
+        final message = info.messageText(frenchL10n);
+        expect(find.text(message), findsOneWidget, reason: code);
+        expect(message, isNot(matches(RegExp(r'\b(ton|ta|tes|tu|toi)\b', caseSensitive: false))), reason: code);
         _expectNoGradient(tester);
       }
     });
@@ -353,7 +356,7 @@ void main() {
       expect(find.text('Identité vérifiée'), findsOneWidget);
       expect(find.text('NIVEAU 1'), findsOneWidget);
       expect(find.text('NIVEAU 2'), findsOneWidget);
-      expect(find.text(consentText), findsOneWidget);
+      expect(find.text(frenchL10n.verificationConsent), findsOneWidget);
       expect(find.bySemanticsLabel('Retour'), findsOneWidget);
       expect(find.widgetWithText(ElevatedButton, 'Vérifier ma photo'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Vérifier mon identité'), findsOneWidget);

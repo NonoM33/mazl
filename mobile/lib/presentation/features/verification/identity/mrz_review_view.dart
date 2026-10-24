@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/verification/mrz/mrz_data.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import 'identity_layout.dart';
 import 'identity_parts.dart';
@@ -22,20 +23,28 @@ class MrzReviewView extends StatelessWidget {
   final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context) => IdentityPage(
-    eyebrow: 'Étape 1 / 3',
-    title: 'Vérifiez ces informations.',
-    onClose: onClose,
-    actions: [
-      IdentityPrimaryButton('C\'est bien moi', onPressed: onConfirm),
-      IdentityLinkButton('Scanner à nouveau', onPressed: onReject),
-    ],
-    child: Column(
-      children: [
-        FactRow(label: 'Numéro du document', value: maskDocumentNumber(mrz.documentNumber)),
-        FactRow(label: 'Date de naissance', value: formatReviewDate(mrz.birthDate())),
-        FactRow(label: 'Date d\'expiration', value: formatReviewDate(mrz.expiryDate()), last: true),
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = l10n.localeName;
+    return IdentityPage(
+      eyebrow: l10n.verificationStepLabel(1, 3),
+      title: l10n.verificationReviewTitle,
+      onClose: onClose,
+      actions: [
+        IdentityPrimaryButton(l10n.verificationReviewConfirm, onPressed: onConfirm),
+        IdentityLinkButton(l10n.verificationRescan, onPressed: onReject),
       ],
-    ),
-  );
+      child: Column(
+        children: [
+          FactRow(label: l10n.verificationFieldDocumentNumber, value: reviewDocumentNumber(mrz.documentNumber)),
+          FactRow(label: l10n.verificationFieldBirthDate, value: formatReviewDate(mrz.birthDate(), locale)),
+          FactRow(
+            label: l10n.verificationFieldExpiryDate,
+            value: formatReviewDate(mrz.expiryDate(), locale),
+            last: true,
+          ),
+        ],
+      ),
+    );
+  }
 }

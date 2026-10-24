@@ -13,6 +13,7 @@ import 'package:mazl/presentation/features/verification/identity/identity_intro_
 import 'package:mazl/presentation/features/verification/identity/identity_messages.dart';
 
 import 'identity_fakes.dart';
+import 'verification_l10n.dart';
 import '../../helpers/l10n_helpers.dart';
 
 class _NoopRecognizer implements TextLineRecognizer {
@@ -35,8 +36,9 @@ void main() {
       await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
 
       expect(find.text('Vérifiez votre identité.'), findsOneWidget);
-      for (final step in IdentityIntroView.steps) {
-        expect(find.text(step), findsOneWidget);
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(find.text(step.title), findsOneWidget);
+        expect(find.text(step.detail!), findsOneWidget);
       }
       expect(find.text('Rien n\'est conservé : nous ne gardons que le résultat.'), findsOneWidget);
       expect(find.byType(ElevatedButton), findsOneWidget);
@@ -46,8 +48,8 @@ void main() {
     });
 
     testWidgets('steps are short', (tester) async {
-      for (final step in IdentityIntroView.steps) {
-        expect(step.length, lessThan(50));
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(step.title.length, lessThan(50));
       }
     });
   });

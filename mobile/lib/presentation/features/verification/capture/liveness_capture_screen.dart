@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/services/verification_api.dart';
 import '../../../../core/vision/face_pose_detector.dart';
+import '../../../../l10n/l10n.dart';
 import '../identity/identity_layout.dart';
 import '../identity/identity_parts.dart';
 import 'liveness_controller.dart';
@@ -103,7 +104,7 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
       final cameras = await availableCameras();
       final front = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.front,
-        orElse: () => throw CameraException('no_front_camera', 'No front camera'),
+        orElse: () => throw CameraException('no_front_camera', 'no_front_camera'),
       );
       final controller = CameraController(
         front,
@@ -220,14 +221,15 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
   }
 
   Widget _screen(BuildContext context) {
+    final l10n = context.l10n;
     if (_liveness.phase == LivenessPhase.expired) {
       return IdentityNotice(
         dark: true,
         icon: LucideIcons.clock,
-        title: 'Session expirée',
-        body: 'Le temps imparti est écoulé. Vous pouvez recommencer.',
+        title: l10n.verificationLivenessExpiredTitle,
+        body: l10n.verificationLivenessExpiredBody,
         onClose: _cancel,
-        actions: [IdentityPrimaryButton('Fermer', onPressed: _cancel)],
+        actions: [IdentityPrimaryButton(l10n.commonClose, onPressed: _cancel)],
       );
     }
     switch (_stage) {
@@ -237,25 +239,25 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
         return IdentityNotice(
           dark: true,
           icon: LucideIcons.camera,
-          title: 'Caméra nécessaire',
-          body: 'MAZL utilise la caméra frontale pour vérifier que vous êtes bien la personne de vos photos.',
+          title: l10n.verificationCameraNeededTitle,
+          body: l10n.verificationCameraNeededBody,
           onClose: _cancel,
           actions: [
             IdentityPrimaryButton(
-              _permanentlyDenied ? 'Ouvrir les réglages' : 'Autoriser la caméra',
+              _permanentlyDenied ? l10n.verificationCameraOpenSettings : l10n.verificationCameraAllow,
               onPressed: () => _permanentlyDenied ? openAppSettings() : _start(),
             ),
-            IdentityLinkButton('Annuler', onPressed: _cancel),
+            IdentityLinkButton(l10n.commonCancel, onPressed: _cancel),
           ],
         );
       case _Stage.cameraUnavailable:
         return IdentityNotice(
           dark: true,
           icon: LucideIcons.cameraOff,
-          title: 'Caméra indisponible',
-          body: 'Impossible de démarrer la caméra frontale.',
+          title: l10n.verificationCameraUnavailableTitle,
+          body: l10n.verificationCameraUnavailableBody,
           onClose: _cancel,
-          actions: [IdentityPrimaryButton('Fermer', onPressed: _cancel)],
+          actions: [IdentityPrimaryButton(l10n.commonClose, onPressed: _cancel)],
         );
       case _Stage.running:
         return _preview(context);
@@ -268,8 +270,8 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
     final total = widget.challenges.length;
     return LivenessStage(
       camera: _CoverPreview(camera: camera),
-      instruction: challengeInstruction(_liveness.current),
-      hint: poseFeedbackText(_liveness.feedback),
+      instruction: challengeInstruction(context.l10n, _liveness.current),
+      hint: poseFeedbackText(context.l10n, _liveness.feedback),
       holdProgress: _liveness.holdProgress(DateTime.now()),
       total: total,
       done: _liveness.captured,
