@@ -989,7 +989,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final isMazlPro = subscriptions.isMazlPro;
     final renewal = subscriptions.expirationDate;
     final subscriptionDetail = [
-      ?subscriptions.activePlanLabel,
+      if (subscriptions.activePlanMonths case final months?)
+        l10n.plusMonths(months),
       if (renewal != null)
         if (subscriptions.willRenew)
           l10n.settingsSubscriptionRenewsOn(renewal.toLocal())

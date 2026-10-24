@@ -41,12 +41,6 @@ final isMazlProProvider = Provider<bool>((ref) {
   return subscriptions.isMazlPro;
 });
 
-/// Subscription Status Provider
-final subscriptionStatusProvider = Provider<String>((ref) {
-  final subscriptions = ref.watch(subscriptionServiceProvider);
-  return subscriptions.subscriptionStatusText;
-});
-
 /// Couple Service Provider
 ///
 /// [CoupleService] is an application-wide singleton that extends [ChangeNotifier].

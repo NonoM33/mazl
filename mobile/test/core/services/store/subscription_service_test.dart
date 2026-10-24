@@ -154,7 +154,7 @@ void main() {
     );
 
     test(
-      'une vraie erreur du store est un PurchaseFailed avec un message français',
+      'une vraie erreur du store est un PurchaseFailed « échec général »',
       () async {
         gateway.onBuy = (_) async => gateway.emit(
           purchaseDetails(
@@ -171,7 +171,7 @@ void main() {
         final result = await service.purchase(plan);
 
         expect(result, isA<PurchaseFailed>());
-        expect((result as PurchaseFailed).message, isNotEmpty);
+        expect((result as PurchaseFailed).problem, PurchaseProblem.generic);
         expect(service.isMazlPro, isFalse);
       },
     );
@@ -191,7 +191,7 @@ void main() {
         ]);
         expect(service.isMazlPro, isTrue);
         expect(service.expirationDate, DateTime.utc(2026, 12, 1, 12));
-        expect(service.activePlanLabel, '1 mois');
+        expect(service.activePlanMonths, 1);
         // La transaction n'est terminée QU'APRÈS la vérification serveur.
         expect(storeJournal, ['verify', 'complete:2000000123']);
       },
@@ -207,7 +207,7 @@ void main() {
     });
 
     test(
-      '409 : message « déjà associé à un autre compte mazl », pas premium',
+      '409 : problème « déjà associé à un autre compte mazl », pas premium',
       () async {
         api.onVerify = () => const ApiReply(409, {
           'success': false,
@@ -221,8 +221,8 @@ void main() {
 
         expect(result, isA<PurchaseFailed>());
         expect(
-          (result as PurchaseFailed).message,
-          'Cet achat App Store est déjà associé à un autre compte mazl.',
+          (result as PurchaseFailed).problem,
+          PurchaseProblem.ownedByAnotherAccount,
         );
         expect(service.isMazlPro, isFalse);
       },
@@ -259,6 +259,10 @@ void main() {
         final result = await service.purchase(plan);
 
         expect(result, isA<PurchaseFailed>());
+        expect(
+          (result as PurchaseFailed).problem,
+          PurchaseProblem.invalidTransaction,
+        );
         expect(service.isMazlPro, isFalse);
         expect(gateway.completed, isEmpty);
       },
@@ -271,7 +275,9 @@ void main() {
           gateway.emit(purchaseDetails(PurchaseStatus.purchased));
       final plan = await _firstPlan(service);
 
-      expect(await service.purchase(plan), isA<PurchaseFailed>());
+      final result = await service.purchase(plan);
+      expect(result, isA<PurchaseFailed>());
+      expect((result as PurchaseFailed).problem, PurchaseProblem.invalidBody);
       expect(gateway.completed, isEmpty);
     });
 
@@ -286,6 +292,7 @@ void main() {
         final result = await service.purchase(plan);
 
         expect(result, isA<PurchaseFailed>());
+        expect((result as PurchaseFailed).problem, PurchaseProblem.offline);
         expect(service.isMazlPro, isFalse);
         expect(gateway.completed, isEmpty);
       },
@@ -368,6 +375,10 @@ void main() {
       final second = await service.purchase(plan);
 
       expect(second, isA<PurchaseFailed>());
+      expect(
+        (second as PurchaseFailed).problem,
+        PurchaseProblem.purchaseInProgress,
+      );
       gateway.emit(purchaseDetails(PurchaseStatus.canceled));
       expect(await first, isA<PurchaseCancelled>());
     });
@@ -452,8 +463,8 @@ void main() {
 
       expect(result, isA<RestoreFailed>());
       expect(
-        (result as RestoreFailed).message,
-        'Cet achat App Store est déjà associé à un autre compte mazl.',
+        (result as RestoreFailed).problem,
+        PurchaseProblem.ownedByAnotherAccount,
       );
     });
 
@@ -463,7 +474,12 @@ void main() {
       await s.initialize();
       await s.onSignedIn('jwt');
 
-      expect(await s.restore(), isA<RestoreFailed>());
+      final result = await s.restore();
+      expect(result, isA<RestoreFailed>());
+      expect(
+        (result as RestoreFailed).problem,
+        PurchaseProblem.restoreFailed,
+      );
       s.dispose();
       await broken.controller.close();
     });
@@ -475,8 +491,7 @@ void main() {
       await service.refresh();
 
       expect(service.isMazlPro, isTrue);
-      expect(service.subscriptionStatusText, 'mazl+ (actif)');
-      expect(service.activePlanLabel, '1 mois');
+      expect(service.activePlanMonths, 1);
       expect(service.willRenew, isTrue);
     });
 
@@ -490,8 +505,7 @@ void main() {
         await service.refresh();
 
         expect(service.isMazlPro, isFalse);
-        expect(service.subscriptionStatusText, 'Gratuit');
-        expect(service.activePlanLabel, isNull);
+        expect(service.activePlanMonths, isNull);
       },
     );
 
@@ -602,15 +616,15 @@ void main() {
 
         expect(android.canPurchase, isFalse);
         expect(
-          android.unavailablePurchaseMessage,
-          'Bientôt disponible sur Android',
+          android.unavailablePurchaseProblem,
+          PurchaseProblem.androidSoon,
         );
         final result = await android.purchase(plan);
 
         expect(result, isA<PurchaseFailed>());
         expect(
-          (result as PurchaseFailed).message,
-          'Bientôt disponible sur Android',
+          (result as PurchaseFailed).problem,
+          PurchaseProblem.androidSoon,
         );
         expect(gateway.bought, isEmpty);
         android.dispose();
@@ -640,7 +654,7 @@ void main() {
 
     test('iOS peut acheter', () {
       expect(service.canPurchase, isTrue);
-      expect(service.unavailablePurchaseMessage, isNull);
+      expect(service.unavailablePurchaseProblem, isNull);
     });
   });
 
