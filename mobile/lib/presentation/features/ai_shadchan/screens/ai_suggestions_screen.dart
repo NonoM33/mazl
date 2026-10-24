@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/glass_container.dart';
@@ -92,9 +93,15 @@ class _AISuggestionsScreenState extends State<AISuggestionsScreen> {
                 const Text(
                   '🤖',
                   style: TextStyle(fontSize: 48),
-                ).animate().scale(
-                      duration: 600.ms,
-                      curve: Curves.elasticOut,
+                ).animate(
+                      effects: MazlMotion.reduced(context)
+                          ? [FadeEffect(duration: MazlMotion.reducedEntrance)]
+                          : [
+                              ScaleEffect(
+                                duration: 600.ms,
+                                curve: Curves.elasticOut,
+                              ),
+                            ],
                     ),
                 const SizedBox(height: 16),
                 const Text(
