@@ -45,6 +45,8 @@ class _ConfirmPairingBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           FactRow(label: 'Navigateur', value: pairing.browser),
+          if (pairing.address != null)
+            FactRow(label: 'Adresse', value: pairing.address!),
           FactRow(
             label: 'Demande faite à',
             value: clockTimeLabel(pairing.createdAt),

@@ -35,6 +35,7 @@ class FakeWebSessionsApi implements WebSessionsApi {
           WebPairing(
             id: 'p1',
             browser: 'Chrome sur macOS',
+            address: '198.51.100.x',
             createdAt: DateTime(2026, 10, 24, 14, 5),
             expiresAt: DateTime(2026, 10, 24, 14, 7),
           ),

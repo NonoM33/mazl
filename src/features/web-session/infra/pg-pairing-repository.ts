@@ -7,6 +7,7 @@ interface PairingRow {
   code_hash: string;
   browser_secret_hash: string;
   browser_label: string;
+  address_hint: string | null;
   status: PairingStatus;
   user_id: number | null;
   created_at: Date;
@@ -18,6 +19,7 @@ const toPairing = (row: PairingRow): Pairing => ({
   codeHash: row.code_hash,
   browserSecretHash: row.browser_secret_hash,
   browserLabel: row.browser_label,
+  addressHint: row.address_hint,
   status: row.status,
   userId: row.user_id,
   createdAt: row.created_at,
@@ -29,8 +31,8 @@ export class PgPairingRepository implements PairingRepository {
 
   async insert(p: Pairing): Promise<void> {
     await this.sql`
-      INSERT INTO web_pairings (id, code_hash, browser_secret_hash, browser_label, status, created_at, expires_at)
-      VALUES (${p.id}, ${p.codeHash}, ${p.browserSecretHash}, ${p.browserLabel}, ${p.status}, ${p.createdAt}, ${p.expiresAt})`;
+      INSERT INTO web_pairings (id, code_hash, browser_secret_hash, browser_label, address_hint, status, created_at, expires_at)
+      VALUES (${p.id}, ${p.codeHash}, ${p.browserSecretHash}, ${p.browserLabel}, ${p.addressHint}, ${p.status}, ${p.createdAt}, ${p.expiresAt})`;
   }
 
   async findById(id: string): Promise<Pairing | null> {

@@ -39,6 +39,7 @@ const _pairing = {
   'pairing': {
     'id': 'p1',
     'browser': 'Chrome sur macOS',
+    'address': '198.51.100.x',
     'created_at': '2026-10-24T10:00:00.000Z',
     'expires_at': '2026-10-24T10:02:00.000Z',
   },

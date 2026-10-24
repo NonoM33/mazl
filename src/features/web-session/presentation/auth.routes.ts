@@ -2,7 +2,9 @@ import type { Context, Hono } from "hono";
 import type { z } from "zod";
 import type { AppVariables } from "../../../shared/http/middleware";
 import { createIpRateLimiter } from "../../../shared/http/rate-limit";
+import { clientIp } from "../../../shared/http/client-ip";
 import { browserLabel } from "../domain/browser-label";
+import { maskedAddress } from "../domain/ip-hint";
 import { remainingSeconds } from "../domain/session";
 import type { OpenedSession, WebMember } from "../application/ports";
 import type { WebSessionModule } from "../web-session.module";
@@ -72,7 +74,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, modul
     const body = await readBody(c, qrBody);
     if (!body) return fail(c, "invalid_body", 400);
     if (module.pow.verify(body.pow) !== null) return fail(c, "pow_invalid", 403);
-    const created = await module.pairings.create(label(c));
+    const created = await module.pairings.create(label(c), maskedAddress(clientIp(c)));
     return c.json({
       success: true,
       pairing: {

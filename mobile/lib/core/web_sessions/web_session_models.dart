@@ -49,17 +49,22 @@ class WebPairing {
     required this.browser,
     required this.createdAt,
     required this.expiresAt,
+    this.address,
   });
 
   factory WebPairing.fromJson(Map<String, dynamic> json) => WebPairing(
     id: _string(json, 'id'),
     browser: _string(json, 'browser'),
+    address: json['address'] is String ? json['address'] as String : null,
     createdAt: _date(json, 'created_at'),
     expiresAt: _date(json, 'expires_at'),
   );
 
   final String id;
   final String browser;
+
+  /// Masked address the request came from (« 198.51.100.x »), if known.
+  final String? address;
   final DateTime createdAt;
   final DateTime expiresAt;
 }

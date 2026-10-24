@@ -35,6 +35,7 @@ export function registerPairingRoutes(app: Hono<{ Variables: AppVariables }>, mo
       pairing: {
         id: pairing.id,
         browser: pairing.browserLabel,
+        address: pairing.addressHint,
         created_at: pairing.createdAt.toISOString(),
         expires_at: pairing.expiresAt.toISOString(),
       },

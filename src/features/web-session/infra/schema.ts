@@ -19,6 +19,8 @@ export async function ensureWebSessionSchema(sql: Sql): Promise<void> {
       decided_at TIMESTAMPTZ
     )
   `;
+  // Masked address of the browser, shown on the phone (security review B6).
+  await sql`ALTER TABLE web_pairings ADD COLUMN IF NOT EXISTS address_hint VARCHAR(45)`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_web_pairings_code ON web_pairings (code_hash)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_web_pairings_expires ON web_pairings (expires_at)`;
   await sql`

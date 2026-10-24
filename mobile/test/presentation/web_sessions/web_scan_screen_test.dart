@@ -90,6 +90,8 @@ void main() {
       expect(api.calls, ['scan:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO-_']);
       expect(find.text('Connecter cet ordinateur ?'), findsOneWidget);
       expect(find.text('Chrome sur macOS'), findsOneWidget);
+      // Security review B6: where the request comes from, masked.
+      expect(find.text('198.51.100.x'), findsOneWidget);
       expect(find.text('14 h 05'), findsOneWidget);
       expect(
         find.textContaining(

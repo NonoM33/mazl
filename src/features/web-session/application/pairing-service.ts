@@ -31,7 +31,7 @@ export class PairingService {
     private readonly now: Clock,
   ) {}
 
-  async create(browserLabel: string): Promise<CreatedPairing> {
+  async create(browserLabel: string, addressHint: string | null = null): Promise<CreatedPairing> {
     const now = this.now();
     const code = randomToken();
     const browserSecret = randomToken();
@@ -40,6 +40,7 @@ export class PairingService {
       codeHash: sha256Hex(code),
       browserSecretHash: sha256Hex(browserSecret),
       browserLabel,
+      addressHint,
       status: "pending",
       userId: null,
       createdAt: now,

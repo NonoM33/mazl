@@ -282,6 +282,20 @@ describe("sign-in cannot be forged from another site (security review M1)", () =
   });
 });
 
+describe("the phone sees where the request comes from (security review B6)", () => {
+  test("the scan answers the browser and its masked address", async () => {
+    const user = await makeUser("ip-hint");
+    const res = await fetch(`${BASE_URL}/api/web/auth/qr`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Forwarded-For": "198.51.100.42" },
+      body: JSON.stringify({ pow: await solvePow() }),
+    });
+    const { pairing } = (await res.json()) as { pairing: Pairing };
+    const scan = await fetch(`${BASE_URL}/api/web/pairings/scan`, { method: "POST", headers: json(user.token), body: JSON.stringify({ code: pairing.code }) });
+    expect(((await scan.json()) as { pairing: { address: string | null } }).pairing.address).toBe("198.51.100.x");
+  });
+});
+
 describe("socket tickets are not API tokens (security review H1)", () => {
   test("a ticket used as a Bearer token is refused, so it cannot approve a sign-in", async () => {
     const user = await makeUser("ticket-bearer");

@@ -10,6 +10,8 @@ export interface Pairing {
   readonly codeHash: string;
   readonly browserSecretHash: string;
   readonly browserLabel: string;
+  // Masked address the request came from (« 198.51.100.x »), shown on the phone.
+  readonly addressHint: string | null;
   readonly status: PairingStatus;
   readonly userId: number | null;
   readonly createdAt: Date;
