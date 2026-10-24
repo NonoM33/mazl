@@ -50,9 +50,20 @@ export function createWebApp(options: WebAppOptions) {
     return new Response(index, { headers: { ...headers(), "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_STORE } });
   }
 
-  async function serveClient(path: string): Promise<Response> {
+  // The precompressed copy built beside a script or stylesheet, if accepted.
+  async function compressed(file: string, acceptEncoding: string | null): Promise<Response | null> {
+    if (!/\.(js|css)$/.test(file) || !/\bgzip\b/.test(acceptEncoding ?? "")) return null;
+    const gz = Bun.file(`${file}.gz`);
+    if (!(await gz.exists())) return null;
+    const type = file.endsWith(".js") ? "text/javascript;charset=utf-8" : "text/css;charset=utf-8";
+    return new Response(gz, { headers: { ...headers(), "Content-Type": type, "Content-Encoding": "gzip", Vary: "Accept-Encoding", "Cache-Control": cacheFor(file) } });
+  }
+
+  async function serveClient(path: string, acceptEncoding: string | null): Promise<Response> {
     const file = fileUnder(options.distDir, path);
     if (file !== null && !file.endsWith("index.html")) {
+      const gz = await compressed(file, acceptEncoding);
+      if (gz) return gz;
       const asset = Bun.file(file);
       if (await asset.exists()) {
         return new Response(asset, { headers: { ...headers(), "Cache-Control": cacheFor(file.slice(options.distDir.length + 1)) } });
@@ -70,7 +81,7 @@ export function createWebApp(options: WebAppOptions) {
     const onWebHost = origin !== null && req.headers.get("host") === origin.host;
     const underApp = url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`);
     if (origin !== null && underApp && !onWebHost) return Response.redirect(`${origin.origin}${url.pathname}${url.search}`, 301);
-    if (underApp) return serveClient(url.pathname);
+    if (underApp) return serveClient(url.pathname, req.headers.get("accept-encoding"));
     if (onWebHost && !WEB_HOST_PASSTHROUGH.some((prefix) => url.pathname.startsWith(prefix))) return Response.redirect(`${origin.origin}${PREFIX}`, 302);
     return null;
   }

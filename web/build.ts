@@ -24,4 +24,8 @@ if (!result.success) {
 }
 // Fonts are plain files (cached a year), not inlined into the stylesheet.
 await cp(new URL("./assets/fonts", import.meta.url).pathname, `${outdir}/fonts`, { recursive: true });
+// Gzip copies of the code, served when the browser accepts them.
+for (const output of result.outputs) {
+  if (/\.(js|css)$/.test(output.path)) await Bun.write(`${output.path}.gz`, Bun.gzipSync(await Bun.file(output.path).bytes(), { level: 9 }));
+}
 for (const output of result.outputs) console.log(`${output.path.replace(outdir, "web/dist")}  ${(output.size / 1024).toFixed(1)} kB`);

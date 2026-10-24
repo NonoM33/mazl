@@ -12,6 +12,7 @@ beforeAll(async () => {
   dist = await mkdtemp(join(tmpdir(), "mazl-dist-"));
   await writeFile(join(dist, "index.html"), "<!doctype html><title>mazl</title>");
   await writeFile(join(dist, "index-abcd1234.js"), "console.log(1)");
+  await writeFile(join(dist, "index-abcd1234.js.gz"), Bun.gzipSync(new TextEncoder().encode("console.log(1)")));
   await mkdir(join(dist, "fonts"));
   await writeFile(join(dist, "fonts", "Geist-400.ttf"), "font");
 });
@@ -36,6 +37,16 @@ describe("web client serving without WEB_ORIGIN", () => {
   test("hashed files and fonts are cached for a year", async () => {
     expect((await web().handle(get("http://localhost:3000/app/index-abcd1234.js")))?.headers.get("cache-control")).toContain("immutable");
     expect((await web().handle(get("http://localhost:3000/app/fonts/Geist-400.ttf")))?.headers.get("cache-control")).toContain("immutable");
+  });
+
+  test("a browser accepting gzip gets the precompressed script, others the plain one", async () => {
+    const gzip = await web().handle(new Request("http://localhost:3000/app/index-abcd1234.js", { headers: { "accept-encoding": "gzip, br" } }));
+    expect(gzip?.headers.get("content-encoding")).toBe("gzip");
+    expect(gzip?.headers.get("vary")).toBe("Accept-Encoding");
+    expect(new TextDecoder().decode(Bun.gunzipSync(new Uint8Array(await gzip?.arrayBuffer() ?? new ArrayBuffer(0))))).toBe("console.log(1)");
+    const plain = await web().handle(get("http://localhost:3000/app/index-abcd1234.js"));
+    expect(plain?.headers.get("content-encoding")).toBeNull();
+    expect(await plain?.text()).toBe("console.log(1)");
   });
 
   test("a missing hashed file is a 404, never the page", async () => {
