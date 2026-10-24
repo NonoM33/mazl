@@ -1141,6 +1141,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 subtitle: _userProfile?.profile?.isVerified == true ? 'Vérifié' : 'Non vérifié',
                 onTap: () => context.push(RoutePaths.verification),
               ),
+              _SettingTile(
+                icon: LucideIcons.monitor,
+                title: 'Ordinateurs connectés',
+                onTap: () => context.push(RoutePaths.computers),
+              ),
 
               // About
               _SectionHeader(title: 'À propos'),
