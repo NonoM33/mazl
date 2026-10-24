@@ -1,0 +1,152 @@
+import { FONTS_DIRECTORY, HASHED_ASSET, IMMUTABLE, NO_STORE } from "../../src/features/web-app/cache-rules";
+import { mediaOriginFor, webSecurityHeaders } from "../../src/features/web-app/security-headers";
+import { API_HOST_ONLY, LEGAL_PAGES, LEGAL_REDIRECTS, PROXIED_PREFIXES, SITE_STATIC_FILES } from "../../src/features/web-app/site-rules";
+import type { FrontConfig } from "./config";
+
+// The Caddyfile of the website container, rendered at start from the same
+// modules the API process uses to serve the website: the headers, the cache
+// rules and the host rules cannot drift from it (docs/web/adr/W01-hebergement.md,
+// 2026-10-24 decoupling). Pure: no file, no environment.
+
+export interface FrontPaths {
+  // The built web client (web/dist), served under /app.
+  readonly appDir: string;
+  // The legal pages with their stylesheet and icon (public/).
+  readonly siteDir: string;
+}
+
+export const DEFAULT_PATHS: FrontPaths = { appDir: "/srv/app", siteDir: "/srv/site" };
+
+export const CLIENT_PREFIX = "/app";
+export const SECURITY_HEADERS_SNIPPET = "web_headers";
+
+// A value written between double quotes. Braces would read as Caddy placeholders.
+function quoted(value: string): string {
+  if (/["\\{}\r\n]/.test(value)) throw new Error(`Caddyfile: value cannot be written safely: ${value}`);
+  return `"${value}"`;
+}
+
+function indent(lines: readonly string[], depth: number): string[] {
+  return lines.map((line) => (line.length === 0 ? line : `${"\t".repeat(depth)}${line}`));
+}
+
+// The headers of the API's web-app feature, as a snippet imported by every handler that serves the site.
+function securityHeadersSnippet(config: FrontConfig): string[] {
+  const secure = config.webOrigin.protocol === "https:";
+  const mediaOrigin = mediaOriginFor(config.apiOrigin.origin, config.webOrigin);
+  const headers = webSecurityHeaders(secure, mediaOrigin);
+  const lines = Object.entries(headers).map(([name, value]) => `${name} ${quoted(value)}`);
+  return [`(${SECURITY_HEADERS_SNIPPET}) {`, "\theader {", ...indent(lines, 2), "\t}", "}"];
+}
+
+const globalOptions = (config: FrontConfig): string[] => [
+  "{",
+  "\tadmin off",
+  "\tauto_https off",
+  "\tpersist_config off",
+  "\tservers {",
+  // The last hop is Traefik: it appends the real client to X-Forwarded-For, so
+  // the entries are read from the right and the first untrusted one is the client.
+  `\t\ttrusted_proxies static ${config.trustedProxies.join(" ")}`,
+  "\t\ttrusted_proxies_strict",
+  "\t\ttimeouts {",
+  "\t\t\tread_header 10s",
+  "\t\t\tidle 5m",
+  "\t\t}",
+  "\t}",
+  "}",
+];
+
+function proxyBlock(config: FrontConfig): string[] {
+  const paths = PROXIED_PREFIXES.map((prefix) => (prefix.endsWith("/") ? `${prefix}*` : prefix));
+  // A public https upstream (staging) is routed by its own host name.
+  const publicUpstream = config.apiUpstream.protocol === "https:";
+  return [
+    `@proxied path ${paths.join(" ")}`,
+    "handle @proxied {",
+    `\treverse_proxy ${config.apiUpstream.origin} {`,
+    // The API swaps containers on each deploy: a connection refused during the
+    // switch is retried for a few seconds instead of reaching the member as a 502.
+    "\t\tlb_try_duration 5s",
+    "\t\tlb_try_interval 250ms",
+    // The API reads the LAST entry of X-Forwarded-For as the client (one hop):
+    // send exactly one, the real client, never what the browser wrote.
+    "\t\theader_up X-Forwarded-For {client_ip}",
+    "\t\theader_up -Forwarded",
+    "\t\theader_up -X-Real-Ip",
+    ...(publicUpstream ? ["\t\theader_up X-Forwarded-Host {host}", "\t\theader_up Host {upstream_hostport}"] : []),
+    "\t}",
+    "}",
+  ];
+}
+
+function clientBlock(paths: FrontPaths): string[] {
+  const fonts = FONTS_DIRECTORY.replace(/\/$/, "");
+  return [
+    `@client path ${CLIENT_PREFIX} ${CLIENT_PREFIX}/*`,
+    "handle @client {",
+    `\timport ${SECURITY_HEADERS_SNIPPET}`,
+    `\troot * ${paths.appDir}`,
+    `\turi strip_prefix ${CLIENT_PREFIX}`,
+    `\t@immutable path_regexp immutable ${HASHED_ASSET.source}|^/${fonts}/`,
+    // A hashed file or a font that is missing is a 404, never the page.
+    "\thandle @immutable {",
+    `\t\theader Cache-Control ${quoted(IMMUTABLE)}`,
+    "\t\tfile_server {",
+    "\t\t\tprecompressed gzip",
+    "\t\t}",
+    "\t}",
+    "\thandle {",
+    `\t\theader Cache-Control ${quoted(NO_STORE)}`,
+    "\t\ttry_files {path} /index.html",
+    "\t\tfile_server",
+    "\t}",
+    "}",
+  ];
+}
+
+function siteFilesBlock(paths: FrontPaths): string[] {
+  const pages = LEGAL_PAGES.map((page) => `/${page}`);
+  const files = [...LEGAL_PAGES.map((page) => `/${page}.html`), ...SITE_STATIC_FILES.map((file) => `/${file}`)];
+  const serve = [
+    `\timport ${SECURITY_HEADERS_SNIPPET}`,
+    `\theader Cache-Control ${quoted("no-cache")}`,
+    `\troot * ${paths.siteDir}`,
+  ];
+  return [
+    ...Object.entries(LEGAL_REDIRECTS).flatMap(([from, to]) => [`handle ${from} {`, `\tredir * ${to} 301`, "}"]),
+    `@legal path ${pages.join(" ")}`,
+    "handle @legal {",
+    ...serve,
+    "\trewrite * {path}.html",
+    "\tfile_server",
+    "}",
+    `@siteFiles path ${files.join(" ")}`,
+    "handle @siteFiles {",
+    ...serve,
+    "\tfile_server",
+    "}",
+  ];
+}
+
+export function renderCaddyfile(config: FrontConfig, paths: FrontPaths = DEFAULT_PATHS): string {
+  const site = [
+    "header -Server",
+    "handle /health {",
+    `\theader Cache-Control ${quoted(NO_STORE)}`,
+    '\trespond "ok" 200',
+    "}",
+    // Staff console, document drop page and old admin: scripts and a looser CSP, never on this origin.
+    `@apiHost path_regexp apiHost ${API_HOST_ONLY.source}`,
+    "handle @apiHost {",
+    `\tredir ${config.apiOrigin.origin}{uri} 302`,
+    "}",
+    ...proxyBlock(config),
+    ...clientBlock(paths),
+    ...siteFilesBlock(paths),
+    "handle {",
+    `\tredir ${config.webOrigin.origin}${CLIENT_PREFIX} 302`,
+    "}",
+  ];
+  return [...globalOptions(config), "", ...securityHeadersSnippet(config), "", `:${config.port} {`, ...indent(site, 1), "}", ""].join("\n");
+}
