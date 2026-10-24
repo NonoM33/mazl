@@ -1,6 +1,6 @@
 import type { Sql } from "postgres";
 import type { ActiveSubscription, SubscriptionRepository } from "../application/ports";
-import { TransactionOwnedByAnotherUserError } from "../domain/errors";
+import { InvalidTransactionError, TransactionOwnedByAnotherUserError } from "../domain/errors";
 import type { SubscriptionStatus } from "../domain/status";
 
 const UNIQUE_VIOLATION = "23505";
@@ -19,9 +19,14 @@ function isOriginalTransactionConflict(error: unknown): boolean {
 export class PgSubscriptionRepository implements SubscriptionRepository {
   constructor(private readonly sql: Sql) {}
 
+  // A transaction that Apple refunded or revoked (status 'revoked') is never
+  // brought back by a JWS: the JWS the member kept from the purchase carries no
+  // revocationDate, so only the stored state knows. The WHERE of the upsert
+  // leaves such a row untouched and RETURNING then yields nothing. A new
+  // purchase (another originalTransactionId) still replaces the row.
   async activate(userId: number, subscription: ActiveSubscription): Promise<void> {
     try {
-      await this.sql`
+      const written = await this.sql<{ id: number }[]>`
         INSERT INTO subscriptions
           (user_id, plan_type, status, store, product_id, original_transaction_id, started_at, expires_at)
         VALUES
@@ -37,7 +42,13 @@ export class PgSubscriptionRepository implements SubscriptionRepository {
           started_at = EXCLUDED.started_at,
           expires_at = EXCLUDED.expires_at,
           updated_at = NOW()
+        WHERE NOT (
+          subscriptions.status = 'revoked'
+          AND subscriptions.original_transaction_id = EXCLUDED.original_transaction_id
+        )
+        RETURNING id
       `;
+      if (written.length === 0) throw new InvalidTransactionError("revoked");
     } catch (error: unknown) {
       if (isOriginalTransactionConflict(error)) throw new TransactionOwnedByAnotherUserError();
       throw error;

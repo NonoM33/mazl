@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Sql } from "postgres";
-import { TransactionOwnedByAnotherUserError } from "../../src/features/subscriptions/domain/errors";
+import { InvalidTransactionError, TransactionOwnedByAnotherUserError } from "../../src/features/subscriptions/domain/errors";
 import { PgSubscriptionRepository } from "../../src/features/subscriptions/infra/pg-subscription-repository";
 
 // No database here: a recording stand-in for the postgres.js tag checks that
@@ -34,7 +34,7 @@ const SUBSCRIPTION = {
 
 describe("PgSubscriptionRepository", () => {
   test("binds every value as a parameter", async () => {
-    const { sql, calls } = fakeSql(() => []);
+    const { sql, calls } = fakeSql(() => [{ id: 1 }]);
     const repository = new PgSubscriptionRepository(sql);
     await repository.activate(7, SUBSCRIPTION);
     await repository.renew(SUBSCRIPTION);
@@ -46,12 +46,20 @@ describe("PgSubscriptionRepository", () => {
   });
 
   test("never writes the legacy RevenueCat column", async () => {
-    const { sql, calls } = fakeSql(() => []);
+    const { sql, calls } = fakeSql(() => [{ id: 1 }]);
     const repository = new PgSubscriptionRepository(sql);
     await repository.activate(7, SUBSCRIPTION);
     await repository.renew(SUBSCRIPTION);
     await repository.markStatus("1", "expired");
     for (const call of calls) expect(call.text.toLowerCase()).not.toContain("revenuecat");
+  });
+
+  test("refuses a refunded transaction: the upsert leaves the revoked row alone and yields no row", async () => {
+    const { sql, calls } = fakeSql(() => []);
+    await expect(new PgSubscriptionRepository(sql).activate(7, SUBSCRIPTION)).rejects.toBeInstanceOf(InvalidTransactionError);
+    const upsert = calls[0]?.text.replace(/\s+/g, " ") ?? "";
+    expect(upsert).toContain("subscriptions.status = 'revoked'");
+    expect(upsert).toContain("RETURNING id");
   });
 
   test("maps an original-transaction unique violation to the domain error", async () => {

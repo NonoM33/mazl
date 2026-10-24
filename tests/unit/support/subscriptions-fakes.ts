@@ -35,7 +35,8 @@ export class InMemorySubscriptions implements SubscriptionRepository {
   async activate(userId: number, subscription: ActiveSubscription): Promise<void> {
     const owner = this.byOriginalTransaction(subscription.originalTransactionId);
     if (owner !== undefined && owner.userId !== userId) throw new TransactionOwnedByAnotherUserError();
-    this.rows.set(userId, { ...subscription, userId, status: "active" });
+    if (owner?.status === "revoked") throw new InvalidTransactionError("revoked");
+    this.rows.set(userId,{ ...subscription, userId, status: "active" });
   }
 
   async findByUserId(userId: number): Promise<object | null> {
