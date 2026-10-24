@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:mazl/core/services/premium_gate.dart';
+import 'package:mazl/core/services/store/credits_service.dart';
+import 'package:mazl/core/services/store/subscription_api.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart'
@@ -13,20 +16,32 @@ import 'package:mazl/presentation/features/premium/widgets/plus_widgets.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/swipe_gestures.dart';
+import '../../support/credits_fakes.dart';
+import '../../support/store_fakes.dart';
 import '../../mocks/fake_discover_api.dart';
 import '../../helpers/l10n_helpers.dart';
 
 const _likeLimitTitle = 'Vos likes du jour sont partis.';
-const _superLikeGateTitle = 'Super Likes';
+const _superLikeGateTitle = 'Vous n’avez plus de Super Likes.';
+const _boostGateTitle = 'Vous n’avez plus de Boost.';
 
 Finder _card(int userId) => find.byWidgetPredicate(
   (w) => w is DiscoverCard && w.profile.userId == userId,
 );
 
+/// The store the packs sheet reads its prices from (and the « server » the
+/// purchase is verified by), shared by the tests of this file.
+late FakeStoreGateway _store;
+late FakeCreditsApi _creditsApi;
+late CreditsService _credits;
+
 Future<FakeDiscoverApi> _pumpDiscover(
   WidgetTester tester, {
   List<String> photos = const [],
   bool verified = false,
+  int superLikes = 1,
+  int boosts = 0,
+  bool boostActive = false,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
@@ -34,6 +49,20 @@ Future<FakeDiscoverApi> _pumpDiscover(
 
   final api = FakeDiscoverApi(
     discoverProfiles(3, photos: photos, verified: verified),
+    superLikes: superLikes,
+    boosts: boosts,
+    boostActive: boostActive,
+  );
+  // What the server told the app when the member signed in.
+  _credits.applyFromServer(
+    serverCredits(
+      superLikeAllowance: 1,
+      superLikeRemaining: superLikes,
+      superLikePurchased: 0,
+      boostAllowance: 0,
+      boostRemaining: 0,
+      boostPurchased: boosts,
+    ),
   );
   await tester.pumpWidget(
     MaterialApp(
@@ -110,6 +139,19 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     PremiumGate.resetForTest();
     PremiumGate.debugPremiumOverride = false;
+    storeJournal.clear();
+    _store = FakeStoreGateway()
+      ..productResponse = ProductDetailsResponse(
+        productDetails: [
+          storeProduct('com.mazl.app.boost.1', price: 1.99),
+          storeProduct(testBoostPackId, price: 4.99),
+          storeProduct(testSuperLikePackId, price: 3.99),
+          storeProduct('com.mazl.app.superlikes.15', price: 9.99),
+        ],
+        notFoundIDs: const [],
+      );
+    _creditsApi = FakeCreditsApi();
+    _credits = installTestCredits(gateway: _store, api: _creditsApi);
   });
 
   tearDown(PremiumGate.resetForTest);
@@ -170,9 +212,8 @@ void main() {
   testWidgets('a super like with none left springs back, then opens the gate', (
     tester,
   ) async {
-    PremiumGate.useSuperLike();
+    final api = await _pumpDiscover(tester, superLikes: 0);
     expect(PremiumGate.remainingSuperLikes, 0);
-    final api = await _pumpDiscover(tester);
 
     await _releaseRefusedAndWatch(
       tester,
@@ -184,24 +225,136 @@ void main() {
     expect(api.swipes, isEmpty);
   });
 
-  testWidgets('a refused super like goes up by itself once mazl+ is bought', (
+  testWidgets('a refused super like goes up by itself once a pack is bought', (
     tester,
   ) async {
-    PremiumGate.useSuperLike();
-    final api = await _pumpDiscover(tester);
+    final api = await _pumpDiscover(tester, superLikes: 0);
+    // The purchase goes through the store; the server verifies it and says the
+    // member now holds five Super Likes.
+    _creditsApi.onVerify = () async => ApiReply(
+      200,
+      verifyEnvelope(
+        kind: 'super_like',
+        quantity: 5,
+        credits: serverCredits(superLikeRemaining: 0, superLikePurchased: 5),
+      ),
+    );
+    _store.onBuy = (param) async => _credits.handlePurchase(
+      purchaseDetails(
+        PurchaseStatus.purchased,
+        productId: param.productDetails.id,
+      ),
+    );
+    api.superLikes = 5;
 
     await dragSlowly(tester, _card(101), const Offset(0, -360));
     await settle(tester);
     expect(find.text(_superLikeGateTitle), findsWidgets);
     expect(api.swipes, isEmpty);
 
-    // The purchase itself goes through the store; here it has just succeeded.
-    PremiumGate.debugPremiumOverride = true;
-    await tester.tap(find.byType(PlusCtaButton));
+    await tester.tap(find.text('5 Super Likes'));
+    await settle(tester);
+    await tester.pump(const Duration(milliseconds: 500));
     await settle(tester);
 
+    expect(
+      _store.boughtConsumables.single.productDetails.id,
+      testSuperLikePackId,
+    );
     expect(api.swipes, ['101:super_like']);
     expect(_card(101), findsNothing);
+    expect(_credits.balance!.superLike.available, 4);
+  });
+
+  testWidgets(
+    'the sheet offers mazl+ to a free member, and not to a subscriber',
+    (tester) async {
+      await _pumpDiscover(tester, superLikes: 0);
+      await tester.tap(find.bySemanticsLabel('Super like'));
+      await settle(tester);
+      expect(find.byType(PlusCtaButton), findsOneWidget);
+
+      await tester.tap(find.text('Pas maintenant'));
+      await settle(tester);
+      PremiumGate.debugPremiumOverride = true;
+      await tester.tap(find.bySemanticsLabel('Super like'));
+      await settle(tester);
+      expect(find.text(_superLikeGateTitle), findsWidgets);
+      expect(find.byType(PlusCtaButton), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'the server says 402 although the app thought it had one: the balance is '
+    'read again and the sheet opens',
+    (tester) async {
+      final api = await _pumpDiscover(tester, superLikes: 1);
+      api.refuseNextSuperLike = true;
+
+      await dragSlowly(tester, _card(101), const Offset(0, -360));
+      await settle(tester);
+
+      expect(api.swipes, ['101:super_like']);
+      expect(PremiumGate.remainingSuperLikes, 0);
+      expect(find.text(_superLikeGateTitle), findsWidgets);
+    },
+  );
+
+  testWidgets('the Boost button is not locked for a free member', (
+    tester,
+  ) async {
+    await _pumpDiscover(tester, boosts: 1);
+    final boosts = tester
+        .widgetList<DiscoverMiniAction>(
+          find.byWidgetPredicate(
+            (w) => w is DiscoverMiniAction && w.tooltip == 'Boost',
+          ),
+        )
+        .toList();
+    expect(boosts, isNotEmpty);
+    expect(boosts.every((b) => !b.locked), isTrue);
+  });
+
+  testWidgets('a Boost bought earlier is used by a free member', (
+    tester,
+  ) async {
+    final api = await _pumpDiscover(tester, boosts: 2);
+
+    await tester.tap(find.bySemanticsLabel('Boost'));
+    await settle(tester);
+
+    expect(api.boostActivations, 1);
+    expect(find.textContaining('Boost activé'), findsOneWidget);
+    expect(find.text(_boostGateTitle), findsNothing);
+    expect(PremiumGate.remainingBoosts, 1);
+  });
+
+  testWidgets('no Boost left: the packs sheet opens and nothing is activated', (
+    tester,
+  ) async {
+    final api = await _pumpDiscover(tester, boosts: 0);
+
+    await tester.tap(find.bySemanticsLabel('Boost'));
+    await settle(tester);
+
+    expect(find.text(_boostGateTitle), findsOneWidget);
+    expect(find.text('1 Boost'), findsOneWidget);
+    expect(find.text('3 Boosts'), findsOneWidget);
+    expect(api.boostActivations, 0);
+  });
+
+  testWidgets('a Boost already running: a message, nothing is debited', (
+    tester,
+  ) async {
+    final api = await _pumpDiscover(tester, boosts: 2, boostActive: true);
+
+    await tester.tap(find.bySemanticsLabel('Boost'));
+    await settle(tester);
+
+    expect(find.text('Un Boost est déjà en cours.'), findsOneWidget);
+    expect(find.text(_boostGateTitle), findsNothing);
+    expect(api.boosts, 2);
+    expect(PremiumGate.remainingBoosts, 2);
   });
 
   testWidgets(
@@ -228,8 +381,7 @@ void main() {
   testWidgets('the star button with none left leaves the card in place', (
     tester,
   ) async {
-    PremiumGate.useSuperLike();
-    final api = await _pumpDiscover(tester);
+    final api = await _pumpDiscover(tester, superLikes: 0);
 
     await tester.tap(find.bySemanticsLabel('Super like'));
     await settle(tester);
@@ -278,6 +430,7 @@ void main() {
       await dragSlowly(tester, _card(101), const Offset(0, -360));
       await settle(tester);
 
+      // The count comes back from the server's answer, not from the app.
       expect(api.swipes, ['101:super_like']);
       expect(PremiumGate.remainingSuperLikes, 0);
       expect(haptics.calls, ['selectionClick', 'mediumImpact']);

@@ -7,6 +7,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credit_models.dart';
+import '../../../../core/services/store/credits_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
@@ -25,6 +27,7 @@ class DailyPicksScreen extends StatefulWidget {
 
 class _DailyPicksScreenState extends State<DailyPicksScreen> {
   late final ApiService _apiService = widget.apiService ?? ApiService();
+  final CreditsService _credits = CreditsService();
   List<Profile> _dailyPicks = [];
   bool _isLoading = true;
   bool _loadFailed = false;
@@ -96,17 +99,28 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   }
 
   Future<void> _handleSuperLike(Profile profile) async {
+    // An unknown balance is not « none »: ask the server before refusing.
+    if (!_credits.isLoaded) await _credits.refresh();
+    if (!mounted) return;
     if (PremiumGate.remainingSuperLikes <= 0) {
-      await PremiumGate.showFeatureGate(context, PremiumFeature.superLikes);
-      return;
+      final bought = await PremiumGate.offerCredits(
+        context,
+        CreditKind.superLike,
+      );
+      if (!bought || !mounted) return;
     }
-
-    PremiumGate.useSuperLike();
 
     final response = await _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: 'super_like',
     );
+    if (response.isCreditsExhausted) {
+      // The server's balance (read from its answer) says none is left.
+      if (mounted) {
+        await PremiumGate.offerCredits(context, CreditKind.superLike);
+      }
+      return;
+    }
 
     if (response.success && response.data?['match'] == true && mounted) {
       _showMatchDialog(profile);
@@ -204,10 +218,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             Text(
               context.l10n.matchingPicksSeenAll,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -269,10 +280,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                   _timeUntilRefresh().hours,
                   _timeUntilRefresh().minutes,
                 ),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -291,13 +299,18 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
             itemCount: _dailyPicks.length,
             itemBuilder: (context, index) {
               return _DailyPickCard(
-                profile: _dailyPicks[index],
-                onTap: () => context.push(
-                  RoutePaths.profileViewPath(_dailyPicks[index].userId.toString()),
-                ),
-                onLike: () => _handleLike(_dailyPicks[index]),
-                onSuperLike: () => _handleSuperLike(_dailyPicks[index]),
-              ).animate(delay: (index * 100).ms).fadeIn().scale(
+                    profile: _dailyPicks[index],
+                    onTap: () => context.push(
+                      RoutePaths.profileViewPath(
+                        _dailyPicks[index].userId.toString(),
+                      ),
+                    ),
+                    onLike: () => _handleLike(_dailyPicks[index]),
+                    onSuperLike: () => _handleSuperLike(_dailyPicks[index]),
+                  )
+                  .animate(delay: (index * 100).ms)
+                  .fadeIn()
+                  .scale(
                     begin: const Offset(0.9, 0.9),
                     end: const Offset(1, 1),
                   );
@@ -410,7 +423,11 @@ class _DailyPickCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(LucideIcons.sparkles, size: 12, color: Colors.white),
+                      const Icon(
+                        LucideIcons.sparkles,
+                        size: 12,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         context.l10n.matchingPicksBadge,

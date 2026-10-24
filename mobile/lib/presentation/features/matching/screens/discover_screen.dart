@@ -8,6 +8,8 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credit_models.dart';
+import '../../../../core/services/store/credits_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
@@ -33,11 +35,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   final SwipeDeckController _deck = SwipeDeckController();
   final DataPrefetchService _prefetchService = DataPrefetchService();
   late final ApiService _apiService = widget.apiService ?? ApiService();
+  final CreditsService _credits = CreditsService();
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
   bool _loadFailed = false;
   ApiErrorKind? _errorKind;
+
   /// How long a Boost lasts, as announced to the member.
   static const int _boostMinutes = 30;
 
@@ -59,6 +63,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     PremiumGate.onSuperLikesChanged = () {
       if (mounted) setState(() {});
     };
+    // The Super Like badge shows the server's balance.
+    _credits.addListener(_onCreditsChanged);
+    if (!_credits.isLoaded) unawaited(_credits.refresh());
+  }
+
+  void _onCreditsChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initializeData() async {
@@ -104,6 +115,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   @override
   void dispose() {
     _deck.dispose();
+    _credits.removeListener(_onCreditsChanged);
     PremiumGate.onSuperLikesChanged = null;
     super.dispose();
   }
@@ -176,7 +188,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.circleAlert, size: 40, color: scheme.onSurfaceVariant),
+            Icon(
+              LucideIcons.circleAlert,
+              size: 40,
+              color: scheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
             Text(
               apiErrorText(context.l10n, _errorKind),
@@ -279,8 +295,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             onPass: () => _deck.swipe(SwipeDirection.left),
             onLike: () => _deck.swipe(SwipeDirection.right),
             onTapProfile: () async {
-              final result = await context
-                  .push<String>('/discover/profile/${profile.userId}');
+              final result = await context.push<String>(
+                '/discover/profile/${profile.userId}',
+              );
               if (result != null && mounted) {
                 _handleSwipeFromDetail(result);
               }
@@ -307,7 +324,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         tooltip: context.l10n.matchingDiscoverUndo,
         locked: !PremiumGate.isPremium,
         onPressed: () async {
-          if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
+          if (await PremiumGate.showFeatureGate(
+            context,
+            PremiumFeature.rewind,
+          )) {
             _deck.undo();
           }
         },
@@ -321,18 +341,28 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         )
       else
         superLike,
-      // Boost (Premium)
+      // Boost: the server decides if one can start (included in mazl+, or
+      // bought), so the button is open to everyone.
       DiscoverMiniAction(
         icon: LucideIcons.zap,
         tooltip: context.l10n.matchingDiscoverBoost,
-        locked: !PremiumGate.isPremium,
-        onPressed: () async {
-          if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
-            await _activateBoost();
-          }
-        },
+        onPressed: _onBoostPressed,
       ),
     ];
+  }
+
+  Future<void> _onBoostPressed() async {
+    if (!_credits.isLoaded) await _credits.refresh();
+    if (!mounted) return;
+    if (PremiumGate.remainingBoosts <= 0) {
+      final bought = await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
+      );
+      if (!bought || !mounted) return;
+    }
+    await _activateBoost();
   }
 
   Future<void> _activateBoost() async {
@@ -340,18 +370,23 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (!mounted) return;
 
     if (response.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.matchingDiscoverBoostOn(_boostMinutes)),
-        ),
+      _showMessage(context.l10n.matchingDiscoverBoostOn(_boostMinutes));
+    } else if (response.isCreditsExhausted) {
+      // The server's balance (already read) says there is none: the packs.
+      await PremiumGate.offerCredits(
+        context,
+        CreditKind.boost,
+        boostMinutes: _boostMinutes,
       );
+    } else if (response.isBoostAlreadyActive) {
+      _showMessage(apiErrorText(context.l10n, response.errorKind));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.matchingDiscoverBoostFailed),
-        ),
-      );
+      _showMessage(context.l10n.matchingDiscoverBoostFailed);
     }
+  }
+
+  void _showMessage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   void _handleSwipeFromDetail(String action) {
@@ -400,13 +435,41 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
   }
 
+  /// The balance says none is left: the packs sheet opens. The card goes up
+  /// by itself once the server says a Super Like can be spent.
   Future<void> _offerSuperLikes() async {
-    final granted = await PremiumGate.showFeatureGate(
-      context,
-      PremiumFeature.superLikes,
-    );
-    if (granted && mounted && PremiumGate.remainingSuperLikes > 0) {
+    // An unknown balance is not « none »: ask the server before refusing.
+    if (!_credits.isLoaded) await _credits.refresh();
+    if (!mounted) return;
+    if (PremiumGate.remainingSuperLikes > 0) {
       unawaited(_deck.swipe(SwipeDirection.up));
+      return;
+    }
+    final bought = await PremiumGate.offerCredits(
+      context,
+      CreditKind.superLike,
+    );
+    if (bought && mounted && PremiumGate.remainingSuperLikes > 0) {
+      unawaited(_deck.swipe(SwipeDirection.up));
+    }
+  }
+
+  /// The server refused a Super Like the app thought it could send (HTTP 402):
+  /// its balance has been read from the answer. The card is already gone, so
+  /// once a pack is bought the Super Like is sent again to the same person.
+  Future<void> _offerSuperLikesAfterRefusal(Profile profile) async {
+    if (!mounted) return;
+    final bought = await PremiumGate.offerCredits(
+      context,
+      CreditKind.superLike,
+    );
+    if (!bought) return;
+    final response = await _apiService.sendSwipe(
+      targetUserId: profile.userId,
+      action: 'super_like',
+    );
+    if (mounted && response.success && response.data?['match'] == true) {
+      unawaited(_showMatchDialog(profile));
     }
   }
 
@@ -423,8 +486,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     } else {
       debugPrint('Super liked ${profile.displayName}');
       action = 'super_like';
-      // Decrement super likes counter
-      PremiumGate.useSuperLike();
     }
 
     // Skip API call if swipe came from detail page (already sent)
@@ -434,13 +495,14 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
 
     // Send swipe to backend
-    _apiService.sendSwipe(
-      targetUserId: profile.userId,
-      action: action,
-    ).then((response) {
+    _apiService.sendSwipe(targetUserId: profile.userId, action: action).then((
+      response,
+    ) {
       if (response.success && response.data?['match'] == true) {
         // Show match animation
         _showMatchDialog(profile);
+      } else if (response.isCreditsExhausted) {
+        unawaited(_offerSuperLikesAfterRefusal(profile));
       }
     });
   }
@@ -467,7 +529,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   Future<void> _openConversationWith(int userId) async {
     final response = await _apiService.getConversations();
     if (!mounted) return;
-    final id = response.success ? conversationIdWith(response.data ?? const [], userId) : null;
+    final id = response.success
+        ? conversationIdWith(response.data ?? const [], userId)
+        : null;
     context.go(id == null ? RoutePaths.chat : '/chat/$id');
   }
 }
