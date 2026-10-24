@@ -42,3 +42,37 @@ documents, `verify.js` et `admin-escape.js`), `/console*` (back-office) et `/adm
 redirigent vers l'hôte de l'API (`PUBLIC_BASE_URL`, par exemple `https://api.mazl.app`),
 requête comprise : les liens déjà envoyés par e-mail restent valides. Sans hôte d'API
 distinct, seul le lien de dépôt de documents reste servi ; la console et `/admin` jamais.
+
+## 2026-10-24 : découplage du site et de l'API
+Décision de Renaud : « il faut découpler le back-end du front » et plus aucune perte lors des
+mises en production. Le choix « même conteneur et même processus » ci-dessus est **remplacé** ;
+les règles de sécurité de cette décision (CSP stricte, `frame-ancestors 'none'`, cache,
+isolement par hôte, relecture M5) sont **conservées à l'identique**.
+
+- Deux conteneurs, deux déploiements Coolify : le **site** (`web/Dockerfile`, Caddy) sert
+  `mazl.app` ; l'**API** (`Dockerfile`) sert `api.mazl.app` et ne sert plus le site quand
+  `SERVE_WEBSITE=false` (défaut inchangé tant que la bascule n'est pas faite).
+- Le site sert le client construit (`web/dist`) sous `/app` et les pages juridiques, avec
+  exactement les en-têtes et règles de cache de `src/features/web-app/`. Le Caddyfile est
+  rendu au démarrage à partir de ces modules (`security-headers.ts`, `cache-rules.ts`,
+  `site-rules.ts`), pas recopié : la source des règles reste unique, et les tests comparent le
+  texte généré au code de l'API.
+- Les règles d'hôte du complément du 2026-10-24 restent : `/` mène à `/app` ; `/verify*`,
+  `/console*`, `/admin*` redirigent vers `PUBLIC_BASE_URL` (chemin et requête gardés) ; `/terms`
+  et `/privacy` redirigent vers les pages juridiques.
+- Le site fait **proxy** de `/api/*`, `/ws` (mise à niveau WebSocket comprise) et `/media/*` vers
+  l'API (`API_UPSTREAM`, réseau Docker interne). Le client reste ainsi **sur la même origine** :
+  le cookie `__Host-mazl_web` (`SameSite=Strict`) et le contrôle CSRF (`Origin` = `WEB_ORIGIN`)
+  sont inchangés, et le site transmet l'en-tête `Host` d'origine, que l'API compare à `WEB_ORIGIN`.
+- Adresse du client : le site renvoie à l'API une seule entrée d'`X-Forwarded-For`, le vrai
+  client, de sorte que `TRUSTED_PROXY_HOPS=1` et les limites de débit par membre ne changent pas.
+- Un site qui ne joint plus l'API reste affiché et répond `/health` ; les connexions refusées
+  sont réessayées 5 s, ce qui couvre le changement de conteneur d'un déploiement de l'API.
+- Pourquoi Caddy : un seul binaire statique, image officielle à version épinglée, qui fait les
+  fichiers (gzip précompressé), les redirections, le proxy HTTP et WebSocket (sans réglage
+  d'en-têtes `Upgrade`) et la lecture de `X-Forwarded-For` de droite à gauche
+  (`trusted_proxies_strict`, `{client_ip}`) en quelques lignes générées. nginx aurait convenu
+  (module realip), au prix d'une configuration plus longue pour le même résultat.
+- Ce qui s'applique désormais à l'API : `/` et les anciennes adresses du site (`/app*`, pages
+  juridiques) redirigent vers `WEB_ORIGIN` ; la vitrine historique, `script.js` ne sont plus servis.
+- Procédure de bascule, variables, chemins surveillés : `docs/deploy/README.md`.
