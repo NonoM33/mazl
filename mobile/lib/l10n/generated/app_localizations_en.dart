@@ -426,6 +426,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchingCouplePromoAction => 'Turn on couple mode';
 
   @override
+  String get matchingPicksSeenAll => 'You\'ve seen all your picks.';
+
+  @override
+  String matchingPicksNextIn(int hours, int minutes) {
+    return 'Next picks in ${hours}h ${minutes}m';
+  }
+
+  @override
+  String matchingPicksUpdatedIn(int hours, int minutes) {
+    return 'Refreshes in ${hours}h ${minutes}m';
+  }
+
+  @override
+  String matchingPicksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count profiles picked for you',
+      one: '$count profile picked for you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingPicksDiscoverMore => 'Discover more profiles';
+
+  @override
+  String get matchingPicksBadge => 'Pick';
+
+  @override
+  String matchingPicksMatchBody(String name) {
+    return 'You matched with $name.';
+  }
+
+  @override
   String get safetyBlock => 'Block';
 
   @override

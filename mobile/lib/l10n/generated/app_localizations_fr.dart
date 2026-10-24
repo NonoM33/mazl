@@ -446,6 +446,41 @@ class AppLocalizationsFr extends AppLocalizations {
   String get matchingCouplePromoAction => 'Activer le mode couple';
 
   @override
+  String get matchingPicksSeenAll => 'Vous avez vu toutes vos sélections.';
+
+  @override
+  String matchingPicksNextIn(int hours, int minutes) {
+    return 'Prochaines sélections dans ${hours}h ${minutes}m';
+  }
+
+  @override
+  String matchingPicksUpdatedIn(int hours, int minutes) {
+    return 'Mis à jour dans ${hours}h ${minutes}m';
+  }
+
+  @override
+  String matchingPicksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count profils sélectionnés pour vous',
+      one: '$count profil sélectionné pour vous',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingPicksDiscoverMore => 'Découvrir plus de profils';
+
+  @override
+  String get matchingPicksBadge => 'Pick';
+
+  @override
+  String matchingPicksMatchBody(String name) {
+    return 'Vous avez matché avec $name.';
+  }
+
+  @override
   String get safetyBlock => 'Bloquer';
 
   @override

@@ -438,6 +438,43 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchingCouplePromoAction => 'Включить режим пары';
 
   @override
+  String get matchingPicksSeenAll => 'Вы просмотрели все подборки.';
+
+  @override
+  String matchingPicksNextIn(int hours, int minutes) {
+    return 'Следующая подборка через $hours ч $minutes мин';
+  }
+
+  @override
+  String matchingPicksUpdatedIn(int hours, int minutes) {
+    return 'Обновится через $hours ч $minutes мин';
+  }
+
+  @override
+  String matchingPicksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count профиля выбрано для Вас',
+      many: '$count профилей выбрано для Вас',
+      few: '$count профиля выбрано для Вас',
+      one: '$count профиль выбран для Вас',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingPicksDiscoverMore => 'Смотреть другие профили';
+
+  @override
+  String get matchingPicksBadge => 'Выбор';
+
+  @override
+  String matchingPicksMatchBody(String name) {
+    return 'У Вас мэтч с $name.';
+  }
+
+  @override
   String get safetyBlock => 'Заблокировать';
 
   @override

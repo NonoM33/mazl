@@ -1105,21 +1105,6 @@ lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
 lib/presentation/features/events/screens/events_list_screen.dart | Tous
 lib/presentation/features/events/screens/events_list_screen.dart | Événement
 lib/presentation/features/events/screens/events_list_screen.dart | Événements
-lib/presentation/features/matching/screens/daily_picks_screen.dart | ${_dailyPicks.length} profils sélectionnés pour vous
-lib/presentation/features/matching/screens/daily_picks_screen.dart | ${profile.displayName ?? 
-lib/presentation/features/matching/screens/daily_picks_screen.dart | C\'est un match
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Continuer
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Découvrir plus de profils
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Envoyer un message
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Erreur lors du chargement
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Mis à jour dans ${_getTimeUntilRefresh()}
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Pick
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Prochaines sélections dans ${_getTimeUntilRefresh()}
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Réessayer
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Sélections du jour
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Vous avez matché avec ${profile.displayName}.
-lib/presentation/features/matching/screens/daily_picks_screen.dart | Vous avez vu toutes vos sélections.
-lib/presentation/features/matching/screens/daily_picks_screen.dart | }, ${profile.age ?? 
 lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.end.round()} ans
 lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.start.round()} ans
 lib/presentation/features/matching/screens/filters_screen.dart | ${_distanceMax.round()} km

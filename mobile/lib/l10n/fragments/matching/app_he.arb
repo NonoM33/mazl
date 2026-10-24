@@ -41,5 +41,12 @@
   "matchingCouplePromoTitle": "קרה מאץ'?",
   "matchingCouplePromoDismiss": "הסתרה",
   "matchingCouplePromoBody": "שאלות יומיות, אבני דרך, לוח שנה יהודי משותף: בונים את הקשר עם mazl.",
-  "matchingCouplePromoAction": "להפעיל מצב זוגי"
+  "matchingCouplePromoAction": "להפעיל מצב זוגי",
+  "matchingPicksSeenAll": "כל הבחירות של היום נצפו.",
+  "matchingPicksNextIn": "הבחירות הבאות בעוד {hours} שע׳ ו-{minutes} דק׳",
+  "matchingPicksUpdatedIn": "העדכון הבא בעוד {hours} שע׳ ו-{minutes} דק׳",
+  "matchingPicksCount": "{count, plural, one{פרופיל אחד נבחר בשבילך} two{שני פרופילים נבחרו בשבילך} other{{count} פרופילים נבחרו בשבילך}}",
+  "matchingPicksDiscoverMore": "לגלות עוד פרופילים",
+  "matchingPicksBadge": "בחירה",
+  "matchingPicksMatchBody": "נוצר מאץ' עם {name}."
 }

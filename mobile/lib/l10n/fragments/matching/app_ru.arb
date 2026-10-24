@@ -41,5 +41,12 @@
   "matchingCouplePromoTitle": "Случился мэтч?",
   "matchingCouplePromoDismiss": "Скрыть",
   "matchingCouplePromoBody": "Ежедневные вопросы, этапы, общий еврейский календарь: стройте отношения с mazl.",
-  "matchingCouplePromoAction": "Включить режим пары"
+  "matchingCouplePromoAction": "Включить режим пары",
+  "matchingPicksSeenAll": "Вы просмотрели все подборки.",
+  "matchingPicksNextIn": "Следующая подборка через {hours} ч {minutes} мин",
+  "matchingPicksUpdatedIn": "Обновится через {hours} ч {minutes} мин",
+  "matchingPicksCount": "{count, plural, one{{count} профиль выбран для Вас} few{{count} профиля выбрано для Вас} many{{count} профилей выбрано для Вас} other{{count} профиля выбрано для Вас}}",
+  "matchingPicksDiscoverMore": "Смотреть другие профили",
+  "matchingPicksBadge": "Выбор",
+  "matchingPicksMatchBody": "У Вас мэтч с {name}."
 }

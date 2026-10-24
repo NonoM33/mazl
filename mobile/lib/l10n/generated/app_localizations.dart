@@ -758,6 +758,48 @@ abstract class AppLocalizations {
   /// **'Activer le mode couple'**
   String get matchingCouplePromoAction;
 
+  /// Titre de l'écran des sélections du jour quand toutes ont été vues.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez vu toutes vos sélections.'**
+  String get matchingPicksSeenAll;
+
+  /// Sous le titre de l'écran vide des sélections : dans combien de temps les suivantes arrivent. {hours} et {minutes} sont des entiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaines sélections dans {hours}h {minutes}m'**
+  String matchingPicksNextIn(int hours, int minutes);
+
+  /// Sous le compteur de profils de l'écran des sélections : dans combien de temps elles se renouvellent. {hours} et {minutes} sont des entiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour dans {hours}h {minutes}m'**
+  String matchingPicksUpdatedIn(int hours, int minutes);
+
+  /// Phrase en haut de l'écran des sélections du jour. {count} est le nombre de profils proposés.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} profil sélectionné pour vous} other{{count} profils sélectionnés pour vous}}'**
+  String matchingPicksCount(int count);
+
+  /// Bouton de l'écran des sélections vides : ouvre Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir plus de profils'**
+  String get matchingPicksDiscoverMore;
+
+  /// Petit badge doré sur la photo d'un profil sélectionné (10 px de haut, un mot).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pick'**
+  String get matchingPicksBadge;
+
+  /// Texte de la boîte de dialogue de match depuis les sélections. {name} est le prénom de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez matché avec {name}.'**
+  String matchingPicksMatchBody(String name);
+
   /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
   ///
   /// In fr, this message translates to:

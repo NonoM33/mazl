@@ -437,6 +437,42 @@ class AppLocalizationsHe extends AppLocalizations {
   String get matchingCouplePromoAction => 'להפעיל מצב זוגי';
 
   @override
+  String get matchingPicksSeenAll => 'כל הבחירות של היום נצפו.';
+
+  @override
+  String matchingPicksNextIn(int hours, int minutes) {
+    return 'הבחירות הבאות בעוד $hours שע׳ ו-$minutes דק׳';
+  }
+
+  @override
+  String matchingPicksUpdatedIn(int hours, int minutes) {
+    return 'העדכון הבא בעוד $hours שע׳ ו-$minutes דק׳';
+  }
+
+  @override
+  String matchingPicksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count פרופילים נבחרו בשבילך',
+      two: 'שני פרופילים נבחרו בשבילך',
+      one: 'פרופיל אחד נבחר בשבילך',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingPicksDiscoverMore => 'לגלות עוד פרופילים';
+
+  @override
+  String get matchingPicksBadge => 'בחירה';
+
+  @override
+  String matchingPicksMatchBody(String name) {
+    return 'נוצר מאץ\' עם $name.';
+  }
+
+  @override
   String get safetyBlock => 'לחסום';
 
   @override

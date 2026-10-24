@@ -41,5 +41,12 @@
   "matchingCouplePromoTitle": "¿Ha habido match?",
   "matchingCouplePromoDismiss": "Ocultar",
   "matchingCouplePromoBody": "Preguntas diarias, etapas y calendario judío compartido: construye tu relación con mazl.",
-  "matchingCouplePromoAction": "Activar el modo pareja"
+  "matchingCouplePromoAction": "Activar el modo pareja",
+  "matchingPicksSeenAll": "Has visto todas tus selecciones.",
+  "matchingPicksNextIn": "Próximas selecciones en {hours} h {minutes} min",
+  "matchingPicksUpdatedIn": "Se actualiza en {hours} h {minutes} min",
+  "matchingPicksCount": "{count, plural, one{{count} perfil seleccionado para ti} other{{count} perfiles seleccionados para ti}}",
+  "matchingPicksDiscoverMore": "Descubrir más perfiles",
+  "matchingPicksBadge": "Selección",
+  "matchingPicksMatchBody": "Has hecho match con {name}."
 }

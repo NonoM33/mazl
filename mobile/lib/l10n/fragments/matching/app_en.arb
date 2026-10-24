@@ -41,5 +41,12 @@
   "matchingCouplePromoTitle": "Did you two match?",
   "matchingCouplePromoDismiss": "Dismiss",
   "matchingCouplePromoBody": "Daily questions, milestones, a shared Jewish calendar: build your relationship with mazl.",
-  "matchingCouplePromoAction": "Turn on couple mode"
+  "matchingCouplePromoAction": "Turn on couple mode",
+  "matchingPicksSeenAll": "You've seen all your picks.",
+  "matchingPicksNextIn": "Next picks in {hours}h {minutes}m",
+  "matchingPicksUpdatedIn": "Refreshes in {hours}h {minutes}m",
+  "matchingPicksCount": "{count, plural, one{{count} profile picked for you} other{{count} profiles picked for you}}",
+  "matchingPicksDiscoverMore": "Discover more profiles",
+  "matchingPicksBadge": "Pick",
+  "matchingPicksMatchBody": "You matched with {name}."
 }

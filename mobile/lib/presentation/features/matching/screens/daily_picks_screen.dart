@@ -8,20 +8,27 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
 
 /// Daily Picks Screen - Curated profiles for the user each day
 class DailyPicksScreen extends StatefulWidget {
-  const DailyPicksScreen({super.key});
+  const DailyPicksScreen({super.key, this.apiService});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
 
   @override
   State<DailyPicksScreen> createState() => _DailyPicksScreenState();
 }
 
 class _DailyPicksScreenState extends State<DailyPicksScreen> {
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
   List<Profile> _dailyPicks = [];
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
+  ApiErrorKind? _errorKind;
   DateTime? _nextRefreshTime;
 
   @override
@@ -33,7 +40,7 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   Future<void> _loadDailyPicks() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _loadFailed = false;
     });
 
     // Try daily-picks endpoint first, fallback to discover profiles
@@ -56,18 +63,19 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
           final now = DateTime.now();
           _nextRefreshTime = DateTime(now.year, now.month, now.day + 1);
         } else {
-          _error = response.error ?? 'Erreur lors du chargement';
+          _loadFailed = true;
+          _errorKind = response.errorKind;
         }
       });
     }
   }
 
-  String _getTimeUntilRefresh() {
-    if (_nextRefreshTime == null) return '';
-    final diff = _nextRefreshTime!.difference(DateTime.now());
-    final hours = diff.inHours;
-    final minutes = diff.inMinutes % 60;
-    return '${hours}h ${minutes}m';
+  /// Time left before the next picks (midnight), as whole hours and minutes.
+  ({int hours, int minutes}) _timeUntilRefresh() {
+    final next = _nextRefreshTime;
+    if (next == null) return (hours: 0, minutes: 0);
+    final diff = next.difference(DateTime.now());
+    return (hours: diff.inHours, minutes: diff.inMinutes % 60);
   }
 
   Future<void> _handleLike(Profile profile) async {
@@ -113,19 +121,21 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('C\'est un match'),
-        content: Text('Vous avez matché avec ${profile.displayName}.'),
+        title: Text(context.l10n.matchingMatchTitle),
+        content: Text(
+          context.l10n.matchingPicksMatchBody(profile.displayName ?? ''),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Continuer'),
+            child: Text(context.l10n.commonContinue),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               context.go(RoutePaths.matches);
             },
-            child: const Text('Envoyer un message'),
+            child: Text(context.l10n.matchingMatchSendMessage),
           ),
         ],
       ),
@@ -136,9 +146,9 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sélections du jour'),
+        title: Text(context.l10n.matchingDiscoverDailyPicks),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
@@ -151,18 +161,22 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_error != null) {
+    if (_loadFailed) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text(_error!, style: TextStyle(color: Colors.grey[600])),
+            Text(
+              apiErrorText(context.l10n, _errorKind),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadDailyPicks,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -187,23 +201,28 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Vous avez vu toutes vos sélections.',
-              style: TextStyle(
+            Text(
+              context.l10n.matchingPicksSeenAll,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Prochaines sélections dans ${_getTimeUntilRefresh()}',
+              context.l10n.matchingPicksNextIn(
+                _timeUntilRefresh().hours,
+                _timeUntilRefresh().minutes,
+              ),
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => context.go(RoutePaths.discover),
               icon: const Icon(LucideIcons.compass),
-              label: const Text('Découvrir plus de profils'),
+              label: Text(context.l10n.matchingPicksDiscoverMore),
             ),
           ],
         ),
@@ -233,18 +252,23 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    '${_dailyPicks.length} profils sélectionnés pour vous',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Text(
+                      context.l10n.matchingPicksCount(_dailyPicks.length),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
-                'Mis à jour dans ${_getTimeUntilRefresh()}',
+                context.l10n.matchingPicksUpdatedIn(
+                  _timeUntilRefresh().hours,
+                  _timeUntilRefresh().minutes,
+                ),
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -301,6 +325,8 @@ class _DailyPickCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = profile.photos.isNotEmpty ? profile.photos.first : null;
+    final name = profile.displayName ?? context.l10n.matchingCardAnonymous;
+    final age = profile.age?.toString() ?? '?';
 
     return GestureDetector(
       onTap: onTap,
@@ -369,9 +395,9 @@ class _DailyPickCard extends StatelessWidget {
               ),
 
               // Daily pick badge
-              Positioned(
+              PositionedDirectional(
                 top: 8,
-                left: 8,
+                start: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -383,12 +409,12 @@ class _DailyPickCard extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(LucideIcons.sparkles, size: 12, color: Colors.white),
-                      SizedBox(width: 4),
+                    children: [
+                      const Icon(LucideIcons.sparkles, size: 12, color: Colors.white),
+                      const SizedBox(width: 4),
                       Text(
-                        'Pick',
-                        style: TextStyle(
+                        context.l10n.matchingPicksBadge,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -401,9 +427,9 @@ class _DailyPickCard extends StatelessWidget {
 
               // Verified badge
               if (profile.isVerified)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
@@ -427,7 +453,7 @@ class _DailyPickCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${profile.displayName ?? 'Anonyme'}, ${profile.age ?? '?'}',
+                      '$name, $age',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
