@@ -6,7 +6,6 @@ import 'package:mazl/core/models/conversation.dart';
 import 'package:mazl/core/models/profile_labels.dart';
 import 'package:mazl/core/models/relationship_intention.dart';
 import 'package:mazl/core/services/push_permission.dart';
-import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/chat/conversation_lookup.dart';
 import 'package:mazl/presentation/features/chat/conversation_time.dart';
 import 'package:mazl/presentation/features/profile/l10n/profile_answer_labels.dart';
