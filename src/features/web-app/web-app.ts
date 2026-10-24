@@ -9,6 +9,8 @@ export interface WebAppOptions {
   readonly distDir: string;
   // e.g. "https://app.mazl.app"; null in development and tests.
   readonly webOrigin: string | null;
+  // Origin of the signed media URLs (PUBLIC_BASE_URL), when it is not the web host.
+  readonly mediaBaseUrl?: string | null;
 }
 
 const PREFIX = "/app";
@@ -22,6 +24,16 @@ function fileUnder(distDir: string, path: string): string | null {
   return join(distDir, relative);
 }
 
+function mediaOriginFor(mediaBaseUrl: string | null, webOrigin: URL | null): string | null {
+  if (!mediaBaseUrl) return null;
+  try {
+    const media = new URL(mediaBaseUrl).origin;
+    return media === webOrigin?.origin ? null : media;
+  } catch {
+    return null;
+  }
+}
+
 function cacheFor(relativePath: string): string {
   return HASHED.test(relativePath) || relativePath.startsWith("fonts/") ? IMMUTABLE : NO_STORE;
 }
@@ -29,11 +41,13 @@ function cacheFor(relativePath: string): string {
 export function createWebApp(options: WebAppOptions) {
   const origin = options.webOrigin === null ? null : new URL(options.webOrigin);
   const secure = origin?.protocol === "https:";
+  const mediaOrigin = mediaOriginFor(options.mediaBaseUrl ?? null, origin);
+  const headers = () => webSecurityHeaders(secure, mediaOrigin);
 
   async function serveIndex(): Promise<Response> {
     const index = Bun.file(join(options.distDir, "index.html"));
     if (!(await index.exists())) return new Response("Web client not built (bun run web:build)", { status: 503 });
-    return new Response(index, { headers: { ...webSecurityHeaders(secure), "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_STORE } });
+    return new Response(index, { headers: { ...headers(), "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_STORE } });
   }
 
   async function serveClient(path: string): Promise<Response> {
@@ -41,7 +55,7 @@ export function createWebApp(options: WebAppOptions) {
     if (file !== null && !file.endsWith("index.html")) {
       const asset = Bun.file(file);
       if (await asset.exists()) {
-        return new Response(asset, { headers: { ...webSecurityHeaders(secure), "Cache-Control": cacheFor(file.slice(options.distDir.length + 1)) } });
+        return new Response(asset, { headers: { ...headers(), "Cache-Control": cacheFor(file.slice(options.distDir.length + 1)) } });
       }
       // A missing hashed asset is a 404, never the page (it would be cached as JS).
       if (HASHED.test(file) || file.includes("/fonts/")) return new Response("Not found", { status: 404, headers: { "Cache-Control": NO_STORE } });

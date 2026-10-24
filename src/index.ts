@@ -317,7 +317,11 @@ registerAuthRoutes(app);
 const webSession = createWebSessionModule({ sql });
 registerWebSession(app, webSession);
 // The built web client under /app, with its own headers (docs/web/adr/W01).
-const webApp = createWebApp({ distDir: process.env.WEB_DIST_DIR || "web/dist", webOrigin: process.env.WEB_ORIGIN || null });
+const webApp = createWebApp({
+  distDir: process.env.WEB_DIST_DIR || "web/dist",
+  webOrigin: process.env.WEB_ORIGIN || null,
+  mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
+});
 
 // ============ PROFILE, PHOTOS & PROMPTS ============
 // Profile feature routes (PUT /api/profile, photos upload/delete/reorder/

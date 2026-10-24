@@ -81,6 +81,14 @@ describe("web client serving with WEB_ORIGIN", () => {
     }
   });
 
+  test("signed media on the API host are allowed as images and sound, and only there", async () => {
+    const withMedia = createWebApp({ distDir: dist, webOrigin: "https://app.mazl.app", mediaBaseUrl: "https://api.mazl.app" });
+    const csp = (await withMedia.handle(get("https://app.mazl.app/app", "app.mazl.app")))?.headers.get("content-security-policy") ?? "";
+    expect(csp).toMatch(/img-src [^;]*https:\/\/api\.mazl\.app/);
+    expect(csp).toMatch(/media-src [^;]*https:\/\/api\.mazl\.app/);
+    expect(csp).not.toMatch(/(script|connect)-src [^;]*api\.mazl\.app/);
+  });
+
   test("HTTPS adds HSTS", async () => {
     const res = await web().handle(get("https://app.mazl.app/app", "app.mazl.app"));
     expect(res?.headers.get("strict-transport-security")).toContain("max-age=31536000");
