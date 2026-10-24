@@ -168,12 +168,18 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
     const deleted = await repository.unsend(messageId, now());
     if (deleted !== null) await removeFiles(deleted.map((media) => media.storageKey));
     const view = await viewOf(await reload(messageId));
-    events.emit([userId, otherMember(conversation, userId)], updatedEvent(view));
+    // After a block, the retraction only reaches the author's own devices.
+    const other = otherMember(conversation, userId);
+    events.emit((await repository.isBlocked(userId, other)) ? [userId] : [userId, other], updatedEvent(view));
     return view;
   }
 
+  // A read receipt is a signal ("I saw it"): across a block it is neither
+  // stored (the sender could fetch `read_at`) nor pushed. Conversations with a
+  // blocked person are hidden from the list, so no unread badge is left behind.
   async function markRead(userId: number, conversationId: number, upToId: number | null) {
     const conversation = await memberOf(conversationId, userId);
+    if (await repository.isBlocked(userId, otherMember(conversation, userId))) return null;
     const outcome = await repository.markRead(conversationId, userId, upToId, now());
     if (outcome !== null) {
       events.emit([userId, otherMember(conversation, userId)], readEvent({ conversationId, userId, ...outcome }));
@@ -190,6 +196,7 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
   async function relayTyping(userId: number, conversationId: number, isTyping: boolean): Promise<void> {
     const conversation = await repository.findConversationOf(conversationId, userId);
     if (conversation === null) return;
+    if (await repository.isBlocked(userId, otherMember(conversation, userId))) return;
     events.emit([otherMember(conversation, userId)], typingEvent({ conversationId, userId, isTyping }));
   }
 
