@@ -26,3 +26,41 @@ export function missingProfileFields(profile: ProfilePreferences | null | undefi
   if (!isAccepted(profile?.["looking_for"])) missing.push("looking_for");
   return missing;
 }
+
+export const MINIMUM_AGE = 18;
+
+/** What the completeness rule reads from a stored profile row. */
+export interface ProfileCompletenessInput extends ProfilePreferences {
+  readonly display_name?: unknown;
+  readonly birthdate?: unknown;
+}
+
+function asDate(value: unknown): Date | null {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value !== "string") return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function isAdult(birthdate: Date, now: Date): boolean {
+  let age = now.getUTCFullYear() - birthdate.getUTCFullYear();
+  const beforeBirthday =
+    now.getUTCMonth() < birthdate.getUTCMonth() ||
+    (now.getUTCMonth() === birthdate.getUTCMonth() && now.getUTCDate() < birthdate.getUTCDate());
+  if (beforeBirthday) age -= 1;
+  return age >= MINIMUM_AGE;
+}
+
+/**
+ * THE rule for `profiles.is_complete` (a member appears in the others' feeds
+ * only when it holds): a display name, a birthdate making the member 18 or
+ * older, and a valid gender and looking_for.
+ */
+export function isProfileComplete(profile: ProfileCompletenessInput | null | undefined, now: Date = new Date()): boolean {
+  if (!profile) return false;
+  const name = profile.display_name;
+  if (typeof name !== "string" || name.trim() === "") return false;
+  const birthdate = asDate(profile.birthdate);
+  if (birthdate === null || !isAdult(birthdate, now)) return false;
+  return missingProfileFields(profile).length === 0;
+}

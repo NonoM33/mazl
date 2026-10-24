@@ -3,6 +3,7 @@ import { createCreditTables, eraseCredits } from "./features/credits/infra/schem
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
+import { isProfileComplete } from "./features/profile/domain/profile-completeness";
 
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
@@ -714,6 +715,9 @@ export async function initDb() {
   // Seed couple mode data
   await seedCoupleActivities();
   await seedCoupleEvents();
+
+  // Members who completed their profile before is_complete was derived.
+  await backfillProfileCompleteness();
 }
 
 function generateVerificationToken() {
@@ -1104,7 +1108,32 @@ export async function upsertProfile(userId: number, params: {
       updated_at = NOW()
     RETURNING *
   `;
-  return result[0];
+  const stored = result[0];
+  return stored === undefined ? stored : await syncProfileCompleteness(stored);
+}
+
+// `profiles.is_complete` is derived, never sent by the client: it follows
+// isProfileComplete (features/profile/domain) applied to the stored row.
+async function syncProfileCompleteness<Row extends Record<string, unknown>>(row: Row): Promise<Row> {
+  const complete = isProfileComplete(row);
+  if (row["is_complete"] === complete) return row;
+  await sql`UPDATE profiles SET is_complete = ${complete} WHERE user_id = ${Number(row["user_id"])}`;
+  return { ...row, is_complete: complete };
+}
+
+/**
+ * Idempotent: flags the profiles that already satisfy the rule but were never
+ * flagged (nothing used to set `is_complete`). Never unflags anyone.
+ */
+export async function backfillProfileCompleteness(): Promise<number> {
+  const rows = await sql<{ user_id: number; display_name: string | null; birthdate: Date | null; gender: string | null; looking_for: string | null }[]>`
+    SELECT user_id, display_name, birthdate, gender, looking_for
+    FROM profiles WHERE is_complete IS NOT TRUE
+  `;
+  const ids = rows.filter((row) => isProfileComplete(row)).map((row) => row.user_id);
+  if (ids.length === 0) return 0;
+  await sql`UPDATE profiles SET is_complete = true WHERE user_id IN ${sql(ids)} AND is_complete IS NOT TRUE`;
+  return ids.length;
 }
 
 // ============ DISCOVER & SWIPES ============

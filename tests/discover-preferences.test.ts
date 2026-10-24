@@ -1,12 +1,12 @@
 import { test, expect, describe, beforeAll, afterAll } from "bun:test";
 import postgres from "postgres";
+import { backfillProfileCompleteness } from "../src/db";
 import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Integration regression for the TestFlight report "the app never asked me if I
 // am a man or a woman, and Discover only shows me men — and I am a man".
 // Runs the REAL discovery SQL. Requires a running server (TEST_API_URL) with
-// dev endpoints on, and DATABASE_URL pointing at the same Postgres (profiles
-// are flagged complete directly, as no API route does it yet).
+// dev endpoints on, and DATABASE_URL pointing at the same Postgres.
 const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
 const DATABASE_URL = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
@@ -32,7 +32,6 @@ async function makeMember(label: string, profile?: { gender: string; lookingFor:
       body: JSON.stringify({ displayName: label, birthdate: "1995-06-15", ...profile }),
     });
     if (put.status !== 200) throw new Error(`profile(${label}): ${put.status}`);
-    await sql`UPDATE profiles SET is_complete = true WHERE user_id = ${member.id}`;
   }
   return member;
 }
@@ -67,6 +66,73 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await sql.end();
+});
+
+async function isComplete(member: Member): Promise<boolean> {
+  const rows = await sql<{ is_complete: boolean | null }[]>`SELECT is_complete FROM profiles WHERE user_id = ${member.id}`;
+  return rows[0]?.is_complete === true;
+}
+
+async function put(member: Member, body: Record<string, unknown>): Promise<number> {
+  const r = await fetch(`${BASE_URL}/api/profile`, { method: "PUT", headers: H(member.token), body: JSON.stringify(body) });
+  return r.status;
+}
+
+describe("A member becomes visible by completing the profile through PUT /api/profile", () => {
+  test("completing the setup makes the member appear in a compatible member's feed", async () => {
+    const newcomer = await makeMember("newcomer");
+    expect(await isComplete(newcomer)).toBe(false);
+    expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).not.toContain(newcomer.id);
+
+    expect(await put(newcomer, {
+      displayName: "Newcomer", birthdate: "1994-03-02", gender: "male", lookingFor: "female",
+    })).toBe(200);
+
+    expect(await isComplete(newcomer)).toBe(true);
+    expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).toContain(newcomer.id);
+  });
+
+  test("a member still missing a required field stays out of the feeds", async () => {
+    const half = await makeMember("half");
+    expect(await put(half, { displayName: "Half", birthdate: "1994-03-02", gender: "male" })).toBe(200);
+    expect(await isComplete(half)).toBe(false);
+    expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).not.toContain(half.id);
+  });
+
+  test("a minor is never complete", async () => {
+    const minor = await makeMember("minor");
+    const year = new Date().getUTCFullYear() - 16;
+    expect(await put(minor, { displayName: "Minor", birthdate: `${year}-01-01`, gender: "male", lookingFor: "female" })).toBe(200);
+    expect(await isComplete(minor)).toBe(false);
+  });
+
+  test("the client cannot send is_complete", async () => {
+    const sneaky = await makeMember("sneaky");
+    expect(await put(sneaky, { is_complete: true, isComplete: true })).toBe(200);
+    expect(await isComplete(sneaky)).toBe(false);
+  });
+
+  test("clearing a required field makes the member invisible again", async () => {
+    const leaver = await makeMember("leaver", { gender: "male", lookingFor: "female" });
+    expect(await isComplete(leaver)).toBe(true);
+    expect(await put(leaver, { displayName: "" })).toBe(200);
+    expect(await isComplete(leaver)).toBe(false);
+    expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).not.toContain(leaver.id);
+  });
+
+  test("the backfill flags a complete profile left unflagged, and is idempotent", async () => {
+    const old = await makeMember("old", { gender: "female", lookingFor: "male" });
+    await sql`UPDATE profiles SET is_complete = false WHERE user_id = ${old.id}`;
+    await backfillProfileCompleteness();
+    expect(await isComplete(old)).toBe(true);
+    expect(await backfillProfileCompleteness()).toBe(0);
+  });
+
+  test("the backfill leaves an incomplete profile alone", async () => {
+    const blank = await makeMember("blank-backfill");
+    await backfillProfileCompleteness();
+    expect(await isComplete(blank)).toBe(false);
+  });
 });
 
 describe("Discover with an incomplete profile", () => {
