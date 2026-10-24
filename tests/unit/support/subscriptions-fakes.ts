@@ -54,8 +54,8 @@ export class InMemorySubscriptions implements SubscriptionRepository {
     this.rows.set(row.userId, { ...subscription, userId: row.userId, status: "active" });
   }
 
-  async markStatus(originalTransactionId: string, status: SubscriptionStatus): Promise<void> {
+  async markStatus(originalTransactionId: string, status: SubscriptionStatus, periodEnd: Date): Promise<void> {
     const row = this.byOriginalTransaction(originalTransactionId);
-    if (row !== undefined) row.status = status;
+    if (row !== undefined && periodEnd >= row.expiresAt) row.status = status;
   }
 }

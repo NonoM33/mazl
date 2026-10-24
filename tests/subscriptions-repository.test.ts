@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { handleAppleNotification } from "../src/features/subscriptions/application/handle-notification";
 import { TransactionVerifier } from "../src/features/subscriptions/application/transaction-verifier";
 import { verifyApplePurchase } from "../src/features/subscriptions/application/verify-purchase";
 import { InvalidTransactionError } from "../src/features/subscriptions/domain/errors";
@@ -109,5 +110,79 @@ describe("a refunded subscription stays refunded", () => {
     await db`UPDATE subscriptions SET status = 'expired' WHERE user_id = ${member.id}`;
     await repository.activate(member.id, subscription(transactionId, new Date(Date.now() + 40 * DAY)));
     expect((await rowOf(member.id)).status).toBe("active");
+  });
+});
+
+// Apple does not promise to deliver notifications in order, nor once.
+describe("notifications delivered out of order", () => {
+  const T1 = Math.floor(Date.now() / 1000) * 1000 + 10 * DAY; // end of the first period
+  const T2 = T1 + 30 * DAY; // end of the renewed period
+
+  async function memberWithPlusUntilT1(label: string) {
+    const member = await makeUser(label);
+    const transactionId = newTransactionId();
+    await repository.activate(member.id, subscription(transactionId, new Date(T1)));
+    return { member, transactionId };
+  }
+
+  let counter = 0;
+  async function deliver(transactionId: string, notificationType: string, expiresDate: number): Promise<void> {
+    const jws = new FakeJwsVerifier();
+    const info = jws.register(`info-${counter}`, {
+      bundleId: BUNDLE,
+      productId: PRODUCT,
+      originalTransactionId: transactionId,
+      transactionId: `${transactionId}-${expiresDate}`,
+      originalPurchaseDate: Date.now() - DAY,
+      expiresDate,
+      environment: "Production",
+      type: "Auto-Renewable Subscription",
+    });
+    const payload = jws.register(`payload-${counter}`, { notificationType, data: { signedTransactionInfo: info } });
+    counter += 1;
+    const transactions = new TransactionVerifier(jws, { bundleId: BUNDLE, productIds: [PRODUCT] });
+    await handleAppleNotification({ transactions, repository }, payload);
+  }
+
+  async function stateOf(userId: number): Promise<{ status: string }> {
+    return { status: (await rowOf(userId)).status };
+  }
+
+  test("an EXPIRED of the first period, received after the DID_RENEW, does not cut mazl+", async () => {
+    const { member, transactionId } = await memberWithPlusUntilT1("order-expired");
+    await deliver(transactionId, "DID_RENEW", T2);
+    expect((await stateOf(member.id)).status).toBe("active");
+
+    await deliver(transactionId, "EXPIRED", T1); // late: it speaks of the period already left behind
+    expect((await stateOf(member.id)).status).toBe("active");
+  });
+
+  test("a late billing issue of the first period does not undo the renewal either", async () => {
+    const { member, transactionId } = await memberWithPlusUntilT1("order-billing");
+    await deliver(transactionId, "DID_RENEW", T2);
+    await deliver(transactionId, "DID_FAIL_TO_RENEW", T1);
+    expect((await stateOf(member.id)).status).toBe("active");
+  });
+
+  test("the EXPIRED of the current period still ends mazl+", async () => {
+    const { member, transactionId } = await memberWithPlusUntilT1("order-current");
+    await deliver(transactionId, "EXPIRED", T1);
+    expect((await stateOf(member.id)).status).toBe("expired");
+  });
+
+  test("a refund of the current period still revokes, and a replayed old renewal does not undo it", async () => {
+    const { member, transactionId } = await memberWithPlusUntilT1("order-refund");
+    await deliver(transactionId, "DID_RENEW", T2);
+    await deliver(transactionId, "REFUND", T2);
+    expect((await stateOf(member.id)).status).toBe("revoked");
+    await deliver(transactionId, "DID_RENEW", T1);
+    expect((await stateOf(member.id)).status).toBe("revoked");
+  });
+
+  test("the same notification delivered twice changes nothing more", async () => {
+    const { member, transactionId } = await memberWithPlusUntilT1("order-twice");
+    await deliver(transactionId, "EXPIRED", T1);
+    await deliver(transactionId, "EXPIRED", T1);
+    expect((await stateOf(member.id)).status).toBe("expired");
   });
 });

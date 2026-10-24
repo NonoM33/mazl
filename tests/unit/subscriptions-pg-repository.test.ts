@@ -38,7 +38,7 @@ describe("PgSubscriptionRepository", () => {
     const repository = new PgSubscriptionRepository(sql);
     await repository.activate(7, SUBSCRIPTION);
     await repository.renew(SUBSCRIPTION);
-    await repository.markStatus(SUBSCRIPTION.originalTransactionId, "revoked");
+    await repository.markStatus(SUBSCRIPTION.originalTransactionId, "revoked", SUBSCRIPTION.expiresAt);
     await repository.findOwner(SUBSCRIPTION.originalTransactionId);
     await repository.findByUserId(7);
     for (const call of calls) expect(call.text).not.toContain("DROP TABLE");
@@ -50,7 +50,7 @@ describe("PgSubscriptionRepository", () => {
     const repository = new PgSubscriptionRepository(sql);
     await repository.activate(7, SUBSCRIPTION);
     await repository.renew(SUBSCRIPTION);
-    await repository.markStatus("1", "expired");
+    await repository.markStatus("1", "expired", SUBSCRIPTION.expiresAt);
     for (const call of calls) expect(call.text.toLowerCase()).not.toContain("revenuecat");
   });
 

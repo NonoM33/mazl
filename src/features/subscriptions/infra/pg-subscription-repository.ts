@@ -87,10 +87,15 @@ export class PgSubscriptionRepository implements SubscriptionRepository {
     `;
   }
 
-  async markStatus(originalTransactionId: string, status: SubscriptionStatus): Promise<void> {
+  // A status change only applies when the notification is about the stored
+  // period or a later one: an EXPIRED that Apple delivers after the DID_RENEW
+  // that followed it carries the older expiry and is dropped. Replays of the
+  // same notification are harmless (same status, same period).
+  async markStatus(originalTransactionId: string, status: SubscriptionStatus, periodEnd: Date): Promise<void> {
     await this.sql`
       UPDATE subscriptions SET status = ${status}, updated_at = NOW()
       WHERE original_transaction_id = ${originalTransactionId}
+        AND (expires_at IS NULL OR expires_at <= ${iso(periodEnd)}::timestamp)
     `;
   }
 }

@@ -49,6 +49,6 @@ export async function handleAppleNotification(deps: NotificationDeps, signedPayl
   if (owner === undefined) return IGNORED;
 
   if (status === "active") await deps.repository.renew(toActiveSubscription(transaction));
-  else await deps.repository.markStatus(transaction.originalTransactionId, status);
+  else await deps.repository.markStatus(transaction.originalTransactionId, status, transaction.expiresAt);
   return { kind: "handled" };
 }
