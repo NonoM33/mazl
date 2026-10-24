@@ -35,6 +35,7 @@ export class FakeGateway implements StripeGateway {
   readonly portals: { customerId: string; returnUrl: string }[] = [];
   readonly cancelled: string[] = [];
   readonly refunded: string[] = [];
+  readonly deletedCustomers: string[] = [];
   readonly expiredFor: string[] = [];
   // Checkout sessions as Stripe keeps them: open until paid or expired.
   readonly checkouts: { id: string; customerId: string; mode: "subscription" | "payment"; status: "open" | "expired" }[] = [];
@@ -66,6 +67,16 @@ export class FakeGateway implements StripeGateway {
 
   openSubscriptionCheckouts(customerId: string) {
     return this.checkouts.filter((checkout) => checkout.customerId === customerId && checkout.mode === "subscription" && checkout.status === "open");
+  }
+
+  async liveSubscriptionsOf(customerId: string): Promise<string[]> {
+    return [...this.subscriptions.values()]
+      .filter((view) => view.customerId === customerId && !["canceled", "incomplete_expired"].includes(view.status))
+      .map((view) => view.id);
+  }
+
+  async deleteCustomer(customerId: string): Promise<void> {
+    this.deletedCustomers.push(customerId);
   }
 
   async refundLatestPayment(subscriptionId: string): Promise<void> {

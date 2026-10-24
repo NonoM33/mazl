@@ -120,3 +120,17 @@ describe("duplicate protection on the real paths (security review M2)", () => {
     expect(lastTo("POST", "/v1/refunds")?.params).toMatchObject({ payment_intent: "pi_sub_dup" });
   });
 });
+
+describe("account erasure on the real paths (security review B2)", () => {
+  test("lists the customer's subscriptions and keeps those not over", async () => {
+    fake.subscriptions.set("sub_live_b2", { id: "sub_live_b2", customer: "cus_b2", price: "price_test_plus_1m", status: "active", current_period_end: 1_800_000_000 });
+    fake.subscriptions.set("sub_over_b2", { id: "sub_over_b2", customer: "cus_b2", price: "price_test_plus_1m", status: "canceled", current_period_end: 1_800_000_000 });
+    expect(await gateway.liveSubscriptionsOf("cus_b2")).toEqual(["sub_live_b2"]);
+    expect(lastTo("GET", "/v1/subscriptions")?.params).toMatchObject({ customer: "cus_b2", status: "all" });
+  });
+
+  test("deletes the customer", async () => {
+    await gateway.deleteCustomer("cus_b2");
+    expect(fake.requestsTo("DELETE", "/v1/customers/cus_b2")).toHaveLength(1);
+  });
+});

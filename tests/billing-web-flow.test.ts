@@ -216,10 +216,13 @@ describe("account deletion", () => {
     await webhook("checkout.session.completed", completedSubscription(user, `sub_e${user.id}`));
     const proofs = (await db<{ id: number }[]>`SELECT id FROM billing_withdrawal_waivers WHERE user_id = ${user.id}`).map((r) => r.id);
     expect(proofs.length).toBeGreaterThan(0);
+    const customer = await customerOf(user);
     const response = await fetch(`${BASE_URL}/api/users/me`, { method: "DELETE", headers: json(user.token), body: JSON.stringify({}) });
     expect(response.status).toBe(200);
     const deletes = (await fake.requests()).filter((r) => r.method === "DELETE" && r.path === `/v1/subscriptions/sub_e${user.id}`);
     expect(deletes).toHaveLength(1);
+    // Security review B2: the Stripe customer goes too, once the member is erased.
+    expect((await fake.requests()).filter((r) => r.method === "DELETE" && r.path === `/v1/customers/${customer}`)).toHaveLength(1);
     expect(await db`SELECT 1 FROM users WHERE id = ${user.id}`).toHaveLength(0);
     expect(await db`SELECT 1 FROM stripe_subscriptions WHERE subscription_id = ${`sub_e${user.id}`}`).toHaveLength(0);
     const kept = await db<{ user_id: number | null; text_sha256: string }[]>`

@@ -103,6 +103,12 @@ export async function startFakeStripe(serverWebhookUrl = `${process.env.TEST_API
         session.status = "expired";
         return json({ id: session.id, object: "checkout.session", status: "expired", mode: session.mode });
       }
+      if (req.method === "GET" && url.pathname === "/v1/subscriptions") {
+        const data = [...subscriptions.values()].filter((s) => s.customer === url.searchParams.get("customer"));
+        return json({ object: "list", url: "/v1/subscriptions", has_more: false, data });
+      }
+      const customer = /^\/v1\/customers\/([^/]+)$/.exec(url.pathname);
+      if (req.method === "DELETE" && customer?.[1]) return json({ id: customer[1], object: "customer", deleted: true });
       if (req.method === "GET" && url.pathname === "/v1/invoice_payments") {
         const subscriptionId = (url.searchParams.get("invoice") ?? "").replace(/^in_/, "");
         const data = subscriptions.has(subscriptionId) ? [{ id: id("inpay"), object: "invoice_payment", payment: { type: "payment_intent", payment_intent: `pi_${subscriptionId}` } }] : [];

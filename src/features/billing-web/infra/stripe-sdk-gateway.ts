@@ -121,6 +121,20 @@ export class SdkStripeGateway implements StripeGateway {
     }
   }
 
+  async liveSubscriptionsOf(customerId: string): Promise<string[]> {
+    const list = await call("subscriptions.list", () => this.stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 }));
+    return list.data.filter((subscription) => !["canceled", "incomplete_expired"].includes(subscription.status)).map((subscription) => subscription.id);
+  }
+
+  async deleteCustomer(customerId: string): Promise<void> {
+    try {
+      await call("customers.del", () => this.stripe.customers.del(customerId));
+    } catch (error: unknown) {
+      if (error instanceof StripeGatewayError && error.code === "resource_missing") return;
+      throw error;
+    }
+  }
+
   async expireOpenSubscriptionCheckouts(customerId: string): Promise<void> {
     const open = await call("checkout.sessions.list", () => this.stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 20 }));
     for (const session of open.data) {

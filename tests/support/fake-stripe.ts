@@ -159,6 +159,12 @@ export class FakeStripe {
       session.status = "expired";
       return Response.json({ id: expire[1], object: "checkout.session", status: "expired", mode: session.mode, customer: session.customer });
     }
+    if (method === "GET" && path === "/v1/subscriptions") {
+      const data = [...this.subscriptions.values()].filter((sub) => params.customer === undefined || sub.customer === params.customer).map(subscriptionObject);
+      return Response.json({ object: "list", url: "/v1/subscriptions", has_more: false, data });
+    }
+    const customer = /^\/v1\/customers\/([^/]+)$/.exec(path);
+    if (method === "DELETE" && customer?.[1]) return Response.json({ id: customer[1], object: "customer", deleted: true });
     if (method === "GET" && path === "/v1/invoice_payments") {
       const subscriptionId = (params.invoice ?? "").replace(/^in_/, "");
       const data = this.subscriptions.has(subscriptionId)

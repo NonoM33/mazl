@@ -42,6 +42,10 @@ export interface StripeGateway {
   cancelSubscription(subscriptionId: string): Promise<void>;
   // Expires the customer's open Checkout sessions in subscription mode.
   expireOpenSubscriptionCheckouts(customerId: string): Promise<void>;
+  // Ids of the customer's subscriptions that are not over, as Stripe knows them.
+  liveSubscriptionsOf(customerId: string): Promise<string[]>;
+  // Deleting a customer Stripe no longer knows is a success.
+  deleteCustomer(customerId: string): Promise<void>;
   // Refunds in full the payment of the subscription's latest invoice, if any.
   refundLatestPayment(subscriptionId: string): Promise<void>;
   retrievePrice(priceId: string): Promise<PriceView>;

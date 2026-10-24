@@ -308,6 +308,36 @@ describe("account erasure", () => {
     expect(order).toEqual(["cancelled:sub_1", "erase"]);
   });
 
+  // Security review B2: every subscription Stripe knows for the customer is
+  // cancelled, even one MAZL never stored, and the customer is deleted once
+  // the member is erased (Stripe keeps the invoices the law requires).
+  test("subscriptions known only to Stripe are cancelled too, and the customer is deleted after the erasure", async () => {
+    const { repository, gateway } = setup();
+    await repository.saveCustomer(1, "cus_1");
+    gateway.subscriptions.set("sub_unstored", subscriptionView({ id: "sub_unstored" }));
+    gateway.subscriptions.set("sub_old", subscriptionView({ id: "sub_old", status: "canceled" }));
+    const cancellation = new SubscriptionCancellation(gateway, repository);
+    const order: string[] = [];
+    const guarded = withStripeCancellation(
+      { around: async (_id, deletion) => (order.push(`erase after cancelling ${gateway.cancelled.join(",")}`), await deletion()) },
+      { cancelSubscriptions: (id) => cancellation.cancelAll(id), forgetCustomer: async (customerId) => { await cancellation.forgetCustomer(customerId); order.push(`deleted ${gateway.deletedCustomers.join(",")}`); } },
+    );
+    expect(await guarded.around(1, async () => "done")).toBe("done");
+    expect(order).toEqual(["erase after cancelling sub_unstored", "deleted cus_1"]);
+  });
+
+  test("a failed erasure keeps the Stripe customer", async () => {
+    const { repository, gateway } = setup();
+    await repository.saveCustomer(1, "cus_1");
+    const cancellation = new SubscriptionCancellation(gateway, repository);
+    const guarded = withStripeCancellation(
+      { around: async () => { throw new Error("database down"); } },
+      { cancelSubscriptions: (id) => cancellation.cancelAll(id), forgetCustomer: (customerId) => cancellation.forgetCustomer(customerId) },
+    );
+    await expect(guarded.around(1, async () => "done")).rejects.toThrow("database down");
+    expect(gateway.deletedCustomers).toEqual([]);
+  });
+
   test("a Stripe failure fails the erasure without erasing", async () => {
     const { repository, gateway, webhook } = setup();
     gateway.subscriptions.set("sub_1", subscriptionView());

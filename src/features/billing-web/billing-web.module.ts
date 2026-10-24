@@ -35,7 +35,9 @@ export interface BillingWebModule {
   readonly authenticate: MiddlewareHandler<{ Variables: AppVariables }>;
   // Undefined while STRIPE_SECRET_KEY is missing: the routes answer 503.
   readonly services: BillingServices | undefined;
-  readonly cancelSubscriptions: (userId: number) => Promise<void>;
+  // Returns the member's Stripe customer, deleted by forgetCustomer after the erasure.
+  readonly cancelSubscriptions: (userId: number) => Promise<string | undefined | void>;
+  readonly forgetCustomer?: (customerId: string) => Promise<void>;
 }
 
 function buildServices(options: BillingWebOptions, config: BillingConfig): { services: BillingServices; cancellation: SubscriptionCancellation } | undefined {
@@ -67,8 +69,9 @@ export function createBillingWeb(options: BillingWebOptions): BillingWebModule {
   return {
     authenticate: options.authenticate,
     services: built?.services,
-    cancelSubscriptions: async (userId) => {
-      if (built !== undefined) await built.cancellation.cancelAll(userId);
+    cancelSubscriptions: async (userId) => (built === undefined ? undefined : await built.cancellation.cancelAll(userId)),
+    forgetCustomer: async (customerId) => {
+      if (built !== undefined) await built.cancellation.forgetCustomer(customerId);
     },
   };
 }
@@ -83,11 +86,19 @@ export function registerBillingWeb(app: Hono<{ Variables: AppVariables }>, modul
 
 // A failed Stripe cancellation fails the erasure: a member must never be erased
 // while the card keeps being charged.
-export function withStripeCancellation(erasure: UserErasure, billing: Pick<BillingWebModule, "cancelSubscriptions">): UserErasure {
+export function withStripeCancellation(erasure: UserErasure, billing: Pick<BillingWebModule, "cancelSubscriptions" | "forgetCustomer">): UserErasure {
   return {
     around: async (userId, deletion) => {
-      await billing.cancelSubscriptions(userId);
-      return await erasure.around(userId, deletion);
+      const customerId = await billing.cancelSubscriptions(userId);
+      const erased = await erasure.around(userId, deletion);
+      // The member is gone: a failure here leaves an empty customer at Stripe,
+      // reported, never an undeleted member.
+      if (typeof customerId === "string" && billing.forgetCustomer) {
+        await billing.forgetCustomer(customerId).catch((error: unknown) => {
+          console.error("Stripe customer deletion failed:", error instanceof Error ? error.name : "unknown");
+        });
+      }
+      return erased;
     },
   };
 }
