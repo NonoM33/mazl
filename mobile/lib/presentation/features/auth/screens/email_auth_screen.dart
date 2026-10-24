@@ -404,8 +404,8 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primary, AppColors.secondary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
         ),
         child: SafeArea(
