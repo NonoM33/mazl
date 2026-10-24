@@ -23,9 +23,9 @@
   - « Voir qui vous a aimé » : la photo nette partait chez les membres gratuits.
   - Le plafond de 10 likes par jour n'était compté que par l'app.
 - **Tests** :
-  - unitaires : 1999 tests verts ; les 4 échecs restants existaient avant le chantier (voir
-    « Ce qui reste ») ;
-  - intégration : tous les tests ajoutés passent contre un vrai serveur et Postgres ;
+  - unitaires : 2018 verts, 0 échec (modèles de visage téléchargés par `bun run models:fetch`) ;
+  - intégration : la suite complète (`tests/*.test.ts` hors `*-pg`) passe contre un vrai
+    serveur, Postgres et le faux Stripe : 540 réussis, 0 échec ;
   - e2e : 13 scénarios Playwright verts, chacun sur une base vierge ;
   - Flutter : 1599 tests verts, `dart analyze` propre ;
   - typecheck et ESLint stricts : zéro avertissement.
@@ -216,11 +216,15 @@ c'est ce qu'elle fait.
 - **Deux faux Stripe dans les tests** (`tests/support/fake-stripe.ts` pour l'intégration,
   `tests/e2e/support/fake-stripe-server.ts` pour l'e2e avec page de paiement) : à fusionner.
 
-### Tests qui échouaient déjà avant ce chantier
-- 4 tests de vérification d'identité et faciale : les modèles ONNX ne sont pas téléchargés
-  dans ce worktree (`bun run models:fetch`).
-- Quelques tests de liste d'attente selon l'ordre d'exécution : la limite de 5 inscriptions
-  par heure et par IP est partagée entre fichiers ; ils passent seuls.
+### Tests
+- Les tests de vérification faciale exigent les modèles ONNX : `bun run models:fetch` avant
+  la suite.
+- La suite d'intégration complète a d'abord montré 19 échecs : la session back-office les a
+  relevés et je les ai corrigés :
+  - trois tests lisaient l'identifiant ou la photo des likes reçus sans mazl+ (contrat W11) ;
+  - le test d'export écrivait dans une table de remplacement ;
+  - un test fermait la connexion à la base que partagent tous les fichiers d'intégration.
+  Elle est maintenant verte : 540 réussis, 0 échec.
 
 ## Organisation
 - **Orchestration** : moi (Opus) pour le cadrage, les contrats, la relecture de chaque diff,
