@@ -31,6 +31,18 @@ export const PROFILE_KEYS = [
   "created_at", "updated_at",
 ] as const;
 export const WEB_SESSION_KEYS = ["id", "browser_label", "method", "created_at", "last_seen_at"] as const;
+// Moderation and verification (security review B7): what was decided about the
+// member and what was checked, never who decided, internal notes, biometric
+// templates or document fingerprints.
+export const BAN_KEYS = ["reason", "banned_at", "expires_at", "is_permanent", "unbanned_at"] as const;
+export const SANCTION_KEYS = ["kind", "ground", "starts_at", "ends_at", "statement", "revoked_at", "created_at"] as const;
+export const MODERATION_ACTION_KEYS = ["action", "created_at"] as const;
+export const FACE_SESSION_KEYS = ["purpose", "created_at", "outcome"] as const;
+export const IDENTITY_KEYS = ["method", "issuing_state", "document_type", "document_expiry", "verified_at"] as const;
+export const FACE_REFERENCE_KEYS = ["model", "created_at"] as const;
+export const ATTEMPT_KEYS = ["status", "created_at"] as const;
+export const WAITLIST_KEYS = ["status", "created_at", "confirmed_at", "verification_status", "verification_requested_at", "documents_submitted_at", "verified_at"] as const;
+export const DOCUMENT_KEYS = ["type", "status", "created_at", "reviewed_at", "purged_at"] as const;
 
 export interface ExportCredits {
   readonly balances: readonly JsonRecord[];
@@ -56,7 +68,18 @@ export interface ExportSections {
   readonly consentHistory: readonly JsonRecord[];
   readonly webSessions: readonly JsonRecord[];
   readonly withdrawalWaivers: readonly JsonRecord[];
+  readonly bans: readonly JsonRecord[];
+  readonly sanctions: readonly JsonRecord[];
+  readonly moderationActions: readonly JsonRecord[];
+  readonly faceSessions: readonly JsonRecord[];
+  readonly identity: readonly JsonRecord[];
+  readonly faceReference: readonly JsonRecord[];
+  readonly verificationAttempts: readonly JsonRecord[];
+  readonly waitlist: JsonRecord | null;
+  readonly documents: readonly JsonRecord[];
 }
+
+const pickAll = (rows: readonly JsonRecord[], keys: readonly string[]) => rows.map((row) => pick(row, keys));
 
 export interface ExportDocument {
   readonly format: "mazl-export";
@@ -87,6 +110,22 @@ export function buildExportDocument(sections: ExportSections, generatedAt: Date)
     consents: { current: sections.consents, history: sections.consentHistory },
     web_sessions: sections.webSessions.map((row) => pick(row, WEB_SESSION_KEYS)),
     withdrawal_waivers: sections.withdrawalWaivers,
+    moderation: {
+      bans: pickAll(sections.bans, BAN_KEYS),
+      sanctions: pickAll(sections.sanctions, SANCTION_KEYS),
+      actions: pickAll(sections.moderationActions, MODERATION_ACTION_KEYS),
+    },
+    verification: {
+      face_sessions: pickAll(sections.faceSessions, FACE_SESSION_KEYS),
+      identity: pickAll(sections.identity, IDENTITY_KEYS),
+      // That a face template is stored, its model and date; never the template.
+      stored_face_template: pickAll(sections.faceReference, FACE_REFERENCE_KEYS),
+      attempts: pickAll(sections.verificationAttempts, ATTEMPT_KEYS),
+    },
+    waitlist_application: {
+      application: pick(sections.waitlist, WAITLIST_KEYS),
+      documents: pickAll(sections.documents, DOCUMENT_KEYS),
+    },
   };
   return stripSecrets(document) as ExportDocument;
 }

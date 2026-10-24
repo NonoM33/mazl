@@ -24,6 +24,15 @@ const sections: ExportSections = {
   consentHistory: [{ purpose: "religious_data", granted: true }],
   webSessions: [{ id: "s1", browser_label: "Firefox", method: "password", created_at: "2026-01-05", last_seen_at: "2026-01-06", token_hash: "deadbeef" }],
   withdrawalWaivers: [{ id: 1, accepted_at: "2026-01-07", signature_hash: "cafe" }],
+  bans: [{ reason: "Faux profil", banned_at: "2026-02-01", expires_at: null, is_permanent: false, unbanned_at: "2026-02-08", banned_by: "staff@example.com" }],
+  sanctions: [{ kind: "suspension", ground: "harassment", starts_at: "2026-02-01", ends_at: "2026-02-08", statement: "Messages insistants.", decided_by: 3, appeal_code_hash: "f00d", note: "interne", created_at: "2026-02-01" }],
+  moderationActions: [{ action: "warn", created_at: "2026-02-01", admin_email: "staff@example.com", details: "interne" }],
+  faceSessions: [{ purpose: "photo", created_at: "2026-03-01", outcome: "verified", challenges: ["front"] }],
+  identity: [{ method: "chip", issuing_state: "FRA", document_type: "P", document_expiry: "2030-01-01", verified_at: "2026-03-02", doc_fingerprint: "secret-print" }],
+  faceReference: [{ model: "sface-2021", created_at: "2026-03-01", embedding_sealed: "sealed-bytes" }],
+  verificationAttempts: [{ status: "verified", created_at: "2026-03-01", gesture_id: "g1" }],
+  waitlist: { status: "confirmed", created_at: "2025-12-01", verification_status: "verified", verified_at: "2025-12-05", verification_token: "tok", token: "tok2" },
+  documents: [{ type: "selfie_id", status: "approved", created_at: "2025-12-02", reviewed_at: "2025-12-05", purged_at: "2025-12-06", filename: "abc.enc", reviewer_notes: "interne" }],
 };
 
 const reader: ExportReader = { read: () => Promise.resolve(sections) };
@@ -54,6 +63,7 @@ describe("member data export", () => {
     for (const key of [
       "account", "profile", "photos", "prompts", "preferences", "swipes_given", "matches", "messages_sent", "blocks",
       "reports_made", "subscription", "credits", "couple", "event_rsvps", "consents", "web_sessions", "withdrawal_waivers",
+      "moderation", "verification", "waitlist_application",
     ]) {
       expect(key in document).toBe(true);
     }
@@ -80,3 +90,30 @@ describe("member data export", () => {
     expect(document.account).toEqual({ id: 7, email: "jeanne@example.com", name: "Jeanne Exemple", provider: "google", created_at: "2026-01-01" });
   });
 });
+
+// Security review B7: moderation decisions and verification records are the
+// member's data too; staff identities, internal notes, biometric and document
+// fingerprints are not exported.
+describe("moderation and verification in the export", () => {
+  test("decisions and records are exported with their allowed fields only", async () => {
+    const { document } = await new ExportService(reader, fixedNow).export(7);
+    expect(document.moderation).toEqual({
+      bans: [{ reason: "Faux profil", banned_at: "2026-02-01", expires_at: null, is_permanent: false, unbanned_at: "2026-02-08" }],
+      sanctions: [{ kind: "suspension", ground: "harassment", starts_at: "2026-02-01", ends_at: "2026-02-08", statement: "Messages insistants.", created_at: "2026-02-01" }],
+      actions: [{ action: "warn", created_at: "2026-02-01" }],
+    });
+    expect(document.verification).toEqual({
+      face_sessions: [{ purpose: "photo", created_at: "2026-03-01", outcome: "verified" }],
+      identity: [{ method: "chip", issuing_state: "FRA", document_type: "P", document_expiry: "2030-01-01", verified_at: "2026-03-02" }],
+      stored_face_template: [{ model: "sface-2021", created_at: "2026-03-01" }],
+      attempts: [{ status: "verified", created_at: "2026-03-01" }],
+    });
+    expect(document.waitlist_application).toEqual({
+      application: { status: "confirmed", created_at: "2025-12-01", verification_status: "verified", verified_at: "2025-12-05" },
+      documents: [{ type: "selfie_id", status: "approved", created_at: "2025-12-02", reviewed_at: "2025-12-05", purged_at: "2025-12-06" }],
+    });
+    const text = JSON.stringify(document);
+    for (const secret of ["staff@example.com", "f00d", "interne", "secret-print", "sealed-bytes", "abc.enc", "tok2"]) expect(text).not.toContain(secret);
+  });
+});
+
