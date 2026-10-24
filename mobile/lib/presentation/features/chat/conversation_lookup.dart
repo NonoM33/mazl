@@ -1,5 +1,5 @@
-import '../../../core/models/conversation.dart';
 import '../../../core/router/route_names.dart';
+import '../../../core/services/api_service.dart';
 
 /// La conversation ouverte avec [userId], ou `null` si elle n'existe pas
 /// encore (le serveur la crée au match mais ne renvoie pas son id).
@@ -8,6 +8,14 @@ int? conversationIdWith(List<Conversation> conversations, int userId) {
     if (conversation.otherUser?.userId == userId) return conversation.id;
   }
   return null;
+}
+
+/// Où mène « Envoyer un message » après un match : la conversation avec
+/// [userId], ou Messages tant qu'elle n'est pas trouvée.
+Future<String> conversationRouteWith(ApiService api, int userId) async {
+  final response = await api.getConversations();
+  final id = response.success ? conversationIdWith(response.data ?? const [], userId) : null;
+  return id == null ? RoutePaths.chat : '/chat/$id';
 }
 
 /// Copie de [conversations] où [conversationId] n'a plus de non-lu : la

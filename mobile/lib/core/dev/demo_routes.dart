@@ -105,8 +105,8 @@ abstract final class DemoRoutes {
     if (matched) {
       DemoStore.openMatchConversation(DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!);
     }
-    // `match` (découverte, sélection du jour) et `matched` (likes, profil).
-    return _json({'success': true, 'match': matched, 'matched': matched});
+    // Même réponse que le serveur (SwipeResult) : la clé est `match`.
+    return _json({'success': true, 'match': matched});
   }
 
   static DemoReply _page(

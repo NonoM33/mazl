@@ -191,14 +191,16 @@ void main() {
         'action': 'like',
       });
       expect(plain['match'], isFalse);
-      expect(plain['matched'], isFalse);
+      // La forme du serveur (SwipeResult) : pas de seconde clé qui masquerait
+      // un écran qui lit la mauvaise.
+      expect(plain.containsKey('matched'), isFalse);
 
       final special = await post('/api/swipes', {
         'target_user_id': 201,
         'action': 'like',
       });
       expect(special['match'], isTrue);
-      expect(special['matched'], isTrue);
+      expect(special.containsKey('matched'), isFalse);
 
       final pass = await post('/api/swipes', {
         'target_user_id': 201,

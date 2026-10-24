@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
@@ -431,7 +432,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       targetUserId: profile.userId,
       action: action,
     ).then((response) {
-      if (response.success && response.data?['match'] == true) {
+      if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);
       }
@@ -458,9 +459,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   /// Le serveur crée la conversation au match sans renvoyer son id : on la
   /// retrouve par la personne, et à défaut on ouvre Messages.
   Future<void> _openConversationWith(int userId) async {
-    final response = await _apiService.getConversations();
+    final route = await conversationRouteWith(_apiService, userId);
     if (!mounted) return;
-    final id = response.success ? conversationIdWith(response.data ?? const [], userId) : null;
-    context.go(id == null ? RoutePaths.chat : '/chat/$id');
+    context.go(route);
   }
 }
