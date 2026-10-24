@@ -39,8 +39,12 @@ afterAll(async () => {
   rmSync(legacyRoot, { recursive: true, force: true });
   if (!endpoint) return;
   const store = realStore();
-  for (const object of await store.list(prefix)) await store.delete(object.key);
-});
+  // Over 1000 keys behind a real network: well past bun's 5 s default.
+  const objects = await store.list(prefix);
+  for (let i = 0; i < objects.length; i += 50) {
+    await Promise.all(objects.slice(i, i + 50).map((object) => store.delete(object.key)));
+  }
+}, 120_000);
 
 run("object store on a real bucket", () => {
   test("put then get returns the same bytes", async () => {
