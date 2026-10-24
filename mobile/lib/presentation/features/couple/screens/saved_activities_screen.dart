@@ -5,7 +5,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
 
@@ -56,19 +58,17 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Retirer de la liste ?'),
-        content: Text(
-          'Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?',
-        ),
+        title: Text(context.l10n.coupleFeedSavedRemoveTitle),
+        content: Text(context.l10n.coupleFeedSavedRemoveBody(activity.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Retirer'),
+            child: Text(context.l10n.commonRemove),
           ),
         ],
       ),
@@ -86,8 +86,8 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
     switch (result) {
       case CoupleOk():
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Activité retirée'),
+          SnackBar(
+            content: Text(context.l10n.coupleFeedSavedRemoved),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -99,7 +99,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
         });
         showCoupleError(
           context,
-          'Impossible de retirer « ${activity.title} ». Réessayez.',
+          context.l10n.coupleFeedSavedRemoveError(activity.title),
         );
     }
   }
@@ -108,11 +108,11 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Activités sauvegardées'),
+        title: Text(context.l10n.coupleFeedSavedTitle),
         actions: [
           if (_activities.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: 24),
+              padding: const EdgeInsetsDirectional.only(end: 24),
               child: Center(child: TagPill('${_activities.length}')),
             ),
         ],
@@ -126,15 +126,16 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
 
     final failure = _failure;
     if (failure != null) {
-      return CoupleMessageView.failure(failure, onRetry: _loadActivities);
+      return coupleFailureView(context, failure, onRetry: _loadActivities);
     }
 
     if (_activities.isEmpty) {
+      final l10n = context.l10n;
       return CoupleMessageView(
         icon: LucideIcons.bookmark,
-        title: 'Aucune activité sauvegardée',
-        line: 'Glissez une carte vers le haut pour la garder.',
-        actionLabel: 'Découvrir des activités',
+        title: l10n.coupleFeedSavedEmptyTitle,
+        line: l10n.coupleFeedSavedEmptyLine,
+        actionLabel: l10n.coupleFeedSavedEmptyAction,
         onAction: () => context.pop(),
       );
     }
@@ -177,6 +178,7 @@ class _SavedActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final city = activity.city;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -201,7 +203,7 @@ class _SavedActivityCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SectionLabel(activity.categoryLabel),
+                        SectionLabel(activity.categoryName(l10n)),
                         const SizedBox(height: 6),
                         Text(
                           activity.title,
@@ -235,14 +237,14 @@ class _SavedActivityCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              activity.formattedPrice,
+                              activity.priceLabel(l10n),
                               style: textTheme.titleSmall,
                             ),
                             IconButton(
                               icon: const Icon(LucideIcons.trash2, size: 18),
                               color: scheme.onSurfaceVariant,
                               onPressed: onRemove,
-                              tooltip: 'Retirer',
+                              tooltip: l10n.commonRemove,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 36,

@@ -840,57 +840,6 @@ lib/presentation/features/chat/widgets/voice_bubble.dart | ${speed == speed.roun
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lecture impossible
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lire le message vocal
 lib/presentation/features/chat/widgets/voice_bubble.dart | Mettre en pause
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | ${activity.title} sauvegardé
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | -${activity.discountPercent} % Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Actualiser
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Aucune activité pour le moment
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Bien-être
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Culture
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | De nouvelles idées arrivent bientôt.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Gastro
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de passer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Impossible de sauvegarder « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Passer
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Romantique
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Spirituel
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Sport
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Tout
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voir le détail
-lib/presentation/features/couple/screens/couple_activities_feed_screen.dart | Voyage
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | $rating ($count avis)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | -${activity.discountPercent} % Partenaire
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité introuvable
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Activité sauvegardée
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Appeler
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Cette activité n\'existe plus.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code $code copié
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Code promo MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Contact
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Copier le code
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Elle n\'est plus proposée.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Enregistrer
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Idée de date pour nous : "${activity.title}" (via MAZL)
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de retirer cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Impossible de sauvegarder cette activité. Réessayez.
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Partenaire MAZL
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retirer des activités sauvegardées
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Réserver
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Site web
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Tags
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | Voir
-lib/presentation/features/couple/screens/couple_activity_detail_screen.dart | À partir de
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | $daysTogether jours ensemble
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Activités en couple
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Calendrier juif
@@ -1057,17 +1006,6 @@ lib/presentation/features/couple/screens/mazel_tov_screen.dart | Commencer notre
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Félicitations à vous et à ${widget.partnerName}
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | MAZL vous accompagne dans cette nouvelle étape.
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Mazal tov
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activité retirée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Activités sauvegardées
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Annuler
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Aucune activité sauvegardée
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Découvrir des activités
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Glissez une carte vers le haut pour la garder.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Impossible de retirer « ${activity.title} ». Réessayez.
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Retirer de la liste ?
-lib/presentation/features/couple/screens/saved_activities_screen.dart | Voulez-vous retirer "${activity.title}" de vos activités sauvegardées ?
 lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...
 lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}
 lib/presentation/features/couple/screens/success_stories_screen.dart | Ajoutez des photos de couple

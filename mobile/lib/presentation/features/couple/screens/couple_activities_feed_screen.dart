@@ -5,9 +5,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
+import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
 import '../widgets/couple_message_view.dart';
 
@@ -43,15 +45,15 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   String? _selectedCategory;
   int _loadToken = 0;
 
-  static const categories = [
-    (key: null, label: 'Tout'),
-    (key: 'wellness', label: 'Bien-être'),
-    (key: 'gastronomy', label: 'Gastro'),
-    (key: 'culture', label: 'Culture'),
-    (key: 'sport', label: 'Sport'),
-    (key: 'romantic', label: 'Romantique'),
-    (key: 'travel', label: 'Voyage'),
-    (key: 'spiritual', label: 'Spirituel'),
+  static const categories = <String?>[
+    null,
+    'wellness',
+    'gastronomy',
+    'culture',
+    'sport',
+    'romantic',
+    'travel',
+    'spiritual',
   ];
 
   @override
@@ -108,10 +110,10 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Activités',
-                      style: TextStyle(
+                      context.l10n.coupleFeedActivitiesTitle,
+                      style: const TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -2,
@@ -121,7 +123,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
                   ),
                   RoundIconButton(
                     icon: LucideIcons.bookmark,
-                    tooltip: 'Activités sauvegardées',
+                    tooltip: context.l10n.coupleFeedSavedTitle,
                     onPressed: () => context.push('/couple/activities/saved'),
                   ),
                 ],
@@ -146,10 +148,10 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
         itemBuilder: (context, index) {
           final cat = categories[index];
           return _CategoryChip(
-            label: cat.label,
-            selected: _selectedCategory == cat.key,
+            label: activityFilterLabel(context.l10n, cat),
+            selected: _selectedCategory == cat,
             onTap: () {
-              setState(() => _selectedCategory = cat.key);
+              setState(() => _selectedCategory = cat);
               _loadActivities();
             },
           );
@@ -165,14 +167,15 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
 
     final failure = _failure;
     if (failure != null) {
-      return CoupleMessageView.failure(failure, onRetry: _loadActivities);
+      return coupleFailureView(context, failure, onRetry: _loadActivities);
     }
 
     if (_deckDone) {
+      final l10n = context.l10n;
       return CoupleMessageView(
-        title: 'Aucune activité pour le moment',
-        line: 'De nouvelles idées arrivent bientôt.',
-        actionLabel: 'Actualiser',
+        title: l10n.coupleFeedActivitiesEmptyTitle,
+        line: l10n.coupleFeedActivitiesEmptyLine,
+        actionLabel: l10n.coupleFeedRefresh,
         onAction: _loadActivities,
       );
     }
@@ -224,7 +227,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
                 direction: SwipeDirection.left,
                 child: RoundIconButton(
                   icon: LucideIcons.x,
-                  tooltip: 'Passer',
+                  tooltip: context.l10n.commonSkip,
                   size: 60,
                   iconSize: 26,
                   onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
@@ -235,7 +238,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
                 direction: SwipeDirection.up,
                 child: RoundIconButton(
                   icon: LucideIcons.bookmark,
-                  tooltip: 'Enregistrer',
+                  tooltip: context.l10n.commonSave,
                   size: 72,
                   iconSize: 30,
                   style: RoundButtonStyle.ink,
@@ -244,7 +247,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
               ),
               RoundIconButton(
                 icon: LucideIcons.info,
-                tooltip: 'Voir le détail',
+                tooltip: context.l10n.coupleFeedSeeDetail,
                 size: 60,
                 iconSize: 26,
                 onPressed: () {
@@ -286,8 +289,8 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
         showCoupleError(
           context,
           save
-              ? 'Impossible de sauvegarder « ${activity.title} ». Réessayez.'
-              : 'Impossible de passer « ${activity.title} ». Réessayez.',
+              ? context.l10n.coupleFeedActivitySaveCardError(activity.title)
+              : context.l10n.coupleFeedActivityPassCardError(activity.title),
         );
     }
   }
@@ -312,7 +315,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${activity.title} sauvegardé',
+                context.l10n.coupleFeedActivitySavedSnack(activity.title),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -320,7 +323,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
           ],
         ),
         action: SnackBarAction(
-          label: 'Voir',
+          label: context.l10n.commonSee,
           textColor: onSnack,
           onPressed: () => context.push('/couple/activities/saved'),
         ),
@@ -405,6 +408,7 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final city = activity.city;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -424,20 +428,20 @@ class _ActivityCard extends StatelessWidget {
                 children: [
                   ActivityVisual(activity: activity),
                   if (activity.rating != null)
-                    Positioned(
+                    PositionedDirectional(
                       top: 16,
-                      left: 16,
+                      start: 16,
                       child: TagPill(
-                        _ratingLabel(activity),
+                        activity.ratingLabel(l10n),
                         icon: LucideIcons.star,
                       ),
                     ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 12,
-                    right: 12,
+                    end: 12,
                     child: RoundIconButton(
                       icon: LucideIcons.info,
-                      tooltip: 'Voir le détail',
+                      tooltip: l10n.coupleFeedSeeDetail,
                       size: 40,
                       iconSize: 18,
                       onPressed: onTapDetails,
@@ -456,7 +460,7 @@ class _ActivityCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TagPill(
-                      activity.categoryLabel,
+                      activity.categoryName(l10n),
                       icon: activityCategoryIcon(activity.category),
                       onCard: true,
                     ),
@@ -490,7 +494,7 @@ class _ActivityCard extends StatelessWidget {
                           const SizedBox(width: 12),
                         ],
                         Text(
-                          activity.formattedPrice,
+                          activity.priceLabel(l10n),
                           style: textTheme.titleSmall,
                         ),
                       ],
@@ -513,11 +517,14 @@ class _ActivityCard extends StatelessWidget {
                           if (activity.isPartner)
                             AccentPill(
                               activity.discountPercent != null
-                                  ? '-${activity.discountPercent} % Partenaire MAZL'
-                                  : 'Partenaire MAZL',
+                                  ? l10n.coupleFeedPartnerDiscountMazl(
+                                      activity.discountPercent!,
+                                    )
+                                  : l10n.coupleFeedPartnerMazl,
                               icon: LucideIcons.badgePercent,
                             ),
-                          if (activity.isKosher) const TagPill('Casher', onCard: true),
+                          if (activity.isKosher)
+                            TagPill(l10n.coupleFeedKosher, onCard: true),
                         ],
                       ),
                     ],
@@ -529,11 +536,5 @@ class _ActivityCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _ratingLabel(CoupleActivity activity) {
-    final rating = activity.rating!.toStringAsFixed(1);
-    final count = activity.reviewCount;
-    return count == null ? rating : '$rating ($count)';
   }
 }
