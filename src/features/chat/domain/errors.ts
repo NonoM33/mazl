@@ -8,7 +8,8 @@ export type ChatErrorKind =
   | "too_large"
   | "not_author"
   | "too_late"
-  | "too_many_pending";
+  | "too_many_pending"
+  | "busy"; // the server is shedding work: try again shortly
 
 export class ChatError extends Error {
   readonly kind: ChatErrorKind;
