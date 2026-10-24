@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 export interface ScrollProgress {
   readonly hero: () => number;
   readonly phone: () => number;
+  readonly outro: () => number;
 }
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
@@ -18,12 +19,13 @@ export function isLightweight(): boolean {
 // Equivalent of sections/scroll.ts: hero progress (--p), phone rotation,
 // journey line and nav blur, driven by one passive scroll listener.
 export function useScrollProgress(animate: boolean): ScrollProgress {
-  const state = useRef({ hero: 0, phone: 0.5 });
+  const state = useRef({ hero: 0, phone: 0.5, outro: 1 });
   useEffect(() => {
     const nav = document.getElementById("nav");
     const hero = document.querySelector<HTMLElement>("[data-hero]");
     const phoneStage = document.querySelector<HTMLElement>("[data-phone-stage]");
     const journey = document.querySelector<HTMLElement>("[data-progress]");
+    const outro = document.querySelector<HTMLElement>("[data-outro]");
     let queued = false;
     const update = (): void => {
       queued = false;
@@ -37,6 +39,12 @@ export function useScrollProgress(animate: boolean): ScrollProgress {
       if (phoneStage !== null) {
         const rect = phoneStage.getBoundingClientRect();
         state.current.phone = clamp01((viewport - rect.top) / (viewport + rect.height));
+      }
+      if (outro !== null) {
+        const rect = outro.getBoundingClientRect();
+        state.current.outro = clamp01(-rect.top / Math.max(1, rect.height - viewport));
+        outro.style.setProperty("--o", state.current.outro.toFixed(4));
+        outro.classList.toggle("is-ready", state.current.outro > 0.82);
       }
       if (journey !== null) {
         const rect = journey.getBoundingClientRect();
@@ -56,7 +64,7 @@ export function useScrollProgress(animate: boolean): ScrollProgress {
       window.removeEventListener("resize", queue);
     };
   }, [animate]);
-  return { hero: () => state.current.hero, phone: () => state.current.phone };
+  return { hero: () => state.current.hero, phone: () => state.current.phone, outro: () => state.current.outro };
 }
 
 // Equivalent of sections/reveal.ts.

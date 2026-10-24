@@ -21,7 +21,7 @@ export function App() {
         <Journey />
         <Desktop />
         <Security />
-        <FinalCta />
+        <FinalCta animate={animate} lightweight={lightweight} scroll={scroll} />
       </main>
       <Footer />
     </>

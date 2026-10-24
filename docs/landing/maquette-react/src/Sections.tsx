@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import { createFlameScene } from "../../../../landing/src/scene/flame";
+import { createOutroScene } from "../../../../landing/src/scene/outro";
 import { createPhoneScene } from "../../../../landing/src/scene/phone";
 import { seeded } from "../../../../landing/src/scene/random";
 import { useScene, type ScrollProgress } from "./hooks";
@@ -216,15 +217,24 @@ export function Security() {
   );
 }
 
-export function FinalCta() {
+export function FinalCta({ animate, lightweight, scroll }: { readonly animate: boolean; readonly lightweight: boolean; readonly scroll: ScrollProgress }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const { failed } = useScene(canvas, (element) => createOutroScene({ canvas: element, animate, lightweight, progress: scroll.outro }));
   return (
-    <section className="final" id="telecharger" aria-labelledby="t-final">
-      <div className="wrap final__inner">
-        <h2 className="display display--xl" id="t-final" data-reveal>Votre mazal vous attend<Dot /></h2>
-        <p className="final__sub" data-reveal style={delay(60)}>Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
-        <div className="hero__actions hero__actions--center" data-reveal style={delay(120)}>
-          <a className="btn btn--accent" href={APP_STORE_URL} rel="noopener">Télécharger sur l’App&nbsp;Store</a>
-          <a className="btn btn--ghost-ink" href={WEB_APP_URL}>Se connecter</a>
+    <section className="outro" id="telecharger" aria-labelledby="t-final" data-outro>
+      <div className="outro__stage">
+        <canvas className="outro__canvas" ref={canvas} hidden={failed} aria-hidden="true" />
+        <div className="outro__line">
+          <h2 className="display display--xl" id="t-final">Votre mazal vous attend<Dot /></h2>
+          <p className="outro__sub">Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
+        </div>
+        <p className="outro__word" aria-hidden="true">mazl<span>.</span></p>
+        <div className="outro__actions">
+          <div className="hero__actions hero__actions--center">
+            <a className="btn btn--accent" href={APP_STORE_URL} rel="noopener">Télécharger sur l’App&nbsp;Store</a>
+            <a className="btn btn--ghost-ink" href={WEB_APP_URL}>Se connecter</a>
+          </div>
+          <p className="outro__note">Gratuit. Votre tante a vérifié.</p>
         </div>
       </div>
     </section>
