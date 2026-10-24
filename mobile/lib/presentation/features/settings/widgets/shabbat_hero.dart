@@ -3,6 +3,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 
 /// Bandeau sombre « Shabbat shalom. » : deux bougies, le titre, l'heure
 /// d'allumage et celle de la havdala. Pensé pour s'étendre sous la barre
@@ -49,9 +51,9 @@ class ShabbatHero extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 28),
-              const Text(
-                'Shabbat\nshalom.',
-                style: TextStyle(
+              Text(
+                context.l10n.settingsShabbatHeroTitle,
+                style: const TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 64,
                   fontWeight: FontWeight.w600,
@@ -61,9 +63,9 @@ class ShabbatHero extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Mazl se repose avec vous. Vos messages vous attendront à la havdala.',
-                style: TextStyle(
+              Text(
+                context.l10n.settingsShabbatHeroSubtitle,
+                style: const TextStyle(
                   fontFamily: AppTypography.family,
                   fontSize: 19,
                   height: 1.35,
@@ -77,8 +79,8 @@ class ShabbatHero extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _TimeColumn(label: 'Allumage', time: candleLighting)),
-                  Expanded(child: _TimeColumn(label: 'Havdala', time: havdala)),
+                  Expanded(child: _TimeColumn(label: context.l10n.settingsShabbatCandleLighting, time: candleLighting)),
+                  Expanded(child: _TimeColumn(label: context.l10n.settingsShabbatHavdalah, time: havdala)),
                 ],
               ),
               const SizedBox(height: 14),
@@ -107,7 +109,7 @@ class _BackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Retour',
+      label: context.l10n.commonBack,
       excludeSemantics: true,
       onTap: onPressed,
       child: SizedBox.square(
@@ -116,7 +118,7 @@ class _BackButton extends StatelessWidget {
           onTap: onPressed,
           radius: 24,
           child: const Center(
-            child: Icon(LucideIcons.chevronLeft, size: 26, color: Colors.white),
+            child: DirectionalIcon(LucideIcons.chevronLeft, size: 26, color: Colors.white),
           ),
         ),
       ),

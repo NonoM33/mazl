@@ -1620,22 +1620,6 @@ lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | 
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Montrez aux autres ce que vous recherchez
-lib/presentation/features/settings/screens/blocked_users_screen.dart | ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Annuler
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Aucun utilisateur bloqué
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Bloqué le ${_formatDate(user.blockedAt)}
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Cette personne pourra à nouveau voir votre profil et vous contacter.
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer cet utilisateur ?
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur de chargement
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur lors du déblocage
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Les personnes que vous bloquez\napparaîtront ici
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Réessayer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Voulez-vous débloquer ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | } a été débloqué
 lib/presentation/features/settings/screens/settings_screen.dart | $_ageMin - $_ageMax ans
 lib/presentation/features/settings/screens/settings_screen.dart | $_distanceMax km
 lib/presentation/features/settings/screens/settings_screen.dart | ${revenueCat.willRenew ? 
@@ -1738,20 +1722,6 @@ lib/presentation/features/settings/screens/settings_screen.dart | Vérification 
 lib/presentation/features/settings/screens/settings_screen.dart | Vérifié
 lib/presentation/features/settings/screens/settings_screen.dart | ]} (partner: ${c[
 lib/presentation/features/settings/screens/settings_screen.dart | À propos
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | ${value.toInt()} minutes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Activer le mode Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Basé sur Paris, France
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Inclure les fêtes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Les notifications sont mises en pause et les messages attendent. 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Marge avant l\'allumage
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Modifier
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause aussi pendant Yom Tov
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause automatique des notifications pendant Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Réglages
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Vous recevrez tout après la fin de Shabbat, et votre statut 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | affichera « Mode Shabbat ».
 lib/presentation/features/settings/widgets/settings_couple_card.dart | $days jours
 lib/presentation/features/settings/widgets/settings_couple_card.dart | 1 jour
 lib/presentation/features/settings/widgets/settings_couple_card.dart | Activer
@@ -1766,11 +1736,6 @@ lib/presentation/features/settings/widgets/settings_couple_card.dart | Espace co
 lib/presentation/features/settings/widgets/settings_couple_card.dart | Mode couple actif
 lib/presentation/features/settings/widgets/settings_couple_card.dart | Quitter le mode couple
 lib/presentation/features/settings/widgets/settings_couple_card.dart | Vous avez trouvé l'amour ?
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Allumage
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Annuler
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Autoriser la caméra
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra indisponible

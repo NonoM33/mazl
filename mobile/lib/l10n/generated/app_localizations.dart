@@ -559,6 +559,186 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Langue du téléphone'**
   String get settingsLanguageSystem;
+
+  /// Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Shabbat'**
+  String get settingsShabbatMode;
+
+  /// Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause automatique'**
+  String get settingsShabbatAutoPause;
+
+  /// Titre de l'écran et ligne des réglages qui listent les personnes que le membre a bloquées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateurs bloqués'**
+  String get settingsBlockedUsers;
+
+  /// Réglages : sous-titre de la ligne Utilisateurs bloqués.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer les personnes bloquées'**
+  String get settingsBlockedUsersHint;
+
+  /// Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basé sur Paris, France'**
+  String get settingsShabbatCity;
+
+  /// Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get settingsShabbatSettingsHeader;
+
+  /// Écran Mode Shabbat : interrupteur principal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le mode Shabbat'**
+  String get settingsShabbatEnable;
+
+  /// Écran Mode Shabbat : sous-titre de l'interrupteur principal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause automatique des notifications pendant Shabbat'**
+  String get settingsShabbatEnableHint;
+
+  /// Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure les fêtes'**
+  String get settingsShabbatIncludeHolidays;
+
+  /// Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause aussi pendant Yom Tov'**
+  String get settingsShabbatIncludeHolidaysHint;
+
+  /// Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge avant l\'allumage'**
+  String get settingsShabbatBuffer;
+
+  /// Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min'**
+  String settingsMinutesShort(int minutes);
+
+  /// Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}'**
+  String settingsMinutesSpoken(int minutes);
+
+  /// Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get settingsShabbatEdit;
+
+  /// Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages).
+  ///
+  /// In fr, this message translates to:
+  /// **'Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».'**
+  String get settingsShabbatExplanation;
+
+  /// Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat\nshalom.'**
+  String get settingsShabbatHeroTitle;
+
+  /// Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mazl se repose avec vous. Vos messages vous attendront à la havdala.'**
+  String get settingsShabbatHeroSubtitle;
+
+  /// Bandeau du mode Shabbat : petit libellé au-dessus de l'heure d'allumage des bougies. Affiché en majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allumage'**
+  String get settingsShabbatCandleLighting;
+
+  /// Bandeau du mode Shabbat : petit libellé au-dessus de l'heure de la havdala (fin de Shabbat). Affiché en majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Havdala'**
+  String get settingsShabbatHavdalah;
+
+  /// Écran des utilisateurs bloqués : nom affiché quand la personne n'a pas de nom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get settingsBlockedUserFallbackName;
+
+  /// Utilisateurs bloqués : titre de la boîte de confirmation du déblocage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer cet utilisateur ?'**
+  String get settingsBlockedUnblockTitle;
+
+  /// Utilisateurs bloqués : texte de la confirmation de déblocage, avec le nom de la personne. Le saut de ligne double est voulu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous débloquer {name} ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.'**
+  String settingsBlockedUnblockMessage(String name);
+
+  /// Utilisateurs bloqués : texte de la confirmation de déblocage quand la personne n'a pas de nom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous débloquer cet utilisateur ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.'**
+  String get settingsBlockedUnblockMessageUnnamed;
+
+  /// Utilisateurs bloqués : bouton sur chaque ligne et bouton de confirmation du déblocage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer'**
+  String get settingsBlockedUnblock;
+
+  /// Message bref : la personne nommée a été débloquée.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a été débloqué'**
+  String settingsBlockedUnblocked(String name);
+
+  /// Message bref : la personne (sans nom) a été débloquée.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'utilisateur a été débloqué'**
+  String get settingsBlockedUnblockedUnnamed;
+
+  /// Message bref : le déblocage a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du déblocage'**
+  String get settingsBlockedUnblockError;
+
+  /// Utilisateurs bloqués : titre de l'état vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun utilisateur bloqué'**
+  String get settingsBlockedEmptyTitle;
+
+  /// Utilisateurs bloqués : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu).
+  ///
+  /// In fr, this message translates to:
+  /// **'Les personnes que vous bloquez\napparaîtront ici'**
+  String get settingsBlockedEmptyHint;
+
+  /// Utilisateurs bloqués : sous-titre d'une ligne, la date du blocage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloqué le {date}'**
+  String settingsBlockedOn(DateTime date);
 }
 
 class _AppLocalizationsDelegate

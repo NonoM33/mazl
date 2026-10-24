@@ -247,8 +247,9 @@ void main() {
       List<String>? calls,
     }) => (request) async {
       calls?.add('${request.method} ${request.url.path}');
-      if (request.method == 'GET')
+      if (request.method == 'GET') {
         return _json({'success': true, 'event': event});
+      }
       return _json({'success': true});
     };
 

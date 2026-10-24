@@ -271,4 +271,117 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'שפת הטלפון';
+
+  @override
+  String get settingsShabbatMode => 'מצב שבת';
+
+  @override
+  String get settingsShabbatAutoPause => 'השהיה אוטומטית';
+
+  @override
+  String get settingsBlockedUsers => 'משתמשים חסומים';
+
+  @override
+  String get settingsBlockedUsersHint => 'ניהול האנשים החסומים';
+
+  @override
+  String get settingsShabbatCity => 'מבוסס על פריז, צרפת';
+
+  @override
+  String get settingsShabbatSettingsHeader => 'הגדרות';
+
+  @override
+  String get settingsShabbatEnable => 'הפעלת מצב שבת';
+
+  @override
+  String get settingsShabbatEnableHint => 'ההתראות מושהות אוטומטית בשבת';
+
+  @override
+  String get settingsShabbatIncludeHolidays => 'לכלול חגים';
+
+  @override
+  String get settingsShabbatIncludeHolidaysHint => 'השהיה גם ביום טוב';
+
+  @override
+  String get settingsShabbatBuffer => 'מרווח לפני הדלקת נרות';
+
+  @override
+  String settingsMinutesShort(int minutes) {
+    return '$minutes דק׳';
+  }
+
+  @override
+  String settingsMinutesSpoken(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes דקות',
+      two: 'שתי דקות',
+      one: 'דקה אחת',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsShabbatEdit => 'עריכה';
+
+  @override
+  String get settingsShabbatExplanation =>
+      'ההתראות מושהות וההודעות ממתינות. הכול יגיע בתום השבת, והסטטוס יציג “מצב שבת”.';
+
+  @override
+  String get settingsShabbatHeroTitle => 'שבת\nשלום.';
+
+  @override
+  String get settingsShabbatHeroSubtitle =>
+      'Mazl נח איתכם. ההודעות ימתינו להבדלה.';
+
+  @override
+  String get settingsShabbatCandleLighting => 'הדלקת נרות';
+
+  @override
+  String get settingsShabbatHavdalah => 'הבדלה';
+
+  @override
+  String get settingsBlockedUserFallbackName => 'משתמש/ת';
+
+  @override
+  String get settingsBlockedUnblockTitle => 'לבטל את חסימת המשתמש?';
+
+  @override
+  String settingsBlockedUnblockMessage(String name) {
+    return 'לבטל את החסימה של $name?\n\nאדם זה יוכל שוב לראות את הפרופיל וליצור קשר.';
+  }
+
+  @override
+  String get settingsBlockedUnblockMessageUnnamed =>
+      'לבטל את החסימה של משתמש זה?\n\nאדם זה יוכל שוב לראות את הפרופיל וליצור קשר.';
+
+  @override
+  String get settingsBlockedUnblock => 'ביטול חסימה';
+
+  @override
+  String settingsBlockedUnblocked(String name) {
+    return 'החסימה של $name בוטלה';
+  }
+
+  @override
+  String get settingsBlockedUnblockedUnnamed => 'החסימה בוטלה';
+
+  @override
+  String get settingsBlockedUnblockError => 'ביטול החסימה נכשל';
+
+  @override
+  String get settingsBlockedEmptyTitle => 'אין משתמשים חסומים';
+
+  @override
+  String get settingsBlockedEmptyHint => 'אנשים שנחסמו\nיופיעו כאן';
+
+  @override
+  String settingsBlockedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'תאריך החסימה: $dateString';
+  }
 }

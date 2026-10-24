@@ -274,4 +274,119 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Idioma del teléfono';
+
+  @override
+  String get settingsShabbatMode => 'Modo Shabat';
+
+  @override
+  String get settingsShabbatAutoPause => 'Pausa automática';
+
+  @override
+  String get settingsBlockedUsers => 'Usuarios bloqueados';
+
+  @override
+  String get settingsBlockedUsersHint => 'Gestionar las personas bloqueadas';
+
+  @override
+  String get settingsShabbatCity => 'Basado en París, Francia';
+
+  @override
+  String get settingsShabbatSettingsHeader => 'Ajustes';
+
+  @override
+  String get settingsShabbatEnable => 'Activar el modo Shabat';
+
+  @override
+  String get settingsShabbatEnableHint =>
+      'Las notificaciones se pausan automáticamente durante Shabat';
+
+  @override
+  String get settingsShabbatIncludeHolidays => 'Incluir las fiestas';
+
+  @override
+  String get settingsShabbatIncludeHolidaysHint =>
+      'Pausa también durante Yom Tov';
+
+  @override
+  String get settingsShabbatBuffer => 'Margen antes de encender las velas';
+
+  @override
+  String settingsMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String settingsMinutesSpoken(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutos',
+      one: '1 minuto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsShabbatEdit => 'Editar';
+
+  @override
+  String get settingsShabbatExplanation =>
+      'Las notificaciones se pausan y los mensajes esperan. Lo recibirás todo al terminar Shabat, y tu estado mostrará «Modo Shabat».';
+
+  @override
+  String get settingsShabbatHeroTitle => 'Shabat\nshalom.';
+
+  @override
+  String get settingsShabbatHeroSubtitle =>
+      'Mazl descansa contigo. Tus mensajes te esperarán hasta la Havdalá.';
+
+  @override
+  String get settingsShabbatCandleLighting => 'Encendido de velas';
+
+  @override
+  String get settingsShabbatHavdalah => 'Havdalá';
+
+  @override
+  String get settingsBlockedUserFallbackName => 'Usuario';
+
+  @override
+  String get settingsBlockedUnblockTitle => '¿Desbloquear a este usuario?';
+
+  @override
+  String settingsBlockedUnblockMessage(String name) {
+    return '¿Quieres desbloquear a $name?\n\nEsta persona podrá volver a ver tu perfil y contactarte.';
+  }
+
+  @override
+  String get settingsBlockedUnblockMessageUnnamed =>
+      '¿Quieres desbloquear a este usuario?\n\nEsta persona podrá volver a ver tu perfil y contactarte.';
+
+  @override
+  String get settingsBlockedUnblock => 'Desbloquear';
+
+  @override
+  String settingsBlockedUnblocked(String name) {
+    return 'Se ha desbloqueado a $name';
+  }
+
+  @override
+  String get settingsBlockedUnblockedUnnamed => 'Se ha desbloqueado al usuario';
+
+  @override
+  String get settingsBlockedUnblockError => 'No se pudo desbloquear';
+
+  @override
+  String get settingsBlockedEmptyTitle => 'Ningún usuario bloqueado';
+
+  @override
+  String get settingsBlockedEmptyHint =>
+      'Las personas que bloquees\naparecerán aquí';
+
+  @override
+  String settingsBlockedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Bloqueado el $dateString';
+  }
 }

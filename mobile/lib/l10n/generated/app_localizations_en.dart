@@ -269,4 +269,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Phone language';
+
+  @override
+  String get settingsShabbatMode => 'Shabbat mode';
+
+  @override
+  String get settingsShabbatAutoPause => 'Automatic pause';
+
+  @override
+  String get settingsBlockedUsers => 'Blocked users';
+
+  @override
+  String get settingsBlockedUsersHint => 'Manage blocked people';
+
+  @override
+  String get settingsShabbatCity => 'Based on Paris, France';
+
+  @override
+  String get settingsShabbatSettingsHeader => 'Settings';
+
+  @override
+  String get settingsShabbatEnable => 'Turn on Shabbat mode';
+
+  @override
+  String get settingsShabbatEnableHint =>
+      'Notifications pause automatically during Shabbat';
+
+  @override
+  String get settingsShabbatIncludeHolidays => 'Include holidays';
+
+  @override
+  String get settingsShabbatIncludeHolidaysHint => 'Also pause during Yom Tov';
+
+  @override
+  String get settingsShabbatBuffer => 'Margin before candle lighting';
+
+  @override
+  String settingsMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String settingsMinutesSpoken(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsShabbatEdit => 'Edit';
+
+  @override
+  String get settingsShabbatExplanation =>
+      'Notifications are paused and messages wait for you. You\'ll get everything after Shabbat ends, and your status will show “Shabbat mode”.';
+
+  @override
+  String get settingsShabbatHeroTitle => 'Shabbat\nshalom.';
+
+  @override
+  String get settingsShabbatHeroSubtitle =>
+      'Mazl is resting with you. Your messages will wait for you at Havdalah.';
+
+  @override
+  String get settingsShabbatCandleLighting => 'Candle lighting';
+
+  @override
+  String get settingsShabbatHavdalah => 'Havdalah';
+
+  @override
+  String get settingsBlockedUserFallbackName => 'User';
+
+  @override
+  String get settingsBlockedUnblockTitle => 'Unblock this user?';
+
+  @override
+  String settingsBlockedUnblockMessage(String name) {
+    return 'Do you want to unblock $name?\n\nThis person will be able to see your profile and contact you again.';
+  }
+
+  @override
+  String get settingsBlockedUnblockMessageUnnamed =>
+      'Do you want to unblock this user?\n\nThis person will be able to see your profile and contact you again.';
+
+  @override
+  String get settingsBlockedUnblock => 'Unblock';
+
+  @override
+  String settingsBlockedUnblocked(String name) {
+    return '$name was unblocked';
+  }
+
+  @override
+  String get settingsBlockedUnblockedUnnamed => 'The user was unblocked';
+
+  @override
+  String get settingsBlockedUnblockError => 'Couldn\'t unblock this user';
+
+  @override
+  String get settingsBlockedEmptyTitle => 'No blocked users';
+
+  @override
+  String get settingsBlockedEmptyHint => 'People you block\nwill appear here';
+
+  @override
+  String settingsBlockedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Blocked on $dateString';
+  }
 }

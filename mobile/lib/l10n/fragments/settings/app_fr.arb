@@ -1,6 +1,161 @@
 {
   "settingsLanguage": "Langue",
-  "@settingsLanguage": {"description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."},
+  "@settingsLanguage": {
+    "description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."
+  },
   "settingsLanguageSystem": "Langue du téléphone",
-  "@settingsLanguageSystem": {"description": "Réglages, choix de langue : suivre la langue réglée sur le téléphone plutôt qu'une langue fixe."}
+  "@settingsLanguageSystem": {
+    "description": "Réglages, choix de langue : suivre la langue réglée sur le téléphone plutôt qu'une langue fixe."
+  },
+  "settingsShabbatMode": "Mode Shabbat",
+  "@settingsShabbatMode": {
+    "description": "Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom."
+  },
+  "settingsShabbatAutoPause": "Pause automatique",
+  "@settingsShabbatAutoPause": {
+    "description": "Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules)."
+  },
+  "settingsBlockedUsers": "Utilisateurs bloqués",
+  "@settingsBlockedUsers": {
+    "description": "Titre de l'écran et ligne des réglages qui listent les personnes que le membre a bloquées."
+  },
+  "settingsBlockedUsersHint": "Gérer les personnes bloquées",
+  "@settingsBlockedUsersHint": {
+    "description": "Réglages : sous-titre de la ligne Utilisateurs bloqués."
+  },
+  "settingsShabbatCity": "Basé sur Paris, France",
+  "@settingsShabbatCity": {
+    "description": "Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu."
+  },
+  "settingsShabbatSettingsHeader": "Réglages",
+  "@settingsShabbatSettingsHeader": {
+    "description": "Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales."
+  },
+  "settingsShabbatEnable": "Activer le mode Shabbat",
+  "@settingsShabbatEnable": {
+    "description": "Écran Mode Shabbat : interrupteur principal."
+  },
+  "settingsShabbatEnableHint": "Pause automatique des notifications pendant Shabbat",
+  "@settingsShabbatEnableHint": {
+    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur principal."
+  },
+  "settingsShabbatIncludeHolidays": "Inclure les fêtes",
+  "@settingsShabbatIncludeHolidays": {
+    "description": "Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes."
+  },
+  "settingsShabbatIncludeHolidaysHint": "Pause aussi pendant Yom Tov",
+  "@settingsShabbatIncludeHolidaysHint": {
+    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête."
+  },
+  "settingsShabbatBuffer": "Marge avant l'allumage",
+  "@settingsShabbatBuffer": {
+    "description": "Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies."
+  },
+  "settingsMinutesShort": "{minutes} min",
+  "@settingsMinutesShort": {
+    "description": "Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "18"
+      }
+    }
+  },
+  "settingsMinutesSpoken": "{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}",
+  "@settingsMinutesSpoken": {
+    "description": "Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "18"
+      }
+    }
+  },
+  "settingsShabbatEdit": "Modifier",
+  "@settingsShabbatEdit": {
+    "description": "Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères."
+  },
+  "settingsShabbatExplanation": "Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».",
+  "@settingsShabbatExplanation": {
+    "description": "Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages)."
+  },
+  "settingsShabbatHeroTitle": "Shabbat\nshalom.",
+  "@settingsShabbatHeroTitle": {
+    "description": "Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu."
+  },
+  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous. Vos messages vous attendront à la havdala.",
+  "@settingsShabbatHeroSubtitle": {
+    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire."
+  },
+  "settingsShabbatCandleLighting": "Allumage",
+  "@settingsShabbatCandleLighting": {
+    "description": "Bandeau du mode Shabbat : petit libellé au-dessus de l'heure d'allumage des bougies. Affiché en majuscules, demi-largeur d'écran."
+  },
+  "settingsShabbatHavdalah": "Havdala",
+  "@settingsShabbatHavdalah": {
+    "description": "Bandeau du mode Shabbat : petit libellé au-dessus de l'heure de la havdala (fin de Shabbat). Affiché en majuscules, demi-largeur d'écran."
+  },
+  "settingsBlockedUserFallbackName": "Utilisateur",
+  "@settingsBlockedUserFallbackName": {
+    "description": "Écran des utilisateurs bloqués : nom affiché quand la personne n'a pas de nom."
+  },
+  "settingsBlockedUnblockTitle": "Débloquer cet utilisateur ?",
+  "@settingsBlockedUnblockTitle": {
+    "description": "Utilisateurs bloqués : titre de la boîte de confirmation du déblocage."
+  },
+  "settingsBlockedUnblockMessage": "Voulez-vous débloquer {name} ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.",
+  "@settingsBlockedUnblockMessage": {
+    "description": "Utilisateurs bloqués : texte de la confirmation de déblocage, avec le nom de la personne. Le saut de ligne double est voulu.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsBlockedUnblockMessageUnnamed": "Voulez-vous débloquer cet utilisateur ?\n\nCette personne pourra à nouveau voir votre profil et vous contacter.",
+  "@settingsBlockedUnblockMessageUnnamed": {
+    "description": "Utilisateurs bloqués : texte de la confirmation de déblocage quand la personne n'a pas de nom."
+  },
+  "settingsBlockedUnblock": "Débloquer",
+  "@settingsBlockedUnblock": {
+    "description": "Utilisateurs bloqués : bouton sur chaque ligne et bouton de confirmation du déblocage."
+  },
+  "settingsBlockedUnblocked": "{name} a été débloqué",
+  "@settingsBlockedUnblocked": {
+    "description": "Message bref : la personne nommée a été débloquée.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Myriam"
+      }
+    }
+  },
+  "settingsBlockedUnblockedUnnamed": "L'utilisateur a été débloqué",
+  "@settingsBlockedUnblockedUnnamed": {
+    "description": "Message bref : la personne (sans nom) a été débloquée."
+  },
+  "settingsBlockedUnblockError": "Erreur lors du déblocage",
+  "@settingsBlockedUnblockError": {
+    "description": "Message bref : le déblocage a échoué."
+  },
+  "settingsBlockedEmptyTitle": "Aucun utilisateur bloqué",
+  "@settingsBlockedEmptyTitle": {
+    "description": "Utilisateurs bloqués : titre de l'état vide."
+  },
+  "settingsBlockedEmptyHint": "Les personnes que vous bloquez\napparaîtront ici",
+  "@settingsBlockedEmptyHint": {
+    "description": "Utilisateurs bloqués : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu)."
+  },
+  "settingsBlockedOn": "Bloqué le {date}",
+  "@settingsBlockedOn": {
+    "description": "Utilisateurs bloqués : sous-titre d'une ligne, la date du blocage.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd",
+        "example": "24/10/2026"
+      }
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/jewish_calendar_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/shabbat_hero.dart';
 
@@ -15,8 +16,6 @@ class ShabbatModeScreen extends StatefulWidget {
 }
 
 class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
-  static const _city = 'Basé sur Paris, France';
-
   bool _isEnabled = true;
   bool _includeHolidays = true;
   int _bufferMinutes = 18;
@@ -29,6 +28,8 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final city = l10n.settingsShabbatCity;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -42,24 +43,24 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
             ShabbatHero(
               candleLighting: _display(_shabbat.candleLighting),
               havdala: _display(_shabbat.havdala),
-              city: _city,
+              city: city,
               onBack: () => context.pop(),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
-              child: SectionLabel('Réglages'),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+              child: SectionLabel(l10n.settingsShabbatSettingsHeader),
             ),
             const SizedBox(height: 8),
             _SwitchRow(
-              title: 'Activer le mode Shabbat',
-              subtitle: 'Pause automatique des notifications pendant Shabbat',
+              title: l10n.settingsShabbatEnable,
+              subtitle: l10n.settingsShabbatEnableHint,
               value: _isEnabled,
               onChanged: (value) => setState(() => _isEnabled = value),
             ),
             if (_isEnabled) ...[
               _SwitchRow(
-                title: 'Inclure les fêtes',
-                subtitle: 'Pause aussi pendant Yom Tov',
+                title: l10n.settingsShabbatIncludeHolidays,
+                subtitle: l10n.settingsShabbatIncludeHolidaysHint,
                 value: _includeHolidays,
                 onChanged: (value) => setState(() => _includeHolidays = value),
               ),
@@ -68,7 +69,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                 onChanged: (value) => setState(() => _bufferMinutes = value),
               ),
               _LocationRow(
-                label: _city,
+                label: city,
                 onEdit: () {
                   // TODO: Change location
                 },
@@ -76,9 +77,7 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
                 child: Text(
-                  'Les notifications sont mises en pause et les messages attendent. '
-                  'Vous recevrez tout après la fin de Shabbat, et votre statut '
-                  'affichera « Mode Shabbat ».',
+                  l10n.settingsShabbatExplanation,
                   style: TextStyle(fontSize: 14, height: 1.5, color: scheme.onSurfaceVariant),
                 ),
               ),
@@ -146,6 +145,7 @@ class _BufferRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Column(
       children: [
         Padding(
@@ -155,13 +155,13 @@ class _BufferRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Marge avant l\'allumage',
+                      l10n.settingsShabbatBuffer,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
-                  Text('$minutes min', style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant)),
+                  Text(l10n.settingsMinutesShort(minutes), style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant)),
                 ],
               ),
               Slider(
@@ -169,8 +169,8 @@ class _BufferRow extends StatelessWidget {
                 min: 0,
                 max: 30,
                 divisions: 6,
-                label: '$minutes min',
-                semanticFormatterCallback: (value) => '${value.toInt()} minutes',
+                label: l10n.settingsMinutesShort(minutes),
+                semanticFormatterCallback: (value) => l10n.settingsMinutesSpoken(value.round()),
                 onChanged: (value) => onChanged(value.toInt()),
               ),
             ],
@@ -208,7 +208,7 @@ class _LocationRow extends StatelessWidget {
                   minimumSize: const Size(44, 44),
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                 ),
-                child: const Text('Modifier'),
+                child: Text(context.l10n.settingsShabbatEdit),
               ),
             ],
           ),
