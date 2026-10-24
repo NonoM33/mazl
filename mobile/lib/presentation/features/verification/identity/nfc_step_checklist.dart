@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/verification/chip/chip_reader.dart';
+import '../../../../l10n/l10n.dart';
 
 enum StepState { done, active, waiting }
 
@@ -11,22 +12,19 @@ class NfcStepChecklist extends StatelessWidget {
 
   final ChipReadStep current;
 
-  static const labels = {
-    ChipReadStep.waitingForDocument: 'Détection du document',
-    ChipReadStep.authenticating: 'Connexion sécurisée',
-    ChipReadStep.readingPhoto: 'Lecture de la photo',
-    ChipReadStep.readingSignature: 'Lecture de la signature',
-  };
-
-  static String stateWord(StepState state) => switch (state) {
-    StepState.done => 'terminé',
-    StepState.active => 'en cours',
-    StepState.waiting => 'en attente',
+  static String label(AppLocalizations l10n, ChipReadStep step) => switch (step) {
+    ChipReadStep.waitingForDocument => l10n.verificationNfcStepDetect,
+    ChipReadStep.authenticating => l10n.verificationNfcStepConnect,
+    ChipReadStep.readingPhoto => l10n.verificationNfcStepPhoto,
+    ChipReadStep.readingSignature => l10n.verificationNfcStepSignature,
   };
 
   @override
   Widget build(BuildContext context) => Column(
-    children: [for (final step in ChipReadStep.values) _StepRow(label: labels[step]!, state: _stateOf(step))],
+    children: [
+      for (final step in ChipReadStep.values)
+        _StepRow(label: label(context.l10n, step), state: _stateOf(step)),
+    ],
   );
 
   StepState _stateOf(ChipReadStep step) {
@@ -46,7 +44,7 @@ class _StepRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final waiting = state == StepState.waiting;
     return Semantics(
-      label: '$label, ${NfcStepChecklist.stateWord(state)}',
+      label: context.l10n.verificationNfcStepSemantics(label, state.name),
       excludeSemantics: true,
       child: SizedBox(
         height: 44,

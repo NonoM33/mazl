@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import 'identity_messages.dart';
 import 'identity_parts.dart';
@@ -110,7 +111,7 @@ class IdentityPage extends StatelessWidget {
   );
 }
 
-/// Bouton fermer à gauche, étiquette d'étape au centre (« ÉTAPE 1 / 3 »).
+/// Bouton fermer au début de la ligne, étiquette d'étape au centre (« ÉTAPE 1 / 3 »).
 class IdentityHeader extends StatelessWidget {
   const IdentityHeader({super.key, this.eyebrow, this.onClose});
 
@@ -126,7 +127,7 @@ class IdentityHeader extends StatelessWidget {
         children: [
           SizedBox(
             width: 44,
-            child: onClose == null ? null : RoundIconButton(icon: LucideIcons.x, tooltip: 'Fermer', onPressed: onClose),
+            child: onClose == null ? null : RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonClose, onPressed: onClose),
           ),
           Expanded(child: Center(child: eyebrow == null ? null : SectionLabel(eyebrow!))),
           const SizedBox(width: 44),
@@ -142,7 +143,7 @@ class ManualReviewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IdentityLinkButton(
-    'Envoyer mon document pour relecture',
+    context.l10n.verificationManualReviewLink,
     onPressed: () => launchUrl(identityManualReviewUri, mode: LaunchMode.externalApplication),
   );
 }

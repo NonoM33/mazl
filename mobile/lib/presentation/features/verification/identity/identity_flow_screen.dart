@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/l10n.dart';
+import '../l10n/chip_alert_texts.dart';
 import 'identity_flow_controller.dart';
 import 'identity_flow_provider.dart';
 import 'identity_flow_state.dart';
@@ -54,7 +56,7 @@ class _IdentityFlowScreenState extends ConsumerState<IdentityFlowScreen> {
         MrzReviewView(mrz: mrz, onConfirm: flow.confirmMrz, onReject: flow.rejectMrz, onClose: close),
       IdentityNfc() => NfcReadView(
           state: state,
-          onRead: flow.readChip,
+          onRead: () => flow.readChip(chipAlertTexts(context.l10n)),
           onRereadPhotoPage: flow.rereadPhotoPage,
           onRecover: () => _recover(context, flow, state.failure),
           onClose: close,
@@ -71,7 +73,7 @@ class _IdentityFlowScreenState extends ConsumerState<IdentityFlowScreen> {
     if (info?.recovery == IdentityRecovery.close) {
       _close();
     } else {
-      flow.recover(context);
+      flow.recover(context, chipAlertTexts(context.l10n));
     }
   }
 }

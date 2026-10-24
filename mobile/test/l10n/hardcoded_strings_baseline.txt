@@ -564,31 +564,6 @@ lib/core/services/websocket_service.dart | (attempt $_reconnectAttempts)
 lib/core/services/websocket_service.dart | WebSocket: Reconnecting in ${delay.inMilliseconds}ms 
 lib/core/theme/app_typography.dart | Geist
 lib/core/theme/app_typography.dart | GeistMono
-lib/core/verification/chip/chip_read_procedure.dart | Approchez votre document du haut du téléphone.
-lib/core/verification/chip/chip_read_procedure.dart | La lecture a échoué.
-lib/core/verification/chip/chip_read_procedure.dart | Lecture de la photo… 40 %
-lib/core/verification/chip/chip_read_procedure.dart | Lecture de la signature… 85 %
-lib/core/verification/chip/chip_read_procedure.dart | Ne bouge pas. Connexion sécurisée…
-lib/core/verification/chip/chip_read_procedure.dart | Terminé.
-lib/core/verification/chip/chip_reader.dart | ChipReadException(${kind.name})
-lib/core/verification/chip/dmrtd_chip_reader.dart | ${error.code} ${error.message ?? 
-lib/core/verification/chip/dmrtd_chip_reader.dart | Pace
-lib/core/verification/chip/dmrtd_chip_reader.dart | communication error
-lib/core/verification/chip/dmrtd_chip_reader.dart | connection lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | invalidated by user
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc disabled
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc is disabled
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc is off
-lib/core/verification/chip/dmrtd_chip_reader.dart | nfc not available
-lib/core/verification/chip/dmrtd_chip_reader.dart | not supported
-lib/core/verification/chip/dmrtd_chip_reader.dart | not supported by this device
-lib/core/verification/chip/dmrtd_chip_reader.dart | session invalidated
-lib/core/verification/chip/dmrtd_chip_reader.dart | tag lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | tag was lost
-lib/core/verification/chip/dmrtd_chip_reader.dart | timed out
-lib/core/verification/chip/dmrtd_chip_reader.dart | } ${error.details ?? 
-lib/core/verification/mrz/mrz_data.dart | ${(date.year % 100).toString().padLeft(2, 
-lib/core/verification/mrz/mrz_data.dart | MrzData(${format?.name ?? 
 lib/presentation/common/widgets/block_report_dialog.dart | ${widget.userName} a été bloqué
 lib/presentation/common/widgets/block_report_dialog.dart | Annuler
 lib/presentation/common/widgets/block_report_dialog.dart | Annuler
@@ -1842,8 +1817,6 @@ lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
-lib/presentation/features/verification/identity/chip_location_illustration.dart | Le haut du téléphone posé contre la couverture fermée du passeport
-lib/presentation/features/verification/identity/identity_flow_controller.dart | Réessayer
 lib/presentation/features/verification/identity/identity_intro_view.dart | Commencer
 lib/presentation/features/verification/identity/identity_intro_view.dart | Comparé à la photo de la puce.
 lib/presentation/features/verification/identity/identity_intro_view.dart | Il faut un passeport ou une carte d\'identité biométrique, deux minutes et un peu de lumière.
@@ -1855,70 +1828,6 @@ lib/presentation/features/verification/identity/identity_intro_view.dart | Pour 
 lib/presentation/features/verification/identity/identity_intro_view.dart | Rien n\'est conservé : nous ne gardons que le résultat.
 lib/presentation/features/verification/identity/identity_intro_view.dart | Un selfie en mouvement
 lib/presentation/features/verification/identity/identity_intro_view.dart | Vérifiez votre identité.
-lib/presentation/features/verification/identity/identity_layout.dart | Envoyer mon document pour relecture
-lib/presentation/features/verification/identity/identity_layout.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Activez le NFC dans les réglages du téléphone.
-lib/presentation/features/verification/identity/identity_messages.dart | Ajoutez d\'abord une photo à votre profil.
-lib/presentation/features/verification/identity/identity_messages.dart | Aucun visage détecté.
-lib/presentation/features/verification/identity/identity_messages.dart | Autre document
-lib/presentation/features/verification/identity/identity_messages.dart | Bougez la tête comme demandé.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document est déjà associé à un autre compte.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document est expiré.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document ne peut pas être lu.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce document ne peut pas être utilisé.
-lib/presentation/features/verification/identity/identity_messages.dart | Ce téléphone n\'a pas de lecteur NFC.
-lib/presentation/features/verification/identity/identity_messages.dart | Connexion impossible. Vérifiez votre connexion.
-lib/presentation/features/verification/identity/identity_messages.dart | Document non reconnu.
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Fermer
-lib/presentation/features/verification/identity/identity_messages.dart | Il faut avoir 18 ans pour vérifier son identité.
-lib/presentation/features/verification/identity/identity_messages.dart | La caméra n\'est pas disponible.
-lib/presentation/features/verification/identity/identity_messages.dart | La lecture a échoué.
-lib/presentation/features/verification/identity/identity_messages.dart | La puce n\'a pas répondu.
-lib/presentation/features/verification/identity/identity_messages.dart | La session a expiré.
-lib/presentation/features/verification/identity/identity_messages.dart | La signature du document n\'a pas pu être vérifiée.
-lib/presentation/features/verification/identity/identity_messages.dart | La vérification a échoué.
-lib/presentation/features/verification/identity/identity_messages.dart | Le document a bougé. Gardez-le immobile contre le téléphone.
-lib/presentation/features/verification/identity/identity_messages.dart | Le visage a changé pendant la capture.
-lib/presentation/features/verification/identity/identity_messages.dart | Les données de la puce sont illisibles.
-lib/presentation/features/verification/identity/identity_messages.dart | Les images n\'ont pas pu être lues.
-lib/presentation/features/verification/identity/identity_messages.dart | Les informations saisies ne correspondent pas à la puce.
-lib/presentation/features/verification/identity/identity_messages.dart | Les mouvements demandés n\'ont pas été reconnus.
-lib/presentation/features/verification/identity/identity_messages.dart | Rapprochez-vous de la caméra.
-lib/presentation/features/verification/identity/identity_messages.dart | Relire le document
-lib/presentation/features/verification/identity/identity_messages.dart | Relire le document
-lib/presentation/features/verification/identity/identity_messages.dart | Réessayer
-lib/presentation/features/verification/identity/identity_messages.dart | Scanner à nouveau
-lib/presentation/features/verification/identity/identity_messages.dart | Un seul visage doit apparaître.
-lib/presentation/features/verification/identity/identity_messages.dart | Votre visage ne correspond pas à la photo du document.
-lib/presentation/features/verification/identity/identity_messages.dart | Votre visage ne correspond pas à votre photo de profil.
-lib/presentation/features/verification/identity/identity_messages.dart | Vous avez atteint la limite d\'essais du jour. Revenez demain.
-lib/presentation/features/verification/identity/identity_status_views.dart | Bientôt disponible
-lib/presentation/features/verification/identity/identity_status_views.dart | Ce que les autres voient sur votre profil.
-lib/presentation/features/verification/identity/identity_status_views.dart | Ce téléphone n\'a pas de lecteur NFC.
-lib/presentation/features/verification/identity/identity_status_views.dart | Conservé
-lib/presentation/features/verification/identity/identity_status_views.dart | Date de naissance du document
-lib/presentation/features/verification/identity/identity_status_views.dart | Fermer
-lib/presentation/features/verification/identity/identity_status_views.dart | Identité vérifiée
-lib/presentation/features/verification/identity/identity_status_views.dart | Identité vérifiée.
-lib/presentation/features/verification/identity/identity_status_views.dart | Il reste un selfie en mouvement, comparé à la photo de la puce.
-lib/presentation/features/verification/identity/identity_status_views.dart | Jamais enregistrées
-lib/presentation/features/verification/identity/identity_status_views.dart | La puce de votre document et votre selfie correspondent. Votre profil porte maintenant le badge.
-lib/presentation/features/verification/identity/identity_status_views.dart | Pays, expiration, empreinte anonyme
-lib/presentation/features/verification/identity/identity_status_views.dart | Photos et puce
-lib/presentation/features/verification/identity/identity_status_views.dart | Prendre le selfie
-lib/presentation/features/verification/identity/identity_status_views.dart | Profil
-lib/presentation/features/verification/identity/identity_status_views.dart | Préparation…
-lib/presentation/features/verification/identity/identity_status_views.dart | Puce lue.
-lib/presentation/features/verification/identity/identity_status_views.dart | Terminer
-lib/presentation/features/verification/identity/identity_status_views.dart | Vérification en cours…
-lib/presentation/features/verification/identity/identity_status_views.dart | Étape 2 / 3
 lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
 lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
 lib/presentation/features/verification/identity/mrz_manual_view.dart | Continuer
@@ -1946,27 +1855,6 @@ lib/presentation/features/verification/identity/mrz_scanner_view.dart | Saisir �
 lib/presentation/features/verification/identity/mrz_scanner_view.dart | Vous pouvez saisir les informations de la page photo à la main.
 lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
 lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/nfc_read_view.dart | Cela arrive souvent au premier essai. Rien n\'a été envoyé.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Gardez le document contre le haut du téléphone jusqu\'à la fin de la lecture.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Le haut du téléphone contre la couverture fermée du passeport, 
-lib/presentation/features/verification/identity/nfc_read_view.dart | Lecture de la puce
-lib/presentation/features/verification/identity/nfc_read_view.dart | Lire le document
-lib/presentation/features/verification/identity/nfc_read_view.dart | Ne bougez plus.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Posez le haut du téléphone au centre de la couverture, passeport fermé.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Posez votre document sur le téléphone.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Relire la page photo
-lib/presentation/features/verification/identity/nfc_read_view.dart | Restez immobile une dizaine de secondes.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Retirez la coque du téléphone.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Rien n\'a été envoyé. Relisez la page photo pour repartir sur de bonnes données.
-lib/presentation/features/verification/identity/nfc_read_view.dart | ou contre le dos de la carte d\'identité. Retirez la coque si besoin.
-lib/presentation/features/verification/identity/nfc_read_view.dart | Étape 2 / 3
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Connexion sécurisée
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Détection du document
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Lecture de la photo
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | Lecture de la signature
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | en attente
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | en cours
-lib/presentation/features/verification/identity/nfc_step_checklist.dart | terminé
 lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
 lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
 lib/presentation/features/video_call/screens/video_call_screen.dart | Fin

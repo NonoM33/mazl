@@ -20,6 +20,7 @@ import 'package:mazl/presentation/features/verification/identity/mrz_manual_view
 import 'package:mazl/presentation/features/verification/identity/mrz_review_format.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_review_view.dart';
 import 'package:mazl/presentation/features/verification/identity/mrz_scanner_view.dart';
+import 'package:mazl/presentation/features/verification/l10n/identity_failure_text.dart';
 import 'package:mazl/presentation/features/verification/identity/nfc_read_view.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
 import '../../helpers/l10n_helpers.dart';
@@ -324,8 +325,9 @@ void main() {
       for (final code in ['underage', 'document_already_used', 'daily_limit_reached', 'session_expired']) {
         final info = describeIdentityRejection(code);
         await _pump(tester, IdentityFailedView(info: info, onAction: () {}, onClose: () {}));
-        expect(find.text(info.message), findsOneWidget, reason: code);
-        expect(info.message, isNot(matches(RegExp(r'\b(ton|ta|tes|tu|toi)\b', caseSensitive: false))), reason: code);
+        final message = info.messageText(frenchL10n);
+        expect(find.text(message), findsOneWidget, reason: code);
+        expect(message, isNot(matches(RegExp(r'\b(ton|ta|tes|tu|toi)\b', caseSensitive: false))), reason: code);
         _expectNoGradient(tester);
       }
     });

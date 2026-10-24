@@ -98,14 +98,15 @@ class IdentityFlowController extends StateNotifier<IdentityFlowState> {
   }
 
   /// Reads the chip once the user has put the document against the phone.
-  Future<void> readChip() async {
+  /// [alerts] are the sentences of the iPhone's NFC sheet, in the member's language.
+  Future<void> readChip(ChipAlertTexts alerts) async {
     final mrz = _mrz;
     final current = state;
     if (_busy || mrz == null || current is! IdentityNfc) return;
     _busy = true;
     state = IdentityNfc(mrz, reading: true);
     try {
-      final chip = await _chipReader.read(mrz, onProgress: (p) {
+      final chip = await _chipReader.read(mrz, alerts: alerts, onProgress: (p) {
         if (mounted) state = IdentityNfc(mrz, reading: true, progress: p);
       });
       if (!mounted) return;
@@ -163,15 +164,16 @@ class IdentityFlowController extends StateNotifier<IdentityFlowState> {
       }
     } on Exception {
       if (mounted) {
-        state = const IdentityFailed(IdentityFailureInfo(faceUnavailableMessage, IdentityRecovery.retryFace, 'Réessayer'));
+        state = const IdentityFailed(faceUnavailableFailure);
       }
     } finally {
       _busy = false;
     }
   }
 
-  /// The button of a failure screen. [context] is only needed to relaunch the camera.
-  Future<void> recover(BuildContext context) async {
+  /// The button of a failure screen. [context] is only needed to relaunch the
+  /// camera; [alerts] are the NFC sheet's sentences when the chip is read again.
+  Future<void> recover(BuildContext context, ChipAlertTexts alerts) async {
     final current = state;
     final recovery = switch (current) {
       IdentityFailed(:final info) => info.recovery,
@@ -191,7 +193,7 @@ class IdentityFlowController extends StateNotifier<IdentityFlowState> {
           state = const IdentityMrz();
         } else {
           state = IdentityNfc(mrz);
-          await readChip();
+          await readChip(alerts);
         }
       case IdentityRecovery.rescanMrz:
         _forget();

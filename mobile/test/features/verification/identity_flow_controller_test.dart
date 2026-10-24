@@ -76,7 +76,7 @@ void main() {
       await t.flow.initialize();
       t.flow.submitMrz(futureDoc);
       expect(t.flow.state, isA<IdentityIntro>());
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       expect(t.flow.state, isA<IdentityIntro>());
       t.flow.begin();
       expect((t.flow.state as IdentityMrz).manual, isFalse);
@@ -126,7 +126,7 @@ void main() {
       final t = _make();
       await _toNfc(t.flow, const MrzData(documentNumber: 'X1234567', birthYymmdd: '740812', expiryYymmdd: '120415'));
       final failed = t.flow.state as IdentityFailed;
-      expect(failed.info.message, 'Ce document est expiré.');
+      expect(failed.info.message, IdentityMessage.documentExpired);
       expect(failed.info.recovery, IdentityRecovery.rescanMrz);
       expect(t.chip.reads, 0);
     });
@@ -140,7 +140,7 @@ void main() {
     test('holder under 18 is refused before any NFC read', () async {
       final t = _make();
       await _toNfc(t.flow, const MrzData(documentNumber: 'X1234567', birthYymmdd: '100101', expiryYymmdd: '450101'));
-      expect((t.flow.state as IdentityFailed).info.message, contains('18 ans'));
+      expect((t.flow.state as IdentityFailed).info.message, IdentityMessage.underage);
       expect(t.chip.reads, 0);
     });
 
@@ -155,9 +155,28 @@ void main() {
     test('success moves to the selfie step and passes the MRZ to the reader', () async {
       final t = _make();
       await _toNfc(t.flow);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       expect(t.flow.state, isA<IdentityFace>());
       expect(t.chip.lastMrz, futureDoc);
+    });
+
+    test('the sentences of the iPhone NFC sheet reach the reader, on the first read and on a retry', () async {
+      final t = _make(chip: FakeChipReader(failure: ChipFailureKind.tagLost));
+      await _toNfc(t.flow);
+      await t.flow.readChip(testAlerts);
+      expect(t.chip.lastAlerts, same(testAlerts));
+
+      const another = ChipAlertTexts(
+        approach: 'a',
+        authenticating: 'b',
+        readingPhoto: 'c',
+        readingSignature: 'd',
+        done: 'e',
+        failure: 'f',
+      );
+      t.chip.failure = null;
+      await t.flow.recover(FakeContext(), another);
+      expect(t.chip.lastAlerts, same(another));
     });
 
     test('progress is exposed while reading', () async {
@@ -165,7 +184,7 @@ void main() {
       await _toNfc(t.flow);
       final seen = <IdentityFlowState>[];
       t.flow.addListener(seen.add);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       final reading = seen.whereType<IdentityNfc>().where((s) => s.reading).toList();
       expect(reading, isNotEmpty);
       expect(reading.last.progress?.percent, 40);
@@ -174,7 +193,7 @@ void main() {
     test('a second tap while reading does not start a second read', () async {
       final t = _make();
       await _toNfc(t.flow);
-      await Future.wait([t.flow.readChip(), t.flow.readChip()]);
+      await Future.wait([t.flow.readChip(testAlerts), t.flow.readChip(testAlerts)]);
       expect(t.chip.reads, 1);
     });
 
@@ -191,28 +210,27 @@ void main() {
       test('$kind stays on the NFC step with a message and ${recovery.name}', () async {
         final t = _make(chip: FakeChipReader(failure: kind));
         await _toNfc(t.flow);
-        await t.flow.readChip();
+        await t.flow.readChip(testAlerts);
         final nfc = t.flow.state as IdentityNfc;
         expect(nfc.reading, isFalse);
         expect(nfc.failure!.recovery, recovery);
-        expect(nfc.failure!.message, isNotEmpty);
       });
     });
 
     test('"Relire la page photo" after a chip failure forgets the MRZ and goes back to the scan', () async {
       final t = _make(chip: FakeChipReader(failure: ChipFailureKind.timeout));
       await _toNfc(t.flow);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       t.flow.rereadPhotoPage();
       expect((t.flow.state as IdentityMrz).manual, isFalse);
-      await t.flow.readChip(); // the old MRZ is gone: nothing to read with
+      await t.flow.readChip(testAlerts); // the old MRZ is gone: nothing to read with
       expect(t.chip.reads, 1);
     });
 
     test('"Relire la page photo" is ignored while the chip is being read', () async {
       final t = _make();
       await _toNfc(t.flow);
-      final reading = t.flow.readChip();
+      final reading = t.flow.readChip(testAlerts);
       t.flow.rereadPhotoPage();
       await reading;
       expect(t.flow.state, isA<IdentityFace>());
@@ -221,7 +239,7 @@ void main() {
     test('closing the system sheet leaves the step quiet, without an error', () async {
       final t = _make(chip: FakeChipReader(failure: ChipFailureKind.cancelled));
       await _toNfc(t.flow);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       final nfc = t.flow.state as IdentityNfc;
       expect(nfc.failure, isNull);
       expect(nfc.reading, isFalse);
@@ -230,17 +248,17 @@ void main() {
     test('wrong MRZ (access denied) lets the user scan again', () async {
       final t = _make(chip: FakeChipReader(failure: ChipFailureKind.accessDenied));
       await _toNfc(t.flow);
-      await t.flow.readChip();
-      await t.flow.recover(FakeContext());
+      await t.flow.readChip(testAlerts);
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.flow.state, isA<IdentityMrz>());
     });
 
     test('tag lost: recover reads again with the same MRZ', () async {
       final t = _make(chip: FakeChipReader(failure: ChipFailureKind.tagLost));
       await _toNfc(t.flow);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       t.chip.failure = null;
-      await t.flow.recover(FakeContext());
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.chip.reads, 2);
       expect(t.chip.lastMrz, futureDoc);
       expect(t.flow.state, isA<IdentityFace>());
@@ -254,7 +272,7 @@ void main() {
     }) async {
       final t = _make(api: api, liveness: liveness);
       await _toNfc(t.flow);
-      await t.flow.readChip();
+      await t.flow.readChip(testAlerts);
       return t;
     }
 
@@ -304,7 +322,7 @@ void main() {
       final t = await atFace(liveness: FakeLiveness(error: Exception('camera denied')));
       await t.flow.captureFace(FakeContext());
       final failed = t.flow.state as IdentityFailed;
-      expect(failed.info.message, faceUnavailableMessage);
+      expect(failed.info.message, IdentityMessage.cameraUnavailable);
       expect(failed.info.recovery, IdentityRecovery.retryFace);
     });
 
@@ -313,7 +331,7 @@ void main() {
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
       final failed = t.flow.state as IdentityFailed;
-      expect(failed.info.message, contains('limite'));
+      expect(failed.info.message, IdentityMessage.dailyLimitReached);
       expect(failed.info.recovery, IdentityRecovery.close);
       expect(t.liveness.captures, 0);
     });
@@ -325,7 +343,7 @@ void main() {
       expect((t.flow.state as IdentityFailed).info.recovery, IdentityRecovery.retryFace);
 
       api.identityResponse = ApiResponse.success(const VerificationOutcome(verified: true));
-      await t.flow.recover(FakeContext());
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.chip.reads, 1);
       expect(api.sessions, 2);
       expect(t.flow.state, isA<IdentityDone>());
@@ -337,7 +355,7 @@ void main() {
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
       final failed = t.flow.state as IdentityFailed;
-      expect(failed.info.message, 'Votre visage ne correspond pas à la photo du document.');
+      expect(failed.info.message, IdentityMessage.documentFaceMismatch);
       expect(failed.info.recovery, IdentityRecovery.retryFace);
     });
 
@@ -347,7 +365,7 @@ void main() {
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
       expect((t.flow.state as IdentityFailed).info.recovery, IdentityRecovery.close);
-      await t.flow.recover(FakeContext());
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.flow.state, isA<IdentityFailed>());
     });
 
@@ -357,7 +375,7 @@ void main() {
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
       api.identityResponse = ApiResponse.success(const VerificationOutcome(verified: true));
-      await t.flow.recover(FakeContext());
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.chip.reads, 2);
       expect(t.flow.state, isA<IdentityFace>());
     });
@@ -367,7 +385,7 @@ void main() {
         ..identityResponse = ApiResponse.success(const VerificationOutcome(verified: false, reason: 'document_expired'));
       final t = await atFace(api: api);
       await t.flow.captureFace(FakeContext());
-      await t.flow.recover(FakeContext());
+      await t.flow.recover(FakeContext(), testAlerts);
       expect(t.flow.state, isA<IdentityMrz>());
       await t.flow.captureFace(FakeContext());
       expect(t.flow.state, isA<IdentityMrz>());
