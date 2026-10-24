@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'couple_guard.dart';
+import 'app_guard.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
@@ -82,36 +82,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authService = ref.watch(authServiceProvider.notifier);
   // Same for the couple state: the guard below re-runs when a couple forms or ends.
   final coupleService = ref.watch(coupleServiceProvider.notifier);
+  // And for the profile completeness: the guard re-runs when the backend says
+  // gender / looking-for are missing, or once the setup has given them.
+  final profileCompleteness = ref.watch(profileCompletenessProvider.notifier);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
-    refreshListenable: Listenable.merge([authService, coupleService]),
-    redirect: (context, state) {
-      final location = state.matchedLocation;
-
-      // Splash handles its own auth-based routing
-      if (location == RoutePaths.splash) {
-        return null;
-      }
-
-      // Block protected routes for unauthenticated users (e.g. deep links)
-      final isAuthenticated = ref.read(isAuthenticatedProvider);
-      if (!isAuthenticated && !_publicRoutes.contains(location)) {
-        return RoutePaths.onboarding;
-      }
-
-      // One navigation at a time: dating or couple, never both.
-      if (isAuthenticated) {
-        return coupleRedirect(
-          location: location,
-          inCouple: coupleService.isCoupleModeEnabled,
-        );
-      }
-
-      return null;
-    },
+    refreshListenable: Listenable.merge([authService, coupleService, profileCompleteness]),
+    redirect: (context, state) => appRedirect(
+      location: state.matchedLocation,
+      isAuthenticated: ref.read(isAuthenticatedProvider),
+      profileIncomplete: profileCompleteness.needsSetup,
+      inCouple: coupleService.isCoupleModeEnabled,
+    ),
     routes: [
       // Splash Screen
       GoRoute(
@@ -608,10 +593,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) => const RouteErrorScreen(),
   );
 });
-
-/// Public routes that don't require authentication
-const _publicRoutes = [
-  RoutePaths.splash,
-  RoutePaths.onboarding,
-  RoutePaths.login,
-];

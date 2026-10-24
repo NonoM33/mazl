@@ -14,6 +14,7 @@ import '../dev/dev_login.dart';
 import 'couple_service.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
+import 'profile_completeness_service.dart';
 import 'push_notification_service.dart';
 import 'store/store_session.dart';
 
@@ -136,21 +137,19 @@ class AuthResult {
 
   /// Why it failed; null on success.
   final AuthFailure? failure;
-  final bool isNewUser;
 
   AuthResult({
     required this.success,
     this.user,
     this.failure,
-    this.isNewUser = false,
   });
 
   /// A diagnostic for the logs, never a sentence for the member: screens
   /// read [failure]. Kept so that screens not yet migrated still compile.
   String? get errorMessage => failure?.name;
 
-  factory AuthResult.success(AuthUser user, {bool isNewUser = false}) =>
-      AuthResult(success: true, user: user, isNewUser: isNewUser);
+  factory AuthResult.success(AuthUser user) =>
+      AuthResult(success: true, user: user);
 
   factory AuthResult.failure(AuthFailure failure) =>
       AuthResult(success: false, failure: failure);
@@ -165,6 +164,7 @@ class AuthService extends ChangeNotifier {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final StoreSession _store = StoreSession();
   final PushNotificationService _pushService = PushNotificationService();
+  final ProfileCompletenessService _profileCompleteness = ProfileCompletenessService();
 
   static const String _userKey = 'current_user';
   static const String _tokenKey = 'auth_token';
@@ -225,6 +225,7 @@ class AuthService extends ChangeNotifier {
       provider: AuthProvider.email,
     );
     DevSession.start();
+    _profileCompleteness.reset();
     // A demo session always starts empty: drop the couple cached by a previous
     // run, or the first sync would announce « Le mode couple a pris fin ».
     await CoupleService().reset();
@@ -297,7 +298,8 @@ class AuthService extends ChangeNotifier {
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
 
-      return AuthResult.success(user, isNewUser: data['isNewUser'] ?? false);
+      await _loadProfileCompleteness();
+      return AuthResult.success(user);
     } catch (e) {
       debugPrint('AuthService: Google sign-in error - $e');
       return AuthResult.failure(authFailureOf(e));
@@ -382,7 +384,8 @@ class AuthService extends ChangeNotifier {
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
 
-      return AuthResult.success(user, isNewUser: data['isNewUser'] ?? false);
+      await _loadProfileCompleteness();
+      return AuthResult.success(user);
     } catch (e) {
       if (e is SignInWithAppleAuthorizationException) {
         if (e.code == AuthorizationErrorCode.canceled) {
@@ -437,7 +440,8 @@ class AuthService extends ChangeNotifier {
 
       debugPrint('AuthService: Email login successful - user ID: ${user.id}');
 
-      return AuthResult.success(user, isNewUser: false);
+      await _loadProfileCompleteness();
+      return AuthResult.success(user);
     } catch (e) {
       debugPrint('AuthService: Email sign-in error - $e');
       return AuthResult.failure(authFailureOf(e));
@@ -492,7 +496,8 @@ class AuthService extends ChangeNotifier {
 
       debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
 
-      return AuthResult.success(user, isNewUser: true);
+      await _loadProfileCompleteness();
+      return AuthResult.success(user);
     } catch (e) {
       debugPrint('AuthService: Email registration error - $e');
       return AuthResult.failure(authFailureOf(e));
@@ -518,7 +523,7 @@ class AuthService extends ChangeNotifier {
       debugPrint('AuthService: Password reset email sent');
 
       // Return success without user (no login happens)
-      return AuthResult(success: true, isNewUser: false);
+      return AuthResult(success: true);
     } catch (e) {
       debugPrint('AuthService: Password reset error - $e');
       return AuthResult.failure(authFailureOf(e));
@@ -532,6 +537,7 @@ class AuthService extends ChangeNotifier {
       // fictif et son jeton ne doivent pas survivre à la démo.
       _store.onSignedOut();
       DevSession.stop();
+      _profileCompleteness.reset();
       _currentUser = null;
       debugPrint('AuthService: session fictive terminée');
       notifyListeners();
@@ -552,6 +558,7 @@ class AuthService extends ChangeNotifier {
       await _secureStorage.delete(key: _tokenKey);
 
       DevSession.stop();
+      _profileCompleteness.reset();
       _currentUser = null;
       debugPrint('AuthService: User signed out');
       notifyListeners();
@@ -594,15 +601,22 @@ class AuthService extends ChangeNotifier {
       await signOut();
 
       debugPrint('AuthService: Account fully deleted');
-      return AuthResult(success: true, isNewUser: false);
+      return AuthResult(success: true);
     } catch (e) {
       debugPrint('AuthService: Delete account error - $e');
       return AuthResult.failure(authFailureOf(e));
     }
   }
 
+  /// Asks the backend whether the member has given gender and looking-for, so
+  /// the router already knows when the first screen opens. A failure leaves it
+  /// unknown; Discover then answers 409 and the router reacts.
+  Future<void> _loadProfileCompleteness() => _profileCompleteness.refresh();
+
   /// Save user to secure storage
   Future<void> _saveUser(AuthUser user) async {
+    // A new account must not inherit the previous one's answer.
+    _profileCompleteness.reset();
     _currentUser = user;
     await _secureStorage.write(
       key: _userKey,

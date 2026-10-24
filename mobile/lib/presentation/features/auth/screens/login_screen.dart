@@ -73,12 +73,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        // Navigate based on whether user is new or returning
-        if (result.isNewUser) {
-          context.go(RoutePaths.profileSetup);
-        } else {
-          context.go(RoutePaths.discover);
-        }
+        // The router guard sends a member with an incomplete profile to the setup.
+        context.go(RoutePaths.discover);
       } else {
         final failure = result.failure;
         setState(() {
@@ -119,12 +115,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        // Navigate based on whether user is new or returning
-        if (result.isNewUser) {
-          context.go(RoutePaths.profileSetup);
-        } else {
-          context.go(RoutePaths.discover);
-        }
+        // The router guard sends a member with an incomplete profile to the setup.
+        context.go(RoutePaths.discover);
       } else {
         final failure = result.failure;
         setState(() {

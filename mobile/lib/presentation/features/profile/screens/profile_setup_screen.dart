@@ -8,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/profile_completeness_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
@@ -164,6 +165,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         return _fail(context.l10n.profileSetupGenderRequired);
       }
     }
+    if (_currentStep == _totalSteps - 1 && _lookingFor == null) {
+      return _fail('Indiquez ce que vous recherchez');
+    }
     return true;
   }
 
@@ -256,6 +260,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _isSaving = false);
 
     if (response.success) {
+      // Gender and looking-for are both in this payload (checked above).
+      ProfileCompletenessService().markComplete();
       context.go(RoutePaths.discover);
     } else {
       _fail(apiErrorText(context.l10n, response.errorKind));

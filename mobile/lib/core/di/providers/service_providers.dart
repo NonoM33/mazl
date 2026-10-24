@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/couple_service.dart';
+import '../../services/profile_completeness_service.dart';
 import '../../services/store/subscription_service.dart';
 
 /// Subscription Service Provider
@@ -21,6 +22,14 @@ final subscriptionServiceProvider = ChangeNotifierProvider<SubscriptionService>(
 /// state changes (login / logout / init / user refresh).
 final authServiceProvider = ChangeNotifierProvider<AuthService>((ref) {
   return AuthService();
+});
+
+/// Profile completeness (gender / looking-for given or not)
+///
+/// [ProfileCompletenessService] is a singleton [ChangeNotifier] listened to by
+/// the router, which sends an incomplete member to the profile setup.
+final profileCompletenessProvider = ChangeNotifierProvider<ProfileCompletenessService>((ref) {
+  return ProfileCompletenessService();
 });
 
 /// Current User Provider

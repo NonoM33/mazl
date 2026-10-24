@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
 import 'auth_service.dart';
+import 'profile_completeness_service.dart';
 import 'store/credits_service.dart';
 
 // Data-model classes extracted out of this file into `lib/core/models/`.
@@ -320,6 +321,40 @@ class ApiService implements CoupleApi {
     }
   }
 
+  /// The fields the member still has to give (`gender`, `looking_for`), read
+  /// from the `missing` list of `/api/auth/me`; empty when the profile is
+  /// complete. A server that does not send `missing` yet is a failure: the
+  /// completeness stays unknown rather than guessed.
+  Future<ApiResponse<List<String>>> getMissingProfileFields() async {
+    try {
+      final response = await _get('/api/auth/me');
+      if (response.statusCode != 200) {
+        return ApiResponse.failure('Failed to get user');
+      }
+      final data = jsonDecode(response.body);
+      final missing = data is Map<String, dynamic> ? data['missing'] : null;
+      if (missing is! List) {
+        return ApiResponse.failure('missing_not_provided');
+      }
+      return ApiResponse.success(missing.whereType<String>().toList());
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return _networkFailure(e);
+    }
+  }
+
+  /// A non-200 answer from a discovery feed. A 409 `profile_incomplete` (the
+  /// member has not said who they are / who they seek) also tells the
+  /// completeness service, whose listeners (the router) send the member to the
+  /// profile setup.
+  ApiResponse<T> _feedFailure<T>(http.Response response, String diagnostic) {
+    final failure = ApiResponse<T>.httpFailure(response, diagnostic);
+    if (failure.errorCode == 'profile_incomplete') {
+      ProfileCompletenessService().markIncomplete(const []);
+    }
+    return failure;
+  }
+
   /// Get profile by user ID
   Future<ApiResponse<Profile>> getProfileById(int userId) async {
     try {
@@ -350,7 +385,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/discover?limit=$limit&offset=$offset');
 
       if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get profiles');
+        return _feedFailure(response, 'Failed to get profiles');
       }
 
       final data = jsonDecode(response.body);
@@ -375,7 +410,7 @@ class ApiService implements CoupleApi {
       final response = await _get('/api/daily-picks');
 
       if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get daily picks');
+        return _feedFailure(response, 'Failed to get daily picks');
       }
 
       final data = jsonDecode(response.body);

@@ -174,6 +174,7 @@ abstract final class DemoRoutes {
         'success': true,
         'user': DemoFixtures.meUser(),
         'profile': DemoStore.myProfile(),
+        'missing': <String>[],
       }),
     ),
     DemoRoute('PUT', '/api/profile', (r, m) {

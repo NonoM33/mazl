@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/route_names.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/couple_service.dart';
+import '../../../core/services/profile_completeness_service.dart';
 import '../../common/widgets/mazl_components.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,6 +31,9 @@ class _SplashScreenState extends State<SplashScreen> {
       // The couple state must be known before the router decides: the guard
       // then sends a member in a couple to /couple/activities by itself.
       await CoupleService().initialize();
+      // Same for a profile without gender / looking-for: the guard needs the
+      // answer before the first screen, or Discover would flash up.
+      await ProfileCompletenessService().refresh();
       if (!mounted) return;
       context.go(RoutePaths.discover);
     } else {
