@@ -99,6 +99,7 @@ export function registerProfileRoutes(
         ageMin: body.ageMin,
         ageMax: body.ageMax,
         distanceMax: body.distanceMax === undefined ? undefined : clampDistanceMax(body.distanceMax),
+        relationshipIntention: body.relationshipIntention,
       });
 
       return c.json({ success: true, profile });

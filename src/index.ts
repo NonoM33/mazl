@@ -98,6 +98,7 @@ import { createPlusStatus, registerLikesVisibility } from "./features/likes-visi
 import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
+import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
@@ -314,6 +315,17 @@ registerBillingWeb(app, billingWeb);
 // Art. 9 consent and personal-data export (docs/web/adr/W06).
 registerPrivacy(app, createPrivacyModule(sql));
 
+// ============ STAFF BACK-OFFICE ============
+// /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
+// matching tuning), the public appeal route and the /console front:
+// src/backoffice.ts.
+const backoffice = createBackoffice({
+  sql,
+  env: process.env,
+  closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
+});
+backoffice.register(app);
+
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
@@ -358,7 +370,7 @@ registerCredits(app, credits, requireAuth);
 registerLikeAllowance(app, createLikeAllowanceService(sql));
 // Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
 registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
-registerMatchingRoutes(app, { credits });
+registerMatchingRoutes(app, { credits, feed: backoffice.feed });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost
@@ -734,6 +746,8 @@ const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 await ensureVerificationSchema(sql);
 await ensureWebSessionSchema(sql);
+await backoffice.ensureSchemas();
+backoffice.startSweeper();
 
 console.log(`Server running on http://localhost:${port}`);
 
