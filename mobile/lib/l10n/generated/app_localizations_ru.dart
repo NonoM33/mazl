@@ -97,6 +97,97 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonLoadError => 'Ошибка загрузки';
 
   @override
+  String get matchingDiscoverDailyPicks => 'Подборка дня';
+
+  @override
+  String get matchingFilters => 'Фильтры';
+
+  @override
+  String get matchingDiscoverEmptyTitle => 'Вы просмотрели всех.';
+
+  @override
+  String get matchingDiscoverEmptyBody =>
+      'Загляните позже или расширьте фильтры, чтобы увидеть новые профили.';
+
+  @override
+  String get matchingDiscoverOpenFilters => 'Открыть фильтры';
+
+  @override
+  String get matchingDiscoverRefresh => 'Обновить';
+
+  @override
+  String get matchingDiscoverUndo => 'Отменить';
+
+  @override
+  String get matchingDiscoverSuperLike => 'Суперлайк';
+
+  @override
+  String get matchingDiscoverBoost => 'Буст';
+
+  @override
+  String matchingDiscoverBoostOn(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes минуты',
+      many: '$minutes минут',
+      few: '$minutes минут',
+      one: '$minutes минуты',
+    );
+    return 'Буст включён. Вы в начале очереди в течение $_temp0.';
+  }
+
+  @override
+  String get matchingDiscoverBoostFailed => 'Не удалось включить буст';
+
+  @override
+  String get matchingCardPass => 'Пропустить';
+
+  @override
+  String get matchingCardLike => 'Нравится';
+
+  @override
+  String get matchingCardViewProfile => 'Открыть профиль';
+
+  @override
+  String get matchingCardAnonymous => 'Без имени';
+
+  @override
+  String matchingCardDistance(int km) {
+    return 'в $km км';
+  }
+
+  @override
+  String get matchingCardVerified => 'Проверено';
+
+  @override
+  String matchingAvatarNewMatch(String name) {
+    return 'Новый мэтч, $name';
+  }
+
+  @override
+  String matchingAvatarMatch(String name) {
+    return 'Мэтч, $name';
+  }
+
+  @override
+  String get matchingMatchTitle => 'Это мэтч!';
+
+  @override
+  String matchingMatchLineNamed(String name) {
+    return 'Вы с $name понравились друг другу.';
+  }
+
+  @override
+  String get matchingMatchLineAnonymous => 'Вы понравились друг другу.';
+
+  @override
+  String get matchingMatchSendMessage => 'Написать сообщение';
+
+  @override
+  String get matchingMatchKeepDiscovering => 'Продолжить знакомства';
+
+  @override
   String get safetyBlock => 'Заблокировать';
 
   @override

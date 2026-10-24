@@ -96,6 +96,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLoadError => 'Couldn’t load';
 
   @override
+  String get matchingDiscoverDailyPicks => 'Daily picks';
+
+  @override
+  String get matchingFilters => 'Filters';
+
+  @override
+  String get matchingDiscoverEmptyTitle => 'You\'ve seen everyone.';
+
+  @override
+  String get matchingDiscoverEmptyBody =>
+      'Come back later or widen your filters to see new profiles.';
+
+  @override
+  String get matchingDiscoverOpenFilters => 'Open filters';
+
+  @override
+  String get matchingDiscoverRefresh => 'Refresh';
+
+  @override
+  String get matchingDiscoverUndo => 'Undo';
+
+  @override
+  String get matchingDiscoverSuperLike => 'Super like';
+
+  @override
+  String get matchingDiscoverBoost => 'Boost';
+
+  @override
+  String matchingDiscoverBoostOn(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'Boost is on. You\'re at the top of the stack for $_temp0.';
+  }
+
+  @override
+  String get matchingDiscoverBoostFailed => 'Couldn\'t turn on Boost';
+
+  @override
+  String get matchingCardPass => 'Pass';
+
+  @override
+  String get matchingCardLike => 'Like';
+
+  @override
+  String get matchingCardViewProfile => 'View profile';
+
+  @override
+  String get matchingCardAnonymous => 'Anonymous';
+
+  @override
+  String matchingCardDistance(int km) {
+    return '$km km away';
+  }
+
+  @override
+  String get matchingCardVerified => 'Verified';
+
+  @override
+  String matchingAvatarNewMatch(String name) {
+    return 'New match, $name';
+  }
+
+  @override
+  String matchingAvatarMatch(String name) {
+    return 'Match, $name';
+  }
+
+  @override
+  String get matchingMatchTitle => 'It\'s a match!';
+
+  @override
+  String matchingMatchLineNamed(String name) {
+    return 'You and $name liked each other.';
+  }
+
+  @override
+  String get matchingMatchLineAnonymous => 'You liked each other.';
+
+  @override
+  String get matchingMatchSendMessage => 'Send a message';
+
+  @override
+  String get matchingMatchKeepDiscovering => 'Keep discovering';
+
+  @override
   String get safetyBlock => 'Block';
 
   @override

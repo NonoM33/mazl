@@ -9,6 +9,8 @@ import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
@@ -34,7 +36,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
-  String? _error;
+  bool _loadFailed = false;
+  ApiErrorKind? _errorKind;
+  /// How long a Boost lasts, as announced to the member.
+  static const int _boostMinutes = 30;
+
   bool _swipeFromDetail = false; // Flag to prevent duplicate API calls
 
   /// Bumped with each new list so the deck starts again from its first card.
@@ -74,7 +80,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (!isRefresh) {
       setState(() {
         _isLoading = true;
-        _error = null;
+        _loadFailed = false;
       });
     }
 
@@ -88,7 +94,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       });
     } else {
       setState(() {
-        _error = response.error ?? 'Erreur de chargement';
+        _loadFailed = true;
+        _errorKind = response.errorKind;
         _isLoading = false;
       });
     }
@@ -126,13 +133,13 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           const Spacer(),
           RoundIconButton(
             icon: LucideIcons.sparkles,
-            tooltip: 'Sélections du jour',
+            tooltip: context.l10n.matchingDiscoverDailyPicks,
             onPressed: () => context.push(RoutePaths.dailyPicks),
           ),
           const SizedBox(width: 8),
           RoundIconButton(
             icon: LucideIcons.slidersHorizontal,
-            tooltip: 'Filtres',
+            tooltip: context.l10n.matchingFilters,
             onPressed: _openFilters,
           ),
         ],
@@ -152,7 +159,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (_isLoading) {
       return const ProfileCardSkeleton();
     }
-    if (_error != null) {
+    if (_loadFailed) {
       return _buildError();
     }
     if (_profiles.isEmpty) {
@@ -172,14 +179,14 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             Icon(LucideIcons.circleAlert, size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
-              _error!,
+              apiErrorText(context.l10n, _errorKind),
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadProfiles,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -197,12 +204,12 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Vous avez tout vu.',
+              context.l10n.matchingDiscoverEmptyTitle,
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 12),
             Text(
-              'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.',
+              context.l10n.matchingDiscoverEmptyBody,
               style: TextStyle(
                 fontSize: 16,
                 height: 1.45,
@@ -212,7 +219,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             const SizedBox(height: 28),
             OutlinedButton(
               onPressed: _openFilters,
-              child: const Text('Ouvrir les filtres'),
+              child: Text(context.l10n.matchingDiscoverOpenFilters),
             ),
             const SizedBox(height: 4),
             // No inner padding: its text sits on the same edge as the title.
@@ -221,9 +228,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(0, 48),
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
               ),
-              child: const Text('Actualiser'),
+              child: Text(context.l10n.matchingDiscoverRefresh),
             ),
           ],
         ),
@@ -288,7 +295,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   List<Widget> _buildSecondaryActions({required bool followsSwipe}) {
     final superLike = DiscoverMiniAction(
       icon: LucideIcons.star,
-      tooltip: 'Super like',
+      tooltip: context.l10n.matchingDiscoverSuperLike,
       badge: PremiumGate.remainingSuperLikes.toString(),
       // Refused (none left): the card stays, then the gate opens.
       onPressed: () => _deck.swipe(SwipeDirection.up),
@@ -297,7 +304,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       // Undo (Premium)
       DiscoverMiniAction(
         icon: LucideIcons.rotateCcw,
-        tooltip: 'Annuler',
+        tooltip: context.l10n.matchingDiscoverUndo,
         locked: !PremiumGate.isPremium,
         onPressed: () async {
           if (await PremiumGate.showFeatureGate(context, PremiumFeature.rewind)) {
@@ -317,7 +324,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       // Boost (Premium)
       DiscoverMiniAction(
         icon: LucideIcons.zap,
-        tooltip: 'Boost',
+        tooltip: context.l10n.matchingDiscoverBoost,
         locked: !PremiumGate.isPremium,
         onPressed: () async {
           if (await PremiumGate.showFeatureGate(context, PremiumFeature.boost)) {
@@ -334,14 +341,14 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
     if (response.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Boost activé. Vous êtes en tête de pile pendant 30 minutes.'),
+        SnackBar(
+          content: Text(context.l10n.matchingDiscoverBoostOn(_boostMinutes)),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response.error ?? 'Impossible d\'activer le boost'),
+          content: Text(context.l10n.matchingDiscoverBoostFailed),
         ),
       );
     }

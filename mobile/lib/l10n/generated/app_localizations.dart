@@ -278,6 +278,150 @@ abstract class AppLocalizations {
   /// **'Erreur de chargement'**
   String get commonLoadError;
 
+  /// Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélections du jour'**
+  String get matchingDiscoverDailyPicks;
+
+  /// Info-bulle du bouton filtres en haut de Découvrir, et titre de l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get matchingFilters;
+
+  /// Titre de Découvrir quand tous les profils proposés ont été vus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez tout vu.'**
+  String get matchingDiscoverEmptyTitle;
+
+  /// Texte sous le titre de Découvrir quand il n'y a plus de profil à voir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.'**
+  String get matchingDiscoverEmptyBody;
+
+  /// Bouton de Découvrir (état vide) qui ouvre l'écran des filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir les filtres'**
+  String get matchingDiscoverOpenFilters;
+
+  /// Bouton de Découvrir (état vide) qui recharge les profils.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get matchingDiscoverRefresh;
+
+  /// Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+).
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get matchingDiscoverUndo;
+
+  /// Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super like'**
+  String get matchingDiscoverSuperLike;
+
+  /// Info-bulle du petit bouton rond de la carte qui active un Boost (fonction mazl+). Nom de la fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get matchingDiscoverBoost;
+
+  /// Message bref après l'activation d'un Boost. {minutes} est la durée du Boost en minutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost activé. Vous êtes en tête de pile pendant {minutes, plural, one{{minutes} minute} other{{minutes} minutes}}.'**
+  String matchingDiscoverBoostOn(int minutes);
+
+  /// Message bref quand le Boost n'a pas pu être activé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'activer le boost'**
+  String get matchingDiscoverBoostFailed;
+
+  /// Info-bulle du gros bouton rond de la carte qui passe le profil (équivalent d'un balayage à gauche).
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get matchingCardPass;
+
+  /// Info-bulle du gros bouton rond de la carte (cœur) qui aime le profil (équivalent d'un balayage à droite).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'aime'**
+  String get matchingCardLike;
+
+  /// Indication d'accessibilité sur le nom de la carte : toucher ouvre le profil complet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get matchingCardViewProfile;
+
+  /// Nom affiché quand un profil n'a pas de prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anonyme'**
+  String get matchingCardAnonymous;
+
+  /// Distance sous le nom, après la ville, séparée par un point médian. {km} est un nombre entier de kilomètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'à {km} km'**
+  String matchingCardDistance(int km);
+
+  /// Pastille blanche en haut de la photo : le profil a passé la vérification d'identité. Doit tenir sur une ligne de 12 px de haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiée'**
+  String get matchingCardVerified;
+
+  /// Libellé d'accessibilité d'un match récent dans la rangée des matchs. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau match, {name}'**
+  String matchingAvatarNewMatch(String name);
+
+  /// Libellé d'accessibilité d'un match dans la rangée des matchs. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match, {name}'**
+  String matchingAvatarMatch(String name);
+
+  /// Titre de la feuille qui s'ouvre quand deux membres se plaisent mutuellement.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est un match'**
+  String get matchingMatchTitle;
+
+  /// Phrase sous le titre de la feuille de match. {name} est le prénom de l'autre membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} et vous vous êtes plu.'**
+  String matchingMatchLineNamed(String name);
+
+  /// Phrase sous le titre de la feuille de match quand l'autre membre n'a pas de prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous êtes plu.'**
+  String get matchingMatchLineAnonymous;
+
+  /// Bouton principal de la feuille de match : ouvre la conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer un message'**
+  String get matchingMatchSendMessage;
+
+  /// Bouton secondaire de la feuille de match : ferme la feuille et revient aux profils.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer à découvrir'**
+  String get matchingMatchKeepDiscovering;
+
   /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
   ///
   /// In fr, this message translates to:

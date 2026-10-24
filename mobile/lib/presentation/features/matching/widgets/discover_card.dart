@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/models/profile.dart' show Profile;
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 
@@ -134,7 +135,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
                 SwipeDirection.left,
                 RoundIconButton(
                   icon: LucideIcons.x,
-                  tooltip: 'Passer',
+                  tooltip: context.l10n.matchingCardPass,
                   size: DiscoverCard._actionSize,
                   iconSize: 26,
                   onPressed: widget.onPass,
@@ -145,7 +146,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
                 SwipeDirection.right,
                 RoundIconButton(
                   icon: LucideIcons.heart,
-                  tooltip: "J'aime",
+                  tooltip: context.l10n.matchingCardLike,
                   size: DiscoverCard._actionSize,
                   iconSize: 26,
                   style: RoundButtonStyle.accent,
@@ -186,8 +187,8 @@ class _DiscoverCardState extends State<DiscoverCard> {
 
   Widget _buildInfo(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final name = _profile.displayName ?? 'Anonyme';
-    final meta = _metaLine();
+    final name = _profile.displayName ?? context.l10n.matchingCardAnonymous;
+    final meta = _metaLine(context);
     final tags = _tags();
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
@@ -197,14 +198,14 @@ class _DiscoverCardState extends State<DiscoverCard> {
         children: [
           Semantics(
             button: true,
-            hint: 'Voir le profil',
+            hint: context.l10n.matchingCardViewProfile,
             child: InkWell(
               onTap: widget.onTapProfile,
               borderRadius: BorderRadius.circular(12),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text.rich(
                     TextSpan(
                       text: name,
@@ -257,10 +258,10 @@ class _DiscoverCardState extends State<DiscoverCard> {
   }
 
   /// « Ville · à X km » : le modèle n'expose pas encore de métier.
-  String _metaLine() {
+  String _metaLine(BuildContext context) {
     final parts = <String>[
       if (_hasText(_profile.location)) _profile.location!.trim(),
-      if (_profile.distance != null) 'à ${_profile.distance!.round()} km',
+      if (_profile.distance != null) context.l10n.matchingCardDistance(_profile.distance!.round()),
     ];
     return parts.join(' · ');
   }
@@ -318,14 +319,14 @@ class _VerifiedPill extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(LucideIcons.check, size: 14, color: AppColors.tekhelet),
-          SizedBox(width: 4),
+          const Icon(LucideIcons.check, size: 14, color: AppColors.tekhelet),
+          const SizedBox(width: 4),
           Text(
-            'Vérifiée',
-            style: TextStyle(
+            context.l10n.matchingCardVerified,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: AppColors.ink,
@@ -369,9 +370,9 @@ class DiscoverMiniAction extends StatelessWidget {
           onPressed: onPressed,
         ),
         if (locked || badge != null)
-          Positioned(
+          PositionedDirectional(
             top: -2,
-            right: -2,
+            end: -2,
             child: IgnorePointer(
               child: Container(
                 constraints: const BoxConstraints(minWidth: 18, minHeight: 18),

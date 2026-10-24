@@ -96,6 +96,96 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonLoadError => 'שגיאה בטעינה';
 
   @override
+  String get matchingDiscoverDailyPicks => 'הבחירות של היום';
+
+  @override
+  String get matchingFilters => 'מסננים';
+
+  @override
+  String get matchingDiscoverEmptyTitle => 'כל הפרופילים נצפו.';
+
+  @override
+  String get matchingDiscoverEmptyBody =>
+      'כדאי לחזור מאוחר יותר או להרחיב את המסננים כדי לראות פרופילים חדשים.';
+
+  @override
+  String get matchingDiscoverOpenFilters => 'פתיחת המסננים';
+
+  @override
+  String get matchingDiscoverRefresh => 'רענון';
+
+  @override
+  String get matchingDiscoverUndo => 'ביטול';
+
+  @override
+  String get matchingDiscoverSuperLike => 'סופר לייק';
+
+  @override
+  String get matchingDiscoverBoost => 'בוסט';
+
+  @override
+  String matchingDiscoverBoostOn(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes דקות',
+      two: 'שתי דקות',
+      one: 'דקה אחת',
+    );
+    return 'הבוסט הופעל. הפרופיל שלך בראש הערימה למשך $_temp0.';
+  }
+
+  @override
+  String get matchingDiscoverBoostFailed => 'לא ניתן להפעיל את הבוסט';
+
+  @override
+  String get matchingCardPass => 'לדלג';
+
+  @override
+  String get matchingCardLike => 'לייק';
+
+  @override
+  String get matchingCardViewProfile => 'לצפייה בפרופיל';
+
+  @override
+  String get matchingCardAnonymous => 'ללא שם';
+
+  @override
+  String matchingCardDistance(int km) {
+    return 'במרחק $km ק״מ';
+  }
+
+  @override
+  String get matchingCardVerified => 'פרופיל מאומת';
+
+  @override
+  String matchingAvatarNewMatch(String name) {
+    return 'מאץ\' חדש, $name';
+  }
+
+  @override
+  String matchingAvatarMatch(String name) {
+    return 'מאץ\', $name';
+  }
+
+  @override
+  String get matchingMatchTitle => 'יש מאץ\'!';
+
+  @override
+  String matchingMatchLineNamed(String name) {
+    return 'יש חיבור הדדי עם $name.';
+  }
+
+  @override
+  String get matchingMatchLineAnonymous => 'יש חיבור הדדי.';
+
+  @override
+  String get matchingMatchSendMessage => 'לשלוח הודעה';
+
+  @override
+  String get matchingMatchKeepDiscovering => 'להמשיך לגלות';
+
+  @override
   String get safetyBlock => 'לחסום';
 
   @override

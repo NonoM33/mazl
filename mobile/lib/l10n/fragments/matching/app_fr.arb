@@ -1,0 +1,123 @@
+{
+  "matchingDiscoverDailyPicks": "Sélections du jour",
+  "@matchingDiscoverDailyPicks": {
+    "description": "Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour."
+  },
+  "matchingFilters": "Filtres",
+  "@matchingFilters": {
+    "description": "Info-bulle du bouton filtres en haut de Découvrir, et titre de l'écran des filtres."
+  },
+  "matchingDiscoverEmptyTitle": "Vous avez tout vu.",
+  "@matchingDiscoverEmptyTitle": {
+    "description": "Titre de Découvrir quand tous les profils proposés ont été vus."
+  },
+  "matchingDiscoverEmptyBody": "Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.",
+  "@matchingDiscoverEmptyBody": {
+    "description": "Texte sous le titre de Découvrir quand il n'y a plus de profil à voir."
+  },
+  "matchingDiscoverOpenFilters": "Ouvrir les filtres",
+  "@matchingDiscoverOpenFilters": {
+    "description": "Bouton de Découvrir (état vide) qui ouvre l'écran des filtres."
+  },
+  "matchingDiscoverRefresh": "Actualiser",
+  "@matchingDiscoverRefresh": {
+    "description": "Bouton de Découvrir (état vide) qui recharge les profils."
+  },
+  "matchingDiscoverUndo": "Annuler",
+  "@matchingDiscoverUndo": {
+    "description": "Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+)."
+  },
+  "matchingDiscoverSuperLike": "Super like",
+  "@matchingDiscoverSuperLike": {
+    "description": "Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre."
+  },
+  "matchingDiscoverBoost": "Boost",
+  "@matchingDiscoverBoost": {
+    "description": "Info-bulle du petit bouton rond de la carte qui active un Boost (fonction mazl+). Nom de la fonction."
+  },
+  "matchingDiscoverBoostOn": "Boost activé. Vous êtes en tête de pile pendant {minutes, plural, one{{minutes} minute} other{{minutes} minutes}}.",
+  "@matchingDiscoverBoostOn": {
+    "description": "Message bref après l'activation d'un Boost. {minutes} est la durée du Boost en minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingDiscoverBoostFailed": "Impossible d'activer le boost",
+  "@matchingDiscoverBoostFailed": {
+    "description": "Message bref quand le Boost n'a pas pu être activé."
+  },
+  "matchingCardPass": "Passer",
+  "@matchingCardPass": {
+    "description": "Info-bulle du gros bouton rond de la carte qui passe le profil (équivalent d'un balayage à gauche)."
+  },
+  "matchingCardLike": "J'aime",
+  "@matchingCardLike": {
+    "description": "Info-bulle du gros bouton rond de la carte (cœur) qui aime le profil (équivalent d'un balayage à droite)."
+  },
+  "matchingCardViewProfile": "Voir le profil",
+  "@matchingCardViewProfile": {
+    "description": "Indication d'accessibilité sur le nom de la carte : toucher ouvre le profil complet."
+  },
+  "matchingCardAnonymous": "Anonyme",
+  "@matchingCardAnonymous": {
+    "description": "Nom affiché quand un profil n'a pas de prénom."
+  },
+  "matchingCardDistance": "à {km} km",
+  "@matchingCardDistance": {
+    "description": "Distance sous le nom, après la ville, séparée par un point médian. {km} est un nombre entier de kilomètres.",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingCardVerified": "Vérifiée",
+  "@matchingCardVerified": {
+    "description": "Pastille blanche en haut de la photo : le profil a passé la vérification d'identité. Doit tenir sur une ligne de 12 px de haut."
+  },
+  "matchingAvatarNewMatch": "Nouveau match, {name}",
+  "@matchingAvatarNewMatch": {
+    "description": "Libellé d'accessibilité d'un match récent dans la rangée des matchs. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchingAvatarMatch": "Match, {name}",
+  "@matchingAvatarMatch": {
+    "description": "Libellé d'accessibilité d'un match dans la rangée des matchs. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchingMatchTitle": "C'est un match",
+  "@matchingMatchTitle": {
+    "description": "Titre de la feuille qui s'ouvre quand deux membres se plaisent mutuellement."
+  },
+  "matchingMatchLineNamed": "{name} et vous vous êtes plu.",
+  "@matchingMatchLineNamed": {
+    "description": "Phrase sous le titre de la feuille de match. {name} est le prénom de l'autre membre.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchingMatchLineAnonymous": "Vous vous êtes plu.",
+  "@matchingMatchLineAnonymous": {
+    "description": "Phrase sous le titre de la feuille de match quand l'autre membre n'a pas de prénom."
+  },
+  "matchingMatchSendMessage": "Envoyer un message",
+  "@matchingMatchSendMessage": {
+    "description": "Bouton principal de la feuille de match : ouvre la conversation."
+  },
+  "matchingMatchKeepDiscovering": "Continuer à découvrir",
+  "@matchingMatchKeepDiscovering": {
+    "description": "Bouton secondaire de la feuille de match : ferme la feuille et revient aux profils."
+  }
+}

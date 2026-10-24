@@ -1194,19 +1194,6 @@ lib/presentation/features/matching/screens/daily_picks_screen.dart | Sélections
 lib/presentation/features/matching/screens/daily_picks_screen.dart | Vous avez matché avec ${profile.displayName}.
 lib/presentation/features/matching/screens/daily_picks_screen.dart | Vous avez vu toutes vos sélections.
 lib/presentation/features/matching/screens/daily_picks_screen.dart | }, ${profile.age ?? 
-lib/presentation/features/matching/screens/discover_screen.dart | Actualiser
-lib/presentation/features/matching/screens/discover_screen.dart | Annuler
-lib/presentation/features/matching/screens/discover_screen.dart | Boost
-lib/presentation/features/matching/screens/discover_screen.dart | Boost activé. Vous êtes en tête de pile pendant 30 minutes.
-lib/presentation/features/matching/screens/discover_screen.dart | Erreur de chargement
-lib/presentation/features/matching/screens/discover_screen.dart | Filtres
-lib/presentation/features/matching/screens/discover_screen.dart | Impossible d\'activer le boost
-lib/presentation/features/matching/screens/discover_screen.dart | Ouvrir les filtres
-lib/presentation/features/matching/screens/discover_screen.dart | Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.
-lib/presentation/features/matching/screens/discover_screen.dart | Réessayer
-lib/presentation/features/matching/screens/discover_screen.dart | Super like
-lib/presentation/features/matching/screens/discover_screen.dart | Sélections du jour
-lib/presentation/features/matching/screens/discover_screen.dart | Vous avez tout vu.
 lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.end.round()} ans
 lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.start.round()} ans
 lib/presentation/features/matching/screens/filters_screen.dart | ${_distanceMax.round()} km
@@ -1288,8 +1275,6 @@ lib/presentation/features/matching/screens/matches_screen.dart | Voir les $remai
 lib/presentation/features/matching/screens/matches_screen.dart | Voir qui vous a aimé avec 
 lib/presentation/features/matching/screens/matches_screen.dart | Ça y est, vous avez matché ?
 lib/presentation/features/matching/screens/matches_screen.dart | Écrivez-lui
-lib/presentation/features/matching/widgets/avatar_ring.dart | Match, $name
-lib/presentation/features/matching/widgets/avatar_ring.dart | Nouveau match, $name
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | ${score.factors.length} critères analysés
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Avec $userName
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compatibilité
@@ -1300,16 +1285,6 @@ lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Le 
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Score de compatibilité
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
-lib/presentation/features/matching/widgets/discover_card.dart | Anonyme
-lib/presentation/features/matching/widgets/discover_card.dart | Passer
-lib/presentation/features/matching/widgets/discover_card.dart | Voir le profil
-lib/presentation/features/matching/widgets/discover_card.dart | Vérifiée
-lib/presentation/features/matching/widgets/discover_card.dart | à ${_profile.distance!.round()} km
-lib/presentation/features/matching/widgets/match_sheet.dart | $name et vous vous êtes plu.
-lib/presentation/features/matching/widgets/match_sheet.dart | C\'est un match
-lib/presentation/features/matching/widgets/match_sheet.dart | Continuer à découvrir
-lib/presentation/features/matching/widgets/match_sheet.dart | Envoyer un message
-lib/presentation/features/matching/widgets/match_sheet.dart | Vous vous êtes plu.
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Activités
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Calendrier
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Notre espace

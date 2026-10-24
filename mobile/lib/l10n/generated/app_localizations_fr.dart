@@ -99,6 +99,95 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonLoadError => 'Erreur de chargement';
 
   @override
+  String get matchingDiscoverDailyPicks => 'Sélections du jour';
+
+  @override
+  String get matchingFilters => 'Filtres';
+
+  @override
+  String get matchingDiscoverEmptyTitle => 'Vous avez tout vu.';
+
+  @override
+  String get matchingDiscoverEmptyBody =>
+      'Revenez plus tard ou élargissez vos filtres pour voir de nouveaux profils.';
+
+  @override
+  String get matchingDiscoverOpenFilters => 'Ouvrir les filtres';
+
+  @override
+  String get matchingDiscoverRefresh => 'Actualiser';
+
+  @override
+  String get matchingDiscoverUndo => 'Annuler';
+
+  @override
+  String get matchingDiscoverSuperLike => 'Super like';
+
+  @override
+  String get matchingDiscoverBoost => 'Boost';
+
+  @override
+  String matchingDiscoverBoostOn(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '$minutes minute',
+    );
+    return 'Boost activé. Vous êtes en tête de pile pendant $_temp0.';
+  }
+
+  @override
+  String get matchingDiscoverBoostFailed => 'Impossible d\'activer le boost';
+
+  @override
+  String get matchingCardPass => 'Passer';
+
+  @override
+  String get matchingCardLike => 'J\'aime';
+
+  @override
+  String get matchingCardViewProfile => 'Voir le profil';
+
+  @override
+  String get matchingCardAnonymous => 'Anonyme';
+
+  @override
+  String matchingCardDistance(int km) {
+    return 'à $km km';
+  }
+
+  @override
+  String get matchingCardVerified => 'Vérifiée';
+
+  @override
+  String matchingAvatarNewMatch(String name) {
+    return 'Nouveau match, $name';
+  }
+
+  @override
+  String matchingAvatarMatch(String name) {
+    return 'Match, $name';
+  }
+
+  @override
+  String get matchingMatchTitle => 'C\'est un match';
+
+  @override
+  String matchingMatchLineNamed(String name) {
+    return '$name et vous vous êtes plu.';
+  }
+
+  @override
+  String get matchingMatchLineAnonymous => 'Vous vous êtes plu.';
+
+  @override
+  String get matchingMatchSendMessage => 'Envoyer un message';
+
+  @override
+  String get matchingMatchKeepDiscovering => 'Continuer à découvrir';
+
+  @override
   String get safetyBlock => 'Bloquer';
 
   @override
