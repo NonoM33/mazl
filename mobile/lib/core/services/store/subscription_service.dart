@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'purchase_errors.dart';
 import 'store_gateway.dart';
 import 'store_products.dart';
 import 'subscription_api.dart';
@@ -97,7 +97,7 @@ class SubscriptionService extends ChangeNotifier {
 
   /// Seul iOS achète : le serveur ne vérifie pas encore Google Play, et on
   /// n'ouvre jamais un droit sur un achat non vérifié.
-  bool get canPurchase => _targetPlatform == TargetPlatform.iOS;
+  bool get canPurchase => canSellOn(_targetPlatform);
 
   /// Pourquoi l'achat est impossible ici, ou null s'il est possible.
   PurchaseProblem? get unavailablePurchaseProblem =>
@@ -226,7 +226,7 @@ class SubscriptionService extends ChangeNotifier {
         onTimeout: () => const PurchasePending(),
       );
     } on Exception catch (error) {
-      if (_isUserCancellation(error)) return const PurchaseCancelled();
+      if (isUserCancellation(error)) return const PurchaseCancelled();
       debugPrint('Subscription: purchase failed - $error');
       return const PurchaseFailed(PurchaseProblem.generic);
     } finally {
@@ -300,7 +300,7 @@ class SubscriptionService extends ChangeNotifier {
       case PurchaseStatus.error:
         _resolvePending(
           purchase.productID,
-          _isUserCancellation(purchase.error)
+          isUserCancellation(purchase.error)
               ? const PurchaseCancelled()
               : const PurchaseFailed(PurchaseProblem.generic),
         );
@@ -405,7 +405,9 @@ class SubscriptionService extends ChangeNotifier {
       }
       _setSubscription(subscription);
     } on FormatException catch (error) {
-      debugPrint('Subscription: unreadable verification reply - ${error.message}');
+      debugPrint(
+        'Subscription: unreadable verification reply - ${error.message}',
+      );
       return const _VerifyOutcome.refused(PurchaseProblem.invalidTransaction);
     }
     await _complete(purchase);
@@ -441,17 +443,6 @@ class SubscriptionService extends ChangeNotifier {
 
   static Future<bool> _launchExternally(Uri uri) =>
       launchUrl(uri, mode: LaunchMode.externalApplication);
-}
-
-/// Vrai quand l'erreur est la fermeture volontaire de la fenêtre de paiement
-/// (StoreKit 1 : SKErrorPaymentCancelled ; StoreKit 2 : userCancelled).
-bool _isUserCancellation(Object? error) {
-  final text = switch (error) {
-    PlatformException(:final code, :final message) => '$code $message',
-    IAPError(:final code, :final message) => '$code $message',
-    _ => '',
-  };
-  return text.toLowerCase().contains('cancel');
 }
 
 class _PendingPurchase {
