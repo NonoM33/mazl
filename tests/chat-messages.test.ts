@@ -179,6 +179,21 @@ describe("reactions", () => {
     expect(listed.messages[0]!.reactions.map((r) => r.emoji).sort()).toEqual(["👍", "😂"].sort());
   });
 
+  test("🙏 is accepted; a new 😡 is refused; a 😡 already placed is listed and removable", async () => {
+    const prayer = await react(pair.b.token, "🙏");
+    expect(prayer.status).toBe(200);
+    expect(prayer.body.reactions.map((r) => r.emoji)).toContain("🙏");
+    expect((await react(pair.b.token, "🙏")).status).toBe(200); // toggled off
+    expect((await react(pair.b.token, "😡")).status).toBe(400);
+    await db`INSERT INTO message_reactions (message_id, user_id, emoji) VALUES (${message.id}, ${pair.b.id}, '😡')
+      ON CONFLICT (message_id, user_id) DO UPDATE SET emoji = EXCLUDED.emoji`;
+    const listed = (await (await fetch(`${BASE_URL}/api/conversations/${pair.conversationId}/messages`, { headers: auth(pair.a.token) })).json()) as { messages: ApiMessage[] };
+    expect(listed.messages[0]!.reactions).toContainEqual({ emoji: "😡", user_ids: [pair.b.id] });
+    const removed = await react(pair.b.token, "😡");
+    expect(removed.status).toBe(200);
+    expect(removed.body.reactions.map((r) => r.emoji)).not.toContain("😡");
+  });
+
   test("only the six allowed emoji", async () => {
     for (const emoji of ["🔥", "❤", "x"]) expect((await react(pair.b.token, emoji)).status).toBe(400);
     expect((await post(pair.b.token, `/api/messages/${message.id}/reactions`, {})).status).toBe(400);

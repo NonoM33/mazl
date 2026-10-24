@@ -1,4 +1,4 @@
-import { ALLOWED_REACTIONS, replyPreview } from "../domain/message-rules";
+import { DISPLAYED_REACTIONS, replyPreview } from "../domain/message-rules";
 import type {
   LinkPreviewView,
   MediaRecord,
@@ -36,7 +36,7 @@ function groupBy<T>(items: readonly T[], keyOf: (item: T) => number): Map<number
 }
 
 function groupReactions(reactions: readonly ReactionRecord[]): ReactionView[] {
-  return ALLOWED_REACTIONS.flatMap((emoji) => {
+  return DISPLAYED_REACTIONS.flatMap((emoji) => {
     const userIds = reactions
       .filter((reaction) => reaction.emoji === emoji)
       .map((reaction) => reaction.userId)

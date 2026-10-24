@@ -383,6 +383,43 @@ void main() {
     ChatMessage withReactions(List<Reaction> reactions, {int sender = me}) =>
         msg(5, sender, 'Salut', at: today(10, 0), reactions: reactions);
 
+    testWidgets(
+      'a server message that still carries a retired 😡 decodes it and shows it in the pill',
+      (tester) async {
+        const angry = '\u{1F621}'; // retired on 2026-10-24; the server still sends it
+        final decoded = ChatMessage.fromJson({
+          'id': 5,
+          'conversation_id': 1,
+          'sender_id': other,
+          'client_id': null,
+          'type': 'text',
+          'content': 'Salut',
+          'created_at': today(10, 0).toIso8601String(),
+          'media': <dynamic>[],
+          'voice': null,
+          'reply_to': null,
+          'reactions': [
+            {'emoji': angry, 'user_ids': [me]},
+          ],
+          'link_preview': null,
+          'read_at': null,
+          'unsent': false,
+        });
+        expect(decoded.reactions.single.emoji, angry);
+        expect(decoded.reactions.single.userIds, [me]);
+        expect(allowedReactions, isNot(contains(angry)));
+        expect(allowedReactions, contains('\u{1F64F}'));
+        await ChatHarness(initial: chatState([decoded])).pump(tester);
+        expect(
+          find.descendant(
+            of: find.byKey(_pillKey),
+            matching: find.text(angry),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
     testWidgets('24 px high, no outline, a 2 px ring in the page colour', (
       tester,
     ) async {

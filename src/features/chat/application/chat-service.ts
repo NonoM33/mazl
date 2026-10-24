@@ -1,5 +1,5 @@
 import { ChatError, invalid, notFound } from "../domain/errors";
-import { canUnsend, isAllowedReaction, type MessageType } from "../domain/message-rules";
+import { canToggleReaction, canUnsend, isAllowedReaction, isRetiredReaction, type MessageType } from "../domain/message-rules";
 import { firstHttpUrl } from "../domain/url-extract";
 import type { ConversationMembers, MessageRecord, MessageView, ReactionView } from "../domain/types";
 import { messageEvent, readEvent, typingEvent, updatedEvent } from "./chat-events";
@@ -134,9 +134,11 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
   }
 
   async function toggleReaction(userId: number, messageId: number, emoji: string): Promise<ReactionView[]> {
-    if (!isAllowedReaction(emoji)) throw invalid("emoji: not allowed");
+    if (!isAllowedReaction(emoji) && !isRetiredReaction(emoji)) throw invalid("emoji: not allowed");
     const { message, conversation } = await messageOf(messageId, userId);
     if (message.unsentAt !== null) throw notFound();
+    const mine = (await repository.reactions([messageId])).find((reaction) => reaction.userId === userId);
+    if (!canToggleReaction(emoji, mine?.emoji ?? null)) throw invalid("emoji: not allowed");
     const other = otherMember(conversation, userId);
     if (await repository.isBlocked(userId, other)) throw new ChatError("blocked");
 

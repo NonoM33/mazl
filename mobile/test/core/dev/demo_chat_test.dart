@@ -780,7 +780,7 @@ void main() {
       'réagir à un message de l\'autre ; les réactions se voient à la relecture',
       () {
         final theirs = _messages(101).firstWhere((m) => m.senderId == _other);
-        for (final emoji in ['❤️', '😂', '😮', '😢', '😡', '👍']) {
+        for (final emoji in ['❤️', '😂', '😮', '😢', '🙏', '👍']) {
           expect(
             _call(
               'POST',

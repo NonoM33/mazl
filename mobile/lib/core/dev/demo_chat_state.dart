@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'demo_chat_media.dart';
 import 'demo_chat_seed.dart';
 
-const demoReactions = ['❤️', '😂', '😮', '😢', '😡', '👍'];
+const demoReactions = ['❤️', '😂', '😮', '😢', '🙏', '👍'];
 const demoUnsendWindow = Duration(minutes: 15);
 
 /// Un message de la démo, avec ce qu'il faut pour le servir sous la forme du

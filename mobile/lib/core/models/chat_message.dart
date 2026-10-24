@@ -11,7 +11,7 @@ enum ChatMessageType { text, photo, voice }
 /// (or [seen] once read); optimistic ones go [sending] → [sent] or [failed].
 enum MessageStatus { sending, sent, seen, failed }
 
-const allowedReactions = ['❤️', '😂', '😮', '😢', '😡', '👍'];
+const allowedReactions = ['❤️', '😂', '😮', '😢', '🙏', '👍'];
 
 @immutable
 class ChatMedia {

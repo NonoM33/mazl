@@ -2,11 +2,27 @@
 
 export type MessageType = "text" | "photo" | "voice";
 
-export const ALLOWED_REACTIONS = ["❤️", "😂", "😮", "😢", "😡", "👍"] as const;
+export const ALLOWED_REACTIONS = ["❤️", "😂", "😮", "😢", "🙏", "👍"] as const;
 export type Reaction = (typeof ALLOWED_REACTIONS)[number];
+
+// Retired on 2026-10-24 (replaced by 🙏): a reaction already placed stays displayed
+// and can be removed, but can no longer be added.
+export const RETIRED_REACTIONS = ["😡"] as const;
+export const DISPLAYED_REACTIONS = [...ALLOWED_REACTIONS, ...RETIRED_REACTIONS] as const;
 
 export function isAllowedReaction(emoji: string): emoji is Reaction {
   return (ALLOWED_REACTIONS as readonly string[]).includes(emoji);
+}
+
+export function isRetiredReaction(emoji: string): boolean {
+  return (RETIRED_REACTIONS as readonly string[]).includes(emoji);
+}
+
+// `current` is the emoji the member already has on the message, if any. A retired
+// emoji can only be toggled off, which is the case where it equals `current`.
+export function canToggleReaction(emoji: string, current: string | null): boolean {
+  if (isAllowedReaction(emoji)) return true;
+  return current === emoji && isRetiredReaction(emoji);
 }
 
 export const UNSEND_WINDOW_MS = 15 * 60 * 1000;

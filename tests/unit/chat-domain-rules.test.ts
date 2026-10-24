@@ -4,7 +4,7 @@ import { firstHttpUrl } from "../../src/features/chat/domain/url-extract";
 import { parseOpenGraph } from "../../src/features/chat/domain/open-graph";
 import { parseByteRange } from "../../src/features/chat/domain/byte-range";
 import {
-  ALLOWED_REACTIONS, UNSEND_WINDOW_MS, canUnsend, isAllowedReaction, replyPreview,
+  ALLOWED_REACTIONS, DISPLAYED_REACTIONS, UNSEND_WINDOW_MS, canUnsend, canToggleReaction, isAllowedReaction, replyPreview,
 } from "../../src/features/chat/domain/message-rules";
 
 describe("waveform (CONTRAT.md §1: 48 integers, 0-100)", () => {
@@ -126,11 +126,22 @@ describe("parseByteRange", () => {
 
 describe("message rules", () => {
   test("reactions are exactly the six of the contract", () => {
-    expect([...ALLOWED_REACTIONS]).toEqual(["❤️", "😂", "😮", "😢", "😡", "👍"]);
+    expect([...ALLOWED_REACTIONS]).toEqual(["❤️", "😂", "😮", "😢", "🙏", "👍"]);
+    expect(isAllowedReaction("🙏")).toBe(true);
+    expect(isAllowedReaction("😡")).toBe(false);
     expect(isAllowedReaction("❤️")).toBe(true);
     expect(isAllowedReaction("❤")).toBe(false); // without the variation selector
     expect(isAllowedReaction("🔥")).toBe(false);
     expect(isAllowedReaction("")).toBe(false);
+  });
+  test("a 😡 already placed (retired 2026-10-24) is still displayed and can only be removed", () => {
+    expect([...DISPLAYED_REACTIONS]).toEqual(["❤️", "😂", "😮", "😢", "🙏", "👍", "😡"]);
+    expect(canToggleReaction("🙏", null)).toBe(true);
+    expect(canToggleReaction("🙏", "😡")).toBe(true);
+    expect(canToggleReaction("😡", "😡")).toBe(true);
+    expect(canToggleReaction("😡", null)).toBe(false);
+    expect(canToggleReaction("😡", "❤️")).toBe(false);
+    expect(canToggleReaction("🔥", "🔥")).toBe(false);
   });
   test("unsend: the author, within 15 minutes", () => {
     const created = new Date("2026-10-23T10:00:00Z");

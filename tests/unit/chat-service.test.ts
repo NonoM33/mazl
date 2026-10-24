@@ -231,6 +231,39 @@ describe("reactions", () => {
     expect(await service.toggleReaction(BOB, message.id, "😂")).toEqual([{ emoji: "❤️", user_ids: [ALICE] }]);
   });
 
+  test("🙏 is accepted", async () => {
+    const { message } = await service.send(ALICE, CONV, { content: "x" });
+    expect(await service.toggleReaction(BOB, message.id, "🙏")).toEqual([{ emoji: "🙏", user_ids: [BOB] }]);
+  });
+
+  test("legacy 😡: a new one is refused like any unknown emoji", async () => {
+    const { message } = await service.send(ALICE, CONV, { content: "x" });
+    expect(await kind(service.toggleReaction(BOB, message.id, "😡"))).toBe("invalid");
+    expect(repo.reactionRows).toHaveLength(0);
+    await service.toggleReaction(BOB, message.id, "❤️");
+    expect(await kind(service.toggleReaction(BOB, message.id, "😡"))).toBe("invalid");
+    expect(repo.reactionRows).toEqual([{ messageId: message.id, userId: BOB, emoji: "❤️" }]);
+  });
+
+  test("legacy 😡 already placed: still listed, and toggling it removes it", async () => {
+    const { message } = await service.send(ALICE, CONV, { content: "x" });
+    repo.reactionRows.push({ messageId: message.id, userId: BOB, emoji: "😡" }, { messageId: message.id, userId: ALICE, emoji: "🙏" });
+    const listed = await service.listMessages(ALICE, CONV, { before: null, limit: 30 });
+    expect(listed.messages[0]!.reactions).toEqual([
+      { emoji: "🙏", user_ids: [ALICE] }, { emoji: "😡", user_ids: [BOB] },
+    ]);
+    events.sent.length = 0;
+    expect(await service.toggleReaction(BOB, message.id, "😡")).toEqual([{ emoji: "🙏", user_ids: [ALICE] }]);
+    expect(events.ofType("chat:updated")).toHaveLength(1);
+    expect(repo.reactionRows).toEqual([{ messageId: message.id, userId: ALICE, emoji: "🙏" }]);
+  });
+
+  test("legacy 😡 already placed can be replaced by an allowed emoji", async () => {
+    const { message } = await service.send(ALICE, CONV, { content: "x" });
+    repo.reactionRows.push({ messageId: message.id, userId: BOB, emoji: "😡" });
+    expect(await service.toggleReaction(BOB, message.id, "🙏")).toEqual([{ emoji: "🙏", user_ids: [BOB] }]);
+  });
+
   test("only the six allowed emoji", async () => {
     const { message } = await service.send(ALICE, CONV, { content: "x" });
     for (const emoji of ["🔥", "", "❤", "<script>", "❤️❤️"]) {

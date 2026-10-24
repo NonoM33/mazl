@@ -39,8 +39,9 @@
 - `reply_to.preview` : 80 caractères au plus, « Photo », « Message vocal » ou
   « Message retiré » selon le cas.
 - `waveform` : 48 valeurs entières 0–100, calculées par l'app à l'enregistrement.
-- Réactions permises : `❤️ 😂 😮 😢 😡 👍` (une par membre et par message ;
+- Réactions permises : `❤️ 😂 😮 😢 🙏 👍` (une par membre et par message ;
   la même deux fois la retire).
+- 😡 retiré le 2026-10-24 : une réaction 😡 déjà posée reste affichée et peut être retirée, mais ne peut plus être ajoutée.
 
 ## 2. Routes
 
