@@ -24,7 +24,7 @@ export function Hero({ animate, lightweight, scroll }: SceneProps) {
             Trouvez votre&nbsp;mazal<span className="dot">.</span>
           </h1>
           <p className="hero__lead" data-reveal style={{ "--d": "180ms" } as React.CSSProperties}>
-            Pour des relations sérieuses. Votre mère sera ravie. Vous aussi, promis.
+            Pour des relations sérieuses.<br />Votre mère sera ravie. Vous aussi, promis.
           </p>
           <div className="hero__actions" data-reveal style={{ "--d": "280ms" } as React.CSSProperties}>
             <a className="btn btn--accent" href={APP_STORE_URL} rel="noopener">Télécharger sur l’App&nbsp;Store</a>
