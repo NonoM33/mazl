@@ -350,6 +350,7 @@ registerWebSession(app, webSession);
 const webApp = createWebApp({
   distDir: process.env.WEB_DIST_DIR || "web/dist",
   webOrigin: process.env.WEB_ORIGIN || null,
+  landingDistDir: process.env.LANDING_DIST_DIR || "landing/dist",
   mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
 });
 

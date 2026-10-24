@@ -13,6 +13,8 @@ beforeAll(async () => {
   await writeFile(join(dist, "index.html"), "<!doctype html><title>mazl</title>");
   await writeFile(join(dist, "index-abcd1234.js"), "console.log(1)");
   await writeFile(join(dist, "index-abcd1234.js.gz"), Bun.gzipSync(new TextEncoder().encode("console.log(1)")));
+  await mkdir(join(dist, "landing"));
+  await writeFile(join(dist, "landing", "index.html"), "<!doctype html><title>vitrine</title>");
   await mkdir(join(dist, "fonts"));
   await writeFile(join(dist, "fonts", "Geist-400.ttf"), "font");
 });
@@ -72,7 +74,11 @@ describe("web client serving without WEB_ORIGIN", () => {
 describe("web client at the root of mazl.app", () => {
   const web = () => createWebApp({ distDir: dist, webOrigin: "https://mazl.app" });
 
-  test("the old landing gives way to the client, the legal pages and the console stay", async () => {
+  test("the showcase takes the root, without it / goes to the client; the legal pages stay", async () => {
+    const withShowcase = createWebApp({ distDir: dist, landingDistDir: join(dist, "landing"), webOrigin: "https://mazl.app" });
+    const root = await withShowcase.handle(get("https://mazl.app/", "mazl.app"));
+    expect(root?.status).toBe(200);
+    expect(await root?.text()).toContain("vitrine");
     expect((await web().handle(get("https://mazl.app/", "mazl.app")))?.headers.get("location")).toBe("https://mazl.app/app");
     expect(await web().handle(get("https://mazl.app/cgv", "mazl.app"))).toBeNull();
     expect((await web().handle(get("https://mazl.app/app/messages", "mazl.app")))?.status).toBe(200);

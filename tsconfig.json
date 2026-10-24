@@ -27,5 +27,5 @@
     "noPropertyAccessFromIndexSignature": false
   },
   // The web client and the staff console have their own configs (DOM, stricter flags).
-  "exclude": ["console", "node_modules", "tests/unit/console-*", "web", "mobile"]
+  "exclude": ["console", "node_modules", "tests/unit/console-*", "web", "mobile", "landing", "docs"]
 }
