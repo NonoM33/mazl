@@ -24,8 +24,8 @@ describe("likes without mazl+", () => {
       await cards(page).first().waitFor();
       expect(await cards(page).count()).toBe(3);
       expect(await page.getByRole("tab", { name: "Ils vous ont aimé · 3" }).isVisible()).toBe(true);
-      const filter = await page.evaluate<string>("getComputedStyle(document.querySelector('ul[aria-label] li img')).filter");
-      expect(filter).toContain("blur(20px)");
+      // The server sends no photo without mazl+ (docs/web/adr/W11): no image at all.
+      expect(await page.locator("ul[aria-label] li img").count()).toBe(0);
       const text = (await cards(page).allInnerTexts()).join(" ");
       expect(text).toMatch(/Jonas|Ilan|Gabriel/);
       expect(text).not.toMatch(/\d{2}/);

@@ -87,7 +87,8 @@ export interface MatchSummary {
 }
 export interface MatchesResponse extends Envelope { readonly matches: readonly MatchSummary[] }
 
-export interface ReceivedLike { readonly user_id: number; readonly display_name: string | null; readonly picture: string | null; readonly age: number | null; readonly is_verified: boolean; readonly liked_at: string }
+// Without mazl+ the server sends only first name, badge and date (docs/web/adr/W11).
+export interface ReceivedLike { readonly user_id?: number; readonly display_name: string | null; readonly picture?: string | null; readonly age?: number | null; readonly is_verified: boolean; readonly liked_at: string }
 export interface LikesReceivedResponse extends Envelope { readonly count: number; readonly likes: readonly ReceivedLike[] }
 export interface CountResponse extends Envelope { readonly count: number }
 

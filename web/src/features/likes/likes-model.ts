@@ -15,7 +15,7 @@ export const firstName = (like: Pick<ReceivedLike, "display_name">): string => d
 export function likeCaption(like: ReceivedLike, plus: boolean): string {
   if (!plus) return firstName(like);
   const name = displayName(like.display_name);
-  return like.age === null ? name : `${name}, ${Math.floor(like.age)}`;
+  return typeof like.age === "number" ? `${name}, ${Math.floor(like.age)}` : name;
 }
 
 export const tabLabel = (count: number): string => `Ils vous ont aimé · ${count}`;
