@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Fenêtre « C'est un match » : sobre, sans fond coloré.
@@ -11,13 +12,16 @@ class ProfileMatchDialog extends StatelessWidget {
     required this.onMessage,
   });
 
-  final String name;
+  /// Le prénom ; `null` quand il manque.
+  final String? name;
   final VoidCallback onContinue;
   final VoidCallback onMessage;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final name = this.name;
     return Dialog(
       backgroundColor: scheme.surface,
       elevation: 0,
@@ -29,26 +33,28 @@ class ProfileMatchDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionLabel('Match'),
+            SectionLabel(l10n.profileMatchLabel),
             const SizedBox(height: 12),
-            const Text(
-              "C'est un match.",
+            Text(
+              l10n.profileMatchTitle,
               style: TextStyle(fontSize: 34, fontWeight: FontWeight.w600, letterSpacing: -1.3, height: 1.1),
             ),
             const SizedBox(height: 10),
             Text(
-              'Vous pouvez maintenant discuter avec $name.',
+              name == null
+                  ? l10n.profileMatchBodyUnnamed
+                  : l10n.profileMatchBody(name),
               style: TextStyle(fontSize: 16, height: 1.45, color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(onPressed: onMessage, child: const Text('Envoyer un message')),
+              child: ElevatedButton(onPressed: onMessage, child: Text(l10n.profileSendMessage)),
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(onPressed: onContinue, child: const Text('Continuer')),
+              child: OutlinedButton(onPressed: onContinue, child: Text(l10n.commonContinue)),
             ),
           ],
         ),

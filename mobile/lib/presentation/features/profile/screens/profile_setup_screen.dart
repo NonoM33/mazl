@@ -2,37 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/profile_labels.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
-
-/// Options aligned with [EditProfileScreen] so values round-trip between the
-/// initial setup flow and later edits.
-const _denominationOptions = [
-  'Laique',
-  'Traditionaliste',
-  'Massorti',
-  'Modern Orthodox',
-  'Orthodox',
-  'Habad',
-  'Autre',
-];
-const _kashrutOptions = ['Non', 'A la maison', 'Strict', 'Glatt'];
-const _shabbatOptions = [
-  'Non observant',
-  'Partiellement',
-  'Observant',
-  'Tres observant',
-];
-const _synagogueOptions = [
-  'Quotidien',
-  'Chaque semaine',
-  'Fetes',
-  'Rarement',
-];
-const _goalOptions = ['Mariage', 'Relation serieuse', 'Je ne sais pas'];
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../l10n/profile_answer_labels.dart';
+import 'edit_profile_screen.dart'
+    show DenominationStoredValue, KashrutStoredValue, ShabbatStoredValue;
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -55,16 +37,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   String? _gender; // 'male' | 'female'
 
   // Step 3 - Jewish practice
-  String? _denomination;
-  String? _kashrut;
-  String? _shabbat;
-  String? _synagogue;
+  // The choices are typed; the API gets their stored value (the same ones
+  // [EditProfileScreen] writes, so values round-trip between setup and edits).
+  Denomination? _denomination;
+  Kashrut? _kashrut;
+  ShabbatObservance? _shabbat;
+  SynagogueVisits? _synagogue;
 
   // Step 4 - preferences
   String? _lookingFor; // 'male' | 'female'
   RangeValues _ageRange = const RangeValues(22, 35);
   double _maxDistance = 50;
-  String? _goal;
+  RelationshipIntention? _goal;
 
   // Photos
   final List<ProfilePhoto> _photos = [];
@@ -84,10 +68,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Étape ${_currentStep + 1}/$_totalSteps'),
+        title: Text(context.l10n.profileSetupStep(_currentStep + 1, _totalSteps)),
         leading: _currentStep > 0
             ? IconButton(
-                icon: const Icon(LucideIcons.arrowLeft),
+                icon: const DirectionalIcon(LucideIcons.arrowLeft),
                 onPressed: _previousStep,
               )
             : null,
@@ -134,7 +118,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         ),
                       )
                     : Text(
-                        _currentStep < _totalSteps - 1 ? 'Suivant' : 'Terminer',
+                        _currentStep < _totalSteps - 1
+                            ? context.l10n.profileSetupNext
+                            : context.l10n.profileSetupFinish,
                       ),
               ),
             ),
@@ -169,13 +155,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   bool _validateCurrentStep() {
     if (_currentStep == 0) {
       if (_nameController.text.trim().isEmpty) {
-        return _fail('Indiquez votre prénom pour continuer');
+        return _fail(context.l10n.profileSetupNameRequired);
       }
       if (_birthDate == null) {
-        return _fail('Indiquez votre date de naissance');
+        return _fail(context.l10n.profileSetupBirthdateRequired);
       }
       if (_gender == null) {
-        return _fail('Indiquez votre genre');
+        return _fail(context.l10n.profileSetupGenderRequired);
       }
     }
     return true;
@@ -198,7 +184,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       initialDate: initial,
       firstDate: DateTime(now.year - 100),
       lastDate: DateTime(now.year - 18, now.month, now.day),
-      helpText: 'Date de naissance',
+      helpText: context.l10n.profileBirthdate,
     );
 
     if (picked != null) {
@@ -231,14 +217,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (response.success && response.data != null) {
         setState(() => _photos.add(response.data!));
       } else {
-        _fail(response.error ?? 'Erreur d\'envoi');
+        _fail(apiErrorText(context.l10n, response.errorKind));
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isUploadingPhoto = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Upload non disponible pour le moment'),
+        SnackBar(
+          content: Text(context.l10n.profileUploadUnavailable),
           backgroundColor: Colors.orange,
         ),
       );
@@ -254,14 +240,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (_gender != null) 'gender': _gender,
       if (_cityController.text.trim().isNotEmpty)
         'location': _cityController.text.trim(),
-      if (_denomination != null) 'denomination': _denomination,
-      if (_kashrut != null) 'kashrutLevel': _kashrut,
-      if (_shabbat != null) 'shabbatObservance': _shabbat,
+      if (_denomination != null) 'denomination': _denomination!.storedValue,
+      if (_kashrut != null) 'kashrutLevel': _kashrut!.storedValue,
+      if (_shabbat != null) 'shabbatObservance': _shabbat!.storedValue,
       if (_lookingFor != null) 'lookingFor': _lookingFor,
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _maxDistance.round(),
-      if (_goal != null) 'relationshipIntention': _goal,
+      if (_goal != null) 'relationshipIntention': _storedGoal(_goal!),
     };
 
     final response = await _apiService.updateProfile(payload);
@@ -272,9 +258,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     if (response.success) {
       context.go(RoutePaths.discover);
     } else {
-      _fail(response.error ?? 'Erreur de sauvegarde');
+      _fail(apiErrorText(context.l10n, response.errorKind));
     }
   }
+
+  /// What the API stores for the goal (the sign-up has always written these
+  /// words, and the display side reads them back).
+  String? _storedGoal(RelationshipIntention goal) => switch (goal) {
+    RelationshipIntention.marriage => 'Mariage',
+    RelationshipIntention.serious => 'Relation serieuse',
+    RelationshipIntention.undecided => 'Je ne sais pas',
+    RelationshipIntention.open || RelationshipIntention.friendsFirst => null,
+  };
 
   String _formatBirthdate(DateTime d) {
     final mm = d.month.toString().padLeft(2, '0');
@@ -285,21 +280,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   // ============ STEPS ============
 
   Widget _buildBasicInfoStep() {
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Parlez-nous de vous',
-          subtitle: 'Ces informations seront visibles sur votre profil',
+          title: l10n.profileSetupAboutYouTitle,
+          subtitle: l10n.profileSetupAboutYouSubtitle,
         ),
         const SizedBox(height: 32),
 
         TextFormField(
           controller: _nameController,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Prénom',
-            hintText: 'Comment vous appelez-vous ?',
+          decoration: InputDecoration(
+            labelText: l10n.profileFirstName,
+            hintText: l10n.profileFirstNameHint,
           ),
         ),
         const SizedBox(height: 16),
@@ -309,26 +305,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           controller: TextEditingController(
             text: _birthDate == null
                 ? ''
-                : '${_birthDate!.day.toString().padLeft(2, '0')}/'
-                    '${_birthDate!.month.toString().padLeft(2, '0')}/'
-                    '${_birthDate!.year}',
+                : DateFormat.yMd(l10n.localeName).format(_birthDate!),
           ),
-          decoration: const InputDecoration(
-            labelText: 'Date de naissance',
-            hintText: 'JJ/MM/AAAA',
-            suffixIcon: Icon(LucideIcons.calendar),
+          decoration: InputDecoration(
+            labelText: l10n.profileBirthdate,
+            hintText: l10n.profileBirthdateHint,
+            suffixIcon: const Icon(LucideIcons.calendar),
           ),
           onTap: _selectBirthDate,
         ),
         const SizedBox(height: 16),
 
-        const Text('Je suis', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileIAm, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: _GenderChip(
-                label: 'Un homme',
+                label: l10n.profileAMan,
                 selected: _gender == 'male',
                 onTap: () => setState(() => _gender = 'male'),
               ),
@@ -336,7 +330,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _GenderChip(
-                label: 'Une femme',
+                label: l10n.profileAWoman,
                 selected: _gender == 'female',
                 onTap: () => setState(() => _gender = 'female'),
               ),
@@ -348,10 +342,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         TextFormField(
           controller: _cityController,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Ville',
-            hintText: 'Où habitez-vous ?',
-            prefixIcon: Icon(LucideIcons.mapPin),
+          decoration: InputDecoration(
+            labelText: l10n.profileCity,
+            hintText: l10n.profileCityHint,
+            prefixIcon: const Icon(LucideIcons.mapPin),
           ),
         ),
       ],
@@ -359,12 +353,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Widget _buildPhotosStep() {
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Ajoutez des photos',
-          subtitle: 'Ajoutez au moins 2 photos pour continuer',
+          title: l10n.profileSetupPhotosTitle,
+          subtitle: l10n.profileSetupPhotosSubtitle,
           trailing: _isUploadingPhoto
               ? const SizedBox(
                   width: 20,
@@ -398,14 +393,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             color: AppColors.info.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(LucideIcons.lightbulb, color: AppColors.info),
-              SizedBox(width: 12),
+              const Icon(LucideIcons.lightbulb, color: AppColors.info),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Les profils avec des photos de bonne qualité reçoivent 3x plus de matchs.',
-                  style: TextStyle(fontSize: 13),
+                  l10n.profileSetupPhotosTip,
+                  style: const TextStyle(fontSize: 13),
                 ),
               ),
             ],
@@ -416,49 +411,54 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Widget _buildJewishInfoStep() {
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Votre pratique',
-          subtitle: 'Aidez-nous à trouver quelqu\'un qui vous correspond',
+          title: l10n.profileSetupPracticeTitle,
+          subtitle: l10n.profileSetupPracticeSubtitle,
         ),
         const SizedBox(height: 32),
 
-        const Text('Dénomination', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileDenomination, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _denominationOptions,
+        _ChoiceChips<Denomination>(
+          options: Denomination.choices,
+          labelOf: (kind) => kind.label(l10n),
           selected: _denomination,
           onSelected: (v) => setState(() => _denomination = v),
         ),
 
         const SizedBox(height: 24),
 
-        const Text('Kashrout', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileFieldKashrut, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _kashrutOptions,
+        _ChoiceChips<Kashrut>(
+          options: Kashrut.choices,
+          labelOf: (kind) => kind.optionLabel(l10n),
           selected: _kashrut,
           onSelected: (v) => setState(() => _kashrut = v),
         ),
 
         const SizedBox(height: 24),
 
-        const Text('Shabbat', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileShabbat, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _shabbatOptions,
+        _ChoiceChips<ShabbatObservance>(
+          options: ShabbatObservance.choices,
+          labelOf: (kind) => kind.optionLabel(l10n),
           selected: _shabbat,
           onSelected: (v) => setState(() => _shabbat = v),
         ),
 
         const SizedBox(height: 24),
 
-        const Text('Synagogue', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileSynagogue, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _synagogueOptions,
+        _ChoiceChips<SynagogueVisits>(
+          options: SynagogueVisits.values,
+          labelOf: (kind) => kind.label(l10n),
           selected: _synagogue,
           onSelected: (v) => setState(() => _synagogue = v),
         ),
@@ -467,22 +467,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Widget _buildPreferencesStep() {
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         _StepHeader(
-          title: 'Ce que vous recherchez',
-          subtitle: 'Aidez-nous à vous montrer les bons profils',
+          title: l10n.profileSetupLookingTitle,
+          subtitle: l10n.profileSetupLookingSubtitle,
         ),
         const SizedBox(height: 32),
 
-        const Text('Je recherche', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileILookFor, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: _GenderChip(
-                label: 'Un homme',
+                label: l10n.profileAMan,
                 selected: _lookingFor == 'male',
                 onTap: () => setState(() => _lookingFor = 'male'),
               ),
@@ -490,7 +491,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _GenderChip(
-                label: 'Une femme',
+                label: l10n.profileAWoman,
                 selected: _lookingFor == 'female',
                 onTap: () => setState(() => _lookingFor = 'female'),
               ),
@@ -500,7 +501,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        const Text('Tranche d\'âge', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileAgeRange, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         RangeSlider(
           values: _ageRange,
@@ -516,23 +517,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        const Text('Distance maximale', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileMaxDistance, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Slider(
           value: _maxDistance,
           min: 5,
           max: 200,
           divisions: 39,
-          label: '${_maxDistance.round()} km',
+          label: l10n.profileDistanceSliderLabel(_maxDistance.round()),
           onChanged: (value) => setState(() => _maxDistance = value),
         ),
 
         const SizedBox(height: 24),
 
-        const Text('Objectif', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(l10n.profileGoal, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _goalOptions,
+        _ChoiceChips<RelationshipIntention>(
+          options: RelationshipIntention.setupChoices,
+          labelOf: (intention) => intention.label(l10n),
           selected: _goal,
           onSelected: (v) => setState(() => _goal = v),
         ),
@@ -545,14 +547,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             gradient: AppColors.primaryGradient,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(LucideIcons.sparkles, color: Colors.white),
-              SizedBox(width: 12),
+              const Icon(LucideIcons.sparkles, color: Colors.white),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.',
-                  style: TextStyle(color: Colors.white, fontSize: 13),
+                  l10n.profileShadchanNote,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
                 ),
               ),
             ],
@@ -643,16 +645,18 @@ class _GenderChip extends StatelessWidget {
   }
 }
 
-class _ChoiceChips extends StatelessWidget {
+class _ChoiceChips<T> extends StatelessWidget {
   const _ChoiceChips({
     required this.options,
+    required this.labelOf,
     required this.selected,
     required this.onSelected,
   });
 
-  final List<String> options;
-  final String? selected;
-  final ValueChanged<String> onSelected;
+  final List<T> options;
+  final String Function(T option) labelOf;
+  final T? selected;
+  final ValueChanged<T> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -661,7 +665,7 @@ class _ChoiceChips extends StatelessWidget {
       runSpacing: 8,
       children: options.map((option) {
         return FilterChip(
-          label: Text(option),
+          label: Text(labelOf(option)),
           selected: selected == option,
           onSelected: (_) => onSelected(option),
           selectedColor: AppColors.primary.withValues(alpha: 0.2),
@@ -721,9 +725,9 @@ class _PhotoSlot extends StatelessWidget {
                   ),
                   if (isPrimary) ...[
                     const SizedBox(height: 4),
-                    const Text(
-                      'Principal',
-                      style: TextStyle(fontSize: 10, color: AppColors.primary),
+                    Text(
+                      context.l10n.profilePrimaryPhoto,
+                      style: const TextStyle(fontSize: 10, color: AppColors.primary),
                     ),
                   ],
                 ],

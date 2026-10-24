@@ -1,41 +1,30 @@
-/// Relationship intention
-class RelationshipIntention {
+/// Ce que le membre cherche. Le cœur ne porte que l'identifiant et le nom de
+/// l'icône ; le libellé et la description sont traduits par l'écran.
+enum RelationshipIntention {
+  marriage('marriage', 'ring'),
+  serious('serious', 'heart'),
+  open('open', 'sparkles'),
+  friendsFirst('friends_first', 'users'),
+
+  /// Choix « Je ne sais pas » de l'inscription ; absent du sélecteur du profil.
+  undecided('undecided', 'heart');
+
+  const RelationshipIntention(this.id, this.icon);
+
+  /// La valeur enregistrée par le sélecteur du profil.
   final String id;
-  final String label;
   final String icon;
-  final String description;
 
-  const RelationshipIntention({
-    required this.id,
-    required this.label,
-    required this.icon,
-    required this.description,
-  });
+  /// Les intentions que le sélecteur propose, dans l'ordre d'affichage.
+  static const selectable = [marriage, serious, open, friendsFirst];
 
-  static const List<RelationshipIntention> intentions = [
-    RelationshipIntention(
-      id: 'marriage',
-      label: 'Mariage',
-      icon: 'ring',
-      description: 'Je cherche mon/ma futur(e) mari/femme',
-    ),
-    RelationshipIntention(
-      id: 'serious',
-      label: 'Relation sérieuse',
-      icon: 'heart',
-      description: 'Je cherche une relation durable',
-    ),
-    RelationshipIntention(
-      id: 'open',
-      label: 'Ouvert(e) à tout',
-      icon: 'sparkles',
-      description: 'On verra où ça nous mène',
-    ),
-    RelationshipIntention(
-      id: 'friends_first',
-      label: 'Amitié d\'abord',
-      icon: 'users',
-      description: 'Commençons par apprendre à se connaître',
-    ),
-  ];
+  /// Les choix de l'inscription, dans l'ordre d'affichage.
+  static const setupChoices = [marriage, serious, undecided];
+
+  static RelationshipIntention? fromId(String? id) {
+    for (final intention in selectable) {
+      if (intention.id == id) return intention;
+    }
+    return null;
+  }
 }

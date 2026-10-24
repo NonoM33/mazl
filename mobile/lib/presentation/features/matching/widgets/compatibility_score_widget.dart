@@ -3,7 +3,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../../profile/l10n/compatibility_labels.dart';
 
 /// Compact badge showing compatibility score
 class CompatibilityBadge extends StatelessWidget {
@@ -115,8 +118,8 @@ class CompatibilityScoreCard extends StatelessWidget {
               _mainColor.withValues(alpha: 0.15),
               _mainColor.withValues(alpha: 0.05),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: _mainColor.withValues(alpha: 0.3)),
@@ -139,8 +142,8 @@ class CompatibilityScoreCard extends StatelessWidget {
                       ],
                       Text(
                         score.isSuperCompatible
-                            ? 'Très compatible'
-                            : 'Compatibilité',
+                            ? context.l10n.profileCompatibilityVeryHigh
+                            : context.l10n.profileCompatibility,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _mainColor,
@@ -150,7 +153,7 @@ class CompatibilityScoreCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${score.factors.length} critères analysés',
+                    context.l10n.profileCompatibilityCriteria(score.factors.length),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -160,7 +163,7 @@ class CompatibilityScoreCard extends StatelessWidget {
               ),
             ),
             // Arrow
-            Icon(LucideIcons.chevronRight, color: _mainColor, size: 20),
+            DirectionalIcon(LucideIcons.chevronRight, color: _mainColor, size: 20),
           ],
         ),
       ),
@@ -241,18 +244,16 @@ class CompatibilityDetailsSheet extends StatelessWidget {
     return Colors.grey;
   }
 
-  IconData _getIcon(String iconName) {
-    switch (iconName) {
-      case 'heart':
+  IconData _getIcon(CompatibilityFactorKind kind) {
+    switch (kind) {
+      case CompatibilityFactorKind.intentions:
         return LucideIcons.heart;
-      case 'star':
+      case CompatibilityFactorKind.practice:
         return LucideIcons.star;
-      case 'calendar':
+      case CompatibilityFactorKind.age:
         return LucideIcons.calendar;
-      case 'map-pin':
+      case CompatibilityFactorKind.distance:
         return LucideIcons.mapPin;
-      default:
-        return LucideIcons.check;
     }
   }
 
@@ -279,8 +280,8 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                       Flexible(
                         child: Text(
                           score.isSuperCompatible
-                              ? 'Très compatible'
-                              : 'Score de compatibilité',
+                              ? context.l10n.profileCompatibilityVeryHigh
+                              : context.l10n.profileCompatibilityScoreTitle,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -293,7 +294,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                   if (userName != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Avec $userName',
+                      context.l10n.profileCompatibilityWith(userName!),
                       style: TextStyle(
                         color: Colors.grey[600],
                       ),
@@ -309,11 +310,11 @@ class CompatibilityDetailsSheet extends StatelessWidget {
 
         // Factors list
         if (score.factors.isNotEmpty) ...[
-          const Align(
-            alignment: Alignment.centerLeft,
+          Align(
+            alignment: AlignmentDirectional.centerStart,
             child: Text(
-              'Détails',
-              style: TextStyle(
+              context.l10n.profileCompatibilityDetails,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -322,13 +323,13 @@ class CompatibilityDetailsSheet extends StatelessWidget {
           const SizedBox(height: 12),
           ...score.factors.map((factor) => _FactorRow(
                 factor: factor,
-                icon: _getIcon(factor.icon),
+                icon: _getIcon(factor.kind),
               )),
         ] else
           Padding(
             padding: const EdgeInsets.all(20),
             child: Text(
-              'Complétez vos profils pour voir plus de détails',
+              context.l10n.profileCompatibilityIncomplete,
               style: TextStyle(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
@@ -349,7 +350,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Le score est basé sur vos préférences et points communs',
+                  context.l10n.profileCompatibilityNote,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[700],
@@ -373,7 +374,7 @@ class CompatibilityDetailsSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Compris'),
+            child: Text(context.l10n.profileCompatibilityGotIt),
           ),
         ),
       ],
@@ -425,13 +426,13 @@ class _FactorRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  factor.name,
+                  factor.kind.label(context.l10n),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  factor.description,
+                  factor.verdict.label(context.l10n),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],

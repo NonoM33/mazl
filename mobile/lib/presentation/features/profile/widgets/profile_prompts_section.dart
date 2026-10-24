@@ -3,7 +3,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../l10n/prompt_labels.dart';
 
 /// Widget to manage profile prompts (Hinge-style Q&A)
 class ProfilePromptsSection extends StatefulWidget {
@@ -24,7 +28,8 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   List<PromptTemplate> _availablePrompts = [];
   List<ProfilePrompt> _myPrompts = [];
   bool _isLoading = true;
-  String? _error;
+  bool _hasLoadError = false;
+  ApiErrorKind? _errorKind;
 
   static const int maxPrompts = 3;
 
@@ -37,7 +42,8 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _hasLoadError = false;
+      _errorKind = null;
     });
 
     // Load available prompts and user's prompts in parallel
@@ -56,17 +62,19 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
           _myPrompts = results[1].data as List<ProfilePrompt>;
         }
         if (!results[0].success && !results[1].success) {
-          _error = results[0].error ?? results[1].error;
+          _hasLoadError = true;
+          _errorKind = results[0].errorKind ?? results[1].errorKind;
         }
       });
     }
   }
 
   Future<void> _addPrompt() async {
+    final l10n = context.l10n;
     if (_myPrompts.length >= maxPrompts) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Maximum $maxPrompts prompts atteint'),
+        SnackBar(
+          content: Text(l10n.profilePromptsMaxReached(maxPrompts)),
           backgroundColor: Colors.orange,
         ),
       );
@@ -81,8 +89,8 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
 
     if (availableToAdd.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tous les prompts sont déjà utilisés'),
+        SnackBar(
+          content: Text(l10n.profilePromptsAllUsed),
           backgroundColor: Colors.orange,
         ),
       );
@@ -97,10 +105,12 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       builder: (context) => _PromptSelectionSheet(prompts: availableToAdd),
     );
 
-    if (selectedTemplate == null) return;
+    if (selectedTemplate == null || !mounted) return;
 
     // Show answer input dialog
-    final answer = await _showAnswerDialog(selectedTemplate.text);
+    final answer = await _showAnswerDialog(
+      promptQuestionText(l10n, selectedTemplate.id, selectedTemplate.text),
+    );
 
     if (answer == null || answer.isEmpty) return;
 
@@ -120,7 +130,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de l\'ajout'),
+            content: Text(apiErrorText(context.l10n, result.errorKind)),
             backgroundColor: Colors.red,
           ),
         );
@@ -129,7 +139,10 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
   }
 
   Future<void> _editPrompt(ProfilePrompt prompt) async {
-    final answer = await _showAnswerDialog(prompt.promptText, currentAnswer: prompt.answer);
+    final answer = await _showAnswerDialog(
+      promptQuestionText(context.l10n, prompt.promptId, prompt.promptText),
+      currentAnswer: prompt.answer,
+    );
 
     if (answer == null || answer.isEmpty || answer == prompt.answer) return;
 
@@ -147,7 +160,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de la mise à jour'),
+            content: Text(apiErrorText(context.l10n, result.errorKind)),
             backgroundColor: Colors.red,
           ),
         );
@@ -160,12 +173,12 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Supprimer ce prompt ?'),
-        content: const Text('Cette action est irréversible.'),
+        title: Text(context.l10n.profilePromptDeleteTitle),
+        content: Text(context.l10n.profileIrreversibleSentence),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -173,7 +186,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Supprimer'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -190,12 +203,12 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         });
         widget.onPromptsChanged?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prompt supprimé')),
+          SnackBar(content: Text(context.l10n.profilePromptDeleted)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors de la suppression'),
+            content: Text(apiErrorText(context.l10n, result.errorKind)),
             backgroundColor: Colors.red,
           ),
         );
@@ -230,7 +243,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
             maxLines: 4,
             maxLength: 150,
             decoration: InputDecoration(
-              hintText: 'Votre réponse…',
+              hintText: context.l10n.profilePromptYourAnswer,
               filled: true,
               fillColor: Colors.grey.withValues(alpha: 0.1),
               border: OutlineInputBorder(
@@ -261,7 +274,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Enregistrer'),
+              child: Text(context.l10n.commonSave),
             ),
           ),
         ],
@@ -278,9 +291,9 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Mes Prompts',
-              style: TextStyle(
+            Text(
+              context.l10n.profilePromptsMine,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -296,7 +309,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Répondez à des questions pour montrer votre personnalité',
+          context.l10n.profilePromptsSubtitle,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -311,12 +324,18 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
               child: CircularProgressIndicator(),
             ),
           )
-        else if (_error != null)
+        else if (_hasLoadError)
           Center(
             child: Column(
               children: [
-                Text(_error!, style: TextStyle(color: Colors.grey[600])),
-                TextButton(onPressed: _loadData, child: const Text('Réessayer')),
+                Text(
+                  apiErrorText(context.l10n, _errorKind),
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                TextButton(
+                  onPressed: _loadData,
+                  child: Text(context.l10n.commonRetry),
+                ),
               ],
             ),
           )
@@ -381,7 +400,11 @@ class _PromptCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    prompt.promptText,
+                    promptQuestionText(
+                      context.l10n,
+                      prompt.promptId,
+                      prompt.promptText,
+                    ),
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,
@@ -399,23 +422,26 @@ class _PromptCard extends StatelessWidget {
                     if (value == 'delete') onDelete();
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(LucideIcons.edit, size: 18),
-                          SizedBox(width: 8),
-                          Text('Modifier'),
+                          const Icon(LucideIcons.edit, size: 18),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.profileEdit),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(LucideIcons.trash2, size: 18, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Supprimer', style: TextStyle(color: Colors.red)),
+                          const Icon(LucideIcons.trash2, size: 18, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.l10n.commonDelete,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ],
                       ),
                     ),
@@ -467,7 +493,7 @@ class _AddPromptButton extends StatelessWidget {
             Icon(LucideIcons.plus, color: AppColors.primary),
             const SizedBox(width: 8),
             Text(
-              'Ajouter un prompt',
+              context.l10n.profilePromptAdd,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -490,7 +516,7 @@ class _PromptSelectionSheet extends StatelessWidget {
     // Group prompts by category
     final Map<String, List<PromptTemplate>> grouped = {};
     for (final prompt in prompts) {
-      final category = prompt.category ?? 'Autre';
+      final category = prompt.category ?? '';
       grouped.putIfAbsent(category, () => []).add(prompt);
     }
 
@@ -499,11 +525,11 @@ class _PromptSelectionSheet extends StatelessWidget {
       child: Column(
         children: [
           // Title
-          const Padding(
-            padding: EdgeInsets.all(20),
+          Padding(
+            padding: const EdgeInsets.all(20),
             child: Text(
-              'Choisissez un prompt',
-              style: TextStyle(
+              context.l10n.profilePromptChoose,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -519,7 +545,10 @@ class _PromptSelectionSheet extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 12, bottom: 8),
                     child: Text(
-                      entry.key,
+                      promptCategoryText(
+                        context.l10n,
+                        entry.key.isEmpty ? null : entry.key,
+                      ),
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w600,
@@ -569,11 +598,15 @@ class _PromptOption extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                prompt.text,
+                promptQuestionText(context.l10n, prompt.id, prompt.text),
                 style: const TextStyle(fontSize: 15),
               ),
             ),
-            Icon(LucideIcons.chevronRight, color: Colors.grey[400], size: 20),
+            DirectionalIcon(
+              LucideIcons.chevronRight,
+              color: Colors.grey[400],
+              size: 20,
+            ),
           ],
         ),
       ),

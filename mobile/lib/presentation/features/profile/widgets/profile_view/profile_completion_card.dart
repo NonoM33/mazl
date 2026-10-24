@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Où mène une étape de complétion.
 enum CompletionTarget { editProfile, settings, verification }
 
+/// Ce que vérifie une étape de complétion.
+enum CompletionStepKind { photos, bio, city, verification }
+
 class CompletionStep {
   const CompletionStep({
+    required this.kind,
     required this.target,
     required this.isComplete,
-    required this.description,
   });
 
+  final CompletionStepKind kind;
   final CompletionTarget target;
   final bool isComplete;
-  final String description;
+
+  /// Ce que dit la ligne : ce qui est fait, ou ce qu'il reste à faire.
+  String description(AppLocalizations l10n) => switch (kind) {
+    CompletionStepKind.photos =>
+      isComplete ? l10n.profileStepPhotosDone : l10n.profileStepPhotosTodo,
+    CompletionStepKind.bio =>
+      isComplete ? l10n.profileStepBioDone : l10n.profileStepBioTodo,
+    CompletionStepKind.city =>
+      isComplete ? l10n.profileStepCityDone : l10n.profileStepCityTodo,
+    CompletionStepKind.verification =>
+      isComplete ? l10n.profileStepVerifiedDone : l10n.profileStepVerifiedTodo,
+  };
 }
 
 /// Les quatre étapes qui font un profil complet.
@@ -23,30 +39,30 @@ List<CompletionStep> buildCompletionSteps({
   required List<String> photos,
   required String? bio,
   required bool isVerified,
-  required String location,
+  required String? location,
 }) {
   final hasBio = bio != null && bio.isNotEmpty;
-  final hasLocation = location != 'France' && location.isNotEmpty;
+  final hasLocation = location != null && location.isNotEmpty;
   return [
     CompletionStep(
+      kind: CompletionStepKind.photos,
       target: CompletionTarget.editProfile,
       isComplete: photos.length >= 2,
-      description: photos.length >= 2 ? 'Photos ajoutées' : 'Ajoutez au moins 2 photos',
     ),
     CompletionStep(
+      kind: CompletionStepKind.bio,
       target: CompletionTarget.editProfile,
       isComplete: hasBio,
-      description: hasBio ? 'Bio complétée' : 'Décrivez-vous en quelques lignes',
     ),
     CompletionStep(
+      kind: CompletionStepKind.city,
       target: CompletionTarget.settings,
       isComplete: hasLocation,
-      description: hasLocation ? 'Ville renseignée' : 'Indiquez votre ville',
     ),
     CompletionStep(
+      kind: CompletionStepKind.verification,
       target: CompletionTarget.verification,
       isComplete: isVerified,
-      description: isVerified ? 'Profil vérifié' : 'Faites vérifier votre profil',
     ),
   ];
 }
@@ -64,6 +80,7 @@ class ProfileCompletionCard extends StatelessWidget {
     if (done == steps.length) return const SizedBox.shrink();
 
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final remaining = steps.length - done;
     final firstIncomplete = steps.firstWhere((s) => !s.isComplete);
     return Container(
@@ -76,15 +93,15 @@ class ProfileCompletionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionLabel('Profil · $done/${steps.length}'),
+          SectionLabel(l10n.profileCompletionEyebrow(done, steps.length)),
           const SizedBox(height: 10),
-          const Text(
-            'Complétez votre profil',
+          Text(
+            l10n.profileCompletionTitle,
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.6),
           ),
           const SizedBox(height: 4),
           Text(
-            remaining > 1 ? '$remaining étapes restantes' : '1 étape restante',
+            l10n.profileCompletionRemaining(remaining),
             style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
@@ -104,7 +121,7 @@ class ProfileCompletionCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => onStep(firstIncomplete.target),
-              child: const Text('Compléter maintenant'),
+              child: Text(l10n.profileCompletionAction),
             ),
           ),
         ],
@@ -134,7 +151,7 @@ class _StepRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              step.description,
+              step.description(context.l10n),
               style: TextStyle(
                 fontSize: 15,
                 color: color,

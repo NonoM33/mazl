@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import 'profile_identity.dart';
 import 'profile_photo_gallery.dart';
 import 'profile_sections.dart';
@@ -39,15 +40,17 @@ class ProfileViewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final facts = data.facts(l10n);
     final bio = data.bio;
     final lookingFor = data.lookingFor;
     final blocks = <Widget>[
       ...leading,
-      _identityBlock(),
-      if (bio != null && bio.isNotEmpty) ProfileTextSection(label: 'À propos', text: bio),
-      if (data.facts.isNotEmpty) ProfileFactsSection(facts: data.facts),
+      _identityBlock(l10n),
+      if (bio != null && bio.isNotEmpty) ProfileTextSection(label: l10n.profileAbout, text: bio),
+      if (facts.isNotEmpty) ProfileFactsSection(facts: facts),
       if (lookingFor != null && lookingFor.isNotEmpty)
-        ProfileTextSection(label: 'Ce que je recherche', text: lookingFor),
+        ProfileTextSection(label: l10n.profileLookingFor, text: lookingFor),
       if (prompts.isNotEmpty) ProfilePromptCards(prompts: prompts),
       ...trailing,
     ];
@@ -59,7 +62,7 @@ class ProfileViewContent extends StatelessWidget {
         children: [
           topBar,
           ProfilePhotoGallery(photos: data.galleryPhotos, seed: data.name.hashCode),
-          if (isOwnProfile && data.hasNoUploadedPhoto) _addPhotosButton(),
+          if (isOwnProfile && data.hasNoUploadedPhoto) _addPhotosButton(l10n),
           const SizedBox(height: blockGap),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -78,12 +81,12 @@ class ProfileViewContent extends StatelessWidget {
     );
   }
 
-  Widget _identityBlock() {
+  Widget _identityBlock(AppLocalizations l10n) {
     final showTag = isOwnProfile || data.isVerified;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProfileIdentity(name: data.name, age: data.age, metaLine: data.metaLine),
+        ProfileIdentity(name: data.name, age: data.age, metaLine: data.metaLine(l10n)),
         if (showTag) ...[
           const SizedBox(height: 12),
           ProfileVerificationTag(
@@ -96,15 +99,15 @@ class ProfileViewContent extends StatelessWidget {
     );
   }
 
-  Widget _addPhotosButton() {
+  Widget _addPhotosButton(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: OutlinedButton.icon(
           onPressed: onAddPhotos,
           icon: const Icon(LucideIcons.camera, size: 18),
-          label: const Text('Ajouter des photos'),
+          label: Text(l10n.profileAddPhotos),
           style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
         ),
       ),

@@ -3,9 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mazl/core/models/conversation.dart';
 import 'package:mazl/core/models/profile_labels.dart';
+import 'package:mazl/core/models/relationship_intention.dart';
 import 'package:mazl/core/services/push_permission.dart';
 import 'package:mazl/presentation/features/chat/conversation_lookup.dart';
 import 'package:mazl/presentation/features/chat/conversation_time.dart';
+import 'package:mazl/presentation/features/profile/l10n/profile_answer_labels.dart';
+
+import '../../helpers/l10n_helpers.dart';
 
 Conversation _conv(int id, int userId, {int unread = 0}) => Conversation(
       id: id,
@@ -18,32 +22,46 @@ void main() {
   setUpAll(() => initializeDateFormatting('fr_FR'));
 
   group('puces de profil : jamais de valeur brute de l\'API', () {
+    final l10n = lookupAppLocalizations(kTestLocale);
+    String? kashrut(String? raw) => kashrutFact(l10n, raw);
+    String? shabbat(String? raw) => shabbatFact(l10n, raw);
+    String? denomination(String? raw) => denominationFact(l10n, raw);
+    String? intention(String? raw) => intentionFact(l10n, raw);
+
     test('les valeurs vues au simulateur deviennent des libellés français', () {
-      expect(ProfileLabels.kashrut('A la maison'), 'Cacher à la maison');
-      expect(ProfileLabels.kashrut('kasher_a_la_maison'), 'Cacher à la maison');
-      expect(ProfileLabels.shabbat('Partiellement'), 'Shabbat en partie');
-      expect(ProfileLabels.intention('serious'), 'Relation sérieuse');
-      expect(ProfileLabels.intention('marriage'), 'Mariage');
+      expect(kashrut('A la maison'), 'Cacher à la maison');
+      expect(kashrut('kasher_a_la_maison'), 'Cacher à la maison');
+      expect(shabbat('Partiellement'), 'Shabbat en partie');
+      expect(intention('serious'), 'Relation sérieuse');
+      expect(intention('marriage'), 'Mariage');
     });
 
     test('formats historiques, casse et accents indifférents', () {
-      expect(ProfileLabels.denomination('Laique'), 'Laïque');
-      expect(ProfileLabels.denomination('modern_orthodox'), 'Orthodoxe moderne');
-      expect(ProfileLabels.denomination('ORTHODOX'), 'Orthodoxe');
-      expect(ProfileLabels.shabbat('Tres observant'), 'Shabbat strict');
-      expect(ProfileLabels.shabbat('shabbat_en_famille'), 'Shabbat en famille');
-      expect(ProfileLabels.kashrut('Glatt'), 'Glatt cacher');
+      expect(denomination('Laique'), 'Laïque');
+      expect(denomination('modern_orthodox'), 'Orthodoxe moderne');
+      expect(denomination('ORTHODOX'), 'Orthodoxe');
+      expect(shabbat('Tres observant'), 'Shabbat strict');
+      expect(shabbat('shabbat_en_famille'), 'Shabbat en famille');
+      expect(kashrut('Glatt'), 'Glatt cacher');
     });
 
     test('« Non », « Autre » ou vide ne font pas de puce', () {
-      expect(ProfileLabels.kashrut('Non'), isNull);
-      expect(ProfileLabels.denomination('Autre'), isNull);
-      expect(ProfileLabels.shabbat('  '), isNull);
-      expect(ProfileLabels.intention(null), isNull);
+      expect(kashrut('Non'), isNull);
+      expect(denomination('Autre'), isNull);
+      expect(shabbat('  '), isNull);
+      expect(intention(null), isNull);
     });
 
     test('une valeur inconnue reste lisible (espaces, majuscule), jamais avec des _', () {
-      expect(ProfileLabels.denomination('reconstructionist_jew'), 'Reconstructionist jew');
+      expect(denomination('reconstructionist_jew'), 'Reconstructionist jew');
+    });
+
+    test('le cœur rend des types, pas des textes', () {
+      expect(ProfileLabels.kashrutAnswer('A la maison')?.kind, Kashrut.home);
+      expect(ProfileLabels.shabbatAnswer('Partiellement')?.kind, ShabbatObservance.partial);
+      expect(ProfileLabels.denominationAnswer('Autre')?.isHidden, isTrue);
+      expect(ProfileLabels.intentionAnswer('Relation serieuse')?.kind, RelationshipIntention.serious);
+      expect(ProfileLabels.denominationAnswer('reconstructionist_jew')?.custom, 'Reconstructionist jew');
     });
   });
 

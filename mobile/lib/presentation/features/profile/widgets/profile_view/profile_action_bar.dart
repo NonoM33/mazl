@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Rangée flottante du bas : passer, puis « J'aime » suivi du prénom.
@@ -21,12 +22,12 @@ class ProfileActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final label = "J'aime $firstName";
+    final label = context.l10n.profileLikeName(firstName);
     return Row(
       children: [
         RoundIconButton(
           icon: LucideIcons.x,
-          tooltip: 'Passer',
+          tooltip: context.l10n.profilePass,
           size: height,
           iconSize: 26,
           onPressed: onPass,

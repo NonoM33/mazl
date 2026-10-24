@@ -2,23 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../core/services/api_service.dart';
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
+import '../../l10n/compatibility_labels.dart';
 import 'profile_sections.dart';
 
 /// Libellé et description d'un score de compatibilité.
-({String label, String description}) compatibilitySummary(CompatibilityScore c) {
-  final label = c.isSuperCompatible
-      ? 'Très compatible'
-      : c.score >= 60
-          ? 'Compatible'
-          : c.score >= 40
-              ? 'Compatibilité moyenne'
-              : 'Peu compatible';
+({String label, String description}) compatibilitySummary(
+  AppLocalizations l10n,
+  CompatibilityScore c,
+) {
   final top = [...c.factors]..sort((a, b) => b.score.compareTo(a.score));
   final description = top.isEmpty
-      ? 'Calculée à partir de vos deux profils.'
-      : top.take(3).map((f) => f.description).join(' · ');
-  return (label: label, description: description);
+      ? l10n.profileCompatibilityBasis
+      : top.take(3).map((f) => f.verdict.label(l10n)).join(' · ');
+  return (label: c.level.label(l10n), description: description);
 }
 
 /// Section « Compatibilité » : score pour les abonnés Pro, invitation sinon.
@@ -40,7 +38,7 @@ class ProfileCompatibilitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return ProfileSection(
-      label: 'Compatibilité',
+      label: context.l10n.profileCompatibility,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),
@@ -54,15 +52,16 @@ class ProfileCompatibilitySection extends StatelessWidget {
   }
 
   Widget _score(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     final current = score;
     if (current == null) {
       return Text(
-        'Compatibilité indisponible pour le moment.',
+        l10n.profileCompatibilityUnavailable,
         style: TextStyle(fontSize: 15, color: muted),
       );
     }
-    final summary = compatibilitySummary(current);
+    final summary = compatibilitySummary(l10n, current);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -82,6 +81,7 @@ class ProfileCompatibilitySection extends StatelessWidget {
   }
 
   Widget _locked(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,18 +89,18 @@ class ProfileCompatibilitySection extends StatelessWidget {
         const TagPill('mazl+', icon: LucideIcons.lock),
         const SizedBox(height: 14),
         Text(
-          'Découvrez votre score de compatibilité avec $firstName.',
+          l10n.profileCompatibilityUnlockTitle(firstName),
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, letterSpacing: -0.5, height: 1.25),
         ),
         const SizedBox(height: 6),
         Text(
-          'Calculé à partir de vos pratiques, vos intentions et vos valeurs.',
+          l10n.profileCompatibilityUnlockBody,
           style: TextStyle(fontSize: 14, height: 1.4, color: muted),
         ),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton(onPressed: onUnlock, child: const Text('Débloquer avec mazl+')),
+          child: ElevatedButton(onPressed: onUnlock, child: Text(l10n.profileCompatibilityUnlock)),
         ),
       ],
     );

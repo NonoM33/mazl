@@ -37,33 +37,6 @@ lib/core/chat/scam_rules.dart | plateformes? d'? ?investissements?|rendements? g
 lib/core/chat/scam_rules.dart | trading(?! card)|forex|revenus? passifs?|passive income|
 lib/core/chat/scam_rules.dart | virements?|iban|rib|western union|moneygram|mandat cash|bank transfer|wire transfer|money transfer|
 lib/core/chat/voice_impl.dart | only http(s) and data: addresses can be played
-lib/core/models/compatibility_score.dart | Assez loin
-lib/core/models/compatibility_score.dart | Différence d\'âge modérée
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance
-lib/core/models/compatibility_score.dart | Distance modérée
-lib/core/models/compatibility_score.dart | Grande différence d\'âge
-lib/core/models/compatibility_score.dart | Intentions
-lib/core/models/compatibility_score.dart | Intentions
-lib/core/models/compatibility_score.dart | Intentions différentes
-lib/core/models/compatibility_score.dart | Même dénomination
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique
-lib/core/models/compatibility_score.dart | Pratique différente
-lib/core/models/compatibility_score.dart | Pratique similaire
-lib/core/models/compatibility_score.dart | Proche (< 25 km)
-lib/core/models/compatibility_score.dart | Très proche (< 10 km)
-lib/core/models/compatibility_score.dart | Vous cherchez la même chose
-lib/core/models/compatibility_score.dart | modern orthodox
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge
-lib/core/models/compatibility_score.dart | Âge proche
-lib/core/models/compatibility_score.dart | Âge très proche
 lib/core/models/couple_anniversary.dart | 1 an
 lib/core/models/couple_anniversary.dart | 1 mois
 lib/core/models/couple_anniversary.dart | 1 semaine
@@ -105,34 +78,6 @@ lib/core/models/profile_labels.dart | Shabbat observé
 lib/core/models/profile_labels.dart | Shabbat strict
 lib/core/models/profile_labels.dart | Shabbat strict
 lib/core/models/profile_labels.dart | Traditionaliste
-lib/core/models/profile_prompt.dart | Apprenez-moi quelque chose sur…
-lib/core/models/profile_prompt.dart | Ce qui m\'énerve le plus...
-lib/core/models/profile_prompt.dart | Débattez avec moi sur…
-lib/core/models/profile_prompt.dart | En ce moment je regarde...
-lib/core/models/profile_prompt.dart | Ensemble on pourrait...
-lib/core/models/profile_prompt.dart | Je cherche quelqu\'un qui...
-lib/core/models/profile_prompt.dart | Je suis fier(e) de...
-lib/core/models/profile_prompt.dart | Le vendredi soir chez moi...
-lib/core/models/profile_prompt.dart | Ma fête juive préférée...
-lib/core/models/profile_prompt.dart | Mes vacances idéales...
-lib/core/models/profile_prompt.dart | Mon Shabbat idéal...
-lib/core/models/profile_prompt.dart | Mon dimanche parfait...
-lib/core/models/profile_prompt.dart | Mon meilleur souvenir en Israël...
-lib/core/models/profile_prompt.dart | Mon plat préféré...
-lib/core/models/profile_prompt.dart | Mon talent caché...
-lib/core/models/profile_prompt.dart | Premier date idéal...
-lib/core/models/profile_prompt.dart | Un de mes objectifs dans la vie...
-lib/core/models/profile_prompt.dart | Un fait surprenant sur moi...
-lib/core/models/profile_prompt.dart | Une tradition familiale que j\'adore...
-lib/core/models/profile_prompt.dart | Une valeur juive qui me guide...
-lib/core/models/relationship_intention.dart | Amitié d\'abord
-lib/core/models/relationship_intention.dart | Commençons par apprendre à se connaître
-lib/core/models/relationship_intention.dart | Je cherche mon/ma futur(e) mari/femme
-lib/core/models/relationship_intention.dart | Je cherche une relation durable
-lib/core/models/relationship_intention.dart | Mariage
-lib/core/models/relationship_intention.dart | On verra où ça nous mène
-lib/core/models/relationship_intention.dart | Ouvert(e) à tout
-lib/core/models/relationship_intention.dart | Relation sérieuse
 lib/core/models/report_category.dart | Autre
 lib/core/models/report_category.dart | Autre raison (précisez)
 lib/core/models/report_category.dart | Comportement hors app
@@ -1061,16 +1006,6 @@ lib/presentation/features/matching/screens/matches_screen.dart | Ça y est, vous
 lib/presentation/features/matching/screens/matches_screen.dart | Écrivez-lui
 lib/presentation/features/matching/widgets/avatar_ring.dart | Match, $name
 lib/presentation/features/matching/widgets/avatar_ring.dart | Nouveau match, $name
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | ${score.factors.length} critères analysés
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Avec $userName
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compatibilité
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Complétez vos profils pour voir plus de détails
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compris
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Détails
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Le score est basé sur vos préférences et points communs
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Score de compatibilité
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
-lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Très compatible
 lib/presentation/features/matching/widgets/discover_card.dart | Anonyme
 lib/presentation/features/matching/widgets/discover_card.dart | Passer
 lib/presentation/features/matching/widgets/discover_card.dart | Voir le profil
@@ -1198,226 +1133,23 @@ lib/presentation/features/premium/widgets/plus_widgets.dart | Prochains likes da
 lib/presentation/features/premium/widgets/plus_widgets.dart | Réservé à mazl+
 lib/presentation/features/premium/widgets/plus_widgets.dart | Vos likes du jour sont partis.
 lib/presentation/features/profile/screens/edit_profile_screen.dart | A la maison
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Annuler
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Autre
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Cette action est irréversible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Dénomination
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Dénomination
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Enregistrer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Enregistrer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Entrez votre ${title.toLowerCase()}
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur d\'envoi
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de chargement
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de sauvegarde
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Erreur de suppression
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Glatt
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Habad
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Informations de base
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Kashrout
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Kashrout
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Laique
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ma pratique
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Maintenez appuyé pour définir comme principale
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Massorti
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Modern Orthodox
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Modifier le profil
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Non
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Non observant
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Non renseigné
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Observant
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Orthodox
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Parlez de vous…
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Partiellement
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo ajoutée
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo principale mise à jour
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photo supprimée
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Photos
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Principal
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Profil mis à jour
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Prénom
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Prénom
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Réessayer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Service temporairement indisponible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Service temporairement indisponible
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Shabbat
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Shabbat
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Strict
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Supprimer
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Supprimer la photo ?
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Traditionaliste
 lib/presentation/features/profile/screens/edit_profile_screen.dart | Tres observant
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Upload non disponible pour le moment
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ville
-lib/presentation/features/profile/screens/edit_profile_screen.dart | Ville
-lib/presentation/features/profile/screens/edit_profile_screen.dart | À propos
-lib/presentation/features/profile/screens/profile_setup_screen.dart | ${_maxDistance.round()} km
-lib/presentation/features/profile/screens/profile_setup_screen.dart | A la maison
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Aidez-nous à trouver quelqu\'un qui vous correspond
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Aidez-nous à vous montrer les bons profils
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ajoutez au moins 2 photos pour continuer
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ajoutez des photos
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Autre
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ce que vous recherchez
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ces informations seront visibles sur votre profil
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Chaque semaine
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Comment vous appelez-vous ?
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Distance maximale
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Dénomination
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Erreur d\'envoi
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Erreur de sauvegarde
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Fetes
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Glatt
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Habad
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre date de naissance
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre genre
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Indiquez votre prénom pour continuer
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Je ne sais pas
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Je recherche
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Je suis
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Kashrout
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Laique
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Les profils avec des photos de bonne qualité reçoivent 3x plus de matchs.
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Mariage
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Massorti
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Modern Orthodox
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Non
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Non observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Objectif
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Orthodox
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Où habitez-vous ?
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Parlez-nous de vous
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Partiellement
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Principal
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Prénom
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Quotidien
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Rarement
 lib/presentation/features/profile/screens/profile_setup_screen.dart | Relation serieuse
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Shabbat
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Strict
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Suivant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Synagogue
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Terminer
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Traditionaliste
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Tranche d\'âge
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Tres observant
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Un homme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Un homme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Une femme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Une femme
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Upload non disponible pour le moment
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Ville
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Votre pratique
-lib/presentation/features/profile/screens/profile_setup_screen.dart | Étape ${_currentStep + 1}/$_totalSteps
-lib/presentation/features/profile/screens/profile_view_screen.dart | Cet utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | Demande envoyée à $userName.
-lib/presentation/features/profile/screens/profile_view_screen.dart | France
-lib/presentation/features/profile/screens/profile_view_screen.dart | France
-lib/presentation/features/profile/screens/profile_view_screen.dart | Signaler ce profil
-lib/presentation/features/profile/screens/profile_view_screen.dart | Utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | Utilisateur
-lib/presentation/features/profile/screens/profile_view_screen.dart | cette personne
-lib/presentation/features/profile/widgets/profile_prompts_display.dart | Apprenez à me connaître
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Ajouter un prompt
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Annuler
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Autre
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Cette action est irréversible.
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Choisissez un prompt
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Enregistrer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de l\'ajout
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de la mise à jour
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Erreur lors de la suppression
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Maximum $maxPrompts prompts atteint
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Mes Prompts
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Modifier
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Prompt supprimé
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Réessayer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Répondez à des questions pour montrer votre personnalité
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Supprimer ce prompt ?
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Tous les prompts sont déjà utilisés
-lib/presentation/features/profile/widgets/profile_prompts_section.dart | Votre réponse…
-lib/presentation/features/profile/widgets/profile_view/profile_action_bar.dart | J'aime $firstName
-lib/presentation/features/profile/widgets/profile_view/profile_action_bar.dart | Passer
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Calculé à partir de vos pratiques, vos intentions et vos valeurs.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Calculée à partir de vos deux profils.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité indisponible pour le moment.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatibilité moyenne
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Compatible
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Débloquer avec mazl+
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Découvrez votre score de compatibilité avec $firstName.
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Peu compatible
-lib/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart | Très compatible
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | $remaining étapes restantes
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | 1 étape restante
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Ajoutez au moins 2 photos
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Bio complétée
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Compléter maintenant
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Complétez votre profil
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Décrivez-vous en quelques lignes
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Faites vérifier votre profil
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | France
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Indiquez votre ville
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Photos ajoutées
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Profil vérifié
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Profil · $done/${steps.length}
-lib/presentation/features/profile/widgets/profile_view/profile_completion_card.dart | Ville renseignée
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | $userName n\'a pas encore répondu.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | $userName souhaite activer le mode couple avec vous.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Activer avec $userName
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Annuler la demande
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Demande envoyée
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Demande reçue
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Déjà en mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | En couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Passer au mode couple
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Répondre
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous avez matché. Activez le mode couple pour partager des activités ensemble.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous êtes déjà en mode couple avec quelqu\'un d\'autre.
-lib/presentation/features/profile/widgets/profile_view/profile_couple_section.dart | Vous êtes en mode couple avec $userName.
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Statut de vérification : $label
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifier mon profil
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifié
-lib/presentation/features/profile/widgets/profile_view/profile_identity.dart | Vérifié+
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | C'est un match.
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Continuer
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Envoyer un message
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Match
-lib/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart | Vous pouvez maintenant discuter avec $name.
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo $current sur $total
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo précédente
-lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart | Photo suivante
-lib/presentation/features/profile/widgets/profile_view/profile_sections.dart | En quelques mots
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Modifier
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Mon profil
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Plus d'options
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Retour
-lib/presentation/features/profile/widgets/profile_view/profile_top_bar.dart | Réglages
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | Ajouter des photos
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/profile_view/profile_view_content.dart | À propos
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Cacherout
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Femme
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Genre
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Homme
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Pratique
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | Shabbat
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | cette personne
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | à ${km.round()} km
-lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | à moins de 1 km
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
-lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Montrez aux autres ce que vous recherchez
 lib/presentation/features/settings/screens/settings_screen.dart | - ID ${c[
 lib/presentation/features/settings/screens/settings_screen.dart | Activer Couple
 lib/presentation/features/settings/screens/settings_screen.dart | Couple ID: ${activeCouple[
