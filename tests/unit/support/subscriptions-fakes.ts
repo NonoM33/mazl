@@ -35,7 +35,8 @@ export class InMemorySubscriptions implements SubscriptionRepository {
   async activate(userId: number, subscription: ActiveSubscription): Promise<void> {
     const owner = this.byOriginalTransaction(subscription.originalTransactionId);
     if (owner !== undefined && owner.userId !== userId) throw new TransactionOwnedByAnotherUserError();
-    this.rows.set(userId, { ...subscription, userId, status: "active" });
+    if (owner?.status === "revoked") throw new InvalidTransactionError("revoked");
+    this.rows.set(userId,{ ...subscription, userId, status: "active" });
   }
 
   async findByUserId(userId: number): Promise<object | null> {
@@ -53,8 +54,8 @@ export class InMemorySubscriptions implements SubscriptionRepository {
     this.rows.set(row.userId, { ...subscription, userId: row.userId, status: "active" });
   }
 
-  async markStatus(originalTransactionId: string, status: SubscriptionStatus): Promise<void> {
+  async markStatus(originalTransactionId: string, status: SubscriptionStatus, periodEnd: Date): Promise<void> {
     const row = this.byOriginalTransaction(originalTransactionId);
-    if (row !== undefined) row.status = status;
+    if (row !== undefined && periodEnd >= row.expiresAt) row.status = status;
   }
 }

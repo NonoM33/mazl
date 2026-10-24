@@ -143,8 +143,19 @@ describe("handleAppleNotification", () => {
   });
 
   test("EXPIRED marks the subscription expired even though the transaction is past its expiry", async () => {
+    // The period that ended is the stored one: Apple's EXPIRED carries its expiry.
+    const stored = repository.rows.get(7);
+    if (stored !== undefined) repository.rows.set(7, { ...stored, expiresAt: new Date(NOW.getTime() - DAY) });
     expect(await deliver("EXPIRED", { expiresDate: NOW.getTime() - DAY }, "VOLUNTARY")).toEqual({ kind: "handled" });
     expect(repository.rows.get(7)?.status).toBe("expired");
+  });
+
+  test("an EXPIRED of an older period, delivered after a renewal, is acknowledged and changes nothing", async () => {
+    const renewedUntil = NOW.getTime() + 55 * DAY;
+    await deliver("DID_RENEW", { expiresDate: renewedUntil });
+    expect(await deliver("EXPIRED", { expiresDate: NOW.getTime() + 25 * DAY })).toEqual({ kind: "handled" });
+    expect(repository.rows.get(7)?.status).toBe("active");
+    expect(repository.rows.get(7)?.expiresAt).toEqual(new Date(renewedUntil));
   });
 
   test("REFUND marks the subscription revoked even though the transaction carries a revocationDate", async () => {

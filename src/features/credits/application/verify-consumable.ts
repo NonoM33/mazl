@@ -21,7 +21,8 @@ export interface ConsumablePurchaseResult {
 export type VerifiedPurchase = Omit<ConsumablePurchaseResult, "credits">;
 
 // The consumable policy: a product of the catalogue, a transaction typed
-// "Consumable", not revoked, identified by its transactionId (the key of the
+// "Consumable", not revoked (neither in the JWS nor by an earlier refund
+// notification that the repository remembers), identified by its transactionId (the key of the
 // purchase; the originalTransactionId of a consumable is no stable key).
 // Throws InvalidTransactionError or TransactionOwnedByAnotherUserError.
 export async function verifyConsumablePurchase(
@@ -45,5 +46,6 @@ export async function verifyConsumablePurchase(
     purchasedAt: signed.purchaseDate ?? signed.originalPurchaseDate ?? deps.clock(),
   });
   if (outcome === "owned_by_another_user") throw new TransactionOwnedByAnotherUserError();
+  if (outcome === "revoked") throw new InvalidTransactionError("revoked");
   return { credited: outcome === "credited", kind: product.kind, quantity: product.quantity };
 }

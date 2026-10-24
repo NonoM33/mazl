@@ -38,6 +38,16 @@ export async function createCreditTables(sql: Sql): Promise<void> {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `;
+  // A refund or revocation that Apple announced for a transaction the server had
+  // not credited yet. recordPurchase refuses these ids, so a JWS kept back until
+  // after the refund (it carries no revocationDate) cannot be credited. Keyed on
+  // the transactionId, holds no member: nothing to erase with an account.
+  await sql`
+    CREATE TABLE IF NOT EXISTS credit_revocations (
+      transaction_id VARCHAR(64) PRIMARY KEY,
+      revoked_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `;
   await sql`CREATE INDEX IF NOT EXISTS idx_credit_spends_daily ON credit_spends (user_id, kind, created_at)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_credit_purchases_user ON credit_purchases (user_id)`;
 }

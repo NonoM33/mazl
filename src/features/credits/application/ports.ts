@@ -42,7 +42,9 @@ export interface NewPurchase {
   readonly purchasedAt: Date;
 }
 
-export type PurchaseOutcome = "credited" | "already_credited" | "owned_by_another_user";
+// "revoked": Apple already refunded or revoked this transaction before it was
+// presented, so it is never credited.
+export type PurchaseOutcome = "credited" | "already_credited" | "owned_by_another_user" | "revoked";
 
 export interface CreditsRepository {
   snapshot(userId: number): Promise<WalletSnapshot>;
@@ -53,7 +55,8 @@ export interface CreditsRepository {
   cancelSpend(userId: number, spendId: number): Promise<void>;
   // Idempotent on the transactionId.
   recordPurchase(userId: number, purchase: NewPurchase): Promise<PurchaseOutcome>;
-  // Once only per transactionId; the balance may become negative.
+  // Once only per transactionId; the balance may become negative. A transaction
+  // never credited is remembered as revoked (and still answers "unknown").
   refundPurchase(transactionId: string): Promise<ConsumableRefundOutcome>;
 }
 

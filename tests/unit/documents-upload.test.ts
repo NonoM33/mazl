@@ -37,6 +37,18 @@ describe("upload-document", () => {
     expect(() => open(onDisk, `document:${result.documentId + 1}`)).toThrow(SealedDataError);
   });
 
+  test("refuses an eleventh file for one waitlist entry, but not for another, and purged files no longer count", async () => {
+    const { upload, repo } = setup();
+    for (let i = 0; i < 10; i += 1) await upload({ waitlistId: 1, type: "selfie_id", bytes: fakeJpeg() });
+    expect(await rejectionCode(upload({ waitlistId: 1, type: "selfie_id", bytes: fakeJpeg() }))).toBe("too_many_files");
+    expect(repo.rows.size).toBe(10);
+    await upload({ waitlistId: 2, type: "selfie_id", bytes: fakeJpeg() });
+
+    const [first] = [...repo.rows.values()];
+    await repo.markPurged([first!.id]);
+    await upload({ waitlistId: 1, type: "selfie_id", bytes: fakeJpeg() });
+  });
+
   test("the format comes from the bytes, whatever the client claims", async () => {
     const { upload, store } = setup();
     const html = new TextEncoder().encode("<html>not an image</html>");

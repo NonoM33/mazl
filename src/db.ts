@@ -38,6 +38,10 @@ export async function initDb() {
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS documents_submitted_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS os VARCHAR(20)`;
+  // When the current verification_token was issued: the emailed link expires 30
+  // days later. The default stamps the rows that predate the column with the
+  // migration time, so their links stay valid for 30 days from then.
+  await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verification_token_created_at TIMESTAMP NOT NULL DEFAULT NOW()`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS documents (
@@ -732,6 +736,7 @@ export async function requestReuploadAndRotateToken(waitlistId: number) {
     UPDATE waitlist
     SET verification_status = 'pending',
         verification_token = ${verificationToken},
+        verification_token_created_at = NOW(),
         verification_requested_at = NOW(),
         documents_submitted_at = NULL,
         verified_at = NULL
@@ -745,24 +750,51 @@ export async function requestReuploadAndRotateToken(waitlistId: number) {
   return { email: row.email as string, verificationToken: row.verification_token as string };
 }
 
-export async function upsertWaitlistAndGetVerification(email: string) {
+export interface WaitlistVerification {
+  id: number;
+  email: string;
+  // The new emailable link token. Empty when `alreadyHandled`: nothing was
+  // issued, and the live token of that member is never handed out.
+  verificationToken: string;
+  // True when the email already belongs to a member who is verified, verified+
+  // or has submitted documents. Their status and link are left untouched, so an
+  // anonymous caller cannot demote them or invalidate their link; the caller
+  // must not send a verification e-mail.
+  alreadyHandled: boolean;
+}
+
+// Public sign-up by email. Anyone can post any email, so a row past 'pending'
+// is never rewritten: the SET clauses keep its status, token and dates.
+export async function upsertWaitlistAndGetVerification(email: string): Promise<WaitlistVerification> {
   const verificationToken = generateVerificationToken();
 
   const result = await sql`
-    INSERT INTO waitlist (email, token, status, confirmed_at, verification_token, verification_status, verification_requested_at)
-    VALUES (${email}, ${crypto.randomUUID()}, 'confirmed', NOW(), ${verificationToken}, 'pending', NOW())
+    INSERT INTO waitlist (email, token, status, confirmed_at, verification_token, verification_status, verification_requested_at, verification_token_created_at)
+    VALUES (${email}, ${crypto.randomUUID()}, 'confirmed', NOW(), ${verificationToken}, 'pending', NOW(), NOW())
     ON CONFLICT (email)
     DO UPDATE SET
-      verification_token = ${verificationToken},
-      verification_status = 'pending',
-      verification_requested_at = NOW()
-    RETURNING id, email, verification_token
+      verification_token = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_token ELSE EXCLUDED.verification_token END,
+      verification_token_created_at = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_token_created_at ELSE NOW() END,
+      verification_requested_at = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_requested_at ELSE NOW() END,
+      verification_status = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_status ELSE 'pending' END
+    RETURNING id, email, verification_token,
+      COALESCE(verification_status IN ('verified', 'verified_plus', 'submitted'), false) AS already_handled
   `;
 
   const row = result[0];
   if (!row) throw new Error("Failed to upsert waitlist");
 
-  return { id: row.id as number, email: row.email as string, verificationToken: row.verification_token as string };
+  const alreadyHandled = row.already_handled === true;
+  return {
+    id: row.id as number,
+    email: row.email as string,
+    verificationToken: alreadyHandled ? "" : (row.verification_token as string),
+    alreadyHandled,
+  };
 }
 
 export async function markVerificationSubmitted(waitlistId: number) {
@@ -773,9 +805,12 @@ export async function markVerificationSubmitted(waitlistId: number) {
   `;
 }
 
-export async function findWaitlistByVerificationToken(token: string) {
+// A token older than `maxAgeDays` is as good as unknown.
+export async function findWaitlistByVerificationToken(token: string, maxAgeDays: number) {
   const result = await sql`
-    SELECT id, email, verification_status FROM waitlist WHERE verification_token = ${token}
+    SELECT id, email, verification_status FROM waitlist
+    WHERE verification_token = ${token}
+      AND verification_token_created_at > NOW() - make_interval(days => ${maxAgeDays})
   `;
   return result.length ? (result[0] as { id: number; email: string; verification_status: string }) : null;
 }

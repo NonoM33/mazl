@@ -66,6 +66,33 @@ Prix de base : la France ; tous les autres pays suivent la conversion d'Apple (p
 exemple 6,99 $ pour `boost.1`). Disponibles dans les 175 pays. Les consommables sont
 localisés en fr et en d'abord ; he, es et ru suivront la traduction de l'app.
 
+## Sandbox Apple : `APPLE_ALLOW_SANDBOX`
+
+Le serveur vérifie la signature Apple d'une transaction, pas l'argent réellement
+encaissé. Une transaction signée `environment: "Sandbox"` est une vraie signature
+d'Apple, obtenue sans payer (testeurs TestFlight, comptes Sandbox). Acceptée en
+production, elle donnerait mazl+ ou des crédits gratuitement.
+
+| valeur | effet |
+|---|---|
+| `true` (défaut, variable absente ou vide) | les transactions Sandbox sont acceptées, abonnements et consommables |
+| `false` | toute transaction Sandbox est refusée (422 `invalid_transaction`, raison `sandbox_not_allowed` dans les journaux), pour les achats, les restaurations, les consommables et les notifications |
+| autre valeur (`flase`...) | le serveur ne démarre pas : une faute de frappe ne doit pas laisser la porte ouverte |
+
+Compromis : **l'équipe App Review achète en Sandbox contre le serveur de production**.
+Avec `false`, la soumission est refusée (ses achats échouent). Donc :
+
+1. Garder `true` (défaut) pendant la soumission et la revue d'une version qui ajoute
+   ou modifie un produit.
+2. Passer à `false` quand aucune revue n'est en cours, puis repasser à `true` avant
+   la soumission suivante.
+3. À terme, la sortie propre est de séparer l'environnement : le serveur de
+   production refuse le Sandbox, un serveur dédié le reçoit, et l'URL des notifications
+   « Sandbox » d'App Store Connect pointe vers lui.
+
+Tant que la valeur reste `true`, la protection repose sur l'accès aux comptes
+TestFlight : ne les ouvrir qu'à des testeurs de confiance (pas de lien public).
+
 ## Reste à faire avant la soumission
 
 - Une capture d'écran de l'écran d'achat pour l'équipe de vérification, sur chaque

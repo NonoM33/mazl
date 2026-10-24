@@ -76,6 +76,9 @@ export class MemoryRepo implements DocumentRepository {
   async typesByIds(waitlistId: number, ids: readonly number[]): Promise<string[]> {
     return [...this.rows.values()].filter((r) => r.waitlistId === waitlistId && ids.includes(r.id)).map((r) => r.type);
   }
+  async countActive(waitlistId: number): Promise<number> {
+    return [...this.rows.values()].filter((r) => r.waitlistId === waitlistId && r.purgedAt === null).length;
+  }
   async decide(params: { ids: readonly number[]; waitlistId?: number; status: DecisionStatus }): Promise<void> {
     for (const id of params.ids) {
       const row = this.rows.get(id);

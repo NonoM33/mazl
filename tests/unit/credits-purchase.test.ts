@@ -44,6 +44,15 @@ async function reason(action: () => Promise<unknown>): Promise<string> {
   return "accepted";
 }
 
+describe("a refund announced before the purchase is presented", () => {
+  test("the purchase is refused as revoked and credits nothing", async () => {
+    expect(await service.refund("6000000000001")).toBe("unknown");
+    expect(await reason(() => service.verifyPurchase(USER, jws.register("late", consumable())))).toBe("revoked");
+    expect(repository.balance(USER, "boost")).toBe(0);
+    expect(repository.purchases.size).toBe(0);
+  });
+});
+
 describe("verifyPurchase", () => {
   test("credits a genuine consumable and returns the new balance", async () => {
     const result = await service.verifyPurchase(USER, jws.register("ok", consumable()));

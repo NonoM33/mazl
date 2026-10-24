@@ -108,7 +108,13 @@ consommables.
   la notification.
 - **`CONSUMPTION_REQUEST`** et les types sans effet : réponse 200, rien ne change.
 - **Consommable inconnu** : réponse 200 avec `ignored`, comme pour un abonnement
-  inconnu.
+  inconnu. Un `REFUND` ou `REVOKE` arrivé avant le crédit est tout de même
+  mémorisé (`credit_revocations`, clé `transaction_id`, sans membre) : si le JWS
+  de cet achat est présenté ensuite, `POST /api/credits/apple/verify` répond 422
+  `invalid_transaction` et ne crédite rien. Le JWS gardé par le membre ne porte
+  pas de `revocationDate`, seul ce registre sait que l'achat a été remboursé. Le
+  crédit et le remboursement d'une même transaction sont sérialisés (verrou
+  consultatif Postgres).
 - Une notification de consommable ne doit jamais renvoyer 422 pour l'unique raison
   que la transaction n'a pas d'`expiresDate`.
 

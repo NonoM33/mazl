@@ -79,6 +79,13 @@ export class PostgresDocumentRepository implements DocumentRepository {
     return rows.map((row) => row.type);
   }
 
+  async countActive(waitlistId: number): Promise<number> {
+    const rows = await sql<{ total: number }[]>`
+      SELECT COUNT(*)::int AS total FROM documents WHERE waitlist_id = ${waitlistId} AND purged_at IS NULL
+    `;
+    return Number(rows[0]?.total ?? 0);
+  }
+
   async decide(params: {
     ids: readonly number[];
     waitlistId?: number;

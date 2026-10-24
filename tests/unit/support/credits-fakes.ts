@@ -33,6 +33,8 @@ interface PurchaseLine {
 export class InMemoryCredits implements CreditsRepository {
   readonly spends: SpendLine[] = [];
   readonly purchases = new Map<string, PurchaseLine>();
+  // Transactions Apple refunded before they were ever credited.
+  readonly revoked = new Set<string>();
   readonly resetsAt = new Date("2026-10-25T00:00:00.000Z");
   private readonly balances = new Map<string, number>();
   private nextId = 1;
@@ -101,6 +103,7 @@ export class InMemoryCredits implements CreditsRepository {
   }
 
   async recordPurchase(userId: number, purchase: NewPurchase): Promise<PurchaseOutcome> {
+    if (this.revoked.has(purchase.transactionId)) return "revoked";
     const known = this.purchases.get(purchase.transactionId);
     if (known !== undefined) return known.userId === userId ? "already_credited" : "owned_by_another_user";
     this.purchases.set(purchase.transactionId, { userId, kind: purchase.kind, quantity: purchase.quantity, refunded: false });
@@ -110,7 +113,10 @@ export class InMemoryCredits implements CreditsRepository {
 
   async refundPurchase(transactionId: string): Promise<ConsumableRefundOutcome> {
     const line = this.purchases.get(transactionId);
-    if (line === undefined) return "unknown";
+    if (line === undefined) {
+      this.revoked.add(transactionId);
+      return "unknown";
+    }
     if (line.refunded) return "already_refunded";
     line.refunded = true;
     this.setBalance(line.userId, line.kind, this.balance(line.userId, line.kind) - line.quantity);
