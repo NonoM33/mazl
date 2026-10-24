@@ -1,0 +1,16 @@
+{
+  "packsSuperLikesLabel": "Super likes",
+  "packsSuperLikesTitle": "Te has quedado sin super likes.",
+  "packsSuperLikesSubtitle": "Consigue más: los que compras no caducan nunca.",
+  "packsBoostsLabel": "Boosts",
+  "packsBoostsTitle": "Te has quedado sin Boosts.",
+  "packsBoostsSubtitle": "Pon tu perfil en cabeza durante {minutes} min. Un Boost comprado no caduca nunca.",
+  "packsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
+  "packsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
+  "packsPackSemantics": "Comprar {quantity} por {price}",
+  "packsLoading": "Cargando las ofertas",
+  "packsStoreUnavailable": "La tienda no está disponible ahora mismo. Inténtalo de nuevo en un momento.",
+  "packsPending": "Compra pendiente de aprobación. Tu saldo se actualizará en cuanto se valide.",
+  "packsBoostAlreadyActive": "Ya hay un Boost en marcha.",
+  "packsErrorExhausted": "Ahora mismo no te queda ninguno."
+}

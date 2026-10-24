@@ -172,6 +172,7 @@ void main() {
 
       expect(response.statusCode, 409);
       expect(response.isBoostAlreadyActive, isTrue);
+      expect(response.errorKind, ApiErrorKind.boostAlreadyActive);
       expect(response.isCreditsExhausted, isFalse);
       expect(credits.available(CreditKind.boost), 2);
     });

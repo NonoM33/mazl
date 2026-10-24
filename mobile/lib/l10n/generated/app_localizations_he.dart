@@ -1719,70 +1719,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get creditsSuperLikesLabel => 'סופר לייקים';
-
-  @override
-  String get creditsSuperLikesTitle => 'נגמרו הסופר לייקים.';
-
-  @override
-  String get creditsSuperLikesSubtitle =>
-      'אפשר להוסיף עוד. סופר לייקים שנרכשו לא פגים לעולם.';
-
-  @override
-  String get creditsBoostsLabel => 'בוסטים';
-
-  @override
-  String get creditsBoostsTitle => 'נגמרו הבוסטים.';
-
-  @override
-  String creditsBoostsSubtitle(int minutes) {
-    return 'אפשר להבליט את הפרופיל למשך $minutes דקות. בוסט שנרכש לא פג לעולם.';
-  }
-
-  @override
-  String creditsPackSuperLikes(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count סופר לייקים',
-      two: 'שני סופר לייקים',
-      one: 'סופר לייק אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String creditsPackBoosts(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count בוסטים',
-      two: 'שני בוסטים',
-      one: 'בוסט אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String creditsPackSemantics(String quantity, String price) {
-    return 'לרכוש $quantity תמורת $price';
-  }
-
-  @override
-  String get creditsLoading => 'טוען הצעות';
-
-  @override
-  String get creditsStoreUnavailable =>
-      'החנות אינה זמינה כרגע. אפשר לנסות שוב בעוד רגע.';
-
-  @override
-  String get creditsPending =>
-      'הרכישה ממתינה לאישור. היתרה תתעדכן מיד לאחר האישור.';
-
-  @override
-  String get creditsBoostAlreadyActive => 'בוסט כבר פעיל.';
-
-  @override
   String get eventsTitle => 'אירועים';
 
   @override
@@ -3024,6 +2960,71 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get onboardingPage5Body =>
       'הבינה המלאכותית שלנו עוזרת למצוא את האדם המתאים.';
+
+  @override
+  String get packsSuperLikesLabel => 'סופר לייקים';
+
+  @override
+  String get packsSuperLikesTitle => 'נגמרו הסופר לייקים.';
+
+  @override
+  String get packsSuperLikesSubtitle =>
+      'אפשר להוסיף עוד. סופר לייקים שנרכשו לא פגים לעולם.';
+
+  @override
+  String get packsBoostsLabel => 'בוסטים';
+
+  @override
+  String get packsBoostsTitle => 'נגמרו הבוסטים.';
+
+  @override
+  String packsBoostsSubtitle(int minutes) {
+    return 'אפשר להבליט את הפרופיל למשך $minutes דקות. בוסט שנרכש לא פג לעולם.';
+  }
+
+  @override
+  String packsPackSuperLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Super Likes',
+      one: '$count Super Like',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String packsPackBoosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Boosts',
+      one: '$count Boost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String packsPackSemantics(String quantity, String price) {
+    return 'לרכוש $quantity תמורת $price';
+  }
+
+  @override
+  String get packsLoading => 'טוען הצעות';
+
+  @override
+  String get packsStoreUnavailable =>
+      'החנות אינה זמינה כרגע. אפשר לנסות שוב בעוד רגע.';
+
+  @override
+  String get packsPending =>
+      'הרכישה ממתינה לאישור. היתרה תתעדכן מיד לאחר האישור.';
+
+  @override
+  String get packsBoostAlreadyActive => 'בוסט כבר פעיל.';
+
+  @override
+  String get packsErrorExhausted => 'אין כרגע מה להשתמש בו.';
 
   @override
   String get plusFeatureUnlimitedLikesTitle => 'לייקים ללא הגבלה';

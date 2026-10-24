@@ -77,7 +77,7 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
       _buyingProductId = null;
       _message = switch (result) {
         PurchaseSucceeded() || PurchaseCancelled() => null,
-        PurchasePending() => l10n.creditsPending,
+        PurchasePending() => l10n.packsPending,
         PurchaseFailed(:final problem) => purchaseProblemText(l10n, problem),
       };
     });
@@ -98,21 +98,21 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
     return PlusSheetFrame(
       children: [
         SectionLabel(
-          isBoost ? l10n.creditsBoostsLabel : l10n.creditsSuperLikesLabel,
+          isBoost ? l10n.packsBoostsLabel : l10n.packsSuperLikesLabel,
         ),
         const SizedBox(height: 10),
         Semantics(
           header: true,
           child: Text(
-            isBoost ? l10n.creditsBoostsTitle : l10n.creditsSuperLikesTitle,
+            isBoost ? l10n.packsBoostsTitle : l10n.packsSuperLikesTitle,
             style: plusSheetTitleStyle(context),
           ),
         ),
         const SizedBox(height: 12),
         Text(
           isBoost
-              ? l10n.creditsBoostsSubtitle(widget.boostMinutes)
-              : l10n.creditsSuperLikesSubtitle,
+              ? l10n.packsBoostsSubtitle(widget.boostMinutes)
+              : l10n.packsSuperLikesSubtitle,
           style: Theme.of(
             context,
           ).textTheme.bodyLarge!.copyWith(color: scheme.onSurfaceVariant),
@@ -163,7 +163,7 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
   Widget _loading(AppLocalizations l10n) => SizedBox(
     height: _packRowHeight * 2 + _packGap,
     child: Center(
-      child: CircularProgressIndicator(semanticsLabel: l10n.creditsLoading),
+      child: CircularProgressIndicator(semanticsLabel: l10n.packsLoading),
     ),
   );
 
@@ -174,7 +174,7 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.creditsStoreUnavailable,
+              l10n.packsStoreUnavailable,
               style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
@@ -218,8 +218,8 @@ class _PackRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final quantity = switch (pack.kind) {
-      CreditKind.superLike => l10n.creditsPackSuperLikes(pack.quantity),
-      CreditKind.boost => l10n.creditsPackBoosts(pack.quantity),
+      CreditKind.superLike => l10n.packsPackSuperLikes(pack.quantity),
+      CreditKind.boost => l10n.packsPackBoosts(pack.quantity),
     };
     final price = planTotalLabel(
       price: pack.price,
@@ -231,7 +231,7 @@ class _PackRow extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: enabled,
-      label: l10n.creditsPackSemantics(quantity, price),
+      label: l10n.packsPackSemantics(quantity, price),
       excludeSemantics: true,
       onTap: onBuy,
       child: Material(

@@ -1,0 +1,16 @@
+{
+  "packsSuperLikesLabel": "סופר לייקים",
+  "packsSuperLikesTitle": "נגמרו הסופר לייקים.",
+  "packsSuperLikesSubtitle": "אפשר להוסיף עוד. סופר לייקים שנרכשו לא פגים לעולם.",
+  "packsBoostsLabel": "בוסטים",
+  "packsBoostsTitle": "נגמרו הבוסטים.",
+  "packsBoostsSubtitle": "אפשר להבליט את הפרופיל למשך {minutes} דקות. בוסט שנרכש לא פג לעולם.",
+  "packsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
+  "packsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
+  "packsPackSemantics": "לרכוש {quantity} תמורת {price}",
+  "packsLoading": "טוען הצעות",
+  "packsStoreUnavailable": "החנות אינה זמינה כרגע. אפשר לנסות שוב בעוד רגע.",
+  "packsPending": "הרכישה ממתינה לאישור. היתרה תתעדכן מיד לאחר האישור.",
+  "packsBoostAlreadyActive": "בוסט כבר פעיל.",
+  "packsErrorExhausted": "אין כרגע מה להשתמש בו."
+}

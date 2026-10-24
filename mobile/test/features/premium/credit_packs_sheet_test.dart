@@ -398,15 +398,15 @@ void main() {
   });
 
   testWidgets(
-    'en hébreu : la quantité est du côté du début, le prix de la fin',
+    'en hébreu, noms de packs intacts : quantité au début, prix à la fin',
     (tester) async {
       final h = _Harness();
       await pumpPlus(tester, h.sheet(), locale: const Locale('he'));
       await _settle(tester);
 
-      expect(find.text('בוסט אחד'), findsOneWidget);
-      expect(find.text('3 בוסטים'), findsOneWidget);
-      final quantity = tester.getTopRight(find.text('3 בוסטים')).dx;
+      expect(find.text('1 Boost'), findsOneWidget);
+      expect(find.text('3 Boosts'), findsOneWidget);
+      final quantity = tester.getTopRight(find.text('3 Boosts')).dx;
       final price = tester.getTopRight(find.textContaining('4.99')).dx;
       expect(quantity, greaterThan(price), reason: 'le début est à droite');
     },

@@ -2230,81 +2230,6 @@
       }
     }
   },
-  "creditsSuperLikesLabel": "Super Likes",
-  "@creditsSuperLikesLabel": {
-    "description": "Petit libellé au-dessus du titre de la feuille d’achat de Super Likes (ouverte quand il n’en reste plus). Nom de la fonction, même terme que sur le bouton étoile de Découvrir."
-  },
-  "creditsSuperLikesTitle": "Vous n’avez plus de Super Likes.",
-  "@creditsSuperLikesTitle": {
-    "description": "Titre de la feuille d’achat de Super Likes, quand le serveur dit qu’il n’en reste aucun à envoyer."
-  },
-  "creditsSuperLikesSubtitle": "Reprenez-en : ceux que vous achetez n’expirent jamais.",
-  "@creditsSuperLikesSubtitle": {
-    "description": "Phrase sous le titre de la feuille d’achat de Super Likes. Dit que les crédits achetés ne s’effacent pas à minuit, contrairement à l’inclus du jour."
-  },
-  "creditsBoostsLabel": "Boosts",
-  "@creditsBoostsLabel": {
-    "description": "Petit libellé au-dessus du titre de la feuille d’achat de Boosts. Nom de la fonction, même terme que dans l’écran Boost."
-  },
-  "creditsBoostsTitle": "Vous n’avez plus de Boost.",
-  "@creditsBoostsTitle": {
-    "description": "Titre de la feuille d’achat de Boosts, quand le serveur dit qu’il n’en reste aucun à activer."
-  },
-  "creditsBoostsSubtitle": "Mettez votre profil en tête pendant {minutes} min. Un Boost acheté n’expire jamais.",
-  "@creditsBoostsSubtitle": {
-    "description": "Phrase sous le titre de la feuille d’achat de Boosts. {minutes} est la durée d’un Boost en minutes (« min » abrégé).",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "creditsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
-  "@creditsPackSuperLikes": {
-    "description": "Quantité d’un pack de Super Likes, en gros sur la ligne du pack. {count} est un entier (5, 15).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "creditsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
-  "@creditsPackBoosts": {
-    "description": "Quantité d’un pack de Boosts, en gros sur la ligne du pack. {count} est un entier (1, 3).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "creditsPackSemantics": "Acheter {quantity} pour {price}",
-  "@creditsPackSemantics": {
-    "description": "Texte lu par le lecteur d’écran sur la ligne d’un pack. {quantity} est la quantité déjà écrite (« 5 Super Likes »), {price} le prix du store avec sa devise (« 3,99 € »).",
-    "placeholders": {
-      "quantity": {
-        "type": "String"
-      },
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "creditsLoading": "Chargement des offres",
-  "@creditsLoading": {
-    "description": "Texte lu par le lecteur d’écran pendant que les prix des packs se chargent depuis le store. Rien d’écrit à l’écran : seulement un indicateur de chargement."
-  },
-  "creditsStoreUnavailable": "La boutique n’est pas disponible pour le moment. Réessayez dans un instant.",
-  "@creditsStoreUnavailable": {
-    "description": "Dans la feuille d’achat, quand le store ne rend aucun prix (indisponible, hors ligne). Un bouton « Réessayer » suit."
-  },
-  "creditsPending": "Achat en attente d’approbation. Votre solde sera mis à jour dès qu’il sera validé.",
-  "@creditsPending": {
-    "description": "Message sous les packs quand l’achat attend une approbation (Ask to Buy : un parent doit valider). Le solde arrivera plus tard."
-  },
-  "creditsBoostAlreadyActive": "Un Boost est déjà en cours.",
-  "@creditsBoostAlreadyActive": {
-    "description": "Message bref quand on tente d’activer un Boost alors qu’un autre court déjà. Rien n’est débité."
-  },
   "eventsTitle": "Événements",
   "@eventsTitle": {
     "description": "Titre de la liste des événements (soirées, cours, fêtes)."
@@ -3983,6 +3908,85 @@
   "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
   "@onboardingPage5Body": {
     "description": "Présentation, page 5 : texte."
+  },
+  "packsSuperLikesLabel": "Super Likes",
+  "@packsSuperLikesLabel": {
+    "description": "Petit libellé au-dessus du titre de la feuille d’achat de Super Likes (ouverte quand il n’en reste plus). Nom de la fonction, même terme que sur le bouton étoile de Découvrir."
+  },
+  "packsSuperLikesTitle": "Vous n’avez plus de Super Likes.",
+  "@packsSuperLikesTitle": {
+    "description": "Titre de la feuille d’achat de Super Likes, quand le serveur dit qu’il n’en reste aucun à envoyer."
+  },
+  "packsSuperLikesSubtitle": "Reprenez-en : ceux que vous achetez n’expirent jamais.",
+  "@packsSuperLikesSubtitle": {
+    "description": "Phrase sous le titre de la feuille d’achat de Super Likes. Dit que les crédits achetés ne s’effacent pas à minuit, contrairement à l’inclus du jour."
+  },
+  "packsBoostsLabel": "Boosts",
+  "@packsBoostsLabel": {
+    "description": "Petit libellé au-dessus du titre de la feuille d’achat de Boosts. Nom de la fonction, même terme que dans l’écran Boost."
+  },
+  "packsBoostsTitle": "Vous n’avez plus de Boost.",
+  "@packsBoostsTitle": {
+    "description": "Titre de la feuille d’achat de Boosts, quand le serveur dit qu’il n’en reste aucun à activer."
+  },
+  "packsBoostsSubtitle": "Mettez votre profil en tête pendant {minutes} min. Un Boost acheté n’expire jamais.",
+  "@packsBoostsSubtitle": {
+    "description": "Phrase sous le titre de la feuille d’achat de Boosts. {minutes} est la durée d’un Boost en minutes (« min » abrégé).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "packsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
+  "@packsPackSuperLikes": {
+    "description": "Quantité d’un pack de Super Likes, en gros sur la ligne du pack. {count} est un entier (5, 15). Le nom du pack reste celui d’App Store Connect (« 5 Super Likes ») dans toutes les langues : ne pas traduire.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
+  "@packsPackBoosts": {
+    "description": "Quantité d’un pack de Boosts, en gros sur la ligne du pack. {count} est un entier (1, 3). Le nom du pack reste celui d’App Store Connect (« 3 Boosts ») dans toutes les langues : ne pas traduire.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packsPackSemantics": "Acheter {quantity} pour {price}",
+  "@packsPackSemantics": {
+    "description": "Texte lu par le lecteur d’écran sur la ligne d’un pack. {quantity} est la quantité déjà écrite (« 5 Super Likes »), {price} le prix du store avec sa devise (« 3,99 € »).",
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "packsLoading": "Chargement des offres",
+  "@packsLoading": {
+    "description": "Texte lu par le lecteur d’écran pendant que les prix des packs se chargent depuis le store. Rien d’écrit à l’écran : seulement un indicateur de chargement."
+  },
+  "packsStoreUnavailable": "La boutique n’est pas disponible pour le moment. Réessayez dans un instant.",
+  "@packsStoreUnavailable": {
+    "description": "Dans la feuille d’achat, quand le store ne rend aucun prix (indisponible, hors ligne). Un bouton « Réessayer » suit."
+  },
+  "packsPending": "Achat en attente d’approbation. Votre solde sera mis à jour dès qu’il sera validé.",
+  "@packsPending": {
+    "description": "Message sous les packs quand l’achat attend une approbation (Ask to Buy : un parent doit valider). Le solde arrivera plus tard."
+  },
+  "packsBoostAlreadyActive": "Un Boost est déjà en cours.",
+  "@packsBoostAlreadyActive": {
+    "description": "Message bref quand on tente d’activer un Boost alors qu’un autre court déjà. Rien n’est débité."
+  },
+  "packsErrorExhausted": "Il ne vous reste plus rien à utiliser pour le moment.",
+  "@packsErrorExhausted": {
+    "description": "Message d’erreur générique quand le serveur répond 402 (plus de Super Likes ni de Boosts à dépenser) et qu’aucune feuille d’achat ne s’ouvre pour le dire. Affiché par apiErrorText."
   },
   "plusFeatureUnlimitedLikesTitle": "Likes illimités",
   "@plusFeatureUnlimitedLikesTitle": {

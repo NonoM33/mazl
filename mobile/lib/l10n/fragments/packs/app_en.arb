@@ -1,0 +1,16 @@
+{
+  "packsSuperLikesLabel": "Super Likes",
+  "packsSuperLikesTitle": "You’re out of Super Likes.",
+  "packsSuperLikesSubtitle": "Get more. The ones you buy never expire.",
+  "packsBoostsLabel": "Boosts",
+  "packsBoostsTitle": "You’re out of Boosts.",
+  "packsBoostsSubtitle": "Put your profile first for {minutes} min. A Boost you buy never expires.",
+  "packsPackSuperLikes": "{count, plural, one{{count} Super Like} other{{count} Super Likes}}",
+  "packsPackBoosts": "{count, plural, one{{count} Boost} other{{count} Boosts}}",
+  "packsPackSemantics": "Buy {quantity} for {price}",
+  "packsLoading": "Loading offers",
+  "packsStoreUnavailable": "The store isn’t available right now. Try again in a moment.",
+  "packsPending": "Purchase pending approval. Your balance will update as soon as it is approved.",
+  "packsBoostAlreadyActive": "A Boost is already running.",
+  "packsErrorExhausted": "You have none left to use right now."
+}

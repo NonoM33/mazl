@@ -71,6 +71,13 @@ enum ApiErrorKind {
   tooLarge,
   rateLimited,
   invalid,
+
+  /// HTTP 402: no Super Like or Boost left to spend (the server's balance
+  /// says so; the app opens the packs sheet).
+  creditsExhausted,
+
+  /// HTTP 409 `boost_already_active`: a Boost is already running.
+  boostAlreadyActive,
   unknown,
 }
 
@@ -79,12 +86,18 @@ ApiErrorKind _kindForStatus(int status) => switch (status) {
   401 => ApiErrorKind.unauthorized,
   403 => ApiErrorKind.forbidden,
   404 => ApiErrorKind.notFound,
+  402 => ApiErrorKind.creditsExhausted,
   409 => ApiErrorKind.conflict,
   413 => ApiErrorKind.tooLarge,
   429 => ApiErrorKind.rateLimited,
   >= 500 => ApiErrorKind.server,
   _ => ApiErrorKind.unknown,
 };
+
+ApiErrorKind _kindForFailure(int status, String? code) =>
+    status == 409 && code == 'boost_already_active'
+    ? ApiErrorKind.boostAlreadyActive
+    : _kindForStatus(status);
 
 final _stableCode = RegExp(r'^[a-z][a-z0-9_]*$');
 
@@ -158,7 +171,10 @@ class ApiResponse<T> {
       ApiResponse(
         success: false,
         error: '$diagnostic (HTTP ${response.statusCode})',
-        errorKind: _kindForStatus(response.statusCode),
+        errorKind: _kindForFailure(
+          response.statusCode,
+          _serverCode(response.body),
+        ),
         errorCode: _serverCode(response.body),
         statusCode: response.statusCode,
         body: _jsonBody(response.body),

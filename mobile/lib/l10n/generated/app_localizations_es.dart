@@ -1744,68 +1744,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get creditsSuperLikesLabel => 'Super likes';
-
-  @override
-  String get creditsSuperLikesTitle => 'Te has quedado sin super likes.';
-
-  @override
-  String get creditsSuperLikesSubtitle =>
-      'Consigue más: los que compras no caducan nunca.';
-
-  @override
-  String get creditsBoostsLabel => 'Boosts';
-
-  @override
-  String get creditsBoostsTitle => 'Te has quedado sin Boosts.';
-
-  @override
-  String creditsBoostsSubtitle(int minutes) {
-    return 'Pon tu perfil en cabeza durante $minutes min. Un Boost comprado no caduca nunca.';
-  }
-
-  @override
-  String creditsPackSuperLikes(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count super likes',
-      one: '$count super like',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String creditsPackBoosts(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Boosts',
-      one: '$count Boost',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String creditsPackSemantics(String quantity, String price) {
-    return 'Comprar $quantity por $price';
-  }
-
-  @override
-  String get creditsLoading => 'Cargando las ofertas';
-
-  @override
-  String get creditsStoreUnavailable =>
-      'La tienda no está disponible ahora mismo. Inténtalo de nuevo en un momento.';
-
-  @override
-  String get creditsPending =>
-      'Compra pendiente de aprobación. Tu saldo se actualizará en cuanto se valide.';
-
-  @override
-  String get creditsBoostAlreadyActive => 'Ya hay un Boost en marcha.';
-
-  @override
   String get eventsTitle => 'Eventos';
 
   @override
@@ -3063,6 +3001,71 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get onboardingPage5Body =>
       'Nuestra inteligencia artificial te ayuda a encontrar a la persona adecuada.';
+
+  @override
+  String get packsSuperLikesLabel => 'Super likes';
+
+  @override
+  String get packsSuperLikesTitle => 'Te has quedado sin super likes.';
+
+  @override
+  String get packsSuperLikesSubtitle =>
+      'Consigue más: los que compras no caducan nunca.';
+
+  @override
+  String get packsBoostsLabel => 'Boosts';
+
+  @override
+  String get packsBoostsTitle => 'Te has quedado sin Boosts.';
+
+  @override
+  String packsBoostsSubtitle(int minutes) {
+    return 'Pon tu perfil en cabeza durante $minutes min. Un Boost comprado no caduca nunca.';
+  }
+
+  @override
+  String packsPackSuperLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Super Likes',
+      one: '$count Super Like',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String packsPackBoosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Boosts',
+      one: '$count Boost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String packsPackSemantics(String quantity, String price) {
+    return 'Comprar $quantity por $price';
+  }
+
+  @override
+  String get packsLoading => 'Cargando las ofertas';
+
+  @override
+  String get packsStoreUnavailable =>
+      'La tienda no está disponible ahora mismo. Inténtalo de nuevo en un momento.';
+
+  @override
+  String get packsPending =>
+      'Compra pendiente de aprobación. Tu saldo se actualizará en cuanto se valide.';
+
+  @override
+  String get packsBoostAlreadyActive => 'Ya hay un Boost en marcha.';
+
+  @override
+  String get packsErrorExhausted => 'Ahora mismo no te queda ninguno.';
 
   @override
   String get plusFeatureUnlimitedLikesTitle => 'Likes ilimitados';

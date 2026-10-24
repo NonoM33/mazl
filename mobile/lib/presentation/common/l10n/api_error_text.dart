@@ -15,6 +15,8 @@ String apiErrorText(AppLocalizations l10n, ApiErrorKind? kind) =>
       ApiErrorKind.tooLarge => l10n.errorTooLarge,
       ApiErrorKind.rateLimited => l10n.errorRateLimited,
       ApiErrorKind.invalid => l10n.errorInvalid,
+      ApiErrorKind.creditsExhausted => l10n.packsErrorExhausted,
+      ApiErrorKind.boostAlreadyActive => l10n.packsBoostAlreadyActive,
       ApiErrorKind.unknown || null => l10n.errorUnknown,
     };
 
