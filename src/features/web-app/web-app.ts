@@ -14,16 +14,23 @@ export interface WebAppOptions {
 }
 
 const PREFIX = "/app";
-// Paths the web host also serves: the API, its socket and signed media, the
-// staff console, the legal pages and the waitlist document link (with their
-// stylesheet and icon), so WEB_ORIGIN may be https://mazl.app itself. The old
-// admin pages are not among them: they stay on the API host.
-const WEB_HOST_PREFIXES = ["/api/", "/ws", "/media/", "/console"];
+// Paths the web host also serves: the API, its socket and signed media, and
+// the legal pages (static, without any script) with their stylesheet and icon,
+// so WEB_ORIGIN may be https://mazl.app itself.
+const WEB_HOST_PREFIXES = ["/api/", "/ws", "/media/"];
 const WEB_HOST_PAGES = new Set([
   "/cgu", "/cgv", "/confidentialite", "/cgu.html", "/cgv.html", "/confidentialite.html", "/terms", "/privacy",
-  "/verify", "/verify.html", "/verify.js", "/style.css", "/favicon.svg",
+  "/style.css", "/favicon.svg",
 ]);
 const servedByApi = (path: string): boolean => WEB_HOST_PAGES.has(path) || WEB_HOST_PREFIXES.some((prefix) => path.startsWith(prefix));
+
+// Pages with their own scripts and a looser CSP (the waitlist document link,
+// the staff console, the old admin) never share the client's origin: on the
+// web host they redirect to the API host, query kept, so the links already
+// sent by e-mail keep working (security review M5).
+const API_HOST_PREFIXES = ["/verify", "/admin", "/console"];
+const DOCUMENT_LINK_PAGES = new Set(["/verify", "/verify.html", "/verify.js", "/admin-escape.js"]);
+const apiHostOnly = (path: string): boolean => API_HOST_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`) || path.startsWith(`${prefix}.`) || path.startsWith(`${prefix}-`));
 const HASHED = /-[a-z0-9]{8}\.(?:js|css|svg|png|woff2?)$/;
 
 function fileUnder(distDir: string, path: string): string | null {
@@ -90,6 +97,12 @@ export function createWebApp(options: WebAppOptions) {
     const underApp = url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`);
     if (origin !== null && underApp && !onWebHost) return Response.redirect(`${origin.origin}${url.pathname}${url.search}`, 301);
     if (underApp) return serveClient(url.pathname, req.headers.get("accept-encoding"));
+    if (onWebHost && apiHostOnly(url.pathname)) {
+      if (mediaOrigin !== null) return Response.redirect(`${mediaOrigin}${url.pathname}${url.search}`, 302);
+      // Without a distinct API host, the document link sent by e-mail is still
+      // served rather than lost; the console and the old admin never are.
+      if (DOCUMENT_LINK_PAGES.has(url.pathname)) return null;
+    }
     if (onWebHost && !servedByApi(url.pathname)) return Response.redirect(`${origin.origin}${PREFIX}`, 302);
     return null;
   }

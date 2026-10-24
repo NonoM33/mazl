@@ -75,8 +75,30 @@ describe("web client at the root of mazl.app", () => {
   test("the old landing gives way to the client, the legal pages and the console stay", async () => {
     expect((await web().handle(get("https://mazl.app/", "mazl.app")))?.headers.get("location")).toBe("https://mazl.app/app");
     expect(await web().handle(get("https://mazl.app/cgv", "mazl.app"))).toBeNull();
-    expect(await web().handle(get("https://mazl.app/console", "mazl.app"))).toBeNull();
     expect((await web().handle(get("https://mazl.app/app/messages", "mazl.app")))?.status).toBe(200);
+  });
+
+  test("the document link, the staff console and the old admin go to the API host, query kept (security review M5)", async () => {
+    const withApi = createWebApp({ distDir: dist, webOrigin: "https://mazl.app", mediaBaseUrl: "https://api.mazl.app" });
+    for (const path of ["/verify?token=abc", "/verify.html?token=abc", "/verify.js", "/admin-escape.js", "/console", "/console/reports?page=2", "/admin", "/admin/dashboard"]) {
+      const res = await withApi.handle(get(`https://mazl.app${path}`, "mazl.app"));
+      expect([path, res?.status]).toEqual([path, 302]);
+      expect(res?.headers.get("location")).toBe(`https://api.mazl.app${path}`);
+    }
+  });
+
+  test("without a distinct API host, those pages are still served rather than lost", async () => {
+    const single = createWebApp({ distDir: dist, webOrigin: "https://mazl.app", mediaBaseUrl: "https://mazl.app" });
+    for (const path of ["/verify?token=abc", "/verify.js", "/admin-escape.js"]) {
+      expect(await single.handle(get(`https://mazl.app${path}`, "mazl.app"))).toBeNull();
+    }
+  });
+
+  test("on the API host those pages are served as before", async () => {
+    const withApi = createWebApp({ distDir: dist, webOrigin: "https://mazl.app", mediaBaseUrl: "https://api.mazl.app" });
+    for (const path of ["/verify?token=abc", "/verify.js", "/admin-escape.js", "/console"]) {
+      expect(await withApi.handle(get(`https://api.mazl.app${path}`, "api.mazl.app"))).toBeNull();
+    }
   });
 
   test("the API host keeps everything and sends /app to mazl.app", async () => {
@@ -103,7 +125,7 @@ describe("web client serving with WEB_ORIGIN", () => {
   });
 
   test("on the web host, the API, the socket, signed media, the console and the legal pages pass through", async () => {
-    for (const path of ["/api/health", "/ws", "/media/photos/1?exp=1&sig=x", "/console", "/console/reports", "/cgu", "/confidentialite", "/verify?token=x", "/verify.html", "/style.css"]) {
+    for (const path of ["/api/health", "/ws", "/media/photos/1?exp=1&sig=x", "/cgu", "/confidentialite", "/style.css"]) {
       expect(await web().handle(get(`https://app.mazl.app${path}`, "app.mazl.app"))).toBeNull();
     }
   });

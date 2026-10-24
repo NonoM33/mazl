@@ -32,9 +32,13 @@ membre (cookies et `fetch` même origine).
 ## Complément du 2026-10-24 : servir le site à la racine de `mazl.app`
 Renaud a demandé, via la session back-office, que `https://mazl.app` serve le nouveau client.
 C'est une affaire de configuration : `WEB_ORIGIN=https://mazl.app`. Sur cet hôte, `/` mène à
-`/app` (la vitrine actuelle disparaît), et restent servis : `/api/*`, `/ws`, `/media/*`,
-`/console` (back-office), les pages juridiques (`/cgu`, `/cgv`, `/confidentialite`, `/terms`,
-`/privacy`) et le lien de dépôt de documents (`/verify`). L'ancienne console `/admin` n'y est
-plus servie : elle reste sur `api.mazl.app`.
-Coût de sécurité accepté : le site partage alors son origine avec la console du back-office ;
-la console doit garder une CSP stricte. `app.mazl.app` reste l'option la plus isolée.
+`/app` (la vitrine actuelle disparaît), et restent servis : `/api/*`, `/ws`, `/media/*` et les
+pages juridiques statiques, sans script (`/cgu`, `/cgv`, `/confidentialite`, `/terms`,
+`/privacy`).
+
+Relecture de sécurité M5 : les pages qui ont leurs propres scripts et une CSP plus lâche ne
+partagent jamais l'origine du site. Sur l'hôte du site, `/verify*` (lien de dépôt de
+documents, `verify.js` et `admin-escape.js`), `/console*` (back-office) et `/admin*`
+redirigent vers l'hôte de l'API (`PUBLIC_BASE_URL`, par exemple `https://api.mazl.app`),
+requête comprise : les liens déjà envoyés par e-mail restent valides. Sans hôte d'API
+distinct, seul le lien de dépôt de documents reste servi ; la console et `/admin` jamais.
