@@ -116,24 +116,25 @@ describe("personal data export", () => {
     expect(keysOf(document).filter((key) => /token|hash|secret|provider_id/i.test(key))).toEqual([]);
   });
 
-  test("web sessions and withdrawal waivers are exported without their hashes when the tables exist", async () => {
+  test("web sessions and withdrawal waivers are exported, never the session token hash", async () => {
     const member = await makeUser("export-optional");
-    const existed = (await db`SELECT to_regclass('web_sessions') AS t`)[0]?.t !== null;
-    if (!existed) {
-      await db`CREATE TABLE web_sessions (id SERIAL PRIMARY KEY, user_id INTEGER, token_hash TEXT, browser_label TEXT, method TEXT, created_at TIMESTAMPTZ DEFAULT NOW(), last_seen_at TIMESTAMPTZ DEFAULT NOW())`;
-    }
-    try {
-      await db`INSERT INTO web_sessions (user_id, token_hash, browser_label, method) VALUES (${member.id}, 'deadbeef', 'Firefox sur Mac', 'password')`;
-      const document = (await (await fetch(`${BASE_URL}/api/users/me/export`, { headers: auth(member.token) })).json()) as {
-        web_sessions: Array<Record<string, unknown>>;
-      };
-      expect(document.web_sessions).toHaveLength(1);
-      expect(document.web_sessions[0]?.browser_label).toBe("Firefox sur Mac");
-      expect(Object.keys(document.web_sessions[0] ?? {})).not.toContain("token_hash");
-    } finally {
-      if (existed) await db`DELETE FROM web_sessions WHERE user_id = ${member.id}`;
-      else await db`DROP TABLE web_sessions`;
-    }
+    const sessionId = crypto.randomUUID();
+    await db`
+      INSERT INTO web_sessions (id, token_hash, user_id, browser_label, method, idle_expires_at, expires_at)
+      VALUES (${sessionId}, ${`test-${sessionId}`}, ${member.id}, 'Firefox sur macOS', 'qr', NOW() + INTERVAL '4 hours', NOW() + INTERVAL '7 days')`;
+    await db`
+      INSERT INTO billing_withdrawal_waivers (user_id, offer, text_version, text_sha256)
+      VALUES (${member.id}, 'plus_3m', '2026-10-24', ${"0".repeat(64)})`;
+    const document = (await (await fetch(`${BASE_URL}/api/users/me/export`, { headers: auth(member.token) })).json()) as {
+      web_sessions: Array<Record<string, unknown>>;
+      withdrawal_waivers: Array<Record<string, unknown>>;
+    };
+    expect(document.web_sessions).toHaveLength(1);
+    expect(document.web_sessions[0]?.browser_label).toBe("Firefox sur macOS");
+    expect(Object.keys(document.web_sessions[0] ?? {})).not.toContain("token_hash");
+    expect(JSON.stringify(document)).not.toContain(`test-${sessionId}`);
+    expect(document.withdrawal_waivers).toHaveLength(1);
+    expect(document.withdrawal_waivers[0]?.offer).toBe("plus_3m");
   });
 
   test("the 4th export of the day is refused with 429 rate_limited", async () => {

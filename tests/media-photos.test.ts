@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import sharp from "sharp";
 import {
-  BASE_URL, EXIF_MARKER, absolute, auth, craftSignedUrl, db, json, jpegWithGps,
+  BASE_URL, EXIF_MARKER, absolute, auth, craftSignedUrl, db, grantPlus, json, jpegWithGps,
   makeUser, uploadOk, uploadPhoto, type PhotoRow, type TestUser,
 } from "./media-helpers";
 
@@ -196,9 +196,11 @@ describe("responses carry signed photo URLs", () => {
       fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: json(token), body: JSON.stringify({ target_user_id: target, action: "like" }) });
     await swipe(alice.token, bob.id);
 
-    const likes = await fetch(`${BASE_URL}/api/likes/received`, { headers: auth(bob.token) });
-    const likesBody = (await likes.json()) as { likes: Array<{ user_id: number; picture: string | null }> };
-    expect(likesBody.likes.find((l) => l.user_id === alice.id)?.picture).toMatch(signed);
+    // Received likes carry the photo for a mazl+ member only (docs/web/adr/W11).
+    const receivedLikes = () => fetch(`${BASE_URL}/api/likes/received`, { headers: auth(bob.token) }).then((r) => r.json()) as Promise<{ likes: Array<{ user_id?: number; picture?: string | null }> }>;
+    expect(JSON.stringify((await receivedLikes()).likes)).not.toContain("/media/photos/");
+    await grantPlus(bob.id);
+    expect((await receivedLikes()).likes.find((l) => l.user_id === alice.id)?.picture).toMatch(signed);
 
     await swipe(bob.token, alice.id);
     const matches = await fetch(`${BASE_URL}/api/matches`, { headers: auth(bob.token) });

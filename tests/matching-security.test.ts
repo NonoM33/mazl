@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, grantPlus, json, makeUser, type TestUser } from "./media-helpers";
 import { connect, expectNone } from "./chat-helpers";
 
 // Attack scenarios against discover, swipes, likes, reports and blocks. Needs a
@@ -123,6 +123,12 @@ describe("feeds never show a deactivated or blocked member", () => {
     await db`UPDATE users SET is_active = false WHERE id = ${banned.id}`;
     await block(me, blocked.id);
 
+    // Without mazl+ the likes carry no id (docs/web/adr/W11): one teaser left.
+    const teasers = (await get(me, "/api/likes/received").then((r) => r.json())) as { likes: Record<string, unknown>[] };
+    expect(teasers.likes).toHaveLength(1);
+    expect(teasers.likes[0]?.user_id).toBeUndefined();
+    // With mazl+, the ids show which one is left.
+    await grantPlus(me.id);
     expect(await idsOf(await get(me, "/api/likes/received"), "likes")).toEqual([fine.id]);
     expect((await get(me, "/api/likes/received/count").then((r) => r.json())) as { count: number }).toMatchObject({ count: 1 });
   });

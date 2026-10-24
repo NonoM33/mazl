@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { afterAll, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpers";
 
 // Integration against a real server started with WEB_POW_DIFFICULTY=8, no
@@ -8,9 +8,8 @@ import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpe
 const COOKIE = "__Host-mazl_web";
 const WS_URL = BASE_URL.replace(/^http/, "ws") + "/ws";
 
-afterAll(async () => {
-  await db.end();
-});
+// `db` is the client shared by every integration file of the run
+// (media-helpers): closing it here broke the files that run after this one.
 
 interface Pow { challenge: string; nonce: string }
 
