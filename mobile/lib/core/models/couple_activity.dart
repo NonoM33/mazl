@@ -113,6 +113,15 @@ class CoupleActivity {
     return [];
   }
 
+  /// Whole euros of the price (the cents are dropped); null when free.
+  /// The words around it live in the presentation layer, which owns the
+  /// language.
+  int? get priceEuros {
+    final cents = priceCents;
+    if (cents == null || cents == 0) return null;
+    return cents ~/ 100;
+  }
+
   String get formattedPrice {
     if (priceCents == null || priceCents == 0) return 'Gratuit';
     final euros = priceCents! ~/ 100;
