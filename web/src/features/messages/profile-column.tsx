@@ -71,7 +71,7 @@ export function ProfileColumn({ userId, fallbackName, onBlocked }: { readonly us
       {profile.state.data && <ProfilePanel profile={profile.state.data.profile} onExpired={() => void profile.reload()} />}
       <div className="stack gap-8 profile-actions">
         <button type="button" className="btn btn-outline btn-sm btn-block" disabled={busy} onClick={() => void proposeCouple()}><Heart size={18} aria-hidden="true" />Proposer le mode couple</button>
-        <MobileOnly title="Appel vidéo">Les appels vidéo se passent depuis l'application MAZL.</MobileOnly>
+        <MobileOnly compact title="Appel vidéo">Les appels vidéo se passent depuis l'application MAZL.</MobileOnly>
         <button type="button" className="btn btn-outline btn-sm btn-block" onClick={() => setDialog("report")}><Flag size={18} aria-hidden="true" />Signaler</button>
         <button type="button" className="btn btn-outline btn-sm btn-block danger-text" onClick={() => setDialog("block")}><Ban size={18} aria-hidden="true" />Bloquer</button>
       </div>

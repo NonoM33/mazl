@@ -49,8 +49,8 @@
 .msg[data-mine="true"] .bubble { background: var(--accent); color: var(--on-accent); }
 .msg[data-mine="false"] .bubble { background: var(--surface); color: var(--text); }
 .bubble[data-sending="true"] { opacity: 0.6; }
-.bubble[data-bare="true"] { padding: 0; background: transparent !important; overflow: hidden; }
-.bubble[data-unsent="true"] { background: transparent !important; color: var(--muted) !important; box-shadow: inset 0 0 0 1px var(--hairline); }
+.msg .bubble[data-bare="true"] { padding: 0; background: transparent; overflow: hidden; }
+.msg .bubble[data-unsent="true"] { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1px var(--hairline); }
 .bubble-unsent { font-style: italic; }
 .bubble-text { white-space: pre-wrap; }
 /* Stacked bubbles: the side against the margin is tightened, the tail is on the last of a group. */
@@ -148,6 +148,4 @@
 /* Profile column */
 .profile-col { height: 100vh; overflow-y: auto; padding: 28px 20px 32px; border-left: 1px solid var(--divider); display: flex; flex-direction: column; gap: 20px; position: static; }
 .profile-actions { padding-top: 4px; }
-.profile-actions .card-surface { flex-direction: column !important; text-align: center; }
-.profile-actions .card-surface .inline { justify-content: center; }
 .danger-text { color: var(--error); }
