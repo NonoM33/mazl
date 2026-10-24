@@ -25,5 +25,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  // The web client and the staff console have their own configs (DOM, stricter flags).
+  "exclude": ["console", "node_modules", "tests/unit/console-*", "web", "mobile"]
 }

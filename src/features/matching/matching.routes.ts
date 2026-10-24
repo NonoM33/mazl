@@ -13,6 +13,7 @@ import { parsePage } from "../../shared/http/validation";
 import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import type { CreditsGateway } from "../credits/application/ports";
+import type { Feed } from "./application/discover";
 import { registerSwipeRoute } from "./swipe.routes";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
@@ -26,13 +27,23 @@ import { registerSwipeRoute } from "./swipe.routes";
 // depends on the shared `sql`/`sendToUser` helpers) with identical behaviour.
 export interface MatchingRouteDeps {
   readonly credits: CreditsGateway;
+  // The ranked feed (matching engine): the order is decided server-side.
+  // TEMPORARY: while src/index.ts does not pass it, the legacy SQL ordering of
+  // getDiscoverProfiles serves the feed. Make it required once wired.
+  readonly feed?: Pick<Feed, "discover" | "dailyPicks">;
 }
+
+const legacyFeed: Pick<Feed, "discover" | "dailyPicks"> = {
+  discover: (userId, page) => getDiscoverProfiles(userId, page.limit, page.offset),
+  dailyPicks: (userId) => getDiscoverProfiles(userId, 5, 0),
+};
 
 // A page of the discover feed: the server decides how much it hands out.
 const DISCOVER_DEFAULT_LIMIT = 20;
 const DISCOVER_MAX_LIMIT = 50;
 
 export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, deps: MatchingRouteDeps): void {
+  const feed = deps.feed ?? legacyFeed;
   // CONTRAT.md §2.3: one shared budget of 300 feed requests per hour and user
   // for /api/discover and /api/daily-picks, against profile scraping.
   const feedLimiter = createRateLimiter({ max: 300, windowMs: 60 * 60 * 1000 });
@@ -46,7 +57,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
         maxLimit: DISCOVER_MAX_LIMIT,
       });
 
-      const profiles = await getDiscoverProfiles(userId, limit, offset);
+      const profiles = await feed.discover(userId, { limit, offset });
 
       return c.json({ success: true, profiles });
     } catch (error: unknown) {
@@ -61,7 +72,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
       const userId = c.get("userId");
 
       // Get profiles and return top 5 as daily picks
-      const profiles = await getDiscoverProfiles(userId, 5, 0);
+      const profiles = await feed.dailyPicks(userId);
 
       // Add "picked today" timestamp
       const today = new Date().toISOString().split('T')[0];

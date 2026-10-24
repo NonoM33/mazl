@@ -90,12 +90,19 @@ import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
+import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
+import { createWebApp } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
+import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
+import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
+import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
+import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStripeCancellation } from "./features/billing-web/billing-web.module";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
@@ -298,13 +305,41 @@ const userErasure = {
     return erased;
   },
 };
-registerAdminRoutes(app, UPLOADS_DIR, userErasure);
-registerAccountRoutes(app, sql, userErasure);
+// Web payments: a member's Stripe subscription is cancelled before their erasure.
+const billingWeb = createBillingWeb({ sql, authenticate: requireAuth });
+const erasureWithBilling = withStripeCancellation(userErasure, billingWeb);
+registerAdminRoutes(app, UPLOADS_DIR, erasureWithBilling);
+registerAccountRoutes(app, sql, erasureWithBilling);
+registerBillingWeb(app, billingWeb);
+
+// Art. 9 consent and personal-data export (docs/web/adr/W06).
+registerPrivacy(app, createPrivacyModule(sql));
+
+// ============ STAFF BACK-OFFICE ============
+// /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
+// matching tuning), the public appeal route and the /console front:
+// src/backoffice.ts.
+const backoffice = createBackoffice({
+  sql,
+  env: process.env,
+  closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
+});
+backoffice.register(app);
 
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
 registerAuthRoutes(app);
+
+// Web sign-in (QR, Google, Apple), revocable web sessions and the cookie bridge.
+const webSession = createWebSessionModule({ sql });
+registerWebSession(app, webSession);
+// The built web client under /app, with its own headers (docs/web/adr/W01).
+const webApp = createWebApp({
+  distDir: process.env.WEB_DIST_DIR || "web/dist",
+  webOrigin: process.env.WEB_ORIGIN || null,
+  mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
+});
 
 // ============ PROFILE, PHOTOS & PROMPTS ============
 // Profile feature routes (PUT /api/profile, photos upload/delete/reorder/
@@ -331,7 +366,11 @@ registerCredits(app, credits, requireAuth);
 // POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
 // Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
 // emits `match:new` via the exported `emitNewMatch` helper below.
-registerMatchingRoutes(app, { credits });
+// Server-side daily like cap, in front of POST /api/swipes (docs/web/adr/W07).
+registerLikeAllowance(app, createLikeAllowanceService(sql));
+// Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
+registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
+registerMatchingRoutes(app, { credits, feed: backoffice.feed });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost
@@ -700,10 +739,16 @@ startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
 await ensureAccountSchema(sql);
+await ensureBillingWebSchema(sql);
+await ensurePrivacySchema(sql);
+await ensureLikeAllowanceSchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 await ensureVerificationSchema(sql);
+await ensureWebSessionSchema(sql);
+await backoffice.ensureSchemas();
+backoffice.startSweeper();
 
 console.log(`Server running on http://localhost:${port}`);
 
@@ -717,6 +762,8 @@ interface WebSocketData {
   userId: number;
   // Seconds since the epoch: the socket lives no longer than its token.
   expiresAt: number;
+  // Set when the token is a web socket ticket: the web session it belongs to.
+  webSessionId?: string;
 }
 
 // The token rides in the query string (browsers cannot set headers on a
@@ -727,17 +774,21 @@ async function upgradeToSocket(req: Request, url: URL, server: Bun.Server<WebSoc
     return new Response("Token required", { status: 401 });
   }
 
-  const payload = verifyJWT(token);
-  if (!payload) {
+  // A web socket ticket (single use, one minute) or the app's JWT. Tokens with
+  // an audience (the web bridge's) never open a socket.
+  const ticket = await webSession.consumeSocketTicket(token);
+  const payload = ticket ? null : verifyJWT(token);
+  if (!ticket && (!payload || payload.aud !== undefined)) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  const userId = Number(payload.sub);
+  const userId = ticket ? ticket.userId : Number(payload?.sub);
   if (!(await isAccountActive(userId))) {
     return new Response("Account disabled", { status: 401 });
   }
 
-  if (server.upgrade(req, { data: { userId, expiresAt: payload.exp } })) {
+  const expiresAt = ticket ? ticket.expiresAt : (payload?.exp ?? 0);
+  if (server.upgrade(req, { data: { userId, expiresAt, webSessionId: ticket?.sessionId } })) {
     return undefined;
   }
   return new Response("WebSocket upgrade failed", { status: 500 });
@@ -745,7 +796,10 @@ async function upgradeToSocket(req: Request, url: URL, server: Bun.Server<WebSoc
 
 const server = Bun.serve<WebSocketData>({
   port,
-  fetch(req, server) {
+  async fetch(req, server) {
+    await webSession.bridge(req);
+    const page = await webApp.handle(req);
+    if (page) return page;
     const url = new URL(req.url);
     if (url.pathname === "/ws") return upgradeToSocket(req, url, server);
 
@@ -761,6 +815,7 @@ const server = Bun.serve<WebSocketData>({
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
         addConnection(userId, ws as unknown as WebSocket);
+        if (ws.data.webSessionId) webSession.socketOpened(ws.data.webSessionId, ws);
         console.log(`WebSocket connected: user ${userId}`);
       }
     },
@@ -805,6 +860,7 @@ const server = Bun.serve<WebSocketData>({
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
         removeConnection(userId, ws as unknown as WebSocket);
+        if (ws.data.webSessionId) webSession.socketClosed(ws.data.webSessionId, ws);
         console.log(`WebSocket disconnected: user ${userId}`);
       }
     },

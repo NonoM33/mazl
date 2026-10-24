@@ -1,5 +1,6 @@
 import { test, expect, describe, beforeAll } from "bun:test";
 import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
+import { grantPlus } from "./media-helpers";
 
 // Integration test for "received likes" and profile prompts.
 // Requires a running server (TEST_API_URL) with Postgres and dev endpoints on.
@@ -28,8 +29,15 @@ describe("Received likes", () => {
     let r = await fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: H(b.token), body: JSON.stringify({ target_user_id: a.id, action: "like" }) });
     expect(r.status).toBe(200);
 
+    // Who liked you is a mazl+ benefit (docs/web/adr/W11): without it, no id.
     r = await fetch(`${BASE_URL}/api/likes/received`, { headers: H(a.token) });
     expect(r.status).toBe(200);
+    const teasers = (await r.json()) as { likes?: Array<{ user_id?: number }> };
+    expect(teasers.likes?.length).toBeGreaterThanOrEqual(1);
+    expect(teasers.likes?.every((u) => u.user_id === undefined)).toBe(true);
+
+    await grantPlus(a.id);
+    r = await fetch(`${BASE_URL}/api/likes/received`, { headers: H(a.token) });
     const likes = (await r.json()) as { likes?: Array<{ user_id: number }> };
     expect(likes.likes?.some((u) => u.user_id === b.id)).toBe(true);
 

@@ -18,6 +18,9 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends libopenjp2-tools ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+# Web client (app.mazl.app), built into web/dist and served under /app.
+RUN bun web/build.ts
+
 # Face models (OpenCV Zoo), checksums pinned in the script.
 RUN bun scripts/fetch-face-models.ts
 

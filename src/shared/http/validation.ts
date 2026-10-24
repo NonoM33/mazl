@@ -112,6 +112,9 @@ const optional = <T extends z.ZodType>(schema: T) => schema.nullish().transform(
 
 const preferredAge = z.number().int().min(MIN_MEMBER_AGE).max(MAX_PREFERRED_AGE);
 
+// The intentions of the app (mobile/lib/core/models/relationship_intention.dart).
+export const RELATIONSHIP_INTENTIONS = ["marriage", "serious", "open", "friends_first"] as const;
+
 // PUT /api/profile. Values mirror what the mobile app really sends (gender and
 // lookingFor are 'male' | 'female'; the denomination, kashrut and shabbat
 // labels are French texts that the app and its filters may extend, so they are
@@ -132,6 +135,7 @@ export const updateProfileBodySchema = z
     ageMin: optional(preferredAge),
     ageMax: optional(preferredAge),
     distanceMax: optional(z.number()),
+    relationshipIntention: optional(z.enum(RELATIONSHIP_INTENTIONS)),
   })
   .passthrough()
   .refine((body) => body.ageMin === undefined || body.ageMax === undefined || body.ageMin <= body.ageMax, {

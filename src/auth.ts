@@ -38,6 +38,9 @@ export function verifyGoogleIdToken(idToken: string): Promise<GoogleIdentity | n
   return googleMembers.verifyIdToken(idToken);
 }
 
+// The iOS app's bundle id. The web client signs in with its own Services ID.
+const APPLE_APP_AUDIENCE = "com.mazl.app";
+
 interface AppleKey {
   kid: string;
   kty: string;
@@ -54,7 +57,7 @@ interface AppleKeysResponse {
 /**
  * Verify Apple Identity Token
  */
-export async function verifyAppleIdToken(identityToken: string): Promise<{
+export async function verifyAppleIdToken(identityToken: string, audience: string = APPLE_APP_AUDIENCE): Promise<{
   sub: string;
   email?: string;
   email_verified?: boolean;
@@ -114,7 +117,7 @@ export async function verifyAppleIdToken(identityToken: string): Promise<{
     }
 
     // Verify audience (your app's bundle ID)
-    if (payload.aud !== "com.mazl.app") {
+    if (payload.aud !== audience) {
       console.error("Invalid Apple audience:", payload.aud);
       return null;
     }
@@ -173,7 +176,14 @@ function verifyAppleSignature(jwk: AppleKey, signingInput: string, signatureB64:
 /**
  * Generate JWT token for authenticated user
  */
-export function generateJWT(user: AuthUser): string {
+// Optional claims of tokens that are not the app's: `aud` names what the token
+// is for (the web bridge's is "web-bridge"), `sid` the web session behind it.
+export interface TokenClaims {
+  readonly aud?: string;
+  readonly sid?: string;
+}
+
+export function generateJWT(user: AuthUser, ttlSeconds: number = JWT_EXPIRES_IN, claims: TokenClaims = {}): string {
   const header = {
     alg: "HS256",
     typ: "JWT",
@@ -186,7 +196,8 @@ export function generateJWT(user: AuthUser): string {
     name: user.name,
     provider: user.provider,
     iat: now,
-    exp: now + JWT_EXPIRES_IN,
+    exp: now + ttlSeconds,
+    ...claims,
   };
 
   const headerB64 = Buffer.from(JSON.stringify(header)).toString("base64url");
@@ -199,7 +210,7 @@ export function generateJWT(user: AuthUser): string {
 /**
  * Verify JWT token
  */
-export function verifyJWT(token: string): { sub: string; email: string; name?: string; exp: number } | null {
+export function verifyJWT(token: string): { sub: string; email: string; name?: string; exp: number; aud?: string; sid?: string } | null {
   try {
     const [headerB64, payloadB64, signature, extra] = token.split(".");
     if (!headerB64 || !payloadB64 || !signature || extra !== undefined) {
@@ -232,6 +243,8 @@ export function verifyJWT(token: string): { sub: string; email: string; name?: s
       email: payload.email,
       name: typeof payload.name === "string" ? payload.name : undefined,
       exp: payload.exp,
+      aud: typeof payload.aud === "string" ? payload.aud : undefined,
+      sid: typeof payload.sid === "string" ? payload.sid : undefined,
     };
   } catch {
     return null;

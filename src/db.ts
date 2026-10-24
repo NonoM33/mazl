@@ -177,6 +177,8 @@ export async function initDb() {
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
+  // What the member is looking for (marriage, serious…), weighed by the matching engine.
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS relationship_intention VARCHAR(30)`;
 
   // Conversations table (created automatically when match happens)
   await sql`
@@ -1189,11 +1191,12 @@ export async function upsertProfile(userId: number, params: {
   ageMin?: number;
   ageMax?: number;
   distanceMax?: number;
+  relationshipIntention?: string;
 }) {
   // Callers pass coordinates that the media location service already fuzzed.
   const hasPosition = params.latitude !== undefined && params.longitude !== undefined;
   const result = await sql`
-    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max, relationship_intention)
     VALUES (
       ${userId},
       ${params.displayName ?? null},
@@ -1210,7 +1213,8 @@ export async function upsertProfile(userId: number, params: {
       ${params.lookingFor ?? null},
       ${params.ageMin ?? 18},
       ${params.ageMax ?? 99},
-      ${params.distanceMax ?? 100}
+      ${params.distanceMax ?? 100},
+      ${params.relationshipIntention ?? null}
     )
     ON CONFLICT (user_id)
     DO UPDATE SET
@@ -1231,6 +1235,7 @@ export async function upsertProfile(userId: number, params: {
       age_min = COALESCE(${params.ageMin ?? null}, profiles.age_min),
       age_max = COALESCE(${params.ageMax ?? null}, profiles.age_max),
       distance_max = COALESCE(${params.distanceMax ?? null}, profiles.distance_max),
+      relationship_intention = COALESCE(${params.relationshipIntention ?? null}, profiles.relationship_intention),
       updated_at = NOW()
     RETURNING *
   `;

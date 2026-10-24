@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, jpegWithGps, json, makeUser, uploadOk, uploadPhoto, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, grantReligiousConsent, jpegWithGps, json, makeUser, uploadOk, uploadPhoto, type TestUser } from "./media-helpers";
 
 // Attack scenarios against the profile routes. Needs a running server
 // (TEST_API_URL) and its database (TEST_DATABASE_URL). Every test builds its
@@ -174,6 +174,7 @@ describe("PUT /api/profile bounds free text and closed lists", () => {
 
   test("denomination, kashrut and shabbat are capped at their column width", async () => {
     const user = await makeUser("cap");
+    await grantReligiousConsent(user.token);
     for (const field of ["denomination", "kashrutLevel", "shabbatObservance"]) {
       expect([field, (await putProfile(user, { [field]: repeat(51) })).status]).toEqual([field, 400]);
     }
@@ -183,6 +184,7 @@ describe("PUT /api/profile bounds free text and closed lists", () => {
 
   test("an explicit null (the edit screen sends one for an unset field) leaves the field alone", async () => {
     const user = await makeUser("null");
+    await grantReligiousConsent(user.token);
     expect((await putProfile(user, { denomination: "Massorti" })).status).toBe(200);
     expect((await putProfile(user, { denomination: null, bio: null })).status).toBe(200);
   });

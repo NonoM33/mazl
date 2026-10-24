@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, grantPlus, json, makeUser, type TestUser } from "./media-helpers";
 import { connect, expectNone } from "./chat-helpers";
 
 // Attack scenarios against discover, swipes, likes, reports and blocks. Needs a
@@ -89,8 +89,11 @@ describe("feeds never show a deactivated or blocked member", () => {
   test("discover and daily picks drop an account the moment it is deactivated", async () => {
     const viewer = await makeUser("feed-viewer");
     const target = await discoverable(await makeUser("feed-target"));
-    expect(await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles")).toContain(target.id);
-    expect(await idsOf(await get(viewer, "/api/daily-picks"), "picks")).toContain(target.id);
+    const feed = await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles");
+    expect(feed).toContain(target.id);
+    // The feed is ranked by the matching engine: daily picks are its first five,
+    // whoever they are, so the target is eligible for both before deactivation.
+    expect(await idsOf(await get(viewer, "/api/daily-picks"), "picks")).toEqual(feed.slice(0, 5));
 
     await db`UPDATE users SET is_active = false WHERE id = ${target.id}`;
     expect(await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles")).not.toContain(target.id);
@@ -120,6 +123,12 @@ describe("feeds never show a deactivated or blocked member", () => {
     await db`UPDATE users SET is_active = false WHERE id = ${banned.id}`;
     await block(me, blocked.id);
 
+    // Without mazl+ the likes carry no id (docs/web/adr/W11): one teaser left.
+    const teasers = (await get(me, "/api/likes/received").then((r) => r.json())) as { likes: Record<string, unknown>[] };
+    expect(teasers.likes).toHaveLength(1);
+    expect(teasers.likes[0]?.user_id).toBeUndefined();
+    // With mazl+, the ids show which one is left.
+    await grantPlus(me.id);
     expect(await idsOf(await get(me, "/api/likes/received"), "likes")).toEqual([fine.id]);
     expect((await get(me, "/api/likes/received/count").then((r) => r.json())) as { count: number }).toMatchObject({ count: 1 });
   });

@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -1140,6 +1141,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Vérification du profil',
                 subtitle: _userProfile?.profile?.isVerified == true ? 'Vérifié' : 'Non vérifié',
                 onTap: () => context.push(RoutePaths.verification),
+              ),
+              Consumer(
+                builder: (context, ref, _) => _SettingTile(
+                  icon: LucideIcons.heartHandshake,
+                  title: 'Données de pratique religieuse',
+                  subtitle: switch (ref
+                      .watch(religiousDataConsentProvider)
+                      .valueOrNull
+                      ?.data
+                      ?.isValid) {
+                    true => 'Accordé',
+                    false => 'Non accordé',
+                    null => null,
+                  },
+                  onTap: () => context.push(RoutePaths.religiousData),
+                ),
+              ),
+              _SettingTile(
+                icon: LucideIcons.monitor,
+                title: 'Ordinateurs connectés',
+                onTap: () => context.push(RoutePaths.computers),
               ),
 
               // About
