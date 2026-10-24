@@ -29,6 +29,12 @@ Date : 2026-10-24. Statut : accepté. Mode TEST uniquement dans ce chantier.
   - Checkout d'abonnement refusé (`409 already_subscribed`, `source: apple|stripe`) si un
     droit actif existe déjà.
   - Une projection Stripe n'écrase jamais une ligne Apple active et plus longue.
+  - Deux onglets (relecture de sécurité M2) : un nouveau Checkout d'abonnement fait d'abord
+    expirer les Checkout d'abonnement encore ouverts du client, et les créations d'un même
+    membre sont sérialisées. Si un second abonnement est payé quand même (Stripe plus récent
+    qu'un autre Stripe vivant, ou Stripe nouveau alors qu'un mazl+ App Store est vivant), le
+    webhook l'annule et rembourse sa dernière facture ; le plus ancien est gardé quel que soit
+    l'ordre des événements.
   - Si l'App Store active un abonnement alors qu'un abonnement Stripe est actif (achat fait sur
     l'iPhone après le web), la ligne passe à Apple ; `GET /api/billing/status` signale
     `conflict: "double_subscription"` et le site explique comment résilier l'un des deux

@@ -183,19 +183,18 @@ describe("Apple and Stripe on one row", () => {
     await appleRow(user, "2099-01-01T00:00:00Z");
     const refused = await post(user, "/api/billing/checkout", { offer: "plus_1m", ...WAIVER });
     expect([refused.status, await refused.json()]).toEqual([409, { success: false, error: "already_subscribed", source: "apple" }]);
+    // Paid anyway (an App Store purchase between the click and the payment):
+    // the new Stripe subscription is the duplicate, cancelled and refunded.
     await stripeSubscription(user, `sub_a${user.id}`);
     await webhook("checkout.session.completed", completedSubscription(user, `sub_a${user.id}`));
     const [row] = await db<{ store: string; original_transaction_id: string }[]>`SELECT store, original_transaction_id FROM subscriptions WHERE user_id = ${user.id}`;
     expect(row).toEqual({ store: "apple", original_transaction_id: `20000${user.id}` });
+    const requests = await fake.requests();
+    expect(requests.filter((r) => r.method === "DELETE" && r.path === `/v1/subscriptions/sub_a${user.id}`)).toHaveLength(1);
+    expect(requests.filter((r) => r.path === "/v1/refunds" && r.params.payment_intent === `pi_sub_a${user.id}`)).toHaveLength(1);
     const status = (await (await get(user, "/api/billing/status")).json()) as Record<string, any>;
-    expect(status).toMatchObject({ conflict: "double_subscription", blocked_reason: "apple_active" });
+    expect(status).toMatchObject({ conflict: null, blocked_reason: "apple_active" });
     expect(status.plus.source).toBe("apple");
-    expect(await db`SELECT 1 FROM stripe_subscriptions WHERE user_id = ${user.id}`).toHaveLength(1);
-    // Apple expires: the Stripe subscription takes the row back on the next status call.
-    await db`UPDATE subscriptions SET expires_at = NOW() - INTERVAL '1 day' WHERE user_id = ${user.id}`;
-    const after = (await (await get(user, "/api/billing/status")).json()) as Record<string, any>;
-    expect(after.plus).toMatchObject({ active: true, source: "stripe" });
-    expect(after.conflict).toBeNull();
   });
 
   test("an expired Apple row is replaced, and a late event of an old subscription does not undo the new one", async () => {
@@ -228,5 +227,33 @@ describe("account deletion", () => {
     `;
     expect(kept).toHaveLength(proofs.length);
     for (const proof of kept) expect(proof.user_id).toBeNull();
+  });
+});
+
+describe("no double mazl+ from the web (security review M2)", () => {
+  test("a second subscription checkout expires the first one, still open in another tab", async () => {
+    const user = await makeUser("two-tabs");
+    const first = (await (await post(user, "/api/billing/checkout", { offer: "plus_1m", ...WAIVER })).json()) as { url: string };
+    const second = await post(user, "/api/billing/checkout", { offer: "plus_12m", ...WAIVER });
+    expect(second.status).toBe(200);
+    const firstId = first.url.split("/").at(-1) ?? "";
+    const expired = (await fake.requests()).filter((r) => r.method === "POST" && r.path === `/v1/checkout/sessions/${firstId}/expire`);
+    expect(expired).toHaveLength(1);
+  });
+
+  test("a second paid subscription of the same member is cancelled and refunded; the first one stays", async () => {
+    const user = await memberWithCustomer("double-paid");
+    const first = `sub_first_${user.id}`;
+    const second = `sub_second_${user.id}`;
+    await stripeSubscription(user, first, { start_date: Math.floor(Date.now() / 1000) - 60 });
+    await stripeSubscription(user, second, { start_date: Math.floor(Date.now() / 1000) });
+    expect((await webhook("checkout.session.completed", completedSubscription(user, first))).status).toBe(200);
+    expect((await webhook("checkout.session.completed", completedSubscription(user, second))).status).toBe(200);
+    const requests = await fake.requests();
+    expect(requests.filter((r) => r.method === "DELETE" && r.path === `/v1/subscriptions/${second}`)).toHaveLength(1);
+    expect(requests.filter((r) => r.method === "DELETE" && r.path === `/v1/subscriptions/${first}`)).toHaveLength(0);
+    expect(requests.filter((r) => r.path === "/v1/refunds" && r.params.payment_intent === `pi_${second}`)).toHaveLength(1);
+    const [row] = await db<{ original_transaction_id: string }[]>`SELECT original_transaction_id FROM subscriptions WHERE user_id = ${user.id}`;
+    expect(row?.original_transaction_id).toBe(first);
   });
 });

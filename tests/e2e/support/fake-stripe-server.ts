@@ -26,7 +26,7 @@ const PRICES: Readonly<Record<string, { amount: number; recurring: number | null
 };
 
 type Form = Record<string, string>;
-interface Session { id: string; mode: "payment" | "subscription"; customer: string; price: string; metadata: Form; clientReference: string; successUrl: string; cancelUrl: string; webhookUrl: string }
+interface Session { id: string; mode: "payment" | "subscription"; customer: string; price: string; metadata: Form; clientReference: string; successUrl: string; cancelUrl: string; webhookUrl: string; status: "open" | "expired" | "complete" }
 
 const id = (prefix: string) => `${prefix}_test_${randomBytes(8).toString("hex")}`;
 const json = (body: unknown, status = 200) => Response.json(body, { status });
@@ -62,7 +62,7 @@ export async function startFakeStripe(serverWebhookUrl = `${process.env.TEST_API
     const months = PRICES[Object.entries(priceIds).find(([, v]) => v === session.price)?.[0] ?? ""]?.recurring ?? 1;
     const end = now + months * 30 * 86_400;
     return {
-      id: subscriptionId, object: "subscription", start_date: now, status, customer: session.customer, livemode: false, cancel_at_period_end: false, metadata: session.metadata,
+      id: subscriptionId, object: "subscription", start_date: now, latest_invoice: `in_${subscriptionId}`, status, customer: session.customer, livemode: false, cancel_at_period_end: false, metadata: session.metadata,
       items: { object: "list", data: [{ id: id("si"), object: "subscription_item", price: priceObject(session.price, priceIds), current_period_start: now, current_period_end: end, quantity: 1 }] },
     };
   };
@@ -90,10 +90,29 @@ export async function startFakeStripe(serverWebhookUrl = `${process.env.TEST_API
       const url = new URL(req.url);
       const form: Form = req.method === "POST" ? Object.fromEntries(new URLSearchParams(await req.text())) : {};
       if (req.method === "POST" && url.pathname === "/v1/customers") return json({ id: id("cus"), object: "customer", email: form.email ?? null, metadata: metadataOf(form, "metadata"), livemode: false });
+      if (req.method === "GET" && url.pathname === "/v1/checkout/sessions") {
+        const data = [...sessions.values()]
+          .filter((s) => s.customer === url.searchParams.get("customer") && (!url.searchParams.get("status") || s.status === url.searchParams.get("status")))
+          .map((s) => ({ id: s.id, object: "checkout.session", mode: s.mode, customer: s.customer, status: s.status }));
+        return json({ object: "list", url: "/v1/checkout/sessions", has_more: false, data });
+      }
+      const expire = /^\/v1\/checkout\/sessions\/([^/]+)\/expire$/.exec(url.pathname);
+      if (req.method === "POST" && expire?.[1]) {
+        const session = sessions.get(expire[1]);
+        if (!session || session.status !== "open") return json({ error: { type: "invalid_request_error", message: "Only open sessions can be expired." } }, 400);
+        session.status = "expired";
+        return json({ id: session.id, object: "checkout.session", status: "expired", mode: session.mode });
+      }
+      if (req.method === "GET" && url.pathname === "/v1/invoice_payments") {
+        const subscriptionId = (url.searchParams.get("invoice") ?? "").replace(/^in_/, "");
+        const data = subscriptions.has(subscriptionId) ? [{ id: id("inpay"), object: "invoice_payment", payment: { type: "payment_intent", payment_intent: `pi_${subscriptionId}` } }] : [];
+        return json({ object: "list", url: "/v1/invoice_payments", has_more: false, data });
+      }
+      if (req.method === "POST" && url.pathname === "/v1/refunds") return json({ id: id("re"), object: "refund", payment_intent: form.payment_intent ?? null, status: "succeeded" });
       if (req.method === "POST" && url.pathname === "/v1/checkout/sessions") {
         const session: Session = {
           id: id("cs"), mode: form.mode === "subscription" ? "subscription" : "payment", customer: form.customer ?? id("cus"), price: form["line_items[0][price]"] ?? "",
-          metadata: metadataOf(form, "metadata"), clientReference: form.client_reference_id ?? "", successUrl: form.success_url ?? "", cancelUrl: form.cancel_url ?? "", webhookUrl: serverWebhookUrl,
+          metadata: metadataOf(form, "metadata"), clientReference: form.client_reference_id ?? "", successUrl: form.success_url ?? "", cancelUrl: form.cancel_url ?? "", webhookUrl: serverWebhookUrl, status: "open",
         };
         sessions.set(session.id, session);
         return json({ id: session.id, object: "checkout.session", mode: session.mode, url: `${url.origin}/pay/${session.id}`, status: "open", livemode: false, metadata: session.metadata });
@@ -112,7 +131,8 @@ export async function startFakeStripe(serverWebhookUrl = `${process.env.TEST_API
       if (pay_?.[1]) {
         const session = sessions.get(pay_[1]);
         if (!session) return new Response("Session inconnue", { status: 404 });
-        if (req.method === "POST") { await pay(session); return Response.redirect(session.successUrl, 303); }
+        if (session.status !== "open") return new Response("Cette session de paiement a expiré.", { status: 410 });
+        if (req.method === "POST") { session.status = "complete"; await pay(session); return Response.redirect(session.successUrl, 303); }
         return new Response(`<!doctype html><html lang="fr"><meta charset="utf-8"><title>Paiement de test</title><body style="font-family:system-ui;max-width:420px;margin:80px auto">
           <h1>Paiement de test (faux Stripe)</h1><p>Mode ${session.mode}. Aucun argent réel.</p>
           <form method="post"><button id="pay" style="font-size:18px;padding:12px 24px">Payer</button></form>

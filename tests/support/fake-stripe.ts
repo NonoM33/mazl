@@ -76,6 +76,7 @@ function subscriptionObject(sub: FakeSubscription): Record<string, unknown> {
     status: sub.status,
     cancel_at_period_end: sub.cancel_at_period_end ?? false,
     start_date: sub.start_date ?? sub.current_period_end - 30 * 86400,
+    latest_invoice: `in_${sub.id}`,
     metadata: sub.metadata ?? {},
     items: {
       object: "list",
@@ -97,6 +98,8 @@ function subscriptionObject(sub: FakeSubscription): Record<string, unknown> {
 
 export class FakeStripe {
   readonly requests: RecordedRequest[] = [];
+  // Checkout sessions as Stripe keeps them, to list and expire them.
+  private readonly checkouts = new Map<string, { customer: string; mode: string; status: "open" | "expired" }>();
   readonly prices = new Map<string, FakePrice>(FAKE_PRICES.map((price) => [price.id, price]));
   readonly subscriptions = new Map<string, FakeSubscription>();
   private server: ReturnType<typeof Bun.serve> | undefined;
@@ -142,8 +145,33 @@ export class FakeStripe {
     if (method === "POST" && path === "/v1/customers") {
       return Response.json({ id: this.nextId("cus"), object: "customer", email: params.email ?? null, metadata: { user_id: params["metadata[user_id]"] ?? "" } });
     }
+    if (method === "GET" && path === "/v1/checkout/sessions") {
+      const data = [...this.checkouts.entries()]
+        .filter(([, session]) => (params.customer === undefined || session.customer === params.customer) && (params.status === undefined || session.status === params.status))
+        .map(([id, session]) => ({ id, object: "checkout.session", customer: session.customer, mode: session.mode, status: session.status }));
+      return Response.json({ object: "list", url: "/v1/checkout/sessions", has_more: false, data });
+    }
+    const expire = /^\/v1\/checkout\/sessions\/([^/]+)\/expire$/.exec(path);
+    if (method === "POST" && expire?.[1]) {
+      const session = this.checkouts.get(expire[1]);
+      if (session === undefined) return stripeError(404, "resource_missing", `No such checkout.session: '${expire[1]}'`);
+      if (session.status !== "open") return stripeError(400, "checkout_session_not_open", "Only open sessions can be expired.");
+      session.status = "expired";
+      return Response.json({ id: expire[1], object: "checkout.session", status: "expired", mode: session.mode, customer: session.customer });
+    }
+    if (method === "GET" && path === "/v1/invoice_payments") {
+      const subscriptionId = (params.invoice ?? "").replace(/^in_/, "");
+      const data = this.subscriptions.has(subscriptionId)
+        ? [{ id: `inpay_${subscriptionId}`, object: "invoice_payment", invoice: params.invoice, payment: { type: "payment_intent", payment_intent: `pi_${subscriptionId}` }, status: "paid" }]
+        : [];
+      return Response.json({ object: "list", url: "/v1/invoice_payments", has_more: false, data });
+    }
+    if (method === "POST" && path === "/v1/refunds") {
+      return Response.json({ id: this.nextId("re"), object: "refund", payment_intent: params.payment_intent ?? null, status: "succeeded" });
+    }
     if (method === "POST" && path === "/v1/checkout/sessions") {
       const id = this.nextId("cs_test");
+      this.checkouts.set(id, { customer: params.customer ?? "", mode: params.mode ?? "", status: "open" });
       return Response.json({
         id,
         object: "checkout.session",

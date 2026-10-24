@@ -121,6 +121,25 @@ export class SdkStripeGateway implements StripeGateway {
     }
   }
 
+  async expireOpenSubscriptionCheckouts(customerId: string): Promise<void> {
+    const open = await call("checkout.sessions.list", () => this.stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 20 }));
+    for (const session of open.data) {
+      if (session.mode === "subscription") await call("checkout.sessions.expire", () => this.stripe.checkout.sessions.expire(session.id));
+    }
+  }
+
+  async refundLatestPayment(subscriptionId: string): Promise<void> {
+    const subscription = await call("subscriptions.retrieve", () => this.stripe.subscriptions.retrieve(subscriptionId));
+    const invoice = typeof subscription.latest_invoice === "string" ? subscription.latest_invoice : subscription.latest_invoice?.id;
+    if (invoice === undefined) return;
+    const payments = await call("invoicePayments.list", () => this.stripe.invoicePayments.list({ invoice }));
+    for (const payment of payments.data) {
+      const intent = payment.payment.payment_intent;
+      const paymentIntent = typeof intent === "string" ? intent : intent?.id;
+      if (paymentIntent !== undefined) await call("refunds.create", () => this.stripe.refunds.create({ payment_intent: paymentIntent }));
+    }
+  }
+
   async retrievePrice(priceId: string): Promise<PriceView> {
     const price = await call("prices.retrieve", () => this.stripe.prices.retrieve(priceId));
     return { id: price.id, unitAmount: price.unit_amount, currency: price.currency, taxBehavior: price.tax_behavior ?? null };

@@ -110,13 +110,15 @@ describe("webhook: subscriptions", () => {
     expect(repository.entitlements.size).toBe(0);
   });
 
-  test("a live Apple subscription is never overwritten by Stripe", async () => {
+  test("a live Apple subscription is never overwritten: a new Stripe one is cancelled and refunded", async () => {
     const { webhook, gateway, repository } = setup();
     repository.setApple(1, new Date("2027-06-01T00:00:00Z"));
     gateway.subscriptions.set("sub_1", subscriptionView());
     await send(webhook, completedSubscription);
     expect(repository.entitlements.get(1)).toMatchObject({ store: "apple", originalTransactionId: "2000000123456789" });
-    expect(repository.subscriptions.get("sub_1")?.status).toBe("active");
+    expect(gateway.cancelled).toEqual(["sub_1"]);
+    expect(gateway.refunded).toEqual(["sub_1"]);
+    expect(repository.subscriptions.get("sub_1")?.status).toBe("canceled");
   });
 
   test("an expired Apple row is replaced by the Stripe subscription", async () => {
@@ -231,11 +233,14 @@ describe("status", () => {
     expect(view).toMatchObject({ can_subscribe: false, blocked_reason: "apple_active", conflict: null });
   });
 
-  test("Stripe active on top of Apple is a double subscription, and Stripe takes over when Apple ends", async () => {
+  test("Apple bought after a Stripe subscription is a double subscription, explained, and Stripe takes over when Apple ends", async () => {
     const { status, repository, webhook, gateway } = setup();
-    repository.setApple(1, new Date("2026-11-30T00:00:00Z"));
     gateway.subscriptions.set("sub_1", subscriptionView());
     await send(webhook, completedSubscription);
+    repository.setApple(1, new Date("2026-11-30T00:00:00Z"));
+    // A later Stripe event does not cancel the older Stripe subscription.
+    await send(webhook, { kind: "subscription_changed", subscriptionId: "sub_1" });
+    expect(gateway.cancelled).toEqual([]);
     const both = await status.status(1);
     expect(both.conflict).toBe("double_subscription");
     expect(both.plus.source).toBe("apple");

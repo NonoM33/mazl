@@ -34,6 +34,10 @@ export class FakeGateway implements StripeGateway {
   readonly sessions: CheckoutSessionInput[] = [];
   readonly portals: { customerId: string; returnUrl: string }[] = [];
   readonly cancelled: string[] = [];
+  readonly refunded: string[] = [];
+  readonly expiredFor: string[] = [];
+  // Checkout sessions as Stripe keeps them: open until paid or expired.
+  readonly checkouts: { id: string; customerId: string; mode: "subscription" | "payment"; status: "open" | "expired" }[] = [];
   readonly subscriptions = new Map<string, SubscriptionView>();
   readonly prices = new Map<string, PriceView>();
   priceReads = 0;
@@ -45,8 +49,27 @@ export class FakeGateway implements StripeGateway {
   }
 
   async createCheckoutSession(input: CheckoutSessionInput): Promise<{ id: string; url: string }> {
+    await Promise.resolve();
     this.sessions.push(input);
-    return { id: `cs_${this.sessions.length}`, url: `https://checkout.stripe.test/cs_${this.sessions.length}` };
+    const id = `cs_${this.sessions.length}`;
+    this.checkouts.push({ id, customerId: input.customerId, mode: input.offer.kind === "subscription" ? "subscription" : "payment", status: "open" });
+    return { id, url: `https://checkout.stripe.test/${id}` };
+  }
+
+  async expireOpenSubscriptionCheckouts(customerId: string): Promise<void> {
+    await Promise.resolve();
+    this.expiredFor.push(customerId);
+    for (const checkout of this.checkouts) {
+      if (checkout.customerId === customerId && checkout.mode === "subscription" && checkout.status === "open") checkout.status = "expired";
+    }
+  }
+
+  openSubscriptionCheckouts(customerId: string) {
+    return this.checkouts.filter((checkout) => checkout.customerId === customerId && checkout.mode === "subscription" && checkout.status === "open");
+  }
+
+  async refundLatestPayment(subscriptionId: string): Promise<void> {
+    this.refunded.push(subscriptionId);
   }
 
   async createPortalSession(input: { customerId: string; returnUrl: string }): Promise<{ url: string }> {

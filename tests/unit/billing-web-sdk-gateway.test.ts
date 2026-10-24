@@ -99,3 +99,24 @@ describe("Stripe SDK gateway", () => {
     await expect(gateway.retrieveSubscription("sub_nope")).rejects.toBeInstanceOf(StripeGatewayError);
   });
 });
+
+describe("duplicate protection on the real paths (security review M2)", () => {
+  const checkout = (customerId: string, offerId: string, priceId: string) =>
+    gateway.createCheckoutSession({ customerId, userId: 7, offer: offer(offerId), priceId, waiverId: 1, successUrl: "https://mazl.test/s", cancelUrl: "https://mazl.test/c" });
+
+  test("expiring lists the customer's open sessions and expires the subscription ones only", async () => {
+    const sub = await checkout("cus_dup", "plus_1m", "price_test_plus_1m");
+    const pack = await checkout("cus_dup", "boost_1", "price_test_boost_1");
+    await gateway.expireOpenSubscriptionCheckouts("cus_dup");
+    expect(lastTo("GET", "/v1/checkout/sessions")?.params).toMatchObject({ customer: "cus_dup", status: "open" });
+    expect(fake.requestsTo("POST", `/v1/checkout/sessions/${sub.id}/expire`)).toHaveLength(1);
+    expect(fake.requestsTo("POST", `/v1/checkout/sessions/${pack.id}/expire`)).toHaveLength(0);
+  });
+
+  test("refunding reads the latest invoice's payment and refunds its PaymentIntent", async () => {
+    fake.subscriptions.set("sub_dup", { id: "sub_dup", customer: "cus_dup", price: "price_test_plus_1m", status: "active", current_period_end: 1_800_000_000 });
+    await gateway.refundLatestPayment("sub_dup");
+    expect(lastTo("GET", "/v1/invoice_payments")?.params).toMatchObject({ invoice: "in_sub_dup" });
+    expect(lastTo("POST", "/v1/refunds")?.params).toMatchObject({ payment_intent: "pi_sub_dup" });
+  });
+});

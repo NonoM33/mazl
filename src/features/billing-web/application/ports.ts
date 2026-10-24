@@ -40,6 +40,10 @@ export interface StripeGateway {
   retrieveSubscription(subscriptionId: string): Promise<SubscriptionView>;
   // Cancelling a subscription Stripe no longer knows is a success.
   cancelSubscription(subscriptionId: string): Promise<void>;
+  // Expires the customer's open Checkout sessions in subscription mode.
+  expireOpenSubscriptionCheckouts(customerId: string): Promise<void>;
+  // Refunds in full the payment of the subscription's latest invoice, if any.
+  refundLatestPayment(subscriptionId: string): Promise<void>;
   retrievePrice(priceId: string): Promise<PriceView>;
 }
 
