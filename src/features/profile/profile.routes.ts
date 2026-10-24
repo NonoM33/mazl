@@ -150,8 +150,8 @@ export function registerProfileRoutes(
       const body = parsed.data;
       const promptId = body.prompt_id;
       const answer = body.answer;
-      if (!promptId || !answer || !answer.trim()) {
-        return c.json({ success: false, error: "Missing prompt_id or answer" }, 400);
+      if (getPromptText(promptId) === "") {
+        return c.json({ success: false, error: "prompt_id: unknown prompt" }, 400);
       }
       const position = typeof body.position === "number" ? body.position : 0;
 
@@ -179,8 +179,8 @@ export function registerProfileRoutes(
   app.put("/api/profile/prompts/:id", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const promptId = parseInt(c.req.param("id"));
-      if (isNaN(promptId)) {
+      const promptId = parseId(c.req.param("id"));
+      if (promptId === null) {
         return c.json({ success: false, error: "Invalid prompt ID" }, 400);
       }
       const parsed = await parseBody(updatePromptBodySchema, c);
@@ -188,9 +188,6 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: parsed.error }, 400);
       }
       const answer = parsed.data.answer;
-      if (!answer || !answer.trim()) {
-        return c.json({ success: false, error: "Missing answer" }, 400);
-      }
 
       const row = await updateProfilePrompt(userId, promptId, answer);
       if (!row) {
@@ -216,8 +213,8 @@ export function registerProfileRoutes(
   app.delete("/api/profile/prompts/:id", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const promptId = parseInt(c.req.param("id"));
-      if (isNaN(promptId)) {
+      const promptId = parseId(c.req.param("id"));
+      if (promptId === null) {
         return c.json({ success: false, error: "Invalid prompt ID" }, 400);
       }
 

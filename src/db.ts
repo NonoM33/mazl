@@ -1639,6 +1639,10 @@ export function getPromptText(promptId: string): string {
   return PROMPT_TEXT_BY_ID.get(promptId) ?? '';
 }
 
+const MAX_PROFILE_PROMPTS = 3;
+// First key of the advisory lock that serialises a member's prompt additions.
+const PROFILE_PROMPTS_LOCK_NAMESPACE = 7201;
+
 export class ProfilePromptLimitError extends Error {
   constructor() {
     super('Maximum of 3 prompts reached');
@@ -1662,20 +1666,27 @@ export async function addProfilePrompt(
   answer: string,
   position: number,
 ): Promise<ProfilePromptRow> {
-  const countRows = await sql`
-    SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
-  `;
-  const existing = parseInt((countRows[0] as { count: string }).count);
-  if (existing >= 3) {
-    throw new ProfilePromptLimitError();
-  }
+  // Counting then inserting would let simultaneous requests all see "2" and
+  // each add a third prompt: the whole check runs under a lock held per member
+  // until the transaction ends.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PROMPTS_LOCK_NAMESPACE}, ${userId})`;
+    const countRows = await tx`
+      SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
+    `;
+    const existing = parseInt((countRows[0] as { count: string }).count);
+    if (existing >= MAX_PROFILE_PROMPTS) {
+      throw new ProfilePromptLimitError();
+    }
 
-  const rows = await sql`
-    INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
-    VALUES (${userId}, ${promptId}, ${answer}, ${position})
-    RETURNING id, prompt_id, answer, position
-  `;
-  return rows[0] as unknown as ProfilePromptRow;
+    const rows = await tx`
+      INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
+      VALUES (${userId}, ${promptId}, ${answer}, ${position})
+      RETURNING id, prompt_id, answer, position
+    `;
+    return rows[0] as unknown as ProfilePromptRow;
+  });
 }
 
 export async function updateProfilePrompt(

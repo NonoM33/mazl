@@ -205,3 +205,52 @@ describe("a profile becomes visible once name, birthdate and gender are known", 
     expect((await getProfile(viewer, member.id)).status).toBe(404);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Profile prompts
+
+const postPrompt = (user: TestUser, body: unknown) =>
+  fetch(`${BASE_URL}/api/profile/prompts`, { method: "POST", headers: json(user.token), body: JSON.stringify(body) });
+
+const promptCount = async (user: TestUser): Promise<number> => {
+  const [row] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM profile_prompts WHERE user_id = ${user.id}`;
+  return Number(row?.n);
+};
+
+const catalogIds = async (): Promise<string[]> => {
+  const res = await fetch(`${BASE_URL}/api/prompts`);
+  return ((await res.json()) as { prompts: Array<{ id: string }> }).prompts.map((p) => p.id);
+};
+
+describe("profile prompts", () => {
+  test("a prompt id outside the catalogue is refused", async () => {
+    const user = await makeUser("pr-unknown");
+    expect((await postPrompt(user, { prompt_id: "nothing_like_it", answer: "Salut", position: 1 })).status).toBe(400);
+    expect((await postPrompt(user, { prompt_id: "x".repeat(5000), answer: "Salut", position: 1 })).status).toBe(400);
+    expect(await promptCount(user)).toBe(0);
+  });
+
+  test("an answer is 300 characters at most, on creation and on update", async () => {
+    const user = await makeUser("pr-long");
+    const [first] = await catalogIds();
+    expect((await postPrompt(user, { prompt_id: first, answer: repeat(301), position: 1 })).status).toBe(400);
+    expect((await postPrompt(user, { prompt_id: first, answer: "   ", position: 1 })).status).toBe(400);
+    const created = await postPrompt(user, { prompt_id: first, answer: repeat(300), position: 1 });
+    expect(created.status).toBe(201);
+    const { prompt } = (await created.json()) as { prompt: { id: number } };
+    const update = (answer: string) =>
+      fetch(`${BASE_URL}/api/profile/prompts/${prompt.id}`, { method: "PUT", headers: json(user.token), body: JSON.stringify({ answer }) });
+    expect((await update(repeat(301))).status).toBe(400);
+    expect((await update("Plus court")).status).toBe(200);
+  });
+
+  test("eight simultaneous additions still leave three prompts at most", async () => {
+    const user = await makeUser("pr-race");
+    const ids = await catalogIds();
+    const results = await Promise.all(
+      ids.slice(0, 8).map((id, i) => postPrompt(user, { prompt_id: id, answer: `Réponse ${i}`, position: i })),
+    );
+    expect(results.filter((r) => r.status === 201)).toHaveLength(3);
+    expect(await promptCount(user)).toBe(3);
+  });
+});
