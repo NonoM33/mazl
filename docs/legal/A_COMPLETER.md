@@ -33,6 +33,8 @@ Chaque mention `[À COMPLÉTER : …]` des trois documents (`cgu.md`, `cgv.md`, 
 | Prix et offres en vigueur (le code ne fixe pas les prix : ils viennent d'App Store Connect ; `docs/premium/APP-STORE-CONNECT.md` donne 19,99 / 44,99 / 69,99 / 99,99 EUR et 7,99 / 19,99 / 4,99 / 11,99 EUR) | CGV 3 |
 | Émission de factures propres par MAZL ou seulement reçus Apple (TVA) | CGV 4 |
 | **Preuve du renoncement exprès au droit de rétractation sur l'écran d'achat** : aucune case ni mention de renoncement n'a été repérée dans l'écran Premium actuel (`premium_screen.dart`) ; sans elle, l'exception de l'art. L221-28 ne joue pas | CGV 6.2 |
+| Mentions de facturation à paramétrer dans Stripe (raison sociale, adresse, TVA du vendeur) et confirmation que les factures Stripe font foi | CGV 4 |
+| Adresse à laquelle demander le remboursement d'un achat fait sur le site | CGV 7 |
 | Ouverture des achats Android (Google Play) : non vérifiés côté serveur aujourd'hui | CGV 2.4 |
 
 ## D. Conditions d'utilisation (CGU)
@@ -56,6 +58,6 @@ Chaque mention `[À COMPLÉTER : …]` des trois documents (`cgu.md`, `cgv.md`, 
 | Régime de la prospection (consentement ou intérêt légitime) pour les e-mails de campagne | Conf. 3 |
 | Confirmer l'absence d'outil de mesure d'audience (site et app) et de tout traceur | Conf. 3, 12 |
 | Durées de purge à fixer : historique de mises à jour de position (`location_updates`), sessions de vérification faciale (`face_verification_sessions`), journal de modération (`moderation_logs`), journaux techniques (IP), rotation des sauvegardes, pièces comptables | Conf. 4 |
-| Mécanisme de transfert hors UE pour Resend, OneSignal, Google, Apple (CCT, DPF) et accords de sous-traitance (art. 28) | Conf. 6, 7 |
+| Mécanisme de transfert hors UE pour Resend, OneSignal, Google, Apple, Stripe (CCT, DPF) et accords de sous-traitance (art. 28) | Conf. 6, 7 |
 | Date de l'analyse d'impact (AIPD) et éventuelle consultation de la CNIL | Conf. 13 |
 | Déclaration « confidentialité des données » de l'App Store, cohérente avec la politique | Conf. 12 |

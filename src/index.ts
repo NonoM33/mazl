@@ -98,6 +98,7 @@ import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
+import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStripeCancellation } from "./features/billing-web/billing-web.module";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
@@ -300,8 +301,12 @@ const userErasure = {
     return erased;
   },
 };
-registerAdminRoutes(app, UPLOADS_DIR, userErasure);
-registerAccountRoutes(app, sql, userErasure);
+// Web payments: a member's Stripe subscription is cancelled before their erasure.
+const billingWeb = createBillingWeb({ sql, authenticate: requireAuth });
+const erasureWithBilling = withStripeCancellation(userErasure, billingWeb);
+registerAdminRoutes(app, UPLOADS_DIR, erasureWithBilling);
+registerAccountRoutes(app, sql, erasureWithBilling);
+registerBillingWeb(app, billingWeb);
 
 // ============ AUTH ENDPOINTS ============
 
@@ -708,6 +713,7 @@ startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
 await ensureAccountSchema(sql);
+await ensureBillingWebSchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
