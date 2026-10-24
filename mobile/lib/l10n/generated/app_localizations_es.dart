@@ -9,6 +9,83 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get boostTitle => 'Boost';
+
+  @override
+  String get boostHeadlineActive => 'Boost activo';
+
+  @override
+  String get boostHeadlineIdle => 'Impulsa tu perfil';
+
+  @override
+  String get boostTagline => 'Haz que te vean 10 veces más personas.';
+
+  @override
+  String boostMinutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min restantes',
+      one: '$minutes min restante',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostDuringTitle => 'Durante este Boost';
+
+  @override
+  String get boostViews => 'Visitas';
+
+  @override
+  String get boostLikes => 'Likes';
+
+  @override
+  String get boostBenefitsTitle => 'Ventajas del Boost';
+
+  @override
+  String get boostBenefitFirst => 'Aparece el primero en las sugerencias';
+
+  @override
+  String boostBenefitVisibility(int minutes) {
+    return '10 veces más visibilidad durante $minutes min';
+  }
+
+  @override
+  String get boostBenefitMatches => 'Más posibilidades de hacer match';
+
+  @override
+  String get boostBenefitStats =>
+      'Estadísticas en tiempo real durante el Boost';
+
+  @override
+  String get boostActivate => 'Activar el Boost';
+
+  @override
+  String boostRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count Boosts',
+      one: 'Queda $count Boost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostActivated =>
+      'Boost activado. Tu perfil ya está en primer plano.';
+
+  @override
+  String get boostActivateFailed => 'Error al activar';
+
+  @override
+  String get boostUpsellTitle => 'Boosts ilimitados';
+
+  @override
+  String get boostUpsellBody => 'Usa el Boost sin límite con mazl+';
+
+  @override
   String get commonCancel => 'Cancelar';
 
   @override

@@ -9,6 +9,77 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get boostTitle => 'Boost';
+
+  @override
+  String get boostHeadlineActive => 'Boost is on';
+
+  @override
+  String get boostHeadlineIdle => 'Boost your profile';
+
+  @override
+  String get boostTagline => 'Get seen by 10x more people.';
+
+  @override
+  String boostMinutesLeft(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get boostDuringTitle => 'During this Boost';
+
+  @override
+  String get boostViews => 'Views';
+
+  @override
+  String get boostLikes => 'Likes';
+
+  @override
+  String get boostBenefitsTitle => 'What Boost gives you';
+
+  @override
+  String get boostBenefitFirst => 'Show up first in suggestions';
+
+  @override
+  String boostBenefitVisibility(int minutes) {
+    return '10x more visibility for $minutes min';
+  }
+
+  @override
+  String get boostBenefitMatches => 'More chances to match';
+
+  @override
+  String get boostBenefitStats => 'Live stats while Boost is on';
+
+  @override
+  String get boostActivate => 'Turn on Boost';
+
+  @override
+  String boostRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Boosts left',
+      one: '$count Boost left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostActivated =>
+      'Boost is on. Your profile is now front and center.';
+
+  @override
+  String get boostActivateFailed =>
+      'Something went wrong while turning on Boost';
+
+  @override
+  String get boostUpsellTitle => 'Unlimited Boosts';
+
+  @override
+  String get boostUpsellBody => 'Boost as much as you like with mazl+';
+
+  @override
   String get commonCancel => 'Cancel';
 
   @override

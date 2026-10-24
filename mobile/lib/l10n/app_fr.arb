@@ -1,5 +1,96 @@
 {
   "@@locale": "fr",
+  "boostTitle": "Boost",
+  "@boostTitle": {
+    "description": "Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes)."
+  },
+  "boostHeadlineActive": "Boost actif",
+  "@boostHeadlineActive": {
+    "description": "Titre de la carte colorée quand un Boost est en cours."
+  },
+  "boostHeadlineIdle": "Boostez votre profil",
+  "@boostHeadlineIdle": {
+    "description": "Titre de la carte colorée quand aucun Boost n'est en cours."
+  },
+  "boostTagline": "Soyez vu par 10x plus de personnes.",
+  "@boostTagline": {
+    "description": "Sous le titre de la carte colorée, hors Boost en cours : la promesse de la fonction."
+  },
+  "boostMinutesLeft": "{minutes, plural, one{{minutes} min restante} other{{minutes} min restantes}}",
+  "@boostMinutesLeft": {
+    "description": "Temps restant d'un Boost en cours, sous le titre de la carte colorée. {minutes} est un entier de minutes (« min » abrégé).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "boostDuringTitle": "Pendant ce boost",
+  "@boostDuringTitle": {
+    "description": "Titre de la carte de statistiques d'un Boost en cours."
+  },
+  "boostViews": "Vues",
+  "@boostViews": {
+    "description": "Légende sous le nombre de vues du profil pendant le Boost."
+  },
+  "boostLikes": "Likes",
+  "@boostLikes": {
+    "description": "Légende sous le nombre de likes reçus pendant le Boost."
+  },
+  "boostBenefitsTitle": "Avantages du Boost",
+  "@boostBenefitsTitle": {
+    "description": "Titre de la carte qui liste les avantages du Boost (hors Boost en cours)."
+  },
+  "boostBenefitFirst": "Apparaissez en premier dans les suggestions",
+  "@boostBenefitFirst": {
+    "description": "Premier avantage du Boost (une ligne, après une icône)."
+  },
+  "boostBenefitVisibility": "10x plus de visibilité pendant {minutes} min",
+  "@boostBenefitVisibility": {
+    "description": "Deuxième avantage du Boost. {minutes} est la durée du Boost en minutes (« min » abrégé).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "boostBenefitMatches": "Plus de chances de matcher",
+  "@boostBenefitMatches": {
+    "description": "Troisième avantage du Boost."
+  },
+  "boostBenefitStats": "Stats en temps réel pendant le boost",
+  "@boostBenefitStats": {
+    "description": "Quatrième avantage du Boost."
+  },
+  "boostActivate": "Activer le Boost",
+  "@boostActivate": {
+    "description": "Gros bouton violet qui active un Boost."
+  },
+  "boostRemaining": "{count, plural, one{{count} boost restant} other{{count} boosts restants}}",
+  "@boostRemaining": {
+    "description": "Sous le bouton d'activation : combien de Boosts le membre peut encore lancer. {count} est un entier.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boostActivated": "Boost activé. Votre profil est maintenant en avant.",
+  "@boostActivated": {
+    "description": "Message bref (fond vert) après l'activation d'un Boost depuis l'écran Boost."
+  },
+  "boostActivateFailed": "Erreur lors de l'activation",
+  "@boostActivateFailed": {
+    "description": "Message bref (fond rouge) quand l'activation du Boost a échoué."
+  },
+  "boostUpsellTitle": "Boosts illimités",
+  "@boostUpsellTitle": {
+    "description": "Titre de l'encart qui propose mazl+ quand il reste au plus un Boost."
+  },
+  "boostUpsellBody": "Boostez sans limite avec mazl+",
+  "@boostUpsellBody": {
+    "description": "Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque."
+  },
   "commonCancel": "Annuler",
   "@commonCancel": {
     "description": "Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire."

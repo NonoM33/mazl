@@ -9,6 +9,83 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get boostTitle => 'בוסט';
+
+  @override
+  String get boostHeadlineActive => 'הבוסט פעיל';
+
+  @override
+  String get boostHeadlineIdle => 'להעלות את הפרופיל עם בוסט';
+
+  @override
+  String get boostTagline => 'פי 10 יותר אנשים יראו את הפרופיל.';
+
+  @override
+  String boostMinutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'נותרו $minutes דקות',
+      two: 'נותרו שתי דקות',
+      one: 'נותרה דקה אחת',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostDuringTitle => 'במהלך הבוסט הזה';
+
+  @override
+  String get boostViews => 'צפיות';
+
+  @override
+  String get boostLikes => 'לייקים';
+
+  @override
+  String get boostBenefitsTitle => 'היתרונות של הבוסט';
+
+  @override
+  String get boostBenefitFirst => 'הפרופיל יופיע ראשון בהצעות';
+
+  @override
+  String boostBenefitVisibility(int minutes) {
+    return 'פי 10 יותר חשיפה למשך $minutes דקות';
+  }
+
+  @override
+  String get boostBenefitMatches => 'יותר סיכוי ליצור מאץ\'';
+
+  @override
+  String get boostBenefitStats => 'סטטיסטיקות בזמן אמת במהלך הבוסט';
+
+  @override
+  String get boostActivate => 'להפעיל את הבוסט';
+
+  @override
+  String boostRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'נותרו $count בוסטים',
+      two: 'נותרו שני בוסטים',
+      one: 'נותר בוסט אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostActivated => 'הבוסט הופעל. הפרופיל שלך מוצג עכשיו בראש.';
+
+  @override
+  String get boostActivateFailed => 'אירעה שגיאה בהפעלה';
+
+  @override
+  String get boostUpsellTitle => 'בוסטים ללא הגבלה';
+
+  @override
+  String get boostUpsellBody => 'אפשר להשתמש בבוסט ללא הגבלה עם mazl+‎';
+
+  @override
   String get commonCancel => 'ביטול';
 
   @override

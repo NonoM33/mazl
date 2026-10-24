@@ -665,28 +665,6 @@ lib/presentation/features/auth/screens/login_screen.dart | Rencontres · Communa
 lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
 lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
 lib/presentation/features/auth/screens/login_screen.dart | Utiliser mon e-mail
-lib/presentation/features/boost/screens/boost_screen.dart | $remaining boost${remaining > 1 ? 
-lib/presentation/features/boost/screens/boost_screen.dart | ${_boostStatus!.minutesRemaining} min restantes
-lib/presentation/features/boost/screens/boost_screen.dart | 10x plus de visibilité pendant 30 min
-lib/presentation/features/boost/screens/boost_screen.dart | Activer le Boost
-lib/presentation/features/boost/screens/boost_screen.dart | Apparaissez en premier dans les suggestions
-lib/presentation/features/boost/screens/boost_screen.dart | Avantages du Boost
-lib/presentation/features/boost/screens/boost_screen.dart | Boost
-lib/presentation/features/boost/screens/boost_screen.dart | Boost actif
-lib/presentation/features/boost/screens/boost_screen.dart | Boost activé. Votre profil est maintenant en avant.
-lib/presentation/features/boost/screens/boost_screen.dart | Boostez sans limite avec mazl+
-lib/presentation/features/boost/screens/boost_screen.dart | Boostez votre profil
-lib/presentation/features/boost/screens/boost_screen.dart | Boosts illimités
-lib/presentation/features/boost/screens/boost_screen.dart | Erreur lors de l\'activation
-lib/presentation/features/boost/screens/boost_screen.dart | Likes
-lib/presentation/features/boost/screens/boost_screen.dart | Pendant ce boost
-lib/presentation/features/boost/screens/boost_screen.dart | Plus de chances de matcher
-lib/presentation/features/boost/screens/boost_screen.dart | Réessayer
-lib/presentation/features/boost/screens/boost_screen.dart | Soyez vu par 10x plus de personnes.
-lib/presentation/features/boost/screens/boost_screen.dart | Stats en temps réel pendant le boost
-lib/presentation/features/boost/screens/boost_screen.dart | Voir
-lib/presentation/features/boost/screens/boost_screen.dart | Vues
-lib/presentation/features/boost/screens/boost_screen.dart | } restant${remaining > 1 ? 
 lib/presentation/features/chat/conversation_time.dart | Hier
 lib/presentation/features/chat/logic/chat_dates.dart | ${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, 
 lib/presentation/features/chat/logic/chat_dates.dart | Aujourd'hui

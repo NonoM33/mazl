@@ -9,6 +9,82 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get boostTitle => 'Boost';
+
+  @override
+  String get boostHeadlineActive => 'Boost actif';
+
+  @override
+  String get boostHeadlineIdle => 'Boostez votre profil';
+
+  @override
+  String get boostTagline => 'Soyez vu par 10x plus de personnes.';
+
+  @override
+  String boostMinutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min restantes',
+      one: '$minutes min restante',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostDuringTitle => 'Pendant ce boost';
+
+  @override
+  String get boostViews => 'Vues';
+
+  @override
+  String get boostLikes => 'Likes';
+
+  @override
+  String get boostBenefitsTitle => 'Avantages du Boost';
+
+  @override
+  String get boostBenefitFirst => 'Apparaissez en premier dans les suggestions';
+
+  @override
+  String boostBenefitVisibility(int minutes) {
+    return '10x plus de visibilité pendant $minutes min';
+  }
+
+  @override
+  String get boostBenefitMatches => 'Plus de chances de matcher';
+
+  @override
+  String get boostBenefitStats => 'Stats en temps réel pendant le boost';
+
+  @override
+  String get boostActivate => 'Activer le Boost';
+
+  @override
+  String boostRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count boosts restants',
+      one: '$count boost restant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostActivated =>
+      'Boost activé. Votre profil est maintenant en avant.';
+
+  @override
+  String get boostActivateFailed => 'Erreur lors de l\'activation';
+
+  @override
+  String get boostUpsellTitle => 'Boosts illimités';
+
+  @override
+  String get boostUpsellBody => 'Boostez sans limite avec mazl+';
+
+  @override
   String get commonCancel => 'Annuler';
 
   @override

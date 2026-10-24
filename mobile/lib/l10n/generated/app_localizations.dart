@@ -104,6 +104,120 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes).
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get boostTitle;
+
+  /// Titre de la carte colorée quand un Boost est en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost actif'**
+  String get boostHeadlineActive;
+
+  /// Titre de la carte colorée quand aucun Boost n'est en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boostez votre profil'**
+  String get boostHeadlineIdle;
+
+  /// Sous le titre de la carte colorée, hors Boost en cours : la promesse de la fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soyez vu par 10x plus de personnes.'**
+  String get boostTagline;
+
+  /// Temps restant d'un Boost en cours, sous le titre de la carte colorée. {minutes} est un entier de minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes, plural, one{{minutes} min restante} other{{minutes} min restantes}}'**
+  String boostMinutesLeft(int minutes);
+
+  /// Titre de la carte de statistiques d'un Boost en cours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant ce boost'**
+  String get boostDuringTitle;
+
+  /// Légende sous le nombre de vues du profil pendant le Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vues'**
+  String get boostViews;
+
+  /// Légende sous le nombre de likes reçus pendant le Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get boostLikes;
+
+  /// Titre de la carte qui liste les avantages du Boost (hors Boost en cours).
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantages du Boost'**
+  String get boostBenefitsTitle;
+
+  /// Premier avantage du Boost (une ligne, après une icône).
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparaissez en premier dans les suggestions'**
+  String get boostBenefitFirst;
+
+  /// Deuxième avantage du Boost. {minutes} est la durée du Boost en minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'10x plus de visibilité pendant {minutes} min'**
+  String boostBenefitVisibility(int minutes);
+
+  /// Troisième avantage du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus de chances de matcher'**
+  String get boostBenefitMatches;
+
+  /// Quatrième avantage du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stats en temps réel pendant le boost'**
+  String get boostBenefitStats;
+
+  /// Gros bouton violet qui active un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le Boost'**
+  String get boostActivate;
+
+  /// Sous le bouton d'activation : combien de Boosts le membre peut encore lancer. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} boost restant} other{{count} boosts restants}}'**
+  String boostRemaining(int count);
+
+  /// Message bref (fond vert) après l'activation d'un Boost depuis l'écran Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost activé. Votre profil est maintenant en avant.'**
+  String get boostActivated;
+
+  /// Message bref (fond rouge) quand l'activation du Boost a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'activation'**
+  String get boostActivateFailed;
+
+  /// Titre de l'encart qui propose mazl+ quand il reste au plus un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boosts illimités'**
+  String get boostUpsellTitle;
+
+  /// Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boostez sans limite avec mazl+'**
+  String get boostUpsellBody;
+
   /// Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire.
   ///
   /// In fr, this message translates to:

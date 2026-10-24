@@ -1,0 +1,21 @@
+{
+  "boostTitle": "Буст",
+  "boostHeadlineActive": "Буст включён",
+  "boostHeadlineIdle": "Продвиньте свой профиль",
+  "boostTagline": "Вас увидят в 10 раз больше людей.",
+  "boostMinutesLeft": "Осталось {minutes} мин.",
+  "boostDuringTitle": "Во время этого буста",
+  "boostViews": "Просмотры",
+  "boostLikes": "Лайки",
+  "boostBenefitsTitle": "Преимущества буста",
+  "boostBenefitFirst": "Вы будете первым в рекомендациях",
+  "boostBenefitVisibility": "В 10 раз больше внимания в течение {minutes} мин",
+  "boostBenefitMatches": "Больше шансов на мэтч",
+  "boostBenefitStats": "Статистика в реальном времени во время буста",
+  "boostActivate": "Включить буст",
+  "boostRemaining": "{count, plural, one{Остался {count} буст} few{Осталось {count} буста} many{Осталось {count} бустов} other{Осталось {count} буста}}",
+  "boostActivated": "Буст включён. Ваш профиль теперь на виду.",
+  "boostActivateFailed": "Ошибка при включении",
+  "boostUpsellTitle": "Безлимитные бусты",
+  "boostUpsellBody": "Используйте буст без ограничений с mazl+"
+}

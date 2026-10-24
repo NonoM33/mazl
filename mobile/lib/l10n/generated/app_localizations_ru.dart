@@ -9,6 +9,78 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get boostTitle => 'Буст';
+
+  @override
+  String get boostHeadlineActive => 'Буст включён';
+
+  @override
+  String get boostHeadlineIdle => 'Продвиньте свой профиль';
+
+  @override
+  String get boostTagline => 'Вас увидят в 10 раз больше людей.';
+
+  @override
+  String boostMinutesLeft(int minutes) {
+    return 'Осталось $minutes мин.';
+  }
+
+  @override
+  String get boostDuringTitle => 'Во время этого буста';
+
+  @override
+  String get boostViews => 'Просмотры';
+
+  @override
+  String get boostLikes => 'Лайки';
+
+  @override
+  String get boostBenefitsTitle => 'Преимущества буста';
+
+  @override
+  String get boostBenefitFirst => 'Вы будете первым в рекомендациях';
+
+  @override
+  String boostBenefitVisibility(int minutes) {
+    return 'В 10 раз больше внимания в течение $minutes мин';
+  }
+
+  @override
+  String get boostBenefitMatches => 'Больше шансов на мэтч';
+
+  @override
+  String get boostBenefitStats =>
+      'Статистика в реальном времени во время буста';
+
+  @override
+  String get boostActivate => 'Включить буст';
+
+  @override
+  String boostRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Осталось $count буста',
+      many: 'Осталось $count бустов',
+      few: 'Осталось $count буста',
+      one: 'Остался $count буст',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get boostActivated => 'Буст включён. Ваш профиль теперь на виду.';
+
+  @override
+  String get boostActivateFailed => 'Ошибка при включении';
+
+  @override
+  String get boostUpsellTitle => 'Безлимитные бусты';
+
+  @override
+  String get boostUpsellBody => 'Используйте буст без ограничений с mazl+';
+
+  @override
   String get commonCancel => 'Отмена';
 
   @override
