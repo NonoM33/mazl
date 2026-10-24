@@ -28,3 +28,13 @@ membre (cookies et `fetch` même origine).
 - À faire au déploiement (non fait, interdit sans accord) : enregistrement DNS `app.mazl.app`,
   domaine ajouté à l'application Coolify, `WEB_ORIGIN` défini, étape `bun run web:build` dans le
   `Dockerfile` (ajoutée dans ce chantier).
+
+## Complément du 2026-10-24 : servir le site à la racine de `mazl.app`
+Renaud a demandé, via la session back-office, que `https://mazl.app` serve le nouveau client.
+C'est une affaire de configuration : `WEB_ORIGIN=https://mazl.app`. Sur cet hôte, `/` mène à
+`/app` (la vitrine actuelle disparaît), et restent servis : `/api/*`, `/ws`, `/media/*`,
+`/console` (back-office), les pages juridiques (`/cgu`, `/cgv`, `/confidentialite`, `/terms`,
+`/privacy`) et le lien de dépôt de documents (`/verify`). L'ancienne console `/admin` n'y est
+plus servie : elle reste sur `api.mazl.app`.
+Coût de sécurité accepté : le site partage alors son origine avec la console du back-office ;
+la console doit garder une CSP stricte. `app.mazl.app` reste l'option la plus isolée.

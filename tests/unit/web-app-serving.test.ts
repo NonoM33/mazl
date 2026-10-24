@@ -69,6 +69,22 @@ describe("web client serving without WEB_ORIGIN", () => {
   });
 });
 
+describe("web client at the root of mazl.app", () => {
+  const web = () => createWebApp({ distDir: dist, webOrigin: "https://mazl.app" });
+
+  test("the old landing gives way to the client, the legal pages and the console stay", async () => {
+    expect((await web().handle(get("https://mazl.app/", "mazl.app")))?.headers.get("location")).toBe("https://mazl.app/app");
+    expect(await web().handle(get("https://mazl.app/cgv", "mazl.app"))).toBeNull();
+    expect(await web().handle(get("https://mazl.app/console", "mazl.app"))).toBeNull();
+    expect((await web().handle(get("https://mazl.app/app/messages", "mazl.app")))?.status).toBe(200);
+  });
+
+  test("the API host keeps everything and sends /app to mazl.app", async () => {
+    expect(await web().handle(get("https://api.mazl.app/admin", "api.mazl.app"))).toBeNull();
+    expect((await web().handle(get("https://api.mazl.app/app", "api.mazl.app")))?.headers.get("location")).toBe("https://mazl.app/app");
+  });
+});
+
 describe("web client serving with WEB_ORIGIN", () => {
   const web = () => createWebApp({ distDir: dist, webOrigin: "https://app.mazl.app" });
 
@@ -79,15 +95,15 @@ describe("web client serving with WEB_ORIGIN", () => {
   });
 
   test("on the web host, the landing and the admin console are not served", async () => {
-    for (const path of ["/", "/admin", "/admin/dashboard", "/cgu"]) {
+    for (const path of ["/", "/admin", "/admin/dashboard", "/index.html", "/admin.html"]) {
       const res = await web().handle(get(`https://app.mazl.app${path}`, "app.mazl.app"));
       expect(res?.status).toBe(302);
       expect(res?.headers.get("location")).toBe("https://app.mazl.app/app");
     }
   });
 
-  test("on the web host, the API, the socket and signed media pass through", async () => {
-    for (const path of ["/api/health", "/ws", "/media/photos/1?exp=1&sig=x"]) {
+  test("on the web host, the API, the socket, signed media, the console and the legal pages pass through", async () => {
+    for (const path of ["/api/health", "/ws", "/media/photos/1?exp=1&sig=x", "/console", "/console/reports", "/cgu", "/confidentialite", "/verify?token=x", "/verify.html", "/style.css"]) {
       expect(await web().handle(get(`https://app.mazl.app${path}`, "app.mazl.app"))).toBeNull();
     }
   });
