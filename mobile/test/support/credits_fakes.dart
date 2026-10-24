@@ -1,5 +1,6 @@
-import 'dart:async';
-
+import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/core/services/store/credits_service.dart';
 import 'package:mazl/core/services/store/subscription_api.dart';
 
 import 'store_fakes.dart';
@@ -86,4 +87,26 @@ class FakeCreditsApi implements SubscriptionApi {
     storeJournal.add('credits-verify');
     return onVerify();
   }
+}
+
+/// Installe un `CreditsService` de test comme singleton (celui que lisent
+/// `PremiumGate`, `ApiService` et les écrans) et le retire à la fin du test.
+/// Le service n'a PAS de session : son solde ne bouge que par
+/// `applyFromServer`, ou par `onSignedIn` si le test le demande.
+CreditsService installTestCredits({
+  FakeStoreGateway? gateway,
+  FakeCreditsApi? api,
+  TargetPlatform platform = TargetPlatform.iOS,
+}) {
+  final service = CreditsService.create(
+    gateway: gateway ?? FakeStoreGateway(),
+    api: api ?? FakeCreditsApi(),
+    platform: platform,
+  );
+  final previous = CreditsService.debugReplaceShared(service);
+  addTearDown(() {
+    CreditsService.debugReplaceShared(previous);
+    service.dispose();
+  });
+  return service;
 }

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
 import 'auth_service.dart';
+import 'store/credits_service.dart';
 
 // Data-model classes extracted out of this file into `lib/core/models/`.
 // Imported so `ApiService` method signatures resolve the model types, and
@@ -104,6 +105,22 @@ String? _serverCode(String body) {
   return null;
 }
 
+Map<String, dynamic>? _jsonBody(String body) {
+  try {
+    final data = jsonDecode(body);
+    return data is Map<String, dynamic> ? data : null;
+  } on FormatException {
+    return null;
+  }
+}
+
+/// Hands the `credits` object a server answer carries to the balance the app
+/// shows. The server alone decides what can be spent: the app only relays.
+void _relayCredits(Map<String, dynamic>? body) {
+  final credits = body?['credits'];
+  if (credits != null) CreditsService().applyFromServer(credits);
+}
+
 /// API Response wrapper
 class ApiResponse<T> {
   final bool success;
@@ -118,6 +135,10 @@ class ApiResponse<T> {
   final String? errorCode;
   final int? statusCode;
 
+  /// The server's JSON body of a refused call, when it sent one. Lets a
+  /// screen read more than the code (the `credits` of a 402).
+  final Map<String, dynamic>? body;
+
   ApiResponse({
     required this.success,
     this.data,
@@ -125,6 +146,7 @@ class ApiResponse<T> {
     this.errorKind,
     this.errorCode,
     this.statusCode,
+    this.body,
   });
 
   factory ApiResponse.success(T data) => ApiResponse(success: true, data: data);
@@ -139,7 +161,18 @@ class ApiResponse<T> {
         errorKind: _kindForStatus(response.statusCode),
         errorCode: _serverCode(response.body),
         statusCode: response.statusCode,
+        body: _jsonBody(response.body),
       );
+
+  /// HTTP 402 with the server's « nothing left to spend » code: a Super Like
+  /// or a Boost the member has no credit for, not an outage.
+  bool get isCreditsExhausted =>
+      statusCode == 402 &&
+      (errorCode == 'super_likes_exhausted' || errorCode == 'boosts_exhausted');
+
+  /// HTTP 409: a Boost is already running, nothing was spent.
+  bool get isBoostAlreadyActive =>
+      statusCode == 409 && errorCode == 'boost_already_active';
 }
 
 /// Translates a caught network exception into an [ApiResponse.failure]: the
@@ -357,10 +390,16 @@ class ApiService implements CoupleApi {
       });
 
       if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to send swipe');
+        final failure = ApiResponse<Map<String, dynamic>>.httpFailure(
+          response,
+          'Failed to send swipe',
+        );
+        _relayCredits(failure.body);
+        return failure;
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(data);
     } catch (e) {
       debugPrint('API Error: $e');
@@ -1264,6 +1303,7 @@ class ApiService implements CoupleApi {
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
@@ -1277,10 +1317,16 @@ class ApiService implements CoupleApi {
       final response = await _post('/api/boost/activate', {});
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.httpFailure(response, 'Failed to activate boost');
+        final failure = ApiResponse<BoostStatus>.httpFailure(
+          response,
+          'Failed to activate boost',
+        );
+        _relayCredits(failure.body);
+        return failure;
       }
 
       final data = jsonDecode(response.body);
+      _relayCredits(data);
       return ApiResponse.success(BoostStatus.fromJson(data));
     } catch (e) {
       debugPrint('API Error: $e');
