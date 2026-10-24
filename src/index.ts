@@ -238,6 +238,8 @@ app.post("/api/subscribe", subscribeLimiter, async (c) => {
 
   try {
     const waitlist = await upsertWaitlistAndGetVerification(email);
+    // A verified or submitted member is left alone: no new link, no e-mail.
+    if (waitlist.alreadyHandled) return c.json(SUBSCRIBED);
 
     // The link always points at APP_URL (src/email.ts), never at a header.
     try {
