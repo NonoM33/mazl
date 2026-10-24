@@ -215,8 +215,14 @@ class _DiscoverScreenState extends State<DiscoverScreen>
               child: const Text('Ouvrir les filtres'),
             ),
             const SizedBox(height: 4),
+            // No inner padding: its text sits on the same edge as the title.
             TextButton(
               onPressed: _loadProfiles,
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 48),
+                alignment: Alignment.centerLeft,
+              ),
               child: const Text('Actualiser'),
             ),
           ],

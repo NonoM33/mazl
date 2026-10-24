@@ -8,6 +8,8 @@ import 'package:mazl/presentation/common/widgets/mazl_components.dart'
     show ProfilePhoto;
 import 'package:mazl/presentation/features/matching/screens/discover_screen.dart';
 import 'package:mazl/presentation/features/matching/widgets/discover_card.dart';
+import 'package:mazl/presentation/features/premium/widgets/plus_widgets.dart'
+    show PlusCtaButton;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/swipe_gestures.dart';
@@ -177,6 +179,47 @@ void main() {
 
     expect(api.swipes, isEmpty);
   });
+
+  testWidgets('a refused super like goes up by itself once mazl+ is bought', (
+    tester,
+  ) async {
+    PremiumGate.useSuperLike();
+    final api = await _pumpDiscover(tester);
+
+    await dragSlowly(tester, _card(101), const Offset(0, -360));
+    await settle(tester);
+    expect(find.text(_superLikeGateTitle), findsWidgets);
+    expect(api.swipes, isEmpty);
+
+    // The purchase itself goes through the store; here it has just succeeded.
+    PremiumGate.debugPremiumOverride = true;
+    await tester.tap(find.byType(PlusCtaButton));
+    await settle(tester);
+
+    expect(api.swipes, ['101:super_like']);
+    expect(_card(101), findsNothing);
+  });
+
+  testWidgets(
+    'after the last card: « Vous avez tout vu. », its actions on one edge',
+    (tester) async {
+      await _pumpDiscover(tester);
+      for (final id in [101, 102, 103]) {
+        await dragSlowly(tester, _card(id), const Offset(-300, 0));
+        await settle(tester);
+      }
+
+      final title = find.text('Vous avez tout vu.');
+      expect(title, findsOneWidget);
+      final edge = tester.getTopLeft(title).dx;
+      expect(
+        tester.getTopLeft(find.byType(OutlinedButton)).dx,
+        closeTo(edge, 0.5),
+      );
+      // The text of a bare text button starts on the same edge, not 12 px in.
+      expect(tester.getTopLeft(find.text('Actualiser')).dx, closeTo(edge, 0.5));
+    },
+  );
 
   testWidgets('the star button with none left leaves the card in place', (
     tester,
