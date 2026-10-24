@@ -16,6 +16,14 @@ export class PhotoRejectedError extends Error {
   }
 }
 
+// The member already holds the maximum number of profile photos.
+export class PhotoLimitError extends Error {
+  constructor() {
+    super("photo limit reached");
+    this.name = "PhotoLimitError";
+  }
+}
+
 export type ImportRejection =
   | "no_picture"
   | "host_not_allowed"

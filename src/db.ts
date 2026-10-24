@@ -3131,6 +3131,33 @@ export async function getProfilePhotos(userId: number) {
   return photos;
 }
 
+export const MAX_PROFILE_PHOTOS = 6;
+// First key of the advisory lock that serialises a member's photo additions.
+const PROFILE_PHOTOS_LOCK_NAMESPACE = 7202;
+
+export class ProfilePhotoLimitError extends Error {
+  constructor() {
+    super(`Maximum of ${MAX_PROFILE_PHOTOS} photos reached`);
+    this.name = "ProfilePhotoLimitError";
+  }
+}
+
+// The photo does not exist or belongs to someone else: both look the same.
+export class ProfilePhotoNotFoundError extends Error {
+  constructor() {
+    super("Photo not found");
+    this.name = "ProfilePhotoNotFoundError";
+  }
+}
+
+// A reorder that names photos that are not the member's.
+export class ProfilePhotoSelectionError extends Error {
+  constructor() {
+    super("Invalid photo ID");
+    this.name = "ProfilePhotoSelectionError";
+  }
+}
+
 // Add profile photo
 export async function addProfilePhoto(params: {
   userId: number;
@@ -3138,24 +3165,32 @@ export async function addProfilePhoto(params: {
   position?: number;
   isPrimary?: boolean;
 }) {
-  // If this is the first photo or marked as primary, set it as primary
-  const existingPhotos = await getProfilePhotos(params.userId);
-  const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
-  const position = params.position ?? existingPhotos.length;
+  // The count, the cap and the insert run under a lock held per member until
+  // the transaction ends: simultaneous uploads cannot overrun the cap.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PHOTOS_LOCK_NAMESPACE}, ${params.userId})`;
+    const existingPhotos = await tx`SELECT id FROM profile_photos WHERE user_id = ${params.userId}`;
+    if (existingPhotos.length >= MAX_PROFILE_PHOTOS) throw new ProfilePhotoLimitError();
 
-  // If setting as primary, unset other primaries
-  if (shouldBePrimary) {
-    await sql`
-      UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+    // If this is the first photo or marked as primary, set it as primary
+    const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
+    const position = params.position ?? existingPhotos.length;
+
+    // If setting as primary, unset other primaries
+    if (shouldBePrimary) {
+      await tx`
+        UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+      `;
+    }
+
+    const result = await tx`
+      INSERT INTO profile_photos (user_id, url, position, is_primary)
+      VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
+      RETURNING *
     `;
-  }
-
-  const result = await sql`
-    INSERT INTO profile_photos (user_id, url, position, is_primary)
-    VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
-    RETURNING *
-  `;
-  return result[0];
+    return result[0];
+  });
 }
 
 // Delete profile photo
@@ -3167,7 +3202,7 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
 
   const deletedPhoto = photo[0];
   if (!deletedPhoto) {
-    throw new Error("Photo not found");
+    throw new ProfilePhotoNotFoundError();
   }
 
   await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
@@ -3204,7 +3239,7 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
   const userPhotoIds = new Set(userPhotos.map((p: any) => p.id));
   for (const id of photoIds) {
     if (!userPhotoIds.has(id)) {
-      throw new Error("Invalid photo ID");
+      throw new ProfilePhotoSelectionError();
     }
   }
 
@@ -3224,11 +3259,14 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
 
 // Set profile photo as primary
 export async function setProfilePhotoPrimary(photoId: number, userId: number) {
-  // Unset all primaries for this user
-  await sql`UPDATE profile_photos SET is_primary = false WHERE user_id = ${userId}`;
-
-  // Set this one as primary
-  await sql`UPDATE profile_photos SET is_primary = true WHERE id = ${photoId} AND user_id = ${userId}`;
+  // One statement sequence in one transaction, and only for the member's own
+  // photo: otherwise the current primary would be unset for nothing.
+  await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const own = await tx`SELECT id FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId} FOR UPDATE`;
+    if (own.length === 0) throw new ProfilePhotoNotFoundError();
+    await tx`UPDATE profile_photos SET is_primary = (id = ${photoId}) WHERE user_id = ${userId}`;
+  });
 
   return await getProfilePhotos(userId);
 }

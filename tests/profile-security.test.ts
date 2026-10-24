@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, jpegWithGps, json, makeUser, uploadOk, uploadPhoto, type TestUser } from "./media-helpers";
 
 // Attack scenarios against the profile routes. Needs a running server
 // (TEST_API_URL) and its database (TEST_DATABASE_URL). Every test builds its
@@ -203,6 +203,78 @@ describe("a profile becomes visible once name, birthdate and gender are known", 
     const viewer = await makeUser("half-viewer");
     await putProfile(member, { displayName: "Noa", bio: "Bonjour" });
     expect((await getProfile(viewer, member.id)).status).toBe(404);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Profile photos
+
+const photoCount = async (user: TestUser): Promise<number> => {
+  const [row] = await db<{ n: string }[]>`SELECT COUNT(*) AS n FROM profile_photos WHERE user_id = ${user.id}`;
+  return Number(row?.n);
+};
+
+describe("profile photos", () => {
+  test("a profile holds six photos at most: the seventh is a 409 and leaves no row", async () => {
+    const user = await makeUser("ph-cap");
+    const bytes = await jpegWithGps(60, 60, 1);
+    for (let i = 0; i < 6; i++) expect([i, (await uploadPhoto(user.token, bytes)).status]).toEqual([i, 200]);
+    const seventh = await uploadPhoto(user.token, bytes);
+    expect(seventh.status).toBe(409);
+    expect(await photoCount(user)).toBe(6);
+  });
+
+  test("simultaneous uploads cannot overrun the cap", async () => {
+    const user = await makeUser("ph-race");
+    const bytes = await jpegWithGps(60, 60, 1);
+    const results = await Promise.all(Array.from({ length: 10 }, () => uploadPhoto(user.token, bytes)));
+    expect(results.filter((r) => r.status === 200)).toHaveLength(6);
+    expect(results.filter((r) => r.status === 409)).toHaveLength(4);
+    expect(await photoCount(user)).toBe(6);
+  });
+
+  test("uploads are limited to 20 an hour and member, even when they are refused", async () => {
+    const user = await makeUser("ph-flood");
+    const garbage = new Uint8Array([1, 2, 3, 4]);
+    for (let i = 0; i < 20; i++) expect((await uploadPhoto(user.token, garbage)).status).toBe(400);
+    const limited = await uploadPhoto(user.token, garbage);
+    expect(limited.status).toBe(429);
+    expect(((await limited.json()) as { error: string }).error).toBe("rate_limited");
+  });
+
+  test("removing, promoting or reordering a photo that is not yours is refused without touching yours", async () => {
+    const owner = await makeUser("ph-owner");
+    const intruder = await makeUser("ph-intruder");
+    const bytes = await jpegWithGps(60, 60, 1);
+    const mine = await uploadOk(intruder.token, bytes, true);
+    const theirs = await uploadOk(owner.token, bytes, true);
+
+    const del = await fetch(`${BASE_URL}/api/profile/photos/${theirs.id}`, { method: "DELETE", headers: auth(intruder.token) });
+    expect(del.status).toBe(404);
+    const primary = await fetch(`${BASE_URL}/api/profile/photos/${theirs.id}/primary`, { method: "PUT", headers: auth(intruder.token) });
+    expect(primary.status).toBe(404);
+    const reorder = await fetch(`${BASE_URL}/api/profile/photos/reorder`, {
+      method: "PUT",
+      headers: json(intruder.token),
+      body: JSON.stringify({ photoIds: [theirs.id, mine.id] }),
+    });
+    expect(reorder.status).toBe(400);
+
+    expect(await photoCount(owner)).toBe(1);
+    const [row] = await db<{ is_primary: boolean }[]>`SELECT is_primary FROM profile_photos WHERE id = ${mine.id}`;
+    expect(row?.is_primary).toBe(true);
+  });
+
+  test("a malformed reorder body is a 400 and never leaks an internal message", async () => {
+    const user = await makeUser("ph-reorder");
+    for (const photoIds of ["abc", [1.5], ["x"], [-1], [1, 1]]) {
+      const res = await fetch(`${BASE_URL}/api/profile/photos/reorder`, {
+        method: "PUT",
+        headers: json(user.token),
+        body: JSON.stringify({ photoIds }),
+      });
+      expect([JSON.stringify(photoIds), res.status]).toEqual([JSON.stringify(photoIds), 400]);
+    }
   });
 });
 
