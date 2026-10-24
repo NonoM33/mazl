@@ -165,7 +165,7 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
       // db.ts opens its own connection from DATABASE_URL; compare only if it is the same database.
       if (process.env.DATABASE_URL !== url) return;
       const legacy = await getDiscoverProfiles(ids.viewer!, 50, 0);
-      const wanted = legacy.map((p: { user_id: number }) => p.user_id);
+      const wanted = (legacy as unknown as Array<{ user_id: number }>).map((p) => p.user_id);
       const hydrated = await new PgFeedHydrator(sql).profilesForFeed(wanted);
       expect(JSON.parse(JSON.stringify(hydrated))).toEqual(JSON.parse(JSON.stringify(legacy)));
     });
