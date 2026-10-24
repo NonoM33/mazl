@@ -94,6 +94,7 @@ import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } fr
 import { createWebApp } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
 import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
@@ -355,6 +356,8 @@ registerCredits(app, credits, requireAuth);
 // emits `match:new` via the exported `emitNewMatch` helper below.
 // Server-side daily like cap, in front of POST /api/swipes (docs/web/adr/W07).
 registerLikeAllowance(app, createLikeAllowanceService(sql));
+// Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
+registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
 registerMatchingRoutes(app, { credits });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
