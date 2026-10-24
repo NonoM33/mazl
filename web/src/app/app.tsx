@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ConsentGate } from "../features/consent/consent-gate";
+import { CoupleRequestBanner } from "../features/couple";
 import { DiscreetProvider } from "../features/discreet/discreet-mode";
 import { LoginScreen } from "../features/auth/login-screen";
 import { ShabbatGate } from "../features/shabbat/shabbat-gate";
@@ -31,6 +32,7 @@ function Routed() {
   if (!ready) return <div className="splash"><Wordmark size={40} /></div>;
   return (
     <Shell entries={couple ? COUPLE_ENTRIES : datingEntries(unread)}>
+      <CoupleRequestBanner />
       {"node" in resolved ? resolved.node : null}
       {help && <ShortcutsHelp onClose={() => setHelp(false)} />}
     </Shell>
