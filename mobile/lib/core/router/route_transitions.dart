@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../layout/content_max_width.dart';
+
+// Every `xTransition` is the motion `xMotion` around a page kept in at most
+// [kContentMaxWidth] points, centered: on a regular-width window (inner display
+// of a foldable phone, tablet) a single-column screen keeps readable lines.
+// A compact window is narrower than that and is not touched. The pages that
+// are drawn by the tab shell on a regular window (AdaptiveDetailPage) use the
+// bare motions.
+
 /// Fade transition for smooth page changes
-Widget fadeTransition(
+Widget fadeMotion(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
@@ -14,7 +23,7 @@ Widget fadeTransition(
 }
 
 /// Slide up transition for modals and bottom sheets style
-Widget slideUpTransition(
+Widget slideUpMotion(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
@@ -34,7 +43,7 @@ Widget slideUpTransition(
 }
 
 /// Slide left transition for navigation drill-down
-Widget slideLeftTransition(
+Widget slideLeftMotion(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
@@ -85,7 +94,7 @@ Widget scaleTransition(
 }
 
 /// Hero-like transition combining scale and fade
-Widget heroTransition(
+Widget heroMotion(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
@@ -111,7 +120,7 @@ Widget heroTransition(
 }
 
 /// Shared axis transition (Material Design 3)
-Widget sharedAxisTransition(
+Widget sharedAxisMotion(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
@@ -145,3 +154,44 @@ Widget sharedAxisTransition(
     ),
   );
 }
+
+
+Widget fadeTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) =>
+    fadeMotion(context, animation, secondaryAnimation, ContentMaxWidth(child: child));
+
+Widget slideUpTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) =>
+    slideUpMotion(context, animation, secondaryAnimation, ContentMaxWidth(child: child));
+
+Widget slideLeftTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) =>
+    slideLeftMotion(context, animation, secondaryAnimation, ContentMaxWidth(child: child));
+
+Widget heroTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) =>
+    heroMotion(context, animation, secondaryAnimation, ContentMaxWidth(child: child));
+
+Widget sharedAxisTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) =>
+    sharedAxisMotion(context, animation, secondaryAnimation, ContentMaxWidth(child: child));

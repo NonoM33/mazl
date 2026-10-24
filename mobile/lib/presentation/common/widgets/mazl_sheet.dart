@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/layout/content_max_width.dart';
+import '../../../core/layout/window_size.dart';
+
 /// The only way to open a bottom sheet in the app.
 ///
 /// - On the ROOT navigator: a sheet opened from a tab must cover the floating
@@ -22,6 +25,9 @@ Future<T?> showMazlSheet<T>(
   return showModalBottomSheet<T>(
     context: context,
     useRootNavigator: true,
+    // A regular-width window would stretch the sheet across the display: it
+    // keeps the width of a page's column, centered (unchanged when compact).
+    constraints: isRegularWidth(context) ? const BoxConstraints(maxWidth: kContentMaxWidth) : null,
     showDragHandle: true,
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
