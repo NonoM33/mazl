@@ -2962,6 +2962,344 @@ class AppLocalizationsHe extends AppLocalizations {
       'הבינה המלאכותית שלנו עוזרת למצוא את האדם המתאים.';
 
   @override
+  String get plusFeatureUnlimitedLikesTitle => 'לייקים ללא הגבלה';
+
+  @override
+  String get plusFeatureUnlimitedLikesDescription =>
+      'אפשר לתת לייקים בלי הגבלה יומית.';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouTitle => 'לראות מי אהב אותך';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouDescription =>
+      'אפשר לראות מי אהב אותך עוד לפני שנפגשים.';
+
+  @override
+  String get plusFeatureSuperLikesTitle => 'סופר לייקים';
+
+  @override
+  String get plusFeatureSuperLikesDescription =>
+      'אפשר לבלוט עם 5 סופר לייקים ביום.';
+
+  @override
+  String get plusFeatureBoostTitle => 'בוסט';
+
+  @override
+  String get plusFeatureBoostDescription =>
+      'אפשר להיות בראש הערימה למשך 30 דקות.';
+
+  @override
+  String get plusFeatureRewindTitle => 'חזרה אחורה';
+
+  @override
+  String get plusFeatureRewindDescription => 'אפשר לתקן “דילוג” מהיר מדי.';
+
+  @override
+  String get plusFeatureReadReceiptsTitle => 'אישורי קריאה';
+
+  @override
+  String get plusFeatureReadReceiptsDescription =>
+      'אפשר לדעת מתי ההודעות נקראו.';
+
+  @override
+  String get plusFeatureAdvancedFiltersTitle => 'מסננים מתקדמים';
+
+  @override
+  String get plusFeatureAdvancedFiltersDescription =>
+      'אפשר לסנן לפי מנהגים, קהילה ועוד.';
+
+  @override
+  String get plusFeaturePrioritySupportTitle => 'תמיכה בעדיפות';
+
+  @override
+  String get plusFeaturePrioritySupportDescription =>
+      'אפשר לקבל מענה מהיר מהצוות שלנו.';
+
+  @override
+  String get plusReservedLabel => 'בלעדי ל-mazl+‎';
+
+  @override
+  String get plusDiscover => 'לגלות את mazl+‎';
+
+  @override
+  String get plusNotNow => 'לא עכשיו';
+
+  @override
+  String plusDailyLimitLabel(int limit) {
+    return 'מגבלה יומית · $limit / $limit';
+  }
+
+  @override
+  String get plusDailyLimitTitle => 'הלייקים להיום נגמרו.';
+
+  @override
+  String get plusDailyLimitBody =>
+      'הם חוזרים בחצות. אפשר גם להמשיך בלי לספור ולראות מי כבר אהב אותך.';
+
+  @override
+  String get plusDailyLimitNext => 'הלייקים הבאים בעוד';
+
+  @override
+  String get plusDailyLimitWait => 'להמתין עד חצות';
+
+  @override
+  String get plusOfferTagline => 'להכיר בלי לספור.';
+
+  @override
+  String get plusPerkUnlimitedLikesDetail => 'בלי המגבלה של 10 ביום.';
+
+  @override
+  String get plusPerkSeeWhoDetail => 'עוד לפני שנפגשים.';
+
+  @override
+  String get plusPerkSuperLikesTitle => '5 סופר לייקים ביום';
+
+  @override
+  String get plusPerkSuperLikesDetail => 'במקום אחד בלבד.';
+
+  @override
+  String get plusPerkBoostTitle => 'בוסט אחד ביום';
+
+  @override
+  String get plusPerkBoostDetail => 'בראש הערימה למשך 30 דקות.';
+
+  @override
+  String get plusPerkFiltersDetail => 'מנהגים, קהילה ועוד.';
+
+  @override
+  String get plusYourPlan => 'המסלול שלך';
+
+  @override
+  String plusMonths(int months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months חודשים',
+      two: 'חודשיים',
+      one: 'חודש אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plusPerMonth(String price) {
+    return '$price לחודש';
+  }
+
+  @override
+  String plusPlanSavings(int percent) {
+    return '‎-$percent%';
+  }
+
+  @override
+  String plusPlanSemantics(String duration, String price, String perMonth) {
+    return '$duration, $price, $perMonth';
+  }
+
+  @override
+  String plusPlanSemanticsSaving(
+    String duration,
+    String price,
+    String perMonth,
+    String saving,
+  ) {
+    return '$duration, $price, $perMonth, חיסכון של $saving';
+  }
+
+  @override
+  String plusContinuePrice(String price) {
+    return 'להמשיך · $price';
+  }
+
+  @override
+  String get plusAndroidSoon => 'בקרוב באנדרואיד';
+
+  @override
+  String get plusRestore => 'שחזור';
+
+  @override
+  String get plusTerms => 'תנאי שימוש';
+
+  @override
+  String get plusPrivacy => 'פרטיות';
+
+  @override
+  String get plusLegalAppStore =>
+      'חידוש אוטומטי, אפשר לבטל בכל עת בהגדרות של App Store.';
+
+  @override
+  String get plusLegalGooglePlay =>
+      'חידוש אוטומטי, אפשר לבטל בכל עת בהגדרות של Google Play.';
+
+  @override
+  String get plusPendingApproval =>
+      'הרכישה ממתינה לאישור. המנוי יופעל מיד לאחר האישור.';
+
+  @override
+  String get plusOfferRestored => 'המנוי שוחזר';
+
+  @override
+  String get plusOfferNothingFound => 'לא נמצא מנוי';
+
+  @override
+  String get plusPlansSoon => 'המנויים יהיו זמינים בקרוב.';
+
+  @override
+  String get plusErrorPurchaseInProgress => 'כבר מתבצעת רכישה.';
+
+  @override
+  String get plusErrorOwnedByAnotherAccount =>
+      'הרכישה הזו ב-App Store כבר משויכת לחשבון mazl אחר.';
+
+  @override
+  String get plusErrorInvalidTransaction =>
+      'לא ניתן היה לאמת את הרכישה מול App Store. היא תיבדק שוב בהפעלה הבאה.';
+
+  @override
+  String get plusErrorInvalidBody =>
+      'לא ניתן היה להעביר את הרכישה כראוי. אפשר לנסות שוב בעוד רגע.';
+
+  @override
+  String get plusErrorSignInAgain =>
+      'יש להתחבר שוב ל-mazl כדי להשלים את הרכישה.';
+
+  @override
+  String get plusErrorOffline => 'אין חיבור. הרכישה נשמרת ותאומת בהקדם האפשרי.';
+
+  @override
+  String get plusErrorGeneric => 'הרכישה לא הושלמה. אפשר לנסות שוב בעוד רגע.';
+
+  @override
+  String get plusErrorInactive => 'המנוי אינו פעיל.';
+
+  @override
+  String get plusErrorRestoreFailed => 'השחזור נכשל. אפשר לנסות שוב בעוד רגע.';
+
+  @override
+  String get plusActiveSubscription => 'מנוי פעיל';
+
+  @override
+  String plusActiveSubscriptionPlan(String plan) {
+    return 'מנוי פעיל · $plan';
+  }
+
+  @override
+  String get plusWelcomeTitle => 'ברוכים הבאים ל-mazl+‎.';
+
+  @override
+  String get plusWelcomeSubtitle => 'הכול פתוח. מאיפה מתחילים?';
+
+  @override
+  String plusWelcomeLikesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count אנשים אהבו אותך',
+      two: 'שני אנשים אהבו אותך',
+      one: 'אדם אחד אהב אותך',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plusWelcomeLikesDetail => 'לראות אותם עכשיו';
+
+  @override
+  String get plusWelcomeBoostTitle => 'להפעיל את הבוסט';
+
+  @override
+  String get plusWelcomeBoostDetail => 'בראש הערימה למשך 30 דקות';
+
+  @override
+  String get plusWelcomeFiltersTitle => 'לדייק את המסננים';
+
+  @override
+  String get plusWelcomeFiltersDetail => 'מנהגים, קהילה ועוד';
+
+  @override
+  String plusTitleDetail(String title, String detail) {
+    return '$title. $detail';
+  }
+
+  @override
+  String get plusSubscriptionTitle => 'מנוי';
+
+  @override
+  String get plusStatusActive => 'פעיל';
+
+  @override
+  String get plusStatusCancelled => 'בוטל';
+
+  @override
+  String get plusFactPlan => 'מסלול';
+
+  @override
+  String get plusFactRenewal => 'חידוש';
+
+  @override
+  String get plusFactExpiration => 'תפוגה';
+
+  @override
+  String plusPlanAndPrice(String duration, String price) {
+    return '$duration · $price';
+  }
+
+  @override
+  String plusSuperLikesOf(int left, int max) {
+    return '$left מתוך $max';
+  }
+
+  @override
+  String get plusBoostAvailable => 'זמין';
+
+  @override
+  String get plusBoostUsed => 'נוצל היום';
+
+  @override
+  String get plusLikesLabel => 'לייקים';
+
+  @override
+  String get plusLikesUnlimited => 'ללא הגבלה';
+
+  @override
+  String get plusManageAppStore => 'לניהול ב-App Store';
+
+  @override
+  String get plusManageGooglePlay => 'לניהול ב-Google Play';
+
+  @override
+  String get plusManageFailed => 'לא ניתן לפתוח את ניהול המנוי.';
+
+  @override
+  String get plusRestorePurchases => 'לשחזר את הרכישות';
+
+  @override
+  String get plusNoActiveSubscription => 'אין מנוי פעיל.';
+
+  @override
+  String get plusPurchasesRestored => 'הרכישות שוחזרו.';
+
+  @override
+  String get plusNothingToRestore => 'לא נמצא מנוי.';
+
+  @override
+  String get plusSettingsPitch => 'לייקים ללא הגבלה, לראות מי אהב אותך, בוסט';
+
+  @override
+  String get plusUpgradeTo => 'לשדרג ל-mazl+‎';
+
+  @override
+  String plusSettingsSemanticsActive(String detail) {
+    return 'mazl+‎. $detail';
+  }
+
+  @override
+  String plusSettingsSemanticsUpgrade(String detail) {
+    return 'לשדרג ל-mazl+‎. $detail';
+  }
+
+  @override
   String get profileMyProfile => 'הפרופיל שלי';
 
   @override

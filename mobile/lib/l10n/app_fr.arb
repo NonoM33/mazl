@@ -3909,6 +3909,468 @@
   "@onboardingPage5Body": {
     "description": "Présentation, page 5 : texte."
   },
+  "plusFeatureUnlimitedLikesTitle": "Likes illimités",
+  "@plusFeatureUnlimitedLikesTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction « likes sans limite quotidienne », et titre du premier avantage de l'offre mazl+."
+  },
+  "plusFeatureUnlimitedLikesDescription": "Likez autant que vous voulez, sans limite quotidienne.",
+  "@plusFeatureUnlimitedLikesDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les likes illimités."
+  },
+  "plusFeatureSeeWhoLikesYouTitle": "Voir qui vous a aimé",
+  "@plusFeatureSeeWhoLikesYouTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction « voir qui a aimé votre profil », titre d'un avantage de l'offre, et titre de la première action de l'écran de bienvenue quand le nombre de likes est inconnu."
+  },
+  "plusFeatureSeeWhoLikesYouDescription": "Voyez qui vous a aimé avant même de le croiser.",
+  "@plusFeatureSeeWhoLikesYouDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour la fonction « voir qui vous a aimé ». « Croiser » = tomber sur son profil dans Découvrir."
+  },
+  "plusFeatureSuperLikesTitle": "Super Likes",
+  "@plusFeatureSuperLikesTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour les Super Likes, et libellé de la ligne « Super Likes » de l'écran Abonnement. Nom de la fonction : même terme que sur le bouton de la carte dans Découvrir."
+  },
+  "plusFeatureSuperLikesDescription": "Faites-vous remarquer avec 5 Super Likes par jour.",
+  "@plusFeatureSuperLikesDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les Super Likes. Le chiffre 5 est le quota quotidien des abonnés."
+  },
+  "plusFeatureBoostTitle": "Boost",
+  "@plusFeatureBoostTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour le Boost, et libellé de la ligne « Boost » de l'écran Abonnement. Nom de la fonction : même terme que dans l'écran Boost."
+  },
+  "plusFeatureBoostDescription": "Soyez en tête de pile pendant 30 minutes.",
+  "@plusFeatureBoostDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le Boost. « En tête de pile » = votre profil est montré en premier aux autres membres."
+  },
+  "plusFeatureRewindTitle": "Revenir en arrière",
+  "@plusFeatureRewindTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre."
+  },
+  "plusFeatureRewindDescription": "Rattrapez un « Passer » trop rapide.",
+  "@plusFeatureRewindDescription": {
+    "description": "Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte."
+  },
+  "plusFeatureReadReceiptsTitle": "Confirmations de lecture",
+  "@plusFeatureReadReceiptsTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture des messages."
+  },
+  "plusFeatureReadReceiptsDescription": "Sachez quand vos messages ont été lus.",
+  "@plusFeatureReadReceiptsDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture."
+  },
+  "plusFeatureAdvancedFiltersTitle": "Filtres avancés",
+  "@plusFeatureAdvancedFiltersTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour les filtres avancés, et titre d'un avantage de l'offre."
+  },
+  "plusFeatureAdvancedFiltersDescription": "Filtrez par pratique, communauté, et plus.",
+  "@plusFeatureAdvancedFiltersDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les filtres avancés. « Pratique » = pratique religieuse (casher, Shabbat…)."
+  },
+  "plusFeaturePrioritySupportTitle": "Support prioritaire",
+  "@plusFeaturePrioritySupportTitle": {
+    "description": "Titre de la fenêtre « Réservé à mazl+ » pour le support prioritaire."
+  },
+  "plusFeaturePrioritySupportDescription": "Obtenez une réponse rapide de notre équipe.",
+  "@plusFeaturePrioritySupportDescription": {
+    "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le support prioritaire."
+  },
+  "plusReservedLabel": "Réservé à mazl+",
+  "@plusReservedLabel": {
+    "description": "Petit titre en capitales au-dessus du titre de la fenêtre qui explique une fonction réservée aux abonnés. « mazl+ » est le nom de marque : il reste écrit tel quel."
+  },
+  "plusDiscover": "Découvrir mazl+",
+  "@plusDiscover": {
+    "description": "Bouton plein des fenêtres du bas et de l'écran Abonnement : ouvre l'offre mazl+. « mazl+ » est le nom de marque, il reste écrit tel quel dans la phrase (« mazl » sera mis en gras, son « + » en couleur)."
+  },
+  "plusNotNow": "Pas maintenant",
+  "@plusNotNow": {
+    "description": "Bouton discret de la fenêtre « Réservé à mazl+ » : ferme la fenêtre sans ouvrir l'offre."
+  },
+  "plusDailyLimitLabel": "Limite du jour · {limit} / {limit}",
+  "@plusDailyLimitLabel": {
+    "description": "Petit titre en capitales de la fenêtre « likes du jour épuisés ». {limit} est le nombre de likes gratuits par jour, écrit deux fois (utilisés / total).",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "plusDailyLimitTitle": "Vos likes du jour sont partis.",
+  "@plusDailyLimitTitle": {
+    "description": "Grand titre de la fenêtre affichée quand les likes gratuits du jour sont épuisés."
+  },
+  "plusDailyLimitBody": "Ils reviennent à minuit. Ou continuez sans compter, et voyez qui vous a déjà aimé.",
+  "@plusDailyLimitBody": {
+    "description": "Texte sous le titre de la fenêtre « likes du jour épuisés » : les likes reviennent à minuit, ou l'abonnement lève la limite."
+  },
+  "plusDailyLimitNext": "Prochains likes dans",
+  "@plusDailyLimitNext": {
+    "description": "Libellé à gauche du compte à rebours (hh:mm:ss) dans la fenêtre « likes du jour épuisés ». Le compte à rebours s'affiche juste après, à droite : le texte doit rester court."
+  },
+  "plusDailyLimitWait": "Attendre minuit",
+  "@plusDailyLimitWait": {
+    "description": "Bouton discret de la fenêtre « likes du jour épuisés » : ferme la fenêtre sans ouvrir l'offre."
+  },
+  "plusOfferTagline": "Rencontrez sans compter.",
+  "@plusOfferTagline": {
+    "description": "Phrase d'accroche sous le logo « mazl+ » en haut de l'écran d'offre."
+  },
+  "plusPerkUnlimitedLikesDetail": "Fini les 10 par jour.",
+  "@plusPerkUnlimitedLikesDetail": {
+    "description": "Ligne grise sous « Likes illimités » dans la liste des avantages de l'offre. 10 = nombre de likes gratuits par jour."
+  },
+  "plusPerkSeeWhoDetail": "Avant même de les croiser.",
+  "@plusPerkSeeWhoDetail": {
+    "description": "Ligne grise sous « Voir qui vous a aimé » dans la liste des avantages de l'offre."
+  },
+  "plusPerkSuperLikesTitle": "5 Super Likes par jour",
+  "@plusPerkSuperLikesTitle": {
+    "description": "Titre d'un avantage de l'offre mazl+ (le quota des abonnés)."
+  },
+  "plusPerkSuperLikesDetail": "Au lieu d’un seul.",
+  "@plusPerkSuperLikesDetail": {
+    "description": "Ligne grise sous « 5 Super Likes par jour » : un compte gratuit n'en a qu'un par jour."
+  },
+  "plusPerkBoostTitle": "Un Boost par jour",
+  "@plusPerkBoostTitle": {
+    "description": "Titre d'un avantage de l'offre mazl+."
+  },
+  "plusPerkBoostDetail": "En tête de pile pendant 30 minutes.",
+  "@plusPerkBoostDetail": {
+    "description": "Ligne grise sous « Un Boost par jour » dans la liste des avantages de l'offre."
+  },
+  "plusPerkFiltersDetail": "Pratique, communauté, et plus.",
+  "@plusPerkFiltersDetail": {
+    "description": "Ligne grise sous « Filtres avancés » dans la liste des avantages de l'offre. « Pratique » = pratique religieuse."
+  },
+  "plusYourPlan": "Votre formule",
+  "@plusYourPlan": {
+    "description": "Petit titre en capitales au-dessus de la liste des durées d'abonnement (1, 3, 6, 12 mois)."
+  },
+  "plusMonths": "{months, plural, =1{1 mois} other{{months} mois}}",
+  "@plusMonths": {
+    "description": "Durée d'une formule d'abonnement, en mois : « 1 mois », « 3 mois », « 12 mois ». Sert de titre à chaque ligne de formule et de durée dans l'écran Abonnement et dans les réglages.",
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "plusPerMonth": "{price} par mois",
+  "@plusPerMonth": {
+    "description": "Prix par mois d'une formule, sous sa durée. {price} est le prix déjà formaté avec la devise du magasin (« 15,00 € »).",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plusPlanSavings": "-{percent} %",
+  "@plusPlanSavings": {
+    "description": "Pastille d'économie d'une formule longue par rapport au prix du mois seul. {percent} est un nombre entier (25, 42, 58). Doit rester très court.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "plusPlanSemantics": "{duration}, {price}, {perMonth}",
+  "@plusPlanSemantics": {
+    "description": "Phrase lue par le lecteur d'écran pour une ligne de formule sans économie. {duration} = « 3 mois », {price} = prix total, {perMonth} = « 15,00 € par mois ».",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "perMonth": {
+        "type": "String"
+      }
+    }
+  },
+  "plusPlanSemanticsSaving": "{duration}, {price}, {perMonth}, économie {saving}",
+  "@plusPlanSemanticsSaving": {
+    "description": "Phrase lue par le lecteur d'écran pour une ligne de formule avec économie. {saving} = « -25 % ».",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "perMonth": {
+        "type": "String"
+      },
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "plusContinuePrice": "Continuer · {price}",
+  "@plusContinuePrice": {
+    "description": "Bouton d'achat de l'écran d'offre. {price} est le prix total de la formule choisie, déjà formaté avec la devise du magasin.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plusAndroidSoon": "Bientôt disponible sur Android",
+  "@plusAndroidSoon": {
+    "description": "Texte du bouton d'achat (désactivé) et message d'achat sur Android, où l'abonnement n'est pas encore vendu."
+  },
+  "plusRestore": "Restaurer",
+  "@plusRestore": {
+    "description": "Bouton texte en haut à droite de l'écran d'offre : restaure un achat déjà fait avec cet identifiant Apple."
+  },
+  "plusTerms": "Conditions",
+  "@plusTerms": {
+    "description": "Lien en bas de l'écran d'offre vers les conditions d'utilisation."
+  },
+  "plusPrivacy": "Confidentialité",
+  "@plusPrivacy": {
+    "description": "Lien en bas de l'écran d'offre vers la politique de confidentialité."
+  },
+  "plusLegalAppStore": "Renouvellement automatique, résiliable à tout moment dans les réglages de l’App Store.",
+  "@plusLegalAppStore": {
+    "description": "Mention légale obligatoire sous le bouton d'achat sur iPhone : l'abonnement se renouvelle seul et se résilie dans les réglages du compte Apple. À traduire fidèlement, sans rien ajouter ni retirer."
+  },
+  "plusLegalGooglePlay": "Renouvellement automatique, résiliable à tout moment dans les réglages de Google Play.",
+  "@plusLegalGooglePlay": {
+    "description": "Mention légale obligatoire sous le bouton d'achat sur Android : l'abonnement se renouvelle seul et se résilie dans les réglages de Google Play. À traduire fidèlement, sans rien ajouter ni retirer."
+  },
+  "plusPendingApproval": "Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.",
+  "@plusPendingApproval": {
+    "description": "Message bref après un achat qui attend l'accord d'un parent ou du magasin (Ask to Buy)."
+  },
+  "plusOfferRestored": "Abonnement restauré",
+  "@plusOfferRestored": {
+    "description": "Message bref (vert) quand « Restaurer » depuis l'écran d'offre a retrouvé un abonnement."
+  },
+  "plusOfferNothingFound": "Aucun abonnement trouvé",
+  "@plusOfferNothingFound": {
+    "description": "Message bref quand « Restaurer » depuis l'écran d'offre ne trouve aucun abonnement."
+  },
+  "plusPlansSoon": "Les abonnements seront disponibles prochainement.",
+  "@plusPlansSoon": {
+    "description": "Message bref quand le magasin n'a pas encore de produit à vendre (formules de secours affichées)."
+  },
+  "plusErrorPurchaseInProgress": "Un achat est déjà en cours.",
+  "@plusErrorPurchaseInProgress": {
+    "description": "Message bref quand on lance un second achat alors qu'un premier n'est pas terminé."
+  },
+  "plusErrorOwnedByAnotherAccount": "Cet achat App Store est déjà associé à un autre compte mazl.",
+  "@plusErrorOwnedByAnotherAccount": {
+    "description": "Message d'erreur : l'abonnement acheté avec cet identifiant Apple est déjà lié à un autre compte mazl."
+  },
+  "plusErrorInvalidTransaction": "Nous n’avons pas pu valider cet achat auprès de l’App Store. Il sera revérifié au prochain lancement.",
+  "@plusErrorInvalidTransaction": {
+    "description": "Message d'erreur : le serveur n'a pas pu valider la transaction Apple ; elle sera revérifiée au prochain lancement de l'app."
+  },
+  "plusErrorInvalidBody": "Votre achat n’a pas pu être transmis correctement. Réessayez dans un instant.",
+  "@plusErrorInvalidBody": {
+    "description": "Message d'erreur : le serveur a refusé les données envoyées pour l'achat."
+  },
+  "plusErrorSignInAgain": "Reconnectez-vous à mazl pour finaliser votre achat.",
+  "@plusErrorSignInAgain": {
+    "description": "Message d'erreur : la session a expiré pendant l'achat. L'achat est conservé et sera validé après reconnexion."
+  },
+  "plusErrorOffline": "Connexion impossible. Votre achat est conservé et sera validé dès que possible.",
+  "@plusErrorOffline": {
+    "description": "Message d'erreur : pas de réseau ou serveur injoignable pendant la validation d'un achat. L'achat est gardé et sera validé plus tard."
+  },
+  "plusErrorGeneric": "L’achat n’a pas pu aboutir. Réessayez dans un instant.",
+  "@plusErrorGeneric": {
+    "description": "Message d'erreur général quand un achat échoue sans cause plus précise."
+  },
+  "plusErrorInactive": "Votre abonnement n’est pas actif.",
+  "@plusErrorInactive": {
+    "description": "Message d'erreur : le serveur a bien reçu l'achat mais l'abonnement n'est pas actif (par exemple déjà expiré)."
+  },
+  "plusErrorRestoreFailed": "La restauration a échoué. Réessayez dans un instant.",
+  "@plusErrorRestoreFailed": {
+    "description": "Message d'erreur quand la restauration des achats échoue."
+  },
+  "plusActiveSubscription": "Abonnement actif",
+  "@plusActiveSubscription": {
+    "description": "Petit titre en capitales de l'écran de bienvenue (quand la formule est inconnue) et sous-titre de la ligne mazl+ des réglages quand aucun détail n'est connu."
+  },
+  "plusActiveSubscriptionPlan": "Abonnement actif · {plan}",
+  "@plusActiveSubscriptionPlan": {
+    "description": "Petit titre en capitales de l'écran de bienvenue. {plan} est la durée de la formule (« 6 mois »).",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "plusWelcomeTitle": "Bienvenue dans mazl+.",
+  "@plusWelcomeTitle": {
+    "description": "Grand titre de l'écran de bienvenue après l'achat. « mazl+ » est le nom de marque : il reste écrit tel quel (« mazl » en gras, son « + » en couleur)."
+  },
+  "plusWelcomeSubtitle": "Tout est déverrouillé. Par où commencer ?",
+  "@plusWelcomeSubtitle": {
+    "description": "Phrase sous le titre de l'écran de bienvenue, avant les trois actions proposées."
+  },
+  "plusWelcomeLikesCount": "{count, plural, one{1 personne vous a aimé} other{{count} personnes vous ont aimé}}",
+  "@plusWelcomeLikesCount": {
+    "description": "Titre de la première action de l'écran de bienvenue : combien de membres ont aimé le profil ({count} est toujours au moins 1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plusWelcomeLikesDetail": "Les voir maintenant",
+  "@plusWelcomeLikesDetail": {
+    "description": "Ligne grise de la première action de l'écran de bienvenue : ouvre la liste des likes."
+  },
+  "plusWelcomeBoostTitle": "Lancer votre Boost",
+  "@plusWelcomeBoostTitle": {
+    "description": "Titre de la deuxième action de l'écran de bienvenue : mène à Découvrir pour lancer un Boost."
+  },
+  "plusWelcomeBoostDetail": "En tête de pile pendant 30 minutes",
+  "@plusWelcomeBoostDetail": {
+    "description": "Ligne grise de l'action « Lancer votre Boost » de l'écran de bienvenue (sans point final)."
+  },
+  "plusWelcomeFiltersTitle": "Affiner vos filtres",
+  "@plusWelcomeFiltersTitle": {
+    "description": "Titre de la troisième action de l'écran de bienvenue : ouvre les filtres."
+  },
+  "plusWelcomeFiltersDetail": "Pratique, communauté, et plus",
+  "@plusWelcomeFiltersDetail": {
+    "description": "Ligne grise de l'action « Affiner vos filtres » de l'écran de bienvenue (sans point final). « Pratique » = pratique religieuse."
+  },
+  "plusTitleDetail": "{title}. {detail}",
+  "@plusTitleDetail": {
+    "description": "Phrase lue par le lecteur d'écran pour une action de l'écran de bienvenue : son titre puis sa ligne grise.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "plusSubscriptionTitle": "Abonnement",
+  "@plusSubscriptionTitle": {
+    "description": "Grand titre de l'écran de gestion de l'abonnement mazl+."
+  },
+  "plusStatusActive": "Actif",
+  "@plusStatusActive": {
+    "description": "Pastille de la carte mazl+ quand l'abonnement se renouvelle."
+  },
+  "plusStatusCancelled": "Résilié",
+  "@plusStatusCancelled": {
+    "description": "Pastille de la carte mazl+ quand l'abonnement a été résilié et se termine à l'échéance."
+  },
+  "plusFactPlan": "Formule",
+  "@plusFactPlan": {
+    "description": "Petit libellé (affiché en capitales) au-dessus de la durée et du prix de la formule, sur la carte mazl+."
+  },
+  "plusFactRenewal": "Renouvellement",
+  "@plusFactRenewal": {
+    "description": "Petit libellé (affiché en capitales) au-dessus de la date de prochain renouvellement, sur la carte mazl+."
+  },
+  "plusFactExpiration": "Expiration",
+  "@plusFactExpiration": {
+    "description": "Petit libellé (affiché en capitales) au-dessus de la date de fin quand l'abonnement est résilié."
+  },
+  "plusPlanAndPrice": "{duration} · {price}",
+  "@plusPlanAndPrice": {
+    "description": "Formule sur la carte mazl+ : durée puis prix. {duration} = « 6 mois », {price} = prix du magasin « 59,99 € ».",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plusSuperLikesOf": "{left} sur {max}",
+  "@plusSuperLikesOf": {
+    "description": "Valeur de la ligne Super Likes de l'écran Abonnement : restants sur total du jour (« 4 sur 5 »).",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "plusBoostAvailable": "Disponible",
+  "@plusBoostAvailable": {
+    "description": "Valeur de la ligne Boost de l'écran Abonnement quand le Boost du jour n'est pas encore utilisé."
+  },
+  "plusBoostUsed": "Utilisé aujourd’hui",
+  "@plusBoostUsed": {
+    "description": "Valeur de la ligne Boost de l'écran Abonnement quand le Boost du jour est déjà utilisé."
+  },
+  "plusLikesLabel": "Likes",
+  "@plusLikesLabel": {
+    "description": "Libellé de la ligne Likes de l'écran Abonnement."
+  },
+  "plusLikesUnlimited": "Illimités",
+  "@plusLikesUnlimited": {
+    "description": "Valeur de la ligne Likes de l'écran Abonnement : pas de limite quotidienne."
+  },
+  "plusManageAppStore": "Gérer dans l’App Store",
+  "@plusManageAppStore": {
+    "description": "Bouton en contour de l'écran Abonnement sur iPhone : ouvre la gestion des abonnements de l'App Store."
+  },
+  "plusManageGooglePlay": "Gérer dans Google Play",
+  "@plusManageGooglePlay": {
+    "description": "Bouton en contour de l'écran Abonnement sur Android : ouvre la gestion des abonnements de Google Play."
+  },
+  "plusManageFailed": "Impossible d’ouvrir la gestion de l’abonnement.",
+  "@plusManageFailed": {
+    "description": "Message bref quand la page de gestion des abonnements du magasin ne s'ouvre pas."
+  },
+  "plusRestorePurchases": "Restaurer mes achats",
+  "@plusRestorePurchases": {
+    "description": "Bouton texte en bas de l'écran Abonnement."
+  },
+  "plusNoActiveSubscription": "Aucun abonnement actif.",
+  "@plusNoActiveSubscription": {
+    "description": "Texte de l'écran Abonnement quand le membre n'a pas d'abonnement."
+  },
+  "plusPurchasesRestored": "Achats restaurés.",
+  "@plusPurchasesRestored": {
+    "description": "Message bref de l'écran Abonnement après une restauration réussie."
+  },
+  "plusNothingToRestore": "Aucun abonnement trouvé.",
+  "@plusNothingToRestore": {
+    "description": "Message bref de l'écran Abonnement quand la restauration ne trouve rien."
+  },
+  "plusSettingsPitch": "Likes illimités, voir qui vous a aimé, Boost",
+  "@plusSettingsPitch": {
+    "description": "Sous-titre de la ligne « Passer à mazl+ » des réglages (compte gratuit) : les trois avantages phares. Une ligne, 13 px."
+  },
+  "plusUpgradeTo": "Passer à mazl+",
+  "@plusUpgradeTo": {
+    "description": "Titre de la ligne des réglages qui mène à l'offre (compte gratuit). « mazl+ » est le nom de marque : il reste écrit tel quel (« mazl » en gras, son « + » en couleur)."
+  },
+  "plusSettingsSemanticsActive": "mazl+. {detail}",
+  "@plusSettingsSemanticsActive": {
+    "description": "Phrase lue par le lecteur d'écran pour la ligne mazl+ des réglages d'un abonné. {detail} = « 6 mois · renouvellement le 12 mars 2027 ».",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "plusSettingsSemanticsUpgrade": "Passer à mazl+. {detail}",
+  "@plusSettingsSemanticsUpgrade": {
+    "description": "Phrase lue par le lecteur d'écran pour la ligne « Passer à mazl+ » des réglages d'un compte gratuit. {detail} = la liste des avantages phares.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "profileMyProfile": "Mon profil",
   "@profileMyProfile": {
     "description": "Profil du membre : étiquette en capitales tout en haut de son propre profil."

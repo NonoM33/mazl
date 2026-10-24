@@ -5088,6 +5088,563 @@ abstract class AppLocalizations {
   /// **'Notre intelligence artificielle vous aide à trouver la bonne personne.'**
   String get onboardingPage5Body;
 
+  /// Titre de la fenêtre « Réservé à mazl+ » pour la fonction « likes sans limite quotidienne », et titre du premier avantage de l'offre mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes illimités'**
+  String get plusFeatureUnlimitedLikesTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les likes illimités.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likez autant que vous voulez, sans limite quotidienne.'**
+  String get plusFeatureUnlimitedLikesDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour la fonction « voir qui a aimé votre profil », titre d'un avantage de l'offre, et titre de la première action de l'écran de bienvenue quand le nombre de likes est inconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir qui vous a aimé'**
+  String get plusFeatureSeeWhoLikesYouTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour la fonction « voir qui vous a aimé ». « Croiser » = tomber sur son profil dans Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyez qui vous a aimé avant même de le croiser.'**
+  String get plusFeatureSeeWhoLikesYouDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour les Super Likes, et libellé de la ligne « Super Likes » de l'écran Abonnement. Nom de la fonction : même terme que sur le bouton de la carte dans Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Likes'**
+  String get plusFeatureSuperLikesTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les Super Likes. Le chiffre 5 est le quota quotidien des abonnés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faites-vous remarquer avec 5 Super Likes par jour.'**
+  String get plusFeatureSuperLikesDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour le Boost, et libellé de la ligne « Boost » de l'écran Abonnement. Nom de la fonction : même terme que dans l'écran Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get plusFeatureBoostTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le Boost. « En tête de pile » = votre profil est montré en premier aux autres membres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soyez en tête de pile pendant 30 minutes.'**
+  String get plusFeatureBoostDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir en arrière'**
+  String get plusFeatureRewindTitle;
+
+  /// Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattrapez un « Passer » trop rapide.'**
+  String get plusFeatureRewindDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture des messages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmations de lecture'**
+  String get plusFeatureReadReceiptsTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sachez quand vos messages ont été lus.'**
+  String get plusFeatureReadReceiptsDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour les filtres avancés, et titre d'un avantage de l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres avancés'**
+  String get plusFeatureAdvancedFiltersTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour les filtres avancés. « Pratique » = pratique religieuse (casher, Shabbat…).
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtrez par pratique, communauté, et plus.'**
+  String get plusFeatureAdvancedFiltersDescription;
+
+  /// Titre de la fenêtre « Réservé à mazl+ » pour le support prioritaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Support prioritaire'**
+  String get plusFeaturePrioritySupportTitle;
+
+  /// Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le support prioritaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenez une réponse rapide de notre équipe.'**
+  String get plusFeaturePrioritySupportDescription;
+
+  /// Petit titre en capitales au-dessus du titre de la fenêtre qui explique une fonction réservée aux abonnés. « mazl+ » est le nom de marque : il reste écrit tel quel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé à mazl+'**
+  String get plusReservedLabel;
+
+  /// Bouton plein des fenêtres du bas et de l'écran Abonnement : ouvre l'offre mazl+. « mazl+ » est le nom de marque, il reste écrit tel quel dans la phrase (« mazl » sera mis en gras, son « + » en couleur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mazl+'**
+  String get plusDiscover;
+
+  /// Bouton discret de la fenêtre « Réservé à mazl+ » : ferme la fenêtre sans ouvrir l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get plusNotNow;
+
+  /// Petit titre en capitales de la fenêtre « likes du jour épuisés ». {limit} est le nombre de likes gratuits par jour, écrit deux fois (utilisés / total).
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite du jour · {limit} / {limit}'**
+  String plusDailyLimitLabel(int limit);
+
+  /// Grand titre de la fenêtre affichée quand les likes gratuits du jour sont épuisés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos likes du jour sont partis.'**
+  String get plusDailyLimitTitle;
+
+  /// Texte sous le titre de la fenêtre « likes du jour épuisés » : les likes reviennent à minuit, ou l'abonnement lève la limite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ils reviennent à minuit. Ou continuez sans compter, et voyez qui vous a déjà aimé.'**
+  String get plusDailyLimitBody;
+
+  /// Libellé à gauche du compte à rebours (hh:mm:ss) dans la fenêtre « likes du jour épuisés ». Le compte à rebours s'affiche juste après, à droite : le texte doit rester court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochains likes dans'**
+  String get plusDailyLimitNext;
+
+  /// Bouton discret de la fenêtre « likes du jour épuisés » : ferme la fenêtre sans ouvrir l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attendre minuit'**
+  String get plusDailyLimitWait;
+
+  /// Phrase d'accroche sous le logo « mazl+ » en haut de l'écran d'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rencontrez sans compter.'**
+  String get plusOfferTagline;
+
+  /// Ligne grise sous « Likes illimités » dans la liste des avantages de l'offre. 10 = nombre de likes gratuits par jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fini les 10 par jour.'**
+  String get plusPerkUnlimitedLikesDetail;
+
+  /// Ligne grise sous « Voir qui vous a aimé » dans la liste des avantages de l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant même de les croiser.'**
+  String get plusPerkSeeWhoDetail;
+
+  /// Titre d'un avantage de l'offre mazl+ (le quota des abonnés).
+  ///
+  /// In fr, this message translates to:
+  /// **'5 Super Likes par jour'**
+  String get plusPerkSuperLikesTitle;
+
+  /// Ligne grise sous « 5 Super Likes par jour » : un compte gratuit n'en a qu'un par jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au lieu d’un seul.'**
+  String get plusPerkSuperLikesDetail;
+
+  /// Titre d'un avantage de l'offre mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un Boost par jour'**
+  String get plusPerkBoostTitle;
+
+  /// Ligne grise sous « Un Boost par jour » dans la liste des avantages de l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tête de pile pendant 30 minutes.'**
+  String get plusPerkBoostDetail;
+
+  /// Ligne grise sous « Filtres avancés » dans la liste des avantages de l'offre. « Pratique » = pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique, communauté, et plus.'**
+  String get plusPerkFiltersDetail;
+
+  /// Petit titre en capitales au-dessus de la liste des durées d'abonnement (1, 3, 6, 12 mois).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre formule'**
+  String get plusYourPlan;
+
+  /// Durée d'une formule d'abonnement, en mois : « 1 mois », « 3 mois », « 12 mois ». Sert de titre à chaque ligne de formule et de durée dans l'écran Abonnement et dans les réglages.
+  ///
+  /// In fr, this message translates to:
+  /// **'{months, plural, =1{1 mois} other{{months} mois}}'**
+  String plusMonths(int months);
+
+  /// Prix par mois d'une formule, sous sa durée. {price} est le prix déjà formaté avec la devise du magasin (« 15,00 € »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{price} par mois'**
+  String plusPerMonth(String price);
+
+  /// Pastille d'économie d'une formule longue par rapport au prix du mois seul. {percent} est un nombre entier (25, 42, 58). Doit rester très court.
+  ///
+  /// In fr, this message translates to:
+  /// **'-{percent} %'**
+  String plusPlanSavings(int percent);
+
+  /// Phrase lue par le lecteur d'écran pour une ligne de formule sans économie. {duration} = « 3 mois », {price} = prix total, {perMonth} = « 15,00 € par mois ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{duration}, {price}, {perMonth}'**
+  String plusPlanSemantics(String duration, String price, String perMonth);
+
+  /// Phrase lue par le lecteur d'écran pour une ligne de formule avec économie. {saving} = « -25 % ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{duration}, {price}, {perMonth}, économie {saving}'**
+  String plusPlanSemanticsSaving(
+    String duration,
+    String price,
+    String perMonth,
+    String saving,
+  );
+
+  /// Bouton d'achat de l'écran d'offre. {price} est le prix total de la formule choisie, déjà formaté avec la devise du magasin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer · {price}'**
+  String plusContinuePrice(String price);
+
+  /// Texte du bouton d'achat (désactivé) et message d'achat sur Android, où l'abonnement n'est pas encore vendu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible sur Android'**
+  String get plusAndroidSoon;
+
+  /// Bouton texte en haut à droite de l'écran d'offre : restaure un achat déjà fait avec cet identifiant Apple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer'**
+  String get plusRestore;
+
+  /// Lien en bas de l'écran d'offre vers les conditions d'utilisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions'**
+  String get plusTerms;
+
+  /// Lien en bas de l'écran d'offre vers la politique de confidentialité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get plusPrivacy;
+
+  /// Mention légale obligatoire sous le bouton d'achat sur iPhone : l'abonnement se renouvelle seul et se résilie dans les réglages du compte Apple. À traduire fidèlement, sans rien ajouter ni retirer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement automatique, résiliable à tout moment dans les réglages de l’App Store.'**
+  String get plusLegalAppStore;
+
+  /// Mention légale obligatoire sous le bouton d'achat sur Android : l'abonnement se renouvelle seul et se résilie dans les réglages de Google Play. À traduire fidèlement, sans rien ajouter ni retirer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement automatique, résiliable à tout moment dans les réglages de Google Play.'**
+  String get plusLegalGooglePlay;
+
+  /// Message bref après un achat qui attend l'accord d'un parent ou du magasin (Ask to Buy).
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.'**
+  String get plusPendingApproval;
+
+  /// Message bref (vert) quand « Restaurer » depuis l'écran d'offre a retrouvé un abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement restauré'**
+  String get plusOfferRestored;
+
+  /// Message bref quand « Restaurer » depuis l'écran d'offre ne trouve aucun abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement trouvé'**
+  String get plusOfferNothingFound;
+
+  /// Message bref quand le magasin n'a pas encore de produit à vendre (formules de secours affichées).
+  ///
+  /// In fr, this message translates to:
+  /// **'Les abonnements seront disponibles prochainement.'**
+  String get plusPlansSoon;
+
+  /// Message bref quand on lance un second achat alors qu'un premier n'est pas terminé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un achat est déjà en cours.'**
+  String get plusErrorPurchaseInProgress;
+
+  /// Message d'erreur : l'abonnement acheté avec cet identifiant Apple est déjà lié à un autre compte mazl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet achat App Store est déjà associé à un autre compte mazl.'**
+  String get plusErrorOwnedByAnotherAccount;
+
+  /// Message d'erreur : le serveur n'a pas pu valider la transaction Apple ; elle sera revérifiée au prochain lancement de l'app.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous n’avons pas pu valider cet achat auprès de l’App Store. Il sera revérifié au prochain lancement.'**
+  String get plusErrorInvalidTransaction;
+
+  /// Message d'erreur : le serveur a refusé les données envoyées pour l'achat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre achat n’a pas pu être transmis correctement. Réessayez dans un instant.'**
+  String get plusErrorInvalidBody;
+
+  /// Message d'erreur : la session a expiré pendant l'achat. L'achat est conservé et sera validé après reconnexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconnectez-vous à mazl pour finaliser votre achat.'**
+  String get plusErrorSignInAgain;
+
+  /// Message d'erreur : pas de réseau ou serveur injoignable pendant la validation d'un achat. L'achat est gardé et sera validé plus tard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible. Votre achat est conservé et sera validé dès que possible.'**
+  String get plusErrorOffline;
+
+  /// Message d'erreur général quand un achat échoue sans cause plus précise.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’achat n’a pas pu aboutir. Réessayez dans un instant.'**
+  String get plusErrorGeneric;
+
+  /// Message d'erreur : le serveur a bien reçu l'achat mais l'abonnement n'est pas actif (par exemple déjà expiré).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre abonnement n’est pas actif.'**
+  String get plusErrorInactive;
+
+  /// Message d'erreur quand la restauration des achats échoue.
+  ///
+  /// In fr, this message translates to:
+  /// **'La restauration a échoué. Réessayez dans un instant.'**
+  String get plusErrorRestoreFailed;
+
+  /// Petit titre en capitales de l'écran de bienvenue (quand la formule est inconnue) et sous-titre de la ligne mazl+ des réglages quand aucun détail n'est connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement actif'**
+  String get plusActiveSubscription;
+
+  /// Petit titre en capitales de l'écran de bienvenue. {plan} est la durée de la formule (« 6 mois »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement actif · {plan}'**
+  String plusActiveSubscriptionPlan(String plan);
+
+  /// Grand titre de l'écran de bienvenue après l'achat. « mazl+ » est le nom de marque : il reste écrit tel quel (« mazl » en gras, son « + » en couleur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans mazl+.'**
+  String get plusWelcomeTitle;
+
+  /// Phrase sous le titre de l'écran de bienvenue, avant les trois actions proposées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est déverrouillé. Par où commencer ?'**
+  String get plusWelcomeSubtitle;
+
+  /// Titre de la première action de l'écran de bienvenue : combien de membres ont aimé le profil ({count} est toujours au moins 1).
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{1 personne vous a aimé} other{{count} personnes vous ont aimé}}'**
+  String plusWelcomeLikesCount(int count);
+
+  /// Ligne grise de la première action de l'écran de bienvenue : ouvre la liste des likes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les voir maintenant'**
+  String get plusWelcomeLikesDetail;
+
+  /// Titre de la deuxième action de l'écran de bienvenue : mène à Découvrir pour lancer un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer votre Boost'**
+  String get plusWelcomeBoostTitle;
+
+  /// Ligne grise de l'action « Lancer votre Boost » de l'écran de bienvenue (sans point final).
+  ///
+  /// In fr, this message translates to:
+  /// **'En tête de pile pendant 30 minutes'**
+  String get plusWelcomeBoostDetail;
+
+  /// Titre de la troisième action de l'écran de bienvenue : ouvre les filtres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiner vos filtres'**
+  String get plusWelcomeFiltersTitle;
+
+  /// Ligne grise de l'action « Affiner vos filtres » de l'écran de bienvenue (sans point final). « Pratique » = pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique, communauté, et plus'**
+  String get plusWelcomeFiltersDetail;
+
+  /// Phrase lue par le lecteur d'écran pour une action de l'écran de bienvenue : son titre puis sa ligne grise.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title}. {detail}'**
+  String plusTitleDetail(String title, String detail);
+
+  /// Grand titre de l'écran de gestion de l'abonnement mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get plusSubscriptionTitle;
+
+  /// Pastille de la carte mazl+ quand l'abonnement se renouvelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get plusStatusActive;
+
+  /// Pastille de la carte mazl+ quand l'abonnement a été résilié et se termine à l'échéance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résilié'**
+  String get plusStatusCancelled;
+
+  /// Petit libellé (affiché en capitales) au-dessus de la durée et du prix de la formule, sur la carte mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formule'**
+  String get plusFactPlan;
+
+  /// Petit libellé (affiché en capitales) au-dessus de la date de prochain renouvellement, sur la carte mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement'**
+  String get plusFactRenewal;
+
+  /// Petit libellé (affiché en capitales) au-dessus de la date de fin quand l'abonnement est résilié.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expiration'**
+  String get plusFactExpiration;
+
+  /// Formule sur la carte mazl+ : durée puis prix. {duration} = « 6 mois », {price} = prix du magasin « 59,99 € ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{duration} · {price}'**
+  String plusPlanAndPrice(String duration, String price);
+
+  /// Valeur de la ligne Super Likes de l'écran Abonnement : restants sur total du jour (« 4 sur 5 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{left} sur {max}'**
+  String plusSuperLikesOf(int left, int max);
+
+  /// Valeur de la ligne Boost de l'écran Abonnement quand le Boost du jour n'est pas encore utilisé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get plusBoostAvailable;
+
+  /// Valeur de la ligne Boost de l'écran Abonnement quand le Boost du jour est déjà utilisé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisé aujourd’hui'**
+  String get plusBoostUsed;
+
+  /// Libellé de la ligne Likes de l'écran Abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get plusLikesLabel;
+
+  /// Valeur de la ligne Likes de l'écran Abonnement : pas de limite quotidienne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Illimités'**
+  String get plusLikesUnlimited;
+
+  /// Bouton en contour de l'écran Abonnement sur iPhone : ouvre la gestion des abonnements de l'App Store.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer dans l’App Store'**
+  String get plusManageAppStore;
+
+  /// Bouton en contour de l'écran Abonnement sur Android : ouvre la gestion des abonnements de Google Play.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer dans Google Play'**
+  String get plusManageGooglePlay;
+
+  /// Message bref quand la page de gestion des abonnements du magasin ne s'ouvre pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’ouvrir la gestion de l’abonnement.'**
+  String get plusManageFailed;
+
+  /// Bouton texte en bas de l'écran Abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer mes achats'**
+  String get plusRestorePurchases;
+
+  /// Texte de l'écran Abonnement quand le membre n'a pas d'abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement actif.'**
+  String get plusNoActiveSubscription;
+
+  /// Message bref de l'écran Abonnement après une restauration réussie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achats restaurés.'**
+  String get plusPurchasesRestored;
+
+  /// Message bref de l'écran Abonnement quand la restauration ne trouve rien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement trouvé.'**
+  String get plusNothingToRestore;
+
+  /// Sous-titre de la ligne « Passer à mazl+ » des réglages (compte gratuit) : les trois avantages phares. Une ligne, 13 px.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes illimités, voir qui vous a aimé, Boost'**
+  String get plusSettingsPitch;
+
+  /// Titre de la ligne des réglages qui mène à l'offre (compte gratuit). « mazl+ » est le nom de marque : il reste écrit tel quel (« mazl » en gras, son « + » en couleur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer à mazl+'**
+  String get plusUpgradeTo;
+
+  /// Phrase lue par le lecteur d'écran pour la ligne mazl+ des réglages d'un abonné. {detail} = « 6 mois · renouvellement le 12 mars 2027 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'mazl+. {detail}'**
+  String plusSettingsSemanticsActive(String detail);
+
+  /// Phrase lue par le lecteur d'écran pour la ligne « Passer à mazl+ » des réglages d'un compte gratuit. {detail} = la liste des avantages phares.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer à mazl+. {detail}'**
+  String plusSettingsSemanticsUpgrade(String detail);
+
   /// Profil du membre : étiquette en capitales tout en haut de son propre profil.
   ///
   /// In fr, this message translates to:
