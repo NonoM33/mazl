@@ -55,6 +55,9 @@ class FakeCoupleApi implements CoupleApi {
   String? sendError;
   String? respondError;
   String? endError;
+
+  /// The sentence sent with each archive call.
+  final List<String> archiveMessages = [];
   bool unreachable = false;
 
   /// What the acceptance returns as `couple` (null = field missing).
@@ -117,6 +120,7 @@ class FakeCoupleApi implements CoupleApi {
     required String message,
   }) async {
     calls.add('archive:$partnerUserId');
+    archiveMessages.add(message);
     return ApiResponse.success(null);
   }
 

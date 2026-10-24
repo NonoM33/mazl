@@ -16,6 +16,7 @@ import '../l10n/prompt_labels.dart';
 import '../widgets/profile_view/profile_action_bar.dart';
 import '../widgets/profile_view/profile_compatibility_section.dart';
 import '../widgets/profile_view/profile_completion_card.dart';
+import '../../couple/l10n/couple_failure_label.dart';
 import '../../couple/widgets/couple_request_dialog.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
 import '../widgets/profile_view/profile_match_dialog.dart';
@@ -334,14 +335,18 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     setState(() => _isSendingRequest = false);
 
     _showMessage(
-      result.ok ? context.l10n.profileCoupleRequestSent(userName) : result.message ?? '',
+      result.ok
+          ? context.l10n.profileCoupleRequestSent(userName)
+          : result.failure?.label(context.l10n) ?? '',
       isError: !result.ok,
     );
   }
 
   Future<void> _cancelCoupleRequest() async {
     final result = await _coupleService.cancelCoupleRequest();
-    if (mounted && !result.ok) _showMessage(result.message ?? '', isError: true);
+    if (mounted && !result.ok) {
+      _showMessage(result.failure?.label(context.l10n) ?? '', isError: true);
+    }
   }
 
   /// The member asked first: the answer goes through the same dialog as

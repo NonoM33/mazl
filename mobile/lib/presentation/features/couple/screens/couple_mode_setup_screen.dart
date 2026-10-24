@@ -6,7 +6,10 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
+import '../l10n/couple_failure_label.dart';
 
 /// Loads the member's matches (the real API in production).
 typedef MatchesLoader = Future<ApiResponse<List<Map<String, dynamic>>>> Function();
@@ -35,7 +38,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   /// then. Reopening the screen with a pending request shows it.
   bool _justSent = false;
   Map<String, dynamic>? _selectedProfile;
-  String? _errorMessage;
+  CoupleActionFailure? _failure;
 
   @override
   void initState() {
@@ -65,7 +68,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
 
     setState(() {
       _isBusy = true;
-      _errorMessage = null;
+      _failure = null;
     });
     final result = await _service.sendCoupleRequest(
       targetUserId: userId,
@@ -76,20 +79,20 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     setState(() {
       _isBusy = false;
       _justSent = result.ok;
-      _errorMessage = result.message;
+      _failure = result.failure;
     });
   }
 
   Future<void> _cancel() async {
     setState(() {
       _isBusy = true;
-      _errorMessage = null;
+      _failure = null;
     });
     final result = await _service.cancelCoupleRequest();
     if (!mounted) return;
     setState(() {
       _isBusy = false;
-      _errorMessage = result.message;
+      _failure = result.failure;
     });
   }
 
@@ -114,9 +117,9 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mode couple'),
+        title: Text(context.l10n.coupleSpaceSetupTitle),
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+          icon: const DirectionalIcon(LucideIcons.arrowLeft),
           onPressed: _back,
         ),
       ),
@@ -134,8 +137,8 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   Widget _buildPending(BuildContext context, CoupleRequest request) {
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final name = request.targetName ?? '';
-    final who = name.isEmpty ? 'Cette personne' : name;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -144,26 +147,28 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           _Avatar(name: name, picture: request.targetPicture, size: 96, seed: request.targetId),
           const SizedBox(height: 24),
           Text(
-            'Demande envoyée',
+            l10n.coupleSpaceSetupSentTitle,
             textAlign: TextAlign.center,
             style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            '$who doit accepter. Nous vous préviendrons dès sa réponse.',
+            name.isEmpty
+                ? l10n.coupleSpaceSetupSentBodyAnonymous
+                : l10n.coupleSpaceSetupSentBody(name),
             textAlign: TextAlign.center,
             style: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
           ),
-          if (_errorMessage != null) ...[
+          if (_failure != null) ...[
             const SizedBox(height: 12),
-            _ErrorText(_errorMessage!),
+            _ErrorText(_failure!.label(l10n)),
           ],
           const Spacer(),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _isBusy ? null : _done,
-              child: const Text('Compris'),
+              child: Text(l10n.coupleSpaceSetupGotIt),
             ),
           ),
           if (!_justSent) ...[
@@ -172,7 +177,9 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: _isBusy ? null : _cancel,
-                child: _isBusy ? const _Spinner() : const Text('Annuler la demande'),
+                child: _isBusy
+                    ? const _Spinner()
+                    : Text(l10n.coupleSpaceSetupCancelRequest),
               ),
             ),
           ],
@@ -182,15 +189,19 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   }
 
   Widget _buildChooser(BuildContext context) {
+    final l10n = context.l10n;
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (_loadFailed) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Impossible de charger vos matchs.'),
+            Text(l10n.coupleSpaceSetupMatchesError),
             const SizedBox(height: 12),
-            TextButton(onPressed: _loadMatches, child: const Text('Réessayer')),
+            TextButton(
+              onPressed: _loadMatches,
+              child: Text(l10n.commonRetry),
+            ),
           ],
         ),
       );
@@ -202,7 +213,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
         if (match['profile'] is Map<String, dynamic>) match['profile'] as Map<String, dynamic>,
     ];
     if (profiles.isEmpty) {
-      return const Center(child: Text('Aucun match pour l\'instant.'));
+      return Center(child: Text(l10n.coupleSpaceSetupNoMatches));
     }
 
     return Column(
@@ -212,7 +223,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
             children: [
               Text(
-                'Avec qui ?',
+                l10n.coupleSpaceSetupWho,
                 style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
@@ -224,15 +235,17 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: Column(
             children: [
-              if (_errorMessage != null) ...[
-                _ErrorText(_errorMessage!),
+              if (_failure != null) ...[
+                _ErrorText(_failure!.label(l10n)),
                 const SizedBox(height: 12),
               ],
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _selectedProfile == null || _isBusy ? null : _send,
-                  child: _isBusy ? const _Spinner() : const Text('Envoyer la demande'),
+                  child: _isBusy
+                      ? const _Spinner()
+                      : Text(l10n.coupleSpaceSetupSend),
                 ),
               ),
             ],
@@ -261,7 +274,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           onTap: () => setState(() {
             _selectedProfile = profile;
-            _errorMessage = null;
+            _failure = null;
           }),
           child: Padding(
             padding: const EdgeInsets.all(14),

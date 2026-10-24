@@ -8,6 +8,7 @@ import '../../../../core/models/success_story.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../l10n/l10n.dart';
 import '../widgets/couple_message_view.dart';
+import 'couple_failure_label.dart';
 
 /// A price in whole euros, written the way the language writes it
 /// (« €120 », « 120 € »).
@@ -131,18 +132,6 @@ extension SuccessStoryLabels on SuccessStory {
       );
 }
 
-/// A sentence for a failed couple-content call, chosen on the failure's kind:
-/// the service's own message is a diagnostic and never reaches the screen.
-String coupleFailureText(AppLocalizations l10n, CoupleFailureKind kind) =>
-    switch (kind) {
-      CoupleFailureKind.network => l10n.coupleFeedFailureNetwork,
-      CoupleFailureKind.notFound => l10n.coupleFeedFailureNotFound,
-      CoupleFailureKind.notInCouple => l10n.coupleFeedFailureNotInCouple,
-      CoupleFailureKind.full => l10n.coupleFeedFailureFull,
-      CoupleFailureKind.server => l10n.coupleFeedFailureServer,
-      CoupleFailureKind.malformed => l10n.coupleFeedFailureMalformed,
-    };
-
 /// The error state of a couple content screen, in the member's language:
 /// what went wrong, and a way to try again.
 Widget coupleFailureView(
@@ -154,7 +143,7 @@ Widget coupleFailureView(
   return CoupleMessageView(
     icon: LucideIcons.alertCircle,
     title: l10n.coupleFeedLoadFailedTitle,
-    line: coupleFailureText(l10n, failure.kind),
+    line: failure.label(l10n),
     actionLabel: onRetry == null ? null : l10n.commonRetry,
     onAction: onRetry,
   );

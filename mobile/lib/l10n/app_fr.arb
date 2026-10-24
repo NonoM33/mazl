@@ -844,30 +844,6 @@
   "@coupleFeedLoadFailedTitle": {
     "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
   },
-  "coupleFeedFailureNetwork": "Serveur injoignable. Réessayez.",
-  "@coupleFeedFailureNetwork": {
-    "description": "Phrase d'erreur : pas de connexion au serveur."
-  },
-  "coupleFeedFailureMalformed": "Réponse inattendue du serveur.",
-  "@coupleFeedFailureMalformed": {
-    "description": "Phrase d'erreur : le serveur a répondu quelque chose d'inattendu."
-  },
-  "coupleFeedFailureNotInCouple": "Le mode couple n'est pas actif.",
-  "@coupleFeedFailureNotInCouple": {
-    "description": "Phrase d'erreur : le membre n'est pas en mode couple."
-  },
-  "coupleFeedFailureNotFound": "Introuvable.",
-  "@coupleFeedFailureNotFound": {
-    "description": "Phrase d'erreur : l'élément demandé n'existe pas."
-  },
-  "coupleFeedFailureFull": "Cet événement est complet.",
-  "@coupleFeedFailureFull": {
-    "description": "Phrase d'erreur : l'événement est complet."
-  },
-  "coupleFeedFailureServer": "Le serveur n'a pas pu répondre. Réessayez.",
-  "@coupleFeedFailureServer": {
-    "description": "Phrase d'erreur : le serveur a échoué."
-  },
   "coupleFeedStoriesEmptyTitle": "Pas encore d'histoires de couples",
   "@coupleFeedStoriesEmptyTitle": {
     "description": "Titre de l'état vide des histoires de couples."
@@ -950,6 +926,568 @@
   "coupleFeedStoryThanks": "Merci. Votre histoire sera publiée après validation.",
   "@coupleFeedStoryThanks": {
     "description": "Message vert après l'envoi de l'histoire : elle sera relue avant d'être publiée."
+  },
+  "coupleSpaceTabActivities": "Activités",
+  "@coupleSpaceTabActivities": {
+    "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
+  },
+  "coupleSpaceTabCalendar": "Calendrier",
+  "@coupleSpaceTabCalendar": {
+    "description": "Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône."
+  },
+  "coupleSpaceTabEvents": "Événements",
+  "@coupleSpaceTabEvents": {
+    "description": "Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône."
+  },
+  "coupleSpaceTabSpace": "Notre espace",
+  "@coupleSpaceTabSpace": {
+    "description": "Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône."
+  },
+  "coupleSpaceTitle": "Notre espace",
+  "@coupleSpaceTitle": {
+    "description": "Titre de l'écran « Notre espace » (l'espace privé du couple)."
+  },
+  "coupleSpaceSettingsTooltip": "Réglages",
+  "@coupleSpaceSettingsTooltip": {
+    "description": "Info-bulle du bouton rond en haut de « Notre espace » qui ouvre les réglages du mode couple."
+  },
+  "coupleSpaceYou": "Vous",
+  "@coupleSpaceYou": {
+    "description": "Nom affiché pour le membre quand il n'a pas de nom, dans l'en-tête « Vous & Votre Moitié »."
+  },
+  "coupleSpacePartnerFallback": "Votre Moitié",
+  "@coupleSpacePartnerFallback": {
+    "description": "Nom affiché pour le partenaire quand son nom est inconnu, dans l'en-tête du couple. « Votre Moitié » = l'autre moitié, avec tendresse."
+  },
+  "coupleSpaceTogetherSince": "Ensemble depuis {count, plural, one{{count} jour} other{{count} jours}}",
+  "@coupleSpaceTogetherSince": {
+    "description": "En-tête du couple : depuis combien de jours le couple est ensemble. {count} est toujours au moins 1.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceStoryBegins": "Votre histoire commence",
+  "@coupleSpaceStoryBegins": {
+    "description": "En-tête du couple quand la date de début est inconnue ou aujourd'hui."
+  },
+  "coupleSpaceStatSavedActivities": "Activités\nsauvegardées",
+  "@coupleSpaceStatSavedActivities": {
+    "description": "Tuile de chiffre : nombre d'activités sauvegardées. Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceStatUpcomingEvents": "Événements\nà venir",
+  "@coupleSpaceStatUpcomingEvents": {
+    "description": "Tuile de chiffre : nombre d'événements auxquels le couple est inscrit. Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceStatMemories": "Souvenirs\ncréés",
+  "@coupleSpaceStatMemories": {
+    "description": "Tuile de chiffre : nombre de souvenirs créés. Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceQuickActions": "Actions rapides",
+  "@coupleSpaceQuickActions": {
+    "description": "Titre de la section des trois raccourcis d'ajout (souvenir, bucket list, date)."
+  },
+  "coupleSpaceQuickAddMemory": "Ajouter\nun souvenir",
+  "@coupleSpaceQuickAddMemory": {
+    "description": "Raccourci : ajouter un souvenir. Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceQuickAddBucket": "Ajouter à\nla bucket list",
+  "@coupleSpaceQuickAddBucket": {
+    "description": "Raccourci : ajouter un objectif à la bucket list (liste d'expériences à vivre ensemble). Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceQuickAddDate": "Ajouter\nune date",
+  "@coupleSpaceQuickAddDate": {
+    "description": "Raccourci : ajouter une date importante (anniversaire, fête). Le saut de ligne est voulu ; chaque ligne tient dans environ 80 px (police 12)."
+  },
+  "coupleSpaceMemoriesTitle": "Nos souvenirs",
+  "@coupleSpaceMemoriesTitle": {
+    "description": "Titre de la section des souvenirs du couple."
+  },
+  "coupleSpaceMemoriesEmptyTitle": "Aucun souvenir pour l'instant",
+  "@coupleSpaceMemoriesEmptyTitle": {
+    "description": "État vide de la section des souvenirs : titre."
+  },
+  "coupleSpaceMemoriesEmptyHint": "Ajoutez vos premiers souvenirs ensemble.",
+  "@coupleSpaceMemoriesEmptyHint": {
+    "description": "État vide de la section des souvenirs : invitation à en ajouter."
+  },
+  "coupleSpaceBucketTitle": "Bucket list",
+  "@coupleSpaceBucketTitle": {
+    "description": "Titre de la section « bucket list » (liste d'expériences à vivre ensemble). « bucket list » est un anglicisme courant en français."
+  },
+  "coupleSpaceBucketProgress": "Bucket list · {done}/{total}",
+  "@coupleSpaceBucketProgress": {
+    "description": "Titre de la section bucket list quand elle contient des objectifs : {done} réalisés sur {total}.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceBucketEmptyTitle": "Votre bucket list est vide",
+  "@coupleSpaceBucketEmptyTitle": {
+    "description": "État vide de la bucket list : titre."
+  },
+  "coupleSpaceBucketEmptyHint": "Ajoutez des expériences à vivre ensemble.",
+  "@coupleSpaceBucketEmptyHint": {
+    "description": "État vide de la bucket list : invitation à ajouter des expériences."
+  },
+  "coupleSpaceDatesTitle": "Dates importantes",
+  "@coupleSpaceDatesTitle": {
+    "description": "Titre de la section des dates importantes du couple (anniversaires, fêtes)."
+  },
+  "coupleSpaceSeeAll": "Voir tout",
+  "@coupleSpaceSeeAll": {
+    "description": "Bouton texte à droite du titre « Dates importantes » : ouvre le calendrier complet."
+  },
+  "coupleSpaceDatesEmptyTitle": "Aucune date importante",
+  "@coupleSpaceDatesEmptyTitle": {
+    "description": "État vide de la section des dates importantes : titre."
+  },
+  "coupleSpaceDatesEmptyHint": "Ajoutez vos anniversaires, fêtes, etc.",
+  "@coupleSpaceDatesEmptyHint": {
+    "description": "État vide de la section des dates importantes : invitation à en ajouter."
+  },
+  "coupleSpaceBadgesTitle": "Nos badges",
+  "@coupleSpaceBadgesTitle": {
+    "description": "Titre de la section des badges débloqués par le couple."
+  },
+  "coupleSpaceBadgesEmptyTitle": "Aucun badge pour l'instant",
+  "@coupleSpaceBadgesEmptyTitle": {
+    "description": "État vide de la section des badges : titre."
+  },
+  "coupleSpaceBadgesEmptyHint": "Faites des activités ensemble pour débloquer des badges.",
+  "@coupleSpaceBadgesEmptyHint": {
+    "description": "État vide de la section des badges : comment en débloquer."
+  },
+  "coupleSpaceGoalDone": "Objectif accompli",
+  "@coupleSpaceGoalDone": {
+    "description": "Message bref (snackbar) quand un objectif de la bucket list est marqué comme accompli."
+  },
+  "coupleSpaceGoalFailed": "Impossible de valider cet objectif. Réessayez.",
+  "@coupleSpaceGoalFailed": {
+    "description": "Message d'erreur (snackbar) quand un objectif de la bucket list n'a pas pu être marqué comme accompli."
+  },
+  "coupleSpaceRefreshFailed": "Actualisation impossible. {reason}",
+  "@coupleSpaceRefreshFailed": {
+    "description": "Message d'erreur (snackbar) quand l'actualisation de l'espace échoue ; les anciennes données restent affichées. {reason} est la cause, une phrase déjà traduite.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceLoadFailedTitle": "Chargement impossible",
+  "@coupleSpaceLoadFailedTitle": {
+    "description": "Titre de l'état d'erreur d'un écran du mode couple (activités, événements, espace) ; une phrase explique la cause dessous et un bouton « Réessayer »."
+  },
+  "coupleSpaceSheetAdd": "Ajouter",
+  "@coupleSpaceSheetAdd": {
+    "description": "Bouton principal des trois feuilles d'ajout (souvenir, bucket list, date)."
+  },
+  "coupleSpaceAddMemoryTitle": "Ajouter un souvenir",
+  "@coupleSpaceAddMemoryTitle": {
+    "description": "Titre de la feuille d'ajout d'un souvenir."
+  },
+  "coupleSpaceFieldTitle": "Titre",
+  "@coupleSpaceFieldTitle": {
+    "description": "Libellé du champ titre (souvenir, date importante)."
+  },
+  "coupleSpaceFieldDescription": "Description",
+  "@coupleSpaceFieldDescription": {
+    "description": "Libellé du champ description d'un souvenir."
+  },
+  "coupleSpaceAddBucketTitle": "Ajouter à la bucket list",
+  "@coupleSpaceAddBucketTitle": {
+    "description": "Titre de la feuille d'ajout d'un objectif à la bucket list."
+  },
+  "coupleSpaceBucketFieldLabel": "Que voulez-vous faire ensemble ?",
+  "@coupleSpaceBucketFieldLabel": {
+    "description": "Libellé du champ de la feuille bucket list : ce que le couple veut vivre."
+  },
+  "coupleSpaceBucketFieldHint": "Ex: Voir les aurores boréales",
+  "@coupleSpaceBucketFieldHint": {
+    "description": "Exemple grisé dans le champ de la bucket list. « Ex: » abrège « exemple »."
+  },
+  "coupleSpaceAddDateTitle": "Ajouter une date importante",
+  "@coupleSpaceAddDateTitle": {
+    "description": "Titre de la feuille d'ajout d'une date importante."
+  },
+  "coupleSpaceDateFieldHint": "Ex: Notre anniversaire",
+  "@coupleSpaceDateFieldHint": {
+    "description": "Exemple grisé dans le champ titre d'une date importante. « Ex: » abrège « exemple »."
+  },
+  "coupleSpaceFieldDate": "Date",
+  "@coupleSpaceFieldDate": {
+    "description": "Libellé de la ligne qui ouvre le sélecteur de date, dans la feuille d'ajout d'une date importante."
+  },
+  "coupleSpaceAddFailed": "Ajout impossible. {reason}",
+  "@coupleSpaceAddFailed": {
+    "description": "Erreur affichée dans une feuille d'ajout quand le serveur refuse. {reason} est la cause, une phrase déjà traduite.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceSetupTitle": "Mode couple",
+  "@coupleSpaceSetupTitle": {
+    "description": "Titre de l'écran où l'on choisit un match pour activer le mode couple."
+  },
+  "coupleSpaceSetupWho": "Avec qui ?",
+  "@coupleSpaceSetupWho": {
+    "description": "Titre de la liste des matchs, au-dessus des personnes que l'on peut inviter en mode couple."
+  },
+  "coupleSpaceSetupSend": "Envoyer la demande",
+  "@coupleSpaceSetupSend": {
+    "description": "Bouton qui envoie la demande de mode couple à la personne choisie."
+  },
+  "coupleSpaceSetupNoMatches": "Aucun match pour l'instant.",
+  "@coupleSpaceSetupNoMatches": {
+    "description": "État vide de la liste des matchs sur l'écran du mode couple."
+  },
+  "coupleSpaceSetupMatchesError": "Impossible de charger vos matchs.",
+  "@coupleSpaceSetupMatchesError": {
+    "description": "Erreur quand la liste des matchs ne se charge pas, sur l'écran du mode couple ; un bouton « Réessayer » suit."
+  },
+  "coupleSpaceSetupSentTitle": "Demande envoyée",
+  "@coupleSpaceSetupSentTitle": {
+    "description": "Titre de la confirmation après l'envoi d'une demande de mode couple."
+  },
+  "coupleSpaceSetupSentBody": "{name} doit accepter. Nous vous préviendrons dès sa réponse.",
+  "@coupleSpaceSetupSentBody": {
+    "description": "Confirmation d'une demande de mode couple envoyée : {name} est la personne invitée, qui doit accepter.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceSetupSentBodyAnonymous": "Cette personne doit accepter. Nous vous préviendrons dès sa réponse.",
+  "@coupleSpaceSetupSentBodyAnonymous": {
+    "description": "Confirmation d'une demande de mode couple envoyée quand le nom de la personne invitée est inconnu."
+  },
+  "coupleSpaceSetupGotIt": "Compris",
+  "@coupleSpaceSetupGotIt": {
+    "description": "Bouton qui ferme la confirmation de la demande envoyée."
+  },
+  "coupleSpaceSetupCancelRequest": "Annuler la demande",
+  "@coupleSpaceSetupCancelRequest": {
+    "description": "Bouton qui retire la demande de mode couple encore en attente."
+  },
+  "coupleSpaceMazelTovTitle": "Mazal tov",
+  "@coupleSpaceMazelTovTitle": {
+    "description": "Grand titre de l'écran de célébration quand le mode couple vient de s'activer. Le texte hébreu « מזל טוב » est affiché au-dessus, sauf en hébreu où il est ce titre."
+  },
+  "coupleSpaceMazelTovCongrats": "Félicitations à vous et à {name}",
+  "@coupleSpaceMazelTovCongrats": {
+    "description": "Message de l'écran de célébration : félicitations au membre et à son partenaire, {name}.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceMazelTovWelcome": "MAZL vous accompagne dans cette nouvelle étape.",
+  "@coupleSpaceMazelTovWelcome": {
+    "description": "Sous-titre de l'écran de célébration. « MAZL » est le nom de l'app et ne se traduit pas."
+  },
+  "coupleSpaceMazelTovStart": "Commencer notre aventure",
+  "@coupleSpaceMazelTovStart": {
+    "description": "Bouton de l'écran de célébration : entre dans l'espace couple. Une seule ligne, environ 24 caractères."
+  },
+  "coupleSpaceRequestTitle": "{name} souhaite activer le mode couple avec vous",
+  "@coupleSpaceRequestTitle": {
+    "description": "Titre de la boîte de dialogue qui s'ouvre quand quelqu'un demande d'activer le mode couple : {name} est la personne qui demande.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceRequestTitleAnonymous": "Cette personne souhaite activer le mode couple avec vous",
+  "@coupleSpaceRequestTitleAnonymous": {
+    "description": "Titre de la même boîte de dialogue quand le nom de la personne qui demande est inconnu."
+  },
+  "coupleSpaceRequestAccept": "Accepter",
+  "@coupleSpaceRequestAccept": {
+    "description": "Bouton qui accepte la demande de mode couple."
+  },
+  "coupleSpaceRequestDecline": "Non merci",
+  "@coupleSpaceRequestDecline": {
+    "description": "Bouton poli qui refuse la demande de mode couple."
+  },
+  "coupleSpaceFlowDeclinedNamed": "{name} n'a pas donné suite à votre demande.",
+  "@coupleSpaceFlowDeclinedNamed": {
+    "description": "Message bref (snackbar) : la demande de mode couple envoyée n'a pas été suivie par {name} (refusée ou laissée sans réponse).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceFlowDeclined": "Votre demande n'a pas abouti.",
+  "@coupleSpaceFlowDeclined": {
+    "description": "Message bref (snackbar) : la demande de mode couple envoyée n'a pas abouti, la personne n'est pas nommée."
+  },
+  "coupleSpaceFlowEnded": "Le mode couple a pris fin.",
+  "@coupleSpaceFlowEnded": {
+    "description": "Message bref (snackbar) : le mode couple a été terminé (par l'autre membre)."
+  },
+  "coupleSpaceArchiveMessage": "J'ai trouvé l'amour sur Mazl. Je ne suis plus disponible. Bonne chance dans votre recherche.",
+  "@coupleSpaceArchiveMessage": {
+    "description": "Message envoyé AUTOMATIQUEMENT, au nom du membre, aux autres conversations quand son couple se forme : il annonce qu'il n'est plus disponible. Écrit à la première personne, sans accord de genre ; le nom de l'app s'écrit « Mazl »."
+  },
+  "coupleSpaceFailNotMatched": "Le mode couple ne s'active qu'avec un match.",
+  "@coupleSpaceFailNotMatched": {
+    "description": "Erreur : le mode couple se propose seulement à une personne avec laquelle il y a un match."
+  },
+  "coupleSpaceFailAlreadyInCouple": "L'un de vous est déjà en mode couple.",
+  "@coupleSpaceFailAlreadyInCouple": {
+    "description": "Erreur : l'un des deux membres est déjà en mode couple avec quelqu'un."
+  },
+  "coupleSpaceFailRequestPending": "Une demande est déjà en attente avec cette personne.",
+  "@coupleSpaceFailRequestPending": {
+    "description": "Erreur : une demande de mode couple attend déjà une réponse entre ces deux personnes."
+  },
+  "coupleSpaceFailRequestGone": "Cette demande n'est plus en attente.",
+  "@coupleSpaceFailRequestGone": {
+    "description": "Erreur : la demande de mode couple a été répondue ou annulée entre-temps."
+  },
+  "coupleSpaceFailUnavailable": "Cette personne n'est pas disponible.",
+  "@coupleSpaceFailUnavailable": {
+    "description": "Erreur : la personne ne peut pas recevoir de demande (compte supprimé, bloqué)."
+  },
+  "coupleSpaceFailSelf": "Vous ne pouvez pas vous envoyer une demande.",
+  "@coupleSpaceFailSelf": {
+    "description": "Erreur : on ne peut pas envoyer une demande de mode couple à soi-même."
+  },
+  "coupleSpaceFailNotInCouple": "Le mode couple n'est pas actif.",
+  "@coupleSpaceFailNotInCouple": {
+    "description": "Erreur : le mode couple n'est pas activé pour ce membre (le serveur répond « pas en couple »)."
+  },
+  "coupleSpaceFailCannotLeave": "Impossible de quitter le mode couple pour le moment.",
+  "@coupleSpaceFailCannotLeave": {
+    "description": "Erreur : on ne peut pas quitter le mode couple maintenant."
+  },
+  "coupleSpaceFailUnknown": "Une erreur est survenue, réessayez dans un instant.",
+  "@coupleSpaceFailUnknown": {
+    "description": "Erreur générique d'une action du mode couple, cause inconnue."
+  },
+  "coupleSpaceFailEventFull": "Cet événement est complet.",
+  "@coupleSpaceFailEventFull": {
+    "description": "Erreur : l'événement n'a plus de place."
+  },
+  "coupleSpaceFailServer": "Le serveur n'a pas pu répondre. Réessayez.",
+  "@coupleSpaceFailServer": {
+    "description": "Erreur : le serveur n'a pas pu répondre à une demande de contenu du mode couple."
+  },
+  "coupleSpaceFailUnexpected": "Réponse inattendue du serveur.",
+  "@coupleSpaceFailUnexpected": {
+    "description": "Erreur : la réponse du serveur n'a pas la forme attendue."
+  },
+  "coupleSpaceStatusSingle": "Célibataire",
+  "@coupleSpaceStatusSingle": {
+    "description": "Statut de relation du membre : sans partenaire."
+  },
+  "coupleSpaceStatusDating": "En train de dater",
+  "@coupleSpaceStatusDating": {
+    "description": "Statut de relation du membre : en train de faire connaissance."
+  },
+  "coupleSpaceStatusInRelationship": "En couple",
+  "@coupleSpaceStatusInRelationship": {
+    "description": "Statut de relation du membre : en couple."
+  },
+  "coupleSpaceStatusEngaged": "Fiancé(e)",
+  "@coupleSpaceStatusEngaged": {
+    "description": "Statut de relation du membre : fiancé ou fiancée."
+  },
+  "coupleSpaceStatusMarried": "Marié(e)",
+  "@coupleSpaceStatusMarried": {
+    "description": "Statut de relation du membre : marié ou mariée."
+  },
+  "coupleSpaceDurationDays": "{count, plural, one{{count} jour} other{{count} jours}}",
+  "@coupleSpaceDurationDays": {
+    "description": "Durée en jours (repli quand un jalon n'est ni une semaine, ni un mois, ni une année pleine).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceDurationWeeks": "{count, plural, one{{count} semaine} other{{count} semaines}}",
+  "@coupleSpaceDurationWeeks": {
+    "description": "Nom d'un jalon du couple qui vaut un nombre entier de semaines (ex. « 1 semaine »).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceDurationMonths": "{count, plural, one{{count} mois} other{{count} mois}}",
+  "@coupleSpaceDurationMonths": {
+    "description": "Nom d'un jalon du couple qui vaut un nombre entier de mois (ex. « 3 mois »).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceDurationYears": "{count, plural, one{{count} an} other{{count} ans}}",
+  "@coupleSpaceDurationYears": {
+    "description": "Nom d'un jalon du couple qui vaut un nombre entier d'années (ex. « 1 an »).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceAnniversaryTag": "Joyeux anniversaire MAZL",
+  "@coupleSpaceAnniversaryTag": {
+    "description": "Pastille en haut de la carte d'anniversaire, le jour où le couple fête son anniversaire sur l'app. « MAZL » est le nom de l'app."
+  },
+  "coupleSpaceAnniversaryDaysLabel": "{count, plural, one{jour ensemble} other{jours ensemble}}",
+  "@coupleSpaceAnniversaryDaysLabel": {
+    "description": "Sous le grand nombre de jours de la carte d'anniversaire : le nombre est affiché au-dessus, ce texte donne l'unité.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceAnniversaryWith": "avec {name}",
+  "@coupleSpaceAnniversaryWith": {
+    "description": "Carte d'anniversaire : avec qui le couple est ensemble, {name} est le partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceAnniversaryNext": "Prochain : {milestone} dans {count, plural, one{{count} jour} other{{count} jours}}",
+  "@coupleSpaceAnniversaryNext": {
+    "description": "Carte d'anniversaire : le prochain jalon ({milestone}, déjà nommé, ex. « 3 mois ») arrive dans {count} jours.",
+    "placeholders": {
+      "milestone": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceAnniversaryHappy": "Joyeux anniversaire",
+  "@coupleSpaceAnniversaryHappy": {
+    "description": "Titre de la fenêtre de célébration d'un anniversaire de couple."
+  },
+  "coupleSpaceAnniversaryDaysWith": "{count, plural, one{{count} jour} other{{count} jours}} avec {name}",
+  "@coupleSpaceAnniversaryDaysWith": {
+    "description": "Fenêtre de célébration : combien de jours le couple a passé ensemble, avec {name} le partenaire.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceAnniversaryThanks": "Merci",
+  "@coupleSpaceAnniversaryThanks": {
+    "description": "Bouton qui ferme la fenêtre de célébration d'un anniversaire."
+  },
+  "coupleSpaceAnniversaryShare": "Nous fêtons {count, plural, one{{count} jour} other{{count} jours}} ensemble sur MAZL. {milestone}",
+  "@coupleSpaceAnniversaryShare": {
+    "description": "Texte partagé (WhatsApp, etc.) par le couple pour son anniversaire. {milestone} est le jalon atteint, déjà nommé, ou vide ; il termine la phrase. « MAZL » est le nom de l'app.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "milestone": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceMilestonesTitle": "Vos milestones",
+  "@coupleSpaceMilestonesTitle": {
+    "description": "Titre de la liste des jalons du couple (7 jours, 1 mois, 1 an…). « milestones » est un anglicisme courant en français."
+  },
+  "coupleSpaceMilestoneIn": "dans {count, plural, one{{count} jour} other{{count} jours}}",
+  "@coupleSpaceMilestoneIn": {
+    "description": "Sous un jalon pas encore atteint : il arrive dans {count} jours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceCalendarTitle": "Calendrier",
+  "@coupleSpaceCalendarTitle": {
+    "description": "Grand titre de l'écran du calendrier juif."
+  },
+  "coupleSpaceCalendarShabbatIdeas": "Idées pour ce Shabbat",
+  "@coupleSpaceCalendarShabbatIdeas": {
+    "description": "Titre de la liste d'idées d'activités à deux pour le Shabbat de la semaine."
+  },
+  "coupleSpaceCalendarUpcoming": "Prochaines fêtes",
+  "@coupleSpaceCalendarUpcoming": {
+    "description": "Titre de la liste des prochaines fêtes juives."
+  },
+  "coupleSpaceCalendarPrevMonth": "Mois précédent",
+  "@coupleSpaceCalendarPrevMonth": {
+    "description": "Info-bulle du bouton rond qui affiche le mois précédent du calendrier."
+  },
+  "coupleSpaceCalendarNextMonth": "Mois suivant",
+  "@coupleSpaceCalendarNextMonth": {
+    "description": "Info-bulle du bouton rond qui affiche le mois suivant du calendrier."
+  },
+  "coupleSpaceCalendarOngoing": "En cours",
+  "@coupleSpaceCalendarOngoing": {
+    "description": "Étiquette en capitales sur la carte d'une fête qui a lieu en ce moment. Très court, une ligne."
+  },
+  "coupleSpaceCalendarCountdown": "J-{count}",
+  "@coupleSpaceCalendarCountdown": {
+    "description": "Étiquette en capitales sur la carte d'une fête dans {count} jours au plus (« J-3 » = dans 3 jours). Très court, une ligne.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleSpaceCalendarIdeas": "Idées en couple",
+  "@coupleSpaceCalendarIdeas": {
+    "description": "Petit titre au-dessus des idées d'activités à deux, sur la carte d'une fête."
+  },
+  "coupleSpaceCalendarRangeSameMonth": "{startDay} – {endDay} {month}",
+  "@coupleSpaceCalendarRangeSameMonth": {
+    "description": "Dates d'une fête sur plusieurs jours dans le même mois : du {startDay} au {endDay}, {month} est le mois abrégé (ex. « avr. »). Garder l'ordre habituel de la langue.",
+    "placeholders": {
+      "startDay": {
+        "type": "String"
+      },
+      "endDay": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}",
+  "@coupleSpaceCalendarRangeOtherMonth": {
+    "description": "Dates d'une fête sur plusieurs jours à cheval sur deux mois : {start} et {end} sont déjà des dates courtes (ex. « 28 mars », « 4 avr. »).",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
   },
   "eventsTitle": "Événements",
   "@eventsTitle": {
@@ -1162,6 +1700,511 @@
         "example": "Dîner de Shabbat"
       }
     }
+  },
+  "jewishCalendarShabbatTitle": "Ce Shabbat",
+  "@jewishCalendarShabbatTitle": {
+    "description": "Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif."
+  },
+  "jewishCalendarParashat": "Parashat {name}",
+  "@jewishCalendarParashat": {
+    "description": "Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jewishCalendarParshaPair": "{first} {second}",
+  "@jewishCalendarParshaPair": {
+    "description": "Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      }
+    }
+  },
+  "jewishCalendarCandleLighting": "Allumage",
+  "@jewishCalendarCandleLighting": {
+    "description": "Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères."
+  },
+  "jewishCalendarHavdalah": "Havdala",
+  "@jewishCalendarHavdalah": {
+    "description": "Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères."
+  },
+  "jewishCalendarCategoryPreparation": "Préparation",
+  "@jewishCalendarCategoryPreparation": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité du Shabbat ou d'une fête : il s'agit de préparer quelque chose."
+  },
+  "jewishCalendarCategorySpiritual": "Spirituel",
+  "@jewishCalendarCategorySpiritual": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité : moment spirituel."
+  },
+  "jewishCalendarCategoryRelaxation": "Détente",
+  "@jewishCalendarCategoryRelaxation": {
+    "description": "Petite étiquette (capitales) d'une idée d'activité : moment de détente."
+  },
+  "jewishCalendarActivityShabbatDinnerTitle": "Préparer le dîner ensemble",
+  "@jewishCalendarActivityShabbatDinnerTitle": {
+    "description": "Titre d'une idée d'activité à deux : le vendredi soir, préparer le repas de Shabbat."
+  },
+  "jewishCalendarActivityShabbatDinnerBody": "Cuisinez la Halla et le repas de fête",
+  "@jewishCalendarActivityShabbatDinnerBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (le vendredi soir, préparer le repas de Shabbat)."
+  },
+  "jewishCalendarActivityShabbatCandlesTitle": "Allumer les bougies",
+  "@jewishCalendarActivityShabbatCandlesTitle": {
+    "description": "Titre d'une idée d'activité à deux : allumer les bougies de Shabbat."
+  },
+  "jewishCalendarActivityShabbatCandlesBody": "Moment de spiritualité partagé",
+  "@jewishCalendarActivityShabbatCandlesBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (allumer les bougies de Shabbat)."
+  },
+  "jewishCalendarActivityShabbatWalkTitle": "Promenade Shabbat",
+  "@jewishCalendarActivityShabbatWalkTitle": {
+    "description": "Titre d'une idée d'activité à deux : se promener le Shabbat."
+  },
+  "jewishCalendarActivityShabbatWalkBody": "Balade tranquille après le repas",
+  "@jewishCalendarActivityShabbatWalkBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (se promener le Shabbat)."
+  },
+  "jewishCalendarActivityShabbatParashaTitle": "Étude de la Parasha",
+  "@jewishCalendarActivityShabbatParashaTitle": {
+    "description": "Titre d'une idée d'activité à deux : étudier la paracha de la semaine."
+  },
+  "jewishCalendarActivityShabbatParashaBody": "Apprenez ensemble la portion de la semaine",
+  "@jewishCalendarActivityShabbatParashaBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (étudier la paracha de la semaine)."
+  },
+  "jewishCalendarActivityPesachSederTitle": "Préparer le Seder",
+  "@jewishCalendarActivityPesachSederTitle": {
+    "description": "Titre d'une idée d'activité à deux : préparer le repas du Seder de Pessah."
+  },
+  "jewishCalendarActivityPesachSederBody": "Organisez la table ensemble",
+  "@jewishCalendarActivityPesachSederBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (préparer le repas du Seder de Pessah)."
+  },
+  "jewishCalendarActivityPesachCleaningTitle": "Faire le ménage de Pessah",
+  "@jewishCalendarActivityPesachCleaningTitle": {
+    "description": "Titre d'une idée d'activité à deux : faire le grand ménage avant Pessah."
+  },
+  "jewishCalendarActivityPesachCleaningBody": "Nettoyage de printemps en équipe",
+  "@jewishCalendarActivityPesachCleaningBody": {
+    "description": "Phrase sous le titre d'une idée d'activité à deux (faire le grand ménage avant Pessah)."
+  },
+  "jewishCalendarHolidayRoshHashanaName": "Rosh Hashana",
+  "@jewishCalendarHolidayRoshHashanaName": {
+    "description": "Nom de la fête juive « Rosh Hashana » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayRoshHashanaDescription": "Nouvel an juif",
+  "@jewishCalendarHolidayRoshHashanaDescription": {
+    "description": "Courte explication sous le nom de la fête « Rosh Hashana » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomKippurName": "Yom Kippour",
+  "@jewishCalendarHolidayYomKippurName": {
+    "description": "Nom de la fête juive « Yom Kippour » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomKippurDescription": "Jour du Grand Pardon",
+  "@jewishCalendarHolidayYomKippurDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom Kippour » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySukkotName": "Souccot",
+  "@jewishCalendarHolidaySukkotName": {
+    "description": "Nom de la fête juive « Souccot » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySukkotDescription": "Fête des cabanes",
+  "@jewishCalendarHolidaySukkotDescription": {
+    "description": "Courte explication sous le nom de la fête « Souccot » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySheminiAtzeretName": "Shemini Atseret",
+  "@jewishCalendarHolidaySheminiAtzeretName": {
+    "description": "Nom de la fête juive « Shemini Atseret » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySheminiAtzeretDescription": "Huitième jour de rassemblement",
+  "@jewishCalendarHolidaySheminiAtzeretDescription": {
+    "description": "Courte explication sous le nom de la fête « Shemini Atseret » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidaySimchatTorahName": "Simhat Torah",
+  "@jewishCalendarHolidaySimchatTorahName": {
+    "description": "Nom de la fête juive « Simhat Torah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidaySimchatTorahDescription": "Joie de la Torah",
+  "@jewishCalendarHolidaySimchatTorahDescription": {
+    "description": "Courte explication sous le nom de la fête « Simhat Torah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayHanukkahName": "Hanoucca",
+  "@jewishCalendarHolidayHanukkahName": {
+    "description": "Nom de la fête juive « Hanoucca » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayHanukkahDescription": "Fête des lumières",
+  "@jewishCalendarHolidayHanukkahDescription": {
+    "description": "Courte explication sous le nom de la fête « Hanoucca » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayTuBishvatName": "Tou Bichvat",
+  "@jewishCalendarHolidayTuBishvatName": {
+    "description": "Nom de la fête juive « Tou Bichvat » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayTuBishvatDescription": "Nouvel an des arbres",
+  "@jewishCalendarHolidayTuBishvatDescription": {
+    "description": "Courte explication sous le nom de la fête « Tou Bichvat » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayPurimName": "Pourim",
+  "@jewishCalendarHolidayPurimName": {
+    "description": "Nom de la fête juive « Pourim » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayPurimDescription": "Fête des sorts",
+  "@jewishCalendarHolidayPurimDescription": {
+    "description": "Courte explication sous le nom de la fête « Pourim » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayPesachName": "Pessah",
+  "@jewishCalendarHolidayPesachName": {
+    "description": "Nom de la fête juive « Pessah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayPesachDescription": "Fête de la liberté",
+  "@jewishCalendarHolidayPesachDescription": {
+    "description": "Courte explication sous le nom de la fête « Pessah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHashoahName": "Yom HaShoah",
+  "@jewishCalendarHolidayYomHashoahName": {
+    "description": "Nom de la fête juive « Yom HaShoah » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHashoahDescription": "Jour du souvenir de la Shoah",
+  "@jewishCalendarHolidayYomHashoahDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaShoah » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHazikaronName": "Yom HaZikaron",
+  "@jewishCalendarHolidayYomHazikaronName": {
+    "description": "Nom de la fête juive « Yom HaZikaron » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHazikaronDescription": "Jour du souvenir des soldats",
+  "@jewishCalendarHolidayYomHazikaronDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaZikaron » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomHaatzmautName": "Yom HaAtsmaout",
+  "@jewishCalendarHolidayYomHaatzmautName": {
+    "description": "Nom de la fête juive « Yom HaAtsmaout » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomHaatzmautDescription": "Jour de l'indépendance d'Israël",
+  "@jewishCalendarHolidayYomHaatzmautDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom HaAtsmaout » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayYomYerushalayimName": "Yom Yeroushalayim",
+  "@jewishCalendarHolidayYomYerushalayimName": {
+    "description": "Nom de la fête juive « Yom Yeroushalayim » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayYomYerushalayimDescription": "Jour de la réunification de Jérusalem",
+  "@jewishCalendarHolidayYomYerushalayimDescription": {
+    "description": "Courte explication sous le nom de la fête « Yom Yeroushalayim » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayLagBaomerName": "Lag BaOmer",
+  "@jewishCalendarHolidayLagBaomerName": {
+    "description": "Nom de la fête juive « Lag BaOmer » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayLagBaomerDescription": "33eme jour du Omer",
+  "@jewishCalendarHolidayLagBaomerDescription": {
+    "description": "Courte explication sous le nom de la fête « Lag BaOmer » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarHolidayShavuotName": "Shavouot",
+  "@jewishCalendarHolidayShavuotName": {
+    "description": "Nom de la fête juive « Shavouot » dans le calendrier (titre de sa carte). Utiliser le nom usuel de la langue ; en hébreu, le nom hébreu courant."
+  },
+  "jewishCalendarHolidayShavuotDescription": "Don de la Torah",
+  "@jewishCalendarHolidayShavuotDescription": {
+    "description": "Courte explication sous le nom de la fête « Shavouot » : ce qu'elle célèbre. Une ligne."
+  },
+  "jewishCalendarIdeaFestiveDinner": "Dîner festif",
+  "@jewishCalendarIdeaFestiveDinner": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Dîner festif »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaTashlich": "Tashlich ensemble",
+  "@jewishCalendarIdeaTashlich": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Tashlich ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaMutualForgiveness": "Se demander pardon mutuellement",
+  "@jewishCalendarIdeaMutualForgiveness": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Se demander pardon mutuellement »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaBuildSukkah": "Construire la Soucca ensemble",
+  "@jewishCalendarIdeaBuildSukkah": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Construire la Soucca ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaInviteFriends": "Inviter des amis",
+  "@jewishCalendarIdeaInviteFriends": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Inviter des amis »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaPrayerForRain": "Prière pour la pluie",
+  "@jewishCalendarIdeaPrayerForRain": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Prière pour la pluie »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaDanceWithTorah": "Danser avec la Torah",
+  "@jewishCalendarIdeaDanceWithTorah": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Danser avec la Torah »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaLightCandlesTogether": "Allumer les bougies ensemble",
+  "@jewishCalendarIdeaLightCandlesTogether": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Allumer les bougies ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaHomemadeSufganiyot": "Soufganiot maison",
+  "@jewishCalendarIdeaHomemadeSufganiyot": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Soufganiot maison »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaCoupleCostumes": "Déguisement en couple",
+  "@jewishCalendarIdeaCoupleCostumes": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Déguisement en couple »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaMishloachManot": "Mishloach Manot ensemble",
+  "@jewishCalendarIdeaMishloachManot": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Mishloach Manot ensemble »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaRomanticSeder": "Seder romantique",
+  "@jewishCalendarIdeaRomanticSeder": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Seder romantique »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaTripToIsrael": "Voyage en Israël",
+  "@jewishCalendarIdeaTripToIsrael": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Voyage en Israël »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaIsraeliBarbecue": "BBQ israélien",
+  "@jewishCalendarIdeaIsraeliBarbecue": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« BBQ israélien »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaConcertOrParty": "Concert/soirée",
+  "@jewishCalendarIdeaConcertOrParty": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Concert/soirée »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaCampfire": "Feu de camp",
+  "@jewishCalendarIdeaCampfire": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Feu de camp »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaPicnic": "Pique-nique",
+  "@jewishCalendarIdeaPicnic": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Pique-nique »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaHomemadeCheesecake": "Cheesecake maison",
+  "@jewishCalendarIdeaHomemadeCheesecake": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Cheesecake maison »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarIdeaStudyNight": "Nuit d'étude",
+  "@jewishCalendarIdeaStudyNight": {
+    "description": "Puce d'idée d'activité à deux pour une fête juive (« Nuit d'étude »). Court, une ligne ou deux sur une puce."
+  },
+  "jewishCalendarParshaBereshis": "Bereshis",
+  "@jewishCalendarParshaBereshis": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bereshis ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNoach": "Noach",
+  "@jewishCalendarParshaNoach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Noach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaLechLecha": "Lech Lecha",
+  "@jewishCalendarParshaLechLecha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Lech Lecha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayera": "Vayera",
+  "@jewishCalendarParshaVayera": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayera ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaChayeiSara": "Chayei Sara",
+  "@jewishCalendarParshaChayeiSara": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Chayei Sara ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaToldos": "Toldos",
+  "@jewishCalendarParshaToldos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Toldos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayetzei": "Vayetzei",
+  "@jewishCalendarParshaVayetzei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayetzei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayishlach": "Vayishlach",
+  "@jewishCalendarParshaVayishlach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayishlach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayeshev": "Vayeshev",
+  "@jewishCalendarParshaVayeshev": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayeshev ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMiketz": "Miketz",
+  "@jewishCalendarParshaMiketz": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Miketz ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayigash": "Vayigash",
+  "@jewishCalendarParshaVayigash": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayigash ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayechi": "Vayechi",
+  "@jewishCalendarParshaVayechi": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayechi ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShemos": "Shemos",
+  "@jewishCalendarParshaShemos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shemos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVaera": "Vaera",
+  "@jewishCalendarParshaVaera": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vaera ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBo": "Bo",
+  "@jewishCalendarParshaBo": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bo ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBeshalach": "Beshalach",
+  "@jewishCalendarParshaBeshalach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Beshalach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaYisro": "Yisro",
+  "@jewishCalendarParshaYisro": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Yisro ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMishpatim": "Mishpatim",
+  "@jewishCalendarParshaMishpatim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Mishpatim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTerumah": "Terumah",
+  "@jewishCalendarParshaTerumah": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Terumah ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTetzaveh": "Tetzaveh",
+  "@jewishCalendarParshaTetzaveh": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tetzaveh ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSisa": "Ki Sisa",
+  "@jewishCalendarParshaKiSisa": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Sisa ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayakhel": "Vayakhel",
+  "@jewishCalendarParshaVayakhel": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayakhel ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaPekudei": "Pekudei",
+  "@jewishCalendarParshaPekudei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Pekudei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayikra": "Vayikra",
+  "@jewishCalendarParshaVayikra": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayikra ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTzav": "Tzav",
+  "@jewishCalendarParshaTzav": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tzav ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShmini": "Shmini",
+  "@jewishCalendarParshaShmini": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shmini ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaTazria": "Tazria",
+  "@jewishCalendarParshaTazria": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Tazria ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMetzora": "Metzora",
+  "@jewishCalendarParshaMetzora": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Metzora ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaAchreiMos": "Achrei Mos",
+  "@jewishCalendarParshaAchreiMos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Achrei Mos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKedoshim": "Kedoshim",
+  "@jewishCalendarParshaKedoshim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Kedoshim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaEmor": "Emor",
+  "@jewishCalendarParshaEmor": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Emor ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBehar": "Behar",
+  "@jewishCalendarParshaBehar": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Behar ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBechukosai": "Bechukosai",
+  "@jewishCalendarParshaBechukosai": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bechukosai ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBamidbar": "Bamidbar",
+  "@jewishCalendarParshaBamidbar": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Bamidbar ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNasso": "Nasso",
+  "@jewishCalendarParshaNasso": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Nasso ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBehaaloscha": "Beha'aloscha",
+  "@jewishCalendarParshaBehaaloscha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Beha'aloscha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShlach": "Sh'lach",
+  "@jewishCalendarParshaShlach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Sh'lach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKorach": "Korach",
+  "@jewishCalendarParshaKorach": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Korach ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaChukas": "Chukas",
+  "@jewishCalendarParshaChukas": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Chukas ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaBalak": "Balak",
+  "@jewishCalendarParshaBalak": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Balak ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaPinchas": "Pinchas",
+  "@jewishCalendarParshaPinchas": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Pinchas ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMatos": "Matos",
+  "@jewishCalendarParshaMatos": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Matos ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaMasei": "Masei",
+  "@jewishCalendarParshaMasei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Masei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaDevarim": "Devarim",
+  "@jewishCalendarParshaDevarim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Devarim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVaeschanan": "Vaeschanan",
+  "@jewishCalendarParshaVaeschanan": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vaeschanan ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaEikev": "Eikev",
+  "@jewishCalendarParshaEikev": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Eikev ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaReeh": "Re'eh",
+  "@jewishCalendarParshaReeh": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Re'eh ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaShoftim": "Shoftim",
+  "@jewishCalendarParshaShoftim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Shoftim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSeitzei": "Ki Seitzei",
+  "@jewishCalendarParshaKiSeitzei": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Seitzei ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaKiSavo": "Ki Savo",
+  "@jewishCalendarParshaKiSavo": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ki Savo ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaNitzavim": "Nitzavim",
+  "@jewishCalendarParshaNitzavim": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Nitzavim ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVayeilech": "Vayeilech",
+  "@jewishCalendarParshaVayeilech": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vayeilech ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaHaazinu": "Ha'Azinu",
+  "@jewishCalendarParshaHaazinu": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Ha'Azinu ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
+  },
+  "jewishCalendarParshaVzosHaberacha": "Vezos Habracha",
+  "@jewishCalendarParshaVzosHaberacha": {
+    "description": "Nom de la paracha (lecture hebdomadaire de la Torah) « Vezos Habracha ». Nom propre : translittération usuelle de la langue, nom hébreu courant en hébreu."
   },
   "navigationDiscover": "Découvrir",
   "@navigationDiscover": {

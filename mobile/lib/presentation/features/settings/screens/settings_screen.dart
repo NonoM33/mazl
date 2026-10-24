@@ -21,6 +21,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../l10n/delete_account_reason.dart';
 import '../widgets/language_picker_sheet.dart';
+import '../../couple/l10n/couple_failure_label.dart';
 import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -746,7 +747,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final result = await _coupleService.leaveCouple();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(result.ok ? l10n.settingsCoupleLeft : l10n.settingsCoupleLeaveError),
+        content: Text(
+          result.ok
+              ? l10n.settingsCoupleLeft
+              : result.failure?.label(l10n) ?? l10n.settingsCoupleLeaveError,
+        ),
       ),
     );
     if (mounted) setState(() {});
@@ -840,7 +845,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l10n = context.l10n;
     final result = await _coupleService.cancelCoupleRequest();
     if (!result.ok) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsCoupleCancelRequestError)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            result.failure?.label(l10n) ?? l10n.settingsCoupleCancelRequestError,
+          ),
+        ),
+      );
     }
     if (mounted) setState(() {});
   }

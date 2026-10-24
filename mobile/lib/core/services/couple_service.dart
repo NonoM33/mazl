@@ -11,7 +11,7 @@ import 'couple_api.dart';
 import 'couple_messages.dart';
 
 export '../models/couple_models.dart';
-export 'couple_messages.dart' show CoupleActionResult;
+export 'couple_messages.dart' show CoupleActionFailure, CoupleActionResult;
 
 /// What the couple flow tells the rest of the app (screens subscribe through
 /// the host widget, never through the service's internals).
@@ -80,11 +80,15 @@ class CoupleService extends ChangeNotifier {
   static const _coupleDataKey = 'couple_data';
   static const _coupleModeEnabledKey = 'couple_mode_enabled';
   static const _pendingRequestKey = 'couple_pending_request';
-  static const _archiveMessage =
-      "J'ai trouvé l'amour sur Mazl. Je ne suis plus disponible. Bonne chance dans votre recherche.";
 
   final CoupleApi _api;
   final Duration _pollInterval;
+
+  /// The sentence sent to the other conversations when the couple forms (« I
+  /// found love on Mazl… »). It is written for the member's language, which
+  /// only the screens know: the host widget sets this. Without it nothing is
+  /// archived, rather than sending a sentence in the wrong language.
+  String Function()? archiveMessageProvider;
 
   /// How often a pending request is re-read while the app is in front. The
   /// demo has no realtime channel (no WebSocket), so it re-reads faster: its
@@ -263,9 +267,7 @@ class CoupleService extends ChangeNotifier {
   }) async {
     final response = await _api.sendCoupleRequest(targetUserId);
     if (!response.success) {
-      return CoupleActionResult.failure(
-        coupleErrorMessage(response.error, response.errorKind),
-      );
+      return CoupleActionResult.failure(coupleFailureOf(response));
     }
 
     // Contract §2: the request is wrapped in `{ request: {...} }`.
@@ -274,8 +276,7 @@ class CoupleService extends ChangeNotifier {
       await refresh();
       return _pendingRequest != null
           ? const CoupleActionResult.ok()
-          : const CoupleActionResult.failure(
-              'Une erreur est survenue, réessayez dans un instant.');
+          : const CoupleActionResult.failure(CoupleActionFailure.unknown);
     }
 
     final sent = CoupleRequest.fromJson(raw);
@@ -304,9 +305,7 @@ class CoupleService extends ChangeNotifier {
     if (!response.success) {
       // It may have been answered meanwhile: re-align before reporting.
       await refresh();
-      return CoupleActionResult.failure(
-        coupleErrorMessage(response.error, response.errorKind),
-      );
+      return CoupleActionResult.failure(coupleFailureOf(response));
     }
     await _setRequests(pending: null, received: _receivedRequest);
     _updatePolling();
@@ -322,9 +321,7 @@ class CoupleService extends ChangeNotifier {
     );
     if (!response.success) {
       await refresh();
-      return CoupleActionResult.failure(
-        coupleErrorMessage(response.error, response.errorKind),
-      );
+      return CoupleActionResult.failure(coupleFailureOf(response));
     }
 
     final raw = response.data?['couple'];
@@ -332,8 +329,7 @@ class CoupleService extends ChangeNotifier {
       await refresh();
       return _isCoupleModeEnabled
           ? const CoupleActionResult.ok()
-          : const CoupleActionResult.failure(
-              'Une erreur est survenue, réessayez dans un instant.');
+          : const CoupleActionResult.failure(CoupleActionFailure.unknown);
     }
 
     final couple = CoupleData.fromServer(raw);
@@ -351,9 +347,7 @@ class CoupleService extends ChangeNotifier {
     );
     if (!response.success) {
       await refresh();
-      return CoupleActionResult.failure(
-        coupleErrorMessage(response.error, response.errorKind),
-      );
+      return CoupleActionResult.failure(coupleFailureOf(response));
     }
     await _setRequests(pending: _pendingRequest, received: null);
     return const CoupleActionResult.ok();
@@ -364,15 +358,11 @@ class CoupleService extends ChangeNotifier {
   Future<CoupleActionResult> leaveCouple() async {
     final coupleId = _coupleData?.coupleId;
     if (coupleId == null) {
-      return const CoupleActionResult.failure(
-        'Impossible de quitter le mode couple pour le moment.',
-      );
+      return const CoupleActionResult.failure(CoupleActionFailure.cannotLeave);
     }
     final response = await _api.endCouple(coupleId);
     if (!response.success) {
-      return CoupleActionResult.failure(
-        coupleErrorMessage(response.error, response.errorKind),
-      );
+      return CoupleActionResult.failure(coupleFailureOf(response));
     }
     await _leaveLocally();
     return const CoupleActionResult.ok();
@@ -502,9 +492,14 @@ class CoupleService extends ChangeNotifier {
 
   Future<void> _archiveOtherConversations() async {
     final partnerId = _coupleData?.partnerId;
+    final message = archiveMessageProvider?.call();
     if (partnerId == null) return;
+    if (message == null) {
+      debugPrint('CoupleService: no archive message set, conversations kept');
+      return;
+    }
     try {
-      await _api.archiveAllConversationsExcept(partnerId, message: _archiveMessage);
+      await _api.archiveAllConversationsExcept(partnerId, message: message);
     } catch (e) {
       debugPrint('CoupleService: Error archiving conversations: $e');
     }

@@ -727,30 +727,6 @@
   "@coupleFeedLoadFailedTitle": {
     "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
   },
-  "coupleFeedFailureNetwork": "Serveur injoignable. Réessayez.",
-  "@coupleFeedFailureNetwork": {
-    "description": "Phrase d'erreur : pas de connexion au serveur."
-  },
-  "coupleFeedFailureMalformed": "Réponse inattendue du serveur.",
-  "@coupleFeedFailureMalformed": {
-    "description": "Phrase d'erreur : le serveur a répondu quelque chose d'inattendu."
-  },
-  "coupleFeedFailureNotInCouple": "Le mode couple n'est pas actif.",
-  "@coupleFeedFailureNotInCouple": {
-    "description": "Phrase d'erreur : le membre n'est pas en mode couple."
-  },
-  "coupleFeedFailureNotFound": "Introuvable.",
-  "@coupleFeedFailureNotFound": {
-    "description": "Phrase d'erreur : l'élément demandé n'existe pas."
-  },
-  "coupleFeedFailureFull": "Cet événement est complet.",
-  "@coupleFeedFailureFull": {
-    "description": "Phrase d'erreur : l'événement est complet."
-  },
-  "coupleFeedFailureServer": "Le serveur n'a pas pu répondre. Réessayez.",
-  "@coupleFeedFailureServer": {
-    "description": "Phrase d'erreur : le serveur a échoué."
-  },
   "coupleFeedStoriesEmptyTitle": "Pas encore d'histoires de couples",
   "@coupleFeedStoriesEmptyTitle": {
     "description": "Titre de l'état vide des histoires de couples."

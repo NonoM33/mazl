@@ -361,8 +361,8 @@ void main() {
 
       expect(api.calls, contains('end:12'));
       expect(service.isCoupleModeEnabled, isTrue);
-      // The settings say it in the member's language, not with the service's sentence.
-      expect(find.text('Impossible de quitter le mode couple. Réessayez.'), findsOneWidget);
+      // The cause of the failure, in the member's language.
+      expect(find.text('Le serveur est indisponible. Réessayez dans un instant.'), findsOneWidget);
       expect(find.text('PAGE DECOUVRIR'), findsNothing);
     });
 

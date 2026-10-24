@@ -98,7 +98,10 @@ void main() {
         ..fail(kFeedRoute, const SocketException('down'));
       await pumpFeed(tester, t, kEn);
       expect(find.text('Couldn\'t load'), findsOneWidget);
-      expect(find.text('Can\'t reach the server. Try again.'), findsOneWidget);
+      expect(
+        find.text('No connection. Check your network and try again.'),
+        findsOneWidget,
+      );
       expect(find.text('Try again'), findsOneWidget);
       expect(find.text('Serveur injoignable. Réessayez.'), findsNothing);
     });

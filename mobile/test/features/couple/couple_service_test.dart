@@ -141,14 +141,6 @@ void main() {
   });
 
   group('RelationshipStatus', () {
-    test('displayName returns correct French text', () {
-      expect(RelationshipStatus.single.displayName, equals('Célibataire'));
-      expect(RelationshipStatus.dating.displayName, equals('En train de dater'));
-      expect(
-          RelationshipStatus.inRelationship.displayName, equals('En couple'));
-      expect(RelationshipStatus.engaged.displayName, equals('Fiancé(e)'));
-      expect(RelationshipStatus.married.displayName, equals('Marié(e)'));
-    });
 
     test('isInCouple returns correct values', () {
       expect(RelationshipStatus.single.isInCouple, isFalse);

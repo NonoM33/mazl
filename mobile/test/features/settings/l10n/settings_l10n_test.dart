@@ -371,7 +371,7 @@ void main() {
     });
 
     testWidgets(
-      'quitter échoue : la phrase est celle de l\'écran, pas du service',
+      'quitter échoue : la cause dite dans la langue du membre, pas la phrase du service',
       (tester) async {
         api.couple = contractCouple();
         api.endError = 'server exploded';
@@ -388,7 +388,7 @@ void main() {
           await _pumpFor(tester, const Duration(milliseconds: 600));
 
           expect(
-            find.text("Couldn't leave couple mode. Try again."),
+            find.text('The server is unavailable. Try again in a moment.'),
             findsOneWidget,
           );
           expect(find.textContaining('réessayez'), findsNothing);

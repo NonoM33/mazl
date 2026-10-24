@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/paired_avatars.dart';
 
 /// Beautiful celebration screen shown when couple mode is activated
@@ -160,16 +162,23 @@ class _MazelTovContentState extends State<_MazelTovContent>
 
   Widget _buildTitle(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Column(
       children: [
+        // The Hebrew blessing sits above the title in every language; in
+        // Hebrew the title is that blessing, so it is not written twice.
+        if (l10n.localeName != 'he') ...[
+          Text(
+            'מזל טוב',
+            textDirection: TextDirection.rtl,
+            style: textTheme.titleMedium?.copyWith(
+              color: AppColors.tekheletLight,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         Text(
-          'מזל טוב',
-          textDirection: TextDirection.rtl,
-          style: textTheme.titleMedium?.copyWith(color: AppColors.tekheletLight),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Mazal tov',
+          l10n.coupleSpaceMazelTovTitle,
           textAlign: TextAlign.center,
           style: textTheme.displayMedium?.copyWith(
             color: Colors.white,
@@ -251,10 +260,11 @@ class _MazelTovContentState extends State<_MazelTovContent>
 
   Widget _buildMessage(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     return Column(
       children: [
         Text(
-          'Félicitations à vous et à ${widget.partnerName}',
+          l10n.coupleSpaceMazelTovCongrats(widget.partnerName),
           textAlign: TextAlign.center,
           style: textTheme.titleLarge?.copyWith(
             color: Colors.white,
@@ -265,7 +275,7 @@ class _MazelTovContentState extends State<_MazelTovContent>
         ),
         const SizedBox(height: 12),
         Text(
-          'MAZL vous accompagne dans cette nouvelle étape.',
+          l10n.coupleSpaceMazelTovWelcome,
           textAlign: TextAlign.center,
           style: textTheme.bodyLarge?.copyWith(
             color: AppColors.textSecondaryDark,
@@ -287,18 +297,18 @@ class _MazelTovContentState extends State<_MazelTovContent>
           minimumSize: const Size.fromHeight(56),
           shape: const StadiumBorder(),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Flexible(
               child: Text(
-                'Commencer notre aventure',
+                context.l10n.coupleSpaceMazelTovStart,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            SizedBox(width: 8),
-            Icon(LucideIcons.arrowRight, size: 20),
+            const SizedBox(width: 8),
+            const DirectionalIcon(LucideIcons.arrowRight, size: 20),
           ],
         ),
       ),
