@@ -3115,6 +3115,34 @@ export async function getUserActivity(userId: number, limit = 50) {
   return { swipes, matches, messages, rsvps };
 }
 
+// The waitlist is tied to a member by e-mail address only (case aside). Its rows
+// go with the account. An entry whose identity documents still have a file to
+// purge is kept, with its address and token wiped, so that the documents purge
+// (src/features/documents) still finds those files: deleting the row would
+// cascade-delete the document rows and leave the files on disk for good.
+async function eraseWaitlistEntries(tx: typeof sql, userId: number): Promise<void> {
+  const entries = await tx`
+    SELECT w.id,
+      EXISTS (
+        SELECT 1 FROM documents d
+        WHERE d.waitlist_id = w.id AND d.filename IS NOT NULL AND d.purged_at IS NULL
+      ) AS has_files
+    FROM waitlist w
+    WHERE LOWER(w.email) = (SELECT LOWER(email) FROM users WHERE id = ${userId})
+  `;
+  for (const entry of entries as unknown as Array<{ id: number; has_files: boolean }>) {
+    if (entry.has_files) {
+      await tx`
+        UPDATE waitlist
+        SET email = ${`erased-${entry.id}@erased.invalid`}, verification_token = NULL
+        WHERE id = ${entry.id}
+      `;
+    } else {
+      await tx`DELETE FROM waitlist WHERE id = ${entry.id}`;
+    }
+  }
+}
+
 // Delete user completely
 export async function deleteUserCompletely(userId: number, adminEmail: string) {
   // Log before deletion
@@ -3146,6 +3174,7 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
     await eraseCredits(tx, userId);
     await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
+    await eraseWaitlistEntries(tx, userId);
     await tx`DELETE FROM users WHERE id = ${userId}`;
   });
 

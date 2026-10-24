@@ -279,6 +279,61 @@ describe("profile photos", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Account erasure
+
+const deleteMe = (user: TestUser) =>
+  fetch(`${BASE_URL}/api/users/me`, { method: "DELETE", headers: json(user.token), body: "{}" });
+
+async function waitlistEntryFor(user: TestUser, label: string): Promise<{ id: number; email: string }> {
+  const [account] = await db<{ email: string }[]>`SELECT email FROM users WHERE id = ${user.id}`;
+  if (!account) throw new Error("account missing");
+  // The waitlist keeps the address as typed at registration: another case.
+  const typed = account.email.toUpperCase();
+  const [entry] = await db<{ id: number }[]>`
+    INSERT INTO waitlist (email, token, status) VALUES (${typed}, ${`tok-${label}-${user.id}`}, 'confirmed') RETURNING id
+  `;
+  if (!entry) throw new Error("waitlist row not created");
+  return { id: entry.id, email: typed };
+}
+
+describe("DELETE /api/users/me also erases the waitlist entry", () => {
+  test("the e-mail address does not outlive the account", async () => {
+    const user = await makeUser("er-waitlist");
+    const other = await makeUser("er-waitlist-other");
+    const entry = await waitlistEntryFor(user, "a");
+    const bystander = await waitlistEntryFor(other, "b");
+
+    expect((await deleteMe(user)).status).toBe(200);
+
+    expect(await db`SELECT 1 FROM waitlist WHERE id = ${entry.id}`).toHaveLength(0);
+    expect(await db`SELECT 1 FROM waitlist WHERE LOWER(email) = LOWER(${entry.email})`).toHaveLength(0);
+    expect(await db`SELECT 1 FROM waitlist WHERE id = ${bystander.id}`).toHaveLength(1);
+  });
+
+  test("identity documents that are not purged yet keep their row, but the address is wiped", async () => {
+    const user = await makeUser("er-docs");
+    const entry = await waitlistEntryFor(user, "d");
+    await db`INSERT INTO documents (waitlist_id, type, filename) VALUES (${entry.id}, 'id_card', 'pending-file.enc')`;
+
+    expect((await deleteMe(user)).status).toBe(200);
+
+    const rows = await db<{ email: string }[]>`SELECT email FROM waitlist WHERE id = ${entry.id}`;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.email.toLowerCase()).not.toContain(entry.email.toLowerCase().split("@")[0] ?? "");
+    expect(await db`SELECT 1 FROM documents WHERE waitlist_id = ${entry.id}`).toHaveLength(1);
+  });
+
+  test("an entry whose documents are all purged is removed with them", async () => {
+    const user = await makeUser("er-purged");
+    const entry = await waitlistEntryFor(user, "p");
+    await db`INSERT INTO documents (waitlist_id, type, filename, purged_at) VALUES (${entry.id}, 'id_card', NULL, NOW())`;
+
+    expect((await deleteMe(user)).status).toBe(200);
+    expect(await db`SELECT 1 FROM waitlist WHERE id = ${entry.id}`).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Profile prompts
 
 const postPrompt = (user: TestUser, body: unknown) =>
