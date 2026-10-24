@@ -91,6 +91,8 @@ import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
+import { createLikeAllowanceService, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
@@ -301,6 +303,9 @@ const userErasure = {
 registerAdminRoutes(app, UPLOADS_DIR, userErasure);
 registerAccountRoutes(app, sql, userErasure);
 
+// Art. 9 consent and personal-data export (docs/web/adr/W06).
+registerPrivacy(app, createPrivacyModule(sql));
+
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
@@ -331,6 +336,8 @@ registerCredits(app, credits, requireAuth);
 // POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
 // Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
 // emits `match:new` via the exported `emitNewMatch` helper below.
+// Server-side daily like cap, in front of POST /api/swipes (docs/web/adr/W07).
+registerLikeAllowance(app, createLikeAllowanceService(sql));
 registerMatchingRoutes(app, { credits });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
@@ -700,6 +707,7 @@ startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
 await ensureAccountSchema(sql);
+await ensurePrivacySchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
