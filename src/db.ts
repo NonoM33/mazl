@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import { createCreditTables, eraseCredits } from "./features/credits/infra/schema";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
@@ -251,6 +252,9 @@ export async function initDb() {
     CREATE UNIQUE INDEX IF NOT EXISTS idx_subscriptions_original_tx
     ON subscriptions(original_transaction_id) WHERE original_transaction_id IS NOT NULL
   `;
+
+  // Boost and super like credits held by the server (docs/premium/CREDITS.md)
+  await createCreditTables(sql);
 
   // Couples table for couple mode
   await sql`
@@ -1382,6 +1386,14 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
     const urls = publicPhotoUrls(photoMap.get(raw.user_id) ?? []);
     return { ...p, photos: urls.length > 0 ? urls : (p.picture ? [p.picture] : []) };
   });
+}
+
+// The action of the swipe a member already recorded on a target, if any.
+export async function getSwipeAction(userId: number, targetUserId: number): Promise<string | null> {
+  const rows = await sql<{ action: string }[]>`
+    SELECT action FROM swipes WHERE user_id = ${userId} AND target_user_id = ${targetUserId}
+  `;
+  return rows[0]?.action ?? null;
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -3023,6 +3035,7 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     await tx`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
     await tx`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
     await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
+    await eraseCredits(tx, userId);
     await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
     await tx`DELETE FROM users WHERE id = ${userId}`;
   });

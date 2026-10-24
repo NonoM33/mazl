@@ -1,15 +1,17 @@
 import { Hono } from "hono";
 import {
   getDiscoverProfiles,
+  getSwipeAction,
   recordSwipe,
   getMatches,
   getReceivedLikes,
   getReceivedLikesCount,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { parseBody, swipeBodySchema } from "../../shared/http/validation";
 import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
+import type { CreditsGateway } from "../credits/application/ports";
+import { registerSwipeRoute } from "./swipe.routes";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
 // received likes). These routes are moved verbatim from the monolith
@@ -20,7 +22,11 @@ import { createRateLimiter } from "../../shared/http/rate-limit";
 // `POST /api/swipes` still emits the `match:new` WebSocket event through
 // `emitNewMatch`, now imported from `src/shared/realtime/connections.ts` (it
 // depends on the shared `sql`/`sendToUser` helpers) with identical behaviour.
-export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>): void {
+export interface MatchingRouteDeps {
+  readonly credits: CreditsGateway;
+}
+
+export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, deps: MatchingRouteDeps): void {
   // CONTRAT.md §2.3: one shared budget of 300 feed requests per hour and user
   // for /api/discover and /api/daily-picks, against profile scraping.
   const feedLimiter = createRateLimiter({ max: 300, windowMs: 60 * 60 * 1000 });
@@ -64,28 +70,11 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>): 
     }
   });
 
-  // Record swipe action
-  app.post("/api/swipes", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const parsed = await parseBody(swipeBodySchema, c);
-      if (!parsed.ok) {
-        return c.json({ success: false, error: parsed.error }, 400);
-      }
-      const { target_user_id, action } = parsed.data;
-
-      const result = await recordSwipe(userId, target_user_id, action);
-
-      // On a reciprocal match, notify both users over WebSocket if connected.
-      if (result.match) {
-        await emitNewMatch(userId, target_user_id);
-      }
-
-      return c.json({ success: true, ...result });
-    } catch (error: unknown) {
-      console.error("Swipe error:", error);
-      return c.json({ success: false, error: "Failed to record swipe" }, 500);
-    }
+  // Record swipe action. A super like is debited from the credits first.
+  registerSwipeRoute(app, {
+    authenticate: requireAuth,
+    credits: deps.credits,
+    swipes: { currentAction: getSwipeAction, record: recordSwipe, onMatch: emitNewMatch },
   });
 
   // Get user's matches
