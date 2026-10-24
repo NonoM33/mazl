@@ -1,0 +1,66 @@
+# S3 (MinIO) des fichiers envoyes a MAZL (photos, medias du chat, documents de
+# verification), cree le 2026-10-24 sur le serveur Perso. Application Coolify
+# DEPUIS GIT (build pack docker-compose, branche infra-s3, base_directory
+# /infra/s3) : le domaine se pose par docker_compose_domains.
+#
+# ATTENTION : MEME SERVEUR que l API. Ce n est pas une sauvegarde hors site.
+#
+# Deux buckets prives, deux comptes, chacun borne a SON bucket : le staging ne
+# peut ni lire ni effacer les fichiers de la production. Les secrets vivent dans
+# les variables de l application Coolify, jamais ici. Defauts `:-` : Coolify
+# prendrait le message d un `:?` pour une valeur. Fichier en ASCII pur : le
+# validateur de Coolify refuse l UTF-8.
+services:
+  minio:
+    image: 'ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z'
+    command: 'server /data --console-address ":9001"'
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-}
+    volumes:
+      - 'mazl-s3-data:/data'
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 20s
+      retries: 10
+
+  # Amorcage IDEMPOTENT, rejoue a chaque demarrage : buckets, comptes, droits.
+  # Il reste ensuite endormi (sinon Coolify afficherait l application degradee).
+  amorcage:
+    image: 'ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z'
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      RACINE_USER: ${MINIO_ROOT_USER:-}
+      RACINE_MDP: ${MINIO_ROOT_PASSWORD:-}
+      PROD_CLE: ${S3_PROD_CLE:-}
+      PROD_SECRET: ${S3_PROD_SECRET:-}
+      STG_CLE: ${S3_STG_CLE:-}
+      STG_SECRET: ${S3_STG_SECRET:-}
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        set -e
+        mc alias set s3 http://minio:9000 "$$RACINE_USER" "$$RACINE_MDP"
+        for env in prod stg; do
+          mc mb --ignore-existing "s3/mazl-$$env"
+          mc anonymous set none "s3/mazl-$$env"
+          cat > "/tmp/mazl-$$env.json" <<POLITIQUE
+        {"Version":"2012-10-17","Statement":[
+          {"Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":["arn:aws:s3:::mazl-$$env"]},
+          {"Effect":"Allow","Action":["s3:PutObject","s3:GetObject","s3:DeleteObject","s3:AbortMultipartUpload","s3:ListMultipartUploadParts"],"Resource":["arn:aws:s3:::mazl-$$env/*"]}
+        ]}
+        POLITIQUE
+          mc admin policy create s3 "mazl-$$env" "/tmp/mazl-$$env.json"
+        done
+        mc admin user add s3 "$$PROD_CLE" "$$PROD_SECRET"
+        mc admin user add s3 "$$STG_CLE" "$$STG_SECRET"
+        mc admin policy attach s3 mazl-prod --user "$$PROD_CLE" || true
+        mc admin policy attach s3 mazl-stg --user "$$STG_CLE" || true
+        echo "[amorcage] buckets mazl-prod et mazl-stg prets, un compte borne par bucket"
+        exec sleep infinity
+
+volumes:
+  mazl-s3-data:
