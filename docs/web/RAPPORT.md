@@ -23,11 +23,11 @@
   - « Voir qui vous a aimé » : la photo nette partait chez les membres gratuits.
   - Le plafond de 10 likes par jour n'était compté que par l'app.
 - **Tests** :
-  - unitaires : 2018 verts, 0 échec (modèles de visage téléchargés par `bun run models:fetch`) ;
+  - unitaires : 2051 verts, 0 échec (modèles de visage téléchargés par `bun run models:fetch`) ;
   - intégration : la suite complète (`tests/*.test.ts` hors `*-pg`) passe contre un vrai
-    serveur, Postgres et le faux Stripe : 540 réussis, 0 échec ;
-  - e2e : 13 scénarios Playwright verts, chacun sur une base vierge ;
-  - Flutter : 1599 tests verts, `dart analyze` propre ;
+    serveur, Postgres et le faux Stripe : 554 réussis, 0 échec ;
+  - e2e : 13 scénarios Playwright (83 cas) verts, chacun sur une base vierge ;
+  - Flutter : 1623 tests verts, `dart analyze` propre ;
   - typecheck et ESLint stricts : zéro avertissement.
 - La branche contient **déjà** `feat/backoffice-matching` (PR #6), fusionnée et testée
   ensemble, à la demande de la session back-office.
@@ -139,7 +139,7 @@ bun run web:watch                     # reconstruit le site à chaque modificati
 4. **Webhook** (Développeurs › Webhooks) : URL `https://<domaine>/api/billing/stripe/webhook`.
    - Événements : `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
      `customer.subscription.updated`, `customer.subscription.deleted`,
-     `invoice.payment_failed`, `charge.refunded`.
+     `invoice.payment_failed`, `charge.refunded`, `charge.dispute.created`.
    - Copier le secret de signature dans `STRIPE_WEBHOOK_SECRET`.
 5. **Essai de bout en bout** en mode test, avec la carte 4242 4242 4242 4242 (et
    `stripe listen` en local).
@@ -169,8 +169,8 @@ c'est ce qu'elle fait.
 - **W04 Stripe** : un seul droit mazl+ par membre. Un achat web est refusé si un abonnement
   App Store est actif. Le double abonnement est détecté et expliqué.
 - **W05 App Store** : aucun lien d'achat dans l'app.
-- **W06 RGPD** : consentement art. 9 recueilli sur le web ; pas encore exigé par le serveur (voir
-  ci-dessous) ; export JSON.
+- **W06 RGPD** : consentement art. 9 recueilli sur le web et dans l'app, exigé par le serveur
+  (champs ignorés sans accord) ; export JSON complet.
 - **W07** plafond de likes côté serveur ; **W08** pile (React, CSS natif, lucide, uqr,
   kosher-zmanim) ; **W09** « Annuler » sans route (passe retenu 5 s) ; **W10** pause Shabbat
   calculée comme l'app, mode discret ; **W11** likes reçus réduits sans mazl+.
@@ -196,9 +196,6 @@ c'est ce qu'elle fait.
 - **Visiteurs de profil et vues** : aucune mesure côté serveur. L'onglet le dit, et le
   mobile appelle déjà des routes absentes.
 - **« Revenir en arrière »** : aucune route serveur. Le web retient un « passer » 5 s.
-- **Consentement art. 9** : le serveur ne l'exige pas encore dans `PUT /api/profile`. L'app
-  n'a pas d'écran de consentement, et l'exiger casserait son inscription. À faire : écran
-  dans l'app, puis contrôle serveur.
 - **App mobile, à reprendre** :
   - gérer le `402 likes_exhausted` (aujourd'hui, seul son compteur local l'en empêche) ;
   - afficher des cartes floutées sans photo dans « Ils vous ont aimé ».
@@ -207,8 +204,6 @@ c'est ce qu'elle fait.
     Le web la masque, mais le serveur devrait le faire.
   - Les événements de couple payants n'ont pas de route de paiement. Le web les montre
     « Paiement requis ».
-- **Plafond de likes** : vérification puis écriture, sans verrou. Des likes envoyés
-  exactement en même temps peuvent dépasser 10 de peu.
 - **Messages** : pas de glisser pour répondre, pas de double-tap ❤️, pas de défilement vers
   le message cité, pas d'enregistrement vocal (le navigateur n'enregistre pas en AAC/M4A).
 - **Une socket par onglet** : au-delà de 5 sockets (app et onglets confondus), le serveur
@@ -224,7 +219,42 @@ c'est ce qu'elle fait.
   - trois tests lisaient l'identifiant ou la photo des likes reçus sans mazl+ (contrat W11) ;
   - le test d'export écrivait dans une table de remplacement ;
   - un test fermait la connexion à la base que partagent tous les fichiers d'intégration.
-  Elle est maintenant verte : 540 réussis, 0 échec.
+  Elle est maintenant verte : 554 réussis, 0 échec (après les correctifs de sécurité).
+
+## Sécurité : relecture indépendante et correctifs (24 octobre 2026)
+
+Une relecture de sécurité indépendante, transmise par la session d'origine, a relevé un
+point haut, six moyens et sept bas. Chacun a été vérifié dans le code, corrigé en TDD (un
+test qui échoue sur l'ancien code, puis le correctif) et commité à part. La session
+back-office a remis sa PR #7 en brouillon en attendant.
+
+| point | constat vérifié | correctif | commit |
+|---|---|---|---|
+| H1 (haut) | le ticket WebSocket était un JWT de 10 min donné à la page : utilisé comme `Bearer`, il ouvrait toute l'API et pouvait approuver un QR (session de 7 j) | ticket opaque, aléatoire, à usage unique, 60 s, oublié à la révocation ; JWT du pont marqué `aud: "web-bridge"` + id de session ; les routes d'appairage n'acceptent que les jetons de l'app | `4948f60` |
+| M1 | connexion Google/Apple sans contrôle d'origine ; Hono lit un `text/plain` comme du JSON (formulaire tiers) | tout `POST /api/web/auth/*` exige `application/json` (415) et refuse une autre origine (403) | `59cc208` |
+| M2 | deux onglets ouvraient deux Checkout et deux abonnements | expiration des Checkout d'abonnement ouverts du client, création sérialisée par membre ; au webhook, le second abonnement (plus récent qu'un Stripe vivant, ou nouveau face à un App Store vivant) est annulé et remboursé | `f5ba7dd` |
+| M3 | le plafond comptait `swipes` (upsert : un « passer » rendait un like) ; course vérification/écriture | journal du jour en ajout seul, réservation sous `pg_advisory_xact_lock`, rendue si le swipe échoue ; 15 likes simultanés → exactement 10 | `12af87e` |
+| M4 | `PUT /api/profile` gardait la pratique sans consentement ou après retrait | le serveur ignore en silence les 4 champs sans consentement valide ; l'app reçoit l'écran de consentement (création, édition, réglages, retrait) | `ca8d4db`, `ce2a46d`…`5ce5cb0` |
+| M5 | `/verify` et `/console` sur l'origine du site, CSP `'unsafe-inline'` ; `verify.js` importait `/admin-escape.js`, absent : la page cassait | sur l'hôte du site, `/verify*`, `/console*`, `/admin*` redirigent vers l'hôte de l'API (requête conservée) ; seules les pages juridiques, sans script, restent | `994cf50` |
+| M6 | le reprise des crédits dépendait de `charge.metadata.offer` ; pas de litiges | remboursement total et `charge.dispute.created` → `refundPurchase(paymentIntent)` décidé d'après `credit_purchases` (révocation mémorisée si le remboursement arrive avant le crédit) | `4bf6e19` |
+| B1, B8 | tickets identiques dans la même seconde ; ticket valable après révocation | réglés par H1 (ticket aléatoire, usage unique, oublié à la révocation) | `4948f60` |
+| B2 | à l'effacement, seuls les abonnements connus de MAZL étaient annulés ; le client Stripe restait | tous les abonnements du client chez Stripe sont annulés, puis le client est supprimé après l'effacement (Stripe garde les factures) | `b48897b` |
+| B3 | un remboursement d'abonnement sans annulation garde mazl+ | **non codé, procédure** : pour rembourser un abonnement, l'annuler immédiatement dans Stripe (le webhook `customer.subscription.deleted` retire mazl+) ; à automatiser si le support rembourse souvent | — |
+| B4 | pas de confirmation du renoncement sur support durable (L221-13) | le texte daté du renoncement s'affiche au paiement et figure en pied de la facture e-mailée des packs. **Reste** : pour l'abonnement, Checkout n'a pas de pied de facture par session, il faut un e-mail de confirmation (non envoyé, e-mails réels interdits dans ce chantier). **Juridique** : la base L221-28 13° (contenu numérique) est discutable pour un abonnement, qui ressemble plutôt à un service (L221-28 1° ne joue qu'après pleine exécution ; sinon L221-25, paiement au prorata en cas de rétractation) : à faire trancher par le conseil | `731a116` |
+| B6 | l'écran d'approbation ne montrait que le navigateur et l'heure | adresse IP masquée du navigateur (`198.51.100.x`) affichée dans l'app. Pas de ville : il faudrait un service de géolocalisation IP (tiers, transfert de données), écarté | `2501dec` |
+| B7 | l'export RGPD omettait la modération et la vérification | sanctions, suspensions, actions visant le compte, sessions de selfie, vérification d'identité, présence d'un gabarit facial, tentatives, dossier de liste d'attente ; sans nom d'agent, notes internes, gabarit ni empreinte de document | `93805e4` |
+
+Points de vigilance qui restent :
+- les membres qui ont renseigné leur pratique avant ce changement n'ont pas de consentement
+  tracé : leurs données restent, mais ne sont plus modifiables sans accord ; leur demander
+  l'accord (l'app le fait à l'ouverture de l'édition), et décider d'un effacement en
+  l'absence de réponse ;
+- les notes internes des agents (documents, sanctions) ne sont pas exportées : à valider
+  avec le conseil (l'art. 15 peut les viser) ;
+- `/console` vit désormais sur l'hôte de l'API (`api.mazl.app/console`) quand
+  `WEB_ORIGIN=https://mazl.app` : signalé à la session back-office ;
+- `GET /api/couple/:id/question` renvoie encore la réponse du partenaire avant la sienne
+  (masquée par le site, à corriger côté serveur par le propriétaire du mode couple).
 
 ## Organisation
 - **Orchestration** : moi (Opus) pour le cadrage, les contrats, la relecture de chaque diff,
