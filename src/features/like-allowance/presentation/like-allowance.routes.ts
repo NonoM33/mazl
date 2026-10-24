@@ -8,7 +8,7 @@ type Authenticate = MiddlewareHandler<{ Variables: AppVariables }>;
 
 export interface LikeAllowanceDeps {
   readonly authenticate: Authenticate;
-  readonly allowance: Pick<LikeAllowanceService, "allowance" | "checkLike">;
+  readonly allowance: Pick<LikeAllowanceService, "allowance" | "checkLike" | "release">;
 }
 
 // Beyond this the id cannot exist and the query would fail: the swipe handler answers 400.
@@ -31,14 +31,23 @@ export function createLikeAllowanceGuard(deps: LikeAllowanceDeps): MiddlewareHan
   return createMiddleware<{ Variables: AppVariables }>(async (c, next) => {
     const like = await readLike(c);
     if (like === undefined) return await next();
+    const userId = c.get("userId");
+    let reserved = false;
     try {
-      const verdict = await deps.allowance.checkLike(c.get("userId"), like.target_user_id);
+      const verdict = await deps.allowance.checkLike(userId, like.target_user_id);
       if (!verdict.allowed) return c.json({ success: false, error: "likes_exhausted", allowance: verdict.allowance }, 402);
+      reserved = verdict.reserved;
     } catch (error: unknown) {
       console.error("Like allowance failed:", error instanceof Error ? error.name : "unknown");
       return c.json({ success: false, error: "internal_error" }, 500);
     }
     await next();
+    // The swipe was refused (unknown target, error): the like is given back.
+    if (reserved && c.res.status !== 200) {
+      await deps.allowance.release(userId, like.target_user_id).catch((error: unknown) => {
+        console.error("Like allowance release failed:", error instanceof Error ? error.name : "unknown");
+      });
+    }
   });
 }
 

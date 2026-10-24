@@ -93,7 +93,7 @@ import { createCreditsService, registerCredits } from "./features/credits/credit
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
 import { createWebApp } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
-import { createLikeAllowanceService, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
 import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
@@ -741,6 +741,7 @@ await ensureChatSchema();
 await ensureAccountSchema(sql);
 await ensureBillingWebSchema(sql);
 await ensurePrivacySchema(sql);
+await ensureLikeAllowanceSchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);

@@ -66,3 +66,30 @@ describe("like allowance", () => {
     expect(response.status).toBe(400);
   });
 });
+
+describe("the cap cannot be got round (security review M3)", () => {
+  test("passing on someone already liked does not give a like back", async () => {
+    const member = await makeUser("likes-pass-back");
+    const targets = await makeTargets("likes-pass-back-t", 11);
+    for (const target of targets.slice(0, 10)) expect((await swipe(member, target.id, "like")).status).toBe(200);
+    // The swipe row of the first like becomes a pass: the day's likes stay ten.
+    expect((await swipe(member, targets[0]!.id, "pass")).status).toBe(200);
+    expect((await swipe(member, targets[10]!.id, "like")).status).toBe(402);
+    expect(await readAllowance(member)).toMatchObject({ remaining: 0 });
+  });
+
+  test("fifteen likes sent at the same time: exactly ten go through", async () => {
+    const member = await makeUser("likes-race");
+    const targets = await makeTargets("likes-race-t", 15);
+    const statuses = await Promise.all(targets.map((target) => swipe(member, target.id, "like").then((res) => res.status)));
+    expect(statuses.filter((status) => status === 200)).toHaveLength(10);
+    expect(statuses.filter((status) => status === 402)).toHaveLength(5);
+    expect(await db`SELECT 1 FROM swipes WHERE user_id = ${member.id} AND action = 'like'`).toHaveLength(10);
+  });
+
+  test("a like the server refuses for another reason does not use the day's allowance", async () => {
+    const member = await makeUser("likes-refused");
+    expect((await swipe(member, 2_000_000_000, "like")).status).toBe(404);
+    expect(await readAllowance(member)).toMatchObject({ remaining: 10 });
+  });
+});
