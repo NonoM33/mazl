@@ -355,3 +355,112 @@ describe("archive-conversations", () => {
     expect(await archivedCount(couple.a.id)).toBe(1);
   });
 });
+
+// ---------- 6. events and bookings ----------
+
+describe("couple events", () => {
+  test("a draft event is invisible and cannot be joined", async () => {
+    const couple = await makeCouple("ev1");
+    const draft = await makeEvent({ published: false });
+    expect((await api(couple.a.token, "GET", `/api/couple/events/${draft}`)).status).toBe(404);
+    expect((await api(couple.a.token, "POST", `/api/couple/events/${draft}/register`)).status).toBe(404);
+    expect(await registrationRows(draft)).toBe(0);
+    expect(await eventCount(draft)).toBe(0);
+  });
+
+  test("a past event cannot be joined", async () => {
+    const couple = await makeCouple("ev2");
+    const past = await makeEvent({ dayOffset: -3 });
+    expect((await api(couple.a.token, "POST", `/api/couple/events/${past}/register`)).status).toBe(409);
+    expect(await registrationRows(past)).toBe(0);
+    expect(await eventCount(past)).toBe(0);
+  });
+
+  test("a paid event cannot be joined without paying", async () => {
+    const couple = await makeCouple("ev3");
+    const paid = await makeEvent({ priceCents: 8000 });
+    const res = await api(couple.a.token, "POST", `/api/couple/events/${paid}/register`);
+    expect(res.status).toBe(402);
+    expect((await bodyOf<{ success: boolean }>(res)).success).toBe(false);
+    expect(await registrationRows(paid)).toBe(0);
+    expect(await eventCount(paid)).toBe(0);
+  });
+
+  test("a free event is still joinable, and zero cents counts as free", async () => {
+    const couple = await makeCouple("ev4");
+    const free = await makeEvent({ priceCents: 0 });
+    expect((await api(couple.a.token, "POST", `/api/couple/events/${free}/register`)).status).toBe(200);
+    expect(await eventCount(free)).toBe(1);
+  });
+
+  test("a full event answers a clear refusal, not a server error", async () => {
+    const couple = await makeCouple("ev5");
+    const full = await makeEvent({ max: 1, current: 1 });
+    const res = await api(couple.a.token, "POST", `/api/couple/events/${full}/register`);
+    expect(res.status).toBe(409);
+    expect(await eventCount(full)).toBe(1);
+  });
+
+  test("the last place goes to one couple only", async () => {
+    const couples = await Promise.all([makeCouple("ev6a"), makeCouple("ev6b"), makeCouple("ev6c")]);
+    const event = await makeEvent({ max: 1, current: 0 });
+    const results = await Promise.all(
+      couples.map((c) => api(c.a.token, "POST", `/api/couple/events/${event}/register`)),
+    );
+    expect(results.filter((r) => r.status === 200).length).toBe(1);
+    expect(await eventCount(event)).toBe(1);
+    expect(await registrationRows(event)).toBe(1);
+  });
+
+  test("the same couple registering many times at once counts once", async () => {
+    const couple = await makeCouple("ev7");
+    const event = await makeEvent({ max: 5, current: 0 });
+    await Promise.all(
+      Array.from({ length: 8 }, () => api(couple.a.token, "POST", `/api/couple/events/${event}/register`)),
+    );
+    expect(await eventCount(event)).toBe(1);
+    expect(await registrationRows(event)).toBe(1);
+  });
+});
+
+describe("couple bookings", () => {
+  const book = (who: TestUser, body: unknown) => api(who.token, "POST", "/api/couple/bookings", body);
+
+  test("a booking on a draft, past or paid event is refused", async () => {
+    const couple = await makeCouple("bk1");
+    const draft = await makeEvent({ published: false });
+    const past = await makeEvent({ dayOffset: -2 });
+    const paid = await makeEvent({ priceCents: 5000 });
+    expect((await book(couple.a, { eventId: draft, bookingDate: "2030-01-01" })).status).toBe(404);
+    expect((await book(couple.a, { eventId: past, bookingDate: "2030-01-01" })).status).toBe(409);
+    expect((await book(couple.a, { eventId: paid, bookingDate: "2030-01-01" })).status).toBe(402);
+    const rows = await db`SELECT 1 FROM couple_bookings WHERE couple_id = ${couple.id}`;
+    expect(rows.length).toBe(0);
+  });
+
+  test("a booking on an inactive activity is refused and the activity is hidden", async () => {
+    const couple = await makeCouple("bk2");
+    const [activity] = await db<{ id: number }[]>`
+      INSERT INTO couple_activities (title, category, is_active) VALUES ('Brouillon', 'dinner', false) RETURNING id`;
+    expect((await api(couple.a.token, "GET", `/api/couple/activities/${activity!.id}`)).status).toBe(404);
+    expect((await book(couple.a, { activityId: activity!.id, bookingDate: "2030-01-01" })).status).toBe(404);
+  });
+
+  test("a malformed booking is a 400, never a 500", async () => {
+    const couple = await makeCouple("bk3");
+    expect((await book(couple.a, {})).status).toBe(400);
+    expect((await book(couple.a, { bookingDate: "2030-01-01" })).status).toBe(400);
+    expect((await book(couple.a, { activityId: "abc", bookingDate: "2030-01-01" })).status).toBe(400);
+    expect((await book(couple.a, { activityId: 999999999, bookingDate: "pas-une-date" })).status).toBe(400);
+    expect((await book(couple.a, { activityId: 999999999, bookingDate: "2030-02-31" })).status).toBe(400);
+    expect((await book(couple.a, { activityId: 999999999, bookingDate: "2030-01-01" })).status).toBe(404);
+  });
+
+  test("a valid booking on a free published event succeeds", async () => {
+    const couple = await makeCouple("bk4");
+    const event = await makeEvent({});
+    const res = await book(couple.a, { eventId: event, bookingDate: "2030-01-01", bookingTime: "19:30", notes: "table au calme" });
+    expect(res.status).toBe(200);
+    expect((await bodyOf<{ success: boolean }>(res)).success).toBe(true);
+  });
+});

@@ -59,3 +59,46 @@ export const archiveConversationsBodySchema = z
     message: z.string().max(ARCHIVE_MESSAGE_MAX_LENGTH).nullable().optional(),
   })
   .passthrough();
+
+// Largest value of a Postgres INTEGER column: anything above is never a real id.
+const POSTGRES_INTEGER_MAX = 2_147_483_647;
+
+// A route id (`/events/:id`...) as a positive integer, or null when it is not one.
+export function parseRouteId(raw: string | undefined): number | null {
+  if (raw === undefined || !/^\d+$/.test(raw)) return null;
+  const id = Number(raw);
+  return id >= 1 && id <= POSTGRES_INTEGER_MAX ? id : null;
+}
+
+const idSchema = z.number().int().min(1).max(POSTGRES_INTEGER_MAX);
+
+// A real calendar day written YYYY-MM-DD (a trailing time is tolerated and
+// dropped, so an ISO timestamp from a client still works). 2024-02-31 is refused.
+export const calendarDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}(?:[T ].*)?$/, "must be a date (YYYY-MM-DD)")
+  .refine((value) => {
+    const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+    if (year === undefined || month === undefined || day === undefined) return false;
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+  }, "must be a real calendar date")
+  .transform((value) => value.slice(0, 10));
+
+// POST /api/couple/bookings body.
+export const bookingBodySchema = z
+  .object({
+    activityId: idSchema.nullable().optional(),
+    eventId: idSchema.nullable().optional(),
+    bookingDate: calendarDateSchema,
+    bookingTime: z
+      .string()
+      .regex(/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/, "must be a time (HH:MM)")
+      .nullable()
+      .optional(),
+    notes: z.string().max(1000).nullable().optional(),
+  })
+  .passthrough()
+  .refine((body) => body.activityId != null || body.eventId != null, {
+    message: "activityId or eventId is required",
+  });

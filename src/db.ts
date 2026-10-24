@@ -4057,7 +4057,7 @@ export async function getCoupleActivities(coupleId: number, limit = 20, offset =
 // Get single activity
 export async function getCoupleActivity(activityId: number) {
   const result = await sql`
-    SELECT * FROM couple_activities WHERE id = ${activityId}
+    SELECT * FROM couple_activities WHERE id = ${activityId} AND is_active = true
   `;
   return result.length ? result[0] : null;
 }
@@ -4102,20 +4102,54 @@ export async function removeSavedActivity(coupleId: number, activityId: number) 
   `;
 }
 
-// Create booking
+export type CoupleBookingResult =
+  | { ok: true; booking: Array<Record<string, unknown>> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
+
+type BookableEvent = { price_cents: number | null; is_past: boolean };
+
+// Why an event cannot be taken (booked or joined) right now, or null when it can.
+// `paid` is true when this couple already paid for it.
+function eventRefusal(event: BookableEvent | undefined, paid: boolean): { status: 402 | 404 | 409; error: string } | null {
+  if (!event) return { status: 404, error: 'Event not found' };
+  if (event.is_past) return { status: 409, error: 'Event is over' };
+  if ((event.price_cents ?? 0) > 0 && !paid) {
+    return { status: 402, error: 'This event is paid: payment is required before registering' };
+  }
+  return null;
+}
+
+// Create booking. Only a published, upcoming, free event (or an active
+// activity) can be booked: a draft, past or paid event is refused.
 export async function createCoupleBooking(params: {
   coupleId: number;
-  activityId?: number;
-  eventId?: number;
+  activityId?: number | null;
+  eventId?: number | null;
   bookingDate: string;
-  bookingTime?: string;
-  notes?: string;
-}) {
-  return await sql`
+  bookingTime?: string | null;
+  notes?: string | null;
+}): Promise<CoupleBookingResult> {
+  if (params.eventId != null) {
+    const [event] = await sql<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${params.eventId} AND is_published = true
+    `;
+    const refusal = eventRefusal(event, false);
+    if (refusal) return { ok: false, ...refusal };
+  }
+  if (params.activityId != null) {
+    const activity = await sql`
+      SELECT 1 FROM couple_activities WHERE id = ${params.activityId} AND is_active = true
+    `;
+    if (activity.length === 0) return { ok: false, status: 404, error: 'Activity not found' };
+  }
+
+  const booking = await sql`
     INSERT INTO couple_bookings (couple_id, activity_id, event_id, booking_date, booking_time, notes, status)
     VALUES (${params.coupleId}, ${params.activityId ?? null}, ${params.eventId ?? null}, ${params.bookingDate}, ${params.bookingTime ?? null}, ${params.notes ?? null}, 'confirmed')
     RETURNING *
   `;
+  return { ok: true, booking: booking as unknown as Array<Record<string, unknown>> };
 }
 
 // Get couple bookings
@@ -4153,34 +4187,47 @@ export async function getCoupleEvents(limit = 20, offset = 0, category?: string)
 // Get single couple event
 export async function getCoupleEvent(eventId: number) {
   const result = await sql`
-    SELECT * FROM couple_events WHERE id = ${eventId}
+    SELECT * FROM couple_events WHERE id = ${eventId} AND is_published = true
   `;
   return result.length ? result[0] : null;
 }
 
-// Register for couple event
-export async function registerForCoupleEvent(coupleId: number, eventId: number) {
-  const event = await getCoupleEvent(eventId);
-  if (!event) throw new Error("Event not found");
+export type CoupleEventRegistrationResult =
+  | { ok: true; registration: Record<string, unknown> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
 
-  // The count moves only when the registration actually changes state: a
-  // second "register" (or a second "cancel") must not count the couple twice.
-  // Capacity is checked in the same UPDATE, so two couples cannot both take
-  // the last place.
+// Register for couple event. The event row is locked for the whole
+// transaction, so the checks (published, upcoming, free or paid for, room left)
+// and the place taken cannot be interleaved with another registration.
+export async function registerForCoupleEvent(
+  coupleId: number,
+  eventId: number
+): Promise<CoupleEventRegistrationResult> {
   return await sql.begin(async (transaction) => {
     const tx = transaction as unknown as typeof sql;
-    const [existing] = await tx<{ status: string }[]>`
-      SELECT status FROM couple_event_registrations
-      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    const [event] = await tx<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${eventId} AND is_published = true
       FOR UPDATE
     `;
-    if (existing?.status !== "registered") {
+    const [existing] = await tx<{ status: string; paid: boolean | null }[]>`
+      SELECT status, paid FROM couple_event_registrations
+      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    `;
+    const refusal = eventRefusal(event, existing?.paid === true);
+    if (refusal) return { ok: false, ...refusal } as const;
+
+    // The count moves only when the registration actually changes state: a
+    // second "register" (or a second "cancel") must not count the couple twice.
+    // Capacity is checked in the same UPDATE, so two couples cannot both take
+    // the last place.
+    if (existing?.status !== 'registered') {
       const seat = await tx`
         UPDATE couple_events SET current_couples = current_couples + 1
         WHERE id = ${eventId} AND (max_couples IS NULL OR current_couples < max_couples)
         RETURNING id
       `;
-      if (seat.length === 0) throw new Error("Event is full");
+      if (seat.length === 0) return { ok: false, status: 409, error: 'Event is full' } as const;
     }
     const registration = await tx`
       INSERT INTO couple_event_registrations (couple_id, event_id)
@@ -4188,7 +4235,7 @@ export async function registerForCoupleEvent(coupleId: number, eventId: number) 
       ON CONFLICT (couple_id, event_id) DO UPDATE SET status = 'registered', cancelled_at = NULL
       RETURNING *
     `;
-    return registration[0];
+    return { ok: true, registration: registration[0] as Record<string, unknown> } as const;
   });
 }
 
