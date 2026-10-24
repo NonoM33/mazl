@@ -28,7 +28,7 @@ describe("embedded Apple Root CA - G3", () => {
 
 describe("readProductPolicy", () => {
   test("defaults to the MAZL bundle and the one-month product", () => {
-    expect(readProductPolicy({})).toEqual({ bundleId: "com.mazl.app", productIds: ["com.mazl.app.plus.1m"] });
+    expect(readProductPolicy({})).toEqual({ bundleId: "com.mazl.app", productIds: ["com.mazl.app.plus.1m", "com.mazl.app.plus.3m", "com.mazl.app.plus.6m", "com.mazl.app.plus.12m"] });
   });
 
   test("reads a comma separated list, trimming blanks", () => {
