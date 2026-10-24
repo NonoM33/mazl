@@ -36,3 +36,6 @@ Jenkinsfile
 # Website container: its client is built inside web/Dockerfile
 web/dist
 web/front/e2e
+# Local showcase build (rebuilt inside the image)
+landing/dist
+landing/dev

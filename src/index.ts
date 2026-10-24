@@ -353,12 +353,13 @@ registerAuthRoutes(app);
 const webSession = createWebSessionModule({ sql });
 registerWebSession(app, webSession);
 // The built web client under /app, with its own headers (docs/web/adr/W01).
-// With SERVE_WEBSITE=false the client is served by the website container; this
-// process only sends the old website addresses there.
+// With SERVE_WEBSITE=false the client and the showcase are served by the website
+// container; this process only sends the old website addresses there.
 const webApp = SERVE_WEBSITE
   ? createWebApp({
       distDir: process.env.WEB_DIST_DIR || "web/dist",
       webOrigin: process.env.WEB_ORIGIN || null,
+      landingDistDir: process.env.LANDING_DIST_DIR || "landing/dist",
       mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
     })
   : createWebsiteMoved(process.env.WEB_ORIGIN || null);

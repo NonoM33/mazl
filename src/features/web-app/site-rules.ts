@@ -24,3 +24,12 @@ export const WEB_HOST_PAGES: ReadonlySet<string> = new Set([
 ]);
 
 export const apiHostOnly = (path: string): boolean => API_HOST_ONLY.test(path);
+
+// The showcase (landing/dist): index.html at the root of the site host, every
+// other file under /l/ (a missing one is a 404, never the page; the .gz copies
+// are only served as the Content-Encoding of their script or stylesheet).
+export const LANDING_PREFIX = "/l/";
+export const isLandingPath = (path: string): boolean => path.startsWith(LANDING_PREFIX);
+
+// www.<site host> only redirects to the site host, path and query kept.
+export const wwwHost = (host: string): string => `www.${host}`;

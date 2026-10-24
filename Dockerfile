@@ -21,6 +21,9 @@ RUN apt-get update \
 # Web client (app.mazl.app), built into web/dist and served under /app.
 RUN bun web/build.ts
 
+# Showcase (mazl.app), built into landing/dist and served at / and under /l/.
+RUN bun landing/build.ts
+
 # Face models (OpenCV Zoo), checksums pinned in the script.
 RUN bun scripts/fetch-face-models.ts
 
