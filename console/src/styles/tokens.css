@@ -1,0 +1,83 @@
+/* Charte « Encre & Tekhelet » (mobile/lib/core/theme/app_colors.dart). Un seul accent. */
+@font-face { font-family: "Geist"; font-weight: 400; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-400.ttf") format("truetype"); }
+@font-face { font-family: "Geist"; font-weight: 500; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-500.ttf") format("truetype"); }
+@font-face { font-family: "Geist"; font-weight: 600; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-600.ttf") format("truetype"); }
+@font-face { font-family: "Geist"; font-weight: 700; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-700.ttf") format("truetype"); }
+@font-face { font-family: "Geist Mono"; font-weight: 400; font-style: normal; font-display: swap; src: url("/console/fonts/GeistMono-400.ttf") format("truetype"); }
+@font-face { font-family: "Geist Mono"; font-weight: 500; font-style: normal; font-display: swap; src: url("/console/fonts/GeistMono-500.ttf") format("truetype"); }
+
+:root {
+  color-scheme: light dark;
+  --ink: #0B0B0F;
+  --paper: #FFFFFF;
+  --tekhelet: #2747F5;
+  --tekhelet-dark: #1A35C9;
+  --tekhelet-light: #5B78FF;
+  --mist: #F3F3F5;
+  --hairline: #E2E2E6;
+  --muted: #6B6B76;
+  --divider: #EDEDF0;
+  --success: #15803D;
+  --warning: #B45309;
+  --error: #C8281C;
+
+  --bg: var(--paper);
+  --surface: var(--paper);
+  --card: var(--mist);
+  --text: var(--ink);
+  --text-2: var(--muted);
+  --line: var(--hairline);
+  --line-soft: var(--divider);
+  --accent: var(--tekhelet);
+  --accent-press: var(--tekhelet-dark);
+  --accent-text: var(--tekhelet);
+  --accent-soft: #E9EDFE;
+  --error-soft: #FBE9E7;
+  --warning-soft: #FBEFDD;
+  --success-soft: #E3F3E8;
+  --error-text: var(--error);
+  --warning-text: var(--warning);
+  --success-text: var(--success);
+  --overlay: rgba(11, 11, 15, 0.45);
+  --shadow: 0 1px 2px rgba(11, 11, 15, 0.04);
+  --shadow-pop: 0 12px 40px rgba(11, 11, 15, 0.18);
+
+  --side-bg: var(--ink);
+  --side-text: #9A9AA5;
+  --side-text-active: #FFFFFF;
+  --side-line: rgba(255, 255, 255, 0.1);
+
+  --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r-s: 8px;
+  --r-m: 10px;
+  --r-l: 14px;
+  --t: 150ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0B0B0F;
+    --surface: #141418;
+    --card: #1C1C22;
+    --text: #F4F4F5;
+    --text-2: #A1A1AA;
+    --line: #26262C;
+    --line-soft: #26262C;
+    --accent: #5B78FF;
+    --accent-press: #7A91FF;
+    --accent-text: #8EA2FF;
+    --accent-soft: #1B2250;
+    --error-soft: #3A1815;
+    --warning-soft: #36230F;
+    --success-soft: #11291A;
+    --error-text: #F0766B;
+    --warning-text: #E9A050;
+    --success-text: #5BC283;
+    --overlay: rgba(0, 0, 0, 0.62);
+    --shadow: none;
+    --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.55);
+    --side-bg: #08080B;
+    --side-line: rgba(255, 255, 255, 0.08);
+  }
+}
