@@ -187,3 +187,54 @@ describe("one active couple per member", () => {
     await expect(db`UPDATE couples SET status = 'active' WHERE user1_id = ${u2.id} AND user2_id = ${u3.id}`).rejects.toThrow();
   });
 });
+
+// ---------- 3. blocking and unmatching after the request ----------
+
+describe("request acceptance re-checks the relationship", () => {
+  test("a blocked requester cannot become a couple with the person who blocked them", async () => {
+    const a = await makeUser("blk-a");
+    const b = await makeUser("blk-b");
+    await match(a, b);
+    const id = await requestId(a, b);
+    await block(b, a);
+    const res = await respond(b, id, "accept");
+    expect(res.status).toBe(403);
+    expect(await activeCouplesOf(a.id)).toBe(0);
+    expect(await activeCouplesOf(b.id)).toBe(0);
+  });
+
+  test("the block also stops the acceptance when the requester is the one who blocked", async () => {
+    const a = await makeUser("blk2-a");
+    const b = await makeUser("blk2-b");
+    await match(a, b);
+    const id = await requestId(a, b);
+    await block(a, b);
+    expect((await respond(b, id, "accept")).status).toBe(403);
+    expect(await activeCouplesOf(b.id)).toBe(0);
+  });
+
+  test("the lists of requests hide people in a block relationship", async () => {
+    const a = await makeUser("lst-a");
+    const b = await makeUser("lst-b");
+    await match(a, b);
+    const id = await requestId(a, b);
+    await block(b, a);
+    const received = await bodyOf<{ received: Array<{ id: number }>; sent: Array<{ id: number }> }>(
+      await api(b.token, "GET", "/api/couple/requests"),
+    );
+    expect(received.received.some((r) => r.id === id)).toBe(false);
+    const sent = await bodyOf<{ sent: Array<{ id: number }> }>(await api(a.token, "GET", "/api/couple/requests"));
+    expect(sent.sent.some((r) => r.id === id)).toBe(false);
+  });
+
+  test("a request cannot be accepted once the match no longer exists", async () => {
+    const a = await makeUser("unm-a");
+    const b = await makeUser("unm-b");
+    await match(a, b);
+    const id = await requestId(a, b);
+    const [low, high] = a.id < b.id ? [a.id, b.id] : [b.id, a.id];
+    await db`DELETE FROM matches WHERE user1_id = ${low} AND user2_id = ${high}`;
+    expect((await respond(b, id, "accept")).status).toBe(403);
+    expect(await activeCouplesOf(b.id)).toBe(0);
+  });
+});

@@ -2574,6 +2574,23 @@ export async function respondToCoupleRequest(
         return { ok: true, action: 'rejected' } as const;
       }
 
+      // Blocking or unmatching after the request was sent must stop the couple.
+      const blocked = await tx`
+        SELECT 1 FROM blocked_users
+        WHERE (blocker_id = ${low} AND blocked_id = ${high})
+           OR (blocker_id = ${high} AND blocked_id = ${low})
+        LIMIT 1
+      `;
+      if (blocked.length > 0) {
+        return { ok: false, status: 403, error: 'User is unavailable' } as const;
+      }
+      const matched = await tx`
+        SELECT 1 FROM matches WHERE user1_id = ${low} AND user2_id = ${high} LIMIT 1
+      `;
+      if (matched.length === 0) {
+        return { ok: false, status: 403, error: 'not_matched' } as const;
+      }
+
       const alreadyCoupled = await tx`
         SELECT 1 FROM couples
         WHERE status = 'active'
@@ -2661,6 +2678,11 @@ export async function getCoupleRequestsForUser(
     LEFT JOIN users tu ON tu.id = cr.target_id
     WHERE cr.status = 'pending'
       AND (cr.requester_id = ${userId} OR cr.target_id = ${userId})
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = cr.requester_id AND b.blocked_id = cr.target_id)
+           OR (b.blocker_id = cr.target_id AND b.blocked_id = cr.requester_id)
+      )
     ORDER BY cr.created_at DESC
   `;
 
@@ -2707,6 +2729,11 @@ export async function getCoupleStatusWith(
     WHERE status = 'pending'
       AND ((requester_id = ${userId} AND target_id = ${otherUserId})
         OR (requester_id = ${otherUserId} AND target_id = ${userId}))
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${otherUserId})
+           OR (b.blocker_id = ${otherUserId} AND b.blocked_id = ${userId})
+      )
     LIMIT 1
   `;
   if (pending.length > 0) {
