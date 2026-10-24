@@ -518,6 +518,7 @@
   "eventsRsvpCancelled": "Запись отменена",
   "eventsRsvpDone": "Запись подтверждена",
   "eventsShareMessage": "Присоединяйтесь ко мне на «{title}» в MAZL",
+  "genreLookingForRequired": "Укажите, кого Вы ищете",
   "icebreakerWidgetTitle": "Нужно вдохновение?",
   "icebreakerWidgetSubtitle": "Несколько идей, с чего начать разговор",
   "icebreakerTopicFallback": "это",

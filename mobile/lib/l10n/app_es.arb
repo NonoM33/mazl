@@ -518,6 +518,7 @@
   "eventsRsvpCancelled": "Inscripción cancelada",
   "eventsRsvpDone": "Inscripción confirmada",
   "eventsShareMessage": "Únete a mí en \"{title}\" en MAZL",
+  "genreLookingForRequired": "Indica a quién buscas",
   "icebreakerWidgetTitle": "¿Necesitas inspiración?",
   "icebreakerWidgetSubtitle": "Aquí tienes algunas ideas para romper el hielo",
   "icebreakerTopicFallback": "eso",

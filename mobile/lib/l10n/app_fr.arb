@@ -2442,6 +2442,10 @@
       }
     }
   },
+  "genreLookingForRequired": "Indiquez ce que vous recherchez",
+  "@genreLookingForRequired": {
+    "description": "Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit."
+  },
   "icebreakerWidgetTitle": "Besoin d'inspiration ?",
   "@icebreakerWidgetTitle": {
     "description": "Suggestions de premier message : titre de la carte."

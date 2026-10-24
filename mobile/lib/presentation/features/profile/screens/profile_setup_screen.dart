@@ -166,7 +166,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       }
     }
     if (_currentStep == _totalSteps - 1 && _lookingFor == null) {
-      return _fail('Indiquez ce que vous recherchez');
+      return _fail(context.l10n.genreLookingForRequired);
     }
     return true;
   }

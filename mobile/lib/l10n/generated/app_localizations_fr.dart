@@ -1903,6 +1903,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
+
+  @override
   String get icebreakerWidgetTitle => 'Besoin d\'inspiration ?';
 
   @override

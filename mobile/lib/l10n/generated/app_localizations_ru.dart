@@ -1916,6 +1916,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get genreLookingForRequired => 'Укажите, кого Вы ищете';
+
+  @override
   String get icebreakerWidgetTitle => 'Нужно вдохновение?';
 
   @override

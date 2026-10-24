@@ -518,6 +518,7 @@
   "eventsRsvpCancelled": "Registration cancelled",
   "eventsRsvpDone": "Registration confirmed",
   "eventsShareMessage": "Join me at \"{title}\" on MAZL",
+  "genreLookingForRequired": "Select who you are looking for",
   "icebreakerWidgetTitle": "Need inspiration?",
   "icebreakerWidgetSubtitle": "Here are a few ideas to break the ice",
   "icebreakerTopicFallback": "that",

@@ -1872,6 +1872,9 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
+
+  @override
   String get icebreakerWidgetTitle => 'קצת השראה?';
 
   @override

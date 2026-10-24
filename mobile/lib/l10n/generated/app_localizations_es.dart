@@ -1896,6 +1896,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get genreLookingForRequired => 'Indica a quién buscas';
+
+  @override
   String get icebreakerWidgetTitle => '¿Necesitas inspiración?';
 
   @override

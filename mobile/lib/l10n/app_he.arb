@@ -518,6 +518,7 @@
   "eventsRsvpCancelled": "ההרשמה בוטלה",
   "eventsRsvpDone": "ההרשמה אושרה",
   "eventsShareMessage": "הצטרפו אליי ל\"{title}\" ב-MAZL",
+  "genreLookingForRequired": "יש לבחור את מי מחפשים",
   "icebreakerWidgetTitle": "קצת השראה?",
   "icebreakerWidgetSubtitle": "כמה רעיונות לשבירת הקרח",
   "icebreakerTopicFallback": "זה",

@@ -3216,6 +3216,12 @@ abstract class AppLocalizations {
   /// **'Rejoignez-moi à \"{title}\" sur MAZL'**
   String eventsShareMessage(String title);
 
+  /// Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez ce que vous recherchez'**
+  String get genreLookingForRequired;
+
   /// Suggestions de premier message : titre de la carte.
   ///
   /// In fr, this message translates to:
