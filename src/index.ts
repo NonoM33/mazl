@@ -93,6 +93,7 @@ import { createCreditsService, registerCredits } from "./features/credits/credit
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
+import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
@@ -294,6 +295,17 @@ const userErasure = {
 registerAdminRoutes(app, UPLOADS_DIR, userErasure);
 registerAccountRoutes(app, sql, userErasure);
 
+// ============ STAFF BACK-OFFICE ============
+// /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
+// matching tuning), the public appeal route and the /console front:
+// src/backoffice.ts.
+const backoffice = createBackoffice({
+  sql,
+  env: process.env,
+  closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
+});
+backoffice.register(app);
+
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
@@ -324,7 +336,7 @@ registerCredits(app, credits, requireAuth);
 // POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
 // Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
 // emits `match:new` via the exported `emitNewMatch` helper below.
-registerMatchingRoutes(app, { credits });
+registerMatchingRoutes(app, { credits, feed: backoffice.feed });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost
@@ -697,6 +709,8 @@ startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 await ensureVerificationSchema(sql);
+await backoffice.ensureSchemas();
+backoffice.startSweeper();
 
 console.log(`Server running on http://localhost:${port}`);
 

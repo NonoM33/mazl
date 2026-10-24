@@ -1,4 +1,4 @@
-import type { Hono } from "hono";
+import type { Env, Hono } from "hono";
 import { CONSOLE_MOUNT, type ConsoleAsset, type ConsoleBuild } from "./console.bundle";
 
 export type ConsoleBuilder = () => Promise<ConsoleBuild>;
@@ -22,7 +22,7 @@ function reply(asset: ConsoleAsset, cacheControl: string): Response {
  * GET /console/fonts/*             → polices auto-hébergées
  * Tout le reste sous /console/     → 404.
  */
-export function registerConsoleRoutes(app: Hono, options: ConsoleRoutesOptions): void {
+export function registerConsoleRoutes<E extends Env>(app: Hono<E>, options: ConsoleRoutesOptions): void {
   let current: Promise<ConsoleBuild> | null = null;
 
   const load = (fresh: boolean): Promise<ConsoleBuild> => {

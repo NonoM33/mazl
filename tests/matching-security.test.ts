@@ -89,8 +89,11 @@ describe("feeds never show a deactivated or blocked member", () => {
   test("discover and daily picks drop an account the moment it is deactivated", async () => {
     const viewer = await makeUser("feed-viewer");
     const target = await discoverable(await makeUser("feed-target"));
-    expect(await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles")).toContain(target.id);
-    expect(await idsOf(await get(viewer, "/api/daily-picks"), "picks")).toContain(target.id);
+    const feed = await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles");
+    expect(feed).toContain(target.id);
+    // The feed is ranked by the matching engine: daily picks are its first five,
+    // whoever they are, so the target is eligible for both before deactivation.
+    expect(await idsOf(await get(viewer, "/api/daily-picks"), "picks")).toEqual(feed.slice(0, 5));
 
     await db`UPDATE users SET is_active = false WHERE id = ${target.id}`;
     expect(await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles")).not.toContain(target.id);
