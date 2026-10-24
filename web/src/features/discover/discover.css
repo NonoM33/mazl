@@ -1,0 +1,38 @@
+/* Découvrir: the deck, its card and the intent disc (MOUVEMENT.md §3). */
+.discover-filters { padding: 4px 4px 32px; outline: none; }
+.discover-filters:focus-visible { outline: 2px solid var(--accent); border-radius: 16px; }
+.filters-set { border: 0; margin: 0; padding: 0; min-width: 0; }
+.filters-set:disabled { opacity: 0.5; }
+
+.deck-stage { position: relative; width: 100%; aspect-ratio: 3 / 4; max-height: calc(100vh - 220px); margin: 0 auto; }
+.deck-layer { position: absolute; inset: 0; }
+.deck-back { transform: scale(0.96) translateY(8px); transition: transform var(--t-base) var(--ease-out-cubic); z-index: 1; }
+.deck-front { transform: none; transition: transform var(--t-base) var(--ease-out-cubic); z-index: 2; }
+.deck-leaving { z-index: 3; pointer-events: none; animation: deck-exit-right var(--t-exit) var(--ease-out-cubic) both; }
+.deck-leaving-pass { animation-name: deck-exit-left; }
+.deck-leaving-super_like { animation-name: deck-exit-up; }
+@keyframes deck-exit-right { to { transform: translateX(115%) rotate(8deg); } }
+@keyframes deck-exit-left { to { transform: translateX(-115%) rotate(-8deg); } }
+@keyframes deck-exit-up { to { transform: translateY(-115%); } }
+@keyframes deck-fade-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .deck-leaving, .deck-leaving-pass, .deck-leaving-super_like { animation-name: deck-fade-out; animation-duration: 150ms; }
+  .deck-back, .deck-front { transition: none; }
+}
+
+.deck-card { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; background: var(--surface); }
+.deck-hit { position: absolute; top: 0; bottom: 96px; width: 50%; border: 0; background: transparent; padding: 0; z-index: 3; }
+.deck-hit-prev { left: 0; cursor: w-resize; }
+.deck-hit-next { right: 0; cursor: e-resize; }
+.deck-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 6px; padding: 16px 20px 20px; background: rgba(11, 11, 15, 0.62); color: #fff; pointer-events: none; }
+.deck-info .body-s { color: rgba(255, 255, 255, 0.82); }
+.deck-info .verified { color: #fff; }
+.deck-info .tag { background: rgba(255, 255, 255, 0.18); color: #fff; height: 26px; font-size: 12px; }
+
+.intent-disc { position: absolute; top: 20px; z-index: 5; width: 56px; height: 56px; border-radius: 999px; display: grid; place-items: center; background: #fff; }
+.intent-like { left: 20px; color: var(--accent); }
+.intent-pass { right: 20px; color: var(--muted); }
+.intent-super_like { left: 50%; margin-left: -28px; top: 40%; color: var(--accent); }
+
+.deck-actions { justify-content: center; }
+.action-btn.like svg { transform: translateY(1px); }
