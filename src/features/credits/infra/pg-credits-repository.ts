@@ -41,6 +41,11 @@ async function addToBalance(tx: Sql, userId: number, kind: CreditKind, delta: nu
   `;
 }
 
+// Held until the end of the transaction; two requests about one transactionId wait for each other.
+async function lockTransaction(tx: Sql, transactionId: string): Promise<void> {
+  await tx`SELECT pg_advisory_xact_lock(hashtext(${transactionId}))`;
+}
+
 // True when the guarded debit was already paid. The debit journal is written in
 // the same locked transaction as the debit, so a concurrent request sees it.
 async function alreadyPaid(tx: Sql, request: SpendRequest, guard: SpendGuard): Promise<boolean> {
@@ -135,8 +140,15 @@ export class PgCreditsRepository implements CreditsRepository {
     });
   }
 
+  // The credit and the refund of one transactionId are serialized by an advisory
+  // lock, so a refund notification and the purchase it races with cannot both
+  // miss each other: either the purchase is credited and the refund then takes
+  // it back, or the refund is remembered and the purchase is refused.
   async recordPurchase(userId: number, purchase: NewPurchase): Promise<PurchaseOutcome> {
     return await inTransaction(this.sql, async (tx): Promise<PurchaseOutcome> => {
+      await lockTransaction(tx, purchase.transactionId);
+      const revoked = await tx`SELECT revoked_at FROM credit_revocations WHERE transaction_id = ${purchase.transactionId}`;
+      if (revoked.length > 0) return "revoked";
       const inserted = await tx<{ transaction_id: string }[]>`
         INSERT INTO credit_purchases (transaction_id, user_id, product_id, kind, quantity, environment, purchased_at)
         VALUES (${purchase.transactionId}, ${userId}, ${purchase.productId}, ${purchase.kind}, ${purchase.quantity},
@@ -155,6 +167,7 @@ export class PgCreditsRepository implements CreditsRepository {
 
   async refundPurchase(transactionId: string): Promise<ConsumableRefundOutcome> {
     return await inTransaction(this.sql, async (tx): Promise<ConsumableRefundOutcome> => {
+      await lockTransaction(tx, transactionId);
       const marked = await tx<(KindRow & { user_id: number; quantity: number })[]>`
         UPDATE credit_purchases SET refunded_at = NOW()
         WHERE transaction_id = ${transactionId} AND refunded_at IS NULL
@@ -166,7 +179,11 @@ export class PgCreditsRepository implements CreditsRepository {
         return "refunded";
       }
       const known = await tx`SELECT 1 FROM credit_purchases WHERE transaction_id = ${transactionId}`;
-      return known.length > 0 ? "already_refunded" : "unknown";
+      if (known.length > 0) return "already_refunded";
+      // Never credited, so nothing to take back yet: remember the refund so the
+      // purchase is refused if its JWS is presented later.
+      await tx`INSERT INTO credit_revocations (transaction_id) VALUES (${transactionId}) ON CONFLICT (transaction_id) DO NOTHING`;
+      return "unknown";
     });
   }
 }

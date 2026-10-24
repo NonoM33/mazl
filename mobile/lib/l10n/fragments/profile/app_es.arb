@@ -29,11 +29,6 @@
   "profilePhotoPrevious": "Foto anterior",
   "profilePhotoNext": "Foto siguiente",
   "profilePhotoCounter": "Foto {current} de {total}",
-  "profileMatchLabel": "Match",
-  "profileMatchTitle": "Es un match.",
-  "profileMatchBody": "Ya puedes charlar con {name}.",
-  "profileMatchBodyUnnamed": "Ya puedes charlar con esta persona.",
-  "profileSendMessage": "Enviar un mensaje",
   "profileCompletionEyebrow": "Perfil · {done}/{total}",
   "profileCompletionTitle": "Completa tu perfil",
   "profileCompletionRemaining": "{count, plural, one{Queda {count} paso} other{Quedan {count} pasos}}",
@@ -217,5 +212,6 @@
   "profileDistanceSliderLabel": "{km} km",
   "profileGoal": "Objetivo",
   "profileShadchanNote": "Nuestro AI Shadchan usará estas preferencias para proponerte perfiles compatibles.",
-  "profileReportThisProfile": "Denunciar este perfil"
+  "profileReportThisProfile": "Denunciar este perfil",
+  "profileChoiceNotSent": "Tu elección no se ha enviado. Inténtalo de nuevo."
 }

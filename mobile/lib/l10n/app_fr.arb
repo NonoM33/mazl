@@ -3254,10 +3254,6 @@
       }
     }
   },
-  "likesMessageAction": "Message",
-  "@likesMessageAction": {
-    "description": "Bouton du message bref « Match avec … » : ouvre la messagerie."
-  },
   "likesYouLiked": "Vous avez liké {name}",
   "@likesYouLiked": {
     "description": "Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.",
@@ -3612,15 +3608,6 @@
   "matchingPicksBadge": "Pick",
   "@matchingPicksBadge": {
     "description": "Petit badge doré sur la photo d'un profil sélectionné (10 px de haut, un mot)."
-  },
-  "matchingPicksMatchBody": "Vous avez matché avec {name}.",
-  "@matchingPicksMatchBody": {
-    "description": "Texte de la boîte de dialogue de match depuis les sélections. {name} est le prénom de l'autre membre.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "matchingFiltersReset": "Réinitialiser",
   "@matchingFiltersReset": {
@@ -4470,6 +4457,94 @@
       }
     }
   },
+  "privacyGateUnverifiable": "Impossible de vérifier votre accord. Vérifiez votre connexion.",
+  "@privacyGateUnverifiable": {
+    "description": "Carte affichée à la place des champs de pratique religieuse (profil, inscription) quand l'app n'a pas pu lire l'état de l'accord de l'article 9 du RGPD (réseau coupé). Un bouton « Réessayer » suit."
+  },
+  "privacyGateAsk": "Pour renseigner votre pratique, donnez votre accord",
+  "@privacyGateAsk": {
+    "description": "Carte affichée à la place des champs de pratique religieuse tant que le membre n'a pas donné son accord explicite (RGPD article 9). Un bouton « Donner mon accord » suit."
+  },
+  "privacyGive": "Donner mon accord",
+  "@privacyGive": {
+    "description": "Bouton qui ouvre la feuille de consentement aux données de pratique religieuse (carte du profil, écran des réglages). Le membre y donne son accord."
+  },
+  "privacyLockedHint": "Disponible une fois votre accord donné pour la pratique religieuse.",
+  "@privacyLockedHint": {
+    "description": "Phrase sous le champ « Intention » (grisé) tant que le membre n'a pas donné son accord pour les données de pratique religieuse."
+  },
+  "privacySheetLabel": "Données sensibles · RGPD article 9",
+  "@privacySheetLabel": {
+    "description": "Petit libellé en capitales au-dessus du titre de la feuille de consentement et de l'écran des réglages de consentement. Dit de quelle règle il s'agit (données sensibles, article 9 du RGPD)."
+  },
+  "privacySheetTitle": "Votre pratique religieuse, avec votre accord",
+  "@privacySheetTitle": {
+    "description": "Titre de la feuille qui demande l'accord explicite pour les données de pratique religieuse."
+  },
+  "privacySheetBody": "Ces informations aident à proposer des profils compatibles. Ce sont des données sensibles, traitées seulement avec votre accord explicite, distinct des conditions d'utilisation. Vous pouvez refuser et utiliser MAZL quand même.",
+  "@privacySheetBody": {
+    "description": "Paragraphe d'explication sous le titre de la feuille de consentement, avant le texte juridique exact envoyé par le serveur. Dit à quoi servent les données, qu'elles sont sensibles, que l'accord est distinct des CGU et que refuser est possible."
+  },
+  "privacySheetCheckbox": "J'ai lu ce texte et je donne mon accord explicite.",
+  "@privacySheetCheckbox": {
+    "description": "Case à cocher de la feuille de consentement : le membre confirme avoir lu le texte juridique affiché au-dessus et donne son accord explicite. Le bouton « J'accepte » reste grisé tant qu'elle n'est pas cochée."
+  },
+  "privacySheetAccept": "J'accepte",
+  "@privacySheetAccept": {
+    "description": "Bouton principal de la feuille de consentement : le membre accepte. Grisé tant que la case n'est pas cochée."
+  },
+  "privacySheetDecline": "Continuer sans",
+  "@privacySheetDecline": {
+    "description": "Bouton secondaire de la feuille de consentement : le membre refuse et continue sans renseigner sa pratique religieuse."
+  },
+  "privacySheetErrorOutdated": "Le texte a été mis à jour. Fermez cette fenêtre et rouvrez-la.",
+  "@privacySheetErrorOutdated": {
+    "description": "Erreur sous le texte de la feuille de consentement : le serveur a publié une nouvelle version du texte pendant que la feuille était ouverte, la réponse n'a donc pas été enregistrée."
+  },
+  "privacySheetErrorSave": "Votre choix n'a pas pu être enregistré. Réessayez.",
+  "@privacySheetErrorSave": {
+    "description": "Erreur sous le texte de la feuille de consentement : la réponse du membre (accord ou refus) n'a pas pu être enregistrée (réseau, serveur)."
+  },
+  "privacySettingsTitle": "Données de pratique religieuse",
+  "@privacySettingsTitle": {
+    "description": "Titre de l'écran des réglages du consentement aux données de pratique religieuse, et libellé de la ligne qui l'ouvre dans les Paramètres."
+  },
+  "privacySettingsGrantedShort": "Accordé",
+  "@privacySettingsGrantedShort": {
+    "description": "Sous-titre de la ligne « Données de pratique religieuse » des Paramètres quand l'accord est donné et valide."
+  },
+  "privacySettingsDeniedShort": "Non accordé",
+  "@privacySettingsDeniedShort": {
+    "description": "Sous-titre de la ligne « Données de pratique religieuse » des Paramètres quand l'accord n'est pas donné (refusé, retiré ou jamais demandé)."
+  },
+  "privacySettingsGrantedTitle": "Accord donné",
+  "@privacySettingsGrantedTitle": {
+    "description": "Titre de l'écran de consentement quand l'accord est donné."
+  },
+  "privacySettingsNotGrantedTitle": "Accord non donné",
+  "@privacySettingsNotGrantedTitle": {
+    "description": "Titre de l'écran de consentement quand l'accord n'est pas donné."
+  },
+  "privacySettingsWithdraw": "Retirer mon accord",
+  "@privacySettingsWithdraw": {
+    "description": "Bouton qui retire l'accord aux données de pratique religieuse (écran de consentement) et bouton de confirmation de la fenêtre qui s'ouvre ensuite."
+  },
+  "privacySettingsWithdrawTitle": "Retirer votre accord ?",
+  "@privacySettingsWithdrawTitle": {
+    "description": "Titre de la fenêtre de confirmation avant de retirer l'accord."
+  },
+  "privacySettingsWithdrawBody": "Votre courant, votre kashrout, votre pratique du Shabbat et votre intention seront effacés de votre profil.",
+  "@privacySettingsWithdrawBody": {
+    "description": "Corps de la fenêtre de confirmation avant de retirer l'accord : liste les quatre informations de profil qui seront effacées (courant, kashrout, pratique du Shabbat, intention)."
+  },
+  "privacySettingsWithdrawFailed": "Impossible de retirer votre accord. Réessayez.",
+  "@privacySettingsWithdrawFailed": {
+    "description": "Message bref (snackbar) quand le retrait de l'accord n'a pas pu être enregistré."
+  },
+  "privacySettingsLoadFailed": "Impossible de charger votre accord. Vérifiez votre connexion.",
+  "@privacySettingsLoadFailed": {
+    "description": "Texte de l'écran de consentement quand l'état de l'accord n'a pas pu être chargé. Un bouton « Réessayer » suit."
+  },
   "profileMyProfile": "Mon profil",
   "@profileMyProfile": {
     "description": "Profil du membre : étiquette en capitales tout en haut de son propre profil."
@@ -4612,31 +4687,6 @@
         "type": "int"
       }
     }
-  },
-  "profileMatchLabel": "Match",
-  "@profileMatchLabel": {
-    "description": "Étiquette en capitales au-dessus du titre de la fenêtre qui annonce un match."
-  },
-  "profileMatchTitle": "C'est un match.",
-  "@profileMatchTitle": {
-    "description": "Grand titre de la fenêtre qui annonce que deux membres se sont aimés. Environ 15 caractères, peut passer sur deux lignes."
-  },
-  "profileMatchBody": "Vous pouvez maintenant discuter avec {name}.",
-  "@profileMatchBody": {
-    "description": "Fenêtre de match : invite à écrire à la personne. {name} est son prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "profileMatchBodyUnnamed": "Vous pouvez maintenant discuter avec cette personne.",
-  "@profileMatchBodyUnnamed": {
-    "description": "Fenêtre de match, quand le prénom manque : invite à écrire à la personne."
-  },
-  "profileSendMessage": "Envoyer un message",
-  "@profileSendMessage": {
-    "description": "Bouton plein de la fenêtre de match : ouvre la conversation."
   },
   "profileCompletionEyebrow": "Profil · {done}/{total}",
   "@profileCompletionEyebrow": {
@@ -5444,6 +5494,10 @@
   "profileReportThisProfile": "Signaler ce profil",
   "@profileReportThisProfile": {
     "description": "Bouton texte en bas du profil d'un autre membre : ouvre la fenêtre de blocage et de signalement."
+  },
+  "profileChoiceNotSent": "Votre choix n'est pas parti. Réessayez.",
+  "@profileChoiceNotSent": {
+    "description": "Message bref (snackbar) sur la page d'un profil : le like, le passer ou le super like n'est pas parti (réseau, serveur)."
   },
   "safetyBlock": "Bloquer",
   "@safetyBlock": {
@@ -7044,5 +7098,207 @@
         "type": "int"
       }
     }
+  },
+  "webSessionsTitle": "Ordinateurs connectés",
+  "@webSessionsTitle": {
+    "description": "Titre de l'écran qui liste les ordinateurs connectés au compte (version web de MAZL), et libellé de la ligne qui l'ouvre dans les Paramètres."
+  },
+  "webSessionsSectionLabel": "MAZL sur ordinateur",
+  "@webSessionsSectionLabel": {
+    "description": "Petit libellé en capitales en haut de l'écran des ordinateurs connectés."
+  },
+  "webSessionsIntro": "Utilisez MAZL sur ordinateur sur app.mazl.app. Chaque ordinateur reste connecté 7 jours au plus.",
+  "@webSessionsIntro": {
+    "description": "Phrase d'introduction de l'écran des ordinateurs connectés. L'adresse du site web est écrite telle quelle. 7 jours est la durée maximale d'une connexion."
+  },
+  "webSessionsConnect": "Connecter un ordinateur",
+  "@webSessionsConnect": {
+    "description": "Bouton qui ouvre la caméra pour lire le QR code affiché sur l'ordinateur et le connecter."
+  },
+  "webSessionsConnected": "Ordinateur connecté.",
+  "@webSessionsConnected": {
+    "description": "Message bref (snackbar) quand un ordinateur vient d'être connecté."
+  },
+  "webSessionsLoadFailed": "Impossible de charger vos ordinateurs. Vérifiez votre connexion.",
+  "@webSessionsLoadFailed": {
+    "description": "Texte de l'écran des ordinateurs quand la liste n'a pas pu être chargée. Un bouton « Réessayer » suit."
+  },
+  "webSessionsEmpty": "Aucun ordinateur n'est connecté pour le moment.",
+  "@webSessionsEmpty": {
+    "description": "Texte de l'écran des ordinateurs quand aucun ordinateur n'est connecté."
+  },
+  "webSessionsListLabel": "Ordinateurs",
+  "@webSessionsListLabel": {
+    "description": "Petit libellé en capitales au-dessus de la liste des ordinateurs connectés."
+  },
+  "webSessionsRevoke": "Déconnecter",
+  "@webSessionsRevoke": {
+    "description": "Bouton à droite d'un ordinateur de la liste : le déconnecte du compte."
+  },
+  "webSessionsRevokeNamed": "Déconnecter {browser}",
+  "@webSessionsRevokeNamed": {
+    "description": "Texte lu par le lecteur d'écran pour le bouton « Déconnecter » d'un ordinateur. {browser} est le nom du navigateur et du système, ex. « Chrome sur macOS ».",
+    "placeholders": {
+      "browser": {
+        "type": "String",
+        "example": "Chrome sur macOS"
+      }
+    }
+  },
+  "webSessionsRevokeFailed": "Impossible de déconnecter cet ordinateur. Réessayez.",
+  "@webSessionsRevokeFailed": {
+    "description": "Message bref (snackbar) quand la déconnexion d'un ordinateur a échoué."
+  },
+  "webSessionsRevokeAll": "Déconnecter tous les ordinateurs",
+  "@webSessionsRevokeAll": {
+    "description": "Bouton (rouge) sous la liste : déconnecte tous les ordinateurs d'un coup."
+  },
+  "webSessionsRevokeAllTitle": "Déconnecter tous les ordinateurs ?",
+  "@webSessionsRevokeAllTitle": {
+    "description": "Titre de la fenêtre de confirmation avant de déconnecter tous les ordinateurs."
+  },
+  "webSessionsRevokeAllBody": "Vous devrez vous reconnecter sur chaque ordinateur.",
+  "@webSessionsRevokeAllBody": {
+    "description": "Corps de la fenêtre de confirmation avant de déconnecter tous les ordinateurs."
+  },
+  "webSessionsRevokeAllConfirm": "Déconnecter tout",
+  "@webSessionsRevokeAllConfirm": {
+    "description": "Bouton de confirmation de la fenêtre « Déconnecter tous les ordinateurs ? »."
+  },
+  "webSessionsRevokeAllFailed": "Impossible de déconnecter les ordinateurs. Réessayez.",
+  "@webSessionsRevokeAllFailed": {
+    "description": "Message bref (snackbar) quand la déconnexion de tous les ordinateurs a échoué."
+  },
+  "webSessionsMethodQr": "Connecté par QR code",
+  "@webSessionsMethodQr": {
+    "description": "Première moitié de la ligne de détail d'un ordinateur : il s'est connecté en lisant un QR code. Suivie de « · » et de la dernière activité."
+  },
+  "webSessionsMethodGoogle": "Connecté avec Google",
+  "@webSessionsMethodGoogle": {
+    "description": "Première moitié de la ligne de détail d'un ordinateur : il s'est connecté avec un compte Google."
+  },
+  "webSessionsMethodApple": "Connecté avec Apple",
+  "@webSessionsMethodApple": {
+    "description": "Première moitié de la ligne de détail d'un ordinateur : il s'est connecté avec « Se connecter avec Apple »."
+  },
+  "webSessionsActiveNow": "Actif à l'instant",
+  "@webSessionsActiveNow": {
+    "description": "Seconde moitié de la ligne de détail d'un ordinateur : actif il y a moins d'une minute."
+  },
+  "webSessionsActiveMinutes": "Actif il y a {count} min",
+  "@webSessionsActiveMinutes": {
+    "description": "Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} minutes (de 1 à 59). « min » est l'abréviation.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "webSessionsActiveHours": "Actif il y a {count} h",
+  "@webSessionsActiveHours": {
+    "description": "Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} heures (de 1 à 23). « h » est l'abréviation.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "webSessionsActiveYesterday": "Actif hier",
+  "@webSessionsActiveYesterday": {
+    "description": "Seconde moitié de la ligne de détail d'un ordinateur : dernière activité hier."
+  },
+  "webSessionsActiveDays": "Actif il y a {count} j",
+  "@webSessionsActiveDays": {
+    "description": "Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} jours (2 ou plus). « j » est l'abréviation de jours.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "webSessionsClockTime": "{hour} h {minute}",
+  "@webSessionsClockTime": {
+    "description": "Heure à laquelle un ordinateur a demandé la connexion, dans la feuille de confirmation. {hour} est l'heure (0 à 23), {minute} les minutes sur deux chiffres. En français « 14 h 05 », ailleurs « 14:05 ».",
+    "placeholders": {
+      "hour": {
+        "type": "String",
+        "example": "14"
+      },
+      "minute": {
+        "type": "String",
+        "example": "05"
+      }
+    }
+  },
+  "webSessionsScanInstruction": "Scannez le QR code affiché sur app.mazl.app",
+  "@webSessionsScanInstruction": {
+    "description": "Consigne affichée sur la caméra de lecture du QR code, au bas de l'écran. L'adresse du site web est écrite telle quelle."
+  },
+  "webSessionsScanCameraLabel": "Caméra de lecture du QR code",
+  "@webSessionsScanCameraLabel": {
+    "description": "Texte lu par le lecteur d'écran pour la vue de la caméra qui lit le QR code."
+  },
+  "webSessionsCameraUnavailable": "La caméra n'est pas accessible. Autorisez l'accès à la caméra dans les réglages de votre iPhone pour scanner un code.",
+  "@webSessionsCameraUnavailable": {
+    "description": "Message affiché à la place de la caméra quand l'app n'y a pas accès (autorisation refusée)."
+  },
+  "webSessionsScanNotMazl": "Ce QR code n'est pas un code MAZL.",
+  "@webSessionsScanNotMazl": {
+    "description": "Message sous la consigne de la caméra : le QR code lu n'est pas un code de connexion MAZL."
+  },
+  "webSessionsScanExpired": "Ce code a expiré. Affichez un nouveau code sur l'ordinateur.",
+  "@webSessionsScanExpired": {
+    "description": "Message sous la consigne de la caméra : le code lu est inconnu, expiré ou déjà utilisé."
+  },
+  "webSessionsScanTooMany": "Trop de tentatives. Patientez un instant avant de réessayer.",
+  "@webSessionsScanTooMany": {
+    "description": "Message sous la consigne de la caméra : trop de lectures de code en peu de temps."
+  },
+  "webSessionsApproveInvalid": "Cette demande n'est plus valide. Affichez un nouveau code sur l'ordinateur.",
+  "@webSessionsApproveInvalid": {
+    "description": "Message sous la consigne de la caméra : la demande de connexion n'est plus valide au moment de l'approuver (déjà traitée ou expirée)."
+  },
+  "webSessionsConnectionProblem": "Connexion impossible. Vérifiez votre réseau, puis réessayez.",
+  "@webSessionsConnectionProblem": {
+    "description": "Message sous la consigne de la caméra : le réseau est coupé ou trop lent."
+  },
+  "webSessionsGenericProblem": "Une erreur est survenue. Réessayez dans un instant.",
+  "@webSessionsGenericProblem": {
+    "description": "Message sous la consigne de la caméra : erreur inattendue du serveur."
+  },
+  "webSessionsConfirmLabel": "Connexion à MAZL sur ordinateur",
+  "@webSessionsConfirmLabel": {
+    "description": "Petit libellé en capitales au-dessus du titre de la feuille de confirmation d'une connexion depuis un ordinateur."
+  },
+  "webSessionsConfirmTitle": "Connecter cet ordinateur ?",
+  "@webSessionsConfirmTitle": {
+    "description": "Titre de la feuille qui demande au membre s'il veut connecter l'ordinateur dont il vient de lire le QR code."
+  },
+  "webSessionsConfirmBrowser": "Navigateur",
+  "@webSessionsConfirmBrowser": {
+    "description": "Libellé de la ligne qui donne le navigateur de l'ordinateur à connecter (valeur : ex. « Chrome sur macOS »)."
+  },
+  "webSessionsConfirmAddress": "Adresse",
+  "@webSessionsConfirmAddress": {
+    "description": "Libellé de la ligne qui donne l'adresse réseau (masquée) d'où vient la demande de connexion."
+  },
+  "webSessionsConfirmAskedAt": "Demande faite à",
+  "@webSessionsConfirmAskedAt": {
+    "description": "Libellé de la ligne qui donne l'heure à laquelle la demande de connexion a été faite (valeur : ex. « 14 h 05 »)."
+  },
+  "webSessionsConfirmWarning": "Ne scannez que le code affiché sur votre propre ordinateur. Si quelqu'un vous demande de scanner un code, refusez.",
+  "@webSessionsConfirmWarning": {
+    "description": "Avertissement de sécurité sous les détails de la demande de connexion : ne scanner que son propre écran, refuser si un tiers le demande (arnaque)."
+  },
+  "webSessionsConfirmApprove": "Connecter",
+  "@webSessionsConfirmApprove": {
+    "description": "Bouton principal de la feuille de confirmation : connecte l'ordinateur."
+  },
+  "webSessionsConfirmDeny": "Refuser",
+  "@webSessionsConfirmDeny": {
+    "description": "Bouton secondaire de la feuille de confirmation : refuse la connexion de l'ordinateur."
   }
 }

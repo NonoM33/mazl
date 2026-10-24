@@ -1,0 +1,5 @@
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.stat-tile { padding: 20px; display: flex; flex-direction: column; gap: 8px; min-height: 112px; }
+.stat-completeness { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.stat-bar { height: 8px; border-radius: 4px; background: var(--hairline); overflow: hidden; }
+.stat-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width var(--t-base) var(--ease-out-cubic); }

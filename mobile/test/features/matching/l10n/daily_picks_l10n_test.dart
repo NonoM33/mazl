@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/presentation/features/matching/screens/daily_picks_screen.dart';
+import 'package:mazl/presentation/features/matching/widgets/match_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../helpers/l10n_helpers.dart';
@@ -112,14 +113,14 @@ void main() {
     expect(find.text('Discover more profiles'), findsOneWidget);
   });
 
-  testWidgets('English match dialog after a like', (tester) async {
+  testWidgets('English match sheet after a like', (tester) async {
     await _pump(tester, _FakePicksApi(picks: _profiles(2)), l10nCases.first);
     await tester.tap(find.byIcon(LucideIcons.heart).first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text("It's a match!"), findsOneWidget);
-    expect(find.text('You matched with Jeanne1.'), findsOneWidget);
-    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('You and Jeanne1 liked each other.'), findsOneWidget);
+    expect(find.text('Keep discovering'), findsOneWidget);
     expect(find.text('Send a message'), findsOneWidget);
   });
 
@@ -139,18 +140,18 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('match dialog in ${c.name}', (tester) async {
+    testWidgets('match sheet in ${c.name}', (tester) async {
       await _pump(tester, _FakePicksApi(picks: _profiles(2)), c);
       await tester.tap(find.byIcon(LucideIcons.heart).first);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       expectNoFrench([
         "C'est un match",
-        'Vous avez matché avec Jeanne1.',
-        'Continuer',
+        'Jeanne1 et vous vous êtes plu.',
+        'Continuer à découvrir',
         'Envoyer un message',
       ]);
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(MatchSheetContent), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

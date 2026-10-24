@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -210,6 +211,8 @@ class _AnniversaryCelebrationDialogState
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+  bool _started = false;
   final ApiService _apiService = ApiService();
   bool _isGeneratingCard = false;
 
@@ -220,10 +223,25 @@ class _AnniversaryCelebrationDialogState
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _scaleAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    // Reduced motion: no elastic pop, only a short fade.
+    if (MazlMotion.reduced(context)) {
+      _controller.duration = MazlMotion.reducedEntrance;
+      _scaleAnimation = kAlwaysCompleteAnimation;
+      _fadeAnimation = _controller;
+    } else {
+      _scaleAnimation = CurvedAnimation(
+        parent: _controller,
+        curve: Curves.elasticOut,
+      );
+      _fadeAnimation = kAlwaysCompleteAnimation;
+    }
     _controller.forward();
   }
 
@@ -257,7 +275,10 @@ class _AnniversaryCelebrationDialogState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _fadeAnimation, child: _dialog(context));
+
+  Widget _dialog(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final milestone = widget.anniversaryData.currentMilestone;

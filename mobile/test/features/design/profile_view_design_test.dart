@@ -7,7 +7,6 @@ import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_completion_card.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_couple_section.dart';
-import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_sections.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_top_bar.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_content.dart';
@@ -386,19 +385,6 @@ void main() {
       await show(CoupleEntryState.coupleWithSomeoneElse);
       expect(find.textContaining('Sarah'), findsNothing);
       expect(find.text('Déjà en mode couple'), findsOneWidget);
-      _expectNoGradient(tester);
-    });
-
-    testWidgets("fenêtre de match : deux issues, sans dégradé", (tester) async {
-      var cont = 0;
-      var message = 0;
-      await _pump(
-        tester,
-        ProfileMatchDialog(name: 'Sarah', onContinue: () => cont++, onMessage: () => message++),
-      );
-      await tester.tap(find.text('Envoyer un message'));
-      await tester.tap(find.text('Continuer'));
-      expect((cont, message), (1, 1));
       _expectNoGradient(tester);
     });
   });

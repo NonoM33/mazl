@@ -4326,12 +4326,6 @@ abstract class AppLocalizations {
   /// **'Match avec {name}'**
   String likesMatchWith(String name);
 
-  /// Bouton du message bref « Match avec … » : ouvre la messagerie.
-  ///
-  /// In fr, this message translates to:
-  /// **'Message'**
-  String get likesMessageAction;
-
   /// Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.
   ///
   /// In fr, this message translates to:
@@ -4697,12 +4691,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pick'**
   String get matchingPicksBadge;
-
-  /// Texte de la boîte de dialogue de match depuis les sélections. {name} est le prénom de l'autre membre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous avez matché avec {name}.'**
-  String matchingPicksMatchBody(String name);
 
   /// Bouton en haut à droite de l'écran des filtres : remet tous les filtres à leur valeur de départ.
   ///
@@ -5759,6 +5747,138 @@ abstract class AppLocalizations {
   /// **'Passer à mazl+. {detail}'**
   String plusSettingsSemanticsUpgrade(String detail);
 
+  /// Carte affichée à la place des champs de pratique religieuse (profil, inscription) quand l'app n'a pas pu lire l'état de l'accord de l'article 9 du RGPD (réseau coupé). Un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de vérifier votre accord. Vérifiez votre connexion.'**
+  String get privacyGateUnverifiable;
+
+  /// Carte affichée à la place des champs de pratique religieuse tant que le membre n'a pas donné son accord explicite (RGPD article 9). Un bouton « Donner mon accord » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour renseigner votre pratique, donnez votre accord'**
+  String get privacyGateAsk;
+
+  /// Bouton qui ouvre la feuille de consentement aux données de pratique religieuse (carte du profil, écran des réglages). Le membre y donne son accord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donner mon accord'**
+  String get privacyGive;
+
+  /// Phrase sous le champ « Intention » (grisé) tant que le membre n'a pas donné son accord pour les données de pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible une fois votre accord donné pour la pratique religieuse.'**
+  String get privacyLockedHint;
+
+  /// Petit libellé en capitales au-dessus du titre de la feuille de consentement et de l'écran des réglages de consentement. Dit de quelle règle il s'agit (données sensibles, article 9 du RGPD).
+  ///
+  /// In fr, this message translates to:
+  /// **'Données sensibles · RGPD article 9'**
+  String get privacySheetLabel;
+
+  /// Titre de la feuille qui demande l'accord explicite pour les données de pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre pratique religieuse, avec votre accord'**
+  String get privacySheetTitle;
+
+  /// Paragraphe d'explication sous le titre de la feuille de consentement, avant le texte juridique exact envoyé par le serveur. Dit à quoi servent les données, qu'elles sont sensibles, que l'accord est distinct des CGU et que refuser est possible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces informations aident à proposer des profils compatibles. Ce sont des données sensibles, traitées seulement avec votre accord explicite, distinct des conditions d\'utilisation. Vous pouvez refuser et utiliser MAZL quand même.'**
+  String get privacySheetBody;
+
+  /// Case à cocher de la feuille de consentement : le membre confirme avoir lu le texte juridique affiché au-dessus et donne son accord explicite. Le bouton « J'accepte » reste grisé tant qu'elle n'est pas cochée.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai lu ce texte et je donne mon accord explicite.'**
+  String get privacySheetCheckbox;
+
+  /// Bouton principal de la feuille de consentement : le membre accepte. Grisé tant que la case n'est pas cochée.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte'**
+  String get privacySheetAccept;
+
+  /// Bouton secondaire de la feuille de consentement : le membre refuse et continue sans renseigner sa pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans'**
+  String get privacySheetDecline;
+
+  /// Erreur sous le texte de la feuille de consentement : le serveur a publié une nouvelle version du texte pendant que la feuille était ouverte, la réponse n'a donc pas été enregistrée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le texte a été mis à jour. Fermez cette fenêtre et rouvrez-la.'**
+  String get privacySheetErrorOutdated;
+
+  /// Erreur sous le texte de la feuille de consentement : la réponse du membre (accord ou refus) n'a pas pu être enregistrée (réseau, serveur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'a pas pu être enregistré. Réessayez.'**
+  String get privacySheetErrorSave;
+
+  /// Titre de l'écran des réglages du consentement aux données de pratique religieuse, et libellé de la ligne qui l'ouvre dans les Paramètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données de pratique religieuse'**
+  String get privacySettingsTitle;
+
+  /// Sous-titre de la ligne « Données de pratique religieuse » des Paramètres quand l'accord est donné et valide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accordé'**
+  String get privacySettingsGrantedShort;
+
+  /// Sous-titre de la ligne « Données de pratique religieuse » des Paramètres quand l'accord n'est pas donné (refusé, retiré ou jamais demandé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Non accordé'**
+  String get privacySettingsDeniedShort;
+
+  /// Titre de l'écran de consentement quand l'accord est donné.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accord donné'**
+  String get privacySettingsGrantedTitle;
+
+  /// Titre de l'écran de consentement quand l'accord n'est pas donné.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accord non donné'**
+  String get privacySettingsNotGrantedTitle;
+
+  /// Bouton qui retire l'accord aux données de pratique religieuse (écran de consentement) et bouton de confirmation de la fenêtre qui s'ouvre ensuite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer mon accord'**
+  String get privacySettingsWithdraw;
+
+  /// Titre de la fenêtre de confirmation avant de retirer l'accord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer votre accord ?'**
+  String get privacySettingsWithdrawTitle;
+
+  /// Corps de la fenêtre de confirmation avant de retirer l'accord : liste les quatre informations de profil qui seront effacées (courant, kashrout, pratique du Shabbat, intention).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre courant, votre kashrout, votre pratique du Shabbat et votre intention seront effacés de votre profil.'**
+  String get privacySettingsWithdrawBody;
+
+  /// Message bref (snackbar) quand le retrait de l'accord n'a pas pu être enregistré.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de retirer votre accord. Réessayez.'**
+  String get privacySettingsWithdrawFailed;
+
+  /// Texte de l'écran de consentement quand l'état de l'accord n'a pas pu être chargé. Un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger votre accord. Vérifiez votre connexion.'**
+  String get privacySettingsLoadFailed;
+
   /// Profil du membre : étiquette en capitales tout en haut de son propre profil.
   ///
   /// In fr, this message translates to:
@@ -5938,36 +6058,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Photo {current} sur {total}'**
   String profilePhotoCounter(int current, int total);
-
-  /// Étiquette en capitales au-dessus du titre de la fenêtre qui annonce un match.
-  ///
-  /// In fr, this message translates to:
-  /// **'Match'**
-  String get profileMatchLabel;
-
-  /// Grand titre de la fenêtre qui annonce que deux membres se sont aimés. Environ 15 caractères, peut passer sur deux lignes.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est un match.'**
-  String get profileMatchTitle;
-
-  /// Fenêtre de match : invite à écrire à la personne. {name} est son prénom.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous pouvez maintenant discuter avec {name}.'**
-  String profileMatchBody(String name);
-
-  /// Fenêtre de match, quand le prénom manque : invite à écrire à la personne.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous pouvez maintenant discuter avec cette personne.'**
-  String get profileMatchBodyUnnamed;
-
-  /// Bouton plein de la fenêtre de match : ouvre la conversation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Envoyer un message'**
-  String get profileSendMessage;
 
   /// Étiquette en capitales de la carte « Complétez votre profil » : étapes faites sur le total, par exemple « Profil · 2/4 ».
   ///
@@ -7072,6 +7162,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Signaler ce profil'**
   String get profileReportThisProfile;
+
+  /// Message bref (snackbar) sur la page d'un profil : le like, le passer ou le super like n'est pas parti (réseau, serveur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'est pas parti. Réessayez.'**
+  String get profileChoiceNotSent;
 
   /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
   ///
@@ -9154,6 +9250,258 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Il y a {count} sem.'**
   String visitorsAgoWeeks(int count);
+
+  /// Titre de l'écran qui liste les ordinateurs connectés au compte (version web de MAZL), et libellé de la ligne qui l'ouvre dans les Paramètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordinateurs connectés'**
+  String get webSessionsTitle;
+
+  /// Petit libellé en capitales en haut de l'écran des ordinateurs connectés.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL sur ordinateur'**
+  String get webSessionsSectionLabel;
+
+  /// Phrase d'introduction de l'écran des ordinateurs connectés. L'adresse du site web est écrite telle quelle. 7 jours est la durée maximale d'une connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez MAZL sur ordinateur sur app.mazl.app. Chaque ordinateur reste connecté 7 jours au plus.'**
+  String get webSessionsIntro;
+
+  /// Bouton qui ouvre la caméra pour lire le QR code affiché sur l'ordinateur et le connecter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter un ordinateur'**
+  String get webSessionsConnect;
+
+  /// Message bref (snackbar) quand un ordinateur vient d'être connecté.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordinateur connecté.'**
+  String get webSessionsConnected;
+
+  /// Texte de l'écran des ordinateurs quand la liste n'a pas pu être chargée. Un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger vos ordinateurs. Vérifiez votre connexion.'**
+  String get webSessionsLoadFailed;
+
+  /// Texte de l'écran des ordinateurs quand aucun ordinateur n'est connecté.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun ordinateur n\'est connecté pour le moment.'**
+  String get webSessionsEmpty;
+
+  /// Petit libellé en capitales au-dessus de la liste des ordinateurs connectés.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordinateurs'**
+  String get webSessionsListLabel;
+
+  /// Bouton à droite d'un ordinateur de la liste : le déconnecte du compte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter'**
+  String get webSessionsRevoke;
+
+  /// Texte lu par le lecteur d'écran pour le bouton « Déconnecter » d'un ordinateur. {browser} est le nom du navigateur et du système, ex. « Chrome sur macOS ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter {browser}'**
+  String webSessionsRevokeNamed(String browser);
+
+  /// Message bref (snackbar) quand la déconnexion d'un ordinateur a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de déconnecter cet ordinateur. Réessayez.'**
+  String get webSessionsRevokeFailed;
+
+  /// Bouton (rouge) sous la liste : déconnecte tous les ordinateurs d'un coup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter tous les ordinateurs'**
+  String get webSessionsRevokeAll;
+
+  /// Titre de la fenêtre de confirmation avant de déconnecter tous les ordinateurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter tous les ordinateurs ?'**
+  String get webSessionsRevokeAllTitle;
+
+  /// Corps de la fenêtre de confirmation avant de déconnecter tous les ordinateurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous devrez vous reconnecter sur chaque ordinateur.'**
+  String get webSessionsRevokeAllBody;
+
+  /// Bouton de confirmation de la fenêtre « Déconnecter tous les ordinateurs ? ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter tout'**
+  String get webSessionsRevokeAllConfirm;
+
+  /// Message bref (snackbar) quand la déconnexion de tous les ordinateurs a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de déconnecter les ordinateurs. Réessayez.'**
+  String get webSessionsRevokeAllFailed;
+
+  /// Première moitié de la ligne de détail d'un ordinateur : il s'est connecté en lisant un QR code. Suivie de « · » et de la dernière activité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté par QR code'**
+  String get webSessionsMethodQr;
+
+  /// Première moitié de la ligne de détail d'un ordinateur : il s'est connecté avec un compte Google.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté avec Google'**
+  String get webSessionsMethodGoogle;
+
+  /// Première moitié de la ligne de détail d'un ordinateur : il s'est connecté avec « Se connecter avec Apple ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté avec Apple'**
+  String get webSessionsMethodApple;
+
+  /// Seconde moitié de la ligne de détail d'un ordinateur : actif il y a moins d'une minute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif à l\'instant'**
+  String get webSessionsActiveNow;
+
+  /// Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} minutes (de 1 à 59). « min » est l'abréviation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif il y a {count} min'**
+  String webSessionsActiveMinutes(int count);
+
+  /// Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} heures (de 1 à 23). « h » est l'abréviation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif il y a {count} h'**
+  String webSessionsActiveHours(int count);
+
+  /// Seconde moitié de la ligne de détail d'un ordinateur : dernière activité hier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif hier'**
+  String get webSessionsActiveYesterday;
+
+  /// Seconde moitié de la ligne de détail d'un ordinateur : dernière activité il y a {count} jours (2 ou plus). « j » est l'abréviation de jours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif il y a {count} j'**
+  String webSessionsActiveDays(int count);
+
+  /// Heure à laquelle un ordinateur a demandé la connexion, dans la feuille de confirmation. {hour} est l'heure (0 à 23), {minute} les minutes sur deux chiffres. En français « 14 h 05 », ailleurs « 14:05 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{hour} h {minute}'**
+  String webSessionsClockTime(String hour, String minute);
+
+  /// Consigne affichée sur la caméra de lecture du QR code, au bas de l'écran. L'adresse du site web est écrite telle quelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scannez le QR code affiché sur app.mazl.app'**
+  String get webSessionsScanInstruction;
+
+  /// Texte lu par le lecteur d'écran pour la vue de la caméra qui lit le QR code.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caméra de lecture du QR code'**
+  String get webSessionsScanCameraLabel;
+
+  /// Message affiché à la place de la caméra quand l'app n'y a pas accès (autorisation refusée).
+  ///
+  /// In fr, this message translates to:
+  /// **'La caméra n\'est pas accessible. Autorisez l\'accès à la caméra dans les réglages de votre iPhone pour scanner un code.'**
+  String get webSessionsCameraUnavailable;
+
+  /// Message sous la consigne de la caméra : le QR code lu n'est pas un code de connexion MAZL.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce QR code n\'est pas un code MAZL.'**
+  String get webSessionsScanNotMazl;
+
+  /// Message sous la consigne de la caméra : le code lu est inconnu, expiré ou déjà utilisé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code a expiré. Affichez un nouveau code sur l\'ordinateur.'**
+  String get webSessionsScanExpired;
+
+  /// Message sous la consigne de la caméra : trop de lectures de code en peu de temps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Patientez un instant avant de réessayer.'**
+  String get webSessionsScanTooMany;
+
+  /// Message sous la consigne de la caméra : la demande de connexion n'est plus valide au moment de l'approuver (déjà traitée ou expirée).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette demande n\'est plus valide. Affichez un nouveau code sur l\'ordinateur.'**
+  String get webSessionsApproveInvalid;
+
+  /// Message sous la consigne de la caméra : le réseau est coupé ou trop lent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible. Vérifiez votre réseau, puis réessayez.'**
+  String get webSessionsConnectionProblem;
+
+  /// Message sous la consigne de la caméra : erreur inattendue du serveur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Réessayez dans un instant.'**
+  String get webSessionsGenericProblem;
+
+  /// Petit libellé en capitales au-dessus du titre de la feuille de confirmation d'une connexion depuis un ordinateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion à MAZL sur ordinateur'**
+  String get webSessionsConfirmLabel;
+
+  /// Titre de la feuille qui demande au membre s'il veut connecter l'ordinateur dont il vient de lire le QR code.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter cet ordinateur ?'**
+  String get webSessionsConfirmTitle;
+
+  /// Libellé de la ligne qui donne le navigateur de l'ordinateur à connecter (valeur : ex. « Chrome sur macOS »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Navigateur'**
+  String get webSessionsConfirmBrowser;
+
+  /// Libellé de la ligne qui donne l'adresse réseau (masquée) d'où vient la demande de connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse'**
+  String get webSessionsConfirmAddress;
+
+  /// Libellé de la ligne qui donne l'heure à laquelle la demande de connexion a été faite (valeur : ex. « 14 h 05 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande faite à'**
+  String get webSessionsConfirmAskedAt;
+
+  /// Avertissement de sécurité sous les détails de la demande de connexion : ne scanner que son propre écran, refuser si un tiers le demande (arnaque).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne scannez que le code affiché sur votre propre ordinateur. Si quelqu\'un vous demande de scanner un code, refusez.'**
+  String get webSessionsConfirmWarning;
+
+  /// Bouton principal de la feuille de confirmation : connecte l'ordinateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter'**
+  String get webSessionsConfirmApprove;
+
+  /// Bouton secondaire de la feuille de confirmation : refuse la connexion de l'ordinateur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get webSessionsConfirmDeny;
 }
 
 class _AppLocalizationsDelegate

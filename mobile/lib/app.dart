@@ -10,6 +10,7 @@ import 'core/router/app_router.dart';
 import 'core/services/websocket_service.dart';
 import 'presentation/features/couple/widgets/couple_flow_host.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/dismiss_keyboard_on_tap.dart';
 import 'l10n/l10n.dart';
 
 class MazlApp extends ConsumerWidget {
@@ -42,24 +43,28 @@ class MazlApp extends ConsumerWidget {
 
       // Router
       routerConfig: router,
+
       // iOS « Réduire les animations » only reaches Flutter as
       // AccessibilityFeatures.reduceMotion: fold it into disableAnimations
-      // for every screen, sheet and overlay.
+      // for every screen, sheet and overlay. A tap outside a text field
+      // closes the keyboard, everywhere.
       builder: (context, child) {
         // DateFormat and NumberFormat without an explicit locale follow the
         // interface language.
         Intl.defaultLocale = Localizations.localeOf(context).toLanguageTag();
         return ReduceMotionScope(
-          child: CoupleFlowHost(
-            service: couple,
-            router: router,
-            navigatorKey: rootNavigatorKey,
-            realtime: socket.events,
-            auth: auth,
-            isAuthenticated: () => auth.isAuthenticated,
-            onSignedIn: socket.connect,
-            onSignedOut: socket.disconnect,
-            child: child ?? const SizedBox.shrink(),
+          child: DismissKeyboardOnTap(
+            child: CoupleFlowHost(
+              service: couple,
+              router: router,
+              navigatorKey: rootNavigatorKey,
+              realtime: socket.events,
+              auth: auth,
+              isAuthenticated: () => auth.isAuthenticated,
+              onSignedIn: socket.connect,
+              onSignedOut: socket.disconnect,
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

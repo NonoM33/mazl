@@ -6,6 +6,7 @@ export type InvalidTransactionReason =
   | "invalid_signature"
   | "invalid_payload"
   | "wrong_bundle"
+  | "sandbox_not_allowed"
   | "product_not_allowed"
   | "not_consumable"
   | "revoked"

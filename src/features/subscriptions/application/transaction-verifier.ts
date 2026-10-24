@@ -66,7 +66,7 @@ export class TransactionVerifier {
     return { notificationType: parsed.data.notificationType, signedTransactionInfo: parsed.data.data?.signedTransactionInfo };
   }
 
-  // Signature chain and bundle only: no product policy, no expiry. Both the
+  // Signature chain, bundle and environment only: no product policy, no expiry. Both the
   // subscription policy (toSubscription) and the consumable policy (credits)
   // start from this.
   verifySigned(signedTransaction: string): SignedTransaction {
@@ -74,6 +74,9 @@ export class TransactionVerifier {
     if (!parsed.success) throw new InvalidTransactionError("invalid_payload");
     const payload = parsed.data;
     if (payload.bundleId !== this.policy.bundleId) throw new InvalidTransactionError("wrong_bundle");
+    if (payload.environment === "Sandbox" && this.policy.allowSandbox === false) {
+      throw new InvalidTransactionError("sandbox_not_allowed");
+    }
     return {
       originalTransactionId: payload.originalTransactionId,
       transactionId: payload.transactionId,

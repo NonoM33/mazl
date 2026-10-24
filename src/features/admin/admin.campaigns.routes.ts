@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
+import { z } from "zod";
 import type { AppVariables } from "../../shared/http/middleware";
 import {
   getCampaigns,
@@ -6,38 +8,132 @@ import {
   createCampaign,
   updateCampaign as updateCampaignDb,
   deleteCampaign,
-  sendCampaign,
+  getCampaignRecipients,
+  claimCampaignForSending,
+  addCampaignRecipients,
+  markCampaignRecipientsSent,
+  finishCampaignSending,
   getSegments,
   createSegment,
+  type CampaignRecord,
 } from "../../db";
 import { sendCampaignEmail } from "../../email";
 import { sendPushToUsers } from "../../onesignal";
 import { assertAdmin } from "./admin.auth";
+import { parsePagination, parseRecordId } from "./admin.pagination";
 
-// Admin campaigns + segments routes ("MODULE 3: CAMPAGNES EMAIL/PUSH"), moved
-// verbatim from the monolith (src/index.ts). Same paths, behaviour, payloads and
-// status codes. The public tracking pixel (`/api/track/open`) and public
-// unsubscribe page (`/api/unsubscribe`) that originally followed these routes are
-// NOT admin and remain in src/index.ts.
+// Admin campaigns + segments routes ("MODULE 3: CAMPAGNES EMAIL/PUSH"). The public
+// tracking pixel (`/api/track/open`) and public unsubscribe page (`/api/unsubscribe`)
+// are NOT admin and remain in src/index.ts.
+
+const CAMPAIGN_TYPES = ["email", "push"] as const;
+const CAMPAIGN_STATUSES = ["draft", "scheduled", "sending", "sent", "failed"] as const;
+// The only statuses an admin may set by hand: sending/sent/failed belong to the send routine.
+const SETTABLE_STATUSES = ["draft", "scheduled"] as const;
+
+const dateString = z.string().refine((v) => !Number.isNaN(Date.parse(v)), "Invalid date");
+
+const createCampaignSchema = z.object({
+  type: z.enum(CAMPAIGN_TYPES),
+  title: z.string().min(1).max(255),
+  subject: z.string().max(255).nullish(),
+  content: z.string().min(1),
+  segmentId: z.number().int().positive().nullish(),
+  scheduledAt: dateString.nullish(),
+});
+
+const updateCampaignSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  subject: z.string().max(255).nullish(),
+  content: z.string().min(1).optional(),
+  segmentId: z.number().int().positive().nullish(),
+  scheduledAt: dateString.nullish(),
+  status: z.enum(SETTABLE_STATUSES).optional(),
+});
+
+const createSegmentSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(2000).nullish(),
+  filters: z.record(z.string(), z.unknown()),
+});
+
+const listFilterSchema = z.object({
+  status: z.enum(CAMPAIGN_STATUSES).optional(),
+  type: z.enum(CAMPAIGN_TYPES).optional(),
+});
+
+type AdminContext = Context<{ Variables: AppVariables }>;
+
+async function readJson(c: AdminContext): Promise<unknown> {
+  try {
+    return await c.req.json();
+  } catch {
+    return null;
+  }
+}
+
+interface SendOutcome {
+  sent: number;
+  errors: number;
+  total: number;
+}
+
+async function deliverEmails(campaign: CampaignRecord, recipients: Array<{ id: number; email: string }>): Promise<SendOutcome> {
+  let sent = 0;
+  let errors = 0;
+  for (const recipient of recipients) {
+    try {
+      const result = await sendCampaignEmail({
+        to: recipient.email,
+        subject: campaign.subject || campaign.title,
+        content: campaign.content,
+        campaignId: campaign.id,
+        userId: recipient.id,
+      });
+      // sendCampaignEmail reports a provider failure by returning { success: false }, not by throwing.
+      if (result.success) {
+        sent++;
+        await markCampaignRecipientsSent(campaign.id, [recipient.id]);
+      } else {
+        errors++;
+        console.error(`Campaign ${campaign.id}: e-mail to member ${recipient.id} failed:`, result.error);
+      }
+    } catch (err) {
+      errors++;
+      console.error(`Campaign ${campaign.id}: e-mail to member ${recipient.id} failed:`, err);
+    }
+  }
+  return { sent, errors, total: recipients.length };
+}
+
+async function deliverPush(campaign: CampaignRecord, recipients: Array<{ id: number }>): Promise<SendOutcome> {
+  const userIds = recipients.map((r) => r.id);
+  if (userIds.length === 0) return { sent: 0, errors: 0, total: 0 };
+
+  const pushResult = await sendPushToUsers(userIds, campaign.title, campaign.content, { campaignId: campaign.id });
+  if (!pushResult.success) {
+    console.error(`Campaign ${campaign.id}: push failed:`, pushResult.error);
+    return { sent: 0, errors: userIds.length, total: userIds.length };
+  }
+  await markCampaignRecipientsSent(campaign.id, userIds);
+  return { sent: pushResult.recipients || userIds.length, errors: 0, total: userIds.length };
+}
+
 export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables }>): void {
   // Get campaigns (admin)
   app.get("/api/admin/campaigns", async (c) => {
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
+    const filters = listFilterSchema.safeParse({
+      status: c.req.query("status") || undefined,
+      type: c.req.query("type") || undefined,
+    });
+    if (!filters.success) return c.json({ success: false, error: "Invalid filter" }, 400);
+
     try {
-      const status = c.req.query("status");
-      const type = c.req.query("type");
-      const limit = parseInt(c.req.query("limit") || "50");
-      const offset = parseInt(c.req.query("offset") || "0");
-
-      const campaigns = await getCampaigns({
-        status: status || undefined,
-        type: type || undefined,
-        limit,
-        offset,
-      });
-
+      const { limit, offset } = parsePagination(c.req.query("limit"), c.req.query("offset"));
+      const campaigns = await getCampaigns({ ...filters.data, limit, offset });
       return c.json({ success: true, campaigns });
     } catch (error: unknown) {
       console.error("Get campaigns error:", error);
@@ -51,8 +147,8 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const campaignId = parseInt(c.req.param("id"));
-      const campaign = await getCampaignById(campaignId);
+      const campaignId = parseRecordId(c.req.param("id"));
+      const campaign = campaignId === null ? null : await getCampaignById(campaignId);
 
       if (!campaign) {
         return c.json({ success: false, error: "Campaign not found" }, 404);
@@ -70,20 +166,19 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
+    const body = createCampaignSchema.safeParse(await readJson(c));
+    if (!body.success) {
+      return c.json({ success: false, error: "Valid type (email or push), title and content required" }, 400);
+    }
+
     try {
-      const body = await c.req.json();
-
-      if (!body.type || !body.title || !body.content) {
-        return c.json({ success: false, error: "Type, title and content required" }, 400);
-      }
-
       const campaign = await createCampaign({
-        type: body.type,
-        title: body.title,
-        subject: body.subject,
-        content: body.content,
-        segmentId: body.segmentId,
-        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : undefined,
+        type: body.data.type,
+        title: body.data.title,
+        subject: body.data.subject ?? undefined,
+        content: body.data.content,
+        segmentId: body.data.segmentId ?? undefined,
+        scheduledAt: body.data.scheduledAt ? new Date(body.data.scheduledAt) : undefined,
         createdBy: auth.email || "admin",
       });
 
@@ -94,23 +189,32 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     }
   });
 
-  // Update campaign (admin)
+  // Update campaign (admin). Only a draft or scheduled campaign can change.
   app.put("/api/admin/campaigns/:id", async (c) => {
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
-    try {
-      const campaignId = parseInt(c.req.param("id"));
-      const body = await c.req.json();
+    const campaignId = parseRecordId(c.req.param("id"));
+    if (campaignId === null) return c.json({ success: false, error: "Campaign not found" }, 404);
 
+    const body = updateCampaignSchema.safeParse(await readJson(c));
+    if (!body.success) return c.json({ success: false, error: "Invalid campaign update" }, 400);
+
+    try {
       const campaign = await updateCampaignDb(campaignId, {
-        title: body.title,
-        subject: body.subject,
-        content: body.content,
-        segmentId: body.segmentId,
-        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : undefined,
-        status: body.status,
+        title: body.data.title,
+        subject: body.data.subject ?? undefined,
+        content: body.data.content,
+        segmentId: body.data.segmentId ?? undefined,
+        scheduledAt: body.data.scheduledAt ? new Date(body.data.scheduledAt) : undefined,
+        status: body.data.status,
       });
+
+      if (!campaign) {
+        const existing = await getCampaignById(campaignId);
+        if (!existing) return c.json({ success: false, error: "Campaign not found" }, 404);
+        return c.json({ success: false, error: "Campaign already sent or being sent: it can no longer be edited" }, 409);
+      }
 
       return c.json({ success: true, campaign });
     } catch (error: unknown) {
@@ -125,7 +229,8 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const campaignId = parseInt(c.req.param("id"));
+      const campaignId = parseRecordId(c.req.param("id"));
+      if (campaignId === null) return c.json({ success: false, error: "Campaign not found" }, 404);
       await deleteCampaign(campaignId);
       return c.json({ success: true });
     } catch (error: unknown) {
@@ -139,69 +244,45 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
-    try {
-      const campaignId = parseInt(c.req.param("id"));
-      const campaign = await getCampaignById(campaignId);
+    const campaignId = parseRecordId(c.req.param("id"));
+    if (campaignId === null) return c.json({ success: false, error: "Campaign not found" }, 404);
 
-      if (!campaign) {
+    try {
+      const existing = await getCampaignById(campaignId);
+      if (!existing) {
         return c.json({ success: false, error: "Campaign not found" }, 404);
       }
 
-      const camp = campaign as {
-        type?: string;
-        title: string;
-        subject?: string;
-        content: string;
-      };
-
-      // Mark campaign as sending and get recipients
-      const result = await sendCampaign(campaignId);
-      const recipients = result.recipients as Array<{ id: number; email: string }>;
-
-      let sentCount = 0;
-      let errorCount = 0;
-
-      if (camp.type === "email") {
-        // Send emails via Resend
-        for (const recipient of recipients) {
-          try {
-            await sendCampaignEmail({
-              to: recipient.email,
-              subject: camp.subject || camp.title,
-              content: camp.content,
-              campaignId,
-              userId: recipient.id,
-            });
-            sentCount++;
-          } catch (err) {
-            console.error(`Failed to send email to ${recipient.email}:`, err);
-            errorCount++;
-          }
-        }
-      } else if (camp.type === "push") {
-        // Send push via OneSignal
-        const userIds = recipients.map((r) => r.id);
-
-        if (userIds.length > 0) {
-          const pushResult = await sendPushToUsers(userIds, camp.title, camp.content, {
-            campaignId,
-          });
-
-          if (pushResult.success) {
-            sentCount = pushResult.recipients || userIds.length;
-          } else {
-            errorCount = userIds.length;
-            console.error("Push notification failed:", pushResult.error);
-          }
-        }
+      if ((existing as CampaignRecord).segment_id !== null) {
+        return c.json(
+          {
+            success: false,
+            error: "Segment targeting is not available yet: detach the segment to send to every member",
+          },
+          409,
+        );
       }
 
-      return c.json({
-        success: true,
-        sent: sentCount,
-        errors: errorCount,
-        total: recipients.length,
-      });
+      // Atomic draft/scheduled -> sending: of N simultaneous sends, exactly one wins.
+      const campaign = await claimCampaignForSending(campaignId);
+      if (!campaign) {
+        return c.json({ success: false, error: "Campaign already sent or being sent" }, 409);
+      }
+
+      let outcome: SendOutcome = { sent: 0, errors: 0, total: 0 };
+      try {
+        const recipients = await getCampaignRecipients(campaign.segment_id);
+        await addCampaignRecipients(campaignId, recipients);
+        outcome =
+          campaign.type === "email" ? await deliverEmails(campaign, recipients) : await deliverPush(campaign, recipients);
+      } catch (error: unknown) {
+        // Never leave the campaign locked in 'sending'.
+        await finishCampaignSending(campaignId, { sent: outcome.sent, total: outcome.total });
+        throw error;
+      }
+
+      await finishCampaignSending(campaignId, { sent: outcome.sent, total: outcome.total });
+      return c.json({ success: true, sent: outcome.sent, errors: outcome.errors, total: outcome.total });
     } catch (error: unknown) {
       console.error("Send campaign error:", error);
       return c.json({ success: false, error: "Failed to send campaign" }, 500);
@@ -227,17 +308,14 @@ export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
+    const body = createSegmentSchema.safeParse(await readJson(c));
+    if (!body.success) return c.json({ success: false, error: "Name and filters required" }, 400);
+
     try {
-      const body = await c.req.json();
-
-      if (!body.name || !body.filters) {
-        return c.json({ success: false, error: "Name and filters required" }, 400);
-      }
-
       const segment = await createSegment({
-        name: body.name,
-        description: body.description,
-        filters: body.filters,
+        name: body.data.name,
+        description: body.data.description ?? undefined,
+        filters: body.data.filters,
         createdBy: auth.email || "admin",
       });
 

@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
+import { z } from "zod";
 import { mkdir } from "node:fs/promises";
 import {
   sql,
@@ -69,26 +71,37 @@ import {
   getCoupleAchievements,
   getCoupleByUserId,
 } from "./db";
-import { sendVerificationRequestEmail } from "./email";
+import { isValidUnsubscribeToken, sendVerificationRequestEmail } from "./email";
 import { generateJWT, verifyJWT } from "./auth";
 import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
+import { isAccountActive } from "./shared/http/account-state";
+import { createIpRateLimiter, createKeyedLimiter } from "./shared/http/rate-limit";
 import { parseBody, swipeBodySchema } from "./shared/http/validation";
 import {
   emitNewMatch,
   addConnection,
   removeConnection,
+  closeUserConnections,
+  ACCOUNT_DISABLED_CLOSE,
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
+import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
+import { createWebApp } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
+import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
+import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
+import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
 import { ensureAccountSchema, registerAccountRoutes } from "./features/account/account.routes";
+import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStripeCancellation } from "./features/billing-web/billing-web.module";
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
@@ -139,7 +152,12 @@ const objectStore = createObjectStore(storageConfig);
 // so that a malformed threshold stops the boot.
 const verification = createVerificationModule({ sql, store: objectStore });
 
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+// Development routes (/api/dev/*: sign in as anyone, reset swipes...) exist
+// only when NODE_ENV says development or test. Any other value, unset
+// included, closes them: a staging server without NODE_ENV must not hand out
+// tokens for any e-mail.
+const DEV_ROUTES_ENABLED = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+if (DEV_ROUTES_ENABLED) console.warn(`Development routes are ENABLED (NODE_ENV=${process.env.NODE_ENV})`);
 
 // CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)
 const DEFAULT_CORS_ORIGINS = [
@@ -162,6 +180,32 @@ const ALLOWED_ORIGINS: readonly string[] = (() => {
   return DEFAULT_CORS_ORIGINS;
 })();
 
+// Security headers on every response. The CSP is written for the console and
+// the landing pages (inline scripts and handlers, Google Sign-In, Google
+// Fonts); it mainly stops framing and keeps scripts and connections to the
+// listed origins.
+app.use(
+  "*",
+  secureHeaders({
+    crossOriginResourcePolicy: "same-site",
+    crossOriginOpenerPolicy: "same-origin-allow-popups",
+    referrerPolicy: "strict-origin-when-cross-origin",
+    contentSecurityPolicy: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com/gsi/client"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com/gsi/style"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'", "https://accounts.google.com/gsi/"],
+      frameSrc: ["https://accounts.google.com/gsi/"],
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'none'"],
+      formAction: ["'self'"],
+    },
+  }),
+);
+
 app.use(
   "/api/*",
   cors({
@@ -177,6 +221,13 @@ app.get("/verify", async (c) => {
   const token = c.req.query("token") || "";
   return c.redirect(`/verify.html?token=${encodeURIComponent(token)}`);
 });
+
+// Legal pages. The app's Premium screen links to /terms and /privacy.
+for (const page of ["cgu", "cgv", "confidentialite"] as const) {
+  app.get(`/${page}`, (c) => c.html(Bun.file(`./public/${page}.html`).text()));
+}
+app.get("/terms", (c) => c.redirect("/cgu", 301));
+app.get("/privacy", (c) => c.redirect("/confidentialite", 301));
 
 app.get("/admin", async (c) => {
   return new Response(Bun.file("./public/admin-login.html"));
@@ -196,38 +247,39 @@ app.use("/*", serveStatic({ root: "./public" }));
 
 
 // API Routes
-app.post("/api/subscribe", async (c) => {
+// Waitlist sign-up is public: limited per client address and per e-mail, so
+// that nobody can flood a stranger's inbox with MAZL e-mails. The answer is
+// the same whatever happens, so it tells nothing about who is registered.
+const subscribeLimiter = createIpRateLimiter({ max: 5, windowMs: 60 * 60_000 });
+const subscribeEmailsPerAddress = createKeyedLimiter({ max: 3, windowMs: 24 * 60 * 60_000 });
+const subscribeBodySchema = z.object({ email: z.email().max(254) });
+const SUBSCRIBED = { success: true, message: "Inscription OK ! Regarde tes emails pour envoyer tes documents." } as const;
+
+app.post("/api/subscribe", subscribeLimiter, async (c) => {
+  const parsed = subscribeBodySchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) {
+    return c.json({ success: false, error: "Email invalide" }, 400);
+  }
+  const email = parsed.data.email.trim();
+  const emailKey = email.toLowerCase();
+  if (subscribeEmailsPerAddress.retryAfter(emailKey) !== null) return c.json(SUBSCRIBED);
+  subscribeEmailsPerAddress.hit(emailKey);
+
   try {
-    const { email } = await c.req.json();
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      return c.json({ success: false, error: "Email invalide" }, 400);
-    }
-
     const waitlist = await upsertWaitlistAndGetVerification(email);
+    // A verified or submitted member is left alone: no new link, no e-mail.
+    if (waitlist.alreadyHandled) return c.json(SUBSCRIBED);
 
-    // Send verification request email (best-effort)
+    // The link always points at APP_URL (src/email.ts), never at a header.
     try {
-      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
-
-      await sendVerificationRequestEmail({
-        to: email,
-        verificationToken: waitlist.verificationToken,
-        baseUrl: requestOrigin,
-      });
+      await sendVerificationRequestEmail({ to: email, verificationToken: waitlist.verificationToken });
     } catch (err) {
-      console.error("Email send failed:", err);
+      console.error("Email send failed:", err instanceof Error ? err.name : "unknown error");
     }
 
-    return c.json({
-      success: true,
-      message: "Inscription OK ! Regarde tes emails pour envoyer tes documents.",
-    });
-  } catch (error: any) {
-    console.error("Subscribe error:", error);
+    return c.json(SUBSCRIBED);
+  } catch (error) {
+    console.error("Subscribe error:", error instanceof Error ? error.name : "unknown error");
     return c.json({ success: false, error: "Erreur serveur" }, 500);
   }
 });
@@ -257,17 +309,49 @@ registerDocumentsRoutes(app, documents);
 const media = createMediaModule({ store: objectStore, faceChecker: verification.photoFaceChecker });
 // GDPR erasure of a member: rows first (inside `deletion`), then their profile
 // photo files, then their chat files. A failed deletion touches no file.
+// Once erased, the member's open sockets are closed.
 const userErasure = {
-  around: <T,>(userId: number, deletion: () => Promise<T>): Promise<T> =>
-    chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion)),
+  around: async <T,>(userId: number, deletion: () => Promise<T>): Promise<T> => {
+    const erased = await chat.media.eraseUserMedia(userId, () => media.photos.eraseUserPhotos(userId, deletion));
+    closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled");
+    return erased;
+  },
 };
-registerAdminRoutes(app, documents, userErasure);
-registerAccountRoutes(app, sql, userErasure);
+// Web payments: a member's Stripe subscription is cancelled before their erasure.
+const billingWeb = createBillingWeb({ sql, authenticate: requireAuth });
+const erasureWithBilling = withStripeCancellation(userErasure, billingWeb);
+registerAdminRoutes(app, documents, erasureWithBilling);
+registerAccountRoutes(app, sql, erasureWithBilling);
+registerBillingWeb(app, billingWeb);
+
+// Art. 9 consent and personal-data export (docs/web/adr/W06).
+registerPrivacy(app, createPrivacyModule(sql));
+
+// ============ STAFF BACK-OFFICE ============
+// /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
+// matching tuning), the public appeal route and the /console front:
+// src/backoffice.ts.
+const backoffice = createBackoffice({
+  sql,
+  env: process.env,
+  closeConnections: (userId) => closeUserConnections(userId, ACCOUNT_DISABLED_CLOSE, "account_disabled"),
+});
+backoffice.register(app);
 
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
 registerAuthRoutes(app);
+
+// Web sign-in (QR, Google, Apple), revocable web sessions and the cookie bridge.
+const webSession = createWebSessionModule({ sql });
+registerWebSession(app, webSession);
+// The built web client under /app, with its own headers (docs/web/adr/W01).
+const webApp = createWebApp({
+  distDir: process.env.WEB_DIST_DIR || "web/dist",
+  webOrigin: process.env.WEB_ORIGIN || null,
+  mediaBaseUrl: process.env.PUBLIC_BASE_URL || null,
+});
 
 // ============ PROFILE, PHOTOS & PROMPTS ============
 // Profile feature routes (PUT /api/profile, photos upload/delete/reorder/
@@ -294,7 +378,11 @@ registerCredits(app, credits, requireAuth);
 // POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
 // Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
 // emits `match:new` via the exported `emitNewMatch` helper below.
-registerMatchingRoutes(app, { credits });
+// Server-side daily like cap, in front of POST /api/swipes (docs/web/adr/W07).
+registerLikeAllowance(app, createLikeAllowanceService(sql));
+// Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
+registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
+registerMatchingRoutes(app, { credits, feed: backoffice.feed });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost
@@ -337,11 +425,11 @@ registerSubscriptions(app, { sql, authenticate: requireAuth, transactions: apple
 
 // ============ DEV/DEBUG ENDPOINTS ============
 
-registerDocumentsDevRoutes(app, documents, IS_PRODUCTION);
+registerDocumentsDevRoutes(app, documents, !DEV_ROUTES_ENABLED);
 
 // Create test user (dev only)
 app.post("/api/dev/test-user", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email, password, name } = body;
@@ -396,7 +484,7 @@ app.post("/api/dev/test-user", async (c) => {
 
 // Login test user (dev only)
 app.post("/api/dev/test-login", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { email } = body;
@@ -427,7 +515,7 @@ app.post("/api/dev/test-login", async (c) => {
 
 // Enable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/enable", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId, partnerId } = body;
@@ -466,7 +554,13 @@ app.post("/api/dev/couple/enable", async (c) => {
           coupleId: couple.id
         });
       }
-      // Reactivate existing couple
+      // Reactivate existing couple, after ending any other active couple of
+      // either member (the database allows one active couple per member).
+      await sql`
+        UPDATE couples SET status = 'ended', updated_at = NOW()
+        WHERE id <> ${couple.id} AND status = 'active'
+          AND (user1_id IN (${userId}, ${partnerUserId}) OR user2_id IN (${userId}, ${partnerUserId}))
+      `;
       await sql`
         UPDATE couples SET status = 'active', updated_at = NOW()
         WHERE id = ${couple.id}
@@ -503,7 +597,7 @@ app.post("/api/dev/couple/enable", async (c) => {
 
 // Disable couple mode for testing (dev endpoint)
 app.post("/api/dev/couple/disable", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const body = await c.req.json();
     const { userId } = body;
@@ -533,7 +627,7 @@ app.post("/api/dev/couple/disable", async (c) => {
 
 // Get couple status for debugging (dev endpoint)
 app.get("/api/dev/couple/status/:userId", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   try {
     const userId = parseInt(c.req.param("userId"));
 
@@ -562,7 +656,7 @@ app.get("/api/dev/couple/status/:userId", async (c) => {
 
 // Reset swipes by email (dev endpoint)
 app.get("/api/dev/reset-swipes/:email", async (c) => {
-  if (IS_PRODUCTION) return c.json({ error: "Not found" }, 404);
+  if (!DEV_ROUTES_ENABLED) return c.json({ error: "Not found" }, 404);
   const email = c.req.param("email");
   if (!email) {
     return c.json({ success: false, error: "email required" }, 400);
@@ -621,8 +715,9 @@ app.get("/api/track/open", async (c) => {
 // Unsubscribe endpoint (public)
 app.get("/api/unsubscribe", async (c) => {
   const email = c.req.query("email");
-  if (!email) {
-    return c.html("<h1>Email manquant</h1>");
+  const token = c.req.query("t");
+  if (!email || !token || !isValidUnsubscribeToken(email, token)) {
+    return c.html("<h1>Lien de désinscription invalide</h1><p>Utilise le lien présent dans le dernier e-mail reçu.</p>", 400);
   }
 
   await unsubscribeEmail(email);
@@ -663,10 +758,16 @@ startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
 await ensureAccountSchema(sql);
+await ensureBillingWebSchema(sql);
+await ensurePrivacySchema(sql);
+await ensureLikeAllowanceSchema(sql);
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);
 await ensureVerificationSchema(sql);
+await ensureWebSessionSchema(sql);
+await backoffice.ensureSchemas();
+backoffice.startSweeper();
 
 console.log(`Server running on http://localhost:${port}`);
 
@@ -678,50 +779,72 @@ console.log(`Server running on http://localhost:${port}`);
 // Bun.serve with WebSocket support
 interface WebSocketData {
   userId: number;
+  // Seconds since the epoch: the socket lives no longer than its token.
+  expiresAt: number;
+  // Set when the token is a web socket ticket: the web session it belongs to.
+  webSessionId?: string;
+}
+
+// The token rides in the query string (browsers cannot set headers on a
+// WebSocket); the account is checked like on every HTTP request.
+async function upgradeToSocket(req: Request, url: URL, server: Bun.Server<WebSocketData>): Promise<Response | undefined> {
+  const token = url.searchParams.get("token");
+  if (!token) {
+    return new Response("Token required", { status: 401 });
+  }
+
+  // A web socket ticket (single use, one minute) or the app's JWT. Tokens with
+  // an audience (the web bridge's) never open a socket.
+  const ticket = await webSession.consumeSocketTicket(token);
+  const payload = ticket ? null : verifyJWT(token);
+  if (!ticket && (!payload || payload.aud !== undefined)) {
+    return new Response("Invalid token", { status: 401 });
+  }
+
+  const userId = ticket ? ticket.userId : Number(payload?.sub);
+  if (!(await isAccountActive(userId))) {
+    return new Response("Account disabled", { status: 401 });
+  }
+
+  const expiresAt = ticket ? ticket.expiresAt : (payload?.exp ?? 0);
+  if (server.upgrade(req, { data: { userId, expiresAt, webSessionId: ticket?.sessionId } })) {
+    return undefined;
+  }
+  return new Response("WebSocket upgrade failed", { status: 500 });
 }
 
 const server = Bun.serve<WebSocketData>({
   port,
-  fetch(req, server) {
+  async fetch(req, server) {
+    await webSession.bridge(req);
+    const page = await webApp.handle(req);
+    if (page) return page;
     const url = new URL(req.url);
+    if (url.pathname === "/ws") return upgradeToSocket(req, url, server);
 
-    // Handle WebSocket upgrade for /ws path
-    if (url.pathname === "/ws") {
-      const token = url.searchParams.get("token");
-      if (!token) {
-        return new Response("Token required", { status: 401 });
-      }
-
-      const payload = verifyJWT(token);
-      if (!payload) {
-        return new Response("Invalid token", { status: 401 });
-      }
-
-      const userId = parseInt(payload.sub);
-      const upgraded = server.upgrade(req, {
-        data: { userId },
-      });
-
-      if (upgraded) {
-        return undefined;
-      }
-      return new Response("WebSocket upgrade failed", { status: 500 });
-    }
-
-    // Handle regular HTTP requests with Hono
-    return app.fetch(req);
+    // Regular HTTP requests go to Hono, which reads the client address from
+    // the Bun server (src/shared/http/client-ip.ts).
+    return app.fetch(req, { server });
   },
   websocket: {
+    // A chat frame is at most a few kilobytes; anything bigger is refused
+    // before it is buffered and parsed.
+    maxPayloadLength: 64 * 1024,
     open(ws) {
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
         addConnection(userId, ws as unknown as WebSocket);
+        if (ws.data.webSessionId) webSession.socketOpened(ws.data.webSessionId, ws);
         console.log(`WebSocket connected: user ${userId}`);
       }
     },
     async message(ws, message) {
       const userId = (ws.data as any)?.userId as number;
       if (!userId) return;
+      if (ws.data.expiresAt <= Math.floor(Date.now() / 1000)) {
+        ws.close(4001, "token_expired");
+        return;
+      }
 
       try {
         const data = JSON.parse(message.toString());
@@ -748,13 +871,15 @@ const server = Bun.serve<WebSocketData>({
           }
         }
       } catch (err) {
-        console.error("WebSocket message error:", err);
+        // Never log the frame itself (docs/chat/CONTRAT.md §0.3).
+        console.error("WebSocket message error:", err instanceof Error ? err.name : "unknown error");
       }
     },
     close(ws) {
       const userId = (ws.data as any)?.userId as number;
       if (userId) {
         removeConnection(userId, ws as unknown as WebSocket);
+        if (ws.data.webSessionId) webSession.socketClosed(ws.data.webSessionId, ws);
         console.log(`WebSocket disconnected: user ${userId}`);
       }
     },

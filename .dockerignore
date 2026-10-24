@@ -23,3 +23,12 @@ node_modules
 # Docker
 Dockerfile
 .dockerignore
+
+# Tooling, worktrees and anything the server does not run
+.claude/
+.cursor/
+tests/
+docs/
+*.md
+landing-server.ts
+Jenkinsfile

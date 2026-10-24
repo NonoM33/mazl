@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/models/compatibility_score.dart';
+import 'package:mazl/core/models/profile.dart';
+import 'package:mazl/presentation/features/matching/widgets/match_sheet.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_action_bar.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_compatibility_section.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_completion_card.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_couple_section.dart';
-import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_match_dialog.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_top_bar.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_content.dart';
@@ -18,6 +19,8 @@ const _en = Locale('en');
 const _he = Locale('he');
 const _ru = Locale('ru');
 const _es = Locale('es');
+
+final _jeanne = Profile(id: 7, userId: 42, displayName: 'Jeanne');
 
 const _member = ProfileViewData(
   name: 'Jeanne Exemple',
@@ -92,13 +95,13 @@ void main() {
 
       await pumpLocalized(
         tester,
-        ProfileMatchDialog(name: 'Jeanne', onContinue: () {}, onMessage: () {}),
+        MatchSheetContent(matched: _jeanne),
         locale: _en,
       );
-      expect(find.text("It's a match."), findsOneWidget);
-      expect(find.text('You can now chat with Jeanne.'), findsOneWidget);
+      expect(find.text("It's a match!"), findsOneWidget);
+      expect(find.text('You and Jeanne liked each other.'), findsOneWidget);
       expect(find.text('Send a message'), findsOneWidget);
-      expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Keep discovering'), findsOneWidget);
     });
 
     testWidgets(
@@ -106,13 +109,10 @@ void main() {
       (tester) async {
         await pumpLocalized(
           tester,
-          ProfileMatchDialog(name: null, onContinue: () {}, onMessage: () {}),
+          MatchSheetContent(matched: Profile(id: 1, userId: 2)),
           locale: _ru,
         );
-        expect(
-          find.text('Теперь Вы можете общаться с этим человеком.'),
-          findsOneWidget,
-        );
+        expect(find.text('Вы понравились друг другу.'), findsOneWidget);
       },
     );
 
@@ -367,11 +367,11 @@ void main() {
 
       await pumpLocalized(
         tester,
-        ProfileMatchDialog(name: 'Jeanne', onContinue: () {}, onMessage: () {}),
+        MatchSheetContent(matched: _jeanne),
         locale: _he,
         brightness: Brightness.dark,
       );
-      expect(find.text('יש התאמה.'), findsOneWidget);
+      expect(find.text("יש מאץ'!"), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

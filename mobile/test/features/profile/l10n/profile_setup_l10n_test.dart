@@ -5,6 +5,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/presentation/features/profile/screens/profile_setup_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
+import 'package:mazl/core/di/providers/privacy_providers.dart';
+import '../../../presentation/privacy/privacy_fakes.dart';
+
+/// The practice fields sit behind the article 9 consent: it is given here.
+final _consentGiven = privacyConsentApiProvider.overrideWithValue(
+  FakePrivacyConsentApi(granted: true, version: '2026-10-24'),
+);
 
 const _en = Locale('en');
 const _he = Locale('he');
@@ -21,6 +28,7 @@ Future<void> _open(
     const ProfileSetupScreen(),
     locale: locale,
     brightness: brightness,
+    overrides: [_consentGiven],
   );
   await tester.pumpAndSettle();
 }

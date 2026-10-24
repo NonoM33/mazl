@@ -53,6 +53,15 @@ describe("createCreditTables", () => {
     expect(statement).not.toContain("target_user_id INTEGER NOT NULL");
   });
 
+  test("revocations: a refund announced before the credit is remembered by transactionId, with no member", async () => {
+    const { sql, texts } = recorder();
+    await createCreditTables(sql);
+    const statement = texts.find((text) => text.startsWith("CREATE TABLE IF NOT EXISTS credit_revocations ")) ?? "";
+    expect(statement).toContain("transaction_id VARCHAR(64) PRIMARY KEY");
+    expect(statement).toContain("revoked_at TIMESTAMP NOT NULL DEFAULT NOW()");
+    expect(statement).not.toContain("user_id");
+  });
+
   test("indexes the daily count", async () => {
     const { sql, texts } = recorder();
     await createCreditTables(sql);

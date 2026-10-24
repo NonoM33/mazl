@@ -29,7 +29,20 @@ import {
   getCoupleAchievements,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { coupleId, type CoupleRow } from "./couple.shared";
+import { parseBody } from "../../shared/http/validation";
+import {
+  bookingBodySchema,
+  bucketItemBodySchema,
+  coupleId,
+  dateBodySchema,
+  dateUpdateBodySchema,
+  GENERIC_SERVER_ERROR,
+  memoryBodySchema,
+  parsePagination,
+  parseRouteId,
+  saveActivityBodySchema,
+  type CoupleRow,
+} from "./couple.shared";
 
 // COUPLE feature — content endpoints: activities feed, saved activities,
 // bookings, events, memories, dates, bucket-list and stats/achievements. Moved
@@ -46,16 +59,16 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const limit = parseInt(c.req.query("limit") || "20");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const page = parsePagination(c.req.query("limit"), c.req.query("offset"));
+      if (!page) return c.json({ success: false, error: "limit must be 1-100 and offset 0 or more" }, 400);
       const category = c.req.query("category");
 
-      const activities = await getCoupleActivities(coupleId(couple as CoupleRow), limit, offset, category || undefined);
+      const activities = await getCoupleActivities(coupleId(couple as CoupleRow), page.limit, page.offset, category || undefined);
 
       return c.json({ success: true, activities });
     } catch (error: unknown) {
       console.error("Get couple activities error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -64,7 +77,8 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
     try {
       const userId = c.get("userId");
 
-      const activityId = parseInt(c.req.param("id"));
+      const activityId = parseRouteId(c.req.param("id"));
+      if (activityId === null) return c.json({ success: false, error: "Activity not found" }, 404);
       const activity = await getCoupleActivity(activityId);
 
       if (!activity) return c.json({ success: false, error: "Activity not found" }, 404);
@@ -72,7 +86,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, activity });
     } catch (error: unknown) {
       console.error("Get activity error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -83,15 +97,20 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const activityId = parseInt(c.req.param("id"));
-      const body = await c.req.json().catch(() => ({}));
+      const activityId = parseRouteId(c.req.param("id"));
+      if (activityId === null) return c.json({ success: false, error: "Invalid id" }, 400);
+      const body = saveActivityBodySchema.safeParse(await c.req.json().catch(() => ({})));
+      if (!body.success) return c.json({ success: false, error: "Invalid notes" }, 400);
+      if (!(await getCoupleActivity(activityId))) {
+        return c.json({ success: false, error: "Activity not found" }, 404);
+      }
 
-      await saveCoupleActivity(coupleId(couple as CoupleRow), activityId, body.notes);
+      await saveCoupleActivity(coupleId(couple as CoupleRow), activityId, body.data.notes ?? undefined);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Save activity error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -102,13 +121,17 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const activityId = parseInt(c.req.param("id"));
+      const activityId = parseRouteId(c.req.param("id"));
+      if (activityId === null) return c.json({ success: false, error: "Invalid id" }, 400);
+      if (!(await getCoupleActivity(activityId))) {
+        return c.json({ success: false, error: "Activity not found" }, 404);
+      }
       await passCoupleActivity(coupleId(couple as CoupleRow), activityId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Pass activity error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -124,7 +147,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, activities });
     } catch (error: unknown) {
       console.error("Get saved activities error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -135,13 +158,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const activityId = parseInt(c.req.param("id"));
+      const activityId = parseRouteId(c.req.param("id"));
+      if (activityId === null) return c.json({ success: false, error: "Invalid id" }, 400);
       await removeSavedActivity(coupleId(couple as CoupleRow), activityId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Remove saved activity error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -152,20 +176,22 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const body = await c.req.json();
-      const booking = await createCoupleBooking({
+      const parsed = await parseBody(bookingBodySchema, c);
+      if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
+      const result = await createCoupleBooking({
         coupleId: coupleId(couple as CoupleRow),
-        activityId: body.activityId,
-        eventId: body.eventId,
-        bookingDate: body.bookingDate,
-        bookingTime: body.bookingTime,
-        notes: body.notes,
+        activityId: parsed.data.activityId,
+        eventId: parsed.data.eventId,
+        bookingDate: parsed.data.bookingDate,
+        bookingTime: parsed.data.bookingTime,
+        notes: parsed.data.notes,
       });
+      if (!result.ok) return c.json({ success: false, error: result.error }, result.status);
 
-      return c.json({ success: true, booking });
+      return c.json({ success: true, booking: result.booking });
     } catch (error: unknown) {
       console.error("Create booking error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -181,7 +207,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, bookings });
     } catch (error: unknown) {
       console.error("Get bookings error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -192,16 +218,16 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
     try {
       const userId = c.get("userId");
 
-      const limit = parseInt(c.req.query("limit") || "20");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const page = parsePagination(c.req.query("limit"), c.req.query("offset"));
+      if (!page) return c.json({ success: false, error: "limit must be 1-100 and offset 0 or more" }, 400);
       const category = c.req.query("category");
 
-      const events = await getCoupleEvents(limit, offset, category || undefined);
+      const events = await getCoupleEvents(page.limit, page.offset, category || undefined);
 
       return c.json({ success: true, events });
     } catch (error: unknown) {
       console.error("Get couple events error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -217,7 +243,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, events });
     } catch (error: unknown) {
       console.error("Get registered events error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -226,7 +252,8 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
     try {
       const userId = c.get("userId");
 
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRouteId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Event not found" }, 404);
       const event = await getCoupleEvent(eventId);
 
       if (!event) return c.json({ success: false, error: "Event not found" }, 404);
@@ -234,7 +261,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, event });
     } catch (error: unknown) {
       console.error("Get event error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -245,13 +272,15 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const eventId = parseInt(c.req.param("id"));
-      const registration = await registerForCoupleEvent(coupleId(couple as CoupleRow), eventId);
+      const eventId = parseRouteId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Event not found" }, 404);
+      const result = await registerForCoupleEvent(coupleId(couple as CoupleRow), eventId);
+      if (!result.ok) return c.json({ success: false, error: result.error }, result.status);
 
-      return c.json({ success: true, registration });
+      return c.json({ success: true, registration: result.registration });
     } catch (error: unknown) {
       console.error("Register for event error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -262,13 +291,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRouteId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Event not found" }, 404);
       await cancelCoupleEventRegistration(coupleId(couple as CoupleRow), eventId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Cancel registration error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
   // ============ COUPLE MODE - MEMORIES ============
@@ -285,7 +315,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, memories });
     } catch (error: unknown) {
       console.error("Get memories error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -296,22 +326,23 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const body = await c.req.json();
+      const parsed = await parseBody(memoryBodySchema, c);
+      if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
       const memory = await addCoupleMemory({
         coupleId: coupleId(couple as CoupleRow),
-        type: body.type,
-        title: body.title,
-        content: body.content,
-        imageUrl: body.imageUrl,
-        memoryDate: body.memoryDate,
-        location: body.location,
+        type: parsed.data.type,
+        title: parsed.data.title ?? undefined,
+        content: parsed.data.content ?? undefined,
+        imageUrl: parsed.data.imageUrl ?? undefined,
+        memoryDate: parsed.data.memoryDate ?? undefined,
+        location: parsed.data.location ?? undefined,
         createdBy: userId,
       });
 
       return c.json({ success: true, memory });
     } catch (error: unknown) {
       console.error("Add memory error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -322,13 +353,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const memoryId = parseInt(c.req.param("id"));
+      const memoryId = parseRouteId(c.req.param("id"));
+      if (memoryId === null) return c.json({ success: false, error: "Invalid id" }, 400);
       await deleteCoupleMemory(coupleId(couple as CoupleRow), memoryId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete memory error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -346,7 +378,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, dates });
     } catch (error: unknown) {
       console.error("Get dates error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -357,21 +389,22 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const body = await c.req.json();
+      const parsed = await parseBody(dateBodySchema, c);
+      if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
       const date = await addCoupleDate({
         coupleId: coupleId(couple as CoupleRow),
-        title: body.title,
-        date: body.date,
-        type: body.type,
-        isRecurring: body.isRecurring,
-        remindDaysBefore: body.remindDaysBefore,
-        notes: body.notes,
+        title: parsed.data.title,
+        date: parsed.data.date,
+        type: parsed.data.type,
+        isRecurring: parsed.data.isRecurring ?? undefined,
+        remindDaysBefore: parsed.data.remindDaysBefore ?? undefined,
+        notes: parsed.data.notes ?? undefined,
       });
 
       return c.json({ success: true, date });
     } catch (error: unknown) {
       console.error("Add date error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -382,15 +415,17 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const dateId = parseInt(c.req.param("id"));
-      const body = await c.req.json();
+      const dateId = parseRouteId(c.req.param("id"));
+      if (dateId === null) return c.json({ success: false, error: "Invalid id" }, 400);
+      const parsed = await parseBody(dateUpdateBodySchema, c);
+      if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
 
-      const date = await updateCoupleDate(coupleId(couple as CoupleRow), dateId, body);
+      const date = await updateCoupleDate(coupleId(couple as CoupleRow), dateId, parsed.data);
 
       return c.json({ success: true, date });
     } catch (error: unknown) {
       console.error("Update date error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -401,13 +436,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const dateId = parseInt(c.req.param("id"));
+      const dateId = parseRouteId(c.req.param("id"));
+      if (dateId === null) return c.json({ success: false, error: "Invalid id" }, 400);
       await deleteCoupleDate(coupleId(couple as CoupleRow), dateId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete date error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -425,7 +461,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, items });
     } catch (error: unknown) {
       console.error("Get bucket list error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -436,19 +472,20 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const body = await c.req.json();
+      const parsed = await parseBody(bucketItemBodySchema, c);
+      if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
       const item = await addBucketListItem({
         coupleId: coupleId(couple as CoupleRow),
-        title: body.title,
-        description: body.description,
-        category: body.category,
-        targetDate: body.targetDate,
+        title: parsed.data.title,
+        description: parsed.data.description ?? undefined,
+        category: parsed.data.category ?? undefined,
+        targetDate: parsed.data.targetDate ?? undefined,
       });
 
       return c.json({ success: true, item });
     } catch (error: unknown) {
       console.error("Add bucket list item error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -459,13 +496,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const itemId = parseInt(c.req.param("id"));
+      const itemId = parseRouteId(c.req.param("id"));
+      if (itemId === null) return c.json({ success: false, error: "Invalid id" }, 400);
       const item = await completeBucketListItem(coupleId(couple as CoupleRow), itemId);
 
       return c.json({ success: true, item });
     } catch (error: unknown) {
       console.error("Complete bucket list item error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -476,13 +514,14 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       const couple = await getCoupleByUserId(userId);
       if (!couple) return c.json({ success: false, error: "Not in a couple" }, 400);
 
-      const itemId = parseInt(c.req.param("id"));
+      const itemId = parseRouteId(c.req.param("id"));
+      if (itemId === null) return c.json({ success: false, error: "Invalid id" }, 400);
       await deleteBucketListItem(coupleId(couple as CoupleRow), itemId);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete bucket list item error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -501,7 +540,7 @@ export function registerCoupleContentRoutes(app: Hono<{ Variables: AppVariables 
       return c.json({ success: true, stats, achievements });
     } catch (error: unknown) {
       console.error("Get couple stats error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 }

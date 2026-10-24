@@ -6,6 +6,7 @@ import { updatedEvent } from "./chat-events";
 import type { GuardedFetcher } from "./guarded-fetch";
 import type { PreviewScheduler } from "./chat-service";
 import type { MessagePresenter } from "./message-presenter";
+import { createSemaphore, SemaphoreFullError, type Semaphore } from "./semaphore";
 import type {
   ChatImageProcessor, FileStorage, MessageRepository, NewMedia, PreviewCache, PreviewCacheData, RealtimeEvents,
 } from "./ports";
@@ -19,18 +20,24 @@ export const PAGE_MAX_BYTES = 512 * 1024;
 export const IMAGE_MAX_BYTES = 4 * 1024 * 1024;
 export const FETCH_TIMEOUT_MS = 5000;
 export const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+export const PREVIEW_CONCURRENCY = 4;
+export const PREVIEW_QUEUE = 16;
 
 export interface LinkPreviewDeps {
   readonly fetcher: GuardedFetcher;
   readonly images: ChatImageProcessor;
   readonly storage: FileStorage;
   readonly cache: PreviewCache;
-  readonly repository: Pick<MessageRepository, "attachPreview" | "findConversationOf">;
+  readonly repository: Pick<MessageRepository, "attachPreview" | "findConversationOf" | "isBlocked">;
   readonly presenter: MessagePresenter;
   readonly events: RealtimeEvents;
   readonly now: () => Date;
   // Where the job runs; production lets it float, tests capture and await it.
   readonly runInBackground: (job: Promise<void>) => void;
+  // Previews in flight for the whole process. Defaults to PREVIEW_CONCURRENCY
+  // running and PREVIEW_QUEUE waiting; the rest are dropped (a message simply
+  // keeps no preview).
+  readonly gate?: Semaphore;
 }
 
 export interface LinkPreviewService extends PreviewScheduler {
@@ -51,6 +58,7 @@ function absoluteImageUrl(candidate: string | undefined, pageUrl: string): strin
 
 export function createLinkPreviewService(deps: LinkPreviewDeps): LinkPreviewService {
   const { fetcher, images, storage, cache, repository, presenter, events, now } = deps;
+  const gate = deps.gate ?? createSemaphore({ permits: PREVIEW_CONCURRENCY, maxQueue: PREVIEW_QUEUE });
 
   async function downloadImage(imageUrl: string): Promise<{ key: string; width: number; height: number } | null> {
     const fetched = await fetcher.fetch(imageUrl, { kind: "image", maxBytes: IMAGE_MAX_BYTES, timeoutMs: FETCH_TIMEOUT_MS });
@@ -128,7 +136,11 @@ export function createLinkPreviewService(deps: LinkPreviewDeps): LinkPreviewServ
       const conversation = await repository.findConversationOf(message.conversationId, message.senderId);
       if (conversation === null) return;
       const [view] = await presenter.present([updated]);
-      if (view !== undefined) events.emit([conversation.user1Id, conversation.user2Id], updatedEvent(view));
+      if (view === undefined) return;
+      // After a block the other person gets nothing; the sender still sees their own message update.
+      const other = conversation.user1Id === message.senderId ? conversation.user2Id : conversation.user1Id;
+      const audience = (await repository.isBlocked(message.senderId, other)) ? [message.senderId] : [message.senderId, other];
+      events.emit(audience, updatedEvent(view));
     } catch (error: unknown) {
       // Never the URL or the text: only the kind of failure.
       console.error("Link preview failed:", error instanceof Error ? error.name : "unknown");
@@ -147,5 +159,14 @@ export function createLinkPreviewService(deps: LinkPreviewDeps): LinkPreviewServ
     return keys.length;
   }
 
-  return { schedule: (message) => deps.runInBackground(run(message)), run, purgeExpired };
+  // Beyond the waiting line the preview is dropped, silently: it is a nicety.
+  async function runGated(message: MessageRecord): Promise<void> {
+    try {
+      await gate.run(() => run(message));
+    } catch (error: unknown) {
+      if (!(error instanceof SemaphoreFullError)) throw error;
+    }
+  }
+
+  return { schedule: (message) => deps.runInBackground(runGated(message)), run, purgeExpired };
 }

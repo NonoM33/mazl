@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/motion/mazl_motion.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../l10n/l10n.dart';
@@ -38,10 +39,14 @@ class _ProfilePhotoGalleryState extends State<ProfilePhotoGallery> {
   void _go(int delta) {
     final target = _index + delta;
     if (target < 0 || target >= widget.photos.length) return;
+    if (MazlMotion.reduced(context)) {
+      _controller.jumpToPage(target);
+      return;
+    }
     _controller.animateToPage(
       target,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
+      duration: MazlMotion.galleryPageTurn,
+      curve: MazlMotion.galleryPageCurve,
     );
   }
 

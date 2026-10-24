@@ -3,6 +3,15 @@ import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT } from "../../auth
 import { upsertUser, getUserProfile, findUserById } from "../../db";
 import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
+import { createIpRateLimiter } from "../../shared/http/rate-limit";
+
+// Sign-in is public: limit it per client address so that a stolen or guessed
+// token cannot be tried in bulk.
+const signInLimiter = createIpRateLimiter({ max: 30, windowMs: 15 * 60_000 });
+
+const accountDisabled = { success: false, error: "account_disabled" } as const;
+const isString = (value: unknown): value is string => typeof value === "string" && value.length > 0;
+const NAME_MAX = 100;
 
 // Presentation layer for the AUTH feature. These routes are moved verbatim from
 // the monolith (src/index.ts) and mounted under `/api/auth`. Behaviour, payloads
@@ -11,11 +20,12 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
   const auth = new Hono<{ Variables: AppVariables }>();
 
   // Google OAuth - Verify ID token from mobile app
-  auth.post("/google", async (c) => {
+  auth.post("/google", signInLimiter, async (c) => {
     try {
-      const { idToken, accessToken } = await c.req.json();
+      const body: unknown = await c.req.json().catch(() => null);
+      const idToken = typeof body === "object" && body !== null ? (body as Record<string, unknown>).idToken : undefined;
 
-      if (!idToken) {
+      if (!isString(idToken)) {
         return c.json({ success: false, error: "ID token required" }, 400);
       }
 
@@ -33,6 +43,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
         provider: "google",
         providerId: googleUser.sub,
       });
+      if (user.is_active === false) return c.json(accountDisabled, 403);
 
       // Generate JWT token
       const token = generateJWT({
@@ -67,11 +78,16 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
   });
 
   // Apple OAuth - Verify identity token from mobile app
-  auth.post("/apple", async (c) => {
+  auth.post("/apple", signInLimiter, async (c) => {
     try {
-      const { identityToken, authorizationCode, email, fullName } = await c.req.json();
+      const body: unknown = await c.req.json().catch(() => null);
+      const fields = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+      const identityToken = fields.identityToken;
+      // Apple sends the name to the app on the first sign-in only; it is a
+      // display value, bounded. The email is NEVER taken from the body.
+      const fullName = isString(fields.fullName) ? fields.fullName.trim().slice(0, NAME_MAX) || undefined : undefined;
 
-      if (!identityToken) {
+      if (!isString(identityToken)) {
         return c.json({ success: false, error: "Identity token required" }, 400);
       }
 
@@ -81,8 +97,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
         return c.json({ success: false, error: "Invalid Apple token" }, 401);
       }
 
-      // Apple only sends email on first sign-in, use provided email or token email
-      const userEmail = appleUser.email || email || `${appleUser.sub}@privaterelay.appleid.com`;
+      // The email comes from the signed token only: a body field would let
+      // anyone attach any address to their account.
+      const userEmail = appleUser.email || `${appleUser.sub}@privaterelay.appleid.com`;
 
       // Create or update user in database
       const { user, isNew } = await upsertUser({
@@ -91,6 +108,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
         provider: "apple",
         providerId: appleUser.sub,
       });
+      if (user.is_active === false) return c.json(accountDisabled, 403);
 
       // Generate JWT token
       const token = generateJWT({

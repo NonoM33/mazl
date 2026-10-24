@@ -7,6 +7,13 @@ import 'package:http/testing.dart';
 import 'package:mazl/presentation/features/profile/screens/edit_profile_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
+import 'package:mazl/core/di/providers/privacy_providers.dart';
+import '../../../presentation/privacy/privacy_fakes.dart';
+
+/// The practice fields sit behind the article 9 consent: it is given here.
+final _consentGiven = privacyConsentApiProvider.overrideWithValue(
+  FakePrivacyConsentApi(granted: true, version: '2026-10-24'),
+);
 
 const _en = Locale('en');
 const _he = Locale('he');
@@ -84,6 +91,7 @@ Future<void> _open(
       const EditProfileScreen(),
       locale: locale,
       brightness: brightness,
+      overrides: [_consentGiven],
     );
     await tester.pumpAndSettle();
   }, () => server ?? _server());
@@ -139,6 +147,9 @@ void main() {
           300,
           scrollable: find.byType(Scrollable).first,
         );
+        // Past the Save bar that floats over the bottom of the list.
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -150));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Partially'));
         await tester.pumpAndSettle();
 

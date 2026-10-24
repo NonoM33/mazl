@@ -29,11 +29,6 @@
   "profilePhotoPrevious": "Предыдущее фото",
   "profilePhotoNext": "Следующее фото",
   "profilePhotoCounter": "Фото {current} из {total}",
-  "profileMatchLabel": "Мэтч",
-  "profileMatchTitle": "Это мэтч.",
-  "profileMatchBody": "Теперь Вы можете общаться с {name}.",
-  "profileMatchBodyUnnamed": "Теперь Вы можете общаться с этим человеком.",
-  "profileSendMessage": "Написать сообщение",
   "profileCompletionEyebrow": "Профиль · {done}/{total}",
   "profileCompletionTitle": "Заполните профиль",
   "profileCompletionRemaining": "{count, plural, one{Остался {count} шаг} few{Осталось {count} шага} many{Осталось {count} шагов} other{Осталось {count} шага}}",
@@ -217,5 +212,6 @@
   "profileDistanceSliderLabel": "{km} км",
   "profileGoal": "Цель",
   "profileShadchanNote": "Наш AI Shadchan будет использовать эти предпочтения, чтобы предлагать Вам подходящие профили.",
-  "profileReportThisProfile": "Пожаловаться на профиль"
+  "profileReportThisProfile": "Пожаловаться на профиль",
+  "profileChoiceNotSent": "Ваш выбор не отправлен. Попробуйте ещё раз."
 }

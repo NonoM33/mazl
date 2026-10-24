@@ -67,6 +67,36 @@ L'ancien `POST …/messages { content }` (sans `client_id`) reste accepté
 | `chat:typing` | `{ conversation_id, user_id, is_typing }` (existant) |
 | `chat:read` | `{ conversation_id, user_id, up_to_id, read_at }` |
 
+- **Blocage** : entre deux personnes dont l'une a bloqué l'autre, `chat:typing`
+  et `chat:read` ne sont envoyés dans aucun sens, la lecture n'est pas
+  enregistrée (`read_at` reste `null`) et un retrait (`chat:updated`) ne
+  parvient qu'aux appareils de son auteur. Ces conversations ne figurent plus
+  dans la liste.
+
+## 3bis. Limites visibles par l'app (sécurité, 2026-10-24)
+
+Dépassement REST → `429 { success:false, error:"rate_limited", retry_after }`
+(+ en-tête `Retry-After`). Sur la socket, une trame hors plafond est
+**ignorée sans réponse** (le contrat n'a pas de trame d'erreur) : l'app doit
+espacer ses envois.
+
+| quoi | plafond par utilisateur |
+|---|---|
+| envoi de message (REST `POST …/messages` **et** trame `chat:send`, même quota) | 90 / min |
+| trames `chat:typing` | 60 / min |
+| trames `chat:read` | 60 / min |
+| historique `GET …/messages`, réactions, retrait, `PUT …/read` (REST) | 120 / min chacun |
+| corps JSON de `POST …/messages` | 16 Kio, sinon `413` |
+| `content` d'une trame `chat:send` | 5000 caractères, sinon trame ignorée |
+| sockets ouvertes en même temps | 5 ; la 6e ferme la plus ancienne (code `4008`, raison `too_many_connections`) |
+| photo de chat | 24 mégapixels décodés au plus (sinon `400 file: too_large`), en plus des 10 Mo |
+
+Quand le serveur est saturé par les ré-encodages d'images (3 à la fois, 24 en
+attente), l'envoi d'une photo répond `503 { success:false, error:"busy" }`
+avec `Retry-After: 5` : l'app peut réessayer. Les aperçus de lien sont
+limités à 4 simultanés (16 en attente) ; au-delà, le message n'a simplement
+pas d'aperçu.
+
 ## 4. Dans l'app
 
 - **État** (`ChatController` par conversation, Riverpod) : liste de messages

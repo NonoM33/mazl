@@ -161,6 +161,22 @@ const _notUserFacing = <String, (String, List<String>)>{
       'Non spécifié',
     ],
   ),
+  'lib/core/privacy/privacy_consent_api.dart': (
+    'en-tête HTTP et message de FormatException, journal',
+    [r'Bearer $token', 'unexpected response body'],
+  ),
+  'lib/core/privacy/religious_data_consent.dart': (
+    'messages de FormatException (réponse du serveur illisible), journal',
+    [r'invalid $key', r'missing $key'],
+  ),
+  'lib/core/web_sessions/web_session_models.dart': (
+    'message de FormatException (réponse du serveur illisible), journal',
+    [r'missing $key'],
+  ),
+  'lib/core/web_sessions/web_sessions_api.dart': (
+    'en-tête HTTP et message de FormatException, journal',
+    [r'Bearer $token', 'unexpected response body'],
+  ),
   'lib/core/services/http_verification_api.dart': (
     'en-tête HTTP et journal',
     [r'Bearer $token', 'unexpected response body'],

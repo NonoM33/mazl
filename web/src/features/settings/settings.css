@@ -1,0 +1,5 @@
+.settings-card { padding: 4px 20px; }
+.settings-card > .stack, .settings-card > p { padding: 14px 0; }
+.settings-card .row .btn, .settings-card .row select { flex: none; }
+.settings-note { padding: 12px 0 14px; }
+.settings-card .row select.select { width: auto; min-width: 130px; flex: none; }

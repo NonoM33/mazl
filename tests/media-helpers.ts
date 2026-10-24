@@ -17,6 +17,25 @@ export const db = postgres(
 
 export interface TestUser { id: number; token: string }
 
+// mazl+ for a test member: an active row in subscriptions (what PgPlusStatus reads).
+export async function grantPlus(userId: number): Promise<void> {
+  await db`
+    INSERT INTO subscriptions (user_id, plan_type, status, store, product_id, original_transaction_id, started_at, expires_at)
+    VALUES (${userId}, 'monthly', 'active', 'apple', 'com.mazl.app.plus.1m', ${`test-plus-${userId}`}, NOW() AT TIME ZONE 'UTC', (NOW() AT TIME ZONE 'UTC') + INTERVAL '30 days')
+    ON CONFLICT (user_id) DO UPDATE SET status = 'active', expires_at = EXCLUDED.expires_at`;
+}
+
+// The art. 9 consent, given by the member: without it PUT /api/profile drops
+// the religious fields (security review M4).
+export async function grantReligiousConsent(token: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/privacy/consents/religious_data`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ granted: true, version: "2026-10-24", source: "app" }),
+  });
+  if (!res.ok) throw new Error(`consent refused: ${res.status}`);
+}
+
 export const auth = (token: string): Record<string, string> => ({ Authorization: `Bearer ${token}` });
 export const json = (token: string): Record<string, string> => ({ ...auth(token), "Content-Type": "application/json" });
 

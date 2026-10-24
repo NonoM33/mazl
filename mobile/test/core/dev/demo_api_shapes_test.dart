@@ -169,7 +169,7 @@ void main() {
     },
   );
 
-  test('sendSwipe : la forme lue par la découverte et par les likes', () async {
+  test('sendSwipe : la forme du serveur, lue par tous les écrans', () async {
     final plain = _ok(
       await _demo((a) => a.sendSwipe(targetUserId: 202, action: 'like')),
     );
@@ -178,7 +178,7 @@ void main() {
       await _demo((a) => a.sendSwipe(targetUserId: 201, action: 'like')),
     );
     expect(match['match'], true);
-    expect(match['matched'], true);
+    expect(match.containsKey('matched'), isFalse);
   });
 
   test('un match ouvre une conversation, retrouvée par « Envoyer un message »', () async {

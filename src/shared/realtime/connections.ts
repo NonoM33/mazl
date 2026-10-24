@@ -20,14 +20,52 @@ export type OutboundMessage = {
 // Store active WebSocket connections by user ID.
 const wsConnections = new Map<number, Set<WebSocket>>();
 
-// Register a freshly-opened connection for a user.
+// At most this many sockets per account (a phone, a tablet, a browser or two).
+// The next one closes the oldest.
+export const MAX_SOCKETS_PER_USER = 5;
+
+// Close code sent when the account behind a socket is banned, deactivated or
+// deleted: the app signs out instead of reconnecting.
+export const ACCOUNT_DISABLED_CLOSE = 4003;
+
+const TOO_MANY_CONNECTIONS_CODE = 4008;
+const TOO_MANY_CONNECTIONS_REASON = "too_many_connections";
+
+// A socket that is already gone must not stop the others from being handled.
+function closeQuietly(ws: WebSocket, code: number, reason: string): void {
+  try {
+    ws.close(code, reason);
+  } catch (err) {
+    console.error("WebSocket close error:", err instanceof Error ? err.name : "unknown");
+  }
+}
+
+// Register a freshly-opened connection for a user. The set keeps insertion
+// order, so the first element is always the oldest socket.
 export function addConnection(userId: number, ws: WebSocket): void {
   let connections = wsConnections.get(userId);
   if (!connections) {
     connections = new Set<WebSocket>();
     wsConnections.set(userId, connections);
   }
+  if (connections.has(ws)) return;
   connections.add(ws);
+  while (connections.size > MAX_SOCKETS_PER_USER) {
+    const oldest = connections.values().next().value;
+    if (oldest === undefined) break;
+    connections.delete(oldest);
+    closeQuietly(oldest, TOO_MANY_CONNECTIONS_CODE, TOO_MANY_CONNECTIONS_REASON);
+  }
+}
+
+// Close and forget every socket of a user (ban, deletion, password change).
+// Returns how many sockets were registered.
+export function closeUserConnections(userId: number, code: number, reason: string): number {
+  const connections = wsConnections.get(userId);
+  if (!connections) return 0;
+  wsConnections.delete(userId);
+  for (const ws of connections) closeQuietly(ws, code, reason);
+  return connections.size;
 }
 
 // Remove a closed connection for a user, cleaning up the entry when empty.
@@ -49,7 +87,7 @@ export function sendToUser(userId: number, data: OutboundMessage): void {
       try {
         ws.send(message);
       } catch (err) {
-        console.error(`WebSocket send error for user ${userId}:`, err);
+        console.error("WebSocket send error:", err instanceof Error ? err.name : "unknown");
       }
     }
   }

@@ -85,7 +85,8 @@ deçà d'un seuil ne redéclenche pas d'haptique.
   effacement, et pas d'haptique.
 - **Galerie de photos dans la carte** : on change de photo en touchant la moitié gauche ou droite,
   jamais en balayant. Le balayage horizontal appartient à la carte. L'indicateur de position glisse
-  d'une photo à l'autre au lieu de sauter.
+  d'une photo à l'autre au lieu de sauter, en 200 ms (`photoIndicatorSlide`, `photoIndicatorCurve`) ;
+  animations réduites : il est en place tout de suite.
 - **Retour en arrière** (mazl+) : la carte revient du côté où elle était partie, en ressort.
 
 ## 4. Match
@@ -128,6 +129,8 @@ du couple.
 - Relâcher : un geste acquis fait revoler la photo vers sa vignette en 260 ms
   (`viewerReturnToThumbnail`) ; un geste non acquis la ramène au centre en ressort. Elle ne saute
   jamais à sa place.
+- Tirée au-delà du seuil puis relancée vers le haut (plus de 600 px/s), elle reste ouverte et
+  revient au centre : la personne a changé d'avis.
 
 ## 7. Feuilles du bas, pages qui défilent
 
@@ -148,5 +151,8 @@ du couple.
   - un like refusé ramène la carte, puis ouvre la fenêtre mazl+ ;
   - le seuil déclenche un seul `selectionClick`.
 - Sous `disableAnimations` : aucune rotation, aucun ressort, des fondus de 150 ms.
+- Hors des gestes aussi : tout fichier de `mobile/lib/` qui lance une animation (`AnimationController`,
+  `.animate(`, `animateTo`, `animateToPage`, `elasticOut`) lit le réglage, sinon
+  `test/core/reduce_motion_guard_test.dart` échoue. Transitions de pages : un simple fondu.
 - Match : la feuille s'ouvre au-dessus de la barre d'onglets avec une seule poignée, et ses deux
   actions mènent où elles doivent.

@@ -48,7 +48,6 @@
   "matchingPicksCount": "{count, plural, one{פרופיל אחד נבחר בשבילך} two{שני פרופילים נבחרו בשבילך} other{{count} פרופילים נבחרו בשבילך}}",
   "matchingPicksDiscoverMore": "לגלות עוד פרופילים",
   "matchingPicksBadge": "בחירה",
-  "matchingPicksMatchBody": "נוצר מאץ' עם {name}.",
   "matchingFiltersReset": "איפוס",
   "matchingFiltersAge": "טווח גילאים",
   "matchingFiltersYears": "{count, plural, one{שנה} two{שנתיים} other{{count} שנה}}",

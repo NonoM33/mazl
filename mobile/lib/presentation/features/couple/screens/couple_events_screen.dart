@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_event.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
@@ -178,7 +179,12 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
             ? l10n.coupleFeedEventsEmptyAll
             : l10n.coupleFeedEventsEmptyRegistered,
         actionLabel: showRegisterButton ? null : l10n.coupleFeedEventsDiscover,
-        onAction: showRegisterButton ? null : () => _tabController.animateTo(0),
+        onAction: showRegisterButton
+            ? null
+            : () => _tabController.animateTo(
+                0,
+                duration: MazlMotion.reduced(context) ? Duration.zero : null,
+              ),
       );
     }
 

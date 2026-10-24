@@ -37,10 +37,6 @@
       }
     }
   },
-  "likesMessageAction": "Message",
-  "@likesMessageAction": {
-    "description": "Bouton du message bref « Match avec … » : ouvre la messagerie."
-  },
   "likesYouLiked": "Vous avez liké {name}",
   "@likesYouLiked": {
     "description": "Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.",

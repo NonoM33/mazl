@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
@@ -167,6 +168,11 @@ class _LikeButtonState extends State<_LikeButton> with SingleTickerProviderState
   }
 
   void _handleTap() {
+    // Reduced motion: no press scale, the like goes straight through.
+    if (MazlMotion.reduced(context)) {
+      widget.onTap();
+      return;
+    }
     _controller.forward().then((_) {
       _controller.reverse();
       widget.onTap();

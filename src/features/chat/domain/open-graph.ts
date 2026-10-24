@@ -46,8 +46,6 @@ function clean(raw: string, maxLength: number): string | undefined {
   return letters.length <= maxLength ? text : letters.slice(0, maxLength).join("");
 }
 
-const ATTRIBUTE = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
-
 const MAX_TAG_LENGTH = 2048;
 const MAX_META_TAGS = 300;
 // Total characters the tag scanner may look at: hostile pages cannot make the
@@ -90,6 +88,50 @@ function tagAt(html: string, start: number): string | null {
   return null;
 }
 
+const NAME_START = /[a-zA-Z_:]/;
+const NAME_PART = /[-a-zA-Z0-9_:.]/;
+const SPACE = /\s/;
+
+// Attributes of one tag in a single left-to-right pass (name, optional
+// `= value` quoted either way or bare). The first occurrence of a name wins.
+// Every character is read once: a name that never ends or an unterminated
+// quote cannot make the scan quadratic, which a backtracking regex would.
+function attributesOf(tag: string): Map<string, string> {
+  const attributes = new Map<string, string>();
+  let at = 0;
+  const skipSpaces = (): void => {
+    while (at < tag.length && SPACE.test(tag[at] ?? "")) at++;
+  };
+  while (at < tag.length) {
+    if (!NAME_START.test(tag[at] ?? "")) {
+      at++;
+      continue;
+    }
+    const nameStart = at;
+    while (at < tag.length && NAME_PART.test(tag[at] ?? "")) at++;
+    const name = tag.slice(nameStart, at).toLowerCase();
+    skipSpaces();
+    if (tag[at] !== "=") continue;
+    at++;
+    skipSpaces();
+    const first = tag[at];
+    let value: string | null = null;
+    if (first === '"' || first === "'") {
+      const end = tag.indexOf(first, at + 1);
+      if (end !== -1) {
+        value = tag.slice(at + 1, end);
+        at = end + 1;
+      }
+    } else {
+      const valueStart = at;
+      while (at < tag.length && !/[\s"'>]/.test(tag[at] ?? "")) at++;
+      if (at > valueStart) value = tag.slice(valueStart, at);
+    }
+    if (value !== null && !attributes.has(name)) attributes.set(name, value);
+  }
+  return attributes;
+}
+
 function metaTags(html: string): Array<{ key: string; content: string }> {
   const out: Array<{ key: string; content: string }> = [];
   const open = /<meta\b/gi;
@@ -99,11 +141,7 @@ function metaTags(html: string): Array<{ key: string; content: string }> {
     budget -= tag === null ? MAX_TAG_LENGTH : tag.length;
     if (tag === null) continue;
     open.lastIndex = found.index + tag.length;
-    const attributes = new Map<string, string>();
-    for (const attribute of tag.matchAll(ATTRIBUTE)) {
-      const name = (attribute[1] ?? "").toLowerCase();
-      if (!attributes.has(name)) attributes.set(name, attribute[2] ?? attribute[3] ?? attribute[4] ?? "");
-    }
+    const attributes = attributesOf(tag);
     const key = (attributes.get("property") ?? attributes.get("name") ?? "").toLowerCase();
     const content = attributes.get("content");
     if (key !== "" && content !== undefined) out.push({ key, content });
@@ -111,13 +149,22 @@ function metaTags(html: string): Array<{ key: string; content: string }> {
   return out;
 }
 
-// Content of the first <title>, or undefined when it is not closed.
-function titleOf(html: string): string | undefined {
-  const open = /<title\b[^>]*>/i.exec(html);
+// The title lives in the head: nothing past this point is looked at.
+const TITLE_SCAN_LIMIT = 64 * 1024;
+
+// Content of the first <title>, or undefined when it is not closed. Linear:
+// the opening tag ends at the next `>` (one indexOf), never at the end of a
+// pattern that could be retried from every `<title` of a hostile page.
+function titleOf(page: string): string | undefined {
+  const html = page.length > TITLE_SCAN_LIMIT ? page.slice(0, TITLE_SCAN_LIMIT) : page;
+  const open = /<title\b/i.exec(html);
   if (open === null) return undefined;
-  const from = open.index + open[0].length;
-  const close = /<\/title\s*>/i.exec(html.slice(from));
-  return close === null ? undefined : html.slice(from, from + close.index);
+  const tagEnd = html.indexOf(">", open.index);
+  if (tagEnd === -1) return undefined;
+  const close = /<\/title\s*>/gi;
+  close.lastIndex = tagEnd + 1;
+  const closed = close.exec(html);
+  return closed === null ? undefined : html.slice(tagEnd + 1, closed.index);
 }
 
 export function parseOpenGraph(html: string): OpenGraph {

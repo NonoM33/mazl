@@ -48,7 +48,6 @@
   "matchingPicksCount": "{count, plural, one{{count} perfil seleccionado para ti} other{{count} perfiles seleccionados para ti}}",
   "matchingPicksDiscoverMore": "Descubrir más perfiles",
   "matchingPicksBadge": "Selección",
-  "matchingPicksMatchBody": "Has hecho match con {name}.",
   "matchingFiltersReset": "Restablecer",
   "matchingFiltersAge": "Rango de edad",
   "matchingFiltersYears": "{count, plural, one{{count} año} other{{count} años}}",

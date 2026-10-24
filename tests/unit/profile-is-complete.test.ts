@@ -39,11 +39,16 @@ describe("isProfileComplete", () => {
     }
   });
 
-  test("false for gender or looking_for missing or outside male / female", () => {
-    for (const value of [null, undefined, "", "all", "other"]) {
+  test("false for gender or looking_for missing or unknown", () => {
+    for (const value of [null, undefined, "", "other"]) {
       expect(isProfileComplete({ ...COMPLETE, gender: value }, NOW)).toBe(false);
       expect(isProfileComplete({ ...COMPLETE, looking_for: value }, NOW)).toBe(false);
     }
+    expect(isProfileComplete({ ...COMPLETE, gender: "all" }, NOW)).toBe(false);
+  });
+
+  test("looking for « all » is a complete answer", () => {
+    expect(isProfileComplete({ ...COMPLETE, looking_for: "all" }, NOW)).toBe(true);
   });
 
   test("the 18th birthday is the threshold, to the day", () => {

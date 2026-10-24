@@ -29,11 +29,6 @@
   "profilePhotoPrevious": "התמונה הקודמת",
   "profilePhotoNext": "התמונה הבאה",
   "profilePhotoCounter": "תמונה {current} מתוך {total}",
-  "profileMatchLabel": "התאמה",
-  "profileMatchTitle": "יש התאמה.",
-  "profileMatchBody": "אפשר להתחיל לשוחח עם {name}.",
-  "profileMatchBodyUnnamed": "אפשר להתחיל לשוחח עם אדם זה.",
-  "profileSendMessage": "לשלוח הודעה",
   "profileCompletionEyebrow": "פרופיל · {done}/{total}",
   "profileCompletionTitle": "להשלים את הפרופיל",
   "profileCompletionRemaining": "{count, plural, one{שלב אחד נותר} two{שני שלבים נותרו} other{{count} שלבים נותרו}}",
@@ -217,5 +212,6 @@
   "profileDistanceSliderLabel": "{km} ק״מ",
   "profileGoal": "מטרה",
   "profileShadchanNote": "AI Shadchan ישתמש בהעדפות אלה כדי להציע פרופילים מתאימים.",
-  "profileReportThisProfile": "לדווח על הפרופיל"
+  "profileReportThisProfile": "לדווח על הפרופיל",
+  "profileChoiceNotSent": "הבחירה לא נשלחה. יש לנסות שוב."
 }

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { missingProfileFields } from "../../src/features/profile/domain/profile-completeness";
-import { updateProfileBodySchema } from "../../src/features/profile/profile.schemas";
+import { updateProfileBodySchema } from "../../src/shared/http/validation";
 import { registerDiscoverRoutes } from "../../src/features/matching/presentation/discover.routes";
 import type { ProfilePreferences } from "../../src/features/profile/domain/profile-completeness";
 import type { AppVariables } from "../../src/shared/http/middleware";
@@ -37,13 +37,14 @@ beforeEach(() => {
   registerDiscoverRoutes<Candidate>(app, {
     authenticate,
     feedLimiter: pass,
+    page: { defaultLimit: 20, maxLimit: 50 },
     feed: {
       loadPreferences: async (userId) => preferences.get(userId) ?? null,
       // Stand-in for the SQL: a strict filter on the caller's looking_for.
       loadCandidates: async (userId) => {
         candidateQueries += 1;
         const wanted = preferences.get(userId)?.["looking_for"];
-        return [...MEN, ...WOMEN].filter((candidate) => candidate.gender === wanted);
+        return [...MEN, ...WOMEN].filter((candidate) => wanted === "all" || candidate.gender === wanted);
       },
     },
   });
@@ -75,11 +76,10 @@ describe("GET /api/discover with an incomplete caller profile", () => {
     expect(((await res.json()) as { missing: string[] }).missing).toEqual(["gender", "looking_for"]);
   });
 
-  test("409 for a legacy open value: the member has to pick male or female", async () => {
+  test("« Tous » is an explicit choice, not a missing answer (the web client offers it)", async () => {
     preferences.set(13, { gender: "male", looking_for: "all" });
     const res = await get("/api/discover", 13);
-    expect(res.status).toBe(409);
-    expect(((await res.json()) as { missing: string[] }).missing).toEqual(["looking_for"]);
+    expect(res.status).toBe(200);
   });
 
   test("the daily picks feed is guarded the same way", async () => {
@@ -134,10 +134,15 @@ describe("PUT /api/profile body", () => {
   });
 
   test("rejects anything else for gender and lookingFor", () => {
-    for (const value of ["all", "Male", "", "homme", "other"]) {
+    for (const value of ["Male", "", "homme", "other"]) {
       expect(updateProfileBodySchema.safeParse({ gender: value }).success).toBe(false);
       expect(updateProfileBodySchema.safeParse({ lookingFor: value }).success).toBe(false);
     }
+  });
+
+  test("« all » is a looking-for answer, never a gender", () => {
+    expect(updateProfileBodySchema.safeParse({ lookingFor: "all" }).success).toBe(true);
+    expect(updateProfileBodySchema.safeParse({ gender: "all" }).success).toBe(false);
   });
 
   test("still lets other fields through untouched", () => {

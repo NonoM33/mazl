@@ -48,7 +48,6 @@
   "matchingPicksCount": "{count, plural, one{{count} profile picked for you} other{{count} profiles picked for you}}",
   "matchingPicksDiscoverMore": "Discover more profiles",
   "matchingPicksBadge": "Pick",
-  "matchingPicksMatchBody": "You matched with {name}.",
   "matchingFiltersReset": "Reset",
   "matchingFiltersAge": "Age range",
   "matchingFiltersYears": "{count, plural, one{{count} year} other{{count} years}}",

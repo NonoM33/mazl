@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/directional_icon.dart';
+import '../../privacy/widgets/religious_data_gate.dart';
 import '../l10n/profile_answer_labels.dart';
 import '../widgets/profile_prompts_section.dart';
 import '../widgets/relationship_intention_selector.dart';
@@ -42,6 +43,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _kashrut;
   String? _shabbatObservance;
   String? _relationshipIntention;
+  // The server ignores the four practice fields without a valid consent.
+  bool _religiousConsent = false;
 
   @override
   void initState() {
@@ -110,10 +113,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'displayName': _displayName,
       'location': _location,
       'bio': _bioController.text,
-      'denomination': _denomination,
-      'kashrutLevel': _kashrut,
-      'shabbatObservance': _shabbatObservance,
-      'relationshipIntention': _relationshipIntention,
+      if (_religiousConsent) ...{
+        'denomination': _denomination,
+        'kashrutLevel': _kashrut,
+        'shabbatObservance': _shabbatObservance,
+        'relationshipIntention': _relationshipIntention,
+      },
     });
 
     setState(() => _isSaving = false);
@@ -602,9 +607,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 24),
 
         // Relationship Intention
-        RelationshipIntentionSelector(
-          selectedIntention: _relationshipIntention,
-          onChanged: (value) => setState(() => _relationshipIntention = value),
+        ReligiousDataLocked(
+          locked: !_religiousConsent,
+          child: RelationshipIntentionSelector(
+            selectedIntention: _relationshipIntention,
+            onChanged: (value) => setState(() => _relationshipIntention = value),
+          ),
         ),
 
         const SizedBox(height: 24),
@@ -650,6 +658,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         const SizedBox(height: 12),
+        ReligiousDataGate(
+          onValidityChanged: (valid) {
+            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+          },
+          child: Column(
+            children: [
         _EditField(
           label: l10n.profileDenomination,
           value: denominationField(l10n, _denomination),
@@ -694,6 +708,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               (v) => setState(() => _shabbatObservance = v),
             );
           },
+        ),
+            ],
+          ),
         ),
 
         const SizedBox(height: 100),

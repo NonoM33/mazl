@@ -3,6 +3,7 @@ import {
   getDiscoverProfiles,
   getSwipeAction,
   getProfilePreferences,
+  canSwipeOn,
   recordSwipe,
   getMatches,
   getReceivedLikes,
@@ -12,6 +13,7 @@ import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import type { CreditsGateway } from "../credits/application/ports";
+import type { Feed } from "./application/discover";
 import { registerSwipeRoute } from "./swipe.routes";
 import { registerDiscoverRoutes } from "./presentation/discover.routes";
 
@@ -26,21 +28,38 @@ import { registerDiscoverRoutes } from "./presentation/discover.routes";
 // depends on the shared `sql`/`sendToUser` helpers) with identical behaviour.
 export interface MatchingRouteDeps {
   readonly credits: CreditsGateway;
+  // The ranked feed (matching engine): the order is decided server-side.
+  // TEMPORARY: while src/index.ts does not pass it, the legacy SQL ordering of
+  // getDiscoverProfiles serves the feed. Make it required once wired.
+  readonly feed?: Pick<Feed, "discover" | "dailyPicks">;
 }
 
+const legacyFeed: Pick<Feed, "discover" | "dailyPicks"> = {
+  discover: (userId, page) => getDiscoverProfiles(userId, page.limit, page.offset),
+  dailyPicks: (userId) => getDiscoverProfiles(userId, 5, 0),
+};
+
+// A page of the discover feed: the server decides how much it hands out.
+const DISCOVER_DEFAULT_LIMIT = 20;
+const DISCOVER_MAX_LIMIT = 50;
+
 export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, deps: MatchingRouteDeps): void {
+  const feed = deps.feed ?? legacyFeed;
   // CONTRAT.md §2.3: one shared budget of 300 feed requests per hour and user
   // for /api/discover and /api/daily-picks, against profile scraping.
   const feedLimiter = createRateLimiter({ max: 300, windowMs: 60 * 60 * 1000 });
 
-  // Discovery feeds (GET /api/discover, GET /api/daily-picks): refused with 409
-  // profile_incomplete until the caller has given gender and looking_for.
+  // Discovery feeds (GET /api/discover, GET /api/daily-picks): ranked by the
+  // matching engine, and refused with 409 profile_incomplete until the caller
+  // has given gender and looking_for.
   registerDiscoverRoutes(app, {
     authenticate: requireAuth,
     feedLimiter,
+    page: { defaultLimit: DISCOVER_DEFAULT_LIMIT, maxLimit: DISCOVER_MAX_LIMIT },
     feed: {
       loadPreferences: getProfilePreferences,
-      loadCandidates: getDiscoverProfiles,
+      loadCandidates: (userId, limit, offset) => feed.discover(userId, { limit, offset }),
+      loadDailyPicks: (userId) => feed.dailyPicks(userId),
     },
   });
 
@@ -48,7 +67,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
   registerSwipeRoute(app, {
     authenticate: requireAuth,
     credits: deps.credits,
-    swipes: { currentAction: getSwipeAction, record: recordSwipe, onMatch: emitNewMatch },
+    swipes: { currentAction: getSwipeAction, canSwipeOn, record: recordSwipe, onMatch: emitNewMatch },
   });
 
   // Get user's matches

@@ -9,13 +9,42 @@ import {
 } from "../../db";
 import { findMissingRequired, type DocumentsModule } from "../documents";
 import { sendProfileApprovedEmail, sendReuploadRequestedEmail } from "../../email";
-import { verifyGoogleIdToken } from "../../auth";
+import type { Context } from "hono";
+import { z } from "zod";
+import { createGoogleVerifier } from "../auth/google-token";
+import { clientIp } from "../../shared/http/client-ip";
+import { createIpRateLimiter, tooManyRequests } from "../../shared/http/rate-limit";
 import {
+  adminPasswordAttempts,
   assertAdmin,
-  assertAdminFileDownload,
   generateAdminJWT,
-  ADMIN_EMAILS,
+  isAdminEmail,
+  normalizeEmail,
+  secretsMatch,
 } from "./admin.auth";
+
+// The console signs in with the WEB client only (never the iOS one).
+const adminGoogle = createGoogleVerifier({ audiences: [process.env.GOOGLE_CLIENT_ID ?? ""] });
+
+const adminPasswordLoginSchema = z.object({
+  email: z.string().min(1).max(320),
+  password: z.string().min(1).max(512),
+});
+
+const adminGoogleLoginSchema = z
+  .object({
+    idToken: z.string().min(1).max(8192).optional(),
+    accessToken: z.string().min(1).max(8192).optional(),
+  })
+  .refine((body) => Boolean(body.idToken) !== Boolean(body.accessToken), "exactly one Google token");
+
+async function readJson(c: Context): Promise<unknown> {
+  try {
+    return await c.req.json();
+  } catch {
+    return null;
+  }
+}
 
 // Admin authentication + verification/document moderation routes, moved verbatim
 // from the monolith (src/index.ts). Same paths, behaviour, payloads and status
@@ -28,82 +57,58 @@ export function registerAdminVerificationRoutes(
   // Every decision goes through documents.review, which also purges the files
   // it decides (CONTRAT §2.4); the file endpoint decrypts on the fly.
 
-  // Admin Authentication
+  // Admin sign-in. Both routes are limited per client address; a wrong
+  // password counts towards the lockout shared with the x-admin-password
+  // header (admin.auth.ts).
+  const googleSignInLimiter = createIpRateLimiter({ max: 20, windowMs: 15 * 60_000 });
+
   app.post("/api/admin/login", async (c) => {
-    try {
-      const { email, password } = await c.req.json();
+    const parsed = adminPasswordLoginSchema.safeParse(await readJson(c));
+    if (!parsed.success) return c.json({ success: false, error: "Requete invalide" }, 400);
 
-      // Get admin credentials from environment
-      const adminEmail = process.env.ADMIN_EMAIL;
-      const adminPassword = process.env.ADMIN_PASSWORD;
-
-      if (!adminEmail || !adminPassword) {
-        console.error("ADMIN_EMAIL or ADMIN_PASSWORD not configured");
-        return c.json({ success: false, error: "Configuration serveur manquante" }, 500);
-      }
-
-      // Validate credentials
-      if (email !== adminEmail || password !== adminPassword) {
-        return c.json({ success: false, error: "Email ou mot de passe incorrect" }, 401);
-      }
-
-      // Generate JWT token
-      const token = generateAdminJWT(email);
-
-      return c.json({
-        success: true,
-        token,
-        email,
-      });
-    } catch (e) {
-      console.error("Admin login error:", e);
-      return c.json({ success: false, error: "Erreur serveur" }, 500);
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminEmail || !adminPassword) {
+      console.error("ADMIN_EMAIL or ADMIN_PASSWORD not configured");
+      return c.json({ success: false, error: "Configuration serveur manquante" }, 500);
     }
+
+    const address = clientIp(c);
+    const lockedFor = adminPasswordAttempts.lockedFor(address);
+    if (lockedFor !== null) return tooManyRequests(c, lockedFor);
+
+    const { email, password } = parsed.data;
+    const emailMatches = secretsMatch(normalizeEmail(email), normalizeEmail(adminEmail));
+    const passwordMatches = secretsMatch(password, adminPassword);
+    if (!emailMatches || !passwordMatches) {
+      adminPasswordAttempts.recordFailure(address);
+      return c.json({ success: false, error: "Email ou mot de passe incorrect" }, 401);
+    }
+
+    adminPasswordAttempts.forget(address);
+    return c.json({ success: true, token: generateAdminJWT(adminEmail), email: normalizeEmail(adminEmail) });
   });
 
-  // Google login for admin
-  app.post("/api/admin/google-login", async (c) => {
-    try {
-      const { idToken, email: directEmail } = await c.req.json();
+  // Google sign-in of the console. The identity comes from Google only: an ID
+  // token (One Tap) or an access token (pop-up), both checked against our web
+  // client id with a verified email. An email in the body is never trusted.
+  app.post("/api/admin/google-login", googleSignInLimiter, async (c) => {
+    const parsed = adminGoogleLoginSchema.safeParse(await readJson(c));
+    if (!parsed.success) return c.json({ success: false, error: "Preuve Google requise" }, 400);
 
-      let email: string | null = null;
+    const { idToken, accessToken } = parsed.data;
+    const identity = idToken
+      ? await adminGoogle.verifyIdToken(idToken)
+      : await adminGoogle.verifyAccessToken(accessToken ?? "");
+    if (!identity) return c.json({ success: false, error: "Token Google invalide" }, 401);
 
-      // If we have an ID token, verify it
-      if (idToken) {
-        const payload = await verifyGoogleIdToken(idToken);
-        if (!payload || !payload.email) {
-          return c.json({ success: false, error: "Token Google invalide" }, 401);
-        }
-        email = payload.email;
-      } else if (directEmail) {
-        // Direct email (from OAuth2 access token flow)
-        email = directEmail;
-      }
-
-      if (!email) {
-        return c.json({ success: false, error: "Email non fourni" }, 400);
-      }
-
-      // Check if email is in admin whitelist
-      if (!ADMIN_EMAILS.includes(email)) {
-        console.log(`Admin login attempt rejected for: ${email}`);
-        return c.json({ success: false, error: "Cet email n'est pas autorise" }, 403);
-      }
-
-      // Generate admin JWT
-      const token = generateAdminJWT(email);
-
-      console.log(`Admin logged in via Google: ${email}`);
-
-      return c.json({
-        success: true,
-        token,
-        email,
-      });
-    } catch (e) {
-      console.error("Admin Google login error:", e);
-      return c.json({ success: false, error: "Erreur serveur" }, 500);
+    if (!isAdminEmail(identity.email)) {
+      console.warn("Admin Google sign-in refused for a non-whitelisted account");
+      return c.json({ success: false, error: "Cet email n'est pas autorise" }, 403);
     }
+
+    console.log("Admin signed in via Google");
+    return c.json({ success: true, token: generateAdminJWT(identity.email), email: normalizeEmail(identity.email) });
   });
 
   app.get("/api/admin/verify", async (c) => {
@@ -162,12 +167,9 @@ export function registerAdminVerificationRoutes(
 
     // Email (best-effort)
     try {
-      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
       const email = await getWaitlistEmailById(waitlistId);
       if (email) {
-        await sendProfileApprovedEmail({ to: email, baseUrl: requestOrigin, level });
+        await sendProfileApprovedEmail({ to: email, level });
       }
     } catch (err) {
       console.error("Approved email failed:", err);
@@ -191,16 +193,12 @@ export function registerAdminVerificationRoutes(
 
     // Send email with reason (best-effort)
     try {
-      const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-      const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-      const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
 
       await sendReuploadRequestedEmail({
         to: rotated.email,
         verificationToken: rotated.verificationToken,
         reason: notes,
         rejectedTypes: ["selfie_id", "id_card_front", "id_card_back"],
-        baseUrl: requestOrigin,
       });
     } catch (err) {
       console.error("Reupload email failed:", err);
@@ -245,16 +243,12 @@ export function registerAdminVerificationRoutes(
       const rotated = await requestReuploadAndRotateToken(waitlistId);
 
       try {
-        const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-        const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-        const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
 
         await sendReuploadRequestedEmail({
           to: rotated.email,
           verificationToken: rotated.verificationToken,
           reason,
           rejectedTypes,
-          baseUrl: requestOrigin,
         });
       } catch (err) {
         console.error("Reupload email failed:", err);
@@ -278,12 +272,9 @@ export function registerAdminVerificationRoutes(
       await setWaitlistVerificationStatus(waitlistId, level);
 
       try {
-        const forwardedProto = c.req.header("x-forwarded-proto") || "https";
-        const forwardedHost = c.req.header("x-forwarded-host") || c.req.header("host") || "";
-        const requestOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
         const email = await getWaitlistEmailById(waitlistId);
         if (email) {
-          await sendProfileApprovedEmail({ to: email, baseUrl: requestOrigin, level });
+          await sendProfileApprovedEmail({ to: email, level });
         }
       } catch (err) {
         console.error("Approved email failed:", err);
@@ -307,7 +298,7 @@ export function registerAdminVerificationRoutes(
   });
 
   app.get("/api/admin/documents/:id/file", async (c) => {
-    const auth = assertAdminFileDownload(c);
+    const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     const documentId = Number.parseInt(c.req.param("id"), 10);

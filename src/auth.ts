@@ -1,8 +1,8 @@
 import { createHmac, timingSafeEqual, createPublicKey, verify as cryptoVerify } from "node:crypto";
+import { createGoogleVerifier, type GoogleIdentity } from "./features/auth/google-token";
 
 // Google OAuth Configuration (set in environment variables)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 const GOOGLE_IOS_CLIENT_ID = process.env.GOOGLE_IOS_CLIENT_ID || "";
 
 // JWT Configuration
@@ -18,21 +18,6 @@ function requireEnv(name: string): string {
 const JWT_SECRET = requireEnv("JWT_SECRET");
 const JWT_EXPIRES_IN = 60 * 60 * 24 * 30; // 30 days
 
-interface GoogleTokenPayload {
-  iss: string;
-  azp: string;
-  aud: string;
-  sub: string;
-  email: string;
-  email_verified: boolean;
-  name?: string;
-  picture?: string;
-  given_name?: string;
-  family_name?: string;
-  iat: number;
-  exp: number;
-}
-
 interface AuthUser {
   id: number;
   email: string;
@@ -42,49 +27,19 @@ interface AuthUser {
   providerId: string;
 }
 
+// Members sign in from the iOS app or the web client.
+const googleMembers = createGoogleVerifier({ audiences: [GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID] });
+
 /**
- * Verify Google ID Token from mobile app
+ * Verify a Google ID token from the mobile app: issued to one of our clients,
+ * not expired, with an email Google has verified.
  */
-export async function verifyGoogleIdToken(idToken: string): Promise<GoogleTokenPayload | null> {
-  try {
-    // Fetch Google's public keys
-    const response = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
-    );
-
-    if (!response.ok) {
-      console.error("Google token verification failed:", response.status);
-      return null;
-    }
-
-    const payload = (await response.json()) as GoogleTokenPayload;
-
-    // Verify the token is for our app (either web or iOS client)
-    const validAudiences = [GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID];
-    if (!validAudiences.includes(payload.aud)) {
-      console.error("Invalid audience:", payload.aud);
-      return null;
-    }
-
-    // Verify issuer
-    if (!["accounts.google.com", "https://accounts.google.com"].includes(payload.iss)) {
-      console.error("Invalid issuer:", payload.iss);
-      return null;
-    }
-
-    // Verify not expired
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
-      console.error("Token expired");
-      return null;
-    }
-
-    return payload;
-  } catch (error) {
-    console.error("Error verifying Google token:", error);
-    return null;
-  }
+export function verifyGoogleIdToken(idToken: string): Promise<GoogleIdentity | null> {
+  return googleMembers.verifyIdToken(idToken);
 }
+
+// The iOS app's bundle id. The web client signs in with its own Services ID.
+const APPLE_APP_AUDIENCE = "com.mazl.app";
 
 interface AppleKey {
   kid: string;
@@ -102,7 +57,7 @@ interface AppleKeysResponse {
 /**
  * Verify Apple Identity Token
  */
-export async function verifyAppleIdToken(identityToken: string): Promise<{
+export async function verifyAppleIdToken(identityToken: string, audience: string = APPLE_APP_AUDIENCE): Promise<{
   sub: string;
   email?: string;
   email_verified?: boolean;
@@ -131,8 +86,12 @@ export async function verifyAppleIdToken(identityToken: string): Promise<{
 
     // Fetch Apple's public keys and locate the matching one.
     const keysResponse = await fetch("https://appleid.apple.com/auth/keys");
+    if (!keysResponse.ok) {
+      console.error("Apple keys unavailable:", keysResponse.status);
+      return null;
+    }
     const keysData = (await keysResponse.json()) as AppleKeysResponse;
-    const key = keysData.keys.find((k) => k.kid === kid);
+    const key = Array.isArray(keysData.keys) ? keysData.keys.find((k) => k.kid === kid) : undefined;
 
     if (!key) {
       console.error("Apple key not found for kid:", kid);
@@ -158,7 +117,7 @@ export async function verifyAppleIdToken(identityToken: string): Promise<{
     }
 
     // Verify audience (your app's bundle ID)
-    if (payload.aud !== "com.mazl.app") {
+    if (payload.aud !== audience) {
       console.error("Invalid Apple audience:", payload.aud);
       return null;
     }
@@ -217,7 +176,14 @@ function verifyAppleSignature(jwk: AppleKey, signingInput: string, signatureB64:
 /**
  * Generate JWT token for authenticated user
  */
-export function generateJWT(user: AuthUser): string {
+// Optional claims of tokens that are not the app's: `aud` names what the token
+// is for (the web bridge's is "web-bridge"), `sid` the web session behind it.
+export interface TokenClaims {
+  readonly aud?: string;
+  readonly sid?: string;
+}
+
+export function generateJWT(user: AuthUser, ttlSeconds: number = JWT_EXPIRES_IN, claims: TokenClaims = {}): string {
   const header = {
     alg: "HS256",
     typ: "JWT",
@@ -230,11 +196,12 @@ export function generateJWT(user: AuthUser): string {
     name: user.name,
     provider: user.provider,
     iat: now,
-    exp: now + JWT_EXPIRES_IN,
+    exp: now + ttlSeconds,
+    ...claims,
   };
 
-  const headerB64 = btoa(JSON.stringify(header));
-  const payloadB64 = btoa(JSON.stringify(payload));
+  const headerB64 = Buffer.from(JSON.stringify(header)).toString("base64url");
+  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signature = signHS256(`${headerB64}.${payloadB64}`, JWT_SECRET);
 
   return `${headerB64}.${payloadB64}.${signature}`;
@@ -243,10 +210,10 @@ export function generateJWT(user: AuthUser): string {
 /**
  * Verify JWT token
  */
-export function verifyJWT(token: string): { sub: string; email: string; name?: string } | null {
+export function verifyJWT(token: string): { sub: string; email: string; name?: string; exp: number; aud?: string; sid?: string } | null {
   try {
-    const [headerB64, payloadB64, signature] = token.split(".");
-    if (!headerB64 || !payloadB64 || !signature) {
+    const [headerB64, payloadB64, signature, extra] = token.split(".");
+    if (!headerB64 || !payloadB64 || !signature || extra !== undefined) {
       return null;
     }
 
@@ -267,7 +234,7 @@ export function verifyJWT(token: string): { sub: string; email: string; name?: s
       return null;
     }
 
-    if (typeof payload.sub !== "string" || typeof payload.email !== "string") {
+    if (typeof payload.sub !== "string" || !/^[1-9]\d{0,9}$/.test(payload.sub) || typeof payload.email !== "string") {
       return null;
     }
 
@@ -275,6 +242,9 @@ export function verifyJWT(token: string): { sub: string; email: string; name?: s
       sub: payload.sub,
       email: payload.email,
       name: typeof payload.name === "string" ? payload.name : undefined,
+      exp: payload.exp,
+      aud: typeof payload.aud === "string" ? payload.aud : undefined,
+      sid: typeof payload.sid === "string" ? payload.sid : undefined,
     };
   } catch {
     return null;
@@ -289,9 +259,9 @@ type JwtClaims = Record<string, unknown>;
  */
 function decodeJwtSegment(segment: string): JwtClaims | null {
   try {
-    const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
-    const decoded = atob(normalized);
-    const parsed: unknown = JSON.parse(decoded);
+    // Node's base64 decoder reads both alphabets, with or without padding:
+    // tokens issued before the switch to base64url stay readable.
+    const parsed: unknown = JSON.parse(Buffer.from(segment, "base64").toString("utf8"));
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
       return null;
     }

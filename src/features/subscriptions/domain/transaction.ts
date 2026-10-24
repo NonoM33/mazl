@@ -25,8 +25,12 @@ export interface SignedTransaction {
 }
 
 // What this app sells and accepts. The bundle id and the product ids come from
-// configuration (APPLE_BUNDLE_ID, APPLE_PRODUCT_IDS).
+// configuration (APPLE_BUNDLE_ID, APPLE_PRODUCT_IDS, APPLE_ALLOW_SANDBOX).
 export interface ProductPolicy {
   readonly bundleId: string;
   readonly productIds: readonly string[];
+  // Whether a transaction signed for the Apple Sandbox is accepted. Absent means
+  // true: the configuration reader always sets it, this only keeps older callers
+  // working. false refuses every Sandbox transaction, subscription or consumable.
+  readonly allowSandbox?: boolean;
 }

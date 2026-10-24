@@ -22,7 +22,7 @@ import { registerAdminModerationRoutes } from "./admin.moderation.routes";
 // Presentation layer for the ADMIN feature. All `/api/admin/*` endpoints were
 // moved verbatim out of the monolith (src/index.ts) — same absolute paths,
 // behaviour, payloads, status codes. Admin routes authenticate with a dedicated
-// admin JWT + email whitelist via `assertAdmin` / `assertAdminFileDownload`
+// admin JWT + email whitelist via `assertAdmin`
 // (NOT the user `requireAuth` middleware); those helpers live in admin.auth.ts.
 //
 // The sub-registrations are invoked here in the EXACT original relative

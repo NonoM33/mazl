@@ -1,6 +1,7 @@
 import type { Context, Hono, MiddlewareHandler } from "hono";
 import type { AppVariables } from "../../../shared/http/middleware";
-import { getDiscoverFeed, type DiscoverFeedDeps } from "../application/discover-feed";
+import { parsePage } from "../../../shared/http/validation";
+import { getDailyPicks, getDiscoverFeed, type DiscoverFeedDeps } from "../application/discover-feed";
 
 type AppEnv = { Variables: AppVariables };
 
@@ -9,6 +10,8 @@ export interface DiscoverRouteDeps<Candidate> {
   /** Shared budget against profile scraping (CONTRAT.md §2.3). */
   readonly feedLimiter: MiddlewareHandler<AppEnv>;
   readonly feed: DiscoverFeedDeps<Candidate>;
+  /** Page size the server hands out (default) and accepts at most (max). */
+  readonly page: { readonly defaultLimit: number; readonly maxLimit: number };
 }
 
 // 409 profile_incomplete: the caller has not said who they are / who they look
@@ -23,13 +26,12 @@ export function registerDiscoverRoutes<Candidate>(
   app: Hono<AppEnv>,
   deps: DiscoverRouteDeps<Candidate>,
 ): void {
-  const { authenticate, feedLimiter, feed } = deps;
+  const { authenticate, feedLimiter, feed, page } = deps;
 
   app.get("/api/discover", authenticate, feedLimiter, async (c) => {
     try {
       const userId = c.get("userId");
-      const limit = parseInt(c.req.query("limit") || "20");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const { limit, offset } = parsePage(c.req.query("limit"), c.req.query("offset"), page);
 
       const result = await getDiscoverFeed(feed, userId, limit, offset);
       if (!result.ok) return incompleteProfile(c, result.missing);
@@ -45,7 +47,7 @@ export function registerDiscoverRoutes<Candidate>(
     try {
       const userId = c.get("userId");
 
-      const result = await getDiscoverFeed(feed, userId, 5, 0);
+      const result = await getDailyPicks(feed, userId);
       if (!result.ok) return incompleteProfile(c, result.missing);
 
       // Add "picked today" timestamp

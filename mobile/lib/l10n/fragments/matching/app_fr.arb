@@ -281,15 +281,6 @@
   "@matchingPicksBadge": {
     "description": "Petit badge doré sur la photo d'un profil sélectionné (10 px de haut, un mot)."
   },
-  "matchingPicksMatchBody": "Vous avez matché avec {name}.",
-  "@matchingPicksMatchBody": {
-    "description": "Texte de la boîte de dialogue de match depuis les sélections. {name} est le prénom de l'autre membre.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "matchingFiltersReset": "Réinitialiser",
   "@matchingFiltersReset": {
     "description": "Bouton en haut à droite de l'écran des filtres : remet tous les filtres à leur valeur de départ."

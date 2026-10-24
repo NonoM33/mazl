@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/api_service.dart';
@@ -16,10 +17,11 @@ import '../l10n/prompt_labels.dart';
 import '../widgets/profile_view/profile_action_bar.dart';
 import '../widgets/profile_view/profile_compatibility_section.dart';
 import '../widgets/profile_view/profile_completion_card.dart';
+import '../../chat/conversation_lookup.dart';
 import '../../couple/l10n/couple_failure_label.dart';
 import '../../couple/widgets/couple_request_dialog.dart';
+import '../../matching/widgets/match_sheet.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
-import '../widgets/profile_view/profile_match_dialog.dart';
 import '../widgets/profile_view/profile_top_bar.dart';
 import '../widgets/profile_view/profile_view_content.dart';
 import '../widgets/profile_view/profile_view_data.dart';
@@ -30,11 +32,13 @@ class ProfileViewScreen extends ConsumerStatefulWidget {
     this.userId,
     this.isOwnProfile = false,
     this.isFromMatch = false,
+    this.apiService,
   });
 
   final String? userId;
   final bool isOwnProfile;
   final bool isFromMatch; // True when viewing a matched profile (from chat or matches list)
+  final ApiService? apiService;
 
   @override
   ConsumerState<ProfileViewScreen> createState() => _ProfileViewScreenState();
@@ -47,7 +51,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   List<ProfilePrompt> _myPrompts = const [];
   bool _isLoading = true;
   bool _hasLoadedOnce = false;
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService = widget.apiService ?? ApiService();
   final CoupleService _coupleService = CoupleService();
 
   // Couple mode: what links the viewer to THIS member (never a global flag).
@@ -367,40 +371,34 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     );
   }
 
+  /// Sends the choice, then leaves with it: Discover throws the card with the
+  /// same action instead of showing the same person again.
   Future<void> _handleSwipe(String action) async {
-    if (_otherProfile == null) return;
+    final other = _otherProfile;
+    if (other == null) return;
     if (action == 'like' && !PremiumGate.guardLike(context)) return;
 
     final response = await _apiService.sendSwipe(
-      targetUserId: _otherProfile!.userId,
+      targetUserId: other.userId,
       action: action,
     );
-
-    if (response.success && mounted) {
-      if (response.data?['matched'] == true) {
-        _showMatchDialog();
-      } else {
-        context.pop();
-      }
+    if (!mounted) return;
+    if (!response.success) {
+      _showMessage(context.l10n.profileChoiceNotSent, isError: true);
+      return;
     }
-  }
+    if (!swipeMatched(response.data)) {
+      context.pop(action);
+      return;
+    }
 
-  void _showMatchDialog() {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => ProfileMatchDialog(
-        name: _otherProfile?.displayName,
-        onContinue: () {
-          Navigator.pop(dialogContext);
-          context.pop();
-        },
-        onMessage: () {
-          Navigator.pop(dialogContext);
-          context.go(RoutePaths.chat);
-        },
-      ),
-    );
+    final choice = await showMatchSheet(context, matched: other);
+    if (!mounted) return;
+    final router = GoRouter.of(context);
+    context.pop(action);
+    if (choice == MatchSheetChoice.message) {
+      router.go(await conversationRouteWith(_apiService, other.userId));
+    }
   }
 
   /// Menu d'options et signalement : même fenêtre de blocage / signalement.

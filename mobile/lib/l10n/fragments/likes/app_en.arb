@@ -4,7 +4,6 @@
   "likesWaiting": "{count, plural, one{{label} person is waiting for your reply.} other{{label} people are waiting for your reply.}}",
   "likesSeeWhoWithPlus": "See who liked you with mazl+",
   "likesMatchWith": "It's a match with {name}",
-  "likesMessageAction": "Message",
   "likesYouLiked": "You liked {name}",
   "likesEmptyTitle": "No likes yet",
   "likesEmptyBody": "Keep discovering profiles and complete yours to get more likes.",

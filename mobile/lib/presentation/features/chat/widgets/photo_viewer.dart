@@ -139,8 +139,11 @@ class _PhotoViewerState extends State<PhotoViewer>
   void _dragEnd(DragEndDetails details) {
     _dragging = false;
     final velocityY = details.primaryVelocity ?? 0;
-    if (_offset.dy >= MazlMotion.viewerDismissDistance ||
-        velocityY > MazlMotion.viewerDismissVelocity) {
+    // Flung back up past the threshold: the person changed their mind.
+    final flungBack = velocityY < -MazlMotion.viewerDismissVelocity;
+    if (!flungBack &&
+        (_offset.dy >= MazlMotion.viewerDismissDistance ||
+            velocityY > MazlMotion.viewerDismissVelocity)) {
       _close();
     } else {
       _springBack(Offset(_tracker.getVelocity().pixelsPerSecond.dx, velocityY));

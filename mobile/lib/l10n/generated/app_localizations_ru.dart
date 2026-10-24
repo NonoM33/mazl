@@ -2548,9 +2548,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get likesMessageAction => 'Сообщение';
-
-  @override
   String likesYouLiked(String name) {
     return 'Вы лайкнули $name';
   }
@@ -2818,11 +2815,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get matchingPicksBadge => 'Выбор';
-
-  @override
-  String matchingPicksMatchBody(String name) {
-    return 'У Вас мэтч с $name.';
-  }
 
   @override
   String get matchingFiltersReset => 'Сбросить';
@@ -3465,6 +3457,82 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get privacyGateUnverifiable =>
+      'Не удалось проверить Ваше согласие. Проверьте соединение.';
+
+  @override
+  String get privacyGateAsk => 'Чтобы указать свою практику, дайте согласие';
+
+  @override
+  String get privacyGive => 'Дать согласие';
+
+  @override
+  String get privacyLockedHint =>
+      'Станет доступно, когда Вы дадите согласие на данные о религиозной практике.';
+
+  @override
+  String get privacySheetLabel => 'Чувствительные данные · GDPR, статья 9';
+
+  @override
+  String get privacySheetTitle =>
+      'Ваша религиозная практика — с Вашего согласия';
+
+  @override
+  String get privacySheetBody =>
+      'Эти сведения помогают подбирать подходящие анкеты. Это чувствительные данные: они обрабатываются только с Вашего явного согласия, отдельного от условий использования. Вы можете отказаться и всё равно пользоваться MAZL.';
+
+  @override
+  String get privacySheetCheckbox =>
+      'Я прочитал(а) этот текст и даю явное согласие.';
+
+  @override
+  String get privacySheetAccept => 'Согласен(на)';
+
+  @override
+  String get privacySheetDecline => 'Продолжить без этого';
+
+  @override
+  String get privacySheetErrorOutdated =>
+      'Текст был обновлён. Закройте это окно и откройте его снова.';
+
+  @override
+  String get privacySheetErrorSave =>
+      'Не удалось сохранить Ваш выбор. Попробуйте ещё раз.';
+
+  @override
+  String get privacySettingsTitle => 'Данные о религиозной практике';
+
+  @override
+  String get privacySettingsGrantedShort => 'Дано';
+
+  @override
+  String get privacySettingsDeniedShort => 'Не дано';
+
+  @override
+  String get privacySettingsGrantedTitle => 'Согласие дано';
+
+  @override
+  String get privacySettingsNotGrantedTitle => 'Согласие не дано';
+
+  @override
+  String get privacySettingsWithdraw => 'Отозвать согласие';
+
+  @override
+  String get privacySettingsWithdrawTitle => 'Отозвать согласие?';
+
+  @override
+  String get privacySettingsWithdrawBody =>
+      'Ваше течение, кашрут, соблюдение Шаббата и намерение будут удалены из анкеты.';
+
+  @override
+  String get privacySettingsWithdrawFailed =>
+      'Не удалось отозвать согласие. Попробуйте ещё раз.';
+
+  @override
+  String get privacySettingsLoadFailed =>
+      'Не удалось загрузить Ваше согласие. Проверьте соединение.';
+
+  @override
   String get profileMyProfile => 'Мой профиль';
 
   @override
@@ -3561,24 +3629,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String profilePhotoCounter(int current, int total) {
     return 'Фото $current из $total';
   }
-
-  @override
-  String get profileMatchLabel => 'Мэтч';
-
-  @override
-  String get profileMatchTitle => 'Это мэтч.';
-
-  @override
-  String profileMatchBody(String name) {
-    return 'Теперь Вы можете общаться с $name.';
-  }
-
-  @override
-  String get profileMatchBodyUnnamed =>
-      'Теперь Вы можете общаться с этим человеком.';
-
-  @override
-  String get profileSendMessage => 'Написать сообщение';
 
   @override
   String profileCompletionEyebrow(int done, int total) {
@@ -4194,6 +4244,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileReportThisProfile => 'Пожаловаться на профиль';
+
+  @override
+  String get profileChoiceNotSent =>
+      'Ваш выбор не отправлен. Попробуйте ещё раз.';
 
   @override
   String get safetyBlock => 'Заблокировать';
@@ -5490,4 +5544,153 @@ class AppLocalizationsRu extends AppLocalizations {
   String visitorsAgoWeeks(int count) {
     return '$count нед. назад';
   }
+
+  @override
+  String get webSessionsTitle => 'Подключённые компьютеры';
+
+  @override
+  String get webSessionsSectionLabel => 'MAZL на компьютере';
+
+  @override
+  String get webSessionsIntro =>
+      'Пользуйтесь MAZL на компьютере по адресу app.mazl.app. Каждый компьютер остаётся подключённым не более 7 дней.';
+
+  @override
+  String get webSessionsConnect => 'Подключить компьютер';
+
+  @override
+  String get webSessionsConnected => 'Компьютер подключён.';
+
+  @override
+  String get webSessionsLoadFailed =>
+      'Не удалось загрузить список компьютеров. Проверьте соединение.';
+
+  @override
+  String get webSessionsEmpty => 'Сейчас ни один компьютер не подключён.';
+
+  @override
+  String get webSessionsListLabel => 'Компьютеры';
+
+  @override
+  String get webSessionsRevoke => 'Отключить';
+
+  @override
+  String webSessionsRevokeNamed(String browser) {
+    return 'Отключить $browser';
+  }
+
+  @override
+  String get webSessionsRevokeFailed =>
+      'Не удалось отключить этот компьютер. Попробуйте ещё раз.';
+
+  @override
+  String get webSessionsRevokeAll => 'Отключить все компьютеры';
+
+  @override
+  String get webSessionsRevokeAllTitle => 'Отключить все компьютеры?';
+
+  @override
+  String get webSessionsRevokeAllBody =>
+      'Вам придётся заново войти на каждом компьютере.';
+
+  @override
+  String get webSessionsRevokeAllConfirm => 'Отключить все';
+
+  @override
+  String get webSessionsRevokeAllFailed =>
+      'Не удалось отключить компьютеры. Попробуйте ещё раз.';
+
+  @override
+  String get webSessionsMethodQr => 'Подключён по QR-коду';
+
+  @override
+  String get webSessionsMethodGoogle => 'Подключён через Google';
+
+  @override
+  String get webSessionsMethodApple => 'Подключён через Apple';
+
+  @override
+  String get webSessionsActiveNow => 'Активность: только что';
+
+  @override
+  String webSessionsActiveMinutes(int count) {
+    return 'Активность: $count мин назад';
+  }
+
+  @override
+  String webSessionsActiveHours(int count) {
+    return 'Активность: $count ч назад';
+  }
+
+  @override
+  String get webSessionsActiveYesterday => 'Активность: вчера';
+
+  @override
+  String webSessionsActiveDays(int count) {
+    return 'Активность: $count дн. назад';
+  }
+
+  @override
+  String webSessionsClockTime(String hour, String minute) {
+    return '$hour:$minute';
+  }
+
+  @override
+  String get webSessionsScanInstruction =>
+      'Отсканируйте QR-код, который показан на app.mazl.app';
+
+  @override
+  String get webSessionsScanCameraLabel => 'Камера для сканирования QR-кода';
+
+  @override
+  String get webSessionsCameraUnavailable =>
+      'Нет доступа к камере. Разрешите доступ к камере в настройках iPhone, чтобы отсканировать код.';
+
+  @override
+  String get webSessionsScanNotMazl => 'Этот QR-код не относится к MAZL.';
+
+  @override
+  String get webSessionsScanExpired =>
+      'Срок действия кода истёк. Покажите на компьютере новый код.';
+
+  @override
+  String get webSessionsScanTooMany =>
+      'Слишком много попыток. Подождите немного и повторите.';
+
+  @override
+  String get webSessionsApproveInvalid =>
+      'Этот запрос больше не действителен. Покажите на компьютере новый код.';
+
+  @override
+  String get webSessionsConnectionProblem =>
+      'Не удалось подключиться. Проверьте сеть и повторите попытку.';
+
+  @override
+  String get webSessionsGenericProblem =>
+      'Произошла ошибка. Повторите попытку чуть позже.';
+
+  @override
+  String get webSessionsConfirmLabel => 'Вход в MAZL на компьютере';
+
+  @override
+  String get webSessionsConfirmTitle => 'Подключить этот компьютер?';
+
+  @override
+  String get webSessionsConfirmBrowser => 'Браузер';
+
+  @override
+  String get webSessionsConfirmAddress => 'Адрес';
+
+  @override
+  String get webSessionsConfirmAskedAt => 'Запрос отправлен в';
+
+  @override
+  String get webSessionsConfirmWarning =>
+      'Сканируйте только код, показанный на Вашем собственном компьютере. Если кто-то просит Вас отсканировать код, откажитесь.';
+
+  @override
+  String get webSessionsConfirmApprove => 'Подключить';
+
+  @override
+  String get webSessionsConfirmDeny => 'Отклонить';
 }

@@ -5,6 +5,11 @@ import { publicPhotoUrls, withPublicPicture } from "./features/media/application
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
 import { isProfileComplete } from "./features/profile/domain/profile-completeness";
 
+// Production must name its database: a silent fallback to the local
+// development credentials would hide a broken deployment.
+if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL must be set in production");
+}
 const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/mazl";
 
 export const sql = postgres(connectionString);
@@ -34,6 +39,10 @@ export async function initDb() {
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS documents_submitted_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP`;
   await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS os VARCHAR(20)`;
+  // When the current verification_token was issued: the emailed link expires 30
+  // days later. The default stamps the rows that predate the column with the
+  // migration time, so their links stay valid for 30 days from then.
+  await sql`ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS verification_token_created_at TIMESTAMP NOT NULL DEFAULT NOW()`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS documents (
@@ -169,6 +178,8 @@ export async function initDb() {
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_level VARCHAR(20) DEFAULT 'none'`;
+  // What the member is looking for (marriage, serious…), weighed by the matching engine.
+  await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS relationship_intention VARCHAR(30)`;
 
   // Conversations table (created automatically when match happens)
   await sql`
@@ -271,6 +282,48 @@ export async function initDb() {
       updated_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(user1_id, user2_id)
     )
+  `;
+
+  // A member is in ONE active couple, whichever column (user1_id / user2_id)
+  // holds them. Two partial unique indexes cannot say that (a member can be
+  // user2_id of one row and user1_id of another), so a trigger enforces it.
+  // It takes a transaction-scoped advisory lock per member, in id order, so two
+  // concurrent acceptances serialise instead of both passing the check.
+  // First, repair any legacy duplicate: the older active couple of a member who
+  // also belongs to a newer active one is ended (nothing is deleted).
+  await sql`
+    UPDATE couples old SET status = 'ended', updated_at = NOW()
+    WHERE old.status = 'active' AND EXISTS (
+      SELECT 1 FROM couples newer
+      WHERE newer.status = 'active' AND newer.id > old.id
+        AND (newer.user1_id IN (old.user1_id, old.user2_id)
+          OR newer.user2_id IN (old.user1_id, old.user2_id))
+    )
+  `;
+  await sql`
+    CREATE OR REPLACE FUNCTION enforce_single_active_couple() RETURNS trigger AS $$
+    BEGIN
+      IF NEW.status = 'active' THEN
+        PERFORM pg_advisory_xact_lock(7301, LEAST(NEW.user1_id, NEW.user2_id));
+        PERFORM pg_advisory_xact_lock(7301, GREATEST(NEW.user1_id, NEW.user2_id));
+        IF EXISTS (
+          SELECT 1 FROM couples c
+          WHERE c.status = 'active' AND c.id IS DISTINCT FROM NEW.id
+            AND (c.user1_id IN (NEW.user1_id, NEW.user2_id)
+              OR c.user2_id IN (NEW.user1_id, NEW.user2_id))
+        ) THEN
+          RAISE EXCEPTION 'a member is already in an active couple' USING ERRCODE = '23505';
+        END IF;
+      END IF;
+      RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql
+  `;
+  await sql`DROP TRIGGER IF EXISTS trg_single_active_couple ON couples`;
+  await sql`
+    CREATE TRIGGER trg_single_active_couple
+    BEFORE INSERT OR UPDATE OF user1_id, user2_id, status ON couples
+    FOR EACH ROW EXECUTE FUNCTION enforce_single_active_couple()
   `;
 
   // Couple daily questions
@@ -419,6 +472,18 @@ export async function initDb() {
       clicked_at TIMESTAMP,
       unsubscribed_at TIMESTAMP
     )
+  `;
+  // One row per (campaign, member): two concurrent sends used to write every
+  // recipient twice. Drop historical duplicates (keep the first row) before the
+  // unique index, so the migration is idempotent on an existing database.
+  await sql`
+    DELETE FROM campaign_recipients a
+    USING campaign_recipients b
+    WHERE a.campaign_id = b.campaign_id AND a.user_id = b.user_id AND a.id > b.id
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS uniq_campaign_recipients_campaign_user
+    ON campaign_recipients(campaign_id, user_id)
   `;
 
   // User segments for targeting
@@ -731,6 +796,7 @@ export async function requestReuploadAndRotateToken(waitlistId: number) {
     UPDATE waitlist
     SET verification_status = 'pending',
         verification_token = ${verificationToken},
+        verification_token_created_at = NOW(),
         verification_requested_at = NOW(),
         documents_submitted_at = NULL,
         verified_at = NULL
@@ -744,24 +810,51 @@ export async function requestReuploadAndRotateToken(waitlistId: number) {
   return { email: row.email as string, verificationToken: row.verification_token as string };
 }
 
-export async function upsertWaitlistAndGetVerification(email: string) {
+export interface WaitlistVerification {
+  id: number;
+  email: string;
+  // The new emailable link token. Empty when `alreadyHandled`: nothing was
+  // issued, and the live token of that member is never handed out.
+  verificationToken: string;
+  // True when the email already belongs to a member who is verified, verified+
+  // or has submitted documents. Their status and link are left untouched, so an
+  // anonymous caller cannot demote them or invalidate their link; the caller
+  // must not send a verification e-mail.
+  alreadyHandled: boolean;
+}
+
+// Public sign-up by email. Anyone can post any email, so a row past 'pending'
+// is never rewritten: the SET clauses keep its status, token and dates.
+export async function upsertWaitlistAndGetVerification(email: string): Promise<WaitlistVerification> {
   const verificationToken = generateVerificationToken();
 
   const result = await sql`
-    INSERT INTO waitlist (email, token, status, confirmed_at, verification_token, verification_status, verification_requested_at)
-    VALUES (${email}, ${crypto.randomUUID()}, 'confirmed', NOW(), ${verificationToken}, 'pending', NOW())
+    INSERT INTO waitlist (email, token, status, confirmed_at, verification_token, verification_status, verification_requested_at, verification_token_created_at)
+    VALUES (${email}, ${crypto.randomUUID()}, 'confirmed', NOW(), ${verificationToken}, 'pending', NOW(), NOW())
     ON CONFLICT (email)
     DO UPDATE SET
-      verification_token = ${verificationToken},
-      verification_status = 'pending',
-      verification_requested_at = NOW()
-    RETURNING id, email, verification_token
+      verification_token = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_token ELSE EXCLUDED.verification_token END,
+      verification_token_created_at = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_token_created_at ELSE NOW() END,
+      verification_requested_at = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_requested_at ELSE NOW() END,
+      verification_status = CASE WHEN waitlist.verification_status IN ('verified', 'verified_plus', 'submitted')
+        THEN waitlist.verification_status ELSE 'pending' END
+    RETURNING id, email, verification_token,
+      COALESCE(verification_status IN ('verified', 'verified_plus', 'submitted'), false) AS already_handled
   `;
 
   const row = result[0];
   if (!row) throw new Error("Failed to upsert waitlist");
 
-  return { id: row.id as number, email: row.email as string, verificationToken: row.verification_token as string };
+  const alreadyHandled = row.already_handled === true;
+  return {
+    id: row.id as number,
+    email: row.email as string,
+    verificationToken: alreadyHandled ? "" : (row.verification_token as string),
+    alreadyHandled,
+  };
 }
 
 export async function markVerificationSubmitted(waitlistId: number) {
@@ -772,9 +865,12 @@ export async function markVerificationSubmitted(waitlistId: number) {
   `;
 }
 
-export async function findWaitlistByVerificationToken(token: string) {
+// A token older than `maxAgeDays` is as good as unknown.
+export async function findWaitlistByVerificationToken(token: string, maxAgeDays: number) {
   const result = await sql`
-    SELECT id, email, verification_status FROM waitlist WHERE verification_token = ${token}
+    SELECT id, email, verification_status FROM waitlist
+    WHERE verification_token = ${token}
+      AND verification_token_created_at > NOW() - make_interval(days => ${maxAgeDays})
   `;
   return result.length ? (result[0] as { id: number; email: string; verification_status: string }) : null;
 }
@@ -1048,6 +1144,27 @@ export async function getFullProfile(userId: number, includePrivate = false) {
   };
 }
 
+// Whether `viewerId` may see the profile of `targetId`: the profile is
+// complete, the account is active and neither member blocked the other. Every
+// "no" looks the same to the caller (a missing profile), so that a block, a ban
+// or an unfinished profile cannot be told apart from an unknown id.
+export async function isProfileVisibleTo(viewerId: number, targetId: number): Promise<boolean> {
+  const rows = await sql`
+    SELECT 1
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id = ${targetId}
+      AND p.is_complete = true
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${viewerId} AND b.blocked_id = ${targetId})
+           OR (b.blocker_id = ${targetId} AND b.blocked_id = ${viewerId})
+      )
+  `;
+  return rows.length > 0;
+}
+
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;
@@ -1063,11 +1180,12 @@ export async function upsertProfile(userId: number, params: {
   ageMin?: number;
   ageMax?: number;
   distanceMax?: number;
+  relationshipIntention?: string;
 }) {
   // Callers pass coordinates that the media location service already fuzzed.
   const hasPosition = params.latitude !== undefined && params.longitude !== undefined;
   const result = await sql`
-    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max)
+    INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, latitude, longitude, location_fuzzed, denomination, kashrut_level, shabbat_observance, looking_for, age_min, age_max, distance_max, relationship_intention)
     VALUES (
       ${userId},
       ${params.displayName ?? null},
@@ -1084,7 +1202,8 @@ export async function upsertProfile(userId: number, params: {
       ${params.lookingFor ?? null},
       ${params.ageMin ?? 18},
       ${params.ageMax ?? 99},
-      ${params.distanceMax ?? 100}
+      ${params.distanceMax ?? 100},
+      ${params.relationshipIntention ?? null}
     )
     ON CONFLICT (user_id)
     DO UPDATE SET
@@ -1105,6 +1224,7 @@ export async function upsertProfile(userId: number, params: {
       age_min = COALESCE(${params.ageMin ?? null}, profiles.age_min),
       age_max = COALESCE(${params.ageMax ?? null}, profiles.age_max),
       distance_max = COALESCE(${params.distanceMax ?? null}, profiles.distance_max),
+      relationship_intention = COALESCE(${params.relationshipIntention ?? null}, profiles.relationship_intention),
       updated_at = NOW()
     RETURNING *
   `;
@@ -1343,6 +1463,7 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
     JOIN users u ON u.id = p.user_id
     CROSS JOIN me
     WHERE p.user_id != ${userId}
+      AND u.is_active = true
       AND p.is_complete = true
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
@@ -1398,7 +1519,8 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
         + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
         + CASE WHEN me.shabbat_observance IS NOT NULL AND p.shabbat_observance = me.shabbat_observance THEN 2 ELSE 0 END
       ) DESC,
-      p.created_at DESC
+      p.created_at DESC,
+      p.user_id DESC
     LIMIT ${limit}
     OFFSET ${offset}
   `;
@@ -1432,6 +1554,24 @@ export async function getSwipeAction(userId: number, targetUserId: number): Prom
     SELECT action FROM swipes WHERE user_id = ${userId} AND target_user_id = ${targetUserId}
   `;
   return rows[0]?.action ?? null;
+}
+
+// Whether `userId` may swipe on `targetUserId`: another member whose account
+// exists and is active, with no block in either direction. A refusal never says
+// which of these held.
+export async function canSwipeOn(userId: number, targetUserId: number): Promise<boolean> {
+  if (userId === targetUserId) return false;
+  const rows = await sql`
+    SELECT 1 FROM users u
+    WHERE u.id = ${targetUserId}
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${targetUserId})
+           OR (b.blocker_id = ${targetUserId} AND b.blocked_id = ${userId})
+      )
+  `;
+  return rows.length > 0;
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -1556,6 +1696,7 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
     JOIN users u ON u.id = s.user_id
     LEFT JOIN profiles p ON p.user_id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       -- not already matched
       AND NOT EXISTS (
@@ -1586,7 +1727,9 @@ export async function getReceivedLikesCount(userId: number): Promise<number> {
   const rows = await sql`
     SELECT COUNT(*) AS count
     FROM swipes s
+    JOIN users u ON u.id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       AND NOT EXISTS (
         SELECT 1 FROM matches m
@@ -1645,6 +1788,10 @@ export function getPromptText(promptId: string): string {
   return PROMPT_TEXT_BY_ID.get(promptId) ?? '';
 }
 
+const MAX_PROFILE_PROMPTS = 3;
+// First key of the advisory lock that serialises a member's prompt additions.
+const PROFILE_PROMPTS_LOCK_NAMESPACE = 7201;
+
 export class ProfilePromptLimitError extends Error {
   constructor() {
     super('Maximum of 3 prompts reached');
@@ -1668,20 +1815,27 @@ export async function addProfilePrompt(
   answer: string,
   position: number,
 ): Promise<ProfilePromptRow> {
-  const countRows = await sql`
-    SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
-  `;
-  const existing = parseInt((countRows[0] as { count: string }).count);
-  if (existing >= 3) {
-    throw new ProfilePromptLimitError();
-  }
+  // Counting then inserting would let simultaneous requests all see "2" and
+  // each add a third prompt: the whole check runs under a lock held per member
+  // until the transaction ends.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PROMPTS_LOCK_NAMESPACE}, ${userId})`;
+    const countRows = await tx`
+      SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
+    `;
+    const existing = parseInt((countRows[0] as { count: string }).count);
+    if (existing >= MAX_PROFILE_PROMPTS) {
+      throw new ProfilePromptLimitError();
+    }
 
-  const rows = await sql`
-    INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
-    VALUES (${userId}, ${promptId}, ${answer}, ${position})
-    RETURNING id, prompt_id, answer, position
-  `;
-  return rows[0] as unknown as ProfilePromptRow;
+    const rows = await tx`
+      INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
+      VALUES (${userId}, ${promptId}, ${answer}, ${position})
+      RETURNING id, prompt_id, answer, position
+    `;
+    return rows[0] as unknown as ProfilePromptRow;
+  });
 }
 
 export async function updateProfilePrompt(
@@ -2128,15 +2282,58 @@ export async function getEventById(eventId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function createRsvp(eventId: number, userId: number, status = 'going') {
+// An event as the public sees it: published only. A draft, like an unknown id,
+// is simply absent.
+export async function getPublishedEventById(eventId: number) {
   const result = await sql`
-    INSERT INTO event_rsvps (event_id, user_id, status)
-    VALUES (${eventId}, ${userId}, ${status})
-    ON CONFLICT (event_id, user_id)
-    DO UPDATE SET status = ${status}
-    RETURNING *
+    SELECT e.*,
+      (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+    FROM events e
+    WHERE e.id = ${eventId} AND e.is_published = true
   `;
-  return result[0];
+  return result.length ? result[0] : null;
+}
+
+export type RsvpOutcome =
+  | { readonly kind: "registered"; readonly rsvp: Record<string, unknown> }
+  | { readonly kind: "not_found" }
+  | { readonly kind: "over" }
+  | { readonly kind: "full" };
+
+// Registers a member for a published, not yet past event. The event row is
+// locked for the duration of the transaction, so the seat count and the
+// insertion cannot be raced by other registrations of the same event.
+export async function rsvpToEvent(eventId: number, userId: number, status: string): Promise<RsvpOutcome> {
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const events = await tx`
+      SELECT max_attendees, date >= CURRENT_DATE AS is_open
+      FROM events
+      WHERE id = ${eventId} AND is_published = true
+      FOR UPDATE
+    `;
+    const event = events[0] as { max_attendees: number | null; is_open: boolean } | undefined;
+    if (!event) return { kind: "not_found" } as const;
+    if (!event.is_open) return { kind: "over" } as const;
+
+    if (status === "going" && event.max_attendees !== null) {
+      // The member's own seat does not count against them when they confirm again.
+      const taken = await tx`
+        SELECT COUNT(*) AS n FROM event_rsvps
+        WHERE event_id = ${eventId} AND status = 'going' AND user_id <> ${userId}
+      `;
+      if (Number((taken[0] as { n: string }).n) >= event.max_attendees) return { kind: "full" } as const;
+    }
+
+    const result = await tx`
+      INSERT INTO event_rsvps (event_id, user_id, status)
+      VALUES (${eventId}, ${userId}, ${status})
+      ON CONFLICT (event_id, user_id)
+      DO UPDATE SET status = ${status}
+      RETURNING *
+    `;
+    return { kind: "registered", rsvp: result[0] as Record<string, unknown> } as const;
+  });
 }
 
 export async function deleteRsvp(eventId: number, userId: number) {
@@ -2345,16 +2542,23 @@ export async function setUserActiveStatus(userId: number, isActive: boolean) {
 
 // ============ COUPLE MODE ============
 
+// Advisory-lock class shared with the enforce_single_active_couple trigger
+// (the literal 7301 in the trigger body): one lock per member id.
+const COUPLE_MEMBER_LOCK_CLASS = 7301;
+
+type SqlExecutor = typeof sql;
+
 export async function createCouple(
   userId: number,
   partnerId: number,
   relationshipStatus: string = 'dating',
-  startedAt?: Date
+  startedAt?: Date,
+  executor: SqlExecutor = sql
 ) {
   // Order user IDs to prevent duplicates
   const [user1, user2] = userId < partnerId ? [userId, partnerId] : [partnerId, userId];
 
-  const result = await sql`
+  const result = await executor`
     INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at)
     VALUES (${user1}, ${user2}, ${relationshipStatus}, ${startedAt || new Date()}, ${new Date()})
     ON CONFLICT (user1_id, user2_id) DO UPDATE SET
@@ -2381,6 +2585,8 @@ export async function getCouple(userId: number) {
     LEFT JOIN users u2 ON u2.id = c.user2_id
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
       AND c.status = 'active'
+    ORDER BY c.id DESC
+    LIMIT 1
   `;
 
   const couple = result[0];
@@ -2429,9 +2635,14 @@ export interface CoupleRequestRow {
   updated_at: Date;
 }
 
+// Limits on asking the same person again: nobody can be pestered into a couple.
+export const COUPLE_REQUEST_COOLDOWN_DAYS = 7;
+export const COUPLE_REQUEST_MAX_REFUSED_PER_PAIR = 3;
+export const COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON = 3;
+
 export type CreateCoupleRequestResult =
   | { ok: true; request: CoupleRequestRow }
-  | { ok: false; error: string };
+  | { ok: false; error: string; status?: 400 | 409 | 429 };
 
 export type CoupleStatusWith =
   | 'none'
@@ -2491,6 +2702,51 @@ export async function createCoupleRequest(
     return { ok: false, error: 'A pending couple request already exists' };
   }
 
+  // Each refusal counts against the pair, in either direction, for good.
+  const [refused] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE status = 'rejected'
+      AND ((requester_id = ${requesterId} AND target_id = ${targetId})
+        OR (requester_id = ${targetId} AND target_id = ${requesterId}))
+  `;
+  if (Number(refused?.total ?? 0) >= COUPLE_REQUEST_MAX_REFUSED_PER_PAIR) {
+    return {
+      ok: false,
+      status: 409,
+      error: 'Too many declined couple requests with this person: no new request is possible',
+    };
+  }
+
+  // A refusal is respected for a while before the same person may ask again.
+  const recentlyRefused = await sql`
+    SELECT 1 FROM couple_requests
+    WHERE status = 'rejected'
+      AND requester_id = ${requesterId} AND target_id = ${targetId}
+      AND updated_at > NOW() - ${COUPLE_REQUEST_COOLDOWN_DAYS} * INTERVAL '1 day'
+    LIMIT 1
+  `;
+  if (recentlyRefused.length > 0) {
+    return {
+      ok: false,
+      status: 429,
+      error: `This person declined your request: wait ${COUPLE_REQUEST_COOLDOWN_DAYS} days before asking again`,
+    };
+  }
+
+  // Sending then cancelling in a loop would notify the target each time.
+  const [recent] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE requester_id = ${requesterId} AND target_id = ${targetId}
+      AND created_at > NOW() - INTERVAL '1 day'
+  `;
+  if (Number(recent?.total ?? 0) >= COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON) {
+    return {
+      ok: false,
+      status: 429,
+      error: 'Too many couple requests to this person today: try again tomorrow',
+    };
+  }
+
   const rows = await sql`
     INSERT INTO couple_requests (requester_id, target_id, status)
     VALUES (${requesterId}, ${targetId}, 'pending')
@@ -2513,9 +2769,15 @@ export type RespondToCoupleRequestResult =
   | { ok: true; action: 'rejected' }
   | { ok: false; status: number; error: string };
 
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === '23505';
+}
+
 /**
  * Accept or reject a couple request. Only the target may respond (IDOR guard).
- * On accept, the existing createCouple() is reused to build the couple.
+ * Everything an acceptance depends on is re-checked inside one transaction that
+ * holds a lock on both members, so two simultaneous acceptances cannot both
+ * pass: the second one sees the couple the first one created.
  */
 export async function respondToCoupleRequest(
   requestId: number,
@@ -2529,26 +2791,82 @@ export async function respondToCoupleRequest(
   if (request.target_id !== userId) {
     return { ok: false, status: 403, error: 'Forbidden' };
   }
-  if (request.status !== 'pending') {
-    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
-  }
 
-  if (action === 'reject') {
-    await sql`
-      UPDATE couple_requests
-      SET status = 'rejected', updated_at = NOW()
-      WHERE id = ${requestId}
-    `;
-    return { ok: true, action: 'rejected' };
-  }
+  try {
+    return await sql.begin(async (transaction) => {
+      const tx = transaction as unknown as SqlExecutor;
+      const [low, high] = request.requester_id < request.target_id
+        ? [request.requester_id, request.target_id]
+        : [request.target_id, request.requester_id];
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${low})`;
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${high})`;
 
-  const couple = await createCouple(request.requester_id, request.target_id);
-  await sql`
-    UPDATE couple_requests
-    SET status = 'accepted', updated_at = NOW()
-    WHERE id = ${requestId}
-  `;
-  return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> };
+      const [current] = await tx<{ status: CoupleRequestStatus }[]>`
+        SELECT status FROM couple_requests WHERE id = ${requestId} FOR UPDATE
+      `;
+      if (!current || current.status !== 'pending') {
+        return { ok: false, status: 409, error: 'Couple request is no longer pending' } as const;
+      }
+
+      if (action === 'reject') {
+        await tx`
+          UPDATE couple_requests
+          SET status = 'rejected', updated_at = NOW()
+          WHERE id = ${requestId}
+        `;
+        return { ok: true, action: 'rejected' } as const;
+      }
+
+      // Blocking or unmatching after the request was sent must stop the couple.
+      const blocked = await tx`
+        SELECT 1 FROM blocked_users
+        WHERE (blocker_id = ${low} AND blocked_id = ${high})
+           OR (blocker_id = ${high} AND blocked_id = ${low})
+        LIMIT 1
+      `;
+      if (blocked.length > 0) {
+        return { ok: false, status: 403, error: 'User is unavailable' } as const;
+      }
+      const matched = await tx`
+        SELECT 1 FROM matches WHERE user1_id = ${low} AND user2_id = ${high} LIMIT 1
+      `;
+      if (matched.length === 0) {
+        return { ok: false, status: 403, error: 'not_matched' } as const;
+      }
+
+      const alreadyCoupled = await tx`
+        SELECT 1 FROM couples
+        WHERE status = 'active'
+          AND (user1_id IN (${low}, ${high}) OR user2_id IN (${low}, ${high}))
+        LIMIT 1
+      `;
+      if (alreadyCoupled.length > 0) {
+        return { ok: false, status: 409, error: 'One of the users is already in a couple' } as const;
+      }
+
+      const couple = await createCouple(request.requester_id, request.target_id, 'dating', undefined, tx);
+      await tx`
+        UPDATE couple_requests
+        SET status = 'accepted', updated_at = NOW()
+        WHERE id = ${requestId}
+      `;
+      // The two people are taken: whatever else was waiting for either of them is void.
+      await tx`
+        UPDATE couple_requests
+        SET status = 'cancelled', updated_at = NOW()
+        WHERE status = 'pending' AND id <> ${requestId}
+          AND (requester_id IN (${low}, ${high}) OR target_id IN (${low}, ${high}))
+      `;
+      return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> } as const;
+    });
+  } catch (error: unknown) {
+    // The database guard (one active couple per member) caught a race the
+    // checks above could not see.
+    if (isUniqueViolation(error)) {
+      return { ok: false, status: 409, error: 'One of the users is already in a couple' };
+    }
+    throw error;
+  }
 }
 
 export type CancelCoupleRequestResult =
@@ -2603,6 +2921,11 @@ export async function getCoupleRequestsForUser(
     LEFT JOIN users tu ON tu.id = cr.target_id
     WHERE cr.status = 'pending'
       AND (cr.requester_id = ${userId} OR cr.target_id = ${userId})
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = cr.requester_id AND b.blocked_id = cr.target_id)
+           OR (b.blocker_id = cr.target_id AND b.blocked_id = cr.requester_id)
+      )
     ORDER BY cr.created_at DESC
   `;
 
@@ -2649,6 +2972,11 @@ export async function getCoupleStatusWith(
     WHERE status = 'pending'
       AND ((requester_id = ${userId} AND target_id = ${otherUserId})
         OR (requester_id = ${otherUserId} AND target_id = ${userId}))
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${otherUserId})
+           OR (b.blocker_id = ${otherUserId} AND b.blocked_id = ${userId})
+      )
     LIMIT 1
   `;
   if (pending.length > 0) {
@@ -2662,7 +2990,9 @@ export async function getCoupleStatusWith(
 /**
  * Archive (per-user) all of the user's conversations except the one(s) with the
  * given partner. Purely additive: getConversations is untouched, callers opt in.
- * Optionally posts a farewell message into each archived conversation.
+ * Optionally posts a farewell message into each archived conversation, except
+ * the ones with a person who is in a block relationship with the user, either
+ * way: a block must never be a way to keep writing to someone.
  */
 export async function archiveConversationsExceptPartner(
   userId: number,
@@ -2677,6 +3007,7 @@ export async function archiveConversationsExceptPartner(
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
   `;
 
+  const blockedIds = await getBlockedUserIds(userId);
   let archived = 0;
   for (const conv of conversations as unknown as Array<{ id: number; other_user_id: number }>) {
     if (partnerUserId !== null && conv.other_user_id === partnerUserId) continue;
@@ -2688,7 +3019,7 @@ export async function archiveConversationsExceptPartner(
     `;
     archived += 1;
 
-    if (message && message.trim().length > 0) {
+    if (message && message.trim().length > 0 && !blockedIds.has(conv.other_user_id)) {
       await sql`
         INSERT INTO messages (conversation_id, sender_id, content)
         VALUES (${conv.id}, ${userId}, ${message})
@@ -2740,35 +3071,41 @@ export async function getDailyQuestion(coupleId: number) {
   return result[0];
 }
 
+// Records one member's answer. The question must belong to the couple named in
+// the call, otherwise another couple's answer could be overwritten by id.
+// Returns false when nothing was written (unknown couple, outsider, or a
+// question that is not this couple's).
 export async function answerDailyQuestion(
   coupleId: number,
   questionId: number,
   userId: number,
   answer: string
-) {
-  // Determine if this is user1 or user2
-  const couple = await sql`
+): Promise<boolean> {
+  const couple = await sql<{ user1_id: number; user2_id: number }[]>`
     SELECT user1_id, user2_id FROM couples WHERE id = ${coupleId}
   `;
+  const members = couple[0];
+  if (!members) return false;
 
-  if (couple.length === 0) throw new Error("Couple not found");
-
-  const isUser1 = (couple[0] as any).user1_id === userId;
-  const column = isUser1 ? 'user1_answer' : 'user2_answer';
-
-  if (isUser1) {
-    await sql`
+  if (members.user1_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user1_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
-  } else {
-    await sql`
+    return updated.length > 0;
+  }
+  if (members.user2_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user2_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
+    return updated.length > 0;
   }
+  return false;
 }
 
 export async function getCoupleQuestionHistory(coupleId: number, limit = 30) {
@@ -3044,6 +3381,34 @@ export async function getUserActivity(userId: number, limit = 50) {
   return { swipes, matches, messages, rsvps };
 }
 
+// The waitlist is tied to a member by e-mail address only (case aside). Its rows
+// go with the account. An entry whose identity documents still have a file to
+// purge is kept, with its address and token wiped, so that the documents purge
+// (src/features/documents) still finds those files: deleting the row would
+// cascade-delete the document rows and leave the files on disk for good.
+async function eraseWaitlistEntries(tx: typeof sql, userId: number): Promise<void> {
+  const entries = await tx`
+    SELECT w.id,
+      EXISTS (
+        SELECT 1 FROM documents d
+        WHERE d.waitlist_id = w.id AND d.filename IS NOT NULL AND d.purged_at IS NULL
+      ) AS has_files
+    FROM waitlist w
+    WHERE LOWER(w.email) = (SELECT LOWER(email) FROM users WHERE id = ${userId})
+  `;
+  for (const entry of entries as unknown as Array<{ id: number; has_files: boolean }>) {
+    if (entry.has_files) {
+      await tx`
+        UPDATE waitlist
+        SET email = ${`erased-${entry.id}@erased.invalid`}, verification_token = NULL
+        WHERE id = ${entry.id}
+      `;
+    } else {
+      await tx`DELETE FROM waitlist WHERE id = ${entry.id}`;
+    }
+  }
+}
+
 // Delete user completely
 export async function deleteUserCompletely(userId: number, adminEmail: string) {
   // Log before deletion
@@ -3075,6 +3440,7 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
     await eraseCredits(tx, userId);
     await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
+    await eraseWaitlistEntries(tx, userId);
     await tx`DELETE FROM users WHERE id = ${userId}`;
   });
 
@@ -3103,6 +3469,33 @@ export async function getProfilePhotos(userId: number) {
   return photos;
 }
 
+export const MAX_PROFILE_PHOTOS = 6;
+// First key of the advisory lock that serialises a member's photo additions.
+const PROFILE_PHOTOS_LOCK_NAMESPACE = 7202;
+
+export class ProfilePhotoLimitError extends Error {
+  constructor() {
+    super(`Maximum of ${MAX_PROFILE_PHOTOS} photos reached`);
+    this.name = "ProfilePhotoLimitError";
+  }
+}
+
+// The photo does not exist or belongs to someone else: both look the same.
+export class ProfilePhotoNotFoundError extends Error {
+  constructor() {
+    super("Photo not found");
+    this.name = "ProfilePhotoNotFoundError";
+  }
+}
+
+// A reorder that names photos that are not the member's.
+export class ProfilePhotoSelectionError extends Error {
+  constructor() {
+    super("Invalid photo ID");
+    this.name = "ProfilePhotoSelectionError";
+  }
+}
+
 // Add profile photo
 export async function addProfilePhoto(params: {
   userId: number;
@@ -3110,24 +3503,32 @@ export async function addProfilePhoto(params: {
   position?: number;
   isPrimary?: boolean;
 }) {
-  // If this is the first photo or marked as primary, set it as primary
-  const existingPhotos = await getProfilePhotos(params.userId);
-  const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
-  const position = params.position ?? existingPhotos.length;
+  // The count, the cap and the insert run under a lock held per member until
+  // the transaction ends: simultaneous uploads cannot overrun the cap.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PHOTOS_LOCK_NAMESPACE}, ${params.userId})`;
+    const existingPhotos = await tx`SELECT id FROM profile_photos WHERE user_id = ${params.userId}`;
+    if (existingPhotos.length >= MAX_PROFILE_PHOTOS) throw new ProfilePhotoLimitError();
 
-  // If setting as primary, unset other primaries
-  if (shouldBePrimary) {
-    await sql`
-      UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+    // If this is the first photo or marked as primary, set it as primary
+    const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
+    const position = params.position ?? existingPhotos.length;
+
+    // If setting as primary, unset other primaries
+    if (shouldBePrimary) {
+      await tx`
+        UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+      `;
+    }
+
+    const result = await tx`
+      INSERT INTO profile_photos (user_id, url, position, is_primary)
+      VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
+      RETURNING *
     `;
-  }
-
-  const result = await sql`
-    INSERT INTO profile_photos (user_id, url, position, is_primary)
-    VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
-    RETURNING *
-  `;
-  return result[0];
+    return result[0];
+  });
 }
 
 // Delete profile photo
@@ -3139,7 +3540,7 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
 
   const deletedPhoto = photo[0];
   if (!deletedPhoto) {
-    throw new Error("Photo not found");
+    throw new ProfilePhotoNotFoundError();
   }
 
   await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
@@ -3176,7 +3577,7 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
   const userPhotoIds = new Set(userPhotos.map((p: any) => p.id));
   for (const id of photoIds) {
     if (!userPhotoIds.has(id)) {
-      throw new Error("Invalid photo ID");
+      throw new ProfilePhotoSelectionError();
     }
   }
 
@@ -3196,11 +3597,14 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
 
 // Set profile photo as primary
 export async function setProfilePhotoPrimary(photoId: number, userId: number) {
-  // Unset all primaries for this user
-  await sql`UPDATE profile_photos SET is_primary = false WHERE user_id = ${userId}`;
-
-  // Set this one as primary
-  await sql`UPDATE profile_photos SET is_primary = true WHERE id = ${photoId} AND user_id = ${userId}`;
+  // One statement sequence in one transaction, and only for the member's own
+  // photo: otherwise the current primary would be unset for nothing.
+  await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const own = await tx`SELECT id FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId} FOR UPDATE`;
+    if (own.length === 0) throw new ProfilePhotoNotFoundError();
+    await tx`UPDATE profile_photos SET is_primary = (id = ${photoId}) WHERE user_id = ${userId}`;
+  });
 
   return await getProfilePhotos(userId);
 }
@@ -3370,14 +3774,29 @@ export async function createCampaign(params: {
   return result[0];
 }
 
-// Update campaign
+// Statuses a campaign goes through. Only draft and scheduled campaigns can be
+// edited or sent; 'sending' is the lock held while a send is running.
+export type CampaignStatus = 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
+
+export interface CampaignRecord {
+  id: number;
+  type: 'email' | 'push';
+  title: string;
+  subject: string | null;
+  content: string;
+  segment_id: number | null;
+  status: CampaignStatus;
+}
+
+// Update a campaign that has not been sent yet. Returns undefined when the
+// campaign does not exist OR is no longer editable (the caller tells them apart).
 export async function updateCampaign(campaignId: number, params: Partial<{
   title: string;
   subject: string;
   content: string;
   segmentId: number;
   scheduledAt: Date;
-  status: string;
+  status: 'draft' | 'scheduled';
 }>) {
   const result = await sql`
     UPDATE campaigns SET
@@ -3388,7 +3807,7 @@ export async function updateCampaign(campaignId: number, params: Partial<{
       scheduled_at = COALESCE(${params.scheduledAt ?? null}, scheduled_at),
       status = COALESCE(${params.status ?? null}, status),
       updated_at = NOW()
-    WHERE id = ${campaignId}
+    WHERE id = ${campaignId} AND status IN ('draft', 'scheduled')
     RETURNING *
   `;
   return result[0];
@@ -3450,33 +3869,27 @@ export async function deleteCampaign(campaignId: number) {
 }
 
 // Get users for campaign (based on segment)
-export async function getCampaignRecipients(segmentId?: number) {
-  if (!segmentId) {
-    // All active users
-    return await sql`
-      SELECT u.id, u.email, u.name, p.display_name
-      FROM users u
-      LEFT JOIN profiles p ON p.user_id = u.id
-      WHERE u.is_active = true
-        AND u.provider != 'seed'
-        AND u.email NOT IN (SELECT email FROM email_unsubscribes)
-      ORDER BY u.created_at DESC
-    `;
+export interface CampaignRecipient {
+  id: number;
+  email: string;
+}
+
+// Segment filters are stored but not evaluated yet. Until they are, a campaign
+// tied to a segment must NOT be sent: it used to fall back to every member.
+export class SegmentFiltersNotImplementedError extends Error {
+  constructor() {
+    super('Segment filters are not implemented: refusing to target every member');
+    this.name = 'SegmentFiltersNotImplementedError';
   }
+}
 
-  // Get segment filters
-  const segment = await sql`SELECT * FROM user_segments WHERE id = ${segmentId}`;
-  if (segment.length === 0) return [];
+export async function getCampaignRecipients(segmentId?: number | null): Promise<CampaignRecipient[]> {
+  if (segmentId) throw new SegmentFiltersNotImplementedError();
 
-  const filters = (segment[0] as any).filters;
-
-  // Build dynamic query based on filters
-  // For now, return all users - filters can be applied in JS
-  return await sql`
-    SELECT u.id, u.email, u.name, p.display_name, p.location, p.gender,
-           DATE_PART('year', AGE(p.birthdate)) as age
+  // All active users
+  return await sql<CampaignRecipient[]>`
+    SELECT u.id, u.email
     FROM users u
-    LEFT JOIN profiles p ON p.user_id = u.id
     WHERE u.is_active = true
       AND u.provider != 'seed'
       AND u.email NOT IN (SELECT email FROM email_unsubscribes)
@@ -3484,30 +3897,47 @@ export async function getCampaignRecipients(segmentId?: number) {
   `;
 }
 
-// Send campaign (mark as sent and create recipients)
-export async function sendCampaign(campaignId: number) {
-  const campaign = await getCampaignById(campaignId);
-  if (!campaign) throw new Error('Campaign not found');
+// Take the send lock: draft/scheduled -> sending, in ONE statement, so two
+// concurrent sends cannot both win. Returns undefined when the campaign is
+// missing, already taken, sent, or tied to a segment.
+export async function claimCampaignForSending(campaignId: number) {
+  const result = await sql<CampaignRecord[]>`
+    UPDATE campaigns
+    SET status = 'sending', updated_at = NOW()
+    WHERE id = ${campaignId} AND status IN ('draft', 'scheduled') AND segment_id IS NULL
+    RETURNING *
+  `;
+  return result[0];
+}
 
-  const recipients = await getCampaignRecipients((campaign as any).segment_id);
+// Record who the campaign is addressed to. Nobody is marked as delivered yet:
+// sent_at is only set once the provider accepted the message.
+export async function addCampaignRecipients(campaignId: number, recipients: CampaignRecipient[]) {
+  if (recipients.length === 0) return;
+  const rows = recipients.map((r) => ({ campaign_id: campaignId, user_id: r.id, email: r.email }));
+  await sql`INSERT INTO campaign_recipients ${sql(rows)} ON CONFLICT (campaign_id, user_id) DO NOTHING`;
+}
 
-  // Create recipient records
-  for (const r of recipients as any[]) {
-    await sql`
-      INSERT INTO campaign_recipients (campaign_id, user_id, email, sent_at)
-      VALUES (${campaignId}, ${r.id}, ${r.email}, NOW())
-      ON CONFLICT DO NOTHING
-    `;
-  }
+export async function markCampaignRecipientsSent(campaignId: number, userIds: number[]) {
+  if (userIds.length === 0) return;
+  await sql`
+    UPDATE campaign_recipients
+    SET sent_at = NOW()
+    WHERE campaign_id = ${campaignId} AND user_id IN ${sql(userIds)}
+  `;
+}
 
-  // Update campaign status
+// Release the send lock. A campaign nobody received is 'failed', not 'sent'.
+export async function finishCampaignSending(campaignId: number, outcome: { sent: number; total: number }) {
+  const delivered = outcome.sent > 0 || outcome.total === 0;
   await sql`
     UPDATE campaigns
-    SET status = 'sent', sent_at = NOW(), stats_sent = ${recipients.length}
-    WHERE id = ${campaignId}
+    SET status = ${delivered ? 'sent' : 'failed'},
+        sent_at = ${delivered ? sql`NOW()` : null},
+        stats_sent = ${outcome.sent},
+        updated_at = NOW()
+    WHERE id = ${campaignId} AND status = 'sending'
   `;
-
-  return { sent: recipients.length, recipients };
 }
 
 // Track campaign open
@@ -3913,7 +4343,7 @@ export async function getCoupleActivities(coupleId: number, limit = 20, offset =
 // Get single activity
 export async function getCoupleActivity(activityId: number) {
   const result = await sql`
-    SELECT * FROM couple_activities WHERE id = ${activityId}
+    SELECT * FROM couple_activities WHERE id = ${activityId} AND is_active = true
   `;
   return result.length ? result[0] : null;
 }
@@ -3958,20 +4388,54 @@ export async function removeSavedActivity(coupleId: number, activityId: number) 
   `;
 }
 
-// Create booking
+export type CoupleBookingResult =
+  | { ok: true; booking: Array<Record<string, unknown>> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
+
+type BookableEvent = { price_cents: number | null; is_past: boolean };
+
+// Why an event cannot be taken (booked or joined) right now, or null when it can.
+// `paid` is true when this couple already paid for it.
+function eventRefusal(event: BookableEvent | undefined, paid: boolean): { status: 402 | 404 | 409; error: string } | null {
+  if (!event) return { status: 404, error: 'Event not found' };
+  if (event.is_past) return { status: 409, error: 'Event is over' };
+  if ((event.price_cents ?? 0) > 0 && !paid) {
+    return { status: 402, error: 'This event is paid: payment is required before registering' };
+  }
+  return null;
+}
+
+// Create booking. Only a published, upcoming, free event (or an active
+// activity) can be booked: a draft, past or paid event is refused.
 export async function createCoupleBooking(params: {
   coupleId: number;
-  activityId?: number;
-  eventId?: number;
+  activityId?: number | null;
+  eventId?: number | null;
   bookingDate: string;
-  bookingTime?: string;
-  notes?: string;
-}) {
-  return await sql`
+  bookingTime?: string | null;
+  notes?: string | null;
+}): Promise<CoupleBookingResult> {
+  if (params.eventId != null) {
+    const [event] = await sql<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${params.eventId} AND is_published = true
+    `;
+    const refusal = eventRefusal(event, false);
+    if (refusal) return { ok: false, ...refusal };
+  }
+  if (params.activityId != null) {
+    const activity = await sql`
+      SELECT 1 FROM couple_activities WHERE id = ${params.activityId} AND is_active = true
+    `;
+    if (activity.length === 0) return { ok: false, status: 404, error: 'Activity not found' };
+  }
+
+  const booking = await sql`
     INSERT INTO couple_bookings (couple_id, activity_id, event_id, booking_date, booking_time, notes, status)
     VALUES (${params.coupleId}, ${params.activityId ?? null}, ${params.eventId ?? null}, ${params.bookingDate}, ${params.bookingTime ?? null}, ${params.notes ?? null}, 'confirmed')
     RETURNING *
   `;
+  return { ok: true, booking: booking as unknown as Array<Record<string, unknown>> };
 }
 
 // Get couple bookings
@@ -4009,34 +4473,47 @@ export async function getCoupleEvents(limit = 20, offset = 0, category?: string)
 // Get single couple event
 export async function getCoupleEvent(eventId: number) {
   const result = await sql`
-    SELECT * FROM couple_events WHERE id = ${eventId}
+    SELECT * FROM couple_events WHERE id = ${eventId} AND is_published = true
   `;
   return result.length ? result[0] : null;
 }
 
-// Register for couple event
-export async function registerForCoupleEvent(coupleId: number, eventId: number) {
-  const event = await getCoupleEvent(eventId);
-  if (!event) throw new Error("Event not found");
+export type CoupleEventRegistrationResult =
+  | { ok: true; registration: Record<string, unknown> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
 
-  // The count moves only when the registration actually changes state: a
-  // second "register" (or a second "cancel") must not count the couple twice.
-  // Capacity is checked in the same UPDATE, so two couples cannot both take
-  // the last place.
+// Register for couple event. The event row is locked for the whole
+// transaction, so the checks (published, upcoming, free or paid for, room left)
+// and the place taken cannot be interleaved with another registration.
+export async function registerForCoupleEvent(
+  coupleId: number,
+  eventId: number
+): Promise<CoupleEventRegistrationResult> {
   return await sql.begin(async (transaction) => {
     const tx = transaction as unknown as typeof sql;
-    const [existing] = await tx<{ status: string }[]>`
-      SELECT status FROM couple_event_registrations
-      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    const [event] = await tx<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${eventId} AND is_published = true
       FOR UPDATE
     `;
-    if (existing?.status !== "registered") {
+    const [existing] = await tx<{ status: string; paid: boolean | null }[]>`
+      SELECT status, paid FROM couple_event_registrations
+      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    `;
+    const refusal = eventRefusal(event, existing?.paid === true);
+    if (refusal) return { ok: false, ...refusal } as const;
+
+    // The count moves only when the registration actually changes state: a
+    // second "register" (or a second "cancel") must not count the couple twice.
+    // Capacity is checked in the same UPDATE, so two couples cannot both take
+    // the last place.
+    if (existing?.status !== 'registered') {
       const seat = await tx`
         UPDATE couple_events SET current_couples = current_couples + 1
         WHERE id = ${eventId} AND (max_couples IS NULL OR current_couples < max_couples)
         RETURNING id
       `;
-      if (seat.length === 0) throw new Error("Event is full");
+      if (seat.length === 0) return { ok: false, status: 409, error: 'Event is full' } as const;
     }
     const registration = await tx`
       INSERT INTO couple_event_registrations (couple_id, event_id)
@@ -4044,7 +4521,7 @@ export async function registerForCoupleEvent(coupleId: number, eventId: number) 
       ON CONFLICT (couple_id, event_id) DO UPDATE SET status = 'registered', cancelled_at = NULL
       RETURNING *
     `;
-    return registration[0];
+    return { ok: true, registration: registration[0] as Record<string, unknown> } as const;
   });
 }
 

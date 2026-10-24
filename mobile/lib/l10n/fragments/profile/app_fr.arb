@@ -142,31 +142,6 @@
       }
     }
   },
-  "profileMatchLabel": "Match",
-  "@profileMatchLabel": {
-    "description": "Étiquette en capitales au-dessus du titre de la fenêtre qui annonce un match."
-  },
-  "profileMatchTitle": "C'est un match.",
-  "@profileMatchTitle": {
-    "description": "Grand titre de la fenêtre qui annonce que deux membres se sont aimés. Environ 15 caractères, peut passer sur deux lignes."
-  },
-  "profileMatchBody": "Vous pouvez maintenant discuter avec {name}.",
-  "@profileMatchBody": {
-    "description": "Fenêtre de match : invite à écrire à la personne. {name} est son prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "profileMatchBodyUnnamed": "Vous pouvez maintenant discuter avec cette personne.",
-  "@profileMatchBodyUnnamed": {
-    "description": "Fenêtre de match, quand le prénom manque : invite à écrire à la personne."
-  },
-  "profileSendMessage": "Envoyer un message",
-  "@profileSendMessage": {
-    "description": "Bouton plein de la fenêtre de match : ouvre la conversation."
-  },
   "profileCompletionEyebrow": "Profil · {done}/{total}",
   "@profileCompletionEyebrow": {
     "description": "Étiquette en capitales de la carte « Complétez votre profil » : étapes faites sur le total, par exemple « Profil · 2/4 ».",
@@ -973,5 +948,9 @@
   "profileReportThisProfile": "Signaler ce profil",
   "@profileReportThisProfile": {
     "description": "Bouton texte en bas du profil d'un autre membre : ouvre la fenêtre de blocage et de signalement."
+  },
+  "profileChoiceNotSent": "Votre choix n'est pas parti. Réessayez.",
+  "@profileChoiceNotSent": {
+    "description": "Message bref (snackbar) sur la page d'un profil : le like, le passer ou le super like n'est pas parti (réseau, serveur)."
   }
 }

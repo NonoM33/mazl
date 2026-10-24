@@ -1,4 +1,6 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { Resend } from "resend";
+import { getKey } from "./shared/crypto/keys";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 if (!resendApiKey) {
@@ -7,21 +9,26 @@ if (!resendApiKey) {
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-const APP_URL = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+// Every link in an e-mail points at APP_URL, never at the Host or
+// X-Forwarded-Host of the request that triggered it: those headers are chosen
+// by the caller, and a forged one turned MAZL's own e-mails into phishing
+// links carrying the member's verification token.
+const APP_URL = (
+  process.env.APP_URL || (process.env.NODE_ENV === "production" ? "https://mazl.app" : "http://localhost:3000")
+).replace(/\/$/, "");
+if (process.env.NODE_ENV === "production" && !process.env.APP_URL) {
+  console.warn("APP_URL is not set; e-mail links point at https://mazl.app");
+}
 const FROM_EMAIL = process.env.FROM_EMAIL || "hello@mazl.app";
 
-function resolveBaseUrl(baseUrl?: string) {
-  return (baseUrl || APP_URL || "https://mazl.app").replace(/\/$/, "");
-}
 
 export async function sendVerificationRequestEmail(params: {
   to: string;
   verificationToken: string;
-  baseUrl?: string;
 }) {
   if (!resend) return { success: false, error: "missing_resend_api_key" };
 
-  const baseUrl = resolveBaseUrl(params.baseUrl);
+  const baseUrl = APP_URL;
   const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
 
   const { data, error } = await resend.emails.send({
@@ -79,11 +86,10 @@ export async function sendReuploadRequestedEmail(params: {
   verificationToken: string;
   reason?: string;
   rejectedTypes?: string[];
-  baseUrl?: string;
 }) {
   if (!resend) return { success: false, error: "missing_resend_api_key" };
 
-  const baseUrl = resolveBaseUrl(params.baseUrl);
+  const baseUrl = APP_URL;
   const verifyUrl = `${baseUrl}/verify?token=${params.verificationToken}`;
   const reason = (params.reason || "").trim();
   const rejectedTypes = Array.isArray(params.rejectedTypes) ? params.rejectedTypes : [];
@@ -173,10 +179,10 @@ function escapeHtml(input: string) {
     .replaceAll("'", "&#39;");
 }
 
-export async function sendProfileApprovedEmail(params: { to: string; baseUrl?: string; level?: "verified" | "verified_plus" }) {
+export async function sendProfileApprovedEmail(params: { to: string; level?: "verified" | "verified_plus" }) {
   if (!resend) return { success: false, error: "missing_resend_api_key" };
 
-  const baseUrl = resolveBaseUrl(params.baseUrl);
+  const baseUrl = APP_URL;
   const level = params.level || "verified";
 
   const badge =
@@ -227,12 +233,11 @@ export async function sendCampaignEmail(params: {
   content: string;
   campaignId?: number;
   userId?: number;
-  baseUrl?: string;
 }) {
   if (!resend) return { success: false, error: "missing_resend_api_key" };
 
-  const baseUrl = resolveBaseUrl(params.baseUrl);
-  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(params.to)}`;
+  const baseUrl = APP_URL;
+  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(params.to)}&t=${unsubscribeToken(params.to)}`;
   const trackingPixel = params.campaignId && params.userId
     ? `<img src="${baseUrl}/api/track/open?c=${params.campaignId}&u=${params.userId}" width="1" height="1" style="display:none;" />`
     : "";
@@ -274,4 +279,18 @@ export async function sendCampaignEmail(params: {
 
   if (error) return { success: false, error: error.message };
   return { success: true, data };
+}
+
+// Unsubscribe links are signed: without the signature anyone could unsubscribe
+// any address. HMAC-SHA256 over "unsubscribe:<lower-case email>", base64url.
+export function unsubscribeToken(email: string): string {
+  return createHmac("sha256", getKey("MEDIA_SIGNING_KEY"))
+    .update(`unsubscribe:${email.trim().toLowerCase()}`)
+    .digest("base64url");
+}
+
+export function isValidUnsubscribeToken(email: string, token: string): boolean {
+  const expected = Buffer.from(unsubscribeToken(email));
+  const given = Buffer.from(token);
+  return given.length === expected.length && timingSafeEqual(given, expected);
 }

@@ -187,6 +187,23 @@ describe("recordPurchase", () => {
     expect(balance.values).toEqual([7, "boost", 3]);
   });
 
+  test("a transaction Apple refunded before it was credited is refused, and nothing is written", async () => {
+    const { sql, calls } = fakeSql((call) => (has(call, "FROM credit_revocations") ? [{ revoked_at: new Date() }] : []));
+    expect(await new PgCreditsRepository(sql).recordPurchase(7, PURCHASE)).toBe("revoked");
+    expect(find(calls, "INSERT INTO credit_purchases")).toBeUndefined();
+    expect(find(calls, "INSERT INTO credit_balances")).toBeUndefined();
+  });
+
+  test("takes the per-transaction lock before looking at revocations and purchases", async () => {
+    const { sql, calls } = fakeSql(() => []);
+    await new PgCreditsRepository(sql).recordPurchase(7, PURCHASE);
+    const lock = index(calls, "pg_advisory_xact_lock");
+    expect(lock).toBe(0);
+    expect(calls[lock]?.values).toEqual([PURCHASE.transactionId]);
+    expect(lock).toBeLessThan(index(calls, "FROM credit_revocations"));
+    expect(lock).toBeLessThan(index(calls, "INSERT INTO credit_purchases"));
+  });
+
   test("a transaction already credited to the same member credits nothing more", async () => {
     const { sql, calls } = fakeSql((call) => (has(call, "SELECT user_id") ? [{ user_id: 7 }] : []));
     expect(await new PgCreditsRepository(sql).recordPurchase(7, PURCHASE)).toBe("already_credited");
@@ -216,9 +233,20 @@ describe("refundPurchase", () => {
     expect(find(calls, "INSERT INTO credit_balances")).toBeUndefined();
   });
 
-  test("an unknown transaction is unknown", async () => {
-    const { sql } = fakeSql(() => []);
+  test("an unknown transaction is unknown, and remembered as revoked under the same lock", async () => {
+    const { sql, calls } = fakeSql(() => []);
     expect(await new PgCreditsRepository(sql).refundPurchase("t1")).toBe("unknown");
+    const remember = find(calls, "INSERT INTO credit_revocations") as Call;
+    expect(has(remember, "ON CONFLICT (transaction_id) DO NOTHING")).toBe(true);
+    expect(remember.values).toEqual(["t1"]);
+    expect(remember.inTransaction).toBe(true);
+    expect(index(calls, "pg_advisory_xact_lock")).toBe(0);
+  });
+
+  test("a known transaction is not recorded as revoked", async () => {
+    const { sql, calls } = fakeSql((call) => (has(call, "SELECT 1") ? [{ "?column?": 1 }] : []));
+    await new PgCreditsRepository(sql).refundPurchase("t1");
+    expect(find(calls, "INSERT INTO credit_revocations")).toBeUndefined();
   });
 });
 

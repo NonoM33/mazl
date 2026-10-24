@@ -14,6 +14,8 @@ import {
   duplicateEvent,
 } from "../../db";
 import { assertAdmin } from "./admin.auth";
+import { toCsv } from "./admin.csv";
+import { parsePagination, parseRecordId } from "./admin.pagination";
 
 // Admin events routes, moved verbatim from the monolith (src/index.ts). Two
 // original blocks are preserved in order: the "ADMIN EVENTS" CRUD block, then
@@ -27,8 +29,7 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const limit = parseInt(c.req.query("limit") || "50");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const { limit, offset } = parsePagination(c.req.query("limit"), c.req.query("offset"));
 
       const events = await getEvents({
         publishedOnly: false,
@@ -86,7 +87,8 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const body = await c.req.json();
 
       const event = await updateEvent(eventId, {
@@ -120,7 +122,8 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       await deleteEvent(eventId);
       return c.json({ success: true });
     } catch (error: unknown) {
@@ -135,7 +138,8 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const attendees = await getEventAttendees(eventId);
       return c.json({ success: true, attendees });
     } catch (error: unknown) {
@@ -152,7 +156,8 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const event = await getEventFullDetails(eventId);
 
       if (!event) {
@@ -172,7 +177,8 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const body = await c.req.json();
 
       if (!body.url) {
@@ -199,7 +205,8 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const photoId = parseInt(c.req.param("photoId"));
+      const photoId = parseRecordId(c.req.param("photoId"));
+      if (photoId === null) return c.json({ success: false, error: "Not found" }, 404);
       await deleteEventPhoto(photoId);
       return c.json({ success: true });
     } catch (error: unknown) {
@@ -214,7 +221,8 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const { userId } = await c.req.json();
 
       if (!userId) {
@@ -240,17 +248,13 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const attendees = await exportEventAttendees(eventId);
 
       // Generate CSV
       const headers = ["email", "name", "display_name", "status", "paid", "rsvp_at", "checked_in_at"];
-      const csv = [
-        headers.join(","),
-        ...(attendees as Array<Record<string, unknown>>).map((a) =>
-          headers.map((h) => `"${(a[h] ?? "").toString().replace(/"/g, '""')}"`).join(",")
-        ),
-      ].join("\n");
+      const csv = toCsv(headers, attendees as Array<Record<string, unknown>>);
 
       return new Response(csv, {
         headers: {
@@ -270,7 +274,8 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     try {
-      const eventId = parseInt(c.req.param("id"));
+      const eventId = parseRecordId(c.req.param("id"));
+      if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const newEvent = await duplicateEvent(eventId);
 
       if (!newEvent) {

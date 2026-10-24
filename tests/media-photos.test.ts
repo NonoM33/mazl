@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import sharp from "sharp";
 import {
-  BASE_URL, EXIF_MARKER, absolute, auth, craftSignedUrl, db, json, jpegWithGps,
+  BASE_URL, EXIF_MARKER, absolute, auth, craftSignedUrl, db, grantPlus, json, jpegWithGps,
   makeUser, uploadOk, uploadPhoto, type PhotoRow, type TestUser,
 } from "./media-helpers";
 
@@ -184,6 +184,7 @@ describe("responses carry signed photo URLs", () => {
 
   test("a Google avatar is kept as the fallback picture", async () => {
     const guest = await makeUser("guest");
+    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${guest.id}`;
     await db`UPDATE users SET picture = 'https://lh3.googleusercontent.com/a/AAA=s96-c' WHERE id = ${guest.id}`;
     const res = await fetch(`${BASE_URL}/api/profile/${guest.id}`, { headers: auth(alice.token) });
     const { profile } = (await res.json()) as { profile: { picture: string | null; photos: string[] } };
@@ -195,9 +196,11 @@ describe("responses carry signed photo URLs", () => {
       fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: json(token), body: JSON.stringify({ target_user_id: target, action: "like" }) });
     await swipe(alice.token, bob.id);
 
-    const likes = await fetch(`${BASE_URL}/api/likes/received`, { headers: auth(bob.token) });
-    const likesBody = (await likes.json()) as { likes: Array<{ user_id: number; picture: string | null }> };
-    expect(likesBody.likes.find((l) => l.user_id === alice.id)?.picture).toMatch(signed);
+    // Received likes carry the photo for a mazl+ member only (docs/web/adr/W11).
+    const receivedLikes = () => fetch(`${BASE_URL}/api/likes/received`, { headers: auth(bob.token) }).then((r) => r.json()) as Promise<{ likes: Array<{ user_id?: number; picture?: string | null }> }>;
+    expect(JSON.stringify((await receivedLikes()).likes)).not.toContain("/media/photos/");
+    await grantPlus(bob.id);
+    expect((await receivedLikes()).likes.find((l) => l.user_id === alice.id)?.picture).toMatch(signed);
 
     await swipe(bob.token, alice.id);
     const matches = await fetch(`${BASE_URL}/api/matches`, { headers: auth(bob.token) });
@@ -243,6 +246,7 @@ describe("verification badge (contract 3, Badge)", () => {
     owner = await makeUser("badge");
     viewer = await makeUser("badgeviewer");
     photo = await uploadOk(owner.token, await jpegWithGps(60, 60, 1), true);
+    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${owner.id}`;
   });
 
   async function badge() {

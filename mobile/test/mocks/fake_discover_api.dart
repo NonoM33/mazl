@@ -47,6 +47,42 @@ class FakeDiscoverApi implements ApiService {
 
   void _relay() => CreditsService().applyFromServer(_credits);
 
+  /// User ids whose like or super like is a reciprocal match.
+  final Set<int> matchWith = {};
+
+  /// Every swipe fails, as when the network is down.
+  bool swipesFail = false;
+
+  /// What the profile page loads.
+  @override
+  Future<ApiResponse<Profile>> getProfileById(int userId) async {
+    for (final p in profiles) {
+      if (p.userId == userId) return ApiResponse.success(p);
+    }
+    return ApiResponse.failure('User not found');
+  }
+
+  @override
+  Future<ApiResponse<UserProfile>> getCurrentUser() async =>
+      ApiResponse.failure('no signed-in user in this test');
+
+  @override
+  Future<ApiResponse<List<Profile>>> getDailyPicks() async =>
+      ApiResponse.success(profiles);
+
+  /// Who liked the signed-in member, for the Likes screen.
+  LikesData? receivedLikes;
+
+  @override
+  Future<ApiResponse<LikesData>> getReceivedLikes() async =>
+      receivedLikes == null
+      ? ApiResponse.failure('no likes in this test')
+      : ApiResponse.success(receivedLikes!);
+
+  @override
+  Future<ApiResponse<List<Conversation>>> getConversations() async =>
+      ApiResponse.success(const []);
+
   @override
   Future<ApiResponse<List<Profile>>> getDiscoverProfiles({
     int limit = 20,
@@ -58,9 +94,15 @@ class FakeDiscoverApi implements ApiService {
     required int targetUserId,
     required String action,
   }) async {
+    if (swipesFail) return ApiResponse.failure('Failed to send swipe');
     swipes.add('$targetUserId:$action');
+    // The server's answer, SwipeResult in src/features/matching/swipe.routes.ts.
+    final matched = action != 'pass' && matchWith.contains(targetUserId);
     if (action != 'super_like') {
-      return ApiResponse.success(<String, dynamic>{'match': false});
+      return ApiResponse.success(<String, dynamic>{
+        'success': true,
+        'match': matched,
+      });
     }
     if (refuseNextSuperLike || superLikes <= 0) {
       refuseNextSuperLike = false;
@@ -83,7 +125,7 @@ class FakeDiscoverApi implements ApiService {
     _relay();
     return ApiResponse.success(<String, dynamic>{
       'success': true,
-      'match': false,
+      'match': matched,
       'credits': _credits,
     });
   }

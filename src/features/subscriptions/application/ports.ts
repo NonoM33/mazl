@@ -25,7 +25,11 @@ export interface SubscriptionRepository {
   // Renews an existing subscription; a notification older than the stored
   // expiry (delivered out of order) must not shorten it.
   renew(subscription: ActiveSubscription): Promise<void>;
-  markStatus(originalTransactionId: string, status: SubscriptionStatus): Promise<void>;
+  // Applies the status the notification announces, unless the notification
+  // speaks of a period older than the stored one (`periodEnd` before the stored
+  // expiry): Apple does not deliver in order, and a late EXPIRED must not cut
+  // a subscription that was renewed since.
+  markStatus(originalTransactionId: string, status: SubscriptionStatus, periodEnd: Date): Promise<void>;
 }
 
 export type ConsumableRefundOutcome = "refunded" | "already_refunded" | "unknown";

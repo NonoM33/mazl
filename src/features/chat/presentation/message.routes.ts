@@ -2,15 +2,17 @@ import type { Hono } from "hono";
 import { requireAuth, type AppVariables } from "../../../shared/http/middleware";
 import { createRateLimiter } from "../../../shared/http/rate-limit";
 import { parseBody } from "../../../shared/http/validation";
+import type { ChatLimits } from "../application/chat-limits";
 import type { ChatService } from "../application/chat-service";
 import { notFoundResponse, respondToFailure } from "./http-errors";
+import { limitBy } from "./limit-middleware";
 import { parseId, reactionSchema, reportSchema } from "./schemas";
 
 const reportLimiter = createRateLimiter({ max: 20, windowMs: 60 * 60_000 });
 
 // Actions on one message: /api/messages/:id/{reactions,unsend,report}.
-export function registerMessageRoutes(app: Hono<{ Variables: AppVariables }>, chat: ChatService): void {
-  app.post("/api/messages/:id/reactions", requireAuth, async (c) => {
+export function registerMessageRoutes(app: Hono<{ Variables: AppVariables }>, chat: ChatService, limits: ChatLimits): void {
+  app.post("/api/messages/:id/reactions", requireAuth, limitBy(limits.reactions), async (c) => {
     try {
       const messageId = parseId(c.req.param("id"));
       if (messageId === null) return notFoundResponse(c);
@@ -23,7 +25,7 @@ export function registerMessageRoutes(app: Hono<{ Variables: AppVariables }>, ch
     }
   });
 
-  app.post("/api/messages/:id/unsend", requireAuth, async (c) => {
+  app.post("/api/messages/:id/unsend", requireAuth, limitBy(limits.unsend), async (c) => {
     try {
       const messageId = parseId(c.req.param("id"));
       if (messageId === null) return notFoundResponse(c);

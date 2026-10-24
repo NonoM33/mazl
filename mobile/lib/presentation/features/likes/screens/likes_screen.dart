@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/back_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../chat/conversation_lookup.dart';
+import '../../matching/widgets/match_sheet.dart';
 import '../widgets/like_widgets.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 
@@ -78,17 +81,8 @@ class _LikesScreenState extends State<LikesScreen> {
           _likesData?.likes.removeWhere((l) => l.userId == profile.userId);
         });
 
-        // Check if it's a match
-        if (result.data?['matched'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.likesMatchWith(profile.displayName ?? '')),
-              action: SnackBarAction(
-                label: context.l10n.likesMessageAction,
-                onPressed: () => context.push(RoutePaths.chat),
-              ),
-            ),
-          );
+        if (swipeMatched(result.data)) {
+          await _showMatch(profile);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -98,6 +92,32 @@ class _LikesScreenState extends State<LikesScreen> {
         }
       }
     }
+  }
+
+  Future<void> _showMatch(LikeProfile like) async {
+    final matched = Profile(
+      id: like.userId,
+      userId: like.userId,
+      displayName: like.displayName,
+      age: like.age,
+      photos: [if (like.picture != null) like.picture!],
+      isVerified: like.isVerified,
+    );
+    final choice = await showMatchSheet(context, matched: matched);
+    if (choice != MatchSheetChoice.message || !mounted) return;
+    final route = await conversationRouteWith(_apiService, like.userId);
+    if (mounted) context.go(route);
+  }
+
+  /// The profile page sends the choice itself and leaves with it.
+  Future<void> _openProfile(LikeProfile profile) async {
+    final action = await context.push<String>(
+      RoutePaths.profileViewPath(profile.userId.toString()),
+    );
+    if (action == null || !mounted) return;
+    setState(() {
+      _likesData?.likes.removeWhere((l) => l.userId == profile.userId);
+    });
   }
 
   Future<void> _handlePass(LikeProfile profile) async {
@@ -295,7 +315,7 @@ class _LikesScreenState extends State<LikesScreen> {
         },
         onViewProfile: () {
           Navigator.pop(context);
-          context.push(RoutePaths.profileViewPath(profile.userId.toString()));
+          _openProfile(profile);
         },
       ),
     );

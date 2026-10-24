@@ -5,10 +5,14 @@ import {
   getProfilePhotos,
   reorderProfilePhotos,
   setProfilePhotoPrimary,
+  MAX_PROFILE_PHOTOS,
+  ProfilePhotoNotFoundError,
+  ProfilePhotoSelectionError,
 } from "../../../db";
 import { requireAuth, type AppVariables } from "../../../shared/http/middleware";
-import { parseBody } from "../../../shared/http/validation";
-import { PhotoRejectedError, PictureImportError } from "../domain/errors";
+import { idSchema, parseBody, parseId } from "../../../shared/http/validation";
+import { createRateLimiter } from "../../../shared/http/rate-limit";
+import { PhotoLimitError, PhotoRejectedError, PictureImportError } from "../domain/errors";
 import { publicPhotoUrl } from "../application/photo-urls";
 import type { PhotoService } from "../application/photo-service";
 
@@ -42,12 +46,27 @@ function presentAll<T extends PhotoRow>(rows: readonly T[]): T[] {
   });
 }
 
+const reorderBodySchema = z.object({
+  photoIds: z
+    .array(idSchema)
+    .max(MAX_PROFILE_PHOTOS)
+    .refine((ids) => new Set(ids).size === ids.length, { message: "photoIds must be distinct" }),
+});
+
+// 20 upload attempts an hour and member, refused ones included: a refused
+// upload still costs an image decode.
+const UPLOADS_PER_HOUR = 20;
+const HOUR_MS = 60 * 60 * 1000;
+
 interface Failure {
-  readonly status: 400 | 500 | 502;
+  readonly status: 400 | 409 | 500 | 502;
   readonly body: { success: false; error: string; reason?: string };
 }
 
 function describeFailure(error: unknown): Failure {
+  if (error instanceof PhotoLimitError) {
+    return { status: 409, body: { success: false, error: `Maximum of ${MAX_PROFILE_PHOTOS} photos reached` } };
+  }
   if (error instanceof PhotoRejectedError) {
     return { status: 400, body: { success: false, error: "Invalid image", reason: error.reason } };
   }
@@ -61,6 +80,8 @@ function describeFailure(error: unknown): Failure {
 
 // Declared before GET /api/profile/:userId, which would capture "photos".
 export function registerPhotoRoutes(app: Hono<{ Variables: AppVariables }>, photos: PhotoService): void {
+  const uploadLimiter = createRateLimiter({ max: UPLOADS_PER_HOUR, windowMs: HOUR_MS });
+
   app.get("/api/profile/photos", requireAuth, async (c) => {
     try {
       const rows = await getProfilePhotos(c.get("userId"));
@@ -74,6 +95,7 @@ export function registerPhotoRoutes(app: Hono<{ Variables: AppVariables }>, phot
   app.post(
     "/api/profile/photos",
     requireAuth,
+    uploadLimiter,
     bodyLimit({
       maxSize: MAX_UPLOAD_BYTES + MULTIPART_OVERHEAD_BYTES,
       onError: (c) => c.json({ success: false, error: "File too large (max 10MB)" }, 413),
@@ -117,43 +139,50 @@ export function registerPhotoRoutes(app: Hono<{ Variables: AppVariables }>, phot
 
   app.delete("/api/profile/photos/:photoId", requireAuth, async (c) => {
     try {
-      const photoId = parseInt(c.req.param("photoId"));
-      if (isNaN(photoId)) {
+      const photoId = parseId(c.req.param("photoId"));
+      if (photoId === null) {
         return c.json({ success: false, error: "Invalid photo ID" }, 400);
       }
       await photos.remove(c.get("userId"), photoId);
       return c.json({ success: true });
     } catch (error: unknown) {
+      if (error instanceof ProfilePhotoNotFoundError) {
+        return c.json({ success: false, error: "Photo not found" }, 404);
+      }
       console.error("Delete photo error:", error);
-      const message = error instanceof Error ? error.message : undefined;
-      return c.json({ success: false, error: message || "Failed to delete photo" }, 500);
+      return c.json({ success: false, error: "Failed to delete photo" }, 500);
     }
   });
 
   app.put("/api/profile/photos/reorder", requireAuth, async (c) => {
     try {
-      const body = await c.req.json();
-      if (!Array.isArray(body.photoIds)) {
-        return c.json({ success: false, error: "photoIds must be an array" }, 400);
+      const parsed = await parseBody(reorderBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
       }
-      const rows = await reorderProfilePhotos(c.get("userId"), body.photoIds);
+      const rows = await reorderProfilePhotos(c.get("userId"), parsed.data.photoIds);
       return c.json({ success: true, photos: presentAll(rows as unknown as PhotoRow[]) });
     } catch (error: unknown) {
+      if (error instanceof ProfilePhotoSelectionError) {
+        return c.json({ success: false, error: "Invalid photo ID" }, 400);
+      }
       console.error("Reorder photos error:", error);
-      const message = error instanceof Error ? error.message : undefined;
-      return c.json({ success: false, error: message || "Failed to reorder photos" }, 500);
+      return c.json({ success: false, error: "Failed to reorder photos" }, 500);
     }
   });
 
   app.put("/api/profile/photos/:photoId/primary", requireAuth, async (c) => {
     try {
-      const photoId = parseInt(c.req.param("photoId"));
-      if (isNaN(photoId)) {
+      const photoId = parseId(c.req.param("photoId"));
+      if (photoId === null) {
         return c.json({ success: false, error: "Invalid photo ID" }, 400);
       }
       const rows = await setProfilePhotoPrimary(photoId, c.get("userId"));
       return c.json({ success: true, photos: presentAll(rows as unknown as PhotoRow[]) });
     } catch (error: unknown) {
+      if (error instanceof ProfilePhotoNotFoundError) {
+        return c.json({ success: false, error: "Photo not found" }, 404);
+      }
       console.error("Set primary photo error:", error);
       return c.json({ success: false, error: "Failed to set primary photo" }, 500);
     }

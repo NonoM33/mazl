@@ -13,6 +13,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/directional_icon.dart';
+import '../../privacy/widgets/religious_data_gate.dart';
 import '../l10n/profile_answer_labels.dart';
 import 'edit_profile_screen.dart'
     show DenominationStoredValue, KashrutStoredValue, ShabbatStoredValue;
@@ -44,6 +45,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Kashrut? _kashrut;
   ShabbatObservance? _shabbat;
   SynagogueVisits? _synagogue;
+  // The server ignores the four practice fields without a valid consent.
+  bool _religiousConsent = false;
 
   // Step 4 - preferences
   String? _lookingFor; // 'male' | 'female'
@@ -244,14 +247,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (_gender != null) 'gender': _gender,
       if (_cityController.text.trim().isNotEmpty)
         'location': _cityController.text.trim(),
-      if (_denomination != null) 'denomination': _denomination!.storedValue,
-      if (_kashrut != null) 'kashrutLevel': _kashrut!.storedValue,
-      if (_shabbat != null) 'shabbatObservance': _shabbat!.storedValue,
+      if (_religiousConsent && _denomination != null)
+        'denomination': _denomination!.storedValue,
+      if (_religiousConsent && _kashrut != null)
+        'kashrutLevel': _kashrut!.storedValue,
+      if (_religiousConsent && _shabbat != null)
+        'shabbatObservance': _shabbat!.storedValue,
       if (_lookingFor != null) 'lookingFor': _lookingFor,
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _maxDistance.round(),
-      if (_goal != null) 'relationshipIntention': _storedGoal(_goal!),
+      if (_religiousConsent && _goal != null)
+        'relationshipIntention': _storedGoal(_goal!),
     };
 
     final response = await _apiService.updateProfile(payload);
@@ -427,6 +434,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 32),
 
+        ReligiousDataGate(
+          onValidityChanged: (valid) {
+            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
         Text(l10n.profileDenomination, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         _ChoiceChips<Denomination>(
@@ -456,6 +470,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           labelOf: (kind) => kind.optionLabel(l10n),
           selected: _shabbat,
           onSelected: (v) => setState(() => _shabbat = v),
+        ),
+
+            ],
+          ),
         ),
 
         const SizedBox(height: 24),
@@ -538,11 +556,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         Text(l10n.profileGoal, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips<RelationshipIntention>(
-          options: RelationshipIntention.setupChoices,
-          labelOf: (intention) => intention.label(l10n),
-          selected: _goal,
-          onSelected: (v) => setState(() => _goal = v),
+        ReligiousDataLocked(
+          locked: !_religiousConsent,
+          child: _ChoiceChips<RelationshipIntention>(
+            options: RelationshipIntention.setupChoices,
+            labelOf: (intention) => intention.label(l10n),
+            selected: _goal,
+            onSelected: (v) => setState(() => _goal = v),
+          ),
         ),
 
         const SizedBox(height: 32),

@@ -1,5 +1,5 @@
 import { detectFileKind } from "../domain/file-kind";
-import { DocumentUploadError, isDocumentType, MAX_DOCUMENT_BYTES } from "../domain/types";
+import { DocumentUploadError, isDocumentType, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS_PER_WAITLIST } from "../domain/types";
 import { seal } from "../../../shared/crypto/secret-box";
 import { documentContext, newEncryptedFileName } from "./document-context";
 import type { DocumentFileStore, DocumentRepository } from "./ports";
@@ -22,6 +22,11 @@ export function createUploadDocument(deps: { repo: DocumentRepository; store: Do
     if (input.bytes.length > MAX_DOCUMENT_BYTES) throw new DocumentUploadError("file_too_large");
     const mimeType = detectFileKind(input.bytes);
     if (!mimeType) throw new DocumentUploadError("unsupported_format");
+    // Best effort under concurrency (a burst may overshoot by a few): the cap
+    // is about keeping one link from filling the disk, not an exact quota.
+    if ((await deps.repo.countActive(input.waitlistId)) >= MAX_DOCUMENTS_PER_WAITLIST) {
+      throw new DocumentUploadError("too_many_files");
+    }
 
     // The row comes first: its id is part of the encryption context.
     const fileName = newEncryptedFileName();

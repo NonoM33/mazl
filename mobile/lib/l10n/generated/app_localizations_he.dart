@@ -2476,9 +2476,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get likesMessageAction => 'הודעה';
-
-  @override
   String likesYouLiked(String name) {
     return 'נשלח לייק ל-$name';
   }
@@ -2741,11 +2738,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get matchingPicksBadge => 'בחירה';
-
-  @override
-  String matchingPicksMatchBody(String name) {
-    return 'נוצר מאץ\' עם $name.';
-  }
 
   @override
   String get matchingFiltersReset => 'איפוס';
@@ -3380,6 +3372,79 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get privacyGateUnverifiable =>
+      'לא ניתן לאמת את ההסכמה. יש לבדוק את החיבור.';
+
+  @override
+  String get privacyGateAsk => 'כדי למלא את אורח החיים הדתי, יש לתת הסכמה';
+
+  @override
+  String get privacyGive => 'לתת הסכמה';
+
+  @override
+  String get privacyLockedHint => 'זמין לאחר מתן הסכמה לנתוני אורח החיים הדתי.';
+
+  @override
+  String get privacySheetLabel => 'מידע רגיש · סעיף 9 ב-GDPR';
+
+  @override
+  String get privacySheetTitle => 'אורח החיים הדתי שלך, בהסכמתך';
+
+  @override
+  String get privacySheetBody =>
+      'המידע הזה עוזר להציע פרופילים תואמים. זה מידע רגיש, שמעובד רק בהסכמה מפורשת, נפרדת מתנאי השימוש. אפשר לסרב ועדיין להשתמש ב-MAZL.';
+
+  @override
+  String get privacySheetCheckbox => 'קראתי את הטקסט ואני נותן/ת הסכמה מפורשת.';
+
+  @override
+  String get privacySheetAccept => 'אני מסכים/ה';
+
+  @override
+  String get privacySheetDecline => 'להמשיך בלי';
+
+  @override
+  String get privacySheetErrorOutdated =>
+      'הטקסט עודכן. יש לסגור את החלון ולפתוח אותו מחדש.';
+
+  @override
+  String get privacySheetErrorSave =>
+      'לא ניתן היה לשמור את הבחירה. יש לנסות שוב.';
+
+  @override
+  String get privacySettingsTitle => 'נתוני אורח החיים הדתי';
+
+  @override
+  String get privacySettingsGrantedShort => 'ניתנה הסכמה';
+
+  @override
+  String get privacySettingsDeniedShort => 'לא ניתנה הסכמה';
+
+  @override
+  String get privacySettingsGrantedTitle => 'ההסכמה ניתנה';
+
+  @override
+  String get privacySettingsNotGrantedTitle => 'ההסכמה לא ניתנה';
+
+  @override
+  String get privacySettingsWithdraw => 'לבטל את ההסכמה';
+
+  @override
+  String get privacySettingsWithdrawTitle => 'לבטל את ההסכמה?';
+
+  @override
+  String get privacySettingsWithdrawBody =>
+      'הזרם, הכשרות, שמירת השבת והכוונה יימחקו מהפרופיל.';
+
+  @override
+  String get privacySettingsWithdrawFailed =>
+      'לא ניתן היה לבטל את ההסכמה. יש לנסות שוב.';
+
+  @override
+  String get privacySettingsLoadFailed =>
+      'לא ניתן לטעון את ההסכמה. יש לבדוק את החיבור.';
+
+  @override
   String get profileMyProfile => 'הפרופיל שלי';
 
   @override
@@ -3476,23 +3541,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String profilePhotoCounter(int current, int total) {
     return 'תמונה $current מתוך $total';
   }
-
-  @override
-  String get profileMatchLabel => 'התאמה';
-
-  @override
-  String get profileMatchTitle => 'יש התאמה.';
-
-  @override
-  String profileMatchBody(String name) {
-    return 'אפשר להתחיל לשוחח עם $name.';
-  }
-
-  @override
-  String get profileMatchBodyUnnamed => 'אפשר להתחיל לשוחח עם אדם זה.';
-
-  @override
-  String get profileSendMessage => 'לשלוח הודעה';
 
   @override
   String profileCompletionEyebrow(int done, int total) {
@@ -4095,6 +4143,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get profileReportThisProfile => 'לדווח על הפרופיל';
+
+  @override
+  String get profileChoiceNotSent => 'הבחירה לא נשלחה. יש לנסות שוב.';
 
   @override
   String get safetyBlock => 'לחסום';
@@ -5353,4 +5404,156 @@ class AppLocalizationsHe extends AppLocalizations {
   String visitorsAgoWeeks(int count) {
     return 'לפני $count שב׳';
   }
+
+  @override
+  String get webSessionsTitle => 'מחשבים מחוברים';
+
+  @override
+  String get webSessionsSectionLabel => 'MAZL במחשב';
+
+  @override
+  String get webSessionsIntro =>
+      'אפשר להשתמש ב-MAZL במחשב בכתובת app.mazl.app. כל מחשב נשאר מחובר 7 ימים לכל היותר.';
+
+  @override
+  String get webSessionsConnect => 'לחבר מחשב';
+
+  @override
+  String get webSessionsConnected => 'המחשב חובר.';
+
+  @override
+  String get webSessionsLoadFailed =>
+      'לא ניתן לטעון את רשימת המחשבים. יש לבדוק את החיבור.';
+
+  @override
+  String get webSessionsEmpty => 'אין כרגע מחשב מחובר.';
+
+  @override
+  String get webSessionsListLabel => 'מחשבים';
+
+  @override
+  String get webSessionsRevoke => 'לנתק';
+
+  @override
+  String webSessionsRevokeNamed(String browser) {
+    return 'לנתק את $browser';
+  }
+
+  @override
+  String get webSessionsRevokeFailed =>
+      'לא ניתן היה לנתק את המחשב. יש לנסות שוב.';
+
+  @override
+  String get webSessionsRevokeAll => 'לנתק את כל המחשבים';
+
+  @override
+  String get webSessionsRevokeAllTitle => 'לנתק את כל המחשבים?';
+
+  @override
+  String get webSessionsRevokeAllBody => 'יהיה צורך להתחבר מחדש בכל מחשב.';
+
+  @override
+  String get webSessionsRevokeAllConfirm => 'לנתק הכול';
+
+  @override
+  String get webSessionsRevokeAllFailed =>
+      'לא ניתן היה לנתק את המחשבים. יש לנסות שוב.';
+
+  @override
+  String get webSessionsMethodQr => 'חובר באמצעות קוד QR';
+
+  @override
+  String get webSessionsMethodGoogle => 'חובר באמצעות Google';
+
+  @override
+  String get webSessionsMethodApple => 'חובר באמצעות Apple';
+
+  @override
+  String get webSessionsActiveNow => 'פעילות ממש עכשיו';
+
+  @override
+  String webSessionsActiveMinutes(int count) {
+    return 'פעילות לפני $count דק׳';
+  }
+
+  @override
+  String webSessionsActiveHours(int count) {
+    return 'פעילות לפני $count שע׳';
+  }
+
+  @override
+  String get webSessionsActiveYesterday => 'פעילות אתמול';
+
+  @override
+  String webSessionsActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'פעילות לפני $count ימים',
+      two: 'פעילות לפני יומיים',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String webSessionsClockTime(String hour, String minute) {
+    return '$hour:$minute';
+  }
+
+  @override
+  String get webSessionsScanInstruction =>
+      'יש לסרוק את קוד ה-QR המוצג ב-app.mazl.app';
+
+  @override
+  String get webSessionsScanCameraLabel => 'מצלמה לסריקת קוד QR';
+
+  @override
+  String get webSessionsCameraUnavailable =>
+      'אין גישה למצלמה. יש לאפשר גישה למצלמה בהגדרות האייפון כדי לסרוק קוד.';
+
+  @override
+  String get webSessionsScanNotMazl => 'קוד ה-QR הזה אינו קוד של MAZL.';
+
+  @override
+  String get webSessionsScanExpired => 'הקוד פג תוקף. יש להציג קוד חדש במחשב.';
+
+  @override
+  String get webSessionsScanTooMany =>
+      'יותר מדי ניסיונות. יש להמתין רגע לפני ניסיון נוסף.';
+
+  @override
+  String get webSessionsApproveInvalid =>
+      'הבקשה כבר אינה תקפה. יש להציג קוד חדש במחשב.';
+
+  @override
+  String get webSessionsConnectionProblem =>
+      'לא ניתן להתחבר. יש לבדוק את הרשת ולנסות שוב.';
+
+  @override
+  String get webSessionsGenericProblem => 'אירעה שגיאה. יש לנסות שוב בעוד רגע.';
+
+  @override
+  String get webSessionsConfirmLabel => 'התחברות ל-MAZL במחשב';
+
+  @override
+  String get webSessionsConfirmTitle => 'לחבר את המחשב הזה?';
+
+  @override
+  String get webSessionsConfirmBrowser => 'דפדפן';
+
+  @override
+  String get webSessionsConfirmAddress => 'כתובת';
+
+  @override
+  String get webSessionsConfirmAskedAt => 'הבקשה נשלחה בשעה';
+
+  @override
+  String get webSessionsConfirmWarning =>
+      'יש לסרוק רק את הקוד שמוצג במחשב שלך. אם מישהו מבקש לסרוק קוד, יש לסרב.';
+
+  @override
+  String get webSessionsConfirmApprove => 'לחבר';
+
+  @override
+  String get webSessionsConfirmDeny => 'לסרב';
 }

@@ -1,0 +1,54 @@
+# Envoi TestFlight de MAZL depuis un Mac de travail, sans trousseau de session :
+# un trousseau dedie a la signature (celui de l'equipe, deja utilise par Neo et One),
+# au mot de passe aleatoire range hors depot, un certificat Apple Distribution et un
+# profil App Store obtenus par la cle d'API App Store Connect.
+#   ASC_KEY_ID, ASC_ISSUER_ID : cle d'API ; le .p8 est lu dans
+#     ~/.appstoreconnect/private_keys/AuthKey_<ASC_KEY_ID>.p8 (ou ASC_KEY_PATH)
+#   SIGNING_DIR      : dossier prive du mot de passe du trousseau (defaut ~/.neo-signing)
+#   SIGNING_KEYCHAIN : trousseau dedie (defaut ~/Library/Keychains/neo-signing.keychain-db)
+# Usage, depuis mobile/ios : fastlane beta
+# Le numero de build est l'horodatage (AAAAMMJJHHMM) : toujours croissant.
+default_platform(:ios)
+
+BUNDLE_ID = "com.mazl.app"
+TEAM_ID = "66GH4N82J9"
+PBXPROJ = "Runner.xcodeproj/project.pbxproj"
+
+platform :ios do
+  desc "Construit l'app Flutter, la signe avec le trousseau dedie et l'envoie sur TestFlight"
+  lane :beta do
+    key_id = ENV.fetch("ASC_KEY_ID")
+    app_store_connect_api_key(
+      key_id: key_id, issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_PATH", "~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8"))
+    )
+    dossier = File.expand_path(ENV.fetch("SIGNING_DIR", "~/.neo-signing"))
+    trousseau = File.expand_path(ENV.fetch("SIGNING_KEYCHAIN", "~/Library/Keychains/neo-signing.keychain-db"))
+    mdp = File.read(File.join(dossier, "keychain-password")).strip
+    unlock_keychain(path: trousseau, password: mdp, add_to_search_list: true, set_default: false)
+
+    get_certificates(development: false, team_id: TEAM_ID,
+                     keychain_path: trousseau, keychain_password: mdp, output_path: dossier)
+    get_provisioning_profile(app_identifier: BUNDLE_ID, team_id: TEAM_ID,
+                             output_path: dossier, filename: "mazl-appstore.mobileprovision", force: true)
+    profil = lane_context[SharedValues::SIGH_NAME]
+
+    build = Time.now.strftime("%Y%m%d%H%M")
+    sh("cd ../.. && flutter build ios --release --config-only --build-number=#{build}")
+    begin
+      update_code_signing_settings(path: "Runner.xcodeproj", targets: ["Runner"],
+                                   use_automatic_signing: false, team_id: TEAM_ID,
+                                   code_sign_identity: "Apple Distribution", profile_name: profil)
+      build_app(workspace: "Runner.xcworkspace", scheme: "Runner", configuration: "Release",
+                output_directory: ENV.fetch("SORTIE", "../build/testflight"), clean: true,
+                xcargs: "OTHER_CODE_SIGN_FLAGS='--keychain #{trousseau}'",
+                export_method: "app-store",
+                export_options: { provisioningProfiles: { BUNDLE_ID => profil }, signingStyle: "manual" })
+    ensure
+      # La signature manuelle ne sert qu'a cet envoi : le projet reste tel que versionne.
+      sh("cd .. && git checkout -- #{PBXPROJ}")
+    end
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+    UI.success("Build #{build} (MAZL) envoye sur TestFlight")
+  end
+end

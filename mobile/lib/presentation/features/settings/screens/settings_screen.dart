@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -1186,6 +1187,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ? l10n.settingsVerified
                     : l10n.settingsNotVerified,
                 onTap: () => context.push(RoutePaths.verification),
+              ),
+              Consumer(
+                builder: (context, ref, _) => _SettingTile(
+                  icon: LucideIcons.heartHandshake,
+                  title: context.l10n.privacySettingsTitle,
+                  subtitle: switch (ref
+                      .watch(religiousDataConsentProvider)
+                      .valueOrNull
+                      ?.data
+                      ?.isValid) {
+                    true => context.l10n.privacySettingsGrantedShort,
+                    false => context.l10n.privacySettingsDeniedShort,
+                    null => null,
+                  },
+                  onTap: () => context.push(RoutePaths.religiousData),
+                ),
+              ),
+              _SettingTile(
+                icon: LucideIcons.monitor,
+                title: context.l10n.webSessionsTitle,
+                onTap: () => context.push(RoutePaths.computers),
               ),
 
               // About

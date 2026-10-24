@@ -17,9 +17,13 @@ import {
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody } from "../../shared/http/validation";
 import {
+  archiveConversationsBodySchema,
   assertCoupleMembership,
   coupleRequestBodySchema,
   coupleRespondBodySchema,
+  dailyAnswerBodySchema,
+  GENERIC_SERVER_ERROR,
+  relationshipStatusBodySchema,
 } from "./couple.shared";
 import {
   canRequestCouple,
@@ -70,7 +74,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, couple, milestones });
     } catch (error: unknown) {
       console.error("Get couple error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -101,7 +105,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const result = await createCoupleRequest(userId, targetUserId);
       if (!result.ok) {
-        return c.json({ success: false, error: result.error }, 400);
+        return c.json({ success: false, error: result.error }, result.status ?? 400);
       }
 
       const view = await getCoupleRequestView(result.request.id);
@@ -125,7 +129,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       });
     } catch (error) {
       console.error("Create couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -170,7 +174,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, action: "rejected" });
     } catch (error) {
       console.error("Respond couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -191,7 +195,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error) {
       console.error("Cancel couple request error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -204,7 +208,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true, sent, received });
     } catch (error) {
       console.error("Get couple requests error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -226,36 +230,39 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       });
     } catch (error) {
       console.error("Check couple status error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
-  // Archive the user's conversations except with the partner
+  // Archive the user's conversations except with the partner. Only a member of
+  // an active couple may do it, and the partner kept is always the couple's own.
   app.post("/api/couple/archive-conversations", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const body = await c.req.json().catch(() => ({}));
-      const rawPartner = (body as { partner_user_id?: unknown }).partner_user_id;
-      const partnerUserId =
-        rawPartner === undefined || rawPartner === null
-          ? null
-          : Number(rawPartner);
-      if (partnerUserId !== null && !Number.isInteger(partnerUserId)) {
-        return c.json({ success: false, error: "Invalid partner_user_id" }, 400);
+      const parsed = await parseBody(archiveConversationsBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
       }
-      const rawMessage = (body as { message?: unknown }).message;
-      const message = typeof rawMessage === "string" ? rawMessage : undefined;
+
+      const couple = await getCoupleViewFor(userId);
+      if (!couple) {
+        return c.json({ success: false, error: "Not in a couple" }, 403);
+      }
+      const requestedPartner = parsed.data.partner_user_id;
+      if (requestedPartner !== undefined && requestedPartner !== null && requestedPartner !== couple.partner_id) {
+        return c.json({ success: false, error: "Forbidden" }, 403);
+      }
 
       const { archived } = await archiveConversationsExceptPartner(
         userId,
-        partnerUserId,
-        message
+        couple.partner_id,
+        parsed.data.message ?? undefined,
       );
 
       return c.json({ success: true, archived });
     } catch (error) {
       console.error("Archive conversations error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -266,16 +273,19 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
-      const { relationshipStatus } = await c.req.json();
+      const parsed = await parseBody(relationshipStatusBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
+      }
 
-      await updateRelationshipStatus(coupleId, relationshipStatus);
+      await updateRelationshipStatus(coupleId, parsed.data.relationshipStatus);
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Update couple status error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -286,7 +296,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const couple = await getCoupleViewFor(userId);
       await deleteCouple(coupleId);
@@ -295,7 +305,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete couple error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -306,14 +316,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const question = await getDailyQuestion(coupleId);
 
       return c.json({ success: true, question });
     } catch (error: unknown) {
       console.error("Get daily question error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -324,17 +334,26 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const questionId = parseInt(c.req.param("questionId"));
-      const { answer } = await c.req.json();
+      if (!Number.isInteger(questionId)) {
+        return c.json({ success: false, error: "Question not found" }, 404);
+      }
+      const parsed = await parseBody(dailyAnswerBodySchema, c);
+      if (!parsed.ok) {
+        return c.json({ success: false, error: parsed.error }, 400);
+      }
 
-      await answerDailyQuestion(coupleId, questionId, userId, answer);
+      const recorded = await answerDailyQuestion(coupleId, questionId, userId, parsed.data.answer);
+      if (!recorded) {
+        return c.json({ success: false, error: "Question not found" }, 404);
+      }
 
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Answer question error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -345,14 +364,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const questions = await getCoupleQuestionHistory(coupleId);
 
       return c.json({ success: true, questions });
     } catch (error: unknown) {
       console.error("Get questions error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 
@@ -363,14 +382,14 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const coupleId = parseInt(c.req.param("coupleId"));
       if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ error: "Forbidden" }, 403);
+        return c.json({ success: false, error: "Forbidden" }, 403);
       }
       const milestones = await getCoupleMilestones(coupleId);
 
       return c.json({ success: true, milestones });
     } catch (error: unknown) {
       console.error("Get milestones error:", error);
-      return c.json({ success: false, error: (error as Error).message }, 500);
+      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });
 }

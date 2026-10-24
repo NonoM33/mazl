@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/profile.dart' show Profile;
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -281,32 +282,64 @@ class _DiscoverCardState extends State<DiscoverCard> {
       value != null && value.trim().isNotEmpty;
 }
 
+/// One faint segment per photo, and an ink one that slides to the photo shown
+/// (docs/design/MOUVEMENT.md §3) instead of jumping; under reduced motion it
+/// is there at once.
 class _PhotoProgress extends StatelessWidget {
   const _PhotoProgress({required this.count, required this.current});
+
+  static const _gap = 4.0;
+  static const _height = 3.0;
 
   final int count;
   final int current;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < count; i++) ...[
-          if (i > 0) const SizedBox(width: 4),
-          Expanded(
-            child: Container(
-              key: Key('photo-bar-$i'),
-              height: 3,
-              decoration: BoxDecoration(
-                color: i == current
-                    ? AppColors.ink
-                    : AppColors.ink.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(2),
+    final reduced = MazlMotion.reduced(context);
+    final segment = BorderRadius.circular(2);
+    return SizedBox(
+      height: _height,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = (constraints.maxWidth - _gap * (count - 1)) / count;
+          return Stack(
+            children: [
+              for (var i = 0; i < count; i++)
+                PositionedDirectional(
+                  start: i * (width + _gap),
+                  top: 0,
+                  bottom: 0,
+                  width: width,
+                  child: Container(
+                    key: Key('photo-bar-$i'),
+                    decoration: BoxDecoration(
+                      color: AppColors.ink.withValues(alpha: 0.18),
+                      borderRadius: segment,
+                    ),
+                  ),
+                ),
+              AnimatedPositionedDirectional(
+                duration: reduced
+                    ? Duration.zero
+                    : MazlMotion.photoIndicatorSlide,
+                curve: MazlMotion.photoIndicatorCurve,
+                start: current * (width + _gap),
+                top: 0,
+                bottom: 0,
+                width: width,
+                child: Container(
+                  key: const Key('photo-bar-current'),
+                  decoration: BoxDecoration(
+                    color: AppColors.ink,
+                    borderRadius: segment,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
-      ],
+            ],
+          );
+        },
+      ),
     );
   }
 }

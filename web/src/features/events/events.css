@@ -1,0 +1,18 @@
+.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.event-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; overflow: hidden; box-shadow: inset 0 0 0 1px var(--hairline); transition: background-color var(--t-fast); }
+.event-card:hover { background: var(--hover); }
+.event-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.event-cover { position: relative; height: 150px; flex: none; }
+.event-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.event-cover .tag { position: absolute; top: 12px; right: 12px; background: var(--bg); }
+.event-card-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+.event-card-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 6px; }
+.event-card-meta .body-s { display: inline-flex; align-items: center; gap: 6px; }
+.event-detail { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; }
+.event-detail-cover { height: 320px; border-radius: var(--r-card); overflow: hidden; margin-bottom: 24px; }
+.event-detail-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.event-facts { padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: inset 0 0 0 1px var(--hairline); position: sticky; top: 24px; }
+.event-fact { display: flex; gap: 12px; align-items: flex-start; }
+.event-fact svg { flex: none; margin-top: 2px; color: var(--muted); }
+.event-description { white-space: pre-line; max-width: 62ch; }
+@media (max-width: 1000px) { .event-detail { grid-template-columns: minmax(0, 1fr); } .event-facts { position: static; } }
