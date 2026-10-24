@@ -7,6 +7,7 @@ import { ExportService } from "./application/export-service";
 import { PgConsentRepository } from "./infra/pg-consent-repository";
 import { PgExportReader } from "./infra/pg-export-reader";
 import { registerPrivacyRoutes } from "./presentation/privacy.routes";
+import { createReligiousFieldsGuard } from "./presentation/religious-fields-guard";
 
 export { ensurePrivacySchema } from "./infra/schema";
 export { RELIGIOUS_DATA_TEXT, RELIGIOUS_DATA_VERSION } from "./domain/consent";
@@ -32,4 +33,7 @@ export function registerPrivacy(app: Hono<{ Variables: AppVariables }>, module: 
     consents: module.consents,
     exports: module.exports,
   });
+  // In front of the profile route (registered after this): no religious data
+  // stored without a valid consent (security review M4).
+  app.put("/api/profile", requireAuth, createReligiousFieldsGuard(module.consents));
 }

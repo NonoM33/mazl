@@ -47,6 +47,10 @@ export async function createMember(spec: MemberSpec): Promise<Member> {
     body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: spec.name }),
   });
   const member: Member = { id: created.user.id, token: created.token, name: spec.name, email };
+  // Every member of the community has answered the art. 9 consent in the app,
+  // before giving their practice (without it the server keeps none: M4).
+  // Scenarios about the consent screen create their member with consent: false.
+  if (spec.consent !== false) await grantReligiousConsent(member);
   await call("/api/profile", {
     method: "PUT",
     headers: json(member.token),
@@ -71,9 +75,6 @@ export async function createMember(spec: MemberSpec): Promise<Member> {
   for (const [promptId, answer] of spec.prompts ?? []) {
     await call("/api/profile/prompts", { method: "POST", headers: json(member.token), body: JSON.stringify({ prompt_id: promptId, answer }) });
   }
-  // Every member of the community has answered the art. 9 consent in the app;
-  // scenarios about the consent screen create their member with consent: false.
-  if (spec.consent !== false) await grantReligiousConsent(member);
   return member;
 }
 

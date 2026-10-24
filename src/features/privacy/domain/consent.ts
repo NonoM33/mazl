@@ -60,3 +60,8 @@ export function buildConsentView(stored: StoredConsent | null): ConsentView {
     text: RELIGIOUS_DATA_TEXT,
   };
 }
+
+// Religious data may be stored only under a consent given to the current text.
+export function allowsReligiousData(stored: Pick<StoredConsent, "granted" | "version"> | null): boolean {
+  return stored !== null && stored.granted && stored.version === RELIGIOUS_DATA_VERSION;
+}

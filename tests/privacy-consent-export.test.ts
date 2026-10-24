@@ -48,6 +48,8 @@ describe("religious data consent", () => {
 
   test("granted then withdrawn: the three profile fields are cleared, the history keeps both decisions", async () => {
     const member = await makeUser("consent-withdraw");
+    // Given first: without it the profile route keeps no religious data (M4).
+    expect((await putConsent(member.token, { granted: true, version: "2026-10-24", source: "web" })).status).toBe(200);
     const saved = await fetch(`${BASE_URL}/api/profile`, {
       method: "PUT",
       headers: json(member.token),
@@ -70,7 +72,7 @@ describe("religious data consent", () => {
     const events = await db<{ granted: boolean; source: string }[]>`
       SELECT granted, source FROM user_consent_events WHERE user_id = ${member.id} ORDER BY id
     `;
-    expect(events.map((event) => [event.granted, event.source])).toEqual([[true, "web"], [false, "app"]]);
+    expect(events.map((event) => [event.granted, event.source])).toEqual([[true, "web"], [true, "web"], [false, "app"]]);
   });
 
   test("an outdated version answers 409 consent_version_outdated and records nothing", async () => {
@@ -158,5 +160,32 @@ describe("personal data export", () => {
 
   test("requires authentication", async () => {
     expect((await fetch(`${BASE_URL}/api/users/me/export`)).status).toBe(401);
+  });
+});
+
+describe("the profile keeps no religious data without consent (security review M4)", () => {
+  const putProfile = (token: string, body: Record<string, string>) =>
+    fetch(`${BASE_URL}/api/profile`, { method: "PUT", headers: { ...auth(token), "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const practiceOf = async (id: number) =>
+    (await db<{ denomination: string | null; kashrut_level: string | null }[]>`SELECT denomination, kashrut_level FROM profiles WHERE user_id = ${id}`)[0];
+
+  test("never asked: the fields are ignored, the update itself succeeds", async () => {
+    const member = await makeUser("m4-never");
+    const res = await putProfile(member.token, { bio: "Bonjour", denomination: "Massorti", kashrutLevel: "Strict" });
+    expect(res.status).toBe(200);
+    expect(await practiceOf(member.id)).toEqual({ denomination: null, kashrut_level: null });
+    expect((await db<{ bio: string }[]>`SELECT bio FROM profiles WHERE user_id = ${member.id}`)[0]?.bio).toBe("Bonjour");
+  });
+
+  test("granted: stored; withdrawn: erased and no longer accepted", async () => {
+    const member = await makeUser("m4-granted");
+    const decide = (granted: boolean) =>
+      fetch(`${BASE_URL}/api/privacy/consents/religious_data`, { method: "PUT", headers: { ...auth(member.token), "Content-Type": "application/json" }, body: JSON.stringify({ granted, version: "2026-10-24", source: "app" }) });
+    expect((await decide(true)).status).toBe(200);
+    await putProfile(member.token, { denomination: "Massorti", kashrutLevel: "Strict" });
+    expect(await practiceOf(member.id)).toEqual({ denomination: "Massorti", kashrut_level: "Strict" });
+    expect((await decide(false)).status).toBe(200);
+    await putProfile(member.token, { denomination: "Orthodox" });
+    expect(await practiceOf(member.id)).toEqual({ denomination: null, kashrut_level: null });
   });
 });

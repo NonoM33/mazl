@@ -9,10 +9,13 @@ Date : 2026-10-24. Statut : accepté.
   `user_consents (user_id, purpose='religious_data', version, granted, source, decided_at)`.
 - **Retrait** à tout moment dans Réglages : les trois champs sont effacés du profil et ne sont
   plus saisissables sur le web tant que le consentement n'est pas redonné.
-- Le serveur **n'exige pas encore** ce consentement sur `PUT /api/profile` : l'app mobile n'a
-  pas d'écran équivalent (voir `docs/legal/A_COMPLETER.md`, partie E) et l'exiger casserait
-  l'inscription mobile. La route `/api/privacy/consents` est prête pour que l'app l'utilise ;
-  ensuite seulement, le serveur pourra refuser ces champs sans consentement.
+- **Le serveur l'exige** (relecture de sécurité M4) : sans consentement valide (accordé, à la
+  version courante du texte), `PUT /api/profile` **ignore en silence** courant, cashrout,
+  Shabbat et intention. Pas de 4xx, pour ne pas casser l'inscription d'une version de l'app
+  qui n'a pas encore l'écran de consentement ; l'app reçoit cet écran dans ce chantier.
+  Les données déjà saisies avant ce changement, sans consentement tracé, restent à traiter :
+  demander le consentement à ces membres, et effacer en l'absence de réponse (décision de
+  l'éditeur).
 - **Aucun pixel publicitaire, aucun outil de mesure d'audience, aucun script tiers** dans
   l'espace connecté. Seule exception, et seulement sur la page de connexion : le script Google
   Identity Services (et Apple JS si configuré), nécessaire à la connexion demandée par le membre.

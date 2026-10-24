@@ -25,6 +25,17 @@ export async function grantPlus(userId: number): Promise<void> {
     ON CONFLICT (user_id) DO UPDATE SET status = 'active', expires_at = EXCLUDED.expires_at`;
 }
 
+// The art. 9 consent, given by the member: without it PUT /api/profile drops
+// the religious fields (security review M4).
+export async function grantReligiousConsent(token: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/privacy/consents/religious_data`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ granted: true, version: "2026-10-24", source: "app" }),
+  });
+  if (!res.ok) throw new Error(`consent refused: ${res.status}`);
+}
+
 export const auth = (token: string): Record<string, string> => ({ Authorization: `Bearer ${token}` });
 export const json = (token: string): Record<string, string> => ({ ...auth(token), "Content-Type": "application/json" });
 
