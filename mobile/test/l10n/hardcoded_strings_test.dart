@@ -26,22 +26,237 @@ const _scannedRoots = ['lib/presentation', 'lib/core'];
 const _skippedRoots = ['lib/core/dev'];
 const _baselinePath = 'test/l10n/hardcoded_strings_baseline.txt';
 
-/// Littéraux qui ne sont pas du texte à traduire, avec la raison.
+/// Littéraux qui ne sont pas du texte à traduire, où qu'ils soient.
 const _notTranslatable = <String, String>{
   'mazl': 'nom de la marque',
   'MAZL': 'nom de la marque',
   'Français': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
   'English': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
   'Español': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
+  'Authorization': 'en-tête HTTP',
+  'Content-Type': 'en-tête HTTP',
+  'Geist': 'nom de la police',
+  'GeistMono': 'nom de la police',
 };
 
-/// Littéraux d'UN fichier qui ne s'affichent jamais (message de journal,
-/// motif de détection, valeur envoyée à l'API), clé « chemin | texte »,
-/// avec la raison. Un texte que le membre peut voir n'a rien à faire ici.
-const _notUserFacing = <String, String>{
-  r'lib/core/services/api_service.dart | $diagnostic (HTTP ${response.statusCode})':
-      'diagnostic de journal ; l\'écran affiche apiErrorText',
+/// Fichiers entiers dont les littéraux ne s'affichent jamais, avec la raison.
+const _notUserFacingFiles = <String, String>{
+  'lib/core/services/api_service.dart':
+      'ApiResponse.error est un diagnostic de journal ; l\'écran affiche '
+      'apiErrorText selon errorKind',
+  'lib/core/chat/scam_rules.dart':
+      'motifs de détection d\'arnaque appliqués aux messages reçus',
+  'lib/core/services/websocket_service.dart': 'messages de journal',
 };
+
+/// Littéraux d'UN fichier qui ne s'affichent jamais (journal, valeur envoyée
+/// à l'API, donnée fictive d'un écran maquette, menu de debug), avec la
+/// raison. Un texte que le membre peut voir n'a rien à faire ici ; un texte
+/// qui a disparu du fichier doit en sortir (un test le vérifie).
+const _notUserFacing = <String, (String, List<String>)>{
+  'lib/core/services/couple_service.dart': (
+    'contenu fixe du tableau de bord, texte de repli : l\'écran traduit chaque '
+        'élément par identifiant (dashboard_content_coverage_test)',
+    [
+      '3 mois de bonheur',
+      r"30 jours d\'amour",
+      '365 jours de Mazl',
+      '6 mois main dans la main',
+      '7 jours ensemble',
+      'Action caritative en couple',
+      'Apprenez la Paracha ensemble',
+      'Appréciation',
+      'Aventure',
+      'Bien-être',
+      'Comment aimeriez-vous célébrer votre prochain Shabbat ?',
+      'Communauté',
+      'Connexion',
+      'Course, yoga, randonnée…',
+      'Cuisine Shabbat',
+      'Date night',
+      'Dîner romantique à la maison',
+      'Hesed ensemble',
+      'Invitation chez des amis',
+      'Judaïsme',
+      'Maison',
+      'Mi-année',
+      'Planifiez votre prochaine escapade',
+      'Premier mois',
+      'Première année',
+      'Première semaine',
+      'Préparez le repas de Shabbat ensemble',
+      r"Qu\'est-ce qui vous a fait sourire aujourd\'hui ?",
+      'Quel est votre moment préféré de la semaine ensemble ?',
+      'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
+      'Quotidien',
+      'Restaurant casher',
+      'Romance',
+      'Rêves',
+      'Shabbaton communautaire',
+      r"Si vous pouviez voyager n\'importe où, où iriez-vous ?",
+      'Sortie restaurant ou cinéma',
+      'Spirituel',
+      'Sport ensemble',
+      'Trimestre',
+      'Voyage',
+      'Étude Torah',
+    ],
+  ),
+  'lib/core/services/couple_api_service.dart': (
+    'messages de FormatException (réponse inattendue), journal',
+    [
+      r'$key holds a non-object item',
+      r'$key is not a list',
+      r'$key is not an object',
+      'stats is not an object',
+    ],
+  ),
+  'lib/core/chat/chat_api.dart': (
+    'journal et en-tête HTTP',
+    [r'Bearer $jwt', r'ChatApiException($status)'],
+  ),
+  'lib/core/chat/chat_providers.dart': (
+    'journal',
+    ['current user unavailable'],
+  ),
+  'lib/core/chat/chat_realtime.dart': (
+    'mots écrits par le serveur dans lastMessage, comparés pour être traduits',
+    ['Message retiré', 'Message vocal', 'Photo'],
+  ),
+  'lib/core/chat/voice_impl.dart': (
+    'journal',
+    ['only http(s) and data: addresses can be played'],
+  ),
+  'lib/core/models/verification.dart': (
+    'journal',
+    [r'unknown challenge: $value'],
+  ),
+  'lib/core/services/auth_service.dart': (
+    'en-tête HTTP, valeur envoyée à l\'API, connexion fictive de debug',
+    [
+      r'Bearer ${_currentUser!.jwtToken}',
+      'La connexion fictive est réservée au mode debug.',
+      'Léa (démo)',
+      'Non spécifié',
+    ],
+  ),
+  'lib/core/services/http_verification_api.dart': (
+    'en-tête HTTP et journal',
+    [r'Bearer $token', 'unexpected response body'],
+  ),
+  'lib/core/services/icebreaker_service.dart': (
+    'valeur de profil comparée, jamais affichée',
+    ['modern orthodox'],
+  ),
+  'lib/core/services/jewish_calendar_service.dart': (
+    'lieu passé au calcul des heures, jamais affiché',
+    ['Paris'],
+  ),
+  'lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart': (
+    'prénoms et villes des suggestions fictives de l\'écran maquette',
+    ['Leah', 'Lyon', 'Miriam', 'Paris', 'Rachel'],
+  ),
+  'lib/presentation/features/chat/widgets/report_sheet.dart': (
+    'motif envoyé tel quel à POST …/report (table reports) ; le libellé '
+        'affiché est traduit',
+    [
+      "Arnaque ou demande d\\'argent",
+      'Autre',
+      'Contenu inapproprié',
+      'Harcèlement ou propos déplacés',
+    ],
+  ),
+  'lib/presentation/features/matching/l10n/filter_options.dart': (
+    'valeurs de filtre envoyées au serveur ; les libellés affichés sont '
+        'traduits',
+    [
+      'Ashkénaze',
+      'Bac',
+      'Casher',
+      'Casher strict',
+      'Doctorat',
+      'Libéral',
+      'Licence',
+      'Loubavitch',
+      'Lycée',
+      'Massorti',
+      'Master',
+      'Mikvé',
+      'Orthodoxe',
+      'Prière quotidienne',
+      'Shomer Shabbat',
+      'Séfarade',
+      'Tous',
+      'Toutes',
+      'Traditionaliste',
+      'Tsniout',
+      'Yeshiva/Sem',
+    ],
+  ),
+  'lib/presentation/features/profile/screens/edit_profile_screen.dart': (
+    'valeurs envoyées à l\'API et comparées par le classement du serveur ; '
+        'les libellés affichés sont traduits',
+    [
+      'A la maison',
+      'Autre',
+      'Glatt',
+      'Habad',
+      'Laique',
+      'Massorti',
+      'Modern Orthodox',
+      'Non',
+      'Non observant',
+      'Observant',
+      'Orthodox',
+      'Partiellement',
+      'Strict',
+      'Traditionaliste',
+      'Tres observant',
+    ],
+  ),
+  'lib/presentation/features/profile/screens/profile_setup_screen.dart': (
+    'valeurs envoyées à l\'API ; les libellés affichés sont traduits',
+    ['Je ne sais pas', 'Mariage', 'Relation serieuse'],
+  ),
+  'lib/presentation/features/settings/screens/settings_screen.dart': (
+    'menu « Debug (Dev Only) », visible seulement en kDebugMode',
+    [
+      r'- ID ${c[',
+      'Activer Couple',
+      r'Couple ID: ${activeCouple[',
+      'Debug (Dev Only)',
+      'Désactiver Couple',
+      r'Erreur: $e',
+      'Fermer',
+      r'Historique (${allCouples.length} couples):',
+      'Menu Debug',
+      r'Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}',
+      'Mode couple activé',
+      'Mode couple désactivé',
+      r'Partner: ${activeCouple[',
+      'Refusé par le serveur',
+      'Reset Swipes',
+      'Status Couple',
+      'Status Couple (Debug)',
+      r'Status: ${activeCouple[',
+      'Swipes reset',
+      r'User ID: $userId',
+      r']} (partner: ${c[',
+    ],
+  ),
+  'lib/presentation/features/video_call/screens/video_call_screen.dart': (
+    'prénom fictif de l\'écran maquette',
+    ['Sarah'],
+  ),
+  'lib/core/services/api_service.dart': (
+    'diagnostic de journal ; l\'écran affiche apiErrorText',
+    [r'$diagnostic (HTTP ${response.statusCode})'],
+  ),
+};
+
+bool _isNotUserFacing(String path, String text) =>
+    _notUserFacingFiles.containsKey(path) ||
+    (_notUserFacing[path]?.$2.contains(text) ?? false);
 
 final _stringLiteral = RegExp(r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")""");
 final _interpolation = RegExp(r'\$\{[^}]*\}|\$[A-Za-z_]\w*');
@@ -93,8 +308,9 @@ List<String> _scanSources() {
         .toList();
     for (final file in files) {
       for (final text in hardcodedTextsIn(file.readAsStringSync())) {
-        final entry = '${file.path} | $text';
-        if (!_notUserFacing.containsKey(entry)) entries.add(entry);
+        if (!_isNotUserFacing(file.path, text)) {
+          entries.add('${file.path} | $text');
+        }
       }
     }
   }
@@ -141,6 +357,23 @@ Text(context.l10n.chatTitle)
     test('ignore le nom de la marque', () {
       expect(hardcodedTextsIn("Text('MAZL')"), isEmpty);
     });
+  });
+
+  test('chaque exception sert encore (sinon, la retirer)', () {
+    final stale = <String>[];
+    for (final path in _notUserFacingFiles.keys) {
+      if (!File(path).existsSync()) stale.add(path);
+    }
+    for (final entry in _notUserFacing.entries) {
+      final file = File(entry.key);
+      final found = file.existsSync()
+          ? hardcodedTextsIn(file.readAsStringSync()).toSet()
+          : <String>{};
+      for (final text in entry.value.$2) {
+        if (!found.contains(text)) stale.add('${entry.key} | $text');
+      }
+    }
+    expect(stale, isEmpty, reason: stale.join('\n'));
   });
 
   test('aucun texte nouveau en dur dans l\'interface (cliquet)', () {

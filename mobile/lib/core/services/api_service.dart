@@ -142,7 +142,8 @@ class ApiResponse<T> {
       );
 }
 
-/// Translates a caught network exception into a user-facing [ApiResponse.failure].
+/// Translates a caught network exception into an [ApiResponse.failure]: the
+/// kind tells the screen what to say, the text is a diagnostic for the logs.
 ///
 /// Centralises the timeout vs. connectivity vs. generic distinction so every
 /// endpoint reports clear, differentiated messages instead of a raw
@@ -150,19 +151,19 @@ class ApiResponse<T> {
 ApiResponse<T> _networkFailure<T>(Object error) {
   if (error is TimeoutException) {
     return ApiResponse.failure(
-      'Délai d\'attente dépassé, vérifiez votre connexion.',
+      'Request timed out',
       ApiErrorKind.timeout,
     );
   }
   if (error is SocketException) {
     return ApiResponse.failure(
-      'Pas de connexion internet ou serveur injoignable.',
+      'No connection or server unreachable',
       ApiErrorKind.network,
     );
   }
   if (error is http.ClientException) {
     return ApiResponse.failure(
-      'Serveur injoignable, réessayez plus tard.',
+      'Server unreachable',
       ApiErrorKind.network,
     );
   }
