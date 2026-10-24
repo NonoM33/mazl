@@ -32,6 +32,8 @@ describe("the API host once the website has moved", () => {
       ["https://api.mazl.app/terms", 301, "https://mazl.app/terms"],
       ["https://api.mazl.app/privacy", 301, "https://mazl.app/privacy"],
       ["https://api.mazl.app/index.html", 301, "https://mazl.app/index.html"],
+      ["https://api.mazl.app/l/main-abcd1234.js", 301, "https://mazl.app/l/main-abcd1234.js"],
+      ["https://api.mazl.app/l/fonts/Geist-700.ttf", 301, "https://mazl.app/l/fonts/Geist-700.ttf"],
     ];
     for (const [url, status, location] of cases) {
       const res = moved.handle(get(url));
@@ -42,6 +44,13 @@ describe("the API host once the website has moved", () => {
   test("the API, the socket, the media, the staff console, the document page and the old admin are left to the API", () => {
     for (const path of ["/api/health", "/ws", "/media/photos/1", "/verify?token=abc", "/verify.html", "/console", "/console/reports", "/admin", "/admin/dashboard", "/appx", "/application"]) {
       expect([path, moved.handle(get(`https://api.mazl.app${path}`))]).toEqual([path, null]);
+    }
+  });
+
+  test("www.<site host> goes to the site host whatever the path, as the web app does", () => {
+    for (const path of ["/", "/cgu", "/api/health", "/console?a=b"]) {
+      const res = moved.handle(new Request(`https://www.mazl.app${path}`, { headers: { host: "www.mazl.app" } }));
+      expect([path, res?.status, res?.headers.get("location")]).toEqual([path, 301, `https://mazl.app${path}`]);
     }
   });
 

@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { renderCaddyfile } from "../../web/front/caddyfile";
 import { readFrontConfig } from "../../web/front/config";
@@ -62,16 +64,17 @@ describe("security headers: the website container sends what the API's web clien
     expect(headers["Strict-Transport-Security"]).toContain("max-age=31536000");
   });
 
-  test("the snippet is imported by every handler that serves the client or the legal pages", () => {
+  test("the snippet is imported by every handler that serves the showcase, the client or the legal pages", () => {
     const text = caddyfile();
-    expect(text.match(/import web_headers/g)?.length).toBe(3);
+    // "/", /l/*, /app*, the legal pages and the static files of the site.
+    expect(text.match(/import web_headers/g)?.length).toBe(5);
   });
 });
 
 describe("cache rules", () => {
-  test("the Caddy matcher for immutable files says what cacheControlFor says", () => {
+  test.each(["client", "landing"])("the Caddy matcher for immutable files of the %s says what cacheControlFor says", (scope) => {
     const text = caddyfile();
-    const pattern = /@immutable path_regexp immutable (.+)$/m.exec(text)?.[1];
+    const pattern = new RegExp(`@${scope}Immutable path_regexp ${scope}Immutable (.+)$`, "m").exec(text)?.[1];
     expect(pattern).toBeDefined();
     const immutable = new RegExp(pattern ?? "");
     const paths = [
@@ -80,6 +83,17 @@ describe("cache rules", () => {
     ];
     for (const path of paths) {
       expect([path, immutable.test(`/${path}`)]).toEqual([path, cacheControlFor(path) === IMMUTABLE]);
+    }
+  });
+
+  test("a missing hashed file or font is a 404 that is never cached (not the page, not immutable)", () => {
+    const text = caddyfile();
+    for (const scope of ["client", "landing"]) {
+      expect(text).toContain(`@${scope}Present file`);
+      const start = text.indexOf(`handle @${scope}Present {`);
+      const block = text.slice(start, text.indexOf('respond "Not found" 404', start));
+      expect(block).toContain(`header Cache-Control "${IMMUTABLE}"`);
+      expect(block).toContain('handle {\n\t\t\t\theader Cache-Control "no-store"'.replace(/\\n/g, "\n").replace(/\\t/g, "\t"));
     }
   });
 
@@ -133,6 +147,42 @@ describe("host rules of the site", () => {
 
   test("the API, its socket and the signed media are proxied, nothing else", () => {
     expect(matcherArgs(caddyfile(), "proxied", "path")).toEqual(["/api/*", "/ws", "/media/*"]);
+  });
+});
+
+describe("showcase at the root and under /l/", () => {
+  test("/ serves landing/index.html uncached with the strict headers; /l/* is served from the showcase folder", () => {
+    const text = caddyfile();
+    expect(text).toContain('\thandle / {\n\t\timport web_headers\n\t\theader Cache-Control "no-store"\n\t\troot * /srv/landing\n\t\trewrite * /index.html');
+    expect(text).toContain("@landing path /l/*");
+    expect(text).toContain("uri strip_prefix /l");
+  });
+
+  test("the folder itself and the .gz copies under /l/ are a 404, as in the API", () => {
+    expect(caddyfile()).toContain("@unserved path / *.gz");
+  });
+
+  test("www.<site host> redirects to the site host, path and query kept", () => {
+    expect(caddyfile()).toContain("@www host www.mazl.app\n\thandle @www {\n\t\tredir https://mazl.app{uri} 301");
+  });
+
+  test("the paths the API's implementation answers for the showcase agree with the Caddy matchers", async () => {
+    const root = await mkdtemp(join(tmpdir(), "mazl-front-landing-"));
+    try {
+      await mkdir(join(root, "fonts"));
+      await writeFile(join(root, "index.html"), "<title>vitrine</title>");
+      await writeFile(join(root, "main-abcd1234.js"), "1");
+      await writeFile(join(root, "main-abcd1234.js.gz"), "1");
+      const web = createWebApp({ distDir: root, landingDistDir: root, webOrigin: "https://mazl.app" });
+      const status = async (path: string) => (await web.handle(new Request(`https://mazl.app${path}`, { headers: { host: "mazl.app" } })))?.status;
+      expect(await status("/")).toBe(200);
+      expect(await status("/l/main-abcd1234.js")).toBe(200);
+      expect(await status("/l/")).toBe(404);
+      expect(await status("/l/main-abcd1234.js.gz")).toBe(404);
+      expect(await status("/l/absent-zzzz9999.js")).toBe(404);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });
 
@@ -190,6 +240,8 @@ describe("container", () => {
       expect(dockerfile).toContain(`public/${file}`);
       expect(Bun.file(join(repo, "public", file)).size).toBeGreaterThan(0);
     }
+    expect(dockerfile).toContain("RUN bun landing/build.ts");
+    expect(dockerfile).toContain("/app/landing/dist /srv/landing");
     for (const shared of ["cache-rules", "security-headers", "site-rules"]) expect(dockerfile).toContain(`src/features/web-app/${shared}.ts`);
   });
 });

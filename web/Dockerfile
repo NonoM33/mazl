@@ -9,7 +9,7 @@
 # Caddy, version and digest pinned (2.10.2). Only the static binary is used.
 FROM caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d AS caddy
 
-# The web client bundle, hashed file names (web/build.ts). Scripts stay off:
+# The web client bundle and the showcase, hashed file names (web/build.ts, landing/build.ts). Scripts stay off:
 # nothing here needs a postinstall, and the API's native modules are not built.
 FROM oven/bun:1-alpine AS client
 WORKDIR /app
@@ -19,11 +19,17 @@ COPY web/index.html web/build.ts web/tsconfig.json ./web/
 COPY web/src ./web/src
 COPY web/assets ./web/assets
 RUN bun web/build.ts
+# The showcase served at the root of the site (landing/build.ts: index.html + /l/ files).
+COPY landing/index.html landing/build.ts landing/config.ts landing/tsconfig.json ./landing/
+COPY landing/src ./landing/src
+COPY landing/assets ./landing/assets
+RUN bun landing/build.ts
 
 FROM oven/bun:1-alpine
 # No access log is configured (web/front/caddyfile.ts): query strings carry one-time tokens.
 COPY --from=caddy /usr/bin/caddy /usr/bin/caddy
 COPY --from=client /app/web/dist /srv/app
+COPY --from=client /app/landing/dist /srv/landing
 COPY public/cgu.html public/cgv.html public/confidentialite.html public/style.css public/favicon.svg /srv/site/
 # The Caddyfile is rendered at start from the very modules the API serves the
 # website with, so headers, cache rules and host rules cannot drift.

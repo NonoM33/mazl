@@ -7,7 +7,7 @@ sont dans `docs/web/adr/W01-hebergement.md` (section « 2026-10-24 : découplage
 | conteneur | construit depuis | sert | domaine |
 |---|---|---|---|
 | **API** | `Dockerfile` (racine) | `/api/*`, `/ws`, `/media/*`, `/verify*`, `/console*`, `/admin*` | `api.mazl.app` |
-| **Site** | `web/Dockerfile` | le client web sous `/app`, les pages juridiques, un proxy vers l'API | `mazl.app` |
+| **Site** | `web/Dockerfile` | la vitrine à la racine et sous `/l/` (`landing/`), le client web sous `/app`, les pages juridiques, un proxy vers l'API | `mazl.app` (et `www.mazl.app`, qui redirige) |
 
 Le site est un conteneur Caddy (version 2.10.2, épinglée par son empreinte dans `web/Dockerfile`).
 Caddy fait d'un seul processus le service de fichiers, les redirections, le proxy HTTP et le
@@ -28,7 +28,7 @@ ces modules. Réglages faux ou absents : le conteneur s'arrête avant de servir 
 
 | variable | valeur | remarque |
 |---|---|---|
-| `SERVE_WEBSITE` | `false` au moment de la bascule | **nouvelle**. Absente ou autre valeur : l'API sert le site comme avant (rien ne casse avant la bascule). `false`, `0`, `no`, `off` : elle ne monte ni le client web, ni la vitrine, ni les pages juridiques ; `/`, `/app*`, `/cgu`, `/cgv`, `/confidentialite`, `/terms`, `/privacy` redirigent vers `WEB_ORIGIN`. `/verify*`, `/console*`, `/admin*` restent sur l'API. |
+| `SERVE_WEBSITE` | `false` au moment de la bascule | **nouvelle**. Absente ou autre valeur : l'API sert le site comme avant (rien ne casse avant la bascule). `false`, `0`, `no`, `off` : elle ne monte ni le client web, ni la vitrine (`landing/dist`), ni les pages juridiques ; `/`, `/l/*`, `/app*`, `/cgu`, `/cgv`, `/confidentialite`, `/terms`, `/privacy` redirigent vers `WEB_ORIGIN` (et `www.` aussi). `LANDING_DIST_DIR` ne sert alors plus. `/verify*`, `/console*`, `/admin*` restent sur l'API. |
 | `WEB_ORIGIN` | `https://mazl.app` | **inchangée**, toujours nécessaire à l'API : le cookie de session n'est accepté que si l'en-tête `Host` correspond, et le contrôle CSRF compare `Origin` à cette valeur. |
 | `PUBLIC_BASE_URL` | `https://api.mazl.app` | inchangée. |
 | `TRUSTED_PROXY_HOPS` | `1` (défaut) | inchangée : voir « Adresse du client ». |
@@ -79,6 +79,9 @@ web/tsconfig.json
 web/Dockerfile
 web/front/**
 !web/front/e2e/**
+landing/**
+!landing/dev/**
+!landing/dist/**
 public/cgu.html
 public/cgv.html
 public/confidentialite.html
@@ -93,7 +96,8 @@ bun.lock
 
 Les trois fichiers de `src/features/web-app/` sont le contrat partagé (en-têtes, cache, règles
 d'hôte) : les modifier redéploie légitimement les deux conteneurs. `package.json` et `bun.lock`
-sont partagés aussi, le client web étant construit avec les dépendances de la racine.
+sont partagés aussi, le client web et la vitrine (Three.js) étant construits avec les dépendances de la racine.
+`landing/**` (sources, polices, `build.ts`) ne concerne que le site ; `landing/dev` (captures) et `landing/dist` (sortie de construction) sont exclus.
 
 **Application API** (`Dockerfile`, base `/`) :
 
@@ -116,8 +120,11 @@ public/favicon.svg
 ```
 
 `scripts/**` contient le téléchargement des modèles de visage (`fetch-face-models.ts`, étape du
-`Dockerfile`). Tant que l'image de l'API construit encore le client web (voir « Phase 2 »), `web/**`
-n'est volontairement pas surveillé : après la bascule, l'API ne sert plus ces fichiers.
+`Dockerfile`). Tant que l'image de l'API construit encore le client web et la vitrine (voir « Phase 2 »), `web/**` et
+`landing/**` ne sont volontairement pas surveillés : après la bascule, l'API ne sert plus ces fichiers.
+Avant la bascule (`SERVE_WEBSITE` non défini), une modification de la vitrine n'atteint donc l'API qu'au prochain
+déploiement de l'API pour une autre raison : c'est sans importance, la production n'étant servie que par l'un
+des deux conteneurs à la fois ; au moment de la bascule, le site porte la version à jour.
 
 À vérifier à la première configuration : que la version de Coolify installée comprend bien la
 négation `!` (sinon, ôter la ligne : l'effet se limite à un redéploiement inutile).
@@ -177,14 +184,14 @@ changement de conteneur au déploiement de l'API, pas un nom introuvable.
 9. Refaire les contrôles du point 4 sur `https://mazl.app` (connexion QR et message en temps réel
    compris), et `https://api.mazl.app/api/health` ×6.
 10. **Retour arrière** : redonner `mazl.app` à l'application API, retirer `SERVE_WEBSITE`,
-    redéployer l'API ; arrêter l'application site. L'image de l'API contient toujours `web/dist`.
+    redéployer l'API ; arrêter l'application site. L'image de l'API contient toujours `web/dist` et `landing/dist`.
 
 ### Phase 2 (après quelques jours sans incident)
 
-Retirer de `Dockerfile` l'étape `RUN bun web/build.ts` (l'API ne sert plus le client) et lui
-faire ignorer `web/` ; supprimer alors le mode par défaut `SERVE_WEBSITE` si on veut que l'API
+Retirer de `Dockerfile` les étapes `RUN bun web/build.ts` et `RUN bun landing/build.ts` (l'API ne sert plus ni le client ni la vitrine) et lui
+faire ignorer `web/` et `landing/` ; supprimer alors le mode par défaut `SERVE_WEBSITE` si on veut que l'API
 ne serve plus jamais le site. Non fait ici : tant que le défaut est « sert le site », l'image
-doit contenir `web/dist`.
+doit contenir `web/dist` et `landing/dist`.
 
 ## Limites connues
 

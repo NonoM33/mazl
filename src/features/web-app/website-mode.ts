@@ -1,4 +1,4 @@
-import { LEGAL_PAGES, LEGAL_REDIRECTS } from "./site-rules";
+import { LEGAL_PAGES, LEGAL_REDIRECTS, isLandingPath, wwwHost } from "./site-rules";
 
 // Whether this process also serves the website (the client under /app, the
 // landing and the legal pages), or only the API. Default: it does, so nothing
@@ -28,7 +28,7 @@ const MOVED_PAGES: ReadonlySet<string> = new Set([
 const PREFIX = "/app";
 
 // Old links to the website made against the API host (a bookmarked /app, the
-// legal pages cited by the stores) go to the website host, path and query kept.
+// showcase files under /l/, the legal pages cited by the stores) go to the website host, path and query kept.
 // Without WEB_ORIGIN there is nowhere to send them: the answer is a plain 404.
 export function createWebsiteMoved(webOrigin: string | null) {
   const origin = webOrigin === null ? null : new URL(webOrigin).origin;
@@ -36,8 +36,10 @@ export function createWebsiteMoved(webOrigin: string | null) {
   function handle(req: Request): Response | null {
     if (origin === null || (req.method !== "GET" && req.method !== "HEAD")) return null;
     const url = new URL(req.url);
+    // www.<site host> was only ever a redirect to the site host (web-app.ts).
+    if (req.headers.get("host") === wwwHost(new URL(origin).host)) return Response.redirect(`${origin}${url.pathname}${url.search}`, 301);
     const underApp = url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`);
-    if (!underApp && !MOVED_PAGES.has(url.pathname)) return null;
+    if (!underApp && !isLandingPath(url.pathname) && !MOVED_PAGES.has(url.pathname)) return null;
     return Response.redirect(`${origin}${url.pathname}${url.search}`, url.pathname === "/" ? 302 : 301);
   }
 

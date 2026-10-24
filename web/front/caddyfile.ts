@@ -1,6 +1,6 @@
 import { FONTS_DIRECTORY, HASHED_ASSET, IMMUTABLE, NO_STORE } from "../../src/features/web-app/cache-rules";
 import { mediaOriginFor, webSecurityHeaders } from "../../src/features/web-app/security-headers";
-import { API_HOST_ONLY, LEGAL_PAGES, LEGAL_REDIRECTS, PROXIED_PREFIXES, SITE_STATIC_FILES } from "../../src/features/web-app/site-rules";
+import { API_HOST_ONLY, LANDING_PREFIX, LEGAL_PAGES, LEGAL_REDIRECTS, PROXIED_PREFIXES, SITE_STATIC_FILES, wwwHost } from "../../src/features/web-app/site-rules";
 import type { FrontConfig } from "./config";
 
 // The Caddyfile of the website container, rendered at start from the same
@@ -13,9 +13,11 @@ export interface FrontPaths {
   readonly appDir: string;
   // The legal pages with their stylesheet and icon (public/).
   readonly siteDir: string;
+  // The built showcase (landing/dist): index.html at "/", the rest under /l/.
+  readonly landingDir: string;
 }
 
-export const DEFAULT_PATHS: FrontPaths = { appDir: "/srv/app", siteDir: "/srv/site" };
+export const DEFAULT_PATHS: FrontPaths = { appDir: "/srv/app", siteDir: "/srv/site", landingDir: "/srv/landing" };
 
 export const CLIENT_PREFIX = "/app";
 export const SECURITY_HEADERS_SNIPPET = "web_headers";
@@ -80,26 +82,77 @@ function proxyBlock(config: FrontConfig): string[] {
   ];
 }
 
-function clientBlock(paths: FrontPaths): string[] {
+// Hashed files and fonts under a root: cached a year when they exist, a 404 that
+// is never cached when they do not (never the page, which would be cached as JS).
+function immutableFiles(scope: string): string[] {
   const fonts = FONTS_DIRECTORY.replace(/\/$/, "");
+  return [
+    `@${scope}Immutable path_regexp ${scope}Immutable ${HASHED_ASSET.source}|^/${fonts}/`,
+    `handle @${scope}Immutable {`,
+    `\t@${scope}Present file`,
+    `\thandle @${scope}Present {`,
+    `\t\theader Cache-Control ${quoted(IMMUTABLE)}`,
+    "\t\tfile_server {",
+    "\t\t\tprecompressed gzip",
+    "\t\t\tdisable_canonical_uris",
+    "\t\t}",
+    "\t}",
+    "\thandle {",
+    `\t\theader Cache-Control ${quoted(NO_STORE)}`,
+    '\t\trespond "Not found" 404',
+    "\t}",
+    "}",
+  ];
+}
+
+function clientBlock(paths: FrontPaths): string[] {
   return [
     `@client path ${CLIENT_PREFIX} ${CLIENT_PREFIX}/*`,
     "handle @client {",
     `\timport ${SECURITY_HEADERS_SNIPPET}`,
     `\troot * ${paths.appDir}`,
     `\turi strip_prefix ${CLIENT_PREFIX}`,
-    `\t@immutable path_regexp immutable ${HASHED_ASSET.source}|^/${fonts}/`,
-    // A hashed file or a font that is missing is a 404, never the page.
-    "\thandle @immutable {",
-    `\t\theader Cache-Control ${quoted(IMMUTABLE)}`,
-    "\t\tfile_server {",
-    "\t\t\tprecompressed gzip",
-    "\t\t}",
-    "\t}",
+    ...indent(immutableFiles("client"), 1),
     "\thandle {",
     `\t\theader Cache-Control ${quoted(NO_STORE)}`,
     "\t\ttry_files {path} /index.html",
     "\t\tfile_server",
+    "\t}",
+    "}",
+  ];
+}
+
+// The showcase, served exactly as web-app.ts serves it: the page at "/" (never
+// cached), every other file under /l/ with the cache rules of the client; a
+// missing file, the folder itself and the .gz copies are a 404, never the page.
+function landingBlock(paths: FrontPaths): string[] {
+  const prefix = LANDING_PREFIX.replace(/\/$/, "");
+  return [
+    "handle / {",
+    `\timport ${SECURITY_HEADERS_SNIPPET}`,
+    `\theader Cache-Control ${quoted(NO_STORE)}`,
+    `\troot * ${paths.landingDir}`,
+    "\trewrite * /index.html",
+    "\tfile_server {",
+    "\t\tdisable_canonical_uris",
+    "\t}",
+    "}",
+    `@landing path ${LANDING_PREFIX}*`,
+    "handle @landing {",
+    `\troot * ${paths.landingDir}`,
+    `\turi strip_prefix ${prefix}`,
+    "\t@unserved path / *.gz",
+    "\thandle @unserved {",
+    `\t\theader Cache-Control ${quoted(NO_STORE)}`,
+    '\t\trespond "Not found" 404',
+    "\t}",
+    `\timport ${SECURITY_HEADERS_SNIPPET}`,
+    ...indent(immutableFiles("landing"), 1),
+    "\thandle {",
+    `\t\theader Cache-Control ${quoted(NO_STORE)}`,
+    "\t\tfile_server {",
+    "\t\t\tdisable_canonical_uris",
+    "\t\t}",
     "\t}",
     "}",
   ];
@@ -132,6 +185,11 @@ function siteFilesBlock(paths: FrontPaths): string[] {
 export function renderCaddyfile(config: FrontConfig, paths: FrontPaths = DEFAULT_PATHS): string {
   const site = [
     "header -Server",
+    // www.<site host> only redirects to the site host, path and query kept.
+    `@www host ${wwwHost(config.webOrigin.hostname)}`,
+    "handle @www {",
+    `\tredir ${config.webOrigin.origin}{uri} 301`,
+    "}",
     "handle /health {",
     `\theader Cache-Control ${quoted(NO_STORE)}`,
     '\trespond "ok" 200',
@@ -142,6 +200,7 @@ export function renderCaddyfile(config: FrontConfig, paths: FrontPaths = DEFAULT
     `\tredir ${config.apiOrigin.origin}{uri} 302`,
     "}",
     ...proxyBlock(config),
+    ...landingBlock(paths),
     ...clientBlock(paths),
     ...siteFilesBlock(paths),
     "handle {",

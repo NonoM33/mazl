@@ -75,4 +75,12 @@ isolement par hôte, relecture M5) sont **conservées à l'identique**.
   (module realip), au prix d'une configuration plus longue pour le même résultat.
 - Ce qui s'applique désormais à l'API : `/` et les anciennes adresses du site (`/app*`, pages
   juridiques) redirigent vers `WEB_ORIGIN` ; la vitrine historique, `script.js` ne sont plus servis.
+- Vitrine (`landing/`, ajoutée à la racine de `mazl.app` entre-temps) : même règle que le
+  client. `landing/dist` est construit dans `web/Dockerfile` ; le site sert `index.html` à `/`
+  (jamais mis en cache) et le reste sous `/l/` (fichiers hachés et polices `immutable`, copies
+  gzip si acceptées, un fichier absent, `/l/` lui-même et les `.gz` appelés par leur nom sont des
+  404 jamais mis en cache), avec les mêmes en-têtes que le client. `www.<hôte du site>` redirige
+  en 301 vers le site, chemin et requête gardés. Le préfixe `/l/` et la règle `www` vivent dans
+  `site-rules.ts`, la règle de cache dans `cache-rules.ts`. Sans `landing/dist`, l'API continue de
+  rediriger `/` vers `/app` ; le conteneur du site, lui, construit toujours la vitrine.
 - Procédure de bascule, variables, chemins surveillés : `docs/deploy/README.md`.
