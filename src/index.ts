@@ -773,17 +773,21 @@ async function upgradeToSocket(req: Request, url: URL, server: Bun.Server<WebSoc
     return new Response("Token required", { status: 401 });
   }
 
-  const payload = verifyJWT(token);
-  if (!payload) {
+  // A web socket ticket (single use, one minute) or the app's JWT. Tokens with
+  // an audience (the web bridge's) never open a socket.
+  const ticket = await webSession.consumeSocketTicket(token);
+  const payload = ticket ? null : verifyJWT(token);
+  if (!ticket && (!payload || payload.aud !== undefined)) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  const userId = Number(payload.sub);
+  const userId = ticket ? ticket.userId : Number(payload?.sub);
   if (!(await isAccountActive(userId))) {
     return new Response("Account disabled", { status: 401 });
   }
 
-  if (server.upgrade(req, { data: { userId, expiresAt: payload.exp, webSessionId: webSession.socketSession(token) } })) {
+  const expiresAt = ticket ? ticket.expiresAt : (payload?.exp ?? 0);
+  if (server.upgrade(req, { data: { userId, expiresAt, webSessionId: ticket?.sessionId } })) {
     return undefined;
   }
   return new Response("WebSocket upgrade failed", { status: 500 });

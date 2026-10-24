@@ -22,7 +22,7 @@ beforeEach(() => {
   clock = new FakeClock();
   members = new InMemoryMembers();
   rows = new InMemorySessions(members);
-  registry = new SocketRegistry((m, ttl) => `jwt-${m.id}-${ttl}-${Math.random()}`, clock.now);
+  registry = new SocketRegistry(clock.now);
   sessions = new SessionService(rows, registry, clock.now);
 });
 
@@ -153,24 +153,35 @@ describe("sockets of a revoked session", () => {
 });
 
 describe("socket tickets", () => {
-  test("map to their session for 10 minutes, then to nothing", async () => {
+  // A ticket opens one socket and nothing else: it is not a JWT, so it can
+  // never be used as a Bearer token on the API (security review H1).
+  test("are opaque, single use and valid one minute", async () => {
     const { session } = await sessions.open(ALICE, "qr", "a");
     const ticket = registry.issue(session.id, ALICE);
-    expect(ticket.expiresAt.getTime() - clock.now().getTime()).toBe(10 * MINUTE);
-    expect(ticket.token).toContain("-600-");
-    expect(registry.sessionOf(ticket.token)).toBe(session.id);
-    expect(registry.sessionOf("another-token")).toBeUndefined();
-    clock.advance(10 * MINUTE);
-    expect(registry.sessionOf(ticket.token)).toBeUndefined();
+    expect(ticket.expiresAt.getTime() - clock.now().getTime()).toBe(MINUTE);
+    expect(ticket.token.split(".")).toHaveLength(1);
+    expect(ticket.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(registry.consume(ticket.token)).toEqual({ sessionId: session.id, userId: ALICE.id });
+    expect(registry.consume(ticket.token)).toBeUndefined();
+    expect(registry.consume("another-token")).toBeUndefined();
   });
 
-  test("of a revoked session still name it, so a late socket is recognised and closed", async () => {
+  test("expire after one minute", async () => {
+    const { session } = await sessions.open(ALICE, "qr", "a");
+    const ticket = registry.issue(session.id, ALICE);
+    clock.advance(MINUTE);
+    expect(registry.consume(ticket.token)).toBeUndefined();
+  });
+
+  test("two tickets issued in the same instant are different", async () => {
+    const { session } = await sessions.open(ALICE, "qr", "a");
+    expect(registry.issue(session.id, ALICE).token).not.toBe(registry.issue(session.id, ALICE).token);
+  });
+
+  test("of a revoked session are forgotten at once", async () => {
     const { session } = await sessions.open(ALICE, "qr", "a");
     const ticket = registry.issue(session.id, ALICE);
     await sessions.revoke(ALICE.id, session.id);
-    expect(registry.sessionOf(ticket.token)).toBe(session.id);
-    const closes: number[] = [];
-    registry.opened(session.id, { close: (code) => void closes.push(code ?? 0) });
-    expect(closes).toEqual([4003]);
+    expect(registry.consume(ticket.token)).toBeUndefined();
   });
 });

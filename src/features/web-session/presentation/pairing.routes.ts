@@ -1,5 +1,6 @@
 import type { Context, Hono, MiddlewareHandler } from "hono";
 import { createMiddleware } from "hono/factory";
+import { extractBearerToken, verifyJWT } from "../../../auth";
 import { requireAuth, type AppVariables } from "../../../shared/http/middleware";
 import { createRateLimiter } from "../../../shared/http/rate-limit";
 import type { WebSessionModule } from "../web-session.module";
@@ -9,9 +10,15 @@ import { scanBody } from "./schemas";
 type Ctx = Context<{ Variables: AppVariables }>;
 
 // Approving a sign-in is the phone's job: a web session must never do it,
-// otherwise a hijacked browser could sign in more browsers.
+// otherwise a hijacked browser could sign in more browsers. Only the app's
+// tokens pass: any token with an audience (the web bridge's) is refused,
+// whatever headers came with it (security review H1).
 export const refuseWebSession: MiddlewareHandler<{ Variables: AppVariables }> = createMiddleware(async (c, next) => {
-  if (c.req.header(SESSION_HEADER)) return c.json({ success: false, error: "web_session_forbidden" }, 403);
+  const token = extractBearerToken(c.req.header("Authorization"));
+  const payload = token ? verifyJWT(token) : null;
+  if (c.req.header(SESSION_HEADER) || !payload || payload.aud !== undefined) {
+    return c.json({ success: false, error: "web_session_forbidden" }, 403);
+  }
   await next();
 });
 

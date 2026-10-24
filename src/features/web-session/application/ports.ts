@@ -55,7 +55,8 @@ export interface SessionRevocationListener {
   sessionsRevoked(sessionIds: readonly string[]): void;
 }
 
-export type TokenSigner = (member: WebMember, ttlSeconds: number) => string;
+// Signs the bridge's short token, marked with its audience and web session.
+export type TokenSigner = (member: WebMember, ttlSeconds: number, claims: { readonly aud: string; readonly sid: string }) => string;
 
 export interface OpenedSession {
   readonly token: string;

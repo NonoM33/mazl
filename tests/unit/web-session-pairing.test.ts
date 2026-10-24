@@ -16,7 +16,7 @@ beforeEach(() => {
   members = new InMemoryMembers();
   pairingRows = new InMemoryPairings();
   sessionRows = new InMemorySessions(members);
-  sessions = new SessionService(sessionRows, new SocketRegistry(() => "jwt", clock.now), clock.now);
+  sessions = new SessionService(sessionRows, new SocketRegistry(clock.now), clock.now);
   service = new PairingService(pairingRows, members, (m, method, label) => sessions.open(m, method, label), clock.now);
 });
 

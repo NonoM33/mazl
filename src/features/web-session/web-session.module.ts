@@ -44,16 +44,25 @@ export interface WebSessionModule {
   readonly identity: IdentityVerifiers;
   readonly now: Clock;
   bridge(req: Request): Promise<void>;
-  // Id of the web session a socket ticket belongs to, if the token is one.
-  socketSession(token: string): string | undefined;
+  // The member and web session of a socket ticket, which it spends; undefined
+  // when the token is no live ticket (then it may be the app's JWT).
+  consumeSocketTicket(token: string): Promise<SocketTicketHolder | undefined>;
   socketOpened(sessionId: string, socket: ClosableSocket): void;
   socketClosed(sessionId: string, socket: ClosableSocket): void;
 }
 
-const signWithServerKey: TokenSigner = (member: WebMember, ttlSeconds: number) =>
+export interface SocketTicketHolder {
+  readonly userId: number;
+  readonly sessionId: string;
+  // Seconds since the epoch: the socket lives no longer than its web session.
+  readonly expiresAt: number;
+}
+
+const signWithServerKey: TokenSigner = (member, ttlSeconds, claims) =>
   generateJWT(
     { id: member.id, email: member.email, name: member.name ?? undefined, provider: member.provider, providerId: member.providerId },
     ttlSeconds,
+    claims,
   );
 
 const defaultIdentity: IdentityVerifiers = {
@@ -64,7 +73,7 @@ const defaultIdentity: IdentityVerifiers = {
 export function createWebSessionModule(options: WebSessionOptions): WebSessionModule {
   const config = readConfig(options.env ?? process.env);
   const now = options.now ?? (() => new Date());
-  const sockets = new SocketRegistry(signWithServerKey, now);
+  const sockets = new SocketRegistry(now);
   const sessions = new SessionService(new PgSessionRepository(options.sql), sockets, now);
   const members = options.members ?? new PgMemberDirectory(options.sql);
   const pairings = new PairingService(
@@ -83,7 +92,12 @@ export function createWebSessionModule(options: WebSessionOptions): WebSessionMo
     identity: options.identity ?? defaultIdentity,
     now,
     bridge: createBridge({ sessions, config, sign: signWithServerKey }),
-    socketSession: (token) => sockets.sessionOf(token),
+    consumeSocketTicket: async (token) => {
+      const holder = sockets.consume(token);
+      const live = holder ? await sessions.get(holder.sessionId) : null;
+      if (!holder || !live) return undefined;
+      return { userId: holder.userId, sessionId: holder.sessionId, expiresAt: Math.floor(live.session.expiresAt.getTime() / 1000) };
+    },
     socketOpened: (sessionId, socket) => sockets.opened(sessionId, socket),
     socketClosed: (sessionId, socket) => sockets.closed(sessionId, socket),
   };

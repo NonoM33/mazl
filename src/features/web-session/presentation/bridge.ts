@@ -6,6 +6,8 @@ import { hostAllowed, originAllowed } from "./origin";
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 export const BRIDGE_TOKEN_TTL_SECONDS = 60;
+// Audience of the bridge's tokens: routes kept for the phone refuse it.
+export const BRIDGE_AUDIENCE = "web-bridge";
 
 export interface BridgeDeps {
   readonly sessions: SessionService;
@@ -25,7 +27,7 @@ export function createBridge(deps: BridgeDeps): (req: Request) => Promise<void> 
     if (!token) return;
     const live = await deps.sessions.resolve(token);
     if (!live) return;
-    req.headers.set("authorization", `Bearer ${deps.sign(live.member, BRIDGE_TOKEN_TTL_SECONDS)}`);
+    req.headers.set("authorization", `Bearer ${deps.sign(live.member, BRIDGE_TOKEN_TTL_SECONDS, { aud: BRIDGE_AUDIENCE, sid: live.session.id })}`);
     req.headers.set(SESSION_HEADER, live.session.id);
   };
 }

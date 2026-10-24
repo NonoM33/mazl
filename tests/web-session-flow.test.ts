@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { describe, expect, test } from "bun:test";
 import { BASE_URL, auth, db, json, makeUser, type TestUser } from "./media-helpers";
 
@@ -235,6 +235,52 @@ describe("cross-site protection", () => {
   });
 });
 
+// Resolves "open" if the socket opened, "refused" if the upgrade was refused.
+function socketOutcome(token: string): Promise<"open" | "refused"> {
+  return new Promise((resolve) => {
+    const socket = new WebSocket(`${WS_URL}?token=${encodeURIComponent(token)}`);
+    socket.onopen = () => { socket.close(); resolve("open"); };
+    socket.onerror = () => resolve("refused");
+  });
+}
+
+function signedToken(claims: Record<string, unknown>): string {
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const body = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  const secret = process.env.JWT_SECRET ?? "";
+  return `${header}.${body}.${createHmac("sha256", secret).update(`${header}.${body}`).digest("base64url")}`;
+}
+
+describe("socket tickets are not API tokens (security review H1)", () => {
+  test("a ticket used as a Bearer token is refused, so it cannot approve a sign-in", async () => {
+    const user = await makeUser("ticket-bearer");
+    const { browser } = await signInByQr(user);
+    const { token } = (await (await browser.send("POST", "/api/web/socket-ticket")).json()) as { token: string };
+    const victimPairing = await openPairing();
+    const scan = await fetch(`${BASE_URL}/api/web/pairings/scan`, { method: "POST", headers: json(token), body: JSON.stringify({ code: victimPairing.code }) });
+    expect(scan.status).toBe(401);
+    expect((await fetch(`${BASE_URL}/api/matches`, { headers: auth(token) })).status).toBe(401);
+  });
+
+  test("a ticket opens one socket, once", async () => {
+    const user = await makeUser("ticket-once");
+    const { browser } = await signInByQr(user);
+    const { token } = (await (await browser.send("POST", "/api/web/socket-ticket")).json()) as { token: string };
+    expect(await socketOutcome(token)).toBe("open");
+    expect(await socketOutcome(token)).toBe("refused");
+  });
+
+  test("a token minted for the web bridge cannot scan nor approve a pairing", async () => {
+    const user = await makeUser("bridge-aud");
+    const bridgeToken = signedToken({ sub: String(user.id), email: "x@example.com", exp: Math.floor(Date.now() / 1000) + 60, aud: "web-bridge", sid: crypto.randomUUID() });
+    expect((await fetch(`${BASE_URL}/api/matches`, { headers: auth(bridgeToken) })).status).toBe(200);
+    const pairing = await openPairing();
+    const scan = await fetch(`${BASE_URL}/api/web/pairings/scan`, { method: "POST", headers: json(bridgeToken), body: JSON.stringify({ code: pairing.code }) });
+    expect(scan.status).toBe(403);
+    expect(((await scan.json()) as { error: string }).error).toBe("web_session_forbidden");
+  });
+});
+
 describe("listing and revoking from the phone", () => {
   test("revoking stops the next web request and closes the session's socket with 4003", async () => {
     const user = await makeUser("revoke");
@@ -250,7 +296,7 @@ describe("listing and revoking from the phone", () => {
     expect(fromWeb.sessions[0]?.current).toBe(true);
 
     const ticket = (await (await browser.send("POST", "/api/web/socket-ticket")).json()) as { token: string; expires_at: string };
-    expect(new Date(ticket.expires_at).getTime() - Date.now()).toBeGreaterThan(590_000);
+    expect(new Date(ticket.expires_at).getTime() - Date.now()).toBeLessThanOrEqual(60_000);
     const closed = await new Promise<{ code: number; reason: string }>((resolve, reject) => {
       const socket = new WebSocket(`${WS_URL}?token=${ticket.token}`);
       const timer = setTimeout(() => reject(new Error("socket never closed")), 8000);
@@ -268,17 +314,8 @@ describe("listing and revoking from the phone", () => {
     const after = await browser.get("/api/matches");
     expect(after.status).toBe(401);
     expect((await browser.get("/api/web/session")).status).toBe(401);
-    // The ticket is an ordinary JWT for ten minutes: using it after the
-    // revocation must still end in a 4003 close, never a live socket.
-    const reuse = await new Promise<{ code: number; reason: string }>((resolve, reject) => {
-      const socket = new WebSocket(`${WS_URL}?token=${ticket.token}`);
-      const timer = setTimeout(() => reject(new Error("reused ticket kept a socket open")), 8000);
-      socket.onclose = (event) => {
-        clearTimeout(timer);
-        resolve({ code: event.code, reason: event.reason });
-      };
-    });
-    expect(reuse).toEqual({ code: 4003, reason: "session_revoked" });
+    // A ticket opens one socket: used again, after the revocation, it opens nothing.
+    expect(await socketOutcome(ticket.token)).toBe("refused");
   });
 
   test("a member cannot revoke someone else's session; unknown ids are 404", async () => {

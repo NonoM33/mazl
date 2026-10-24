@@ -1,10 +1,11 @@
-import { sha256Hex } from "../domain/hashing";
-import type { Clock, SessionRevocationListener, TokenSigner, WebMember } from "./ports";
+import { randomToken, sha256Hex } from "../domain/hashing";
+import type { Clock, SessionRevocationListener, WebMember } from "./ports";
 
 // Sockets are closed with this code when their web session is revoked.
 export const SESSION_REVOKED_CLOSE = 4003;
 export const SESSION_REVOKED_REASON = "session_revoked";
-export const SOCKET_TICKET_TTL_SECONDS = 600;
+// A ticket opens one socket, within a minute (security review H1).
+export const SOCKET_TICKET_TTL_SECONDS = 60;
 
 export interface ClosableSocket {
   close(code?: number, reason?: string): void;
@@ -12,7 +13,13 @@ export interface ClosableSocket {
 
 interface Ticket {
   readonly sessionId: string;
+  readonly userId: number;
   readonly expiresAt: number;
+}
+
+export interface TicketHolder {
+  readonly sessionId: string;
+  readonly userId: number;
 }
 
 export interface IssuedTicket {
@@ -20,9 +27,9 @@ export interface IssuedTicket {
   readonly expiresAt: Date;
 }
 
-// Short-lived socket tickets and the open sockets of each web session, in
-// memory: a ticket is a JWT the socket upgrade already knows how to check, and
-// this registry says which web session it belongs to.
+// Socket tickets and the open sockets of each web session, in memory. A ticket
+// is an opaque random value, not a JWT: it can never be used as a Bearer token
+// on the API, and it opens one socket, once, within a minute.
 export class SocketRegistry implements SessionRevocationListener {
   private readonly tickets = new Map<string, Ticket>();
   private readonly sockets = new Map<string, Set<ClosableSocket>>();
@@ -30,22 +37,23 @@ export class SocketRegistry implements SessionRevocationListener {
   // so a socket that finishes upgrading just after the revocation is closed too.
   private readonly revoked = new Map<string, number>();
 
-  constructor(
-    private readonly sign: TokenSigner,
-    private readonly now: Clock,
-  ) {}
+  constructor(private readonly now: Clock) {}
 
   issue(sessionId: string, member: WebMember): IssuedTicket {
     this.forgetExpired();
-    const token = this.sign(member, SOCKET_TICKET_TTL_SECONDS);
+    const token = randomToken();
     const expiresAt = this.now().getTime() + SOCKET_TICKET_TTL_SECONDS * 1000;
-    this.tickets.set(sha256Hex(token), { sessionId, expiresAt });
+    this.tickets.set(sha256Hex(token), { sessionId, userId: member.id, expiresAt });
     return { token, expiresAt: new Date(expiresAt) };
   }
 
-  sessionOf(token: string): string | undefined {
-    const ticket = this.tickets.get(sha256Hex(token));
-    return ticket && ticket.expiresAt > this.now().getTime() ? ticket.sessionId : undefined;
+  // The holder of a ticket, which is spent by the reading.
+  consume(token: string): TicketHolder | undefined {
+    const key = sha256Hex(token);
+    const ticket = this.tickets.get(key);
+    this.tickets.delete(key);
+    if (!ticket || ticket.expiresAt <= this.now().getTime()) return undefined;
+    return { sessionId: ticket.sessionId, userId: ticket.userId };
   }
 
   opened(sessionId: string, socket: ClosableSocket): void {
@@ -69,9 +77,9 @@ export class SocketRegistry implements SessionRevocationListener {
     const revoked = new Set(sessionIds);
     const until = this.now().getTime() + SOCKET_TICKET_TTL_SECONDS * 1000;
     for (const id of sessionIds) this.revoked.set(id, until);
-    // Tickets stay known until they expire: the token is an ordinary JWT, so
-    // forgetting it would let the socket upgrade as an untracked mobile one.
-    // A socket opened with it is closed on arrival (see `opened`).
+    for (const [hash, ticket] of this.tickets) {
+      if (revoked.has(ticket.sessionId)) this.tickets.delete(hash);
+    }
     for (const id of revoked) this.closeAll(id);
   }
 

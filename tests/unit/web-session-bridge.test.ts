@@ -15,7 +15,7 @@ function bridgeFor(env: Record<string, string> = {}) {
   return createBridge({
     sessions,
     config: readConfig(env),
-    sign: (member, ttl) => `signed-${member.id}-${ttl}`,
+    sign: (member, ttl, claims) => `signed-${member.id}-${ttl}-${claims.aud}-${claims.sid}`,
   });
 }
 
@@ -28,17 +28,17 @@ const web = (extra: Record<string, string> = {}) => ({ cookie: `__Host-mazl_web=
 beforeEach(async () => {
   clock = new FakeClock();
   const members = new InMemoryMembers();
-  sessions = new SessionService(new InMemorySessions(members), new SocketRegistry(() => "jwt", clock.now), clock.now);
+  sessions = new SessionService(new InMemorySessions(members), new SocketRegistry(clock.now), clock.now);
   const opened = await sessions.open(ALICE, "qr", "Chrome sur macOS");
   cookie = opened.token;
   sessionId = opened.session.id;
 });
 
 describe("bridge", () => {
-  test("turns a valid cookie plus X-Mazl-Web into a 60 s bearer and the session header", async () => {
+  test("turns a valid cookie plus X-Mazl-Web into a 60 s bearer for the bridge audience, and the session header", async () => {
     const req = request("/api/matches", web());
     await bridgeFor()(req);
-    expect(req.headers.get("authorization")).toBe("Bearer signed-1-60");
+    expect(req.headers.get("authorization")).toBe(`Bearer signed-1-60-web-bridge-${sessionId}`);
     expect(req.headers.get("x-mazl-web-session")).toBe(sessionId);
   });
 
@@ -82,7 +82,7 @@ describe("bridge", () => {
     expect(missing.headers.get("authorization")).toBeNull();
     const right = request("/api/swipes", web({ origin: ORIGIN }), "POST");
     await bridgeFor()(right);
-    expect(right.headers.get("authorization")).toBe("Bearer signed-1-60");
+    expect(right.headers.get("authorization")).toBe(`Bearer signed-1-60-web-bridge-${sessionId}`);
   });
 
   test("with WEB_ORIGIN, Origin must equal it and the Host must match", async () => {
