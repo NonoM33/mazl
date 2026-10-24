@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_event.dart';
+import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -169,7 +170,12 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
             ? 'Aucun événement disponible'
             : 'Vous n\'êtes inscrit à aucun événement',
         actionLabel: showRegisterButton ? null : 'Découvrir les événements',
-        onAction: showRegisterButton ? null : () => _tabController.animateTo(0),
+        onAction: showRegisterButton
+            ? null
+            : () => _tabController.animateTo(
+                0,
+                duration: MazlMotion.reduced(context) ? Duration.zero : null,
+              ),
       );
     }
 
