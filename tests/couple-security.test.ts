@@ -238,3 +238,47 @@ describe("request acceptance re-checks the relationship", () => {
     expect(await activeCouplesOf(b.id)).toBe(0);
   });
 });
+
+// ---------- 4. repeated requests are harassment ----------
+
+describe("repeated couple requests", () => {
+  test("a refused person cannot be asked again for seven days", async () => {
+    const a = await makeUser("hr-a");
+    const b = await makeUser("hr-b");
+    await match(a, b);
+    const first = await requestId(a, b);
+    expect((await respond(b, first, "reject")).status).toBe(200);
+
+    expect((await sendRequest(a, b)).status).toBe(429);
+
+    await backdateRequest(first, 8);
+    expect((await sendRequest(a, b)).status).toBe(200);
+  });
+
+  test("after three refused requests the pair is closed for good", async () => {
+    const a = await makeUser("cap-a");
+    const b = await makeUser("cap-b");
+    await match(a, b);
+    for (let i = 0; i < 3; i += 1) {
+      const id = await requestId(a, b);
+      expect((await respond(b, id, "reject")).status).toBe(200);
+      await backdateRequest(id, 8 + i);
+    }
+    const fourth = await sendRequest(a, b);
+    expect(fourth.status).toBe(409);
+    const body = await bodyOf<{ success: boolean; error: string }>(fourth);
+    expect(body.success).toBe(false);
+    expect(body.error.length).toBeGreaterThan(10);
+  });
+
+  test("sending and cancelling in a loop is throttled", async () => {
+    const a = await makeUser("loop-a");
+    const b = await makeUser("loop-b");
+    await match(a, b);
+    for (let i = 0; i < 3; i += 1) {
+      const id = await requestId(a, b);
+      expect((await api(a.token, "DELETE", `/api/couple/request/${id}`)).status).toBe(200);
+    }
+    expect((await sendRequest(a, b)).status).toBe(429);
+  });
+});

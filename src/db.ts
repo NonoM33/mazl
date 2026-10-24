@@ -2442,9 +2442,14 @@ export interface CoupleRequestRow {
   updated_at: Date;
 }
 
+// Limits on asking the same person again: nobody can be pestered into a couple.
+export const COUPLE_REQUEST_COOLDOWN_DAYS = 7;
+export const COUPLE_REQUEST_MAX_REFUSED_PER_PAIR = 3;
+export const COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON = 3;
+
 export type CreateCoupleRequestResult =
   | { ok: true; request: CoupleRequestRow }
-  | { ok: false; error: string };
+  | { ok: false; error: string; status?: 400 | 409 | 429 };
 
 export type CoupleStatusWith =
   | 'none'
@@ -2502,6 +2507,51 @@ export async function createCoupleRequest(
   `;
   if (existingPending.length > 0) {
     return { ok: false, error: 'A pending couple request already exists' };
+  }
+
+  // Each refusal counts against the pair, in either direction, for good.
+  const [refused] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE status = 'rejected'
+      AND ((requester_id = ${requesterId} AND target_id = ${targetId})
+        OR (requester_id = ${targetId} AND target_id = ${requesterId}))
+  `;
+  if (Number(refused?.total ?? 0) >= COUPLE_REQUEST_MAX_REFUSED_PER_PAIR) {
+    return {
+      ok: false,
+      status: 409,
+      error: 'Too many declined couple requests with this person: no new request is possible',
+    };
+  }
+
+  // A refusal is respected for a while before the same person may ask again.
+  const recentlyRefused = await sql`
+    SELECT 1 FROM couple_requests
+    WHERE status = 'rejected'
+      AND requester_id = ${requesterId} AND target_id = ${targetId}
+      AND updated_at > NOW() - ${COUPLE_REQUEST_COOLDOWN_DAYS} * INTERVAL '1 day'
+    LIMIT 1
+  `;
+  if (recentlyRefused.length > 0) {
+    return {
+      ok: false,
+      status: 429,
+      error: `This person declined your request: wait ${COUPLE_REQUEST_COOLDOWN_DAYS} days before asking again`,
+    };
+  }
+
+  // Sending then cancelling in a loop would notify the target each time.
+  const [recent] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE requester_id = ${requesterId} AND target_id = ${targetId}
+      AND created_at > NOW() - INTERVAL '1 day'
+  `;
+  if (Number(recent?.total ?? 0) >= COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON) {
+    return {
+      ok: false,
+      status: 429,
+      error: 'Too many couple requests to this person today: try again tomorrow',
+    };
   }
 
   const rows = await sql`

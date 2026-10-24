@@ -101,7 +101,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const result = await createCoupleRequest(userId, targetUserId);
       if (!result.ok) {
-        return c.json({ success: false, error: result.error }, 400);
+        return c.json({ success: false, error: result.error }, result.status ?? 400);
       }
 
       const view = await getCoupleRequestView(result.request.id);
