@@ -277,8 +277,8 @@ registerDocumentsRoutes(app, documents);
 // All `/api/admin/*` endpoints live in src/features/admin/*. They are
 // registered here — at their original location in the route table —
 // preserving the exact relative declaration order of the admin routes.
-// Admin auth (admin JWT + email whitelist via assertAdmin /
-// assertAdminFileDownload) lives in src/features/admin/admin.auth.ts.
+// Admin auth (admin JWT + email whitelist via assertAdmin)
+// lives in src/features/admin/admin.auth.ts.
 const media = createMediaModule({ uploadsDir: UPLOADS_DIR, faceChecker: verification.photoFaceChecker });
 // GDPR erasure of a member: rows first (inside `deletion`), then their profile
 // photo files, then their chat files. A failed deletion touches no file.

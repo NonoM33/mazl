@@ -13,7 +13,7 @@ import { createAttemptGuard } from "../../shared/http/rate-limit";
 // - The whitelist is checked again on every request, so removing an address
 //   from the environment revokes its tokens.
 // - Credentials are read from HEADERS only (query strings leak into logs,
-//   history and Referer). The one exception is `assertAdminFileDownload`.
+//   history and Referer); the console downloads documents with fetch.
 // - Wrong passwords lock the client address out (5 failures / 15 min), right
 //   password included, so guessing cannot continue in the background.
 
@@ -114,19 +114,4 @@ export function assertAdmin(c: Context): AdminAuthResult {
     if (result.valid) return { ok: true, email: result.email };
   }
   return checkAdminPassword(c);
-}
-
-// Admin auth for browser file downloads only. An <a href> navigation cannot set
-// an Authorization header, so this single read-only endpoint additionally accepts
-// a signed admin JWT via the `token` query param. No password is ever accepted here.
-export function assertAdminFileDownload(c: Context): AdminAuthResult {
-  const headerResult = assertAdmin(c);
-  if (headerResult.ok) return headerResult;
-
-  const tokenParam = c.req.query("token");
-  if (tokenParam) {
-    const result = verifyAdminJWT(tokenParam);
-    if (result.valid) return { ok: true, email: result.email };
-  }
-  return { ok: false, error: "Unauthorized" };
 }

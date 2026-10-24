@@ -103,6 +103,14 @@ describe("admin tokens", () => {
   });
 });
 
+describe("identity documents", () => {
+  test("an admin token in the query string opens no document: tokens in URLs end up in logs", async () => {
+    const r = await post("/api/admin/login", { email: ADMIN_EMAIL, password: ADMIN_PASSWORD }, freshAddress());
+    const res = await fetch(`${BASE_URL}/api/admin/documents/1/file?token=${encodeURIComponent(r.body.token ?? "")}`);
+    expect(res.status).toBe(401);
+  });
+});
+
 describe("password guessing", () => {
   test("after 5 wrong passwords an address is locked out, right password included", async () => {
     const address = freshAddress();

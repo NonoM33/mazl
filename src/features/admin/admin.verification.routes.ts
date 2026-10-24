@@ -17,7 +17,6 @@ import { createIpRateLimiter, tooManyRequests } from "../../shared/http/rate-lim
 import {
   adminPasswordAttempts,
   assertAdmin,
-  assertAdminFileDownload,
   generateAdminJWT,
   isAdminEmail,
   normalizeEmail,
@@ -300,7 +299,7 @@ export function registerAdminVerificationRoutes(
   });
 
   app.get("/api/admin/documents/:id/file", async (c) => {
-    const auth = assertAdminFileDownload(c);
+    const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
     const documentId = Number.parseInt(c.req.param("id"), 10);

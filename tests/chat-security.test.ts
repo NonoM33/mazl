@@ -30,15 +30,26 @@ async function block(blocker: number, blocked: number): Promise<void> {
 }
 
 describe("WebSocket chat:send size", () => {
-  test("a 1 MB frame is not stored, and the next normal frame still is", async () => {
+  test("a text over 5000 characters is not stored, and the next normal frame still is", async () => {
     const pair = await makeMatch("secsize");
     const alice = await open(pair.a.token);
-    alice.send({ type: "chat:send", payload: { conversationId: pair.conversationId, content: "x".repeat(1_000_000), clientId: "big-1" } });
     alice.send({ type: "chat:send", payload: { conversationId: pair.conversationId, content: "x".repeat(5001), clientId: "big-2" } });
     alice.send({ type: "chat:send", payload: { conversationId: pair.conversationId, content: "ok", clientId: "ok-1" } });
     await alice.next("chat:message");
     await settle();
     expect(await countMessages(pair.conversationId, pair.a.id)).toBe(1);
+  });
+
+  test("a 1 MB frame closes the socket before it is parsed, and nothing is stored", async () => {
+    // The server refuses frames above 64 KB (maxPayloadLength in src/index.ts).
+    const pair = await makeMatch("secsizebig");
+    const socket = new WebSocket(`${WS_URL}?token=${encodeURIComponent(pair.a.token)}`);
+    await new Promise<void>((resolve, reject) => { socket.onopen = () => resolve(); socket.onerror = () => reject(new Error("ws error")); });
+    const closedWith = new Promise<number>((resolve) => { socket.onclose = (event) => resolve(event.code); });
+    socket.send(JSON.stringify({ type: "chat:send", payload: { conversationId: pair.conversationId, content: "x".repeat(1_000_000), clientId: "big-1" } }));
+    expect(await closedWith).not.toBe(1000);
+    await settle();
+    expect(await countMessages(pair.conversationId, pair.a.id)).toBe(0);
   });
 });
 
