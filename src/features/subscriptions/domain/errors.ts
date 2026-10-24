@@ -7,6 +7,7 @@ export type InvalidTransactionReason =
   | "invalid_payload"
   | "wrong_bundle"
   | "product_not_allowed"
+  | "not_consumable"
   | "revoked"
   | "expired";
 
