@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   upsertProfile,
   getFullProfile,
+  isProfileVisibleTo,
   PROMPT_CATALOG,
   getPromptText,
   getProfilePrompts,
@@ -12,7 +13,7 @@ import {
   ProfilePromptLimitError,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { parseBody } from "../../shared/http/validation";
+import { parseBody, parseId } from "../../shared/http/validation";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import { clampDistanceMax } from "../media/domain/geo-fuzz";
 import type { MediaModule } from "../media";
@@ -244,13 +245,21 @@ export function registerProfileRoutes(
   // Get user profile by ID (for viewing other users)
   app.get("/api/profile/:userId", requireAuth, profileViewLimiter, async (c) => {
     try {
-      const targetUserId = parseInt(c.req.param("userId"));
-      if (isNaN(targetUserId)) {
+      const targetUserId = parseId(c.req.param("userId"));
+      if (targetUserId === null) {
         return c.json({ success: false, error: "Invalid user ID" }, 400);
       }
 
-      // Email and account name only for the caller's own profile.
-      const profile = await getFullProfile(targetUserId, targetUserId === c.get("userId"));
+      // Email and account name only for the caller's own profile. Someone else's
+      // profile is served only when it is complete, its account is active and
+      // no block exists in either direction: otherwise the answer is the very
+      // same 404 as for an unknown id.
+      const viewerId = c.get("userId");
+      const isOwn = targetUserId === viewerId;
+      if (!isOwn && !(await isProfileVisibleTo(viewerId, targetUserId))) {
+        return c.json({ success: false, error: "Profile not found" }, 404);
+      }
+      const profile = await getFullProfile(targetUserId, isOwn);
       if (!profile) {
         return c.json({ success: false, error: "Profile not found" }, 404);
       }

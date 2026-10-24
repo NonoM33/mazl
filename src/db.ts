@@ -1044,6 +1044,27 @@ export async function getFullProfile(userId: number, includePrivate = false) {
   };
 }
 
+// Whether `viewerId` may see the profile of `targetId`: the profile is
+// complete, the account is active and neither member blocked the other. Every
+// "no" looks the same to the caller (a missing profile), so that a block, a ban
+// or an unfinished profile cannot be told apart from an unknown id.
+export async function isProfileVisibleTo(viewerId: number, targetId: number): Promise<boolean> {
+  const rows = await sql`
+    SELECT 1
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id = ${targetId}
+      AND p.is_complete = true
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${viewerId} AND b.blocked_id = ${targetId})
+           OR (b.blocker_id = ${targetId} AND b.blocked_id = ${viewerId})
+      )
+  `;
+  return rows.length > 0;
+}
+
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;
