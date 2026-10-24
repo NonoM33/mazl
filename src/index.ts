@@ -495,7 +495,13 @@ app.post("/api/dev/couple/enable", async (c) => {
           coupleId: couple.id
         });
       }
-      // Reactivate existing couple
+      // Reactivate existing couple, after ending any other active couple of
+      // either member (the database allows one active couple per member).
+      await sql`
+        UPDATE couples SET status = 'ended', updated_at = NOW()
+        WHERE id <> ${couple.id} AND status = 'active'
+          AND (user1_id IN (${userId}, ${partnerUserId}) OR user2_id IN (${userId}, ${partnerUserId}))
+      `;
       await sql`
         UPDATE couples SET status = 'active', updated_at = NOW()
         WHERE id = ${couple.id}
