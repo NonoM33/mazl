@@ -1,21 +1,22 @@
 import '../../../../core/services/verification_api.dart';
+import '../../../../l10n/l10n.dart';
 import 'liveness_controller.dart';
 
-String challengeInstruction(FaceChallenge challenge) => switch (challenge) {
-      FaceChallenge.front => 'Regardez l\'objectif',
-      FaceChallenge.left => 'Tournez doucement la tête vers la gauche',
-      FaceChallenge.right => 'Tournez doucement la tête vers la droite',
+String challengeInstruction(AppLocalizations l10n, FaceChallenge challenge) => switch (challenge) {
+      FaceChallenge.front => l10n.verificationLivenessFront,
+      FaceChallenge.left => l10n.verificationLivenessLeft,
+      FaceChallenge.right => l10n.verificationLivenessRight,
     };
 
 /// Short hint under the instruction; null when nothing needs fixing.
-String? poseFeedbackText(PoseFeedback feedback) => switch (feedback) {
-      PoseFeedback.noFace => 'Placez votre visage dans le cercle',
-      PoseFeedback.multipleFaces => 'Une seule personne dans le cadre',
-      PoseFeedback.tooSmall => 'Rapprochez-vous un peu',
-      PoseFeedback.offCenter => 'Centrez votre visage dans le cercle',
-      PoseFeedback.lookStraight => 'Regardez droit devant vous',
-      PoseFeedback.turnMore => 'Tournez encore un peu',
-      PoseFeedback.turnLess => 'Pas autant, revenez un peu',
-      PoseFeedback.turnOtherWay => 'Tournez de l\'autre côté',
+String? poseFeedbackText(AppLocalizations l10n, PoseFeedback feedback) => switch (feedback) {
+      PoseFeedback.noFace => l10n.verificationLivenessHintNoFace,
+      PoseFeedback.multipleFaces => l10n.verificationLivenessHintMultipleFaces,
+      PoseFeedback.tooSmall => l10n.verificationLivenessHintTooSmall,
+      PoseFeedback.offCenter => l10n.verificationLivenessHintOffCenter,
+      PoseFeedback.lookStraight => l10n.verificationLivenessHintLookStraight,
+      PoseFeedback.turnMore => l10n.verificationLivenessHintTurnMore,
+      PoseFeedback.turnLess => l10n.verificationLivenessHintTurnLess,
+      PoseFeedback.turnOtherWay => l10n.verificationLivenessHintTurnOtherWay,
       PoseFeedback.holding => null,
     };

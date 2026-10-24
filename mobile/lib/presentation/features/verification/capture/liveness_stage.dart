@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// The selfie screen: the live camera in a circle ringed by the hold
@@ -60,8 +61,12 @@ class LivenessStage extends StatelessWidget {
                   height: 44,
                   child: Row(
                     children: [
-                      RoundIconButton(icon: LucideIcons.x, tooltip: 'Annuler', onPressed: onCancel),
-                      Expanded(child: Center(child: SectionLabel('Pose ${math.min(done + 1, total)} / $total'))),
+                      RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonCancel, onPressed: onCancel),
+                      Expanded(
+                        child: Center(
+                          child: SectionLabel(context.l10n.verificationLivenessPoseCounter(math.min(done + 1, total), total)),
+                        ),
+                      ),
                       const SizedBox(width: 44),
                     ],
                   ),
@@ -129,7 +134,7 @@ class LivenessStage extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                'Seul dans le cadre, bien éclairé. Les images ne sont pas conservées.',
+                context.l10n.verificationLivenessPrivacy,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, height: 1.45, color: scheme.onSurfaceVariant),
               ),
@@ -176,7 +181,7 @@ class _PoseBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Poses prises : $done sur $total',
+      label: context.l10n.verificationLivenessPosesTaken(done, total),
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,

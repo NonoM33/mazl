@@ -1842,33 +1842,6 @@ lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Annuler
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Autoriser la caméra
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra indisponible
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra nécessaire
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Fermer
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Fermer
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Impossible de démarrer la caméra frontale.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Le temps imparti est écoulé. Vous pouvez recommencer.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | MAZL utilise la caméra frontale pour vérifier que vous êtes bien la personne de vos photos.
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | No front camera
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Ouvrir les réglages
-lib/presentation/features/verification/capture/liveness_capture_screen.dart | Session expirée
-lib/presentation/features/verification/capture/liveness_stage.dart | Annuler
-lib/presentation/features/verification/capture/liveness_stage.dart | Pose ${math.min(done + 1, total)} / $total
-lib/presentation/features/verification/capture/liveness_stage.dart | Poses prises : $done sur $total
-lib/presentation/features/verification/capture/liveness_stage.dart | Seul dans le cadre, bien éclairé. Les images ne sont pas conservées.
-lib/presentation/features/verification/capture/liveness_texts.dart | Centrez votre visage dans le cercle
-lib/presentation/features/verification/capture/liveness_texts.dart | Pas autant, revenez un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Placez votre visage dans le cercle
-lib/presentation/features/verification/capture/liveness_texts.dart | Rapprochez-vous un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Regardez droit devant vous
-lib/presentation/features/verification/capture/liveness_texts.dart | Regardez l\'objectif
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez de l\'autre côté
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez doucement la tête vers la droite
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez doucement la tête vers la gauche
-lib/presentation/features/verification/capture/liveness_texts.dart | Tournez encore un peu
-lib/presentation/features/verification/capture/liveness_texts.dart | Une seule personne dans le cadre
 lib/presentation/features/verification/identity/chip_location_illustration.dart | Le haut du téléphone posé contre la couverture fermée du passeport
 lib/presentation/features/verification/identity/identity_flow_controller.dart | Réessayer
 lib/presentation/features/verification/identity/identity_intro_view.dart | Commencer
@@ -1994,55 +1967,6 @@ lib/presentation/features/verification/identity/nfc_step_checklist.dart | Lectur
 lib/presentation/features/verification/identity/nfc_step_checklist.dart | en attente
 lib/presentation/features/verification/identity/nfc_step_checklist.dart | en cours
 lib/presentation/features/verification/identity/nfc_step_checklist.dart | terminé
-lib/presentation/features/verification/screens/verification_screen.dart | $mismatches de vos photos ne vous ressemblent pas : elles ne comptent pas.
-lib/presentation/features/verification/screens/verification_screen.dart | Annuler
-lib/presentation/features/verification/screens/verification_screen.dart | Retirer
-lib/presentation/features/verification/screens/verification_screen.dart | Retirer ma vérification ?
-lib/presentation/features/verification/screens/verification_screen.dart | Retour
-lib/presentation/features/verification/screens/verification_screen.dart | Une de vos photos ne vous ressemble pas : elle ne compte pas.
-lib/presentation/features/verification/screens/verification_screen.dart | Votre badge et l\'empreinte de votre visage seront supprimés.
-lib/presentation/features/verification/screens/verification_screen.dart | Votre profil
-lib/presentation/features/verification/screens/verification_screen.dart | Vérification
-lib/presentation/features/verification/screens/verification_sections.dart | ).format(local)} à $time
-lib/presentation/features/verification/screens/verification_sections.dart | Contrôlée le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | Document contrôlé par sa puce.
-lib/presentation/features/verification/screens/verification_sections.dart | Identité vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Limite atteinte, nouvel essai possible ${_whenText(blockedUntil)}.
-lib/presentation/features/verification/screens/verification_sections.dart | Niveau 1
-lib/presentation/features/verification/screens/verification_sections.dart | Niveau 2
-lib/presentation/features/verification/screens/verification_sections.dart | Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; 
-lib/presentation/features/verification/screens/verification_sections.dart | Passeport ou carte d\'identité, lu par sa puce. Un selfie confirme que c\'est bien vous.
-lib/presentation/features/verification/screens/verification_sections.dart | Photo vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Retirer ma vérification
-lib/presentation/features/verification/screens/verification_sections.dart | Réessayer
-lib/presentation/features/verification/screens/verification_sections.dart | Votre visage correspond à vos photos.
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifier ma photo
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifier mon identité
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifiée
-lib/presentation/features/verification/screens/verification_sections.dart | Vérifiée le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | le ${DateFormat(
-lib/presentation/features/verification/screens/verification_sections.dart | seule une empreinte chiffrée l\'est, supprimable à tout moment.
-lib/presentation/features/verification/verification_reasons.dart | Ajoutez d\'abord à votre profil une photo où votre visage est bien visible.
-lib/presentation/features/verification/verification_reasons.dart | Aucun visage détecté. Mettez-vous face à la caméra, dans un endroit bien éclairé.
-lib/presentation/features/verification/verification_reasons.dart | Ce document est déjà associé à un autre compte.
-lib/presentation/features/verification/verification_reasons.dart | Ce document est expiré.
-lib/presentation/features/verification/verification_reasons.dart | Ce document ne peut pas être utilisé.
-lib/presentation/features/verification/verification_reasons.dart | Connexion impossible. Vérifiez votre réseau et réessayez.
-lib/presentation/features/verification/verification_reasons.dart | La puce du document n\'a pas pu être authentifiée.
-lib/presentation/features/verification/verification_reasons.dart | La session a expiré. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | La session n\'est plus valide. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | Les images n\'ont pas pu être lues. Recommencez.
-lib/presentation/features/verification/verification_reasons.dart | Les images ne montrent pas la même personne. Recommencez seul(e).
-lib/presentation/features/verification/verification_reasons.dart | Les images sont trop semblables. Bougez la tête comme demandé.
-lib/presentation/features/verification/verification_reasons.dart | Les poses demandées n\'ont pas été reconnues. Suivez bien les consignes.
-lib/presentation/features/verification/verification_reasons.dart | Mettez à jour l\'application pour vérifier votre profil.
-lib/presentation/features/verification/verification_reasons.dart | Plusieurs visages détectés. Restez seul(e) dans le cadre.
-lib/presentation/features/verification/verification_reasons.dart | Une erreur est survenue. Réessayez dans un instant.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage est trop loin. Rapprochez-vous de la caméra.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage ne correspond pas à la photo du document.
-lib/presentation/features/verification/verification_reasons.dart | Votre visage ne correspond pas à votre photo principale. Choisissez une photo récente où vous êtes bien visible.
-lib/presentation/features/verification/verification_reasons.dart | Vous avez atteint la limite d\'essais pour aujourd\'hui. Revenez demain.
-lib/presentation/features/verification/verification_reasons.dart | Vous devez avoir au moins 18 ans.
 lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
 lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
 lib/presentation/features/video_call/screens/video_call_screen.dart | Fin

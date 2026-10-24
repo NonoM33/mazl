@@ -10,6 +10,7 @@ import 'package:mazl/presentation/features/verification/providers/verification_p
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
 import 'package:mazl/presentation/features/verification/verification_reasons.dart';
 import '../../helpers/l10n_helpers.dart';
+import 'verification_l10n.dart';
 
 class FakeVerificationApi implements VerificationApi {
   FakeVerificationApi({List<VerificationStatus>? statuses}) : statuses = statuses ?? [_none()];
@@ -116,12 +117,12 @@ void main() {
       'document_expired', 'underage', 'document_already_used', 'document_banned',
       'document_face_mismatch', 'timeout', 'network',
     ];
-    final generic = verificationReasonText('something_new');
+    final generic = verificationReasonText(frenchL10n, 'something_new');
 
     test('every server code has its own French text', () {
       final seen = <String>{};
       for (final code in codes) {
-        final text = verificationReasonText(code);
+        final text = verificationReasonText(frenchL10n, code);
         expect(text, isNot(generic), reason: code);
         expect(text, isNot(contains('_')), reason: '$code must not leak a raw code');
         seen.add(text);
@@ -131,7 +132,7 @@ void main() {
     });
 
     test('unknown and null codes fall back to a generic message', () {
-      expect(verificationReasonText(null), generic);
+      expect(verificationReasonText(frenchL10n, null), generic);
       expect(generic, contains('erreur'));
     });
   });
@@ -140,7 +141,7 @@ void main() {
     testWidgets('shows the consent line, the action and the identity entry', (tester) async {
       await _pump(tester, FakeVerificationApi(), FakeCapture(_frames));
 
-      expect(find.text(consentText), findsOneWidget);
+      expect(find.text(frenchL10n.verificationConsent), findsOneWidget);
       expect(find.text(
           'Nous comparons votre visage à vos photos. Les images ne sont pas conservées ; '
           'seule une empreinte chiffrée l\'est, supprimable à tout moment.'), findsOneWidget);

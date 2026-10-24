@@ -23,6 +23,7 @@ import 'package:mazl/presentation/features/verification/identity/mrz_scanner_vie
 import 'package:mazl/presentation/features/verification/identity/nfc_read_view.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
 import '../../helpers/l10n_helpers.dart';
+import '../verification/verification_l10n.dart';
 
 const _mrz = MrzData(documentNumber: 'L898902C3', birthYymmdd: '740812', expiryYymmdd: '450415');
 
@@ -353,7 +354,7 @@ void main() {
       expect(find.text('Identité vérifiée'), findsOneWidget);
       expect(find.text('NIVEAU 1'), findsOneWidget);
       expect(find.text('NIVEAU 2'), findsOneWidget);
-      expect(find.text(consentText), findsOneWidget);
+      expect(find.text(frenchL10n.verificationConsent), findsOneWidget);
       expect(find.bySemanticsLabel('Retour'), findsOneWidget);
       expect(find.widgetWithText(ElevatedButton, 'Vérifier ma photo'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Vérifier mon identité'), findsOneWidget);
