@@ -146,6 +146,14 @@ describe("super like", () => {
     expect(again.body.credits).toEqual(first.body.credits);
   });
 
+  test("two simultaneous super likes to the same new person cost one credit", async () => {
+    repository.setBalance(USER, "super_like", 5);
+    const [first, second] = await Promise.all([swipe(20, "super_like"), swipe(20, "super_like")]);
+    expect([first.status, second.status]).toEqual([200, 200]);
+    expect(repository.spends).toHaveLength(1);
+    expect(repository.balance(USER, "super_like")).toBe(5);
+  });
+
   test("a replay still succeeds when nothing is left to spend", async () => {
     await swipe(20, "super_like");
     expect((await swipe(20, "super_like")).status).toBe(200);

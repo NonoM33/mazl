@@ -4,6 +4,7 @@ import type {
   CreditsRepository,
   NewPurchase,
   PurchaseOutcome,
+  SpendGuard,
   SpendOutcome,
   SpendRequest,
   WalletSnapshot,
@@ -40,6 +41,25 @@ async function addToBalance(tx: Sql, userId: number, kind: CreditKind, delta: nu
   `;
 }
 
+// True when the guarded debit was already paid. The debit journal is written in
+// the same locked transaction as the debit, so a concurrent request sees it.
+async function alreadyPaid(tx: Sql, request: SpendRequest, guard: SpendGuard): Promise<boolean> {
+  const { userId, kind } = request;
+  const rows =
+    guard.kind === "once_per_target"
+      ? await tx`
+          SELECT 1 AS paid FROM credit_spends
+          WHERE user_id = ${userId} AND kind = ${kind} AND target_user_id = ${request.targetUserId ?? null}
+          LIMIT 1
+        `
+      : await tx`
+          SELECT 1 AS paid FROM credit_spends
+          WHERE user_id = ${userId} AND kind = ${kind} AND created_at > NOW() - (${guard.minutes} * INTERVAL '1 minute')
+          LIMIT 1
+        `;
+  return rows.length > 0;
+}
+
 export class PgCreditsRepository implements CreditsRepository {
   constructor(private readonly sql: Sql) {}
 
@@ -71,6 +91,9 @@ export class PgCreditsRepository implements CreditsRepository {
       const wallet = await tx<{ balance: number }[]>`
         SELECT balance FROM credit_balances WHERE user_id = ${userId} AND kind = ${kind} FOR UPDATE
       `;
+      if (request.guard !== undefined && (await alreadyPaid(tx, request, request.guard))) {
+        return { ok: false, reason: "already_spent" };
+      }
       const spent = await tx<{ used: number }[]>`
         SELECT COUNT(*)::int AS used FROM credit_spends
         WHERE user_id = ${userId} AND kind = ${kind} AND source = 'daily' AND created_at >= DATE_TRUNC('day', NOW())
@@ -80,7 +103,7 @@ export class PgCreditsRepository implements CreditsRepository {
         dailyUsed: Number(spent[0]?.used ?? 0),
         purchasedBalance: Number(wallet[0]?.balance ?? 0),
       });
-      if (source === undefined) return { ok: false };
+      if (source === undefined) return { ok: false, reason: "exhausted" };
       return { ok: true, spendId: await this.writeDebit(tx, request, source), source };
     });
   }

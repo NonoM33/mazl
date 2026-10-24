@@ -12,16 +12,26 @@ export interface WalletSnapshot {
   readonly resetsAt: Date;
 }
 
+// A debit that must never be paid twice, checked under the balance lock so two
+// simultaneous requests cannot both pass: one super like per person, one boost
+// while the previous one is still running.
+export type SpendGuard =
+  | { readonly kind: "once_per_target" }
+  | { readonly kind: "once_within"; readonly minutes: number };
+
 export interface SpendRequest {
   readonly userId: number;
   readonly kind: CreditKind;
   readonly allowance: number;
   readonly targetUserId: number | undefined;
+  readonly guard?: SpendGuard;
 }
+
+export type SpendRefusal = "exhausted" | "already_spent";
 
 export type SpendOutcome =
   | { readonly ok: true; readonly spendId: number; readonly source: DebitSource }
-  | { readonly ok: false };
+  | { readonly ok: false; readonly reason: SpendRefusal };
 
 export interface NewPurchase {
   readonly transactionId: string;
@@ -59,11 +69,11 @@ export interface TransactionDecoder {
 
 export type SpendResult =
   | { readonly ok: true; readonly spendId: number; readonly credits: CreditsView }
-  | { readonly ok: false; readonly credits: CreditsView };
+  | { readonly ok: false; readonly reason: SpendRefusal; readonly credits: CreditsView };
 
 // What the swipe and boost routes of other features see of the credits.
 export interface CreditsGateway {
   credits(userId: number): Promise<CreditsView>;
-  spend(userId: number, kind: CreditKind, targetUserId?: number): Promise<SpendResult>;
+  spend(userId: number, kind: CreditKind, targetUserId?: number, guard?: SpendGuard): Promise<SpendResult>;
   cancelSpend(userId: number, spendId: number): Promise<void>;
 }

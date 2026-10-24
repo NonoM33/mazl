@@ -18,6 +18,8 @@ interface SpendLine {
   readonly source: DebitSource;
   readonly targetUserId: number | undefined;
   today: boolean;
+  // Minutes since the debit; `age` moves time forward.
+  minutesAgo: number;
 }
 
 interface PurchaseLine {
@@ -43,6 +45,22 @@ export class InMemoryCredits implements CreditsRepository {
     this.balances.set(`${userId}:${kind}`, value);
   }
 
+  // Time passes for the debit journal (the boost guard looks at running time).
+  age(minutes: number): void {
+    for (const line of this.spends) line.minutesAgo += minutes;
+  }
+
+  private alreadyPaid(request: SpendRequest): boolean {
+    const guard = request.guard;
+    if (guard === undefined) return false;
+    return this.spends.some(
+      (s) =>
+        s.userId === request.userId &&
+        s.kind === request.kind &&
+        (guard.kind === "once_per_target" ? s.targetUserId === request.targetUserId : s.minutesAgo < guard.minutes),
+    );
+  }
+
   // Midnight passes: yesterday's debits no longer count against the allowance.
   nextDay(): void {
     for (const line of this.spends) line.today = false;
@@ -61,14 +79,15 @@ export class InMemoryCredits implements CreditsRepository {
   }
 
   async spend(request: SpendRequest): Promise<SpendOutcome> {
+    if (this.alreadyPaid(request)) return { ok: false, reason: "already_spent" };
     const source = chooseDebitSource({
       allowance: request.allowance,
       dailyUsed: this.dailyUsed(request.userId, request.kind),
       purchasedBalance: this.balance(request.userId, request.kind),
     });
-    if (source === undefined) return { ok: false };
+    if (source === undefined) return { ok: false, reason: "exhausted" };
     const id = this.nextId++;
-    this.spends.push({ id, userId: request.userId, kind: request.kind, source, targetUserId: request.targetUserId, today: true });
+    this.spends.push({ id, userId: request.userId, kind: request.kind, source, targetUserId: request.targetUserId, today: true, minutesAgo: 0 });
     if (source === "purchased") this.setBalance(request.userId, request.kind, this.balance(request.userId, request.kind) - 1);
     return { ok: true, spendId: id, source };
   }

@@ -91,14 +91,51 @@ describe("spend", () => {
   test("writes nothing when nothing is left", async () => {
     const { sql, calls } = fakeSql(spendBehaviour(0, 1));
     const outcome = await new PgCreditsRepository(sql).spend({ userId: 7, kind: "boost", allowance: 1, targetUserId: undefined });
-    expect(outcome).toEqual({ ok: false });
+    expect(outcome).toEqual({ ok: false, reason: "exhausted" });
     expect(find(calls, "INSERT INTO credit_spends")).toBeUndefined();
     expect(find(calls, "UPDATE credit_balances")).toBeUndefined();
   });
 
   test("a negative balance is not spendable", async () => {
     const { sql } = fakeSql(spendBehaviour(-1, 1));
-    expect(await new PgCreditsRepository(sql).spend({ userId: 7, kind: "boost", allowance: 1, targetUserId: undefined })).toEqual({ ok: false });
+    expect(await new PgCreditsRepository(sql).spend({ userId: 7, kind: "boost", allowance: 1, targetUserId: undefined })).toEqual({ ok: false, reason: "exhausted" });
+  });
+
+  test("a super like already paid for this person is not paid twice, checked under the lock", async () => {
+    const { sql, calls } = fakeSql((call) => {
+      if (has(call, "target_user_id = ")) return [{ paid: 1 }];
+      return spendBehaviour(5, 0)(call);
+    });
+    const outcome = await new PgCreditsRepository(sql).spend({
+      userId: 7, kind: "super_like", allowance: 1, targetUserId: 50, guard: { kind: "once_per_target" },
+    });
+    expect(outcome).toEqual({ ok: false, reason: "already_spent" });
+    const guard = index(calls, "target_user_id = ");
+    expect(guard).toBeGreaterThan(index(calls, "FOR UPDATE"));
+    expect(calls[guard]?.values).toEqual([7, "super_like", 50]);
+    expect(find(calls, "INSERT INTO credit_spends")).toBeUndefined();
+  });
+
+  test("a boost paid within its running time is not paid twice, checked under the lock", async () => {
+    const { sql, calls } = fakeSql((call) => {
+      if (has(call, "INTERVAL '1 minute'")) return [{ paid: 1 }];
+      return spendBehaviour(5, 0)(call);
+    });
+    const outcome = await new PgCreditsRepository(sql).spend({
+      userId: 7, kind: "boost", allowance: 1, targetUserId: undefined, guard: { kind: "once_within", minutes: 30 },
+    });
+    expect(outcome).toEqual({ ok: false, reason: "already_spent" });
+    const guard = index(calls, "INTERVAL '1 minute'");
+    expect(guard).toBeGreaterThan(index(calls, "FOR UPDATE"));
+    expect(calls[guard]?.values).toEqual([7, "boost", 30]);
+    expect(find(calls, "INSERT INTO credit_spends")).toBeUndefined();
+  });
+
+  test("without a guard, no earlier debit is looked up", async () => {
+    const { sql, calls } = fakeSql(spendBehaviour(0, 0));
+    await new PgCreditsRepository(sql).spend({ userId: 7, kind: "super_like", allowance: 1, targetUserId: 50 });
+    expect(find(calls, "target_user_id = ")).toBeUndefined();
+    expect(find(calls, "INTERVAL '1 minute'")).toBeUndefined();
   });
 
   test("creates the balance row on first use without failing when it exists", async () => {

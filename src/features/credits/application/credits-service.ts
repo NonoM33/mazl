@@ -2,7 +2,7 @@ import type { ConsumableRefundOutcome, ConsumableRefunds } from "../../subscript
 import { dailyAllowance } from "../domain/allowance";
 import { creditProductFor, type CreditKind } from "../domain/catalog";
 import { buildCredits, type CreditsView } from "../domain/view";
-import type { CreditsGateway, CreditsRepository, PlusStatus, SpendResult, TransactionDecoder } from "./ports";
+import type { CreditsGateway, CreditsRepository, PlusStatus, SpendGuard, SpendResult, TransactionDecoder } from "./ports";
 import { verifyConsumablePurchase, type ConsumablePurchaseResult } from "./verify-consumable";
 
 export interface CreditsServiceDeps {
@@ -28,11 +28,11 @@ export class CreditsService implements CreditsGateway, ConsumableRefunds {
 
   // The allowance of the day goes first, the purchased credits next. When
   // nothing is left the answer carries the balance, so the caller can show it.
-  async spend(userId: number, kind: CreditKind, targetUserId?: number): Promise<SpendResult> {
+  async spend(userId: number, kind: CreditKind, targetUserId?: number, guard?: SpendGuard): Promise<SpendResult> {
     const allowance = dailyAllowance(await this.deps.plus.isPlus(userId), kind);
-    const outcome = await this.deps.repository.spend({ userId, kind, allowance, targetUserId });
+    const outcome = await this.deps.repository.spend({ userId, kind, allowance, targetUserId, guard });
     const credits = await this.credits(userId);
-    return outcome.ok ? { ok: true, spendId: outcome.spendId, credits } : { ok: false, credits };
+    return outcome.ok ? { ok: true, spendId: outcome.spendId, credits } : { ok: false, reason: outcome.reason, credits };
   }
 
   async cancelSpend(userId: number, spendId: number): Promise<void> {

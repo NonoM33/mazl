@@ -70,7 +70,12 @@ export function registerBoostRoutes(app: Hono<{ Variables: AppVariables }>, deps
       if ((await deps.boosts.getActive(userId)) !== null) {
         return c.json({ success: false, error: "boost_already_active" }, 409);
       }
-      const spent = await deps.credits.spend(userId, "boost");
+      // The guard, checked under the balance lock, stops a second activation
+      // sent at the same time from paying for a second boost.
+      const spent = await deps.credits.spend(userId, "boost", undefined, { kind: "once_within", minutes: BOOST_MINUTES });
+      if (!spent.ok && spent.reason === "already_spent") {
+        return c.json({ success: false, error: "boost_already_active" }, 409);
+      }
       if (!spent.ok) return c.json({ success: false, error: "boosts_exhausted", credits: spent.credits }, 402);
 
       let boost: BoostRecord;

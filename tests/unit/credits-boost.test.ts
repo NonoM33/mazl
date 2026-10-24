@@ -174,8 +174,18 @@ describe("POST /api/boost/activate", () => {
     repository.setBalance(USER, "boost", 2);
     await activate();
     boosts.expireAll();
+    repository.age(31);
     expect((await activate()).status).toBe(201);
     expect(repository.balance(USER, "boost")).toBe(0);
+  });
+
+  test("two simultaneous activations make one boost and one debit, the other is 409", async () => {
+    repository.setBalance(USER, "boost", 3);
+    const codes = (await Promise.all([activate(), activate()])).map((r) => r.status).sort();
+    expect(codes).toEqual([201, 409]);
+    expect(repository.spends).toHaveLength(1);
+    expect(repository.balance(USER, "boost")).toBe(2);
+    expect(boosts.rows).toHaveLength(1);
   });
 
   test("the debit is undone when the boost cannot be inserted", async () => {

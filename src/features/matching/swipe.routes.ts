@@ -29,13 +29,18 @@ type SuperLikeOutcome = { readonly kind: "recorded"; readonly result: SwipeResul
 
 // A super like costs one credit, taken BEFORE the swipe is recorded. The same
 // super like sent again to the same person costs nothing, so the app can
-// replay a request safely. A failed recording gives the credit back.
+// replay a request safely: the stored swipe says so, and the debit journal,
+// checked under the balance lock, catches two simultaneous requests. A failed
+// recording gives the credit back.
 async function recordSuperLike(deps: SwipeRouteDeps, userId: number, targetUserId: number): Promise<SuperLikeOutcome> {
   const { credits, swipes } = deps;
   if ((await swipes.currentAction(userId, targetUserId)) === "super_like") {
     return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
   }
-  const spent = await credits.spend(userId, "super_like", targetUserId);
+  const spent = await credits.spend(userId, "super_like", targetUserId, { kind: "once_per_target" });
+  if (!spent.ok && spent.reason === "already_spent") {
+    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
+  }
   if (!spent.ok) return { kind: "exhausted", credits: spent.credits };
   try {
     return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
