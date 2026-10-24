@@ -1,0 +1,16 @@
+/* Accueil: daily picks, Shadchan card, shortcuts. */
+.picks-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.picks-grid > .skeleton { aspect-ratio: 3 / 4; }
+.pick-tile { position: relative; aspect-ratio: 3 / 4; padding: 0; border: 0; border-radius: 20px; overflow: hidden; background: var(--surface); text-align: left; color: #fff; transition: transform var(--t-base) var(--ease-out-cubic); }
+.pick-tile:hover { transform: translateY(-2px); }
+.pick-caption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 24px 12px 12px; background: rgba(11, 11, 15, 0.55); }
+.pick-caption .label-m { color: rgba(255, 255, 255, 0.82); }
+.pick-caption .verified { color: #fff; }
+.picks-done { padding: 28px; }
+.pick-actions > * { flex: 1; }
+.shadchan { display: flex; gap: 20px; padding: 20px; align-items: center; }
+.shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.shortcut { display: flex; flex-direction: column; gap: 4px; padding: 20px; text-decoration: none; transition: background-color var(--t-fast); }
+.shortcut:hover { background: var(--hover); }
+.shortcut svg { margin-bottom: 8px; }
+@media (max-width: 1099px) { .picks-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
