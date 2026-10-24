@@ -203,6 +203,13 @@ app.get("/verify", async (c) => {
   return c.redirect(`/verify.html?token=${encodeURIComponent(token)}`);
 });
 
+// Legal pages. The app's Premium screen links to /terms and /privacy.
+for (const page of ["cgu", "cgv", "confidentialite"] as const) {
+  app.get(`/${page}`, (c) => c.html(Bun.file(`./public/${page}.html`).text()));
+}
+app.get("/terms", (c) => c.redirect("/cgu", 301));
+app.get("/privacy", (c) => c.redirect("/confidentialite", 301));
+
 app.get("/admin", async (c) => {
   return new Response(Bun.file("./public/admin-login.html"));
 });
