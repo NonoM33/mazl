@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'consumable_purchases.dart';
+import 'credits_service.dart';
 import 'purchase_errors.dart';
 import 'store_gateway.dart';
 import 'store_products.dart';
@@ -32,15 +34,26 @@ class SubscriptionService extends ChangeNotifier {
     Duration restoreSettle = const Duration(seconds: 3),
     Duration purchaseSettleTimeout = const Duration(seconds: 45),
     Future<bool> Function(Uri uri)? openUrl,
+    ConsumablePurchaseHandler? consumables,
   }) : _gateway = gateway,
        _api = api,
        _platform = platform,
        _now = now ?? DateTime.now,
        _restoreSettle = restoreSettle,
        _purchaseSettleTimeout = purchaseSettleTimeout,
-       _openUrl = openUrl ?? _launchExternally;
+       _openUrl = openUrl ?? _launchExternally,
+       _consumables = consumables;
 
-  static final SubscriptionService _shared = SubscriptionService.create();
+  static final SubscriptionService _shared = _buildShared();
+
+  /// Le singleton de production : le flux d'achats est unique, et c'est lui
+  /// qui démarre l'écoute pour le [CreditsService] (qui ne l'écoute jamais).
+  static SubscriptionService _buildShared() {
+    final credits = CreditsService();
+    final service = SubscriptionService.create(consumables: credits);
+    credits.attachPurchaseStream(service.initialize);
+    return service;
+  }
 
   StoreGateway? _gateway;
   SubscriptionApi? _api;
@@ -49,6 +62,11 @@ class SubscriptionService extends ChangeNotifier {
   final Duration _restoreSettle;
   final Duration _purchaseSettleTimeout;
   final Future<bool> Function(Uri uri) _openUrl;
+
+  /// Qui tient les consommables (Boosts, Super Likes). Le flux d'achats est
+  /// unique : ce service reçoit tout et leur confie ce qui n'est pas un
+  /// abonnement.
+  final ConsumablePurchaseHandler? _consumables;
 
   StoreGateway get _store => _gateway ??= InAppPurchaseGateway();
   SubscriptionApi get _backend =>
@@ -292,6 +310,10 @@ class SubscriptionService extends ChangeNotifier {
   }
 
   Future<void> _handle(PurchaseDetails purchase) async {
+    if (isConsumableProductId(purchase.productID)) {
+      await _handleConsumable(purchase);
+      return;
+    }
     switch (purchase.status) {
       case PurchaseStatus.pending:
         _resolvePending(purchase.productID, const PurchasePending());
@@ -313,6 +335,20 @@ class SubscriptionService extends ChangeNotifier {
         _restoreOutcomes?.add(outcome);
         _resolvePending(purchase.productID, outcome.asPurchaseResult());
     }
+  }
+
+  /// Un consommable n'est ni un abonnement ni une restauration : il va, tel
+  /// quel, à celui qui tient les crédits. Sans lui, on le laisse NON terminé :
+  /// le store le rejouera, rien n'est perdu.
+  Future<void> _handleConsumable(PurchaseDetails purchase) async {
+    final consumables = _consumables;
+    if (consumables == null) {
+      debugPrint(
+        'Subscription: consommable ${purchase.productID} sans destinataire',
+      );
+      return;
+    }
+    await consumables.handlePurchase(purchase);
   }
 
   void _resolvePending(String productId, PurchaseResult result) {

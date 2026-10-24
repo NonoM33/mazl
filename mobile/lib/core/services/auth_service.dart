@@ -15,7 +15,7 @@ import 'couple_service.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'push_notification_service.dart';
-import 'store/subscription_service.dart';
+import 'store/store_session.dart';
 
 /// User authentication data
 class AuthUser {
@@ -163,7 +163,7 @@ class AuthService extends ChangeNotifier {
   AuthService._internal();
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final SubscriptionService _subscriptions = SubscriptionService();
+  final StoreSession _store = StoreSession();
   final PushNotificationService _pushService = PushNotificationService();
 
   static const String _userKey = 'current_user';
@@ -197,7 +197,7 @@ class AuthService extends ChangeNotifier {
 
         // Relit l'abonnement et connecte OneSignal avec l'utilisateur restauré
         if (_currentUser != null) {
-          unawaited(_subscriptions.onSignedIn(_currentUser!.jwtToken));
+          unawaited(_store.onSignedIn(_currentUser!.jwtToken));
           await _pushService.loginUser(int.parse(_currentUser!.id));
         }
       }
@@ -290,7 +290,7 @@ class AuthService extends ChangeNotifier {
 
       // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      unawaited(_subscriptions.onSignedIn(user.jwtToken));
+      unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -375,7 +375,7 @@ class AuthService extends ChangeNotifier {
 
       // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      unawaited(_subscriptions.onSignedIn(user.jwtToken));
+      unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -430,7 +430,7 @@ class AuthService extends ChangeNotifier {
 
       // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      unawaited(_subscriptions.onSignedIn(user.jwtToken));
+      unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email login successful - user ID: ${user.id}');
@@ -485,7 +485,7 @@ class AuthService extends ChangeNotifier {
 
       // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      unawaited(_subscriptions.onSignedIn(user.jwtToken));
+      unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
@@ -539,8 +539,8 @@ class AuthService extends ChangeNotifier {
         await _googleSignIn.signOut();
       }
 
-      // Efface l'abonnement en mémoire et déconnecte OneSignal
-      _subscriptions.onSignedOut();
+      // Efface l'abonnement et le solde en mémoire et déconnecte OneSignal
+      _store.onSignedOut();
       await _pushService.logoutUser();
 
       // Clear stored user data
