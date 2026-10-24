@@ -165,20 +165,6 @@ lib/core/models/relationship_intention.dart | Mariage
 lib/core/models/relationship_intention.dart | On verra où ça nous mène
 lib/core/models/relationship_intention.dart | Ouvert(e) à tout
 lib/core/models/relationship_intention.dart | Relation sérieuse
-lib/core/models/report_category.dart | Autre
-lib/core/models/report_category.dart | Autre raison (précisez)
-lib/core/models/report_category.dart | Comportement hors app
-lib/core/models/report_category.dart | Comportement inapproprié lors d\'une rencontre
-lib/core/models/report_category.dart | Contenu sexuel, violent ou choquant
-lib/core/models/report_category.dart | Faux profil
-lib/core/models/report_category.dart | Harcèlement
-lib/core/models/report_category.dart | La personne semble avoir moins de 18 ans
-lib/core/models/report_category.dart | Messages insistants, menaces, insultes
-lib/core/models/report_category.dart | Mineur
-lib/core/models/report_category.dart | Photos inappropriées
-lib/core/models/report_category.dart | Photos volées, identité fausse
-lib/core/models/report_category.dart | Publicité, demande d\'argent, liens suspects
-lib/core/models/report_category.dart | Spam / Arnaque
 lib/core/models/success_story.dart | En couple
 lib/core/models/success_story.dart | Fiancés
 lib/core/models/success_story.dart | Mariés
@@ -589,30 +575,6 @@ lib/core/verification/chip/dmrtd_chip_reader.dart | timed out
 lib/core/verification/chip/dmrtd_chip_reader.dart | } ${error.details ?? 
 lib/core/verification/mrz/mrz_data.dart | ${(date.year % 100).toString().padLeft(2, 
 lib/core/verification/mrz/mrz_data.dart | MrzData(${format?.name ?? 
-lib/presentation/common/widgets/block_report_dialog.dart | ${widget.userName} a été bloqué
-lib/presentation/common/widgets/block_report_dialog.dart | Annuler
-lib/presentation/common/widgets/block_report_dialog.dart | Annuler
-lib/presentation/common/widgets/block_report_dialog.dart | Annuler
-lib/presentation/common/widgets/block_report_dialog.dart | Bloquer
-lib/presentation/common/widgets/block_report_dialog.dart | Bloquer
-lib/presentation/common/widgets/block_report_dialog.dart | Bloquer cet utilisateur ?
-lib/presentation/common/widgets/block_report_dialog.dart | Bloquer également cet utilisateur
-lib/presentation/common/widgets/block_report_dialog.dart | Cette personne ne pourra plus voir votre profil
-lib/presentation/common/widgets/block_report_dialog.dart | Cette personne ne pourra plus vous voir ni vous contacter
-lib/presentation/common/widgets/block_report_dialog.dart | Cette personne ne sera pas notifiée
-lib/presentation/common/widgets/block_report_dialog.dart | Détails supplémentaires (optionnel)
-lib/presentation/common/widgets/block_report_dialog.dart | En bloquant ${widget.userName} :
-lib/presentation/common/widgets/block_report_dialog.dart | Envoyer le signalement
-lib/presentation/common/widgets/block_report_dialog.dart | Erreur lors du blocage
-lib/presentation/common/widgets/block_report_dialog.dart | Erreur lors du signalement
-lib/presentation/common/widgets/block_report_dialog.dart | Merci pour votre signalement. Notre équipe va l\'examiner.
-lib/presentation/common/widgets/block_report_dialog.dart | Pourquoi signalez-vous ${widget.userName} ?
-lib/presentation/common/widgets/block_report_dialog.dart | Signaler
-lib/presentation/common/widgets/block_report_dialog.dart | Signaler un comportement inapproprié
-lib/presentation/common/widgets/block_report_dialog.dart | Signaler un problème
-lib/presentation/common/widgets/block_report_dialog.dart | Vos conversations seront supprimées
-lib/presentation/common/widgets/block_report_dialog.dart | Vous ne verrez plus ce profil
-lib/presentation/common/widgets/block_report_dialog.dart | Vous ne verrez plus son profil
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${_suggestions.length} nouvelles
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${suggestion.name} ajoutée à vos likes
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | ${suggestion.name} ignorée

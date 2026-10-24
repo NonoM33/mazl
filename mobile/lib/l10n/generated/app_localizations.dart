@@ -278,6 +278,204 @@ abstract class AppLocalizations {
   /// **'Erreur de chargement'**
   String get commonLoadError;
 
+  /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer'**
+  String get safetyBlock;
+
+  /// Sous le titre « Bloquer », dans la feuille « Bloquer / Signaler » : ce que le blocage fait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne pourra plus vous voir ni vous contacter'**
+  String get safetyBlockSubtitle;
+
+  /// Sous le titre « Signaler », dans la feuille « Bloquer / Signaler » : ce que le signalement permet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un comportement inapproprié'**
+  String get safetyReportSubtitle;
+
+  /// Titre de la boîte de dialogue qui demande de confirmer le blocage d'un membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer cet utilisateur ?'**
+  String get safetyBlockConfirmTitle;
+
+  /// Introduit la liste des conséquences du blocage, dans la boîte de confirmation. {name} est le prénom du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'En bloquant {name} :'**
+  String safetyBlockConfirmIntro(String name);
+
+  /// Conséquence du blocage (puce de la liste) : le membre bloqué ne voit plus le profil de la personne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne pourra plus voir votre profil'**
+  String get safetyBlockEffectHidden;
+
+  /// Conséquence du blocage (puce de la liste) : la personne ne voit plus le profil du membre bloqué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne verrez plus son profil'**
+  String get safetyBlockEffectNotSeen;
+
+  /// Conséquence du blocage (puce de la liste) : les conversations avec ce membre disparaissent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos conversations seront supprimées'**
+  String get safetyBlockEffectChats;
+
+  /// Conséquence du blocage (puce de la liste) : le membre bloqué n'est pas prévenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne sera pas notifiée'**
+  String get safetyBlockEffectNotNotified;
+
+  /// Message bref en bas de l'écran après un blocage réussi. {name} est le prénom du membre bloqué.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a été bloqué'**
+  String safetyBlocked(String name);
+
+  /// Message bref en bas de l'écran quand le blocage a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du blocage'**
+  String get safetyBlockFailed;
+
+  /// Titre de la feuille de signalement d'un membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un problème'**
+  String get safetyReportTitle;
+
+  /// Question sous le titre de la feuille de signalement. {name} est le prénom du membre signalé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi signalez-vous {name} ?'**
+  String safetyReportWhy(String name);
+
+  /// Texte d'aide du champ libre où l'on peut préciser le signalement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails supplémentaires (optionnel)'**
+  String get safetyReportDetailsHint;
+
+  /// Case à cocher de la feuille de signalement : bloquer aussi le membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer également cet utilisateur'**
+  String get safetyReportAlsoBlock;
+
+  /// Sous la case « Bloquer également » : ce que ça change.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne verrez plus ce profil'**
+  String get safetyReportAlsoBlockHint;
+
+  /// Bouton rouge qui envoie le signalement à la modération.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le signalement'**
+  String get safetyReportSend;
+
+  /// Message bref en bas de l'écran après l'envoi d'un signalement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci pour votre signalement. Notre équipe va l\'examiner.'**
+  String get safetyReportThanks;
+
+  /// Message bref en bas de l'écran quand l'envoi du signalement a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du signalement'**
+  String get safetyReportFailed;
+
+  /// Motif de signalement (liste de choix) : profil qui usurpe une identité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux profil'**
+  String get safetyCategoryFakeProfile;
+
+  /// Précision sous le motif « Faux profil ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos volées, identité fausse'**
+  String get safetyCategoryFakeProfileHint;
+
+  /// Motif de signalement (liste de choix) : photos choquantes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos inappropriées'**
+  String get safetyCategoryInappropriatePhotos;
+
+  /// Précision sous le motif « Photos inappropriées ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu sexuel, violent ou choquant'**
+  String get safetyCategoryInappropriatePhotosHint;
+
+  /// Motif de signalement (liste de choix) : harcèlement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement'**
+  String get safetyCategoryHarassment;
+
+  /// Précision sous le motif « Harcèlement ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages insistants, menaces, insultes'**
+  String get safetyCategoryHarassmentHint;
+
+  /// Motif de signalement (liste de choix) : spam ou arnaque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spam / Arnaque'**
+  String get safetyCategorySpam;
+
+  /// Précision sous le motif « Spam / Arnaque ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Publicité, demande d\'argent, liens suspects'**
+  String get safetyCategorySpamHint;
+
+  /// Motif de signalement (liste de choix) : la personne est mineure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mineur'**
+  String get safetyCategoryUnderage;
+
+  /// Précision sous le motif « Mineur ».
+  ///
+  /// In fr, this message translates to:
+  /// **'La personne semble avoir moins de 18 ans'**
+  String get safetyCategoryUnderageHint;
+
+  /// Motif de signalement (liste de choix) : comportement en dehors de l'app, lors d'une rencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comportement hors app'**
+  String get safetyCategoryOfflineBehavior;
+
+  /// Précision sous le motif « Comportement hors app ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Comportement inapproprié lors d\'une rencontre'**
+  String get safetyCategoryOfflineBehaviorHint;
+
+  /// Motif de signalement (liste de choix) : tout autre motif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get safetyCategoryOther;
+
+  /// Précision sous le motif « Autre ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre raison (précisez)'**
+  String get safetyCategoryOtherHint;
+
   /// Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app.
   ///
   /// In fr, this message translates to:

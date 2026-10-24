@@ -96,6 +96,114 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonLoadError => 'שגיאה בטעינה';
 
   @override
+  String get safetyBlock => 'לחסום';
+
+  @override
+  String get safetyBlockSubtitle =>
+      'לאדם הזה לא תהיה אפשרות לראות את הפרופיל שלך או ליצור איתך קשר';
+
+  @override
+  String get safetyReportSubtitle => 'דיווח על התנהגות לא הולמת';
+
+  @override
+  String get safetyBlockConfirmTitle => 'לחסום את הפרופיל הזה?';
+
+  @override
+  String safetyBlockConfirmIntro(String name) {
+    return 'בחסימת $name:';
+  }
+
+  @override
+  String get safetyBlockEffectHidden => 'הפרופיל שלך לא יוצג יותר לאדם הזה';
+
+  @override
+  String get safetyBlockEffectNotSeen => 'הפרופיל הזה לא יוצג לך יותר';
+
+  @override
+  String get safetyBlockEffectChats => 'השיחות יימחקו';
+
+  @override
+  String get safetyBlockEffectNotNotified => 'האדם הזה לא יקבל התראה';
+
+  @override
+  String safetyBlocked(String name) {
+    return '$name נחסם';
+  }
+
+  @override
+  String get safetyBlockFailed => 'אירעה שגיאה בחסימה';
+
+  @override
+  String get safetyReportTitle => 'דיווח על בעיה';
+
+  @override
+  String safetyReportWhy(String name) {
+    return 'מה הסיבה לדיווח על $name?';
+  }
+
+  @override
+  String get safetyReportDetailsHint => 'פרטים נוספים (לא חובה)';
+
+  @override
+  String get safetyReportAlsoBlock => 'לחסום גם את הפרופיל הזה';
+
+  @override
+  String get safetyReportAlsoBlockHint => 'הפרופיל הזה לא יוצג לך יותר';
+
+  @override
+  String get safetyReportSend => 'שליחת הדיווח';
+
+  @override
+  String get safetyReportThanks => 'תודה על הדיווח. הצוות שלנו יבדוק אותו.';
+
+  @override
+  String get safetyReportFailed => 'אירעה שגיאה בשליחת הדיווח';
+
+  @override
+  String get safetyCategoryFakeProfile => 'פרופיל מזויף';
+
+  @override
+  String get safetyCategoryFakeProfileHint => 'תמונות גנובות, זהות בדויה';
+
+  @override
+  String get safetyCategoryInappropriatePhotos => 'תמונות לא הולמות';
+
+  @override
+  String get safetyCategoryInappropriatePhotosHint =>
+      'תוכן מיני, אלים או מזעזע';
+
+  @override
+  String get safetyCategoryHarassment => 'הטרדה';
+
+  @override
+  String get safetyCategoryHarassmentHint => 'הודעות לוחצות, איומים, עלבונות';
+
+  @override
+  String get safetyCategorySpam => 'ספאם / הונאה';
+
+  @override
+  String get safetyCategorySpamHint => 'פרסומות, בקשות כסף, קישורים חשודים';
+
+  @override
+  String get safetyCategoryUnderage => 'מתחת לגיל 18';
+
+  @override
+  String get safetyCategoryUnderageHint => 'נראה שהגיל הוא מתחת ל-18';
+
+  @override
+  String get safetyCategoryOfflineBehavior => 'התנהגות מחוץ לאפליקציה';
+
+  @override
+  String get safetyCategoryOfflineBehaviorHint =>
+      'התנהגות לא הולמת במהלך פגישה';
+
+  @override
+  String get safetyCategoryOther => 'אחר';
+
+  @override
+  String get safetyCategoryOtherHint => 'סיבה אחרת (נא לפרט)';
+
+  @override
   String get settingsLanguage => 'שפה';
 
   @override

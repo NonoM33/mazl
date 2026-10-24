@@ -99,6 +99,120 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonLoadError => 'Erreur de chargement';
 
   @override
+  String get safetyBlock => 'Bloquer';
+
+  @override
+  String get safetyBlockSubtitle =>
+      'Cette personne ne pourra plus vous voir ni vous contacter';
+
+  @override
+  String get safetyReportSubtitle => 'Signaler un comportement inapproprié';
+
+  @override
+  String get safetyBlockConfirmTitle => 'Bloquer cet utilisateur ?';
+
+  @override
+  String safetyBlockConfirmIntro(String name) {
+    return 'En bloquant $name :';
+  }
+
+  @override
+  String get safetyBlockEffectHidden =>
+      'Cette personne ne pourra plus voir votre profil';
+
+  @override
+  String get safetyBlockEffectNotSeen => 'Vous ne verrez plus son profil';
+
+  @override
+  String get safetyBlockEffectChats => 'Vos conversations seront supprimées';
+
+  @override
+  String get safetyBlockEffectNotNotified =>
+      'Cette personne ne sera pas notifiée';
+
+  @override
+  String safetyBlocked(String name) {
+    return '$name a été bloqué';
+  }
+
+  @override
+  String get safetyBlockFailed => 'Erreur lors du blocage';
+
+  @override
+  String get safetyReportTitle => 'Signaler un problème';
+
+  @override
+  String safetyReportWhy(String name) {
+    return 'Pourquoi signalez-vous $name ?';
+  }
+
+  @override
+  String get safetyReportDetailsHint => 'Détails supplémentaires (optionnel)';
+
+  @override
+  String get safetyReportAlsoBlock => 'Bloquer également cet utilisateur';
+
+  @override
+  String get safetyReportAlsoBlockHint => 'Vous ne verrez plus ce profil';
+
+  @override
+  String get safetyReportSend => 'Envoyer le signalement';
+
+  @override
+  String get safetyReportThanks =>
+      'Merci pour votre signalement. Notre équipe va l\'examiner.';
+
+  @override
+  String get safetyReportFailed => 'Erreur lors du signalement';
+
+  @override
+  String get safetyCategoryFakeProfile => 'Faux profil';
+
+  @override
+  String get safetyCategoryFakeProfileHint => 'Photos volées, identité fausse';
+
+  @override
+  String get safetyCategoryInappropriatePhotos => 'Photos inappropriées';
+
+  @override
+  String get safetyCategoryInappropriatePhotosHint =>
+      'Contenu sexuel, violent ou choquant';
+
+  @override
+  String get safetyCategoryHarassment => 'Harcèlement';
+
+  @override
+  String get safetyCategoryHarassmentHint =>
+      'Messages insistants, menaces, insultes';
+
+  @override
+  String get safetyCategorySpam => 'Spam / Arnaque';
+
+  @override
+  String get safetyCategorySpamHint =>
+      'Publicité, demande d\'argent, liens suspects';
+
+  @override
+  String get safetyCategoryUnderage => 'Mineur';
+
+  @override
+  String get safetyCategoryUnderageHint =>
+      'La personne semble avoir moins de 18 ans';
+
+  @override
+  String get safetyCategoryOfflineBehavior => 'Comportement hors app';
+
+  @override
+  String get safetyCategoryOfflineBehaviorHint =>
+      'Comportement inapproprié lors d\'une rencontre';
+
+  @override
+  String get safetyCategoryOther => 'Autre';
+
+  @override
+  String get safetyCategoryOtherHint => 'Autre raison (précisez)';
+
+  @override
   String get settingsLanguage => 'Langue';
 
   @override

@@ -96,6 +96,118 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLoadError => 'Couldn’t load';
 
   @override
+  String get safetyBlock => 'Block';
+
+  @override
+  String get safetyBlockSubtitle =>
+      'This person won\'t be able to see you or contact you';
+
+  @override
+  String get safetyReportSubtitle => 'Report inappropriate behavior';
+
+  @override
+  String get safetyBlockConfirmTitle => 'Block this person?';
+
+  @override
+  String safetyBlockConfirmIntro(String name) {
+    return 'If you block $name:';
+  }
+
+  @override
+  String get safetyBlockEffectHidden =>
+      'This person won\'t be able to see your profile anymore';
+
+  @override
+  String get safetyBlockEffectNotSeen => 'You won\'t see their profile anymore';
+
+  @override
+  String get safetyBlockEffectChats => 'Your conversations will be deleted';
+
+  @override
+  String get safetyBlockEffectNotNotified => 'This person won\'t be notified';
+
+  @override
+  String safetyBlocked(String name) {
+    return '$name has been blocked';
+  }
+
+  @override
+  String get safetyBlockFailed => 'Something went wrong while blocking';
+
+  @override
+  String get safetyReportTitle => 'Report a problem';
+
+  @override
+  String safetyReportWhy(String name) {
+    return 'Why are you reporting $name?';
+  }
+
+  @override
+  String get safetyReportDetailsHint => 'More details (optional)';
+
+  @override
+  String get safetyReportAlsoBlock => 'Also block this person';
+
+  @override
+  String get safetyReportAlsoBlockHint => 'You won\'t see this profile anymore';
+
+  @override
+  String get safetyReportSend => 'Send report';
+
+  @override
+  String get safetyReportThanks =>
+      'Thanks for your report. Our team will take a look.';
+
+  @override
+  String get safetyReportFailed =>
+      'Something went wrong while sending the report';
+
+  @override
+  String get safetyCategoryFakeProfile => 'Fake profile';
+
+  @override
+  String get safetyCategoryFakeProfileHint => 'Stolen photos, false identity';
+
+  @override
+  String get safetyCategoryInappropriatePhotos => 'Inappropriate photos';
+
+  @override
+  String get safetyCategoryInappropriatePhotosHint =>
+      'Sexual, violent or shocking content';
+
+  @override
+  String get safetyCategoryHarassment => 'Harassment';
+
+  @override
+  String get safetyCategoryHarassmentHint => 'Pushy messages, threats, insults';
+
+  @override
+  String get safetyCategorySpam => 'Spam / Scam';
+
+  @override
+  String get safetyCategorySpamHint =>
+      'Ads, requests for money, suspicious links';
+
+  @override
+  String get safetyCategoryUnderage => 'Underage';
+
+  @override
+  String get safetyCategoryUnderageHint => 'This person seems to be under 18';
+
+  @override
+  String get safetyCategoryOfflineBehavior => 'Behavior outside the app';
+
+  @override
+  String get safetyCategoryOfflineBehaviorHint =>
+      'Inappropriate behavior during a meeting';
+
+  @override
+  String get safetyCategoryOther => 'Other';
+
+  @override
+  String get safetyCategoryOtherHint => 'Another reason (please explain)';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override

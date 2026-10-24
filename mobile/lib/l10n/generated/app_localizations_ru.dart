@@ -97,6 +97,119 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonLoadError => 'Ошибка загрузки';
 
   @override
+  String get safetyBlock => 'Заблокировать';
+
+  @override
+  String get safetyBlockSubtitle =>
+      'Этот человек больше не сможет видеть Ваш профиль и связываться с Вами';
+
+  @override
+  String get safetyReportSubtitle => 'Сообщить о неприемлемом поведении';
+
+  @override
+  String get safetyBlockConfirmTitle => 'Заблокировать этого пользователя?';
+
+  @override
+  String safetyBlockConfirmIntro(String name) {
+    return 'Если Вы заблокируете $name:';
+  }
+
+  @override
+  String get safetyBlockEffectHidden =>
+      'Этот человек больше не сможет видеть Ваш профиль';
+
+  @override
+  String get safetyBlockEffectNotSeen => 'Вы больше не увидите его профиль';
+
+  @override
+  String get safetyBlockEffectChats => 'Ваши переписки будут удалены';
+
+  @override
+  String get safetyBlockEffectNotNotified =>
+      'Этот человек не получит уведомления';
+
+  @override
+  String safetyBlocked(String name) {
+    return '$name заблокирован';
+  }
+
+  @override
+  String get safetyBlockFailed => 'Ошибка при блокировке';
+
+  @override
+  String get safetyReportTitle => 'Сообщить о проблеме';
+
+  @override
+  String safetyReportWhy(String name) {
+    return 'Почему Вы жалуетесь на $name?';
+  }
+
+  @override
+  String get safetyReportDetailsHint => 'Дополнительные сведения (по желанию)';
+
+  @override
+  String get safetyReportAlsoBlock => 'Также заблокировать этого пользователя';
+
+  @override
+  String get safetyReportAlsoBlockHint => 'Вы больше не увидите этот профиль';
+
+  @override
+  String get safetyReportSend => 'Отправить жалобу';
+
+  @override
+  String get safetyReportThanks =>
+      'Спасибо за Вашу жалобу. Наша команда её рассмотрит.';
+
+  @override
+  String get safetyReportFailed => 'Ошибка при отправке жалобы';
+
+  @override
+  String get safetyCategoryFakeProfile => 'Фальшивый профиль';
+
+  @override
+  String get safetyCategoryFakeProfileHint => 'Чужие фото, ложная личность';
+
+  @override
+  String get safetyCategoryInappropriatePhotos => 'Неприемлемые фото';
+
+  @override
+  String get safetyCategoryInappropriatePhotosHint =>
+      'Сексуальный, жестокий или шокирующий контент';
+
+  @override
+  String get safetyCategoryHarassment => 'Преследование';
+
+  @override
+  String get safetyCategoryHarassmentHint =>
+      'Навязчивые сообщения, угрозы, оскорбления';
+
+  @override
+  String get safetyCategorySpam => 'Спам / Мошенничество';
+
+  @override
+  String get safetyCategorySpamHint =>
+      'Реклама, просьбы о деньгах, подозрительные ссылки';
+
+  @override
+  String get safetyCategoryUnderage => 'Несовершеннолетие';
+
+  @override
+  String get safetyCategoryUnderageHint => 'Похоже, этому человеку нет 18 лет';
+
+  @override
+  String get safetyCategoryOfflineBehavior => 'Поведение вне приложения';
+
+  @override
+  String get safetyCategoryOfflineBehaviorHint =>
+      'Неприемлемое поведение во время встречи';
+
+  @override
+  String get safetyCategoryOther => 'Другое';
+
+  @override
+  String get safetyCategoryOtherHint => 'Другая причина (уточните)';
+
+  @override
   String get settingsLanguage => 'Язык';
 
   @override
