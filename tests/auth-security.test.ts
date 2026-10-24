@@ -1,4 +1,5 @@
 import { test, expect, describe, beforeAll } from "bun:test";
+import { TEST_PASSWORD } from "./test-password";
 
 // Security regression: forged / tampered JWTs must be rejected on protected
 // routes (the old signHS256 was a 32-bit homemade hash, trivially forgeable;
@@ -14,7 +15,7 @@ async function realToken(): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: "test123", name: "Sec User" }),
+    body: JSON.stringify({ email, password: TEST_PASSWORD, name: "Sec User" }),
   });
   const data = (await res.json()) as { token?: string };
   if (!data.token) throw new Error("no token");

@@ -1,4 +1,5 @@
 import { test, expect, describe, beforeAll } from "bun:test";
+import { TEST_PASSWORD } from "./test-password";
 
 // Security regression for the RevenueCat webhook: it must reject unauthenticated
 // events (previously anyone could grant themselves premium) and map plans
@@ -14,7 +15,7 @@ async function makeUser(): Promise<TestUser> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: "test123", name: "Webhook User" }),
+    body: JSON.stringify({ email, password: TEST_PASSWORD, name: "Webhook User" }),
   });
   const data = (await res.json()) as { success: boolean; user?: { id: number }; token?: string };
   if (!data.success || !data.user || !data.token) throw new Error(`makeUser: ${JSON.stringify(data)}`);
