@@ -1,0 +1,73 @@
+/* Design tokens of the "Encre & Tekhelet" charter, copied from
+   mobile/lib/core/theme/{app_colors,app_typography,app_theme}.dart. */
+@font-face { font-family: "Geist"; src: url("/app/fonts/Geist-400.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/app/fonts/Geist-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/app/fonts/Geist-600.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/app/fonts/Geist-700.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/app/fonts/GeistMono-400.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/app/fonts/GeistMono-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+
+:root {
+  --ink: #0b0b0f;
+  --paper: #ffffff;
+  --bg: #ffffff;
+  --surface: #f3f3f5;
+  --card: #ffffff;
+  --text: #0b0b0f;
+  --muted: #6b6b76;
+  --tertiary: #8a8a94;
+  --hairline: #e2e2e6;
+  --divider: #ededf0;
+  --accent: #2747f5;
+  --accent-strong: #1a35c9;
+  --accent-soft: rgba(39, 71, 245, 0.1);
+  --on-accent: #ffffff;
+  --icon-on-ink: #9a9aa5;
+  --rail: #0b0b0f;
+  --rail-border: transparent;
+  --success: #15803d;
+  --warning: #b45309;
+  --error: #c8281c;
+  --veil: rgba(11, 11, 15, 0.92);
+  --hover: rgba(11, 11, 15, 0.04);
+  --ph1: #e7e4df; --ph2: #e1e5ea; --ph3: #e8e2e5; --ph4: #e1e8e4; --ph5: #e3e1ea;
+  --shimmer-a: #f3f3f5; --shimmer-b: #fafafb;
+  --shabbat-bg: #0b0b0f; --shabbat-flame: #f2b544; --shabbat-text: #f4f1ea; --shabbat-muted: #b9b6ae;
+
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --r-button: 28px; --r-field: 24px; --r-card: 24px; --r-dialog: 28px; --r-chip: 999px; --r-snack: 20px;
+  --h-button: 56px; --h-button-sm: 44px;
+  --gutter: 24px;
+  --rail-w: 72px;
+
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-pop: cubic-bezier(0.3, 1.5, 0.5, 1);
+  --ease-return: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --t-fast: 150ms; --t-base: 200ms; --t-bubble: 250ms; --t-exit: 240ms;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0b0f;
+  --surface: #1c1c22;
+  --card: #141418;
+  --paper: #141418;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --tertiary: #71717a;
+  --hairline: #26262c;
+  --divider: #26262c;
+  --accent: #5b78ff;
+  --accent-strong: #2747f5;
+  --accent-soft: rgba(91, 120, 255, 0.16);
+  --on-accent: #0b0b0f;
+  --rail: #1c1c22;
+  --rail-border: #26262c;
+  --veil: rgba(0, 0, 0, 0.92);
+  --hover: rgba(244, 244, 245, 0.05);
+  --ph1: #2a2825; --ph2: #23272c; --ph3: #2b2528; --ph4: #232a26; --ph5: #27252c;
+  --shimmer-a: #1c1c22; --shimmer-b: #26262c;
+  color-scheme: dark;
+}
