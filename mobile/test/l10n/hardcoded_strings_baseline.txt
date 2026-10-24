@@ -840,36 +840,6 @@ lib/presentation/features/chat/widgets/voice_bubble.dart | ${speed == speed.roun
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lecture impossible
 lib/presentation/features/chat/widgets/voice_bubble.dart | Lire le message vocal
 lib/presentation/features/chat/widgets/voice_bubble.dart | Mettre en pause
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | $daysTogether jours ensemble
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Activités en couple
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Calendrier juif
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Cours de cuisine casher
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dimanche 20 janvier - 15h00
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Dîner
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Entrée : 17h23 - Sortie : 18h34
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Envoyer
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Inspirez la communauté MAZL avec votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Moi
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Nos étapes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partager
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Partenaire
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Prière
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Question du jour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Repos
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réglages
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Répondre
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Réponse envoyée. Votre partenaire sera notifié(e).
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Shabbat Beshalach
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir les histoires
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tous les événements
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tout
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir toutes
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Votre réponse…
-lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Événements en couple
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | $who doit accepter. Nous vous préviendrons dès sa réponse.
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Annuler la demande
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Aucun match pour l\'instant.
@@ -967,28 +937,6 @@ lib/presentation/features/couple/screens/mazel_tov_screen.dart | Commencer notre
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Félicitations à vous et à ${widget.partnerName}
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | MAZL vous accompagne dans cette nouvelle étape.
 lib/presentation/features/couple/screens/mazel_tov_screen.dart | Mazal tov
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.couple1Name} et ${story.couple2Name} se sont rencontrés sur MAZL. Leur histoire : ${story.story.substring(0, story.story.length.clamp(0, 100))}...
-lib/presentation/features/couple/screens/success_stories_screen.dart | ${story.statusLabel} · depuis ${dateFormat.format(story.matchDate)}
-lib/presentation/features/couple/screens/success_stories_screen.dart | Ajoutez des photos de couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…
-lib/presentation/features/couple/screens/success_stories_screen.dart | En couple
-lib/presentation/features/couple/screens/success_stories_screen.dart | Erreur lors de l\'envoi
-lib/presentation/features/couple/screens/success_stories_screen.dart | Fiancés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Inspirez la communauté MAZL en partageant votre histoire.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Les premières histoires d\'amour MAZL seront bientôt partagées.
-lib/presentation/features/couple/screens/success_stories_screen.dart | MMMM yyyy
-lib/presentation/features/couple/screens/success_stories_screen.dart | Mariés
-lib/presentation/features/couple/screens/success_stories_screen.dart | Merci. Votre histoire sera publiée après validation.
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partager
-lib/presentation/features/couple/screens/success_stories_screen.dart | Partagez votre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Pas encore d\'histoires de couples
-lib/presentation/features/couple/screens/success_stories_screen.dart | Photos (optionnel)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Réessayer
-lib/presentation/features/couple/screens/success_stories_screen.dart | Soumettre notre histoire
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire (min. 100 caractères)
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre histoire doit faire au moins 100 caractères
-lib/presentation/features/couple/screens/success_stories_screen.dart | Votre statut
 lib/presentation/features/couple/widgets/anniversary_widget.dart | ${widget.anniversaryData.daysTogether} jours avec ${widget.anniversaryData.partnerName}
 lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire
 lib/presentation/features/couple/widgets/anniversary_widget.dart | Joyeux anniversaire MAZL
