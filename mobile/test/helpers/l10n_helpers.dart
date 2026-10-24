@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/theme/app_theme.dart';
@@ -50,3 +53,28 @@ Future<void> pumpLocalized(
 /// Le sens de lecture au point où [finder] est rendu.
 TextDirection textDirectionAt(WidgetTester tester, Finder finder) =>
     Directionality.of(tester.element(finder));
+
+/// Loads the app's own font (Geist) into the test engine; call it in
+/// `setUpAll` before measuring text.
+///
+/// Without it every test glyph is the 1 em wide square of the default test
+/// font, about twice as wide as real text: a layout that fits on a real
+/// 360 px phone would overflow in the test. Geist has no Hebrew or Cyrillic;
+/// those glyphs fall back to its missing-glyph box, which is about as wide as
+/// the real letters, so the widths stay realistic.
+Future<void> loadAppFonts() async {
+  final loader = FontLoader('Geist');
+  for (final file in const [
+    'Geist-400.ttf',
+    'Geist-500.ttf',
+    'Geist-600.ttf',
+    'Geist-700.ttf',
+  ]) {
+    loader.addFont(
+      Future.value(
+        ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
+      ),
+    );
+  }
+  await loader.load();
+}

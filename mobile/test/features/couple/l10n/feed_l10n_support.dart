@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../helpers/l10n_helpers.dart';
 import '../../../mocks/couple_backend_shapes.dart';
-import 'geist_font.dart';
 
 /// What every test of the couple feed screens needs: the real app font (for
 /// realistic text widths) and an empty preferences store.
 void setUpCoupleFeedTests() {
-  setUpAll(loadGeist);
+  setUpAll(loadAppFonts);
   setUp(() => SharedPreferences.setMockInitialValues({}));
 }
 
