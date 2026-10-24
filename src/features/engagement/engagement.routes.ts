@@ -11,6 +11,8 @@ import {
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody } from "../../shared/http/validation";
+import type { CreditsGateway } from "../credits/application/ports";
+import { registerBoostRoutes } from "./boost.routes";
 
 // Presentation layer for the ENGAGEMENT feature. These routes are moved
 // verbatim from the monolith (src/index.ts): behaviour, payloads, status codes
@@ -33,59 +35,17 @@ const reportUserBodySchema = z
   })
   .passthrough();
 
-// Free-tier daily boost allowance. Premium (unlimited) enforcement lives
-// on the client for now; the server just reports a sensible remaining count.
-const FREE_DAILY_BOOSTS = 3;
-
-async function buildBoostStatus(userId: number) {
-  const [activeBoost, boostsUsedToday] = await Promise.all([
-    getActiveBoost(userId),
-    getBoostsUsedToday(userId),
-  ]);
-
-  const remainingBoosts = Math.max(0, FREE_DAILY_BOOSTS - boostsUsedToday);
-  const expiresAt = activeBoost ? activeBoost.expires_at.toISOString() : null;
-
-  // Keys are snake_case to match the mobile BoostStatus.fromJson parser.
-  return {
-    is_active: activeBoost !== null,
-    expires_at: expiresAt,
-    active_until: expiresAt,
-    remaining_boosts: remainingBoosts,
-    boosts_used_today: boostsUsedToday,
-    views_during_boost: 0,
-    likes_during_boost: 0,
-  };
+export interface EngagementRouteDeps {
+  readonly credits: CreditsGateway;
 }
 
-export function registerEngagementRoutes(app: Hono<{ Variables: AppVariables }>): void {
+export function registerEngagementRoutes(app: Hono<{ Variables: AppVariables }>, deps: EngagementRouteDeps): void {
   // ============ BOOST ============
-
-  // Get current boost status
-  app.get("/api/boost/status", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const status = await buildBoostStatus(userId);
-
-      return c.json({ success: true, ...status });
-    } catch (error: unknown) {
-      console.error("Boost status error:", error);
-      return c.json({ success: false, error: "Failed to get boost status" }, 500);
-    }
-  });
-
-  // Activate a boost (30 minutes)
-  app.post("/api/boost/activate", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const boost = await activateBoost(userId, 30);
-      const status = await buildBoostStatus(userId);
-
-      return c.json({ success: true, boost, status, ...status }, 201);
-    } catch (error: unknown) {
-      console.error("Boost activate error:", error);
-      return c.json({ success: false, error: "Failed to activate boost" }, 500);
-    }
+  // GET /api/boost/status and POST /api/boost/activate, against the credits.
+  registerBoostRoutes(app, {
+    authenticate: requireAuth,
+    credits: deps.credits,
+    boosts: { getActive: getActiveBoost, usedToday: getBoostsUsedToday, activate: activateBoost },
   });
 
   // ============ MODULE 4: MODÉRATION & SIGNALEMENTS ============

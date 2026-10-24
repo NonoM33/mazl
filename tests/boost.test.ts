@@ -24,22 +24,23 @@ describe("Boost", () => {
   let user: TestUser;
   beforeAll(async () => { user = await makeUser(); });
 
-  test("status → activate → status reflects active boost and decremented quota", async () => {
+  // docs/premium/CREDITS.md: a free member has no boost included (it used to be
+  // 3 a day, enforced nowhere), so the first activation is refused with 402 until
+  // boosts are bought or mazl+ is active. The nominal flow (debit, 409 while a
+  // boost runs, undo on failure) is covered without a server in
+  // tests/unit/credits-boost.test.ts.
+  test("a free member has no boost: status says 0, activation is refused with 402", async () => {
     let r = await fetch(`${BASE_URL}/api/boost/status`, { headers: H(user.token) });
     expect(r.status).toBe(200);
-    let s = (await r.json()) as { is_active: boolean; remaining_boosts: number };
+    const s = (await r.json()) as { is_active: boolean; remaining_boosts: number; credits: { boost: { available: number } } };
     expect(s.is_active).toBe(false);
-    expect(s.remaining_boosts).toBe(3);
+    expect(s.remaining_boosts).toBe(0);
+    expect(s.credits.boost.available).toBe(0);
 
     r = await fetch(`${BASE_URL}/api/boost/activate`, { method: "POST", headers: H(user.token) });
-    expect([200, 201]).toContain(r.status);
-    const a = (await r.json()) as { is_active: boolean; expires_at: string | null };
-    expect(a.is_active).toBe(true);
-    expect(a.expires_at).toBeTruthy();
-
-    r = await fetch(`${BASE_URL}/api/boost/status`, { headers: H(user.token) });
-    s = (await r.json()) as { is_active: boolean; remaining_boosts: number };
-    expect(s.is_active).toBe(true);
-    expect(s.remaining_boosts).toBe(2);
+    expect(r.status).toBe(402);
+    const refused = (await r.json()) as { success: boolean; error: string; credits: { boost: { available: number } } };
+    expect(refused.error).toBe("boosts_exhausted");
+    expect(refused.credits.boost.available).toBe(0);
   });
 });

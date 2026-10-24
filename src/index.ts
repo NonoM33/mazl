@@ -81,7 +81,8 @@ import {
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
-import { registerSubscriptions } from "./features/subscriptions/subscriptions.module";
+import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
+import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
@@ -266,20 +267,28 @@ registerAuthRoutes(app);
 registerMediaRoutes(app, media.photos);
 registerProfileRoutes(app, { media });
 
+// ============ CREDITS (boosts and super likes held by the server) ============
+// Allowances, purchased consumables, debits and refunds: src/features/credits
+// (docs/premium/CREDITS.md). The Apple verifier is shared with the
+// subscriptions below; the swipe and boost routes receive the service.
+const appleTransactions = createTransactionVerifier(process.env);
+const credits = createCreditsService({ sql, transactions: appleTransactions });
+registerCredits(app, credits, requireAuth);
+
 // ============ DISCOVER & MATCHING ============
 
 // Core matching feature routes (GET /api/discover, GET /api/daily-picks,
 // POST /api/swipes, GET /api/matches, GET /api/likes/received[/count]).
 // Moved to src/features/matching/matching.routes.ts. `POST /api/swipes` still
 // emits `match:new` via the exported `emitNewMatch` helper below.
-registerMatchingRoutes(app);
+registerMatchingRoutes(app, { credits });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost
 // /api/boost/*, moderation /api/users/:id/block, /api/users/blocked,
 // /api/users/:id/report, /api/report). Moved to
 // src/features/engagement/engagement.routes.ts.
-registerEngagementRoutes(app);
+registerEngagementRoutes(app, { credits });
 
 // ============ MEMBER VERIFICATION (level 1: live selfie) ============
 // /api/verification/* (face session + submit, reference deletion, status and
@@ -309,7 +318,7 @@ registerEventsRoutes(app);
 // the subscriptions feature. The former POST /api/subscription/sync route was
 // REMOVED during the audit (it let any authenticated user declare themselves
 // premium): the server now trusts only Apple-signed payloads.
-registerSubscriptions(app, { sql, authenticate: requireAuth });
+registerSubscriptions(app, { sql, authenticate: requireAuth, transactions: appleTransactions, consumables: credits });
 
 
 
