@@ -1823,8 +1823,8 @@ class AppLocalizationsHe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       max,
       locale: localeName,
-      other: '$count / $max מקומות',
-      one: '$count / $max מקום',
+      other: '‎$count / $max מקומות',
+      one: '‎$count / $max מקום',
     );
     return '$_temp0';
   }
@@ -2906,7 +2906,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String onboardingStep(String current, String total) {
-    return '$current / $total';
+    return '‎$current / $total';
   }
 
   @override
@@ -3027,7 +3027,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String plusDailyLimitLabel(int limit) {
-    return 'מגבלה יומית · $limit / $limit';
+    return 'מגבלה יומית · ‎$limit / $limit';
   }
 
   @override

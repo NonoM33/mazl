@@ -28,7 +28,7 @@
   "eventsInfoParticipants": "משתתפים",
   "eventsInfoPrice": "מחיר",
   "eventsDescription": "תיאור",
-  "eventsCapacity": "{max, plural, =1{{count} / {max} מקום} other{{count} / {max} מקומות}}",
+  "eventsCapacity": "{max, plural, =1{‎{count} / {max} מקום} other{‎{count} / {max} מקומות}}",
   "eventsRegisteredCount": "{count, plural, =1{נרשם אחד} =2{נרשמו שניים} other{נרשמו {count}}}",
   "eventsPricePerPerson": "{price} לאדם",
   "eventsRsvpConfirmedBanner": "ההרשמה לאירוע אושרה",

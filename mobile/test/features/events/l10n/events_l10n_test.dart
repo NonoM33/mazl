@@ -429,7 +429,7 @@ void main() {
               TextDirection.rtl,
             );
             expect(find.text('ארוחת שבת'), findsOneWidget);
-            expect(find.text('12 / 20 מקומות'), findsOneWidget);
+            expect(find.text('\u200e12 / 20 מקומות'), findsOneWidget);
             expect(find.textContaining('לאדם'), findsOneWidget);
             expect(
               find.textContaining(RegExp('Date|Heure|Prix|places')),

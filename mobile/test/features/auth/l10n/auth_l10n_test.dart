@@ -395,9 +395,10 @@ void main() {
       'Hebrew: the page counter stays 01 / 05 and « Skip » is at the START',
       (tester) async {
         await pumpLocalized(tester, const OnboardingScreen(), locale: _he);
-        expect(find.text('01 / 05'), findsOneWidget);
+        // A left-to-right mark keeps « 01 / 05 » from reading « 05 / 01 ».
+        expect(find.text('\u200e01 / 05'), findsOneWidget);
         expect(
-          textDirectionAt(tester, find.text('01 / 05')),
+          textDirectionAt(tester, find.text('\u200e01 / 05')),
           TextDirection.rtl,
         );
         final skip = tester.getCenter(find.text('דילוג'));

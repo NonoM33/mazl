@@ -1,6 +1,6 @@
 {
   "onboardingStart": "להתחיל",
-  "onboardingStep": "{current} / {total}",
+  "onboardingStep": "‎{current} / {total}",
   "onboardingPageOf": "עמוד {current} מתוך {total}",
   "onboardingPage1Title": "ברוכים הבאים ל־MAZL",
   "onboardingPage1Body": "אפליקציית ההיכרויות שנוצרה עבור הקהילה היהודית.",

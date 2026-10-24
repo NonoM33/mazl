@@ -122,6 +122,25 @@ void main() {
     expect(problems, isEmpty, reason: problems.join('\n'));
   });
 
+  test('en hébreu, « {a} / {b} » se lit dans l\'ordre (marque U+200E)', () {
+    // Sans marque gauche-à-droite devant, « 01 / 05 » s'affiche « 05 / 01 ».
+    final pair = RegExp(r'\{\w+\} / \{\w+\}');
+    final problems = <String>[];
+    for (final feature in (fragments['he'] ?? {}).entries) {
+      for (final entry in feature.value.entries) {
+        final value = entry.value;
+        if (entry.key.startsWith('@') || value is! String) continue;
+        for (final match in pair.allMatches(value)) {
+          final before = match.start > 0 ? value[match.start - 1] : '';
+          if (before != '\u200e') {
+            problems.add('${feature.key} : « ${entry.key} »');
+          }
+        }
+      }
+    }
+    expect(problems, isEmpty, reason: problems.join('\n'));
+  });
+
   test('aucun compte de démo, adresse ou secret dans les traductions', () {
     final forbidden = <String, RegExp>{
       'adresse e-mail': RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+'),
