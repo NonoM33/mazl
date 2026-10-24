@@ -139,6 +139,40 @@ export const updateProfileBodySchema = z
     path: ["ageMin"],
   });
 
+// ============ REPORT BODIES ============
+
+// The categories of the app's report sheet (mobile/lib/core/models/report_category.dart).
+export const REPORT_REASONS = [
+  "fake_profile",
+  "inappropriate_photos",
+  "harassment",
+  "spam",
+  "underage",
+  "offline_behavior",
+  "other",
+] as const;
+
+const reportReason = z.enum(REPORT_REASONS);
+const reportDetails = z.string().max(1000);
+
+// POST /api/users/:id/report
+export const reportUserBodySchema = z
+  .object({
+    category: reportReason,
+    comment: optional(reportDetails),
+    block_user: z.boolean().optional(),
+  })
+  .passthrough();
+
+// POST /api/report (legacy body)
+export const legacyReportBodySchema = z
+  .object({
+    reportedUserId: idSchema,
+    reason: reportReason,
+    details: optional(reportDetails),
+  })
+  .passthrough();
+
 // ============ PROMPTS BODY ============
 
 export const MAX_PROMPT_ANSWER = 300;

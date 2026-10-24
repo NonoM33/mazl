@@ -206,3 +206,92 @@ describe("POST /api/swipes", () => {
     expect(await matchCount(a.id, b.id)).toBe(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Reports and blocks
+
+const reportUser = (user: TestUser, targetId: number | string, body: unknown) =>
+  fetch(`${BASE_URL}/api/users/${targetId}/report`, { method: "POST", headers: json(user.token), body: JSON.stringify(body) });
+const reportLegacy = (user: TestUser, body: unknown) =>
+  fetch(`${BASE_URL}/api/report`, { method: "POST", headers: json(user.token), body: JSON.stringify(body) });
+const reportCount = (reporterId: number) =>
+  count(db`SELECT COUNT(*) AS n FROM reports WHERE reporter_id = ${reporterId}`);
+
+describe("POST /api/users/:id/report", () => {
+  test("a reason that is not one of the app's categories is a 400, not a database error", async () => {
+    const reporter = await makeUser("rep-reason");
+    const target = await makeUser("rep-reason-target");
+    expect((await reportUser(reporter, target.id, { category: "x".repeat(300) })).status).toBe(400);
+    expect((await reportUser(reporter, target.id, { category: "because I said so" })).status).toBe(400);
+    expect(await reportCount(reporter.id)).toBe(0);
+  });
+
+  test("every category the app offers is accepted", async () => {
+    const reporter = await makeUser("rep-cats");
+    const target = await makeUser("rep-cats-target");
+    for (const category of ["fake_profile", "inappropriate_photos", "harassment", "spam", "underage", "offline_behavior", "other"]) {
+      expect([category, (await reportUser(reporter, target.id, { category, comment: "Détail" })).status]).toEqual([category, 200]);
+    }
+  });
+
+  test("the comment is bounded", async () => {
+    const reporter = await makeUser("rep-comment");
+    const target = await makeUser("rep-comment-target");
+    expect((await reportUser(reporter, target.id, { category: "spam", comment: "x".repeat(1001) })).status).toBe(400);
+    expect((await reportUser(reporter, target.id, { category: "spam", comment: "x".repeat(1000) })).status).toBe(200);
+  });
+
+  test("reporting yourself is a 400 and stores nothing", async () => {
+    const reporter = await makeUser("rep-self");
+    expect((await reportUser(reporter, reporter.id, { category: "spam" })).status).toBe(400);
+    expect(await reportCount(reporter.id)).toBe(0);
+  });
+
+  test("an unknown member is a 404, a malformed id a 400", async () => {
+    const reporter = await makeUser("rep-unknown");
+    expect((await reportUser(reporter, 2_000_000_000, { category: "spam" })).status).toBe(404);
+    expect((await reportUser(reporter, "12abc", { category: "spam" })).status).toBe(400);
+    expect((await reportUser(reporter, 3_000_000_000, { category: "spam" })).status).toBe(400);
+    expect(await reportCount(reporter.id)).toBe(0);
+  });
+
+  test("a member cannot flood the moderators: 20 reports an hour", async () => {
+    const reporter = await makeUser("rep-flood");
+    const target = await makeUser("rep-flood-target");
+    for (let i = 0; i < 20; i++) expect((await reportUser(reporter, target.id, { category: "spam" })).status).toBe(200);
+    const blocked = await reportUser(reporter, target.id, { category: "spam" });
+    expect(blocked.status).toBe(429);
+    expect((await reportLegacy(reporter, { reportedUserId: target.id, reason: "spam" })).status).toBe(429);
+    expect(await reportCount(reporter.id)).toBe(20);
+  });
+});
+
+describe("POST /api/report (legacy body)", () => {
+  test("validates the reason, the target and the details like the other route", async () => {
+    const reporter = await makeUser("leg-rep");
+    const target = await makeUser("leg-target");
+    expect((await reportLegacy(reporter, { reportedUserId: target.id, reason: "x".repeat(300) })).status).toBe(400);
+    expect((await reportLegacy(reporter, { reportedUserId: reporter.id, reason: "spam" })).status).toBe(400);
+    expect((await reportLegacy(reporter, { reportedUserId: "abc", reason: "spam" })).status).toBe(400);
+    expect((await reportLegacy(reporter, { reportedUserId: 2_000_000_000, reason: "spam" })).status).toBe(404);
+    expect((await reportLegacy(reporter, { reportedUserId: target.id, reason: "spam", details: "x".repeat(1001) })).status).toBe(400);
+    expect((await reportLegacy(reporter, "not an object")).status).toBe(400);
+    expect(await reportCount(reporter.id)).toBe(0);
+    expect((await reportLegacy(reporter, { reportedUserId: target.id, reason: "other", details: "regression" })).status).toBe(200);
+  });
+});
+
+describe("blocking", () => {
+  test("blocking an id that does not exist is a 404, not a 500", async () => {
+    const user = await makeUser("blk-unknown");
+    expect((await block(user, 2_000_000_000)).status).toBe(404);
+    expect((await block(user, "12abc" as unknown as number)).status).toBe(400);
+  });
+
+  test("a report with block_user toward an unknown member blocks nothing and fails cleanly", async () => {
+    const user = await makeUser("blk-report");
+    const res = await reportUser(user, 2_000_000_000, { category: "spam", block_user: true });
+    expect(res.status).toBe(404);
+    expect(await count(db`SELECT COUNT(*) AS n FROM blocked_users WHERE blocker_id = ${user.id}`)).toBe(0);
+  });
+});
