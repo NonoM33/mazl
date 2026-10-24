@@ -281,6 +281,48 @@ export async function initDb() {
     )
   `;
 
+  // A member is in ONE active couple, whichever column (user1_id / user2_id)
+  // holds them. Two partial unique indexes cannot say that (a member can be
+  // user2_id of one row and user1_id of another), so a trigger enforces it.
+  // It takes a transaction-scoped advisory lock per member, in id order, so two
+  // concurrent acceptances serialise instead of both passing the check.
+  // First, repair any legacy duplicate: the older active couple of a member who
+  // also belongs to a newer active one is ended (nothing is deleted).
+  await sql`
+    UPDATE couples old SET status = 'ended', updated_at = NOW()
+    WHERE old.status = 'active' AND EXISTS (
+      SELECT 1 FROM couples newer
+      WHERE newer.status = 'active' AND newer.id > old.id
+        AND (newer.user1_id IN (old.user1_id, old.user2_id)
+          OR newer.user2_id IN (old.user1_id, old.user2_id))
+    )
+  `;
+  await sql`
+    CREATE OR REPLACE FUNCTION enforce_single_active_couple() RETURNS trigger AS $$
+    BEGIN
+      IF NEW.status = 'active' THEN
+        PERFORM pg_advisory_xact_lock(7301, LEAST(NEW.user1_id, NEW.user2_id));
+        PERFORM pg_advisory_xact_lock(7301, GREATEST(NEW.user1_id, NEW.user2_id));
+        IF EXISTS (
+          SELECT 1 FROM couples c
+          WHERE c.status = 'active' AND c.id IS DISTINCT FROM NEW.id
+            AND (c.user1_id IN (NEW.user1_id, NEW.user2_id)
+              OR c.user2_id IN (NEW.user1_id, NEW.user2_id))
+        ) THEN
+          RAISE EXCEPTION 'a member is already in an active couple' USING ERRCODE = '23505';
+        END IF;
+      END IF;
+      RETURN NEW;
+    END
+    $$ LANGUAGE plpgsql
+  `;
+  await sql`DROP TRIGGER IF EXISTS trg_single_active_couple ON couples`;
+  await sql`
+    CREATE TRIGGER trg_single_active_couple
+    BEFORE INSERT OR UPDATE OF user1_id, user2_id, status ON couples
+    FOR EACH ROW EXECUTE FUNCTION enforce_single_active_couple()
+  `;
+
   // Couple daily questions
   await sql`
     CREATE TABLE IF NOT EXISTS couple_questions (
@@ -2347,16 +2389,23 @@ export async function setUserActiveStatus(userId: number, isActive: boolean) {
 
 // ============ COUPLE MODE ============
 
+// Advisory-lock class shared with the enforce_single_active_couple trigger
+// (the literal 7301 in the trigger body): one lock per member id.
+const COUPLE_MEMBER_LOCK_CLASS = 7301;
+
+type SqlExecutor = typeof sql;
+
 export async function createCouple(
   userId: number,
   partnerId: number,
   relationshipStatus: string = 'dating',
-  startedAt?: Date
+  startedAt?: Date,
+  executor: SqlExecutor = sql
 ) {
   // Order user IDs to prevent duplicates
   const [user1, user2] = userId < partnerId ? [userId, partnerId] : [partnerId, userId];
 
-  const result = await sql`
+  const result = await executor`
     INSERT INTO couples (user1_id, user2_id, relationship_status, started_at, met_on_mazl_at)
     VALUES (${user1}, ${user2}, ${relationshipStatus}, ${startedAt || new Date()}, ${new Date()})
     ON CONFLICT (user1_id, user2_id) DO UPDATE SET
@@ -2383,6 +2432,8 @@ export async function getCouple(userId: number) {
     LEFT JOIN users u2 ON u2.id = c.user2_id
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
       AND c.status = 'active'
+    ORDER BY c.id DESC
+    LIMIT 1
   `;
 
   const couple = result[0];
@@ -2431,9 +2482,14 @@ export interface CoupleRequestRow {
   updated_at: Date;
 }
 
+// Limits on asking the same person again: nobody can be pestered into a couple.
+export const COUPLE_REQUEST_COOLDOWN_DAYS = 7;
+export const COUPLE_REQUEST_MAX_REFUSED_PER_PAIR = 3;
+export const COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON = 3;
+
 export type CreateCoupleRequestResult =
   | { ok: true; request: CoupleRequestRow }
-  | { ok: false; error: string };
+  | { ok: false; error: string; status?: 400 | 409 | 429 };
 
 export type CoupleStatusWith =
   | 'none'
@@ -2493,6 +2549,51 @@ export async function createCoupleRequest(
     return { ok: false, error: 'A pending couple request already exists' };
   }
 
+  // Each refusal counts against the pair, in either direction, for good.
+  const [refused] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE status = 'rejected'
+      AND ((requester_id = ${requesterId} AND target_id = ${targetId})
+        OR (requester_id = ${targetId} AND target_id = ${requesterId}))
+  `;
+  if (Number(refused?.total ?? 0) >= COUPLE_REQUEST_MAX_REFUSED_PER_PAIR) {
+    return {
+      ok: false,
+      status: 409,
+      error: 'Too many declined couple requests with this person: no new request is possible',
+    };
+  }
+
+  // A refusal is respected for a while before the same person may ask again.
+  const recentlyRefused = await sql`
+    SELECT 1 FROM couple_requests
+    WHERE status = 'rejected'
+      AND requester_id = ${requesterId} AND target_id = ${targetId}
+      AND updated_at > NOW() - ${COUPLE_REQUEST_COOLDOWN_DAYS} * INTERVAL '1 day'
+    LIMIT 1
+  `;
+  if (recentlyRefused.length > 0) {
+    return {
+      ok: false,
+      status: 429,
+      error: `This person declined your request: wait ${COUPLE_REQUEST_COOLDOWN_DAYS} days before asking again`,
+    };
+  }
+
+  // Sending then cancelling in a loop would notify the target each time.
+  const [recent] = await sql<{ total: string }[]>`
+    SELECT COUNT(*)::text AS total FROM couple_requests
+    WHERE requester_id = ${requesterId} AND target_id = ${targetId}
+      AND created_at > NOW() - INTERVAL '1 day'
+  `;
+  if (Number(recent?.total ?? 0) >= COUPLE_REQUEST_MAX_PER_DAY_TO_SAME_PERSON) {
+    return {
+      ok: false,
+      status: 429,
+      error: 'Too many couple requests to this person today: try again tomorrow',
+    };
+  }
+
   const rows = await sql`
     INSERT INTO couple_requests (requester_id, target_id, status)
     VALUES (${requesterId}, ${targetId}, 'pending')
@@ -2515,9 +2616,15 @@ export type RespondToCoupleRequestResult =
   | { ok: true; action: 'rejected' }
   | { ok: false; status: number; error: string };
 
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === '23505';
+}
+
 /**
  * Accept or reject a couple request. Only the target may respond (IDOR guard).
- * On accept, the existing createCouple() is reused to build the couple.
+ * Everything an acceptance depends on is re-checked inside one transaction that
+ * holds a lock on both members, so two simultaneous acceptances cannot both
+ * pass: the second one sees the couple the first one created.
  */
 export async function respondToCoupleRequest(
   requestId: number,
@@ -2531,26 +2638,82 @@ export async function respondToCoupleRequest(
   if (request.target_id !== userId) {
     return { ok: false, status: 403, error: 'Forbidden' };
   }
-  if (request.status !== 'pending') {
-    return { ok: false, status: 409, error: 'Couple request is no longer pending' };
-  }
 
-  if (action === 'reject') {
-    await sql`
-      UPDATE couple_requests
-      SET status = 'rejected', updated_at = NOW()
-      WHERE id = ${requestId}
-    `;
-    return { ok: true, action: 'rejected' };
-  }
+  try {
+    return await sql.begin(async (transaction) => {
+      const tx = transaction as unknown as SqlExecutor;
+      const [low, high] = request.requester_id < request.target_id
+        ? [request.requester_id, request.target_id]
+        : [request.target_id, request.requester_id];
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${low})`;
+      await tx`SELECT pg_advisory_xact_lock(${COUPLE_MEMBER_LOCK_CLASS}, ${high})`;
 
-  const couple = await createCouple(request.requester_id, request.target_id);
-  await sql`
-    UPDATE couple_requests
-    SET status = 'accepted', updated_at = NOW()
-    WHERE id = ${requestId}
-  `;
-  return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> };
+      const [current] = await tx<{ status: CoupleRequestStatus }[]>`
+        SELECT status FROM couple_requests WHERE id = ${requestId} FOR UPDATE
+      `;
+      if (!current || current.status !== 'pending') {
+        return { ok: false, status: 409, error: 'Couple request is no longer pending' } as const;
+      }
+
+      if (action === 'reject') {
+        await tx`
+          UPDATE couple_requests
+          SET status = 'rejected', updated_at = NOW()
+          WHERE id = ${requestId}
+        `;
+        return { ok: true, action: 'rejected' } as const;
+      }
+
+      // Blocking or unmatching after the request was sent must stop the couple.
+      const blocked = await tx`
+        SELECT 1 FROM blocked_users
+        WHERE (blocker_id = ${low} AND blocked_id = ${high})
+           OR (blocker_id = ${high} AND blocked_id = ${low})
+        LIMIT 1
+      `;
+      if (blocked.length > 0) {
+        return { ok: false, status: 403, error: 'User is unavailable' } as const;
+      }
+      const matched = await tx`
+        SELECT 1 FROM matches WHERE user1_id = ${low} AND user2_id = ${high} LIMIT 1
+      `;
+      if (matched.length === 0) {
+        return { ok: false, status: 403, error: 'not_matched' } as const;
+      }
+
+      const alreadyCoupled = await tx`
+        SELECT 1 FROM couples
+        WHERE status = 'active'
+          AND (user1_id IN (${low}, ${high}) OR user2_id IN (${low}, ${high}))
+        LIMIT 1
+      `;
+      if (alreadyCoupled.length > 0) {
+        return { ok: false, status: 409, error: 'One of the users is already in a couple' } as const;
+      }
+
+      const couple = await createCouple(request.requester_id, request.target_id, 'dating', undefined, tx);
+      await tx`
+        UPDATE couple_requests
+        SET status = 'accepted', updated_at = NOW()
+        WHERE id = ${requestId}
+      `;
+      // The two people are taken: whatever else was waiting for either of them is void.
+      await tx`
+        UPDATE couple_requests
+        SET status = 'cancelled', updated_at = NOW()
+        WHERE status = 'pending' AND id <> ${requestId}
+          AND (requester_id IN (${low}, ${high}) OR target_id IN (${low}, ${high}))
+      `;
+      return { ok: true, action: 'accepted', couple: couple as Record<string, unknown> } as const;
+    });
+  } catch (error: unknown) {
+    // The database guard (one active couple per member) caught a race the
+    // checks above could not see.
+    if (isUniqueViolation(error)) {
+      return { ok: false, status: 409, error: 'One of the users is already in a couple' };
+    }
+    throw error;
+  }
 }
 
 export type CancelCoupleRequestResult =
@@ -2605,6 +2768,11 @@ export async function getCoupleRequestsForUser(
     LEFT JOIN users tu ON tu.id = cr.target_id
     WHERE cr.status = 'pending'
       AND (cr.requester_id = ${userId} OR cr.target_id = ${userId})
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = cr.requester_id AND b.blocked_id = cr.target_id)
+           OR (b.blocker_id = cr.target_id AND b.blocked_id = cr.requester_id)
+      )
     ORDER BY cr.created_at DESC
   `;
 
@@ -2651,6 +2819,11 @@ export async function getCoupleStatusWith(
     WHERE status = 'pending'
       AND ((requester_id = ${userId} AND target_id = ${otherUserId})
         OR (requester_id = ${otherUserId} AND target_id = ${userId}))
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${otherUserId})
+           OR (b.blocker_id = ${otherUserId} AND b.blocked_id = ${userId})
+      )
     LIMIT 1
   `;
   if (pending.length > 0) {
@@ -2664,7 +2837,9 @@ export async function getCoupleStatusWith(
 /**
  * Archive (per-user) all of the user's conversations except the one(s) with the
  * given partner. Purely additive: getConversations is untouched, callers opt in.
- * Optionally posts a farewell message into each archived conversation.
+ * Optionally posts a farewell message into each archived conversation, except
+ * the ones with a person who is in a block relationship with the user, either
+ * way: a block must never be a way to keep writing to someone.
  */
 export async function archiveConversationsExceptPartner(
   userId: number,
@@ -2679,6 +2854,7 @@ export async function archiveConversationsExceptPartner(
     WHERE (c.user1_id = ${userId} OR c.user2_id = ${userId})
   `;
 
+  const blockedIds = await getBlockedUserIds(userId);
   let archived = 0;
   for (const conv of conversations as unknown as Array<{ id: number; other_user_id: number }>) {
     if (partnerUserId !== null && conv.other_user_id === partnerUserId) continue;
@@ -2690,7 +2866,7 @@ export async function archiveConversationsExceptPartner(
     `;
     archived += 1;
 
-    if (message && message.trim().length > 0) {
+    if (message && message.trim().length > 0 && !blockedIds.has(conv.other_user_id)) {
       await sql`
         INSERT INTO messages (conversation_id, sender_id, content)
         VALUES (${conv.id}, ${userId}, ${message})
@@ -2742,35 +2918,41 @@ export async function getDailyQuestion(coupleId: number) {
   return result[0];
 }
 
+// Records one member's answer. The question must belong to the couple named in
+// the call, otherwise another couple's answer could be overwritten by id.
+// Returns false when nothing was written (unknown couple, outsider, or a
+// question that is not this couple's).
 export async function answerDailyQuestion(
   coupleId: number,
   questionId: number,
   userId: number,
   answer: string
-) {
-  // Determine if this is user1 or user2
-  const couple = await sql`
+): Promise<boolean> {
+  const couple = await sql<{ user1_id: number; user2_id: number }[]>`
     SELECT user1_id, user2_id FROM couples WHERE id = ${coupleId}
   `;
+  const members = couple[0];
+  if (!members) return false;
 
-  if (couple.length === 0) throw new Error("Couple not found");
-
-  const isUser1 = (couple[0] as any).user1_id === userId;
-  const column = isUser1 ? 'user1_answer' : 'user2_answer';
-
-  if (isUser1) {
-    await sql`
+  if (members.user1_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user1_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
-  } else {
-    await sql`
+    return updated.length > 0;
+  }
+  if (members.user2_id === userId) {
+    const updated = await sql`
       UPDATE couple_questions
       SET user2_answer = ${answer}
-      WHERE id = ${questionId}
+      WHERE id = ${questionId} AND couple_id = ${coupleId}
+      RETURNING id
     `;
+    return updated.length > 0;
   }
+  return false;
 }
 
 export async function getCoupleQuestionHistory(coupleId: number, limit = 30) {
@@ -3915,7 +4097,7 @@ export async function getCoupleActivities(coupleId: number, limit = 20, offset =
 // Get single activity
 export async function getCoupleActivity(activityId: number) {
   const result = await sql`
-    SELECT * FROM couple_activities WHERE id = ${activityId}
+    SELECT * FROM couple_activities WHERE id = ${activityId} AND is_active = true
   `;
   return result.length ? result[0] : null;
 }
@@ -3960,20 +4142,54 @@ export async function removeSavedActivity(coupleId: number, activityId: number) 
   `;
 }
 
-// Create booking
+export type CoupleBookingResult =
+  | { ok: true; booking: Array<Record<string, unknown>> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
+
+type BookableEvent = { price_cents: number | null; is_past: boolean };
+
+// Why an event cannot be taken (booked or joined) right now, or null when it can.
+// `paid` is true when this couple already paid for it.
+function eventRefusal(event: BookableEvent | undefined, paid: boolean): { status: 402 | 404 | 409; error: string } | null {
+  if (!event) return { status: 404, error: 'Event not found' };
+  if (event.is_past) return { status: 409, error: 'Event is over' };
+  if ((event.price_cents ?? 0) > 0 && !paid) {
+    return { status: 402, error: 'This event is paid: payment is required before registering' };
+  }
+  return null;
+}
+
+// Create booking. Only a published, upcoming, free event (or an active
+// activity) can be booked: a draft, past or paid event is refused.
 export async function createCoupleBooking(params: {
   coupleId: number;
-  activityId?: number;
-  eventId?: number;
+  activityId?: number | null;
+  eventId?: number | null;
   bookingDate: string;
-  bookingTime?: string;
-  notes?: string;
-}) {
-  return await sql`
+  bookingTime?: string | null;
+  notes?: string | null;
+}): Promise<CoupleBookingResult> {
+  if (params.eventId != null) {
+    const [event] = await sql<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${params.eventId} AND is_published = true
+    `;
+    const refusal = eventRefusal(event, false);
+    if (refusal) return { ok: false, ...refusal };
+  }
+  if (params.activityId != null) {
+    const activity = await sql`
+      SELECT 1 FROM couple_activities WHERE id = ${params.activityId} AND is_active = true
+    `;
+    if (activity.length === 0) return { ok: false, status: 404, error: 'Activity not found' };
+  }
+
+  const booking = await sql`
     INSERT INTO couple_bookings (couple_id, activity_id, event_id, booking_date, booking_time, notes, status)
     VALUES (${params.coupleId}, ${params.activityId ?? null}, ${params.eventId ?? null}, ${params.bookingDate}, ${params.bookingTime ?? null}, ${params.notes ?? null}, 'confirmed')
     RETURNING *
   `;
+  return { ok: true, booking: booking as unknown as Array<Record<string, unknown>> };
 }
 
 // Get couple bookings
@@ -4011,34 +4227,47 @@ export async function getCoupleEvents(limit = 20, offset = 0, category?: string)
 // Get single couple event
 export async function getCoupleEvent(eventId: number) {
   const result = await sql`
-    SELECT * FROM couple_events WHERE id = ${eventId}
+    SELECT * FROM couple_events WHERE id = ${eventId} AND is_published = true
   `;
   return result.length ? result[0] : null;
 }
 
-// Register for couple event
-export async function registerForCoupleEvent(coupleId: number, eventId: number) {
-  const event = await getCoupleEvent(eventId);
-  if (!event) throw new Error("Event not found");
+export type CoupleEventRegistrationResult =
+  | { ok: true; registration: Record<string, unknown> }
+  | { ok: false; status: 402 | 404 | 409; error: string };
 
-  // The count moves only when the registration actually changes state: a
-  // second "register" (or a second "cancel") must not count the couple twice.
-  // Capacity is checked in the same UPDATE, so two couples cannot both take
-  // the last place.
+// Register for couple event. The event row is locked for the whole
+// transaction, so the checks (published, upcoming, free or paid for, room left)
+// and the place taken cannot be interleaved with another registration.
+export async function registerForCoupleEvent(
+  coupleId: number,
+  eventId: number
+): Promise<CoupleEventRegistrationResult> {
   return await sql.begin(async (transaction) => {
     const tx = transaction as unknown as typeof sql;
-    const [existing] = await tx<{ status: string }[]>`
-      SELECT status FROM couple_event_registrations
-      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    const [event] = await tx<(BookableEvent & { id: number })[]>`
+      SELECT id, price_cents, event_date < CURRENT_DATE AS is_past
+      FROM couple_events WHERE id = ${eventId} AND is_published = true
       FOR UPDATE
     `;
-    if (existing?.status !== "registered") {
+    const [existing] = await tx<{ status: string; paid: boolean | null }[]>`
+      SELECT status, paid FROM couple_event_registrations
+      WHERE couple_id = ${coupleId} AND event_id = ${eventId}
+    `;
+    const refusal = eventRefusal(event, existing?.paid === true);
+    if (refusal) return { ok: false, ...refusal } as const;
+
+    // The count moves only when the registration actually changes state: a
+    // second "register" (or a second "cancel") must not count the couple twice.
+    // Capacity is checked in the same UPDATE, so two couples cannot both take
+    // the last place.
+    if (existing?.status !== 'registered') {
       const seat = await tx`
         UPDATE couple_events SET current_couples = current_couples + 1
         WHERE id = ${eventId} AND (max_couples IS NULL OR current_couples < max_couples)
         RETURNING id
       `;
-      if (seat.length === 0) throw new Error("Event is full");
+      if (seat.length === 0) return { ok: false, status: 409, error: 'Event is full' } as const;
     }
     const registration = await tx`
       INSERT INTO couple_event_registrations (couple_id, event_id)
@@ -4046,7 +4275,7 @@ export async function registerForCoupleEvent(coupleId: number, eventId: number) 
       ON CONFLICT (couple_id, event_id) DO UPDATE SET status = 'registered', cancelled_at = NULL
       RETURNING *
     `;
-    return registration[0];
+    return { ok: true, registration: registration[0] as Record<string, unknown> } as const;
   });
 }
 
