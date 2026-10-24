@@ -25,5 +25,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "exclude": ["console", "node_modules", "tests/unit/console-*"]
 }

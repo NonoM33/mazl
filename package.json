@@ -7,11 +7,15 @@
     "dev": "NODE_ENV=development bun --hot src/index.ts",
     "start": "bun src/index.ts",
     "test:unit": "bun test tests/unit",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p console/tsconfig.json",
+    "console:mock": "bun console/dev/mock-api.ts",
+    "console:screenshots": "bun console/dev/screenshots.ts",
     "models:fetch": "bun scripts/fetch-face-models.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -20,6 +24,8 @@
     "hono": "^4.11.4",
     "onnxruntime-node": "1.30.0",
     "postgres": "^3.4.8",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "resend": "^6.7.0",
     "sharp": "^0.35.5",
     "zod": "^4.4.3"
