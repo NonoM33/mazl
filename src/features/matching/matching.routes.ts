@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import {
   getDiscoverProfiles,
   getSwipeAction,
+  getProfilePreferences,
   recordSwipe,
   getMatches,
   getReceivedLikes,
@@ -12,6 +13,7 @@ import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import type { CreditsGateway } from "../credits/application/ports";
 import { registerSwipeRoute } from "./swipe.routes";
+import { registerDiscoverRoutes } from "./presentation/discover.routes";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
 // received likes). These routes are moved verbatim from the monolith
@@ -31,43 +33,15 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
   // for /api/discover and /api/daily-picks, against profile scraping.
   const feedLimiter = createRateLimiter({ max: 300, windowMs: 60 * 60 * 1000 });
 
-  // Get profiles for discovery
-  app.get("/api/discover", requireAuth, feedLimiter, async (c) => {
-    try {
-      const userId = c.get("userId");
-      const limit = parseInt(c.req.query("limit") || "20");
-      const offset = parseInt(c.req.query("offset") || "0");
-
-      const profiles = await getDiscoverProfiles(userId, limit, offset);
-
-      return c.json({ success: true, profiles });
-    } catch (error: unknown) {
-      console.error("Discover error:", error);
-      return c.json({ success: false, error: "Failed to get profiles" }, 500);
-    }
-  });
-
-  // Get daily picks (curated selection of profiles)
-  app.get("/api/daily-picks", requireAuth, feedLimiter, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      // Get profiles and return top 5 as daily picks
-      const profiles = await getDiscoverProfiles(userId, 5, 0);
-
-      // Add "picked today" timestamp
-      const today = new Date().toISOString().split('T')[0];
-
-      return c.json({
-        success: true,
-        picks: profiles,
-        date: today,
-        refreshesAt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString()
-      });
-    } catch (error: unknown) {
-      console.error("Daily picks error:", error);
-      return c.json({ success: false, error: "Failed to get daily picks" }, 500);
-    }
+  // Discovery feeds (GET /api/discover, GET /api/daily-picks): refused with 409
+  // profile_incomplete until the caller has given gender and looking_for.
+  registerDiscoverRoutes(app, {
+    authenticate: requireAuth,
+    feedLimiter,
+    feed: {
+      loadPreferences: getProfilePreferences,
+      loadCandidates: getDiscoverProfiles,
+    },
   });
 
   // Record swipe action. A super like is debited from the credits first.

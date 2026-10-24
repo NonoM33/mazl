@@ -14,6 +14,8 @@ import {
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { parseBody } from "../../shared/http/validation";
 import { createRateLimiter } from "../../shared/http/rate-limit";
+import { missingProfileFields } from "./domain/profile-completeness";
+import { updateProfileBodySchema } from "./profile.schemas";
 import { clampDistanceMax } from "../media/domain/geo-fuzz";
 import type { MediaModule } from "../media";
 import { registerPhotoRoutes } from "../media/presentation/photo.routes";
@@ -28,29 +30,6 @@ import { registerPhotoRoutes } from "../media/presentation/photo.routes";
 // declared BEFORE /api/profile/:userId, otherwise "prompts" is captured as
 // :userId (parseInt("prompts") = NaN). They live in this same file so the
 // ordering is guaranteed regardless of where registerProfileRoutes is called.
-
-// PUT /api/profile: guard the numeric field TYPES (ageMin/ageMax/distanceMax,
-// lat/long) and declare the string fields the handler reads so they stay
-// well-typed. Everything is optional and `.passthrough()` keeps any other
-// field the mobile app may send — nothing legitimate is rejected.
-const updateProfileBodySchema = z
-  .object({
-    displayName: z.string().optional(),
-    birthdate: z.string().optional(),
-    gender: z.string().optional(),
-    bio: z.string().optional(),
-    location: z.string().optional(),
-    latitude: z.number().min(-90).max(90).optional(),
-    longitude: z.number().min(-180).max(180).optional(),
-    denomination: z.string().optional(),
-    kashrutLevel: z.string().optional(),
-    shabbatObservance: z.string().optional(),
-    lookingFor: z.string().optional(),
-    ageMin: z.number().optional(),
-    ageMax: z.number().optional(),
-    distanceMax: z.number().optional(),
-  })
-  .passthrough();
 
 const addPromptBodySchema = z
   .object({
@@ -255,6 +234,10 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: "Profile not found" }, 404);
       }
 
+      // The caller's own profile also says what is still missing to use the app.
+      if (targetUserId === c.get("userId")) {
+        return c.json({ success: true, profile, missing: missingProfileFields(profile) });
+      }
       return c.json({ success: true, profile });
     } catch (error: unknown) {
       console.error("Get profile error:", error);
