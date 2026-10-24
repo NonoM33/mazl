@@ -133,6 +133,30 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets('the mazl+ sheet in ${c.name}', (tester) async {
+      await _pump(tester, _free(12), c);
+      await tester.tap(find.byType(LockedLikeTile).first);
+      await tester.pumpAndSettle();
+      expectNoFrench([
+        'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
+        'Voir les offres',
+        'Plus tard',
+      ]);
+      expect(find.byType(FilledButton), findsNothing);
+      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the like preview sheet in ${c.name}', (tester) async {
+      await _pump(tester, _premium(), c);
+      await tester.tap(find.byType(LikeCard).first);
+      await tester.pumpAndSettle();
+      expectNoFrench(["J'aime", 'Passer']);
+      expect(find.byType(FilledButton), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('premium member in ${c.name}', (tester) async {
       final semantics = tester.ensureSemantics();
       await _pump(tester, _premium(), c);
@@ -176,6 +200,28 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('English mazl+ sheet', (tester) async {
+    await _pump(tester, _free(12), l10nCases.first);
+    await tester.tap(find.byType(LockedLikeTile).first);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'See who liked you and match right away with the people you like.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('See plans'), findsOneWidget);
+    expect(find.text('Later'), findsOneWidget);
+  });
+
+  testWidgets('English like preview sheet', (tester) async {
+    await _pump(tester, _premium(), l10nCases.first);
+    await tester.tap(find.byType(LikeCard).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Pass'), findsOneWidget);
+    expect(find.text('Like'), findsOneWidget);
+  });
 
   testWidgets('English premium card labels and empty state', (tester) async {
     final semantics = tester.ensureSemantics();

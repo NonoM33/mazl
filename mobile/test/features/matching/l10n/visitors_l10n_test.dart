@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/presentation/features/visitors/screens/visitors_screen.dart';
 
@@ -145,6 +146,19 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('the locked visit sheet in ${c.name}', (tester) async {
+      await _pump(tester, ApiResponse.success(_data(premium: false)), c);
+      await tester.tap(find.byIcon(LucideIcons.lock).first);
+      await tester.pumpAndSettle();
+      expectNoFrench([
+        'Réservé à mazl+',
+        'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.',
+        'Découvrir mazl+',
+        'Plus tard',
+      ]);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('no visitor yet in ${c.name}', (tester) async {
       await _pump(tester, ApiResponse.success(_data(empty: true)), c);
       expectNoFrench([
@@ -172,6 +186,19 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('English locked visit sheet', (tester) async {
+    await _pump(
+      tester,
+      ApiResponse.success(_data(premium: false)),
+      l10nCases.first,
+    );
+    await tester.tap(find.byIcon(LucideIcons.lock).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Only with mazl+'), findsOneWidget);
+    expect(find.text('Discover mazl+'), findsOneWidget);
+    expect(find.text('Later'), findsOneWidget);
+  });
 
   testWidgets('English failed load', (tester) async {
     await _pump(

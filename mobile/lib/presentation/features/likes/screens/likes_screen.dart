@@ -315,7 +315,8 @@ class _LikesScreenState extends State<LikesScreen> {
                 text: 'mazl',
                 children: [
                   TextSpan(
-                    text: '+',
+                    // A left-to-right mark keeps the plus glued to « mazl » in Hebrew.
+                    text: '+\u200E',
                     style: TextStyle(color: scheme.primary),
                   ),
                 ],
