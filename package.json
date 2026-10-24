@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development bun --hot src/index.ts",
     "start": "bun src/index.ts",
     "test:unit": "bun test tests/unit",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p console/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p console/tsconfig.json && tsc --noEmit -p landing/tsconfig.json",
     "console:mock": "bun console/dev/mock-api.ts",
     "console:screenshots": "bun console/dev/screenshots.ts",
     "web:build": "bun web/build.ts",
@@ -15,7 +15,9 @@
     "web:check": "tsc --noEmit -p web/tsconfig.json && eslint --max-warnings 0 web/src",
     "test:web": "bun test tests/web-client",
     "test:e2e": "bun tests/e2e/run.ts",
-    "models:fetch": "bun scripts/fetch-face-models.ts"
+    "models:fetch": "bun scripts/fetch-face-models.ts",
+    "landing:build": "bun landing/build.ts",
+    "landing:check": "tsc --noEmit -p landing/tsconfig.json"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
