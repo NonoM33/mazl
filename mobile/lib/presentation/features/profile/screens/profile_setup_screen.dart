@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../privacy/widgets/religious_data_gate.dart';
 
 /// Options aligned with [EditProfileScreen] so values round-trip between the
 /// initial setup flow and later edits.
@@ -58,6 +59,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   String? _denomination;
   String? _kashrut;
   String? _shabbat;
+  // The server ignores the four practice fields without a valid consent.
+  bool _religiousConsent = false;
   String? _synagogue;
 
   // Step 4 - preferences
@@ -254,14 +257,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (_gender != null) 'gender': _gender,
       if (_cityController.text.trim().isNotEmpty)
         'location': _cityController.text.trim(),
-      if (_denomination != null) 'denomination': _denomination,
-      if (_kashrut != null) 'kashrutLevel': _kashrut,
-      if (_shabbat != null) 'shabbatObservance': _shabbat,
+      if (_religiousConsent && _denomination != null)
+        'denomination': _denomination,
+      if (_religiousConsent && _kashrut != null) 'kashrutLevel': _kashrut,
+      if (_religiousConsent && _shabbat != null)
+        'shabbatObservance': _shabbat,
       if (_lookingFor != null) 'lookingFor': _lookingFor,
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _maxDistance.round(),
-      if (_goal != null) 'relationshipIntention': _goal,
+      if (_religiousConsent && _goal != null) 'relationshipIntention': _goal,
     };
 
     final response = await _apiService.updateProfile(payload);
@@ -425,6 +430,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 32),
 
+        ReligiousDataGate(
+          onValidityChanged: (valid) {
+            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
         const Text('Dénomination', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         _ChoiceChips(
@@ -454,6 +466,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
 
         const SizedBox(height: 24),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
 
         const Text('Synagogue', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
@@ -531,10 +547,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const Text('Objectif', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        _ChoiceChips(
-          options: _goalOptions,
-          selected: _goal,
-          onSelected: (v) => setState(() => _goal = v),
+        ReligiousDataLocked(
+          locked: !_religiousConsent,
+          child: _ChoiceChips(
+            options: _goalOptions,
+            selected: _goal,
+            onSelected: (v) => setState(() => _goal = v),
+          ),
         ),
 
         const SizedBox(height: 32),

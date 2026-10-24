@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../privacy/widgets/religious_data_gate.dart';
 import '../widgets/profile_prompts_section.dart';
 import '../widgets/relationship_intention_selector.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -36,6 +37,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _kashrut;
   String? _shabbatObservance;
   String? _relationshipIntention;
+  // The server ignores the four practice fields without a valid consent.
+  bool _religiousConsent = false;
 
   @override
   void initState() {
@@ -102,10 +105,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       'displayName': _displayName,
       'location': _location,
       'bio': _bioController.text,
-      'denomination': _denomination,
-      'kashrutLevel': _kashrut,
-      'shabbatObservance': _shabbatObservance,
-      'relationshipIntention': _relationshipIntention,
+      if (_religiousConsent) ...{
+        'denomination': _denomination,
+        'kashrutLevel': _kashrut,
+        'shabbatObservance': _shabbatObservance,
+        'relationshipIntention': _relationshipIntention,
+      },
     });
 
     setState(() => _isSaving = false);
@@ -584,9 +589,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 24),
 
         // Relationship Intention
-        RelationshipIntentionSelector(
-          selectedIntention: _relationshipIntention,
-          onChanged: (value) => setState(() => _relationshipIntention = value),
+        ReligiousDataLocked(
+          locked: !_religiousConsent,
+          child: RelationshipIntentionSelector(
+            selectedIntention: _relationshipIntention,
+            onChanged: (value) => setState(() => _relationshipIntention = value),
+          ),
         ),
 
         const SizedBox(height: 24),
@@ -622,6 +630,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         const SizedBox(height: 12),
+        ReligiousDataGate(
+          onValidityChanged: (valid) {
+            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+          },
+          child: Column(
+            children: [
         _EditField(
           label: 'Dénomination',
           value: _denomination ?? 'Non renseigné',
@@ -650,6 +664,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _shabbatObservance,
             ['Non observant', 'Partiellement', 'Observant', 'Tres observant'],
             (v) => setState(() => _shabbatObservance = v),
+          ),
+        ),
+            ],
           ),
         ),
 
