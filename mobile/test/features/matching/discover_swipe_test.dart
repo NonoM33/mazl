@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
+import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/core/services/premium_gate.dart';
-import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart'
     show ProfilePhoto;
@@ -37,6 +37,8 @@ Future<FakeDiscoverApi> _pumpDiscover(
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.lightTheme,
+      // As in the app: the iPhone's Reduce Motion reaches the screen here.
+      builder: (context, child) => ReduceMotionScope(child: child!),
       home: DiscoverScreen(apiService: api),
     ),
   );
@@ -345,27 +347,65 @@ void main() {
     expect(api.swipes, ['101:pass']);
   });
 
-  testWidgets('photos change by tapping the halves of the photo', (
-    tester,
-  ) async {
-    await _pumpDiscover(tester, photos: const ['', '', '']);
+  group('photo indicator', () {
     Finder inTopCard(Finder f) => find.descendant(of: _card(101), matching: f);
-    Color bar(int i) =>
-        (tester
-                    .widget<Container>(
-                      inTopCard(find.byKey(Key('photo-bar-$i'))),
-                    )
-                    .decoration!
-                as BoxDecoration)
-            .color!;
-    final box = tester.getRect(inTopCard(find.byType(ProfilePhoto)));
+    double inkLeft(WidgetTester tester) => tester
+        .getRect(inTopCard(find.byKey(const Key('photo-bar-current'))))
+        .left;
+    double segmentLeft(WidgetTester tester, int i) =>
+        tester.getRect(inTopCard(find.byKey(Key('photo-bar-$i')))).left;
+    Rect photo(WidgetTester tester) =>
+        tester.getRect(inTopCard(find.byType(ProfilePhoto)));
 
-    expect(bar(0), AppColors.ink);
-    await tester.tapAt(Offset(box.right - 20, box.center.dy));
-    await tester.pump();
-    expect(bar(1), AppColors.ink);
-    await tester.tapAt(Offset(box.left + 20, box.center.dy));
-    await tester.pump();
-    expect(bar(0), AppColors.ink);
+    testWidgets('photos change by tapping the halves of the photo', (
+      tester,
+    ) async {
+      await _pumpDiscover(tester, photos: const ['', '', '']);
+      expect(inkLeft(tester), segmentLeft(tester, 0));
+
+      final box = photo(tester);
+      await tester.tapAt(Offset(box.right - 20, box.center.dy));
+      await tester.pumpAndSettle();
+      expect(inkLeft(tester), segmentLeft(tester, 1));
+
+      await tester.tapAt(Offset(box.left + 20, box.center.dy));
+      await tester.pumpAndSettle();
+      expect(inkLeft(tester), segmentLeft(tester, 0));
+    });
+
+    testWidgets('the ink segment slides to the next photo, it does not jump', (
+      tester,
+    ) async {
+      await _pumpDiscover(tester, photos: const ['', '', '']);
+      final from = segmentLeft(tester, 0);
+      final to = segmentLeft(tester, 1);
+
+      final box = photo(tester);
+      await tester.tapAt(Offset(box.right - 20, box.center.dy));
+      await tester.pump();
+      await tester.pump(MazlMotion.photoIndicatorSlide ~/ 2);
+      expect(inkLeft(tester), greaterThan(from + 1));
+      expect(inkLeft(tester), lessThan(to - 1));
+
+      await tester.pump(MazlMotion.photoIndicatorSlide);
+      expect(inkLeft(tester), to);
+    });
+
+    testWidgets('reduced motion: the ink segment is on the new photo at once', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(reduceMotion: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await _pumpDiscover(tester, photos: const ['', '', '']);
+
+      final box = photo(tester);
+      await tester.tapAt(Offset(box.right - 20, box.center.dy));
+      await tester.pump();
+      await tester.pump();
+      expect(inkLeft(tester), segmentLeft(tester, 1));
+    });
   });
 }

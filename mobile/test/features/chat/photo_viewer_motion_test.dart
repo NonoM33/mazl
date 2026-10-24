@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
+import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/presentation/features/chat/widgets/photo_grid.dart';
 import 'package:mazl/presentation/features/chat/widgets/photo_viewer.dart';
 
@@ -34,17 +35,25 @@ List<String> _haptics(WidgetTester tester) {
   return calls;
 }
 
-Future<void> _open(WidgetTester tester, {bool reduced = false}) async {
+/// [iPhoneScope]: the app's root, where the iPhone setting becomes
+/// `disableAnimations`, instead of setting it by hand.
+Future<void> _open(
+  WidgetTester tester, {
+  bool reduced = false,
+  bool iPhoneScope = false,
+}) async {
   tester.view.physicalSize = const Size(400, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final photos = [for (var i = 0; i < 3; i++) PhotoSource(url: tinyPngUri)];
   await tester.pumpWidget(
     MaterialApp(
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
-        child: child!,
-      ),
+      builder: (context, child) => iPhoneScope
+          ? ReduceMotionScope(child: child!)
+          : MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
+              child: child!,
+            ),
       home: Scaffold(
         body: Align(
           alignment: Alignment.topLeft,
@@ -229,6 +238,55 @@ void main() {
       await tester.pump();
       await tester.pump(MazlMotion.viewerReturnToThumbnail * 1.5);
       expect(find.byType(PhotoViewer), findsNothing);
+    });
+
+    testWidgets('past 120 px, a quick flick back up keeps it open', (
+      tester,
+    ) async {
+      await _open(tester);
+      final gesture = await _hold(tester);
+      await gesture.moveBy(
+        const Offset(0, 136),
+        timeStamp: const Duration(milliseconds: 600),
+      );
+      await tester.pump();
+      // 30 px up in 20 ms: 1500 px/s, well past the dismiss velocity.
+      var ms = 600;
+      for (var i = 0; i < 5; i++) {
+        ms += 4;
+        await gesture.moveBy(
+          const Offset(0, -6),
+          timeStamp: Duration(milliseconds: ms),
+        );
+      }
+      await tester.pump();
+      expect(
+        _offset(tester).dy,
+        greaterThanOrEqualTo(MazlMotion.viewerDismissDistance),
+      );
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(PhotoViewer), findsOneWidget);
+      expect(_offset(tester), Offset.zero);
+    });
+
+    testWidgets('the iPhone Reduce Motion setting reaches the viewer: no '
+        'scale while dragged', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(reduceMotion: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await _open(tester, iPhoneScope: true);
+      final gesture = await _hold(tester);
+      await gesture.moveBy(
+        const Offset(0, 100),
+        timeStamp: const Duration(milliseconds: 900),
+      );
+      await tester.pump();
+      expect(_scale(tester), 1.0);
+      await gesture.up();
+      await tester.pumpAndSettle();
     });
 
     testWidgets('a slow short drag does not close it', (tester) async {
