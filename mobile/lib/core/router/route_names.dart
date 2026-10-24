@@ -25,6 +25,7 @@ abstract class RouteNames {
   static const shabbatMode = 'shabbatMode';
   static const computers = 'computers';
   static const webScan = 'webScan';
+  static const religiousData = 'religiousData';
 
   // Couple mode
   static const coupleSetup = 'coupleSetup';
@@ -80,6 +81,7 @@ abstract class RoutePaths {
   static const shabbatMode = '/profile/settings/shabbat';
   static const computers = '/profile/settings/computers';
   static const webScan = '/profile/settings/computers/scan';
+  static const religiousData = '/profile/settings/religious-data';
 
   // Couple mode
   static const coupleSetup = '/couple/setup';
