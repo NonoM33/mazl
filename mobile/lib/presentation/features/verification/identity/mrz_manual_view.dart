@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/verification/mrz/mrz_data.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/manual_mrz_error_text.dart';
 import 'identity_layout.dart';
 import 'identity_parts.dart';
 import 'manual_mrz_input.dart';
@@ -42,37 +44,58 @@ class _MrzManualViewState extends State<MrzManualView> {
   }
 
   @override
-  Widget build(BuildContext context) => IdentityPage(
-    eyebrow: 'Étape 1 / 3',
-    title: 'Saisissez les informations.',
-    subtitle: 'Recopiez-les depuis la page photo de votre document.',
-    onClose: widget.onClose,
-    actions: [
-      IdentityPrimaryButton('Continuer', onPressed: _submit),
-      IdentityLinkButton('Scanner avec la caméra', onPressed: widget.onUseCamera),
-    ],
-    child: Column(
-      children: [
-        TextField(
-          controller: _number,
-          textCapitalization: TextCapitalization.characters,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: InputDecoration(labelText: 'Numéro du document', errorText: _errors.documentNumber),
-          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9 ]'))],
-        ),
-        const SizedBox(height: 16),
-        _dateField(_birth, 'Date de naissance', _errors.birthDate),
-        const SizedBox(height: 16),
-        _dateField(_expiry, 'Date d\'expiration', _errors.expiryDate),
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return IdentityPage(
+      eyebrow: l10n.verificationStepLabel(1, 3),
+      title: l10n.verificationManualTitle,
+      subtitle: l10n.verificationManualSubtitle,
+      onClose: widget.onClose,
+      actions: [
+        IdentityPrimaryButton(l10n.commonContinue, onPressed: _submit),
+        IdentityLinkButton(l10n.verificationManualUseCamera, onPressed: widget.onUseCamera),
       ],
-    ),
-  );
+      child: Column(
+        children: [
+          TextField(
+            controller: _number,
+            textCapitalization: TextCapitalization.characters,
+            autocorrect: false,
+            enableSuggestions: false,
+            textDirection: TextDirection.ltr,
+            textAlign: _valueAlign(context),
+            decoration: InputDecoration(
+              labelText: l10n.verificationFieldDocumentNumber,
+              errorText: _errors.documentNumber?.text(l10n),
+            ),
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9 ]'))],
+          ),
+          const SizedBox(height: 16),
+          _dateField(context, _birth, l10n.verificationFieldBirthDate, _errors.birthDate),
+          const SizedBox(height: 16),
+          _dateField(context, _expiry, l10n.verificationFieldExpiryDate, _errors.expiryDate),
+        ],
+      ),
+    );
+  }
 
-  Widget _dateField(TextEditingController controller, String label, String? error) => TextField(
-    controller: controller,
-    keyboardType: TextInputType.number,
-    inputFormatters: const [FrenchDateInputFormatter()],
-    decoration: InputDecoration(labelText: label, hintText: 'JJ/MM/AAAA', errorText: error),
-  );
+  /// Letters and digits are typed left to right in every language, but the
+  /// value still sits on the side the rest of the form starts from.
+  TextAlign _valueAlign(BuildContext context) =>
+      Directionality.of(context) == TextDirection.rtl ? TextAlign.end : TextAlign.start;
+
+  Widget _dateField(BuildContext context, TextEditingController controller, String label, ManualMrzError? error) =>
+      TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        textDirection: TextDirection.ltr,
+        textAlign: _valueAlign(context),
+        inputFormatters: const [FrenchDateInputFormatter()],
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: context.l10n.verificationDateHint,
+          hintTextDirection: TextDirection.ltr,
+          errorText: error?.text(context.l10n),
+        ),
+      );
 }

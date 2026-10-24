@@ -1817,44 +1817,6 @@ lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
 lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Commencer
-lib/presentation/features/verification/identity/identity_intro_view.dart | Comparé à la photo de la puce.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Il faut un passeport ou une carte d\'identité biométrique, deux minutes et un peu de lumière.
-lib/presentation/features/verification/identity/identity_intro_view.dart | La puce signée par l\'État fait foi.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Le badge « Identité vérifiée » dit aux autres que vous êtes bien la personne des photos. 
-lib/presentation/features/verification/identity/identity_intro_view.dart | Photographier la page photo
-lib/presentation/features/verification/identity/identity_intro_view.dart | Poser le téléphone sur la puce
-lib/presentation/features/verification/identity/identity_intro_view.dart | Pour lire les deux lignes du bas.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Rien n\'est conservé : nous ne gardons que le résultat.
-lib/presentation/features/verification/identity/identity_intro_view.dart | Un selfie en mouvement
-lib/presentation/features/verification/identity/identity_intro_view.dart | Vérifiez votre identité.
-lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
-lib/presentation/features/verification/identity/manual_mrz_input.dart | Date invalide.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Continuer
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Date d\'expiration
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Date de naissance
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Numéro du document
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Recopiez-les depuis la page photo de votre document.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Saisissez les informations.
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Scanner avec la caméra
-lib/presentation/features/verification/identity/mrz_manual_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_review_format.dart |  * hidden}${number.substring(hidden)}
-lib/presentation/features/verification/identity/mrz_review_view.dart | C\'est bien moi
-lib/presentation/features/verification/identity/mrz_review_view.dart | Date d\'expiration
-lib/presentation/features/verification/identity/mrz_review_view.dart | Date de naissance
-lib/presentation/features/verification/identity/mrz_review_view.dart | Numéro du document
-lib/presentation/features/verification/identity/mrz_review_view.dart | Scanner à nouveau
-lib/presentation/features/verification/identity/mrz_review_view.dart | Vérifiez ces informations.
-lib/presentation/features/verification/identity/mrz_review_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Aperçu de la caméra : placez les deux lignes du bas du document dans le cadre mis en évidence
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Cadrez la page photo.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | La caméra n\'est pas disponible.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Les deux lignes de « < » du bas suffisent. Évitez les reflets.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Saisir les informations
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Saisir à la main
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Vous pouvez saisir les informations de la page photo à la main.
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
-lib/presentation/features/verification/identity/mrz_scanner_view.dart | Étape 1 / 3
 lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
 lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
 lib/presentation/features/video_call/screens/video_call_screen.dart | Fin

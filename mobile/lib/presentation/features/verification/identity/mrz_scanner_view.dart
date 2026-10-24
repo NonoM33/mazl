@@ -10,6 +10,7 @@ import '../../../../core/di/providers/identity_providers.dart';
 import '../../../../core/verification/mrz/mrz_data.dart';
 import '../../../../core/verification/mrz/mrz_parser.dart';
 import '../../../../core/vision/text_line_recognizer.dart';
+import '../../../../l10n/l10n.dart';
 import 'identity_layout.dart';
 import 'identity_parts.dart';
 import 'mrz_scan_filter.dart';
@@ -110,24 +111,25 @@ class _MrzScannerViewState extends ConsumerState<MrzScannerView> {
   @override
   Widget build(BuildContext context) {
     final camera = _camera;
+    final l10n = context.l10n;
     if (_failed || (camera != null && !camera.value.isInitialized)) {
       return IdentityNotice(
         dark: true,
-        eyebrow: 'Étape 1 / 3',
+        eyebrow: l10n.verificationStepLabel(1, 3),
         icon: LucideIcons.cameraOff,
-        title: 'La caméra n\'est pas disponible.',
-        body: 'Vous pouvez saisir les informations de la page photo à la main.',
+        title: l10n.verificationCameraNotAvailable,
+        body: l10n.verificationScanUnavailableBody,
         onClose: widget.onClose,
-        actions: [IdentityPrimaryButton('Saisir les informations', onPressed: widget.onManual)],
+        actions: [IdentityPrimaryButton(l10n.verificationScanEnterDetails, onPressed: widget.onManual)],
       );
     }
     return IdentityPage(
       dark: true,
-      eyebrow: 'Étape 1 / 3',
+      eyebrow: l10n.verificationStepLabel(1, 3),
       onClose: widget.onClose,
-      title: 'Cadrez la page photo.',
-      subtitle: 'Les deux lignes de « < » du bas suffisent. Évitez les reflets.',
-      actions: [IdentityLinkButton('Saisir à la main', onPressed: widget.onManual)],
+      title: l10n.verificationScanTitle,
+      subtitle: l10n.verificationScanHint,
+      actions: [IdentityLinkButton(l10n.verificationScanManual, onPressed: widget.onManual)],
       child: _ScanFrame(camera: camera),
     );
   }
@@ -147,7 +149,7 @@ class _ScanFrame extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final controller = camera;
     return Semantics(
-      label: 'Aperçu de la caméra : placez les deux lignes du bas du document dans le cadre mis en évidence',
+      label: context.l10n.verificationScanFrameSemantics,
       child: AspectRatio(
         aspectRatio: 1.45,
         child: Stack(

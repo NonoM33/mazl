@@ -111,10 +111,10 @@ void main() {
       expect(find.text('01'), findsOneWidget);
       expect(find.text('02'), findsOneWidget);
       expect(find.text('03'), findsOneWidget);
-      for (final step in IdentityIntroView.steps) {
-        expect(find.text(step), findsOneWidget);
+      for (final step in IdentityIntroView.steps(frenchL10n)) {
+        expect(find.text(step.title), findsOneWidget);
       }
-      expect(find.text(IdentityIntroView.privacyNote), findsOneWidget);
+      expect(find.text(frenchL10n.verificationIntroPrivacy), findsOneWidget);
       expect(find.bySemanticsLabel('Commencer'), findsOneWidget);
       expect(find.bySemanticsLabel('Fermer'), findsOneWidget);
       expect(tester.getSize(find.byType(ElevatedButton)).height, 56);
@@ -267,9 +267,9 @@ void main() {
 
       expect(find.text('Vérifiez ces informations.'), findsOneWidget);
       expect(find.text(_mrz.documentNumber), findsNothing, reason: 'le numéro complet ne s\'affiche jamais');
-      expect(find.text(maskDocumentNumber(_mrz.documentNumber)), findsOneWidget);
-      expect(find.text(formatReviewDate(_mrz.birthDate())), findsOneWidget);
-      expect(find.text(formatReviewDate(_mrz.expiryDate())), findsOneWidget);
+      expect(find.text(reviewDocumentNumber(_mrz.documentNumber)), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.birthDate(), 'fr')), findsOneWidget);
+      expect(find.text(formatReviewDate(_mrz.expiryDate(), 'fr')), findsOneWidget);
       _expectTouchTargets(tester);
 
       await tester.tap(find.text('C\'est bien moi'));
