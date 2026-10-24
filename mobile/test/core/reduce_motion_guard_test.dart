@@ -19,10 +19,7 @@ final _readsSetting = RegExp(r'MazlMotion\.reduced|disableAnimations');
 /// Files known to animate without reading the setting yet. This list can only
 /// SHRINK: a file that becomes compliant must leave it (the test below fails
 /// otherwise), and no file is added to it.
-const _knownNonCompliant = <String>{
-  // Fixed in a parallel branch of the reduced-motion work (Discover screens).
-  'lib/presentation/features/matching/screens/daily_picks_screen.dart',
-};
+const _knownNonCompliant = <String>{};
 
 String _code(File file) => file
     .readAsLinesSync()

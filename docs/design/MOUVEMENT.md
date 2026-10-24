@@ -151,5 +151,8 @@ du couple.
   - un like refusé ramène la carte, puis ouvre la fenêtre mazl+ ;
   - le seuil déclenche un seul `selectionClick`.
 - Sous `disableAnimations` : aucune rotation, aucun ressort, des fondus de 150 ms.
+- Hors des gestes aussi : tout fichier de `mobile/lib/` qui lance une animation (`AnimationController`,
+  `.animate(`, `animateTo`, `animateToPage`, `elasticOut`) lit le réglage, sinon
+  `test/core/reduce_motion_guard_test.dart` échoue. Transitions de pages : un simple fondu.
 - Match : la feuille s'ouvre au-dessus de la barre d'onglets avec une seule poignée, et ses deux
   actions mènent où elles doivent.
