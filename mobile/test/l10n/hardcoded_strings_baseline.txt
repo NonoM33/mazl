@@ -1,6 +1,3 @@
 # Textes encore en dur (cliquet : cette liste ne peut que rétrécir).
 # Voir test/l10n/hardcoded_strings_test.dart.
-lib/core/services/store/subscription_api.dart | Bearer $token
-lib/core/services/store/subscription_models.dart | subscription.$key: texte attendu
-lib/core/services/store/subscription_models.dart | subscription.expires_at: texte attendu
-lib/core/services/store/subscription_models.dart | subscription: objet attendu
+

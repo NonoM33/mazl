@@ -54,6 +54,18 @@ const _notUserFacingFiles = <String, String>{
 /// raison. Un texte que le membre peut voir n'a rien à faire ici ; un texte
 /// qui a disparu du fichier doit en sortir (un test le vérifie).
 const _notUserFacing = <String, (String, List<String>)>{
+  'lib/core/services/store/subscription_api.dart': (
+    'en-tête HTTP',
+    [r'Bearer $token'],
+  ),
+  'lib/core/services/store/subscription_models.dart': (
+    'messages de FormatException (réponse de vérification illisible), journal',
+    [
+      r'subscription.$key: texte attendu',
+      'subscription.expires_at: texte attendu',
+      'subscription: objet attendu',
+    ],
+  ),
   'lib/core/services/couple_service.dart': (
     'contenu fixe du tableau de bord, texte de repli : l\'écran traduit chaque '
         'élément par identifiant (dashboard_content_coverage_test)',
