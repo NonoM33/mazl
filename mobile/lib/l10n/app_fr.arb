@@ -613,6 +613,205 @@
       }
     }
   },
+  "matchingFiltersReset": "Réinitialiser",
+  "@matchingFiltersReset": {
+    "description": "Bouton en haut à droite de l'écran des filtres : remet tous les filtres à leur valeur de départ."
+  },
+  "matchingFiltersAge": "Tranche d'âge",
+  "@matchingFiltersAge": {
+    "description": "Titre de la section « tranche d'âge » de l'écran des filtres."
+  },
+  "matchingFiltersYears": "{count, plural, one{{count} an} other{{count} ans}}",
+  "@matchingFiltersYears": {
+    "description": "Âge minimal ou maximal affiché au-dessus du curseur d'âge. {count} est un entier entre 18 et 70.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingFiltersDistance": "Distance maximale",
+  "@matchingFiltersDistance": {
+    "description": "Titre de la section « distance maximale » de l'écran des filtres."
+  },
+  "matchingFiltersKm": "{count} km",
+  "@matchingFiltersKm": {
+    "description": "Distance maximale choisie, en gros chiffres au-dessus du curseur. {count} est un entier de kilomètres.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingFiltersDenomination": "Courant religieux",
+  "@matchingFiltersDenomination": {
+    "description": "Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+)."
+  },
+  "matchingFiltersDenominationAll": "Toutes",
+  "@matchingFiltersDenominationAll": {
+    "description": "Choix du filtre « courant religieux » : aucun filtre."
+  },
+  "matchingFiltersDenominationOrthodox": "Orthodoxe",
+  "@matchingFiltersDenominationOrthodox": {
+    "description": "Choix du filtre « courant religieux » : judaïsme orthodoxe."
+  },
+  "matchingFiltersDenominationMasorti": "Massorti",
+  "@matchingFiltersDenominationMasorti": {
+    "description": "Choix du filtre « courant religieux » : mouvement massorti (conservative)."
+  },
+  "matchingFiltersDenominationLiberal": "Libéral",
+  "@matchingFiltersDenominationLiberal": {
+    "description": "Choix du filtre « courant religieux » : judaïsme libéral ou réformé."
+  },
+  "matchingFiltersDenominationTraditional": "Traditionaliste",
+  "@matchingFiltersDenominationTraditional": {
+    "description": "Choix du filtre « courant religieux » : traditionaliste, attaché aux traditions sans suivre un mouvement."
+  },
+  "matchingFiltersDenominationChabad": "Loubavitch",
+  "@matchingFiltersDenominationChabad": {
+    "description": "Choix du filtre « courant religieux » : mouvement loubavitch (Habad)."
+  },
+  "matchingFiltersDenominationSephardi": "Séfarade",
+  "@matchingFiltersDenominationSephardi": {
+    "description": "Choix du filtre « courant religieux » : tradition séfarade."
+  },
+  "matchingFiltersDenominationAshkenazi": "Ashkénaze",
+  "@matchingFiltersDenominationAshkenazi": {
+    "description": "Choix du filtre « courant religieux » : tradition ashkénaze."
+  },
+  "matchingFiltersObservances": "Pratiques religieuses",
+  "@matchingFiltersObservances": {
+    "description": "Titre de la section « pratiques religieuses » de l'écran des filtres (fonction mazl+)."
+  },
+  "matchingFiltersShabbat": "Shomer Shabbat",
+  "@matchingFiltersShabbat": {
+    "description": "Choix du filtre « pratiques » : observer le chabbat (shomer shabbat)."
+  },
+  "matchingFiltersKosher": "Casher",
+  "@matchingFiltersKosher": {
+    "description": "Choix du filtre « pratiques » : manger casher."
+  },
+  "matchingFiltersKosherStrict": "Casher strict",
+  "@matchingFiltersKosherStrict": {
+    "description": "Choix du filtre « pratiques » : casher strict."
+  },
+  "matchingFiltersDailyPrayer": "Prière quotidienne",
+  "@matchingFiltersDailyPrayer": {
+    "description": "Choix du filtre « pratiques » : prière quotidienne."
+  },
+  "matchingFiltersMikveh": "Mikvé",
+  "@matchingFiltersMikveh": {
+    "description": "Choix du filtre « pratiques » : pratique du mikvé (bain rituel)."
+  },
+  "matchingFiltersTzniut": "Tsniout",
+  "@matchingFiltersTzniut": {
+    "description": "Choix du filtre « pratiques » : tsniout (pudeur dans l'habillement et le comportement)."
+  },
+  "matchingFiltersEducation": "Niveau d'études",
+  "@matchingFiltersEducation": {
+    "description": "Titre de la section « niveau d'études » de l'écran des filtres (fonction mazl+)."
+  },
+  "matchingFiltersEducationAll": "Tous",
+  "@matchingFiltersEducationAll": {
+    "description": "Choix du filtre « niveau d'études » : aucun filtre."
+  },
+  "matchingFiltersEducationHighSchool": "Lycée",
+  "@matchingFiltersEducationHighSchool": {
+    "description": "Choix du filtre « niveau d'études » : lycée."
+  },
+  "matchingFiltersEducationBaccalaureate": "Bac",
+  "@matchingFiltersEducationBaccalaureate": {
+    "description": "Choix du filtre « niveau d'études » : baccalauréat."
+  },
+  "matchingFiltersEducationBachelor": "Licence",
+  "@matchingFiltersEducationBachelor": {
+    "description": "Choix du filtre « niveau d'études » : licence (bac+3)."
+  },
+  "matchingFiltersEducationMaster": "Master",
+  "@matchingFiltersEducationMaster": {
+    "description": "Choix du filtre « niveau d'études » : master (bac+5)."
+  },
+  "matchingFiltersEducationDoctorate": "Doctorat",
+  "@matchingFiltersEducationDoctorate": {
+    "description": "Choix du filtre « niveau d'études » : doctorat."
+  },
+  "matchingFiltersEducationYeshiva": "Yeshiva/Sem",
+  "@matchingFiltersEducationYeshiva": {
+    "description": "Choix du filtre « niveau d'études » : yeshiva (hommes) ou séminaire (femmes), études religieuses."
+  },
+  "matchingFiltersHeight": "Taille",
+  "@matchingFiltersHeight": {
+    "description": "Titre de la section « taille » de l'écran des filtres (fonction mazl+)."
+  },
+  "matchingFiltersHeightMin": "Min",
+  "@matchingFiltersHeightMin": {
+    "description": "Valeur minimale de taille quand aucun filtre n'est posé, à gauche du curseur."
+  },
+  "matchingFiltersHeightMax": "Max",
+  "@matchingFiltersHeightMax": {
+    "description": "Valeur maximale de taille quand aucun filtre n'est posé, à droite du curseur."
+  },
+  "matchingFiltersCm": "{count} cm",
+  "@matchingFiltersCm": {
+    "description": "Taille minimale ou maximale choisie. {count} est un entier de centimètres.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingFiltersHeightClear": "Effacer le filtre taille",
+  "@matchingFiltersHeightClear": {
+    "description": "Bouton qui retire le filtre de taille."
+  },
+  "matchingFiltersOptions": "Options",
+  "@matchingFiltersOptions": {
+    "description": "Titre de la section des options à bascule (profils vérifiés, avec photo, en ligne)."
+  },
+  "matchingFiltersVerifiedTitle": "Profils vérifiés uniquement",
+  "@matchingFiltersVerifiedTitle": {
+    "description": "Interrupteur : ne montrer que les profils dont l'identité est vérifiée."
+  },
+  "matchingFiltersVerifiedHint": "Voir seulement les profils vérifiés",
+  "@matchingFiltersVerifiedHint": {
+    "description": "Explication sous l'interrupteur « profils vérifiés uniquement »."
+  },
+  "matchingFiltersPhotoTitle": "Avec photo uniquement",
+  "@matchingFiltersPhotoTitle": {
+    "description": "Interrupteur : ne montrer que les profils qui ont une photo."
+  },
+  "matchingFiltersPhotoHint": "Exclure les profils sans photo",
+  "@matchingFiltersPhotoHint": {
+    "description": "Explication sous l'interrupteur « avec photo uniquement »."
+  },
+  "matchingFiltersOnlineTitle": "En ligne maintenant",
+  "@matchingFiltersOnlineTitle": {
+    "description": "Interrupteur : ne montrer que les membres connectés en ce moment (fonction mazl+)."
+  },
+  "matchingFiltersOnlineHint": "Voir les utilisateurs actifs",
+  "@matchingFiltersOnlineHint": {
+    "description": "Explication sous l'interrupteur « en ligne maintenant »."
+  },
+  "matchingFiltersUpsellTitle": "Débloquer tous les filtres",
+  "@matchingFiltersUpsellTitle": {
+    "description": "Titre de l'encart dégradé qui propose mazl+ aux comptes gratuits, en bas de l'écran des filtres."
+  },
+  "matchingFiltersUpsellBody": "Passez à mazl+ pour des recherches précises",
+  "@matchingFiltersUpsellBody": {
+    "description": "Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque."
+  },
+  "matchingFiltersApply": "Appliquer les filtres",
+  "@matchingFiltersApply": {
+    "description": "Gros bouton qui apparaît dès qu'un filtre change : enregistre les filtres et revient à Découvrir."
+  },
+  "matchingFiltersSaved": "Filtres enregistrés",
+  "@matchingFiltersSaved": {
+    "description": "Message bref (fond vert) après l'enregistrement des filtres."
+  },
+  "matchingFiltersSaveFailed": "Erreur lors de la sauvegarde",
+  "@matchingFiltersSaveFailed": {
+    "description": "Message bref (fond rouge) quand l'enregistrement des filtres a échoué."
+  },
   "safetyBlock": "Bloquer",
   "@safetyBlock": {
     "description": "Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation."

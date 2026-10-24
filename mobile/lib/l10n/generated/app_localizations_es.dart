@@ -471,6 +471,157 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get matchingFiltersReset => 'Restablecer';
+
+  @override
+  String get matchingFiltersAge => 'Rango de edad';
+
+  @override
+  String matchingFiltersYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count años',
+      one: '$count año',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingFiltersDistance => 'Distancia máxima';
+
+  @override
+  String matchingFiltersKm(int count) {
+    return '$count km';
+  }
+
+  @override
+  String get matchingFiltersDenomination => 'Corriente religiosa';
+
+  @override
+  String get matchingFiltersDenominationAll => 'Todas';
+
+  @override
+  String get matchingFiltersDenominationOrthodox => 'Ortodoxo';
+
+  @override
+  String get matchingFiltersDenominationMasorti => 'Masortí';
+
+  @override
+  String get matchingFiltersDenominationLiberal => 'Liberal';
+
+  @override
+  String get matchingFiltersDenominationTraditional => 'Tradicionalista';
+
+  @override
+  String get matchingFiltersDenominationChabad => 'Jabad';
+
+  @override
+  String get matchingFiltersDenominationSephardi => 'Sefardí';
+
+  @override
+  String get matchingFiltersDenominationAshkenazi => 'Asquenazí';
+
+  @override
+  String get matchingFiltersObservances => 'Prácticas religiosas';
+
+  @override
+  String get matchingFiltersShabbat => 'Shomer Shabat';
+
+  @override
+  String get matchingFiltersKosher => 'Kosher';
+
+  @override
+  String get matchingFiltersKosherStrict => 'Kosher estricto';
+
+  @override
+  String get matchingFiltersDailyPrayer => 'Oración diaria';
+
+  @override
+  String get matchingFiltersMikveh => 'Mikve';
+
+  @override
+  String get matchingFiltersTzniut => 'Tzniut';
+
+  @override
+  String get matchingFiltersEducation => 'Nivel de estudios';
+
+  @override
+  String get matchingFiltersEducationAll => 'Todos';
+
+  @override
+  String get matchingFiltersEducationHighSchool => 'Instituto';
+
+  @override
+  String get matchingFiltersEducationBaccalaureate => 'Bachillerato';
+
+  @override
+  String get matchingFiltersEducationBachelor => 'Grado';
+
+  @override
+  String get matchingFiltersEducationMaster => 'Máster';
+
+  @override
+  String get matchingFiltersEducationDoctorate => 'Doctorado';
+
+  @override
+  String get matchingFiltersEducationYeshiva => 'Yeshivá / Seminario';
+
+  @override
+  String get matchingFiltersHeight => 'Altura';
+
+  @override
+  String get matchingFiltersHeightMin => 'Mín.';
+
+  @override
+  String get matchingFiltersHeightMax => 'Máx.';
+
+  @override
+  String matchingFiltersCm(int count) {
+    return '$count cm';
+  }
+
+  @override
+  String get matchingFiltersHeightClear => 'Quitar el filtro de altura';
+
+  @override
+  String get matchingFiltersOptions => 'Opciones';
+
+  @override
+  String get matchingFiltersVerifiedTitle => 'Solo perfiles verificados';
+
+  @override
+  String get matchingFiltersVerifiedHint => 'Ver solo perfiles verificados';
+
+  @override
+  String get matchingFiltersPhotoTitle => 'Solo con foto';
+
+  @override
+  String get matchingFiltersPhotoHint => 'Excluir perfiles sin foto';
+
+  @override
+  String get matchingFiltersOnlineTitle => 'En línea ahora';
+
+  @override
+  String get matchingFiltersOnlineHint => 'Ver a quienes están activos';
+
+  @override
+  String get matchingFiltersUpsellTitle => 'Desbloquea todos los filtros';
+
+  @override
+  String get matchingFiltersUpsellBody =>
+      'Pásate a mazl+ para búsquedas precisas';
+
+  @override
+  String get matchingFiltersApply => 'Aplicar filtros';
+
+  @override
+  String get matchingFiltersSaved => 'Filtros guardados';
+
+  @override
+  String get matchingFiltersSaveFailed => 'Error al guardar';
+
+  @override
   String get safetyBlock => 'Bloquear';
 
   @override

@@ -1105,60 +1105,27 @@ lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
 lib/presentation/features/events/screens/events_list_screen.dart | Tous
 lib/presentation/features/events/screens/events_list_screen.dart | Événement
 lib/presentation/features/events/screens/events_list_screen.dart | Événements
-lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.end.round()} ans
-lib/presentation/features/matching/screens/filters_screen.dart | ${_ageRange.start.round()} ans
-lib/presentation/features/matching/screens/filters_screen.dart | ${_distanceMax.round()} km
-lib/presentation/features/matching/screens/filters_screen.dart | ${_heightRange!.end.round()} cm
-lib/presentation/features/matching/screens/filters_screen.dart | ${_heightRange!.start.round()} cm
-lib/presentation/features/matching/screens/filters_screen.dart | Appliquer les filtres
-lib/presentation/features/matching/screens/filters_screen.dart | Ashkénaze
-lib/presentation/features/matching/screens/filters_screen.dart | Avec photo uniquement
-lib/presentation/features/matching/screens/filters_screen.dart | Bac
-lib/presentation/features/matching/screens/filters_screen.dart | Casher
-lib/presentation/features/matching/screens/filters_screen.dart | Casher strict
-lib/presentation/features/matching/screens/filters_screen.dart | Courant religieux
-lib/presentation/features/matching/screens/filters_screen.dart | Distance maximale
-lib/presentation/features/matching/screens/filters_screen.dart | Doctorat
-lib/presentation/features/matching/screens/filters_screen.dart | Débloquer tous les filtres
-lib/presentation/features/matching/screens/filters_screen.dart | Effacer le filtre taille
-lib/presentation/features/matching/screens/filters_screen.dart | En ligne maintenant
-lib/presentation/features/matching/screens/filters_screen.dart | Erreur lors de la sauvegarde
-lib/presentation/features/matching/screens/filters_screen.dart | Exclure les profils sans photo
-lib/presentation/features/matching/screens/filters_screen.dart | Filtres
-lib/presentation/features/matching/screens/filters_screen.dart | Filtres enregistrés
-lib/presentation/features/matching/screens/filters_screen.dart | Libéral
-lib/presentation/features/matching/screens/filters_screen.dart | Licence
-lib/presentation/features/matching/screens/filters_screen.dart | Loubavitch
-lib/presentation/features/matching/screens/filters_screen.dart | Lycée
-lib/presentation/features/matching/screens/filters_screen.dart | Massorti
-lib/presentation/features/matching/screens/filters_screen.dart | Master
-lib/presentation/features/matching/screens/filters_screen.dart | Max
-lib/presentation/features/matching/screens/filters_screen.dart | Mikvé
-lib/presentation/features/matching/screens/filters_screen.dart | Min
-lib/presentation/features/matching/screens/filters_screen.dart | Niveau d\'études
-lib/presentation/features/matching/screens/filters_screen.dart | Options
-lib/presentation/features/matching/screens/filters_screen.dart | Orthodoxe
-lib/presentation/features/matching/screens/filters_screen.dart | Passez à mazl+ pour des recherches précises
-lib/presentation/features/matching/screens/filters_screen.dart | Pratiques religieuses
-lib/presentation/features/matching/screens/filters_screen.dart | Prière quotidienne
-lib/presentation/features/matching/screens/filters_screen.dart | Profils vérifiés uniquement
-lib/presentation/features/matching/screens/filters_screen.dart | Réinitialiser
-lib/presentation/features/matching/screens/filters_screen.dart | Shomer Shabbat
-lib/presentation/features/matching/screens/filters_screen.dart | Séfarade
-lib/presentation/features/matching/screens/filters_screen.dart | Taille
-lib/presentation/features/matching/screens/filters_screen.dart | Tous
-lib/presentation/features/matching/screens/filters_screen.dart | Tous
-lib/presentation/features/matching/screens/filters_screen.dart | Tous
-lib/presentation/features/matching/screens/filters_screen.dart | Toutes
-lib/presentation/features/matching/screens/filters_screen.dart | Toutes
-lib/presentation/features/matching/screens/filters_screen.dart | Toutes
-lib/presentation/features/matching/screens/filters_screen.dart | Traditionaliste
-lib/presentation/features/matching/screens/filters_screen.dart | Tranche d\'âge
-lib/presentation/features/matching/screens/filters_screen.dart | Tsniout
-lib/presentation/features/matching/screens/filters_screen.dart | Voir
-lib/presentation/features/matching/screens/filters_screen.dart | Voir les utilisateurs actifs
-lib/presentation/features/matching/screens/filters_screen.dart | Voir seulement les profils vérifiés
-lib/presentation/features/matching/screens/filters_screen.dart | Yeshiva/Sem
+lib/presentation/features/matching/l10n/filter_options.dart | Ashkénaze
+lib/presentation/features/matching/l10n/filter_options.dart | Bac
+lib/presentation/features/matching/l10n/filter_options.dart | Casher
+lib/presentation/features/matching/l10n/filter_options.dart | Casher strict
+lib/presentation/features/matching/l10n/filter_options.dart | Doctorat
+lib/presentation/features/matching/l10n/filter_options.dart | Libéral
+lib/presentation/features/matching/l10n/filter_options.dart | Licence
+lib/presentation/features/matching/l10n/filter_options.dart | Loubavitch
+lib/presentation/features/matching/l10n/filter_options.dart | Lycée
+lib/presentation/features/matching/l10n/filter_options.dart | Massorti
+lib/presentation/features/matching/l10n/filter_options.dart | Master
+lib/presentation/features/matching/l10n/filter_options.dart | Mikvé
+lib/presentation/features/matching/l10n/filter_options.dart | Orthodoxe
+lib/presentation/features/matching/l10n/filter_options.dart | Prière quotidienne
+lib/presentation/features/matching/l10n/filter_options.dart | Shomer Shabbat
+lib/presentation/features/matching/l10n/filter_options.dart | Séfarade
+lib/presentation/features/matching/l10n/filter_options.dart | Tous
+lib/presentation/features/matching/l10n/filter_options.dart | Toutes
+lib/presentation/features/matching/l10n/filter_options.dart | Traditionaliste
+lib/presentation/features/matching/l10n/filter_options.dart | Tsniout
+lib/presentation/features/matching/l10n/filter_options.dart | Yeshiva/Sem
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | ${score.factors.length} critères analysés
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Avec $userName
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compatibilité
