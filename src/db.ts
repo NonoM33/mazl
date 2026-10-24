@@ -1159,6 +1159,21 @@ export async function isProfileVisibleTo(viewerId: number, targetId: number): Pr
   return rows.length > 0;
 }
 
+// A profile is shown to others once it has a name, a birthdate and a gender
+// (upsertProfile below). Profiles filled in before that rule are completed
+// once at boot, so that they do not vanish from profile views.
+export async function completeFinishedProfiles(): Promise<number> {
+  const rows = await sql`
+    UPDATE profiles SET is_complete = true
+    WHERE is_complete IS NOT TRUE
+      AND COALESCE(display_name, '') <> ''
+      AND birthdate IS NOT NULL
+      AND gender IS NOT NULL
+    RETURNING user_id
+  `;
+  return rows.length;
+}
+
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;

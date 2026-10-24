@@ -8,6 +8,7 @@ import {
   sql,
   getTotalCount,
   initDb,
+  completeFinishedProfiles,
   upsertWaitlistAndGetVerification,
   findUserByEmail,
   // Events
@@ -685,6 +686,8 @@ await mkdir(UPLOADS_DIR, { recursive: true });
 assertKeysConfigured();
 
 await initDb();
+const completedAtBoot = await completeFinishedProfiles();
+if (completedAtBoot > 0) console.log(`Completed ${completedAtBoot} finished profiles`);
 await ensureDocumentsSchema();
 startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
