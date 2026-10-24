@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 afterAll(async () => { await browser.close(); });
 
-async function pollUntil<T>(read: () => Promise<T>, expected: T): Promise<void> {
+async function pollUntil<T>(read: () => Promise<Awaited<T>>, expected: Awaited<T>): Promise<void> {
   let last = await read();
   for (let attempt = 0; attempt < 40 && last !== expected; attempt += 1) {
     await Bun.sleep(250);
@@ -33,7 +33,7 @@ async function ownPhotoIds(): Promise<number[]> {
 }
 
 async function photoLabels(page: Page): Promise<string[]> {
-  return page.getByRole("list", { name: "Vos photos" }).getByRole("listitem").evaluateAll((items) => items.map((item) => item.getAttribute("aria-label") ?? ""));
+  return page.getByRole("list", { name: "Vos photos" }).getByRole("listitem").evaluateAll((items) => items.map((item) => (item as { getAttribute(name: string): string | null }).getAttribute("aria-label") ?? ""));
 }
 
 describe("my profile", () => {
@@ -63,7 +63,7 @@ describe("edit my profile", () => {
     await page.reload();
     await page.waitForLoadState("networkidle");
     const after = await ownPhotoIds();
-    expect(after).toEqual([before[1], before[0], before[2], before[3]]);
+    expect(after).toEqual([before[1], before[0], before[2], before[3]].map(Number));
     expect(await photoLabels(page)).toContain("Photo 1 sur 4, photo principale");
   });
 

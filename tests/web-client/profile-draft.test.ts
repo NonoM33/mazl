@@ -59,7 +59,7 @@ describe("server errors and rows", () => {
     expect(fieldOfServerError(undefined)).toBeNull();
   });
   test("a stored row becomes a draft with a plain date", () => {
-    const draft = draftFromRow({ user_id: 1, display_name: "Léa", birthdate: "1994-03-12T00:00:00.000Z", gender: "female", bio: null, location: null, latitude: null, longitude: null, denomination: null, kashrut_level: null, shabbat_observance: null, looking_for: null, age_min: null, age_max: null, is_complete: true, is_verified: false, verification_level: null });
+    const draft = draftFromRow({ user_id: 1, display_name: "Léa", birthdate: "1994-03-12T00:00:00.000Z", gender: "female", bio: null, location: null, latitude: null, longitude: null, denomination: null, kashrut_level: null, shabbat_observance: null, looking_for: null, age_min: null, age_max: null, distance_max: null, is_complete: true, is_verified: false, verification_level: null });
     expect(draft.birthdate).toBe("1994-03-12");
     expect(draft.bio).toBe("");
   });
