@@ -1,7 +1,10 @@
 /// Libellé de la durée d'une formule à partir de l'identifiant du produit
-/// (« six_month » -> « 6 mois »). Null si le produit n'est pas reconnu.
+/// (« com.mazl.app.plus.6m » ou « six_month » -> « 6 mois »). Null si le
+/// produit n'est pas reconnu.
 String? planLabelForProduct(String productIdentifier) {
   final id = productIdentifier.toLowerCase();
+  final plus = RegExp(r'\.plus\.(\d+)m\b').firstMatch(id);
+  if (plus != null) return '${plus.group(1)} mois';
   if (id.contains('six_month') || id.contains('6_month')) return '6 mois';
   if (id.contains('three_month') || id.contains('3_month')) return '3 mois';
   if (id.contains('two_month') || id.contains('2_month')) return '2 mois';

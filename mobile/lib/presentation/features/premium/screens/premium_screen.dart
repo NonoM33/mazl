@@ -26,7 +26,7 @@ class PremiumScreen extends StatefulWidget {
 class _PremiumScreenState extends State<PremiumScreen> {
   final RevenueCatService _revenueCat = RevenueCatService();
   Offering? _offering;
-  int _selectedPlanIndex = 1; // Default to 6 months (best value)
+  int _selectedPlanIndex = 1; // 3 mois, la formule mise en avant
   bool _isLoading = true;
   bool _isPurchasing = false;
 
@@ -35,23 +35,30 @@ class _PremiumScreenState extends State<PremiumScreen> {
     _SubscriptionPlan(
       id: 'monthly',
       duration: '1 mois',
-      price: '14,99 €',
-      pricePerMonth: '14,99 € par mois',
+      price: '19,99 €',
+      pricePerMonth: '19,99 € par mois',
       savings: null,
+    ),
+    _SubscriptionPlan(
+      id: 'three_month',
+      duration: '3 mois',
+      price: '44,99 €',
+      pricePerMonth: '15,00 € par mois',
+      savings: '-25 %',
     ),
     _SubscriptionPlan(
       id: 'six_month',
       duration: '6 mois',
-      price: '59,99 €',
-      pricePerMonth: '9,99 € par mois',
-      savings: '-33 %',
+      price: '69,99 €',
+      pricePerMonth: '11,67 € par mois',
+      savings: '-42 %',
     ),
     _SubscriptionPlan(
       id: 'yearly',
       duration: '12 mois',
-      price: '89,99 €',
-      pricePerMonth: '7,49 € par mois',
-      savings: '-50 %',
+      price: '99,99 €',
+      pricePerMonth: '8,33 € par mois',
+      savings: '-58 %',
     ),
   ];
 

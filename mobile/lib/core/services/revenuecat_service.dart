@@ -38,19 +38,25 @@ class RevenueCatConfig {
   // Entitlements
   static const String entitlementMazlPro = 'Mazl Pro';
 
-  // Product Identifiers
-  static const String productMonthly = 'monthly';
-  static const String productYearly = 'yearly';
-  static const String productTwoMonth = 'two_month';
-  static const String productSixMonth = 'six_month';
-  static const String productConsumable = 'consumable';
+  // Product Identifiers (App Store Connect, groupe « mazl+ »)
+  static const String productPlus1Month = 'com.mazl.app.plus.1m';
+  static const String productPlus3Months = 'com.mazl.app.plus.3m';
+  static const String productPlus6Months = 'com.mazl.app.plus.6m';
+  static const String productPlus12Months = 'com.mazl.app.plus.12m';
+  static const String productBoost1 = 'com.mazl.app.boost.1';
+  static const String productBoost3 = 'com.mazl.app.boost.3';
+  static const String productSuperLikes5 = 'com.mazl.app.superlikes.5';
+  static const String productSuperLikes15 = 'com.mazl.app.superlikes.15';
 
   static List<String> get allProducts => [
-        productMonthly,
-        productYearly,
-        productTwoMonth,
-        productSixMonth,
-        productConsumable,
+        productPlus1Month,
+        productPlus3Months,
+        productPlus6Months,
+        productPlus12Months,
+        productBoost1,
+        productBoost3,
+        productSuperLikes5,
+        productSuperLikes15,
       ];
 }
 
