@@ -433,7 +433,7 @@ void main() {
         expect(find.widgetWithText(OutlinedButton, 'Annuler'), findsOneWidget);
         expect(find.text('Gratuit'), findsOneWidget);
         expect(find.text('Complet'), findsOneWidget);
-        expect(find.text('45€/couple'), findsWidgets);
+        expect(find.text('45\u00A0€/couple'), findsWidgets);
       },
     );
 

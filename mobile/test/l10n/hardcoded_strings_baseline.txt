@@ -870,45 +870,6 @@ lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir tou
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Voir toutes
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Votre réponse…
 lib/presentation/features/couple/screens/couple_dashboard_screen.dart | Événements en couple
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | ${event.spotsLeft} places restantes
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Adresse
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Ce qui est inclus
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Cet événement n\'existe plus.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Description
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Il n\'est plus proposé.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Inscrits à « ${event.title} »
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Lieu
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Organisé par
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Retour
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Tenue
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_event_detail_screen.dart | Événement introuvable
-lib/presentation/features/couple/screens/couple_events_screen.dart | ${event.spotsLeft} places
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Annuler l\'inscription ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Aucun événement disponible
-lib/presentation/features/couple/screens/couple_events_screen.dart | Casher
-lib/presentation/features/couple/screens/couple_events_screen.dart | Complet
-lib/presentation/features/couple/screens/couple_events_screen.dart | Découvrir les événements
-lib/presentation/features/couple/screens/couple_events_screen.dart | Impossible d\'annuler l\'inscription. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription annulée
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscription impossible. Réessayez.
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits (${_registeredEvents.length})
-lib/presentation/features/couple/screens/couple_events_screen.dart | Inscrits à "${event.title}"
-lib/presentation/features/couple/screens/couple_events_screen.dart | Non
-lib/presentation/features/couple/screens/couple_events_screen.dart | Oui, annuler
-lib/presentation/features/couple/screens/couple_events_screen.dart | Voulez-vous vraiment annuler votre inscription à "${event.title}" ?
-lib/presentation/features/couple/screens/couple_events_screen.dart | Vous n\'êtes inscrit à aucun événement
-lib/presentation/features/couple/screens/couple_events_screen.dart | À la une
-lib/presentation/features/couple/screens/couple_events_screen.dart | À venir
-lib/presentation/features/couple/screens/couple_events_screen.dart | Événements
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | $who doit accepter. Nous vous préviendrons dès sa réponse.
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Annuler la demande
 lib/presentation/features/couple/screens/couple_mode_setup_screen.dart | Aucun match pour l\'instant.
@@ -1050,24 +1011,6 @@ lib/presentation/features/couple/widgets/couple_request_dialog.dart | $_name sou
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Accepter
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Cette personne
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Non merci
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Atelier
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Brunch
-lib/presentation/features/couple/widgets/event_category.dart | Concert
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dégustation
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Dîner
-lib/presentation/features/couple/widgets/event_category.dart | Jeux
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Soirée
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Spirituel
-lib/presentation/features/couple/widgets/event_category.dart | Tout
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Week-end
-lib/presentation/features/couple/widgets/event_category.dart | Événement
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} / ${event.maxAttendees} places
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} inscrits
 lib/presentation/features/events/screens/event_detail_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
