@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
+import '../../../../core/services/store/credits_service.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -38,7 +39,9 @@ class SubscriptionSnapshot {
       price: price,
       renewalDate: subscriptions.expirationDate,
       willRenew: subscriptions.willRenew,
-      superLikesLeft: PremiumGate.remainingSuperLikes,
+      // « Aujourd'hui » : l'inclus du jour que le serveur annonce, pas les
+      // crédits achetés (qui n'expirent pas).
+      superLikesLeft: CreditsService().balance?.superLike.dailyRemaining ?? 0,
       superLikesMax: PremiumGate.superLikesPerDay,
       boostAvailable: PremiumGate.remainingBoosts > 0,
     );
@@ -113,6 +116,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Future<void> _refresh() async {
     await _subscriptions.refresh();
+    await CreditsService().refresh();
     final price = await _subscriptions.activePlanPrice();
     if (mounted) {
       setState(
