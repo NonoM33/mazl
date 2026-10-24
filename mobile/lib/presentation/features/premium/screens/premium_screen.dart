@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/router/route_names.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_models.dart';
+import '../../../../core/services/store/subscription_service.dart';
+import '../../../../core/services/subscription_format.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -13,19 +14,23 @@ import '../widgets/plus_widgets.dart';
 
 /// L'offre mazl+ : avantages, choix de la formule, achat.
 class PremiumScreen extends StatefulWidget {
-  const PremiumScreen({super.key, this.loadOffering});
+  const PremiumScreen({super.key, this.loadPlans, this.service});
 
-  /// Source de l'offre RevenueCat, remplaçable dans les tests.
-  /// Par défaut : l'offre courante du service.
-  final Future<Offering?> Function()? loadOffering;
+  /// Source des formules du store, remplaçable dans les tests.
+  /// Par défaut : les formules du service d'abonnement.
+  final Future<List<SubscriptionPlan>> Function()? loadPlans;
+
+  /// Service d'abonnement, remplaçable dans les tests.
+  final SubscriptionService? service;
 
   @override
   State<PremiumScreen> createState() => _PremiumScreenState();
 }
 
 class _PremiumScreenState extends State<PremiumScreen> {
-  final RevenueCatService _revenueCat = RevenueCatService();
-  Offering? _offering;
+  late final SubscriptionService _subscriptions =
+      widget.service ?? SubscriptionService();
+  List<SubscriptionPlan> _storePlans = const [];
   int _selectedPlanIndex = 1; // 3 mois, la formule mise en avant
   bool _isLoading = true;
   bool _isPurchasing = false;
@@ -65,119 +70,71 @@ class _PremiumScreenState extends State<PremiumScreen> {
   @override
   void initState() {
     super.initState();
-    _loadOfferings();
+    _loadPlans();
   }
 
-  Future<void> _loadOfferings() async {
+  Future<void> _loadPlans() async {
     try {
-      final offering =
-          await (widget.loadOffering ?? _revenueCat.getCurrentOffering)();
+      final plans = await (widget.loadPlans ?? _subscriptions.loadPlans)();
       if (mounted) {
         setState(() {
-          _offering = offering;
+          _storePlans = plans;
           _isLoading = false;
         });
       }
-    } catch (e) {
-      // Silently handle RevenueCat errors - just use default plans
-      debugPrint('RevenueCat offerings error (using defaults): $e');
+    } on Exception catch (e) {
+      // Le store ne répond pas : on affiche les formules par défaut.
+      debugPrint('Subscription plans error (using defaults): $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
-          // _offering stays null, so _defaultPlans will be used
+          // _storePlans reste vide : _defaultPlans est utilisé.
         });
       }
     }
   }
 
   List<_SubscriptionPlan> get _plans {
-    if (_offering == null || _offering!.availablePackages.isEmpty) {
-      return _defaultPlans;
-    }
+    if (_storePlans.isEmpty) return _defaultPlans;
 
-    final packages = _offering!.availablePackages
-        .where((p) => p.packageType != PackageType.custom)
-        .toList();
-
-    if (packages.isEmpty) return _defaultPlans;
-
-    // Find monthly price for comparison
-    final monthlyPackage = packages.firstWhere(
-      (p) => p.packageType == PackageType.monthly,
-      orElse: () => packages.first,
+    // Prix mensuel de référence pour calculer l'économie des formules longues.
+    final monthly = _storePlans.firstWhere(
+      (p) => p.months == 1,
+      orElse: () => _storePlans.first,
     );
-    final monthlyPrice = monthlyPackage.storeProduct.price;
+    final monthlyPrice = monthly.price / monthly.months;
 
-    return packages.map((package) {
-      final months = _getMonthsFromPackage(package);
-      final price = package.storeProduct.price;
-      final currency = package.storeProduct.currencyCode;
-      final normalCost = monthlyPrice * months;
-      final savingsPercent = months > 1 && normalCost > 0
-          ? ((normalCost - price) / normalCost * 100).round()
-          : 0;
-
-      return _SubscriptionPlan(
-        id: package.identifier,
-        duration: _getPackageLabel(package),
-        price: planTotalLabel(price: price, currencyCode: currency),
-        pricePerMonth: planMonthlyLabel(
-          price: price,
-          months: months,
-          currencyCode: currency,
+    return [
+      for (final plan in _storePlans)
+        _SubscriptionPlan(
+          id: plan.productId,
+          duration: monthsLabel(plan.months),
+          price: planTotalLabel(
+            price: plan.price,
+            currencyCode: plan.currencyCode,
+          ),
+          pricePerMonth: planMonthlyLabel(
+            price: plan.price,
+            months: plan.months,
+            currencyCode: plan.currencyCode,
+          ),
+          savings: _savings(monthlyPrice, plan),
+          storePlan: plan,
         ),
-        savings: savingsPercent > 0 ? '-$savingsPercent %' : null,
-        package: package,
-      );
-    }).toList()..sort((a, b) {
-      // Sort by duration
-      final aMonths = _getMonthsFromId(a.id);
-      final bMonths = _getMonthsFromId(b.id);
-      return aMonths.compareTo(bMonths);
-    });
+    ];
   }
 
-  int _getMonthsFromId(String id) {
-    if (id.contains('monthly') || id == 'monthly') return 1;
-    if (id.contains('two_month')) return 2;
-    if (id.contains('three_month')) return 3;
-    if (id.contains('six_month')) return 6;
-    if (id.contains('yearly') || id.contains('annual')) return 12;
-    return 1;
+  String? _savings(double monthlyPrice, SubscriptionPlan plan) {
+    final normalCost = monthlyPrice * plan.months;
+    if (plan.months <= 1 || normalCost <= 0) return null;
+    final percent = ((normalCost - plan.price) / normalCost * 100).round();
+    return percent > 0 ? '-$percent %' : null;
   }
 
-  int _getMonthsFromPackage(Package package) {
-    switch (package.packageType) {
-      case PackageType.monthly:
-        return 1;
-      case PackageType.twoMonth:
-        return 2;
-      case PackageType.threeMonth:
-        return 3;
-      case PackageType.sixMonth:
-        return 6;
-      case PackageType.annual:
-        return 12;
-      default:
-        return 1;
-    }
-  }
-
-  String _getPackageLabel(Package package) {
-    switch (package.packageType) {
-      case PackageType.monthly:
-        return '1 mois';
-      case PackageType.twoMonth:
-        return '2 mois';
-      case PackageType.threeMonth:
-        return '3 mois';
-      case PackageType.sixMonth:
-        return '6 mois';
-      case PackageType.annual:
-        return '12 mois';
-      default:
-        return package.storeProduct.title;
-    }
+  void _showMessage(String message, {Color? background}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: background),
+    );
   }
 
   Future<void> _handlePurchase() async {
@@ -185,21 +142,24 @@ class _PremiumScreenState extends State<PremiumScreen> {
     if (plans.isEmpty) return;
     final selectedPlan = plans[_selectedPlanIndex.clamp(0, plans.length - 1)];
 
-    // If we have a real package, purchase it
-    if (selectedPlan.package != null) {
+    final storePlan = selectedPlan.storePlan;
+    if (storePlan != null) {
       setState(() => _isPurchasing = true);
       try {
-        final result = await _revenueCat.purchasePackage(selectedPlan.package!);
-        // Une annulation par l'utilisateur n'est ni un succès ni une erreur.
-        if (result.isCancelled) return;
-        if (mounted) {
-          context.pushReplacement(RoutePaths.plusWelcome);
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        final result = await _subscriptions.purchase(storePlan);
+        if (!mounted) return;
+        switch (result) {
+          case PurchaseSucceeded():
+            context.pushReplacement(RoutePaths.plusWelcome);
+          case PurchaseCancelled():
+            // Une annulation par l'utilisateur n'est ni un succès ni une erreur.
+            break;
+          case PurchasePending():
+            _showMessage(
+              'Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.',
+            );
+          case PurchaseFailed(:final message):
+            _showMessage(message);
         }
       } finally {
         if (mounted) {
@@ -217,28 +177,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Future<void> _handleRestore() async {
-    try {
-      await _revenueCat.restorePurchases();
-      if (!mounted) return;
-      if (_revenueCat.isMazlPro) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Abonnement restauré'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+    final result = await _subscriptions.restore();
+    if (!mounted) return;
+    switch (result) {
+      case RestoreFound():
+        _showMessage('Abonnement restauré', background: AppColors.success);
         context.pop(true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Aucun abonnement trouvé')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
+      case RestoreNothing():
+        _showMessage('Aucun abonnement trouvé');
+      case RestoreFailed(:final message):
+        _showMessage(message);
     }
   }
 
@@ -253,6 +201,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Widget build(BuildContext context) {
     final plans = _plans;
     final selected = _selectedPlanIndex.clamp(0, plans.length - 1);
+    // Seul iOS achète pour l'instant : le serveur ne vérifie pas Google Play.
+    final canBuy = Theme.of(context).platform != TargetPlatform.android;
 
     return Scaffold(
       body: SafeArea(
@@ -322,8 +272,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _isPurchasing ? null : _handlePurchase,
-                              child: _isPurchasing
+                              onPressed: _isPurchasing || !canBuy
+                                  ? null
+                                  : _handlePurchase,
+                              child: !canBuy
+                                  ? const Text(
+                                      SubscriptionService.androidSoonMessage,
+                                    )
+                                  : _isPurchasing
                                   ? SizedBox.square(
                                       dimension: 22,
                                       child: CircularProgressIndicator(
@@ -592,7 +548,10 @@ class _SubscriptionPlan {
   final String price;
   final String pricePerMonth;
   final String? savings;
-  final Package? package;
+
+  /// La formule du store derrière cette ligne ; null pour les formules par
+  /// défaut, affichées quand le store ne répond pas.
+  final SubscriptionPlan? storePlan;
 
   const _SubscriptionPlan({
     required this.id,
@@ -600,6 +559,6 @@ class _SubscriptionPlan {
     required this.price,
     required this.pricePerMonth,
     required this.savings,
-    this.package,
+    this.storePlan,
   });
 }

@@ -31,9 +31,8 @@ dependencies:
   crypto: ^3.0.3
   flutter_secure_storage: ^9.2.2
 
-  # In-App Purchases & Subscriptions
-  purchases_flutter: ^10.18.1
-  purchases_ui_flutter: ^10.18.1
+  # In-App Purchases & Subscriptions (StoreKit 2 on iOS, official plugin)
+  in_app_purchase: ^3.3.1
 
   # UI Modern - Swipe Cards & Animations
   lottie: ^3.1.2

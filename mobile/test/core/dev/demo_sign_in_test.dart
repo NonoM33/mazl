@@ -64,7 +64,7 @@ void main() {
   });
 
   test(
-    'signOut met fin à la session fictive sans toucher RevenueCat ni push',
+    'signOut met fin à la session fictive sans toucher l’abonnement ni push',
     () async {
       final auth = AuthService();
       await auth.signInAsDemo();

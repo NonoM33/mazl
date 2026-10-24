@@ -15,7 +15,7 @@ import 'core/di/providers/verification_providers.dart';
 import 'presentation/features/verification/providers/verification_providers.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/push_notification_service.dart';
-import 'core/services/revenuecat_service.dart';
+import 'core/services/store/subscription_service.dart';
 
 void main() {
   if (kDevLoginAvailable) {
@@ -52,8 +52,9 @@ Future<void> _start() async {
     ),
   );
 
-  // Initialize RevenueCat SDK
-  await RevenueCatService().initialize();
+  // Écoute les achats natifs dès le lancement : StoreKit rejoue ici les
+  // transactions non terminées de la session précédente.
+  await SubscriptionService().initialize();
 
   // Initialize Auth Service
   await AuthService().initialize();

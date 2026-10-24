@@ -65,7 +65,7 @@ void _expectTouchTarget(WidgetTester tester, Finder finder) {
 Future<void> _pumpOffer(WidgetTester tester, {ThemeData? theme}) async {
   await _pump(
     tester,
-    PremiumScreen(loadOffering: () async => null),
+    PremiumScreen(loadPlans: () async => const []),
     theme: theme,
   );
   await tester.pump(const Duration(milliseconds: 50));
@@ -200,7 +200,7 @@ void main() {
     testWidgets('tient à 320 px de large sans débordement', (tester) async {
       await _pump(
         tester,
-        PremiumScreen(loadOffering: () async => null),
+        PremiumScreen(loadPlans: () async => const []),
         size: const Size(320, 700),
       );
       await tester.pump(const Duration(milliseconds: 50));

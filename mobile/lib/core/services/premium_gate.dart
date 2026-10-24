@@ -9,7 +9,7 @@ import '../router/route_names.dart';
 import '../../presentation/common/widgets/mazl_sheet.dart';
 import '../../presentation/features/premium/widgets/plus_widgets.dart';
 import '../theme/app_colors.dart';
-import 'revenuecat_service.dart';
+import 'store/subscription_service.dart';
 
 /// Fonctions réservées aux abonnés mazl+
 enum PremiumFeature {
@@ -70,7 +70,7 @@ extension PremiumFeatureInfo on PremiumFeature {
 
 /// Helper class to gate premium features
 class PremiumGate {
-  static final RevenueCatService _revenueCat = RevenueCatService();
+  static final SubscriptionService _subscriptions = SubscriptionService();
 
   // Persistence keys. The stored date (yyyy-MM-dd) is compared against the
   // current day; when it differs, all daily counters reset to zero.
@@ -187,7 +187,7 @@ class PremiumGate {
   }
 
   /// Check if user has premium access
-  static bool get isPremium => debugPremiumOverride ?? _revenueCat.isMazlPro;
+  static bool get isPremium => debugPremiumOverride ?? _subscriptions.isMazlPro;
 
   /// Force le statut d'abonné dans les tests.
   @visibleForTesting
@@ -225,9 +225,9 @@ class PremiumGate {
     // Show premium screen
     final result = await context.push<bool>(RoutePaths.premium);
 
-    // Refresh and check if user now has premium
-    await _revenueCat.refreshCustomerInfo();
-    return _revenueCat.isMazlPro || (result == true);
+    // Relit le statut auprès du serveur et regarde si l'utilisateur est abonné
+    await _subscriptions.refresh();
+    return _subscriptions.isMazlPro || (result == true);
   }
 
   /// Show a bottom sheet explaining the premium feature

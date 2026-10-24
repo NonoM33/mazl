@@ -10,7 +10,8 @@ import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_models.dart';
+import '../../../../core/services/store/subscription_service.dart';
 import '../../../../core/services/subscription_format.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -421,7 +422,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleOpenSubscription() async {
-    final isPremium = RevenueCatService().isMazlPro;
+    final isPremium = SubscriptionService().isMazlPro;
     await context.push<bool>(isPremium ? RoutePaths.subscription : RoutePaths.premium);
     if (mounted) setState(() {});
   }
@@ -429,16 +430,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _handleRestorePurchases() async {
     setState(() => _isLoading = true);
     try {
-      await RevenueCatService().restorePurchases();
+      final result = await SubscriptionService().restore();
       if (mounted) {
+        final message = switch (result) {
+          RestoreFound() => 'Achats restaurés avec succès.',
+          RestoreNothing() => 'Aucun abonnement trouvé.',
+          RestoreFailed(:final message) => message,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Achats restaurés avec succès.')),
+          SnackBar(content: Text(message)),
         );
         setState(() {});
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -950,13 +952,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final revenueCat = RevenueCatService();
-    final isMazlPro = revenueCat.isMazlPro;
-    final renewal = revenueCat.mazlProExpirationDate;
+    final subscriptions = SubscriptionService();
+    final isMazlPro = subscriptions.isMazlPro;
+    final renewal = subscriptions.expirationDate;
     final subscriptionDetail = [
-      ?revenueCat.activePlanLabel,
+      ?subscriptions.activePlanLabel,
       if (renewal != null)
-        '${revenueCat.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
+        '${subscriptions.willRenew ? 'renouvellement le' : 'jusqu’au'} ${formatFrenchDate(renewal.toLocal())}',
     ].join(' · ');
     final currentUser = ref.watch(currentUserProvider);
     final inCouple = _coupleService.isCoupleModeEnabled;

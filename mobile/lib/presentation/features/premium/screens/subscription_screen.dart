@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_models.dart';
+import '../../../../core/services/store/subscription_service.dart';
 import '../../../../core/services/subscription_format.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -25,15 +25,18 @@ class SubscriptionSnapshot {
     this.boostAvailable = false,
   });
 
-  /// Lit l'état courant de RevenueCat et du compteur quotidien.
-  factory SubscriptionSnapshot.current({String? price}) {
-    final revenueCat = RevenueCatService();
+  /// Lit l'état courant de l'abonnement et du compteur quotidien.
+  factory SubscriptionSnapshot.current({
+    String? price,
+    SubscriptionService? service,
+  }) {
+    final subscriptions = service ?? SubscriptionService();
     return SubscriptionSnapshot(
-      isActive: revenueCat.isMazlPro,
-      planLabel: revenueCat.activePlanLabel,
+      isActive: subscriptions.isMazlPro,
+      planLabel: subscriptions.activePlanLabel,
       price: price,
-      renewalDate: revenueCat.mazlProExpirationDate,
-      willRenew: revenueCat.willRenew,
+      renewalDate: subscriptions.expirationDate,
+      willRenew: subscriptions.willRenew,
       superLikesLeft: PremiumGate.remainingSuperLikes,
       superLikesMax: PremiumGate.superLikesPerDay,
       boostAvailable: PremiumGate.remainingBoosts > 0,
@@ -63,39 +66,51 @@ class SubscriptionSnapshot {
 
 /// Gestion de l'abonnement mazl+ : formule, échéance, avantages du jour.
 class SubscriptionScreen extends StatefulWidget {
-  const SubscriptionScreen({super.key, this.snapshot, this.onManage});
+  const SubscriptionScreen({
+    super.key,
+    this.snapshot,
+    this.onManage,
+    this.service,
+  });
 
   /// Données fixes (tests). Absentes : lues en direct puis rafraîchies.
   final SubscriptionSnapshot? snapshot;
 
-  /// Ouvre la gestion de l'abonnement dans le store. Par défaut : l'URL de
-  /// gestion de RevenueCat, sinon la page d'abonnements du store.
+  /// Ouvre la gestion de l'abonnement dans le store. Par défaut : la page
+  /// d'abonnements du store.
   final VoidCallback? onManage;
+
+  /// Service d'abonnement, remplaçable dans les tests.
+  final SubscriptionService? service;
 
   @override
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  final RevenueCatService _revenueCat = RevenueCatService();
+  late final SubscriptionService _subscriptions =
+      widget.service ?? SubscriptionService();
   late SubscriptionSnapshot _snapshot;
 
   @override
   void initState() {
     super.initState();
-    _snapshot = widget.snapshot ?? SubscriptionSnapshot.current();
+    _snapshot =
+        widget.snapshot ??
+        SubscriptionSnapshot.current(service: widget.service);
     if (widget.snapshot == null) _refresh();
   }
 
   Future<void> _refresh() async {
-    try {
-      await _revenueCat.refreshCustomerInfo();
-    } catch (e) {
-      debugPrint('Subscription: refresh failed - $e');
-    }
-    final price = await _revenueCat.activePlanPrice();
+    await _subscriptions.refresh();
+    final price = await _subscriptions.activePlanPrice();
     if (mounted) {
-      setState(() => _snapshot = SubscriptionSnapshot.current(price: price));
+      setState(
+        () => _snapshot = SubscriptionSnapshot.current(
+          price: price,
+          service: widget.service,
+        ),
+      );
     }
   }
 
@@ -104,12 +119,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       widget.onManage!();
       return;
     }
-    final android = Theme.of(context).platform == TargetPlatform.android;
-    final fallback = android
-        ? 'https://play.google.com/store/account/subscriptions'
-        : 'https://apps.apple.com/account/subscriptions';
-    final uri = Uri.parse(_revenueCat.managementUrl ?? fallback);
-    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final opened = await _subscriptions.manageSubscriptions();
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -120,26 +130,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Future<void> _restore() async {
-    try {
-      await _revenueCat.restorePurchases();
-      if (!mounted) return;
-      setState(() => _snapshot = SubscriptionSnapshot.current());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _revenueCat.isMazlPro
-                ? 'Achats restaurés.'
-                : 'Aucun abonnement trouvé.',
-          ),
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
-    }
+    final result = await _subscriptions.restore();
+    if (!mounted) return;
+    setState(
+      () => _snapshot = SubscriptionSnapshot.current(service: widget.service),
+    );
+    final message = switch (result) {
+      RestoreFound() => 'Achats restaurés.',
+      RestoreNothing() => 'Aucun abonnement trouvé.',
+      RestoreFailed(:final message) => message,
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
