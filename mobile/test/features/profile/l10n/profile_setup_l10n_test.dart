@@ -5,7 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/presentation/features/profile/screens/profile_setup_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
-import 'profile_l10n_support.dart';
 
 const _en = Locale('en');
 const _he = Locale('he');

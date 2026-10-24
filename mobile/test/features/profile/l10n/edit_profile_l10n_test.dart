@@ -7,7 +7,6 @@ import 'package:http/testing.dart';
 import 'package:mazl/presentation/features/profile/screens/edit_profile_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
-import 'profile_l10n_support.dart';
 
 const _en = Locale('en');
 const _he = Locale('he');

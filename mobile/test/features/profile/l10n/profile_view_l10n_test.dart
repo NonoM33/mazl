@@ -13,7 +13,6 @@ import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_data.dart';
 
 import '../../../helpers/l10n_helpers.dart';
-import 'profile_l10n_support.dart';
 
 const _en = Locale('en');
 const _he = Locale('he');

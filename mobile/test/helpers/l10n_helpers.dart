@@ -63,18 +63,23 @@ TextDirection textDirectionAt(WidgetTester tester, Finder finder) =>
 /// those glyphs fall back to its missing-glyph box, which is about as wide as
 /// the real letters, so the widths stay realistic.
 Future<void> loadAppFonts() async {
-  final loader = FontLoader('Geist');
-  for (final file in const [
+  Future<void> load(String family, List<String> files) async {
+    final loader = FontLoader(family);
+    for (final file in files) {
+      loader.addFont(
+        Future.value(
+          ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
+        ),
+      );
+    }
+    await loader.load();
+  }
+
+  await load('Geist', [
     'Geist-400.ttf',
     'Geist-500.ttf',
     'Geist-600.ttf',
     'Geist-700.ttf',
-  ]) {
-    loader.addFont(
-      Future.value(
-        ByteData.sublistView(File('assets/fonts/$file').readAsBytesSync()),
-      ),
-    );
-  }
-  await loader.load();
+  ]);
+  await load('GeistMono', ['GeistMono-400.ttf', 'GeistMono-500.ttf']);
 }
