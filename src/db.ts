@@ -470,6 +470,18 @@ export async function initDb() {
       unsubscribed_at TIMESTAMP
     )
   `;
+  // One row per (campaign, member): two concurrent sends used to write every
+  // recipient twice. Drop historical duplicates (keep the first row) before the
+  // unique index, so the migration is idempotent on an existing database.
+  await sql`
+    DELETE FROM campaign_recipients a
+    USING campaign_recipients b
+    WHERE a.campaign_id = b.campaign_id AND a.user_id = b.user_id AND a.id > b.id
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS uniq_campaign_recipients_campaign_user
+    ON campaign_recipients(campaign_id, user_id)
+  `;
 
   // User segments for targeting
   await sql`
@@ -3554,14 +3566,29 @@ export async function createCampaign(params: {
   return result[0];
 }
 
-// Update campaign
+// Statuses a campaign goes through. Only draft and scheduled campaigns can be
+// edited or sent; 'sending' is the lock held while a send is running.
+export type CampaignStatus = 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
+
+export interface CampaignRecord {
+  id: number;
+  type: 'email' | 'push';
+  title: string;
+  subject: string | null;
+  content: string;
+  segment_id: number | null;
+  status: CampaignStatus;
+}
+
+// Update a campaign that has not been sent yet. Returns undefined when the
+// campaign does not exist OR is no longer editable (the caller tells them apart).
 export async function updateCampaign(campaignId: number, params: Partial<{
   title: string;
   subject: string;
   content: string;
   segmentId: number;
   scheduledAt: Date;
-  status: string;
+  status: 'draft' | 'scheduled';
 }>) {
   const result = await sql`
     UPDATE campaigns SET
@@ -3572,7 +3599,7 @@ export async function updateCampaign(campaignId: number, params: Partial<{
       scheduled_at = COALESCE(${params.scheduledAt ?? null}, scheduled_at),
       status = COALESCE(${params.status ?? null}, status),
       updated_at = NOW()
-    WHERE id = ${campaignId}
+    WHERE id = ${campaignId} AND status IN ('draft', 'scheduled')
     RETURNING *
   `;
   return result[0];
@@ -3634,33 +3661,27 @@ export async function deleteCampaign(campaignId: number) {
 }
 
 // Get users for campaign (based on segment)
-export async function getCampaignRecipients(segmentId?: number) {
-  if (!segmentId) {
-    // All active users
-    return await sql`
-      SELECT u.id, u.email, u.name, p.display_name
-      FROM users u
-      LEFT JOIN profiles p ON p.user_id = u.id
-      WHERE u.is_active = true
-        AND u.provider != 'seed'
-        AND u.email NOT IN (SELECT email FROM email_unsubscribes)
-      ORDER BY u.created_at DESC
-    `;
+export interface CampaignRecipient {
+  id: number;
+  email: string;
+}
+
+// Segment filters are stored but not evaluated yet. Until they are, a campaign
+// tied to a segment must NOT be sent: it used to fall back to every member.
+export class SegmentFiltersNotImplementedError extends Error {
+  constructor() {
+    super('Segment filters are not implemented: refusing to target every member');
+    this.name = 'SegmentFiltersNotImplementedError';
   }
+}
 
-  // Get segment filters
-  const segment = await sql`SELECT * FROM user_segments WHERE id = ${segmentId}`;
-  if (segment.length === 0) return [];
+export async function getCampaignRecipients(segmentId?: number | null): Promise<CampaignRecipient[]> {
+  if (segmentId) throw new SegmentFiltersNotImplementedError();
 
-  const filters = (segment[0] as any).filters;
-
-  // Build dynamic query based on filters
-  // For now, return all users - filters can be applied in JS
-  return await sql`
-    SELECT u.id, u.email, u.name, p.display_name, p.location, p.gender,
-           DATE_PART('year', AGE(p.birthdate)) as age
+  // All active users
+  return await sql<CampaignRecipient[]>`
+    SELECT u.id, u.email
     FROM users u
-    LEFT JOIN profiles p ON p.user_id = u.id
     WHERE u.is_active = true
       AND u.provider != 'seed'
       AND u.email NOT IN (SELECT email FROM email_unsubscribes)
@@ -3668,30 +3689,47 @@ export async function getCampaignRecipients(segmentId?: number) {
   `;
 }
 
-// Send campaign (mark as sent and create recipients)
-export async function sendCampaign(campaignId: number) {
-  const campaign = await getCampaignById(campaignId);
-  if (!campaign) throw new Error('Campaign not found');
+// Take the send lock: draft/scheduled -> sending, in ONE statement, so two
+// concurrent sends cannot both win. Returns undefined when the campaign is
+// missing, already taken, sent, or tied to a segment.
+export async function claimCampaignForSending(campaignId: number) {
+  const result = await sql<CampaignRecord[]>`
+    UPDATE campaigns
+    SET status = 'sending', updated_at = NOW()
+    WHERE id = ${campaignId} AND status IN ('draft', 'scheduled') AND segment_id IS NULL
+    RETURNING *
+  `;
+  return result[0];
+}
 
-  const recipients = await getCampaignRecipients((campaign as any).segment_id);
+// Record who the campaign is addressed to. Nobody is marked as delivered yet:
+// sent_at is only set once the provider accepted the message.
+export async function addCampaignRecipients(campaignId: number, recipients: CampaignRecipient[]) {
+  if (recipients.length === 0) return;
+  const rows = recipients.map((r) => ({ campaign_id: campaignId, user_id: r.id, email: r.email }));
+  await sql`INSERT INTO campaign_recipients ${sql(rows)} ON CONFLICT (campaign_id, user_id) DO NOTHING`;
+}
 
-  // Create recipient records
-  for (const r of recipients as any[]) {
-    await sql`
-      INSERT INTO campaign_recipients (campaign_id, user_id, email, sent_at)
-      VALUES (${campaignId}, ${r.id}, ${r.email}, NOW())
-      ON CONFLICT DO NOTHING
-    `;
-  }
+export async function markCampaignRecipientsSent(campaignId: number, userIds: number[]) {
+  if (userIds.length === 0) return;
+  await sql`
+    UPDATE campaign_recipients
+    SET sent_at = NOW()
+    WHERE campaign_id = ${campaignId} AND user_id IN ${sql(userIds)}
+  `;
+}
 
-  // Update campaign status
+// Release the send lock. A campaign nobody received is 'failed', not 'sent'.
+export async function finishCampaignSending(campaignId: number, outcome: { sent: number; total: number }) {
+  const delivered = outcome.sent > 0 || outcome.total === 0;
   await sql`
     UPDATE campaigns
-    SET status = 'sent', sent_at = NOW(), stats_sent = ${recipients.length}
-    WHERE id = ${campaignId}
+    SET status = ${delivered ? 'sent' : 'failed'},
+        sent_at = ${delivered ? sql`NOW()` : null},
+        stats_sent = ${outcome.sent},
+        updated_at = NOW()
+    WHERE id = ${campaignId} AND status = 'sending'
   `;
-
-  return { sent: recipients.length, recipients };
 }
 
 // Track campaign open
