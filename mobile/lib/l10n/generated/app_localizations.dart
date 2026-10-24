@@ -650,6 +650,114 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{Voir {count} autre avec mazl+} other{Voir les {count} autres avec mazl+}}'**
   String matchingSeeMoreWithPlus(int count);
 
+  /// Titre de l'onglet et de l'écran des matchs (gros titre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs'**
+  String get matchingMatchesTitle;
+
+  /// Info-bulle du bouton cœur en haut de l'écran des matchs : ouvre la liste des membres qui ont aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui vous a aimé'**
+  String get matchingMatchesWhoLikedYou;
+
+  /// Petit titre au-dessus de la rangée des pastilles de matchs. {count} est le nombre de matchs récents (moins de 7 jours).
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux · {count}'**
+  String matchingMatchesNewSection(int count);
+
+  /// Petit titre au-dessus de la liste des matchs avec lesquels on peut discuter. {count} est leur nombre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversations · {count}'**
+  String matchingMatchesConversationsSection(int count);
+
+  /// Texte de l'écran des matchs quand leur chargement a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger les matchs'**
+  String get matchingMatchesLoadFailed;
+
+  /// Titre de l'écran des matchs quand il n'y en a pas encore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de match'**
+  String get matchingMatchesEmptyTitle;
+
+  /// Texte sous le titre de l'écran des matchs vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuez à découvrir des profils.'**
+  String get matchingMatchesEmptyBody;
+
+  /// Nom affiché pour un match dont le prénom n'est pas connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inconnu'**
+  String get matchingMatchesUnknownName;
+
+  /// Ligne discrète sous le nom d'un match qui n'a pas de ville : invite à écrire le premier message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrivez-lui'**
+  String get matchingMatchesWriteHint;
+
+  /// Libellé d'accessibilité de la photo ronde d'un match : ouvre son profil. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil de {name}'**
+  String matchingMatchesViewProfileOf(String name);
+
+  /// Bouton en contour sous les likes visibles (compte mazl+) quand il y en a d'autres. {count} est le nombre restant.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Voir {count} autre} other{Voir les {count} autres}}'**
+  String matchingMatchesSeeMore(int count);
+
+  /// Ancienneté d'un match (2 à 6 jours), à droite de sa ligne. {count} est un entier de jours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}'**
+  String matchingMatchedDaysAgo(int count);
+
+  /// Ancienneté d'un match (7 à 29 jours), à droite de sa ligne. {count} est un entier de semaines.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} semaine} other{Il y a {count} semaines}}'**
+  String matchingMatchedWeeksAgo(int count);
+
+  /// Ancienneté d'un match (30 jours ou plus), à droite de sa ligne. {count} est un entier de mois.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} mois} other{Il y a {count} mois}}'**
+  String matchingMatchedMonthsAgo(int count);
+
+  /// Titre de la bannière qui propose le mode couple dans l'écran des matchs (gros texte, jusqu'à deux lignes).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça y est, vous avez matché ?'**
+  String get matchingCouplePromoTitle;
+
+  /// Info-bulle de la croix qui masque la bannière du mode couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer'**
+  String get matchingCouplePromoDismiss;
+
+  /// Texte de la bannière du mode couple : ce que le mode couple apporte. « mazl » est le nom de la marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions quotidiennes, étapes, calendrier juif partagé : construisez votre relation avec mazl.'**
+  String get matchingCouplePromoBody;
+
+  /// Bouton de la bannière du mode couple : ouvre l'activation du mode couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le mode couple'**
+  String get matchingCouplePromoAction;
+
   /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
   ///
   /// In fr, this message translates to:

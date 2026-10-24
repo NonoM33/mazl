@@ -452,6 +452,113 @@
       }
     }
   },
+  "matchingMatchesTitle": "Matchs",
+  "@matchingMatchesTitle": {
+    "description": "Titre de l'onglet et de l'écran des matchs (gros titre)."
+  },
+  "matchingMatchesWhoLikedYou": "Qui vous a aimé",
+  "@matchingMatchesWhoLikedYou": {
+    "description": "Info-bulle du bouton cœur en haut de l'écran des matchs : ouvre la liste des membres qui ont aimé le profil."
+  },
+  "matchingMatchesNewSection": "Nouveaux · {count}",
+  "@matchingMatchesNewSection": {
+    "description": "Petit titre au-dessus de la rangée des pastilles de matchs. {count} est le nombre de matchs récents (moins de 7 jours).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingMatchesConversationsSection": "Conversations · {count}",
+  "@matchingMatchesConversationsSection": {
+    "description": "Petit titre au-dessus de la liste des matchs avec lesquels on peut discuter. {count} est leur nombre.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingMatchesLoadFailed": "Impossible de charger les matchs",
+  "@matchingMatchesLoadFailed": {
+    "description": "Texte de l'écran des matchs quand leur chargement a échoué."
+  },
+  "matchingMatchesEmptyTitle": "Pas encore de match",
+  "@matchingMatchesEmptyTitle": {
+    "description": "Titre de l'écran des matchs quand il n'y en a pas encore."
+  },
+  "matchingMatchesEmptyBody": "Continuez à découvrir des profils.",
+  "@matchingMatchesEmptyBody": {
+    "description": "Texte sous le titre de l'écran des matchs vide."
+  },
+  "matchingMatchesUnknownName": "Inconnu",
+  "@matchingMatchesUnknownName": {
+    "description": "Nom affiché pour un match dont le prénom n'est pas connu."
+  },
+  "matchingMatchesWriteHint": "Écrivez-lui",
+  "@matchingMatchesWriteHint": {
+    "description": "Ligne discrète sous le nom d'un match qui n'a pas de ville : invite à écrire le premier message."
+  },
+  "matchingMatchesViewProfileOf": "Voir le profil de {name}",
+  "@matchingMatchesViewProfileOf": {
+    "description": "Libellé d'accessibilité de la photo ronde d'un match : ouvre son profil. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "matchingMatchesSeeMore": "{count, plural, one{Voir {count} autre} other{Voir les {count} autres}}",
+  "@matchingMatchesSeeMore": {
+    "description": "Bouton en contour sous les likes visibles (compte mazl+) quand il y en a d'autres. {count} est le nombre restant.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingMatchedDaysAgo": "{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}",
+  "@matchingMatchedDaysAgo": {
+    "description": "Ancienneté d'un match (2 à 6 jours), à droite de sa ligne. {count} est un entier de jours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingMatchedWeeksAgo": "{count, plural, one{Il y a {count} semaine} other{Il y a {count} semaines}}",
+  "@matchingMatchedWeeksAgo": {
+    "description": "Ancienneté d'un match (7 à 29 jours), à droite de sa ligne. {count} est un entier de semaines.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingMatchedMonthsAgo": "{count, plural, one{Il y a {count} mois} other{Il y a {count} mois}}",
+  "@matchingMatchedMonthsAgo": {
+    "description": "Ancienneté d'un match (30 jours ou plus), à droite de sa ligne. {count} est un entier de mois.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingCouplePromoTitle": "Ça y est, vous avez matché ?",
+  "@matchingCouplePromoTitle": {
+    "description": "Titre de la bannière qui propose le mode couple dans l'écran des matchs (gros texte, jusqu'à deux lignes)."
+  },
+  "matchingCouplePromoDismiss": "Masquer",
+  "@matchingCouplePromoDismiss": {
+    "description": "Info-bulle de la croix qui masque la bannière du mode couple."
+  },
+  "matchingCouplePromoBody": "Questions quotidiennes, étapes, calendrier juif partagé : construisez votre relation avec mazl.",
+  "@matchingCouplePromoBody": {
+    "description": "Texte de la bannière du mode couple : ce que le mode couple apporte. « mazl » est le nom de la marque."
+  },
+  "matchingCouplePromoAction": "Activer le mode couple",
+  "@matchingCouplePromoAction": {
+    "description": "Bouton de la bannière du mode couple : ouvre l'activation du mode couple."
+  },
   "safetyBlock": "Bloquer",
   "@safetyBlock": {
     "description": "Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation."

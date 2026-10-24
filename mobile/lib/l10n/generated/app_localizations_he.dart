@@ -347,6 +347,96 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get matchingMatchesTitle => 'מאצ\'ים';
+
+  @override
+  String get matchingMatchesWhoLikedYou => 'מי אהב אותך';
+
+  @override
+  String matchingMatchesNewSection(int count) {
+    return 'חדשים · $count';
+  }
+
+  @override
+  String matchingMatchesConversationsSection(int count) {
+    return 'שיחות · $count';
+  }
+
+  @override
+  String get matchingMatchesLoadFailed => 'לא ניתן לטעון את המאצ\'ים';
+
+  @override
+  String get matchingMatchesEmptyTitle => 'עדיין אין מאצ\'ים';
+
+  @override
+  String get matchingMatchesEmptyBody => 'כדאי להמשיך לגלות פרופילים.';
+
+  @override
+  String get matchingMatchesUnknownName => 'ללא שם';
+
+  @override
+  String get matchingMatchesWriteHint => 'אפשר לכתוב הודעה';
+
+  @override
+  String matchingMatchesViewProfileOf(String name) {
+    return 'לצפייה בפרופיל של $name';
+  }
+
+  @override
+  String matchingMatchesSeeMore(int count) {
+    return 'לראות עוד $count';
+  }
+
+  @override
+  String matchingMatchedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'לפני $count ימים',
+      two: 'לפני יומיים',
+      one: 'לפני יום',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedWeeksAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'לפני $count שבועות',
+      two: 'לפני שבועיים',
+      one: 'לפני שבוע',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedMonthsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'לפני $count חודשים',
+      two: 'לפני חודשיים',
+      one: 'לפני חודש',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingCouplePromoTitle => 'קרה מאץ\'?';
+
+  @override
+  String get matchingCouplePromoDismiss => 'הסתרה';
+
+  @override
+  String get matchingCouplePromoBody =>
+      'שאלות יומיות, אבני דרך, לוח שנה יהודי משותף: בונים את הקשר עם mazl.';
+
+  @override
+  String get matchingCouplePromoAction => 'להפעיל מצב זוגי';
+
+  @override
   String get safetyBlock => 'לחסום';
 
   @override

@@ -345,6 +345,99 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get matchingMatchesTitle => 'Мэтчи';
+
+  @override
+  String get matchingMatchesWhoLikedYou => 'Кто Вас лайкнул';
+
+  @override
+  String matchingMatchesNewSection(int count) {
+    return 'Новые · $count';
+  }
+
+  @override
+  String matchingMatchesConversationsSection(int count) {
+    return 'Диалоги · $count';
+  }
+
+  @override
+  String get matchingMatchesLoadFailed => 'Не удалось загрузить мэтчи';
+
+  @override
+  String get matchingMatchesEmptyTitle => 'Пока нет мэтчей';
+
+  @override
+  String get matchingMatchesEmptyBody => 'Продолжайте знакомиться.';
+
+  @override
+  String get matchingMatchesUnknownName => 'Без имени';
+
+  @override
+  String get matchingMatchesWriteHint => 'Напишите сообщение';
+
+  @override
+  String matchingMatchesViewProfileOf(String name) {
+    return 'Открыть профиль: $name';
+  }
+
+  @override
+  String matchingMatchesSeeMore(int count) {
+    return 'Показать ещё $count';
+  }
+
+  @override
+  String matchingMatchedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня назад',
+      many: '$count дней назад',
+      few: '$count дня назад',
+      one: '$count день назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedWeeksAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count недели назад',
+      many: '$count недель назад',
+      few: '$count недели назад',
+      one: '$count неделю назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedMonthsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count месяца назад',
+      many: '$count месяцев назад',
+      few: '$count месяца назад',
+      one: '$count месяц назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingCouplePromoTitle => 'Случился мэтч?';
+
+  @override
+  String get matchingCouplePromoDismiss => 'Скрыть';
+
+  @override
+  String get matchingCouplePromoBody =>
+      'Ежедневные вопросы, этапы, общий еврейский календарь: стройте отношения с mazl.';
+
+  @override
+  String get matchingCouplePromoAction => 'Включить режим пары';
+
+  @override
   String get safetyBlock => 'Заблокировать';
 
   @override

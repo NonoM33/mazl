@@ -339,6 +339,93 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get matchingMatchesTitle => 'Matches';
+
+  @override
+  String get matchingMatchesWhoLikedYou => 'Who liked you';
+
+  @override
+  String matchingMatchesNewSection(int count) {
+    return 'New · $count';
+  }
+
+  @override
+  String matchingMatchesConversationsSection(int count) {
+    return 'Conversations · $count';
+  }
+
+  @override
+  String get matchingMatchesLoadFailed => 'Couldn\'t load your matches';
+
+  @override
+  String get matchingMatchesEmptyTitle => 'No matches yet';
+
+  @override
+  String get matchingMatchesEmptyBody => 'Keep discovering profiles.';
+
+  @override
+  String get matchingMatchesUnknownName => 'Unknown';
+
+  @override
+  String get matchingMatchesWriteHint => 'Say hello';
+
+  @override
+  String matchingMatchesViewProfileOf(String name) {
+    return 'View $name\'s profile';
+  }
+
+  @override
+  String matchingMatchesSeeMore(int count) {
+    return 'See $count more';
+  }
+
+  @override
+  String matchingMatchedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '$count day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedWeeksAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks ago',
+      one: '$count week ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedMonthsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months ago',
+      one: '$count month ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingCouplePromoTitle => 'Did you two match?';
+
+  @override
+  String get matchingCouplePromoDismiss => 'Dismiss';
+
+  @override
+  String get matchingCouplePromoBody =>
+      'Daily questions, milestones, a shared Jewish calendar: build your relationship with mazl.';
+
+  @override
+  String get matchingCouplePromoAction => 'Turn on couple mode';
+
+  @override
   String get safetyBlock => 'Block';
 
   @override

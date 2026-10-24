@@ -349,6 +349,93 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get matchingMatchesTitle => 'Matches';
+
+  @override
+  String get matchingMatchesWhoLikedYou => 'Quién te ha dado like';
+
+  @override
+  String matchingMatchesNewSection(int count) {
+    return 'Nuevos · $count';
+  }
+
+  @override
+  String matchingMatchesConversationsSection(int count) {
+    return 'Conversaciones · $count';
+  }
+
+  @override
+  String get matchingMatchesLoadFailed => 'No se pudieron cargar los matches';
+
+  @override
+  String get matchingMatchesEmptyTitle => 'Aún no tienes matches';
+
+  @override
+  String get matchingMatchesEmptyBody => 'Sigue descubriendo perfiles.';
+
+  @override
+  String get matchingMatchesUnknownName => 'Sin nombre';
+
+  @override
+  String get matchingMatchesWriteHint => 'Escríbele';
+
+  @override
+  String matchingMatchesViewProfileOf(String name) {
+    return 'Ver el perfil de $name';
+  }
+
+  @override
+  String matchingMatchesSeeMore(int count) {
+    return 'Ver $count más';
+  }
+
+  @override
+  String matchingMatchedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hace $count días',
+      one: 'Hace $count día',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedWeeksAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hace $count semanas',
+      one: 'Hace $count semana',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String matchingMatchedMonthsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hace $count meses',
+      one: 'Hace $count mes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get matchingCouplePromoTitle => '¿Ha habido match?';
+
+  @override
+  String get matchingCouplePromoDismiss => 'Ocultar';
+
+  @override
+  String get matchingCouplePromoBody =>
+      'Preguntas diarias, etapas y calendario judío compartido: construye tu relación con mazl.';
+
+  @override
+  String get matchingCouplePromoAction => 'Activar el modo pareja';
+
+  @override
   String get safetyBlock => 'Bloquear';
 
   @override

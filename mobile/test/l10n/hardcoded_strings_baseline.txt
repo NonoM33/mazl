@@ -1174,31 +1174,6 @@ lib/presentation/features/matching/screens/filters_screen.dart | Voir
 lib/presentation/features/matching/screens/filters_screen.dart | Voir les utilisateurs actifs
 lib/presentation/features/matching/screens/filters_screen.dart | Voir seulement les profils vérifiés
 lib/presentation/features/matching/screens/filters_screen.dart | Yeshiva/Sem
-lib/presentation/features/matching/screens/matches_screen.dart | Activer le mode couple
-lib/presentation/features/matching/screens/matches_screen.dart | Anonyme
-lib/presentation/features/matching/screens/matches_screen.dart | Aujourd'hui
-lib/presentation/features/matching/screens/matches_screen.dart | Continuez à découvrir des profils.
-lib/presentation/features/matching/screens/matches_screen.dart | Conversations · ${matches.length}
-lib/presentation/features/matching/screens/matches_screen.dart | Erreur inconnue
-lib/presentation/features/matching/screens/matches_screen.dart | Hier
-lib/presentation/features/matching/screens/matches_screen.dart | Il y a $days jours
-lib/presentation/features/matching/screens/matches_screen.dart | Il y a $months mois
-lib/presentation/features/matching/screens/matches_screen.dart | Il y a $weeks semaine${weeks > 1 ? 
-lib/presentation/features/matching/screens/matches_screen.dart | Ils vous ont aimé · ${data.totalCount}
-lib/presentation/features/matching/screens/matches_screen.dart | Impossible de charger les matchs
-lib/presentation/features/matching/screens/matches_screen.dart | Inconnu
-lib/presentation/features/matching/screens/matches_screen.dart | Inconnu
-lib/presentation/features/matching/screens/matches_screen.dart | Masquer
-lib/presentation/features/matching/screens/matches_screen.dart | Matchs
-lib/presentation/features/matching/screens/matches_screen.dart | Nouveaux · $newCount
-lib/presentation/features/matching/screens/matches_screen.dart | Pas encore de match
-lib/presentation/features/matching/screens/matches_screen.dart | Questions quotidiennes, étapes, calendrier juif partagé : construisez votre relation avec mazl.
-lib/presentation/features/matching/screens/matches_screen.dart | Qui vous a aimé
-lib/presentation/features/matching/screens/matches_screen.dart | Réessayer
-lib/presentation/features/matching/screens/matches_screen.dart | Voir le profil de $name
-lib/presentation/features/matching/screens/matches_screen.dart | Voir les $remaining autres
-lib/presentation/features/matching/screens/matches_screen.dart | Ça y est, vous avez matché ?
-lib/presentation/features/matching/screens/matches_screen.dart | Écrivez-lui
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | ${score.factors.length} critères analysés
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Avec $userName
 lib/presentation/features/matching/widgets/compatibility_score_widget.dart | Compatibilité
