@@ -35,11 +35,12 @@ PurchaseDetails purchaseDetails(
   PurchaseStatus status, {
   String id = '2000000123',
   String jws = 'JWS-2000000123',
+  String productId = testProductId,
   IAPError? error,
 }) {
   final d = PurchaseDetails(
     purchaseID: id,
-    productID: testProductId,
+    productID: productId,
     verificationData: PurchaseVerificationData(
       localVerificationData: '{}',
       serverVerificationData: jws,
@@ -83,6 +84,7 @@ class FakeStoreGateway implements StoreGateway {
   Future<void> Function()? onRestore;
 
   final List<PurchaseParam> bought = [];
+  final List<PurchaseParam> boughtConsumables = [];
   final List<PurchaseDetails> completed = [];
   int restoreCalls = 0;
 
@@ -101,6 +103,20 @@ class FakeStoreGateway implements StoreGateway {
   @override
   Future<bool> buyNonConsumable(PurchaseParam param) async {
     bought.add(param);
+    final error = buyError;
+    if (error != null) throw error;
+    final handler = onBuy;
+    if (handler != null) {
+      unawaited(
+        Future<void>.delayed(Duration.zero).then((_) => handler(param)),
+      );
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> buyConsumable(PurchaseParam param) async {
+    boughtConsumables.add(param);
     final error = buyError;
     if (error != null) throw error;
     final handler = onBuy;
