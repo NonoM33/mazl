@@ -923,7 +923,7 @@
       <!-- User Detail Page -->
       <div class="page" id="page-user-detail">
         <div style="margin-bottom: 24px;">
-          <button class="btn btn-secondary" onclick="switchPage('users')">
+          <button class="btn btn-secondary" data-action="switchPage" data-target="users">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Retour aux utilisateurs
           </button>
@@ -1120,7 +1120,13 @@
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <script>
+  <script type="module">
+    import { html, safeUrl } from '/admin-escape.js';
+
+    // Every value that ends up in markup goes through html`` (escaped) and every
+    // URL through safeUrl(): see public/admin-escape.js. Buttons carry data-action
+    // attributes handled by one delegated listener, so no inline handler exists.
+
     // Admin token from localStorage
     const adminToken = localStorage.getItem('mazl_admin_token');
     const adminEmail = localStorage.getItem('mazl_admin_email');
@@ -1138,6 +1144,12 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+    function redirectToLogin() {
+      localStorage.removeItem('mazl_admin_token');
+      localStorage.removeItem('mazl_admin_email');
+      window.location.href = '/admin';
+    }
+
     // API helper
     async function api(endpoint, options = {}) {
       const res = await fetch(API_BASE + endpoint, {
@@ -1151,9 +1163,7 @@
 
       // Handle 401 - redirect to login
       if (res.status === 401) {
-        localStorage.removeItem('mazl_admin_token');
-        localStorage.removeItem('mazl_admin_email');
-        window.location.href = '/admin';
+        redirectToLogin();
         return;
       }
 
@@ -1161,6 +1171,11 @@
       if (!data.success) throw new Error(data.error || 'Erreur');
       return data;
     }
+
+    const formatDate = (value) => new Date(value).toLocaleDateString('fr-FR');
+    const initial = (...candidates) => String(candidates.find(Boolean) || '?')[0].toUpperCase();
+    const errorState = (e) => html`<div class="empty-state"><p>Erreur: ${e.message}</p></div>`;
+    const errorRow = (colspan, e) => html`<tr><td colspan="${colspan}">${errorState(e)}</td></tr>`;
 
     // Navigation
     const navItems = document.querySelectorAll('.nav-item');
@@ -1214,11 +1229,7 @@
     });
 
     // Logout
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      localStorage.removeItem('mazl_admin_token');
-      localStorage.removeItem('mazl_admin_email');
-      window.location.href = '/admin';
-    });
+    document.getElementById('logout-btn').addEventListener('click', redirectToLogin);
 
     // Load Dashboard
     async function loadDashboard() {
@@ -1242,15 +1253,15 @@
         if (events.length === 0) {
           container.innerHTML = '<div class="empty-state"><p>Aucun événement</p></div>';
         } else {
-          container.innerHTML = events.slice(0, 5).map(e => `
+          container.innerHTML = html`${events.slice(0, 5).map(e => html`
             <div style="padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <div style="font-weight: 500;">${e.title}</div>
-                <div style="font-size: 12px; color: var(--text-muted);">${new Date(e.date).toLocaleDateString('fr-FR')} • ${e.location || 'Lieu TBD'}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">${formatDate(e.date)} • ${e.location || 'Lieu TBD'}</div>
               </div>
               <span class="badge ${e.is_published ? 'badge-success' : 'badge-warning'}">${e.is_published ? 'Publié' : 'Brouillon'}</span>
             </div>
-          `).join('');
+          `)}`;
         }
       } catch (e) {
         document.getElementById('upcoming-events-list').innerHTML = '<div class="empty-state"><p>Erreur de chargement</p></div>';
@@ -1265,7 +1276,7 @@
         if (items.length === 0) {
           container.innerHTML = '<div class="empty-state"><p>Aucune vérification en attente</p></div>';
         } else {
-          container.innerHTML = items.slice(0, 5).map(v => `
+          container.innerHTML = html`${items.slice(0, 5).map(v => html`
             <div style="padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <div style="font-weight: 500;">${v.email}</div>
@@ -1273,14 +1284,14 @@
               </div>
               <span class="badge badge-warning">En attente</span>
             </div>
-          `).join('');
+          `)}`;
         }
       } catch (e) {
         document.getElementById('pending-verifications-list').innerHTML = '<div class="empty-state"><p>Erreur de chargement</p></div>';
       }
     }
 
-    // Load Verifications (uses existing admin.js logic simplified)
+    // Load Verifications
     let verificationsTab = 'pending';
     document.querySelectorAll('.verification-tab').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1306,7 +1317,7 @@
           return;
         }
 
-        container.innerHTML = `
+        container.innerHTML = html`
           <table class="table">
             <thead>
               <tr>
@@ -1317,29 +1328,68 @@
               </tr>
             </thead>
             <tbody>
-              ${items.map(v => `
+              ${items.map(v => html`
                 <tr>
                   <td>${v.email}</td>
                   <td>
                     ${v.documents.map(d => d.purged
-                      ? `<span class="badge" style="margin-right: 4px;" title="Fichier effacé">${d.type} · purgé</span>`
-                      : `<a href="/api/admin/documents/${d.id}/file?token=${encodeURIComponent(adminToken)}" target="_blank" class="badge badge-primary" style="margin-right: 4px;">${d.type}</a>`
-                    ).join('')}
+                      ? html`<span class="badge" style="margin-right: 4px;" title="Fichier effacé">${d.type} · purgé</span>`
+                      : html`<button type="button" class="badge badge-primary" style="margin-right: 4px; border: 0; cursor: pointer;" data-action="openDocument" data-id="${d.id}">${d.type}</button>`
+                    )}
                   </td>
                   <td><span class="badge ${v.verificationStatus === 'verified' || v.verificationStatus === 'verified_plus' ? 'badge-success' : 'badge-warning'}">${v.verificationStatus}</span></td>
                   <td>
-                    ${verificationsTab === 'pending' ? `
-                      <button class="btn btn-sm btn-success" onclick="approveProfile(${v.waitlistId})">Approuver</button>
-                      <button class="btn btn-sm btn-danger" onclick="rejectProfile(${v.waitlistId})">Refuser</button>
-                    ` : ''}
+                    ${verificationsTab === 'pending' && html`
+                      <button class="btn btn-sm btn-success" data-action="approveProfile" data-id="${v.waitlistId}">Approuver</button>
+                      <button class="btn btn-sm btn-danger" data-action="rejectProfile" data-id="${v.waitlistId}">Refuser</button>
+                    `}
                   </td>
                 </tr>
-              `).join('')}
+              `)}
             </tbody>
           </table>
         `;
       } catch (e) {
-        container.innerHTML = '<div class="empty-state"><p>Erreur: ' + e.message + '</p></div>';
+        container.innerHTML = html`${errorState(e)}`;
+      }
+    }
+
+    // Identity documents: fetched with the Authorization header (a token in the URL
+    // would end up in logs and browser history), shown from a short-lived blob URL.
+    const VIEWABLE_DOCUMENT_TYPES = /^(?:image\/(?:png|jpeg|webp|gif|heic|heif)|application\/pdf)$/;
+
+    async function openDocument(docId) {
+      // Opened right away, inside the click, so the popup blocker lets it through.
+      const tab = window.open('', '_blank');
+      if (tab) tab.opener = null;
+      try {
+        const res = await fetch(API_BASE + '/api/admin/documents/' + encodeURIComponent(docId) + '/file', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        if (res.status === 401) {
+          redirectToLogin();
+          return;
+        }
+        if (!res.ok) throw new Error('Document indisponible');
+
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        // The blob is served from the admin origin: only render types that cannot run script.
+        if (tab && VIEWABLE_DOCUMENT_TYPES.test(blob.type)) {
+          tab.location.href = objectUrl;
+        } else {
+          if (tab) tab.close();
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = 'document-' + docId;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+      } catch (e) {
+        if (tab) tab.close();
+        showToast(e.message, 'error');
       }
     }
 
@@ -1382,25 +1432,25 @@
           return;
         }
 
-        tbody.innerHTML = events.map(e => `
+        tbody.innerHTML = html`${events.map(e => html`
           <tr>
             <td>
               <div style="font-weight: 500;">${e.title}</div>
               <div style="font-size: 12px; color: var(--text-muted);">${e.event_type || 'Non défini'}</div>
             </td>
-            <td>${new Date(e.date).toLocaleDateString('fr-FR')}${e.time ? ' ' + e.time : ''}</td>
+            <td>${formatDate(e.date)}${e.time ? ' ' + e.time : ''}</td>
             <td>${e.location || '-'}</td>
             <td>${e.price > 0 ? e.price + ' €' : 'Gratuit'}</td>
             <td>${e.attendee_count || 0}${e.max_attendees ? '/' + e.max_attendees : ''}</td>
             <td><span class="badge ${e.is_published ? 'badge-success' : 'badge-warning'}">${e.is_published ? 'Publié' : 'Brouillon'}</span></td>
             <td>
-              <button class="btn btn-sm btn-secondary" onclick="editEvent(${e.id})">Éditer</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${e.id})">Suppr.</button>
+              <button class="btn btn-sm btn-secondary" data-action="editEvent" data-id="${e.id}">Éditer</button>
+              <button class="btn btn-sm btn-danger" data-action="deleteEvent" data-id="${e.id}">Suppr.</button>
             </td>
           </tr>
-        `).join('');
+        `)}`;
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+        tbody.innerHTML = html`${errorRow(7, e)}`;
       }
     }
 
@@ -1534,11 +1584,11 @@
           return;
         }
 
-        tbody.innerHTML = subscriptions.map(s => `
+        tbody.innerHTML = html`${subscriptions.map(s => html`
           <tr>
             <td>
               <div class="user-cell">
-                <div class="avatar-placeholder">${(s.display_name || s.name || s.email)[0].toUpperCase()}</div>
+                <div class="avatar-placeholder">${initial(s.display_name, s.name, s.email)}</div>
                 <div class="user-info">
                   <span class="user-name">${s.display_name || s.name || 'Sans nom'}</span>
                   <span class="user-email">${s.email}</span>
@@ -1547,12 +1597,12 @@
             </td>
             <td><span class="badge badge-primary">${s.plan_type || 'Unknown'}</span></td>
             <td><span class="badge ${s.status === 'active' ? 'badge-success' : 'badge-danger'}">${s.status}</span></td>
-            <td>${s.started_at ? new Date(s.started_at).toLocaleDateString('fr-FR') : '-'}</td>
-            <td>${s.expires_at ? new Date(s.expires_at).toLocaleDateString('fr-FR') : 'Jamais'}</td>
+            <td>${s.started_at ? formatDate(s.started_at) : '-'}</td>
+            <td>${s.expires_at ? formatDate(s.expires_at) : 'Jamais'}</td>
           </tr>
-        `).join('');
+        `)}`;
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+        tbody.innerHTML = html`${errorRow(5, e)}`;
       }
     }
 
@@ -1572,13 +1622,19 @@
       });
     });
 
+    const campaignStatusBadge = (status) =>
+      status === 'sent' ? 'badge-success'
+        : status === 'draft' ? 'badge-warning'
+        : status === 'failed' ? 'badge-danger'
+        : 'badge-secondary';
+
     async function loadCampaigns() {
       const tbody = document.getElementById('campaigns-tbody');
       tbody.innerHTML = '<tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>';
 
       try {
         let url = '/api/admin/campaigns';
-        if (campaignTypeFilter !== 'all') url += '?type=' + campaignTypeFilter;
+        if (campaignTypeFilter !== 'all') url += '?type=' + encodeURIComponent(campaignTypeFilter);
         const { campaigns } = await api(url);
 
         document.getElementById('camp-total').textContent = campaigns.length;
@@ -1589,27 +1645,37 @@
           return;
         }
 
-        tbody.innerHTML = campaigns.map(c => `
+        tbody.innerHTML = html`${campaigns.map(c => html`
           <tr>
             <td>
               <div style="font-weight: 500;">${c.title}</div>
-              ${c.subject ? `<div style="font-size: 12px; color: var(--text-muted);">${c.subject}</div>` : ''}
+              ${c.subject && html`<div style="font-size: 12px; color: var(--text-muted);">${c.subject}</div>`}
             </td>
             <td><span class="badge ${c.type === 'email' ? 'badge-primary' : 'badge-success'}">${c.type}</span></td>
-            <td><span class="badge ${c.status === 'sent' ? 'badge-success' : c.status === 'draft' ? 'badge-warning' : 'badge-secondary'}">${c.status}</span></td>
+            <td><span class="badge ${campaignStatusBadge(c.status)}">${c.status}</span></td>
             <td>${c.stats_sent || 0}</td>
             <td>${c.stats_opened || 0}</td>
-            <td>${c.sent_at ? new Date(c.sent_at).toLocaleDateString('fr-FR') : '-'}</td>
+            <td>${c.sent_at ? formatDate(c.sent_at) : '-'}</td>
             <td>
-              ${c.status === 'draft' ? `
-                <button class="btn btn-sm btn-primary" onclick="sendCampaign(${c.id})">Envoyer</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCampaign(${c.id})">Suppr.</button>
-              ` : ''}
+              ${c.status === 'draft' && html`
+                <button class="btn btn-sm btn-primary" data-action="sendCampaign" data-id="${c.id}">Envoyer</button>
+                <button class="btn btn-sm btn-danger" data-action="deleteCampaign" data-id="${c.id}">Suppr.</button>
+              `}
             </td>
           </tr>
-        `).join('');
+        `)}`;
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+        tbody.innerHTML = html`${errorRow(7, e)}`;
+      }
+    }
+
+    function reportSendResult(result) {
+      if (result.sent === 0 && result.errors > 0) {
+        showToast(`Aucun envoi n'a abouti (${result.errors} échecs)`, 'error');
+      } else if (result.errors > 0) {
+        showToast(`Campagne envoyée à ${result.sent} destinataires (${result.errors} échecs)`, 'success');
+      } else {
+        showToast(`Campagne envoyée à ${result.sent} destinataires!`, 'success');
       }
     }
 
@@ -1617,10 +1683,11 @@
       if (!confirm('Envoyer cette campagne maintenant?')) return;
       try {
         const result = await api('/api/admin/campaigns/' + id + '/send', { method: 'POST' });
-        showToast(`Campagne envoyée à ${result.sent} destinataires!`, 'success');
+        reportSendResult(result);
         loadCampaigns();
       } catch (e) {
         showToast(e.message, 'error');
+        loadCampaigns();
       }
     }
 
@@ -1686,7 +1753,7 @@
         // Create and send immediately
         const { campaign } = await api('/api/admin/campaigns', { method: 'POST', body: JSON.stringify(data) });
         const result = await api('/api/admin/campaigns/' + campaign.id + '/send', { method: 'POST' });
-        showToast(`Campagne envoyée à ${result.sent} destinataires!`, 'success');
+        reportSendResult(result);
         campaignModal.classList.remove('active');
         loadCampaigns();
       } catch (e) {
@@ -1730,7 +1797,7 @@
 
         // Get reports
         let url = '/api/admin/reports';
-        if (reportStatusFilter !== 'all') url += '?status=' + reportStatusFilter;
+        if (reportStatusFilter !== 'all') url += '?status=' + encodeURIComponent(reportStatusFilter);
         const { reports } = await api(url);
 
         if (reports.length === 0) {
@@ -1738,11 +1805,11 @@
           return;
         }
 
-        tbody.innerHTML = reports.map(r => `
+        tbody.innerHTML = html`${reports.map(r => html`
           <tr>
             <td>
               <div class="user-cell">
-                <div class="avatar-placeholder">${(r.reported_display_name || r.reported_name || r.reported_email)[0].toUpperCase()}</div>
+                <div class="avatar-placeholder">${initial(r.reported_display_name, r.reported_name, r.reported_email)}</div>
                 <div class="user-info">
                   <span class="user-name">${r.reported_display_name || r.reported_name || 'Sans nom'}</span>
                   <span class="user-email">${r.reported_email}</span>
@@ -1751,19 +1818,21 @@
             </td>
             <td style="font-size: 12px; color: var(--text-muted);">${r.reporter_email}</td>
             <td>${r.reason}</td>
-            <td>${new Date(r.created_at).toLocaleDateString('fr-FR')}</td>
+            <td>${formatDate(r.created_at)}</td>
             <td><span class="badge ${r.status === 'pending' ? 'badge-warning' : r.status === 'handled' ? 'badge-success' : 'badge-secondary'}">${r.status}</span></td>
             <td>
-              ${r.status === 'pending' ? `
-                <button class="btn btn-sm btn-secondary" onclick="viewUserDetail(${r.reported_user_id})">Voir</button>
-                <button class="btn btn-sm btn-danger" onclick="handleReport(${r.id}, 'ban')">Ban</button>
-                <button class="btn btn-sm btn-secondary" onclick="handleReport(${r.id}, 'dismiss')">Ignorer</button>
-              ` : `<span style="font-size:12px;color:var(--text-muted);">${r.action_taken || ''}</span>`}
+              ${r.status === 'pending'
+                ? html`
+                  <button class="btn btn-sm btn-secondary" data-action="viewUserDetail" data-id="${r.reported_user_id}">Voir</button>
+                  <button class="btn btn-sm btn-danger" data-action="handleReport" data-id="${r.id}" data-report-action="ban">Ban</button>
+                  <button class="btn btn-sm btn-secondary" data-action="handleReport" data-id="${r.id}" data-report-action="dismiss">Ignorer</button>
+                `
+                : html`<span style="font-size:12px;color:var(--text-muted);">${r.action_taken || ''}</span>`}
             </td>
           </tr>
-        `).join('');
+        `)}`;
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+        tbody.innerHTML = html`${errorRow(6, e)}`;
       }
     }
 
@@ -1789,6 +1858,13 @@
     // ========== USER DETAIL ==========
     let currentUserDetail = null;
 
+    function userAvatar(user) {
+      const photo = user.photos ? user.photos[0] : null;
+      return safeUrl(photo)
+        ? html`<img src="${safeUrl(photo)}" alt="" style="width: 120px; height: 120px; border-radius: 16px; object-fit: cover; margin-bottom: 16px;">`
+        : html`<div class="avatar-placeholder" style="width: 120px; height: 120px; font-size: 48px; margin: 0 auto 16px; border-radius: 16px;">${initial(user.display_name, user.name, user.email)}</div>`;
+    }
+
     async function viewUserDetail(userId) {
       switchPage('user-detail');
       const container = document.getElementById('user-detail-content');
@@ -1798,15 +1874,12 @@
         const { user } = await api('/api/admin/users/' + userId);
         currentUserDetail = user;
 
-        container.innerHTML = `
+        container.innerHTML = html`
           <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px;">
             <!-- Left: Profile Card -->
             <div class="card">
               <div class="card-body" style="padding: 24px; text-align: center;">
-                ${user.photos && user.photos[0]
-                  ? `<img src="${user.photos[0]}" style="width: 120px; height: 120px; border-radius: 16px; object-fit: cover; margin-bottom: 16px;">`
-                  : `<div class="avatar-placeholder" style="width: 120px; height: 120px; font-size: 48px; margin: 0 auto 16px; border-radius: 16px;">${(user.display_name || user.name || user.email)[0].toUpperCase()}</div>`
-                }
+                ${userAvatar(user)}
                 <h2 style="margin: 0 0 4px;">${user.display_name || user.name || 'Sans nom'}</h2>
                 <p style="color: var(--text-muted); margin: 0 0 16px;">${user.email}</p>
 
@@ -1817,20 +1890,20 @@
                 </div>
 
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left;">
-                  <p style="margin: 8px 0; font-size: 14px;"><strong>Inscription:</strong> ${new Date(user.created_at).toLocaleDateString('fr-FR')}</p>
-                  <p style="margin: 8px 0; font-size: 14px;"><strong>Dernière connexion:</strong> ${user.last_login_at ? new Date(user.last_login_at).toLocaleDateString('fr-FR') : '-'}</p>
-                  ${user.birthdate ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Date de naissance:</strong> ${new Date(user.birthdate).toLocaleDateString('fr-FR')}</p>` : ''}
-                  ${user.location ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Ville:</strong> ${user.location}</p>` : ''}
-                  ${user.gender ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Genre:</strong> ${user.gender}</p>` : ''}
+                  <p style="margin: 8px 0; font-size: 14px;"><strong>Inscription:</strong> ${formatDate(user.created_at)}</p>
+                  <p style="margin: 8px 0; font-size: 14px;"><strong>Dernière connexion:</strong> ${user.last_login_at ? formatDate(user.last_login_at) : '-'}</p>
+                  ${user.birthdate && html`<p style="margin: 8px 0; font-size: 14px;"><strong>Date de naissance:</strong> ${formatDate(user.birthdate)}</p>`}
+                  ${user.location && html`<p style="margin: 8px 0; font-size: 14px;"><strong>Ville:</strong> ${user.location}</p>`}
+                  ${user.gender && html`<p style="margin: 8px 0; font-size: 14px;"><strong>Genre:</strong> ${user.gender}</p>`}
                 </div>
 
                 <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
                   ${user.is_active
-                    ? `<button class="btn btn-danger" onclick="openBanModal(${user.id})">Bannir</button>`
-                    : `<button class="btn btn-success" onclick="unbanUser(${user.id})">Débannir</button>`
+                    ? html`<button class="btn btn-danger" data-action="openBanModal" data-id="${user.id}">Bannir</button>`
+                    : html`<button class="btn btn-success" data-action="unbanUser" data-id="${user.id}">Débannir</button>`
                   }
-                  <button class="btn btn-secondary" onclick="openNoteModal(${user.id})">Ajouter note</button>
-                  <button class="btn btn-secondary" onclick="deleteUser(${user.id})">Supprimer compte</button>
+                  <button class="btn btn-secondary" data-action="openNoteModal" data-id="${user.id}">Ajouter note</button>
+                  <button class="btn btn-secondary" data-action="deleteUser" data-id="${user.id}">Supprimer compte</button>
                 </div>
               </div>
             </div>
@@ -1856,47 +1929,47 @@
                 </div>
               </div>
 
-              ${user.bio ? `
+              ${user.bio && html`
                 <div class="card" style="margin-bottom: 24px;">
                   <div class="card-header"><h3 class="card-title">Bio</h3></div>
                   <div class="card-body" style="padding: 16px 24px;">
                     <p style="white-space: pre-wrap;">${user.bio}</p>
                   </div>
                 </div>
-              ` : ''}
+              `}
 
-              ${user.bans && user.bans.length > 0 ? `
+              ${user.bans && user.bans.length > 0 && html`
                 <div class="card" style="margin-bottom: 24px;">
                   <div class="card-header"><h3 class="card-title">Historique des bans</h3></div>
                   <div class="card-body">
                     <table class="table">
                       <thead><tr><th>Raison</th><th>Par</th><th>Date</th><th>Statut</th></tr></thead>
                       <tbody>
-                        ${user.bans.map(b => `
+                        ${user.bans.map(b => html`
                           <tr>
                             <td>${b.reason}</td>
                             <td>${b.banned_by}</td>
-                            <td>${new Date(b.banned_at).toLocaleDateString('fr-FR')}</td>
+                            <td>${formatDate(b.banned_at)}</td>
                             <td><span class="badge ${b.unbanned_at ? 'badge-success' : 'badge-danger'}">${b.unbanned_at ? 'Levé' : 'Actif'}</span></td>
                           </tr>
-                        `).join('')}
+                        `)}
                       </tbody>
                     </table>
                   </div>
                 </div>
-              ` : ''}
+              `}
 
               <div class="card">
                 <div class="card-header"><h3 class="card-title">Notes admin</h3></div>
                 <div class="card-body" id="user-notes-list">
                   ${user.notes && user.notes.length > 0
-                    ? user.notes.map(n => `
+                    ? user.notes.map(n => html`
                         <div style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
-                          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${n.admin_email} - ${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+                          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${n.admin_email} - ${formatDate(n.created_at)}</div>
                           <div>${n.note}</div>
                         </div>
-                      `).join('')
-                    : '<div class="empty-state"><p>Aucune note</p></div>'
+                      `)
+                    : html`<div class="empty-state"><p>Aucune note</p></div>`
                   }
                 </div>
               </div>
@@ -1904,7 +1977,7 @@
           </div>
         `;
       } catch (e) {
-        container.innerHTML = '<div class="empty-state"><p>Erreur: ' + e.message + '</p></div>';
+        container.innerHTML = html`${errorState(e)}`;
       }
     }
 
@@ -2002,6 +2075,12 @@
       });
     });
 
+    function userAvatarCell(u) {
+      return safeUrl(u.picture)
+        ? html`<img class="avatar" src="${safeUrl(u.picture)}" alt="">`
+        : html`<div class="avatar-placeholder">${initial(u.display_name, u.name, u.email)}</div>`;
+    }
+
     // Update users table to have view button
     async function loadUsers(search = '') {
       const tbody = document.getElementById('users-tbody');
@@ -2016,36 +2095,70 @@
           return;
         }
 
-        tbody.innerHTML = users.map(u => `
-          <tr style="cursor: pointer;" onclick="viewUserDetail(${u.id})">
+        tbody.innerHTML = html`${users.map(u => html`
+          <tr style="cursor: pointer;" data-action="viewUserDetail" data-id="${u.id}">
             <td>
               <div class="user-cell">
-                ${u.picture ? `<img class="avatar" src="${u.picture}" alt="">` : `<div class="avatar-placeholder">${(u.display_name || u.name || u.email)[0].toUpperCase()}</div>`}
+                ${userAvatarCell(u)}
                 <div class="user-info">
                   <span class="user-name">${u.display_name || u.name || 'Sans nom'}</span>
                   <span class="user-email">${u.email}</span>
                 </div>
               </div>
             </td>
-            <td>${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
-            <td>${u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('fr-FR') : '-'}</td>
+            <td>${formatDate(u.created_at)}</td>
+            <td>${u.last_login_at ? formatDate(u.last_login_at) : '-'}</td>
             <td><span class="badge ${u.subscription_plan ? 'badge-success' : 'badge-secondary'}">${u.subscription_plan || 'Free'}</span></td>
             <td><span class="badge ${u.is_verified ? 'badge-success' : 'badge-warning'}">${u.is_verified ? 'Oui' : 'Non'}</span></td>
             <td>
-              <label class="toggle" onclick="event.stopPropagation()">
-                <input type="checkbox" ${u.is_active ? 'checked' : ''} onchange="toggleUserStatus(${u.id}, this.checked)">
+              <label class="toggle" data-stop>
+                <input type="checkbox" ${u.is_active && 'checked'} data-change="toggleUserStatus" data-id="${u.id}">
                 <span class="toggle-slider"></span>
               </label>
             </td>
-            <td onclick="event.stopPropagation()">
-              <button class="btn btn-sm btn-secondary" onclick="viewUserDetail(${u.id})">Voir</button>
+            <td data-stop>
+              <button class="btn btn-sm btn-secondary" data-action="viewUserDetail" data-id="${u.id}">Voir</button>
             </td>
           </tr>
-        `).join('');
+        `)}`;
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Erreur: ' + e.message + '</p></div></td></tr>';
+        tbody.innerHTML = html`${errorRow(7, e)}`;
       }
     }
+
+    // One delegated listener per event type replaces the inline onclick/onchange
+    // handlers: the rendered markup carries data-* attributes only, never code.
+    const clickActions = {
+      switchPage: (el) => switchPage(el.dataset.target),
+      openDocument: (el) => openDocument(el.dataset.id),
+      approveProfile: (el) => approveProfile(el.dataset.id),
+      rejectProfile: (el) => rejectProfile(el.dataset.id),
+      editEvent: (el) => editEvent(el.dataset.id),
+      deleteEvent: (el) => deleteEvent(el.dataset.id),
+      sendCampaign: (el) => sendCampaign(el.dataset.id),
+      deleteCampaign: (el) => deleteCampaign(el.dataset.id),
+      handleReport: (el) => handleReport(el.dataset.id, el.dataset.reportAction),
+      viewUserDetail: (el) => viewUserDetail(el.dataset.id),
+      openBanModal: (el) => openBanModal(el.dataset.id),
+      unbanUser: (el) => unbanUser(el.dataset.id),
+      openNoteModal: (el) => openNoteModal(el.dataset.id),
+      deleteUser: (el) => deleteUser(el.dataset.id),
+    };
+    const changeActions = {
+      toggleUserStatus: (el) => toggleUserStatus(el.dataset.id, el.checked),
+    };
+
+    document.addEventListener('click', (event) => {
+      // [data-stop] marks a control that must not trigger the row behind it.
+      const el = event.target.closest('[data-action], [data-stop]');
+      const run = el && Object.hasOwn(clickActions, el.dataset.action) ? clickActions[el.dataset.action] : null;
+      if (run) run(el);
+    });
+    document.addEventListener('change', (event) => {
+      const el = event.target.closest('[data-change]');
+      const run = el && Object.hasOwn(changeActions, el.dataset.change) ? changeActions[el.dataset.change] : null;
+      if (run) run(el);
+    });
 
     // Initial load
     loadDashboard();

@@ -1,3 +1,5 @@
+import { html } from '/admin-escape.js';
+
 const toast = document.getElementById('toast');
 
 function showToast(message, type = 'info') {
@@ -41,12 +43,12 @@ async function loadStatus() {
   const res = await fetch(`/api/verify?token=${encodeURIComponent(token)}`);
   const data = await res.json();
   if (!data.success) {
-    statusEl.innerHTML = `<div class="alert error">${data.error || 'Lien invalide.'}</div>`;
+    statusEl.innerHTML = html`<div class="alert error">${data.error || 'Lien invalide.'}</div>`;
     setSubmitEnabled(false);
     return null;
   }
 
-  statusEl.innerHTML = `<div class="alert success">Connecté en tant que : <strong>${data.email}</strong></div>`;
+  statusEl.innerHTML = html`<div class="alert success">Connecté en tant que : <strong>${data.email}</strong></div>`;
 
   const missing = Array.isArray(data.missing) ? data.missing : [];
   uploadState.selfie_id = !missing.includes('selfie_id');
