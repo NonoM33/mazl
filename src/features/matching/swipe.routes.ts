@@ -13,6 +13,8 @@ export interface SwipeResult {
 export interface SwipeStore {
   // The action already recorded from this member on this target, if any.
   currentAction(userId: number, targetUserId: number): Promise<string | null>;
+  // Whether the target exists, is active and is not blocked in either direction.
+  canSwipeOn(userId: number, targetUserId: number): Promise<boolean>;
   record(userId: number, targetUserId: number, action: string): Promise<SwipeResult>;
   // Notifies both members of a reciprocal match.
   onMatch(userId: number, targetUserId: number): Promise<void>;
@@ -65,6 +67,15 @@ export function registerSwipeRoute(app: Hono<{ Variables: AppVariables }>, deps:
       const parsed = await parseBody(swipeBodySchema, c);
       if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
       const { target_user_id: targetUserId, action } = parsed.data;
+
+      if (targetUserId === userId) {
+        return c.json({ success: false, error: "Cannot swipe on yourself" }, 400);
+      }
+      // Checked before anything is debited or recorded; the same answer whether
+      // the target is unknown, closed, or blocked in either direction.
+      if (!(await deps.swipes.canSwipeOn(userId, targetUserId))) {
+        return c.json({ success: false, error: "User not found" }, 404);
+      }
 
       if (action !== "super_like") {
         const result = await deps.swipes.record(userId, targetUserId, action);

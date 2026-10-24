@@ -37,13 +37,6 @@ export async function parseBody<T>(
   return { ok: true, data: parsed.data };
 }
 
-// Shared across features (matching): POST /api/swipes body.
-export const swipeBodySchema = z
-  .object({
-    target_user_id: z.number(),
-    action: z.enum(["like", "pass", "super_like"]),
-  })
-  .passthrough();
 
 // ============ SECURITY HARDENING ============
 
@@ -60,6 +53,14 @@ export function parseId(raw: string): number | null {
 }
 
 export const idSchema = z.number().int().min(1).max(MAX_ID);
+
+// Shared across features (matching): POST /api/swipes body.
+export const swipeBodySchema = z
+  .object({
+    target_user_id: idSchema,
+    action: z.enum(["like", "pass", "super_like"]),
+  })
+  .passthrough();
 
 // limit/offset of the listing routes: out-of-range or unreadable values fall
 // back to the default (or the bound), they never reach the query.

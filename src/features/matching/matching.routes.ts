@@ -2,12 +2,14 @@ import { Hono } from "hono";
 import {
   getDiscoverProfiles,
   getSwipeAction,
+  canSwipeOn,
   recordSwipe,
   getMatches,
   getReceivedLikes,
   getReceivedLikesCount,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
+import { parsePage } from "../../shared/http/validation";
 import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import type { CreditsGateway } from "../credits/application/ports";
@@ -26,6 +28,10 @@ export interface MatchingRouteDeps {
   readonly credits: CreditsGateway;
 }
 
+// A page of the discover feed: the server decides how much it hands out.
+const DISCOVER_DEFAULT_LIMIT = 20;
+const DISCOVER_MAX_LIMIT = 50;
+
 export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, deps: MatchingRouteDeps): void {
   // CONTRAT.md §2.3: one shared budget of 300 feed requests per hour and user
   // for /api/discover and /api/daily-picks, against profile scraping.
@@ -35,8 +41,10 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
   app.get("/api/discover", requireAuth, feedLimiter, async (c) => {
     try {
       const userId = c.get("userId");
-      const limit = parseInt(c.req.query("limit") || "20");
-      const offset = parseInt(c.req.query("offset") || "0");
+      const { limit, offset } = parsePage(c.req.query("limit"), c.req.query("offset"), {
+        defaultLimit: DISCOVER_DEFAULT_LIMIT,
+        maxLimit: DISCOVER_MAX_LIMIT,
+      });
 
       const profiles = await getDiscoverProfiles(userId, limit, offset);
 
@@ -74,7 +82,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
   registerSwipeRoute(app, {
     authenticate: requireAuth,
     credits: deps.credits,
-    swipes: { currentAction: getSwipeAction, record: recordSwipe, onMatch: emitNewMatch },
+    swipes: { currentAction: getSwipeAction, canSwipeOn, record: recordSwipe, onMatch: emitNewMatch },
   });
 
   // Get user's matches

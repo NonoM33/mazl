@@ -1332,6 +1332,7 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
     JOIN users u ON u.id = p.user_id
     CROSS JOIN me
     WHERE p.user_id != ${userId}
+      AND u.is_active = true
       AND p.is_complete = true
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
@@ -1392,7 +1393,8 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
         + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
         + CASE WHEN me.shabbat_observance IS NOT NULL AND p.shabbat_observance = me.shabbat_observance THEN 2 ELSE 0 END
       ) DESC,
-      p.created_at DESC
+      p.created_at DESC,
+      p.user_id DESC
     LIMIT ${limit}
     OFFSET ${offset}
   `;
@@ -1426,6 +1428,24 @@ export async function getSwipeAction(userId: number, targetUserId: number): Prom
     SELECT action FROM swipes WHERE user_id = ${userId} AND target_user_id = ${targetUserId}
   `;
   return rows[0]?.action ?? null;
+}
+
+// Whether `userId` may swipe on `targetUserId`: another member whose account
+// exists and is active, with no block in either direction. A refusal never says
+// which of these held.
+export async function canSwipeOn(userId: number, targetUserId: number): Promise<boolean> {
+  if (userId === targetUserId) return false;
+  const rows = await sql`
+    SELECT 1 FROM users u
+    WHERE u.id = ${targetUserId}
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${targetUserId})
+           OR (b.blocker_id = ${targetUserId} AND b.blocked_id = ${userId})
+      )
+  `;
+  return rows.length > 0;
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -1550,6 +1570,7 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
     JOIN users u ON u.id = s.user_id
     LEFT JOIN profiles p ON p.user_id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       -- not already matched
       AND NOT EXISTS (
@@ -1580,7 +1601,9 @@ export async function getReceivedLikesCount(userId: number): Promise<number> {
   const rows = await sql`
     SELECT COUNT(*) AS count
     FROM swipes s
+    JOIN users u ON u.id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       AND NOT EXISTS (
         SELECT 1 FROM matches m
