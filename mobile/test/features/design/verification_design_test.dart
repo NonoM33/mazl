@@ -22,6 +22,7 @@ import 'package:mazl/presentation/features/verification/identity/mrz_review_view
 import 'package:mazl/presentation/features/verification/identity/mrz_scanner_view.dart';
 import 'package:mazl/presentation/features/verification/identity/nfc_read_view.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _mrz = MrzData(documentNumber: 'L898902C3', birthYymmdd: '740812', expiryYymmdd: '450415');
 
@@ -71,7 +72,7 @@ Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme, List<Ov
   await tester.pumpWidget(
     ProviderScope(
       overrides: [textLineRecognizerProvider.overrideWithValue(_NoopRecognizer()), ...overrides],
-      child: MaterialApp(theme: theme ?? AppTheme.lightTheme, home: child),
+      child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, theme: theme ?? AppTheme.lightTheme, home: child),
     ),
   );
   await tester.pumpAndSettle();

@@ -8,6 +8,7 @@ import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/presentation/common/widgets/swipe_deck/swipe_deck.dart';
 
 import '../../../helpers/swipe_gestures.dart';
+import '../../../helpers/l10n_helpers.dart';
 
 const _cardSize = Size(400, 600);
 
@@ -35,6 +36,9 @@ class _Rig {
 
   Widget build({bool reducedMotion = false}) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       home: MediaQuery(
         data: MediaQueryData(disableAnimations: reducedMotion),
         child: Scaffold(

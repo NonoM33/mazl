@@ -1,0 +1,6 @@
+{
+  "settingsLanguage": "Langue",
+  "@settingsLanguage": {"description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."},
+  "settingsLanguageSystem": "Langue du téléphone",
+  "@settingsLanguageSystem": {"description": "Réglages, choix de langue : suivre la langue réglée sur le téléphone plutôt qu'une langue fixe."}
+}

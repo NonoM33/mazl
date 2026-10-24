@@ -13,6 +13,7 @@ import 'package:mazl/presentation/features/chat/widgets/voice_bubble.dart';
 import 'package:mazl/presentation/features/chat/widgets/waveform.dart';
 
 import 'chat_test_support.dart';
+import '../../helpers/l10n_helpers.dart';
 
 List<ChatMedia> _photos(int n, {int? width, int? height}) => [
   for (var i = 0; i < n; i++)
@@ -346,6 +347,9 @@ void main() {
     testWidgets('file: and other schemes are not drawn', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           theme: AppTheme.lightTheme,
           home: const ChatImage(url: 'file:///etc/passwd'),
         ),

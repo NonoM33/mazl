@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../helpers/l10n_helpers.dart';
 
 void main() {
   setUp(() {
@@ -51,6 +52,9 @@ void main() {
     Future<void> pumpHost(WidgetTester tester, void Function(bool) onResult) {
       return tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           theme: AppTheme.lightTheme,
           home: Scaffold(
             body: Builder(

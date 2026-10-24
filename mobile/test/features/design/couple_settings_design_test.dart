@@ -7,6 +7,7 @@ import 'package:mazl/presentation/features/settings/screens/settings_screen.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../couple/couple_flow_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Rendering of the settings (couple card + hidden sections) in the
 // « Encre & Tekhelet » look: no overflow at 390x844 and 360x740, light and dark.
@@ -50,6 +51,9 @@ void main() {
             UncontrolledProviderScope(
               container: _sharedContainer,
               child: MaterialApp(
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: kTestLocale,
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: brightness == Brightness.dark

@@ -12,6 +12,7 @@ import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_top_bar.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_content.dart';
 import 'package:mazl/presentation/features/profile/widgets/profile_view/profile_view_data.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme}) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -19,6 +20,9 @@ Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme}) async 
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: theme ?? AppTheme.lightTheme,
       home: Scaffold(body: child),
     ),

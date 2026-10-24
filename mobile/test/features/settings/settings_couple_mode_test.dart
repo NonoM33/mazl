@@ -9,6 +9,7 @@ import 'package:mazl/presentation/features/settings/widgets/settings_couple_card
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../couple/couple_flow_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 /// Never disposed: the app's services are singletons, and a ProviderScope
 /// disposes the ones it creates, which would break the next test.
@@ -44,6 +45,9 @@ Future<void> _pumpSettings(
     UncontrolledProviderScope(
       container: _sharedContainer,
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: brightness == Brightness.dark

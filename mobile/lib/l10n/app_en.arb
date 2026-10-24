@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "commonCancel": "Cancel",
+  "commonContinue": "Continue",
+  "commonRetry": "Try again",
+  "commonClose": "Close",
+  "commonBack": "Back",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "Phone language"
+}

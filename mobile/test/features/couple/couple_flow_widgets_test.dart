@@ -14,6 +14,7 @@ import 'package:mazl/presentation/features/settings/screens/settings_screen.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'couple_flow_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<ApiResponse<List<Map<String, dynamic>>>> _oneMatch() async => ApiResponse.success([
       {
@@ -86,6 +87,9 @@ Widget _app(
   return UncontrolledProviderScope(
     container: _sharedContainer,
     child: MaterialApp.router(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       routerConfig: router,
       builder: (context, child) => CoupleFlowHost(
         service: service,
@@ -115,6 +119,9 @@ void main() {
   group('écran de mise en place', () {
     Future<void> pumpSetup(WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         home: CoupleModeSetupScreen(service: service, loadMatches: _oneMatch),
       ));
       await tester.pump();
@@ -156,7 +163,7 @@ void main() {
           ),
         ],
       );
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(MaterialApp.router(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, routerConfig: router));
       await tester.pump();
       await tester.tap(find.text('PAGE PRECEDENTE'));
       await _pumpFor(tester, const Duration(milliseconds: 400));

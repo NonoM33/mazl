@@ -12,6 +12,7 @@ import 'package:mazl/presentation/features/premium/screens/subscription_screen.d
 import 'package:mazl/presentation/features/premium/widgets/plus_settings_card.dart';
 import 'package:mazl/presentation/features/premium/widgets/plus_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Future<void> _pump(
   WidgetTester tester,
@@ -24,6 +25,9 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: (theme ?? AppTheme.lightTheme).copyWith(
         platform: TargetPlatform.iOS,
       ),
@@ -254,7 +258,13 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+        MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          theme: AppTheme.lightTheme,
+          routerConfig: router,
+        ),
       );
 
       await tester.tap(find.text('ouvrir'));
@@ -373,7 +383,13 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-        MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+        MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          theme: AppTheme.lightTheme,
+          routerConfig: router,
+        ),
       );
       await tester.pumpAndSettle();
 

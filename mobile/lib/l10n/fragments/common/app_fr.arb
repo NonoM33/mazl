@@ -1,0 +1,12 @@
+{
+  "commonCancel": "Annuler",
+  "@commonCancel": {"description": "Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire."},
+  "commonContinue": "Continuer",
+  "@commonContinue": {"description": "Bouton qui passe à l'étape suivante."},
+  "commonRetry": "Réessayer",
+  "@commonRetry": {"description": "Bouton qui relance une action qui a échoué (chargement, envoi)."},
+  "commonClose": "Fermer",
+  "@commonClose": {"description": "Bouton ou info-bulle qui ferme un écran, une feuille ou une boîte de dialogue."},
+  "commonBack": "Retour",
+  "@commonBack": {"description": "Info-bulle du bouton qui revient à l'écran précédent."}
+}

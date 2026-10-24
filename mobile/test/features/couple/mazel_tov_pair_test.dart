@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/couple/screens/mazel_tov_screen.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // Characterization of the Mazal Tov couple visual: the layout was extracted
 // into a shared widget (PairedAvatars) and must not have moved by a pixel.
@@ -30,6 +31,9 @@ Future<void> _pump(WidgetTester tester) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: const MazelTovScreen(partnerName: 'Myriam'),
     ),

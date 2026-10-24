@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:mazl/presentation/features/chat/widgets/swipe_to_reply.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // docs/design/CHAT.md §6 and balayages-proposition.html (Geste 2): past the
 // threshold the row resists, the icon pops, the release is a spring seeded
@@ -38,6 +39,9 @@ Future<void> _pumpRow(
 }) async {
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
         child: child!,

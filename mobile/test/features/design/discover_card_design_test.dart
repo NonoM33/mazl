@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/models/profile.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/matching/widgets/discover_card.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Profile _profile({bool verified = true, List<String> photos = const []}) => Profile(
       id: 7,
@@ -28,6 +29,9 @@ Future<void> _pump(
 }) {
   return tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: Scaffold(
         body: Center(

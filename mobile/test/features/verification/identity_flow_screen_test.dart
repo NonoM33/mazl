@@ -13,6 +13,7 @@ import 'package:mazl/presentation/features/verification/identity/identity_intro_
 import 'package:mazl/presentation/features/verification/identity/identity_messages.dart';
 
 import 'identity_fakes.dart';
+import '../../helpers/l10n_helpers.dart';
 
 class _NoopRecognizer implements TextLineRecognizer {
   @override
@@ -24,14 +25,14 @@ class _NoopRecognizer implements TextLineRecognizer {
 
 Widget _app(Widget home, {List<Override> overrides = const []}) => ProviderScope(
       overrides: [textLineRecognizerProvider.overrideWithValue(_NoopRecognizer()), ...overrides],
-      child: MaterialApp(home: home),
+      child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: home),
     );
 
 void main() {
   group('intro', () {
     testWidgets('one title, three short steps, the privacy promise, one button', (tester) async {
       var started = false;
-      await tester.pumpWidget(MaterialApp(home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
+      await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: IdentityIntroView(onStart: () => started = true, onClose: () {})));
 
       expect(find.text('Vérifiez votre identité.'), findsOneWidget);
       for (final step in IdentityIntroView.steps) {
@@ -55,6 +56,9 @@ void main() {
     testWidgets('csca_unknown reads "Document non reconnu." and offers the manual review', (tester) async {
       var closed = false;
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         home: IdentityFailedView(info: describeIdentityRejection('csca_unknown'), onAction: () => closed = true, onClose: () {}),
       ));
       expect(find.text('Document non reconnu.'), findsOneWidget);
@@ -65,6 +69,9 @@ void main() {
 
     testWidgets('a retryable rejection offers its action and no manual review', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: kTestLocale,
         home: IdentityFailedView(info: describeIdentityRejection('no_face'), onAction: () {}, onClose: () {}),
       ));
       expect(find.text('Aucun visage détecté.'), findsOneWidget);

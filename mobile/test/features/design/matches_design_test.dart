@@ -6,8 +6,12 @@ import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:mazl/presentation/features/likes/widgets/like_widgets.dart';
 import 'package:mazl/presentation/features/matching/widgets/avatar_ring.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Widget _host(Widget child) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: kTestLocale,
   theme: AppTheme.lightTheme,
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );

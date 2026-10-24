@@ -14,6 +14,7 @@ import 'package:mazl/presentation/features/chat/chat_providers.dart';
 import 'package:mazl/presentation/features/chat/screens/chat_conversation_screen.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller_impl.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const me = 1;
 const other = 2;
@@ -376,6 +377,9 @@ class ChatHarness {
           }),
         ],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
           debugShowCheckedModeBanner: false,
           builder: disableAnimations
               ? (context, child) => MediaQuery(

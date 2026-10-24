@@ -4,6 +4,7 @@ import 'package:mazl/core/models/conversation.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/chat/screens/conversations_screen.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Conversation _conversation({int unread = 0}) => Conversation(
       id: 7,
@@ -24,6 +25,9 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       builder: (context, app) => MediaQuery(
         data: MediaQueryData(

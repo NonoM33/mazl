@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/presentation/features/chat/widgets/scam_warning_card.dart';
 
 import 'chat_test_support.dart';
+import '../../helpers/l10n_helpers.dart';
 
 void main() {
   setUpAll(loadChatFonts);
@@ -115,7 +116,12 @@ void main() {
   group('the card itself', () {
     testWidgets('show: false draws nothing', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: ScamWarningCard(show: false, onReport: () {})),
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          home: ScamWarningCard(show: false, onReport: () {}),
+        ),
       );
       expect(find.byType(Container), findsNothing);
     });

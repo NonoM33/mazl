@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/swipe_gestures.dart';
 import '../../mocks/fake_discover_api.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _likeLimitTitle = 'Vos likes du jour sont partis.';
 const _superLikeGateTitle = 'Super Likes';
@@ -36,6 +37,9 @@ Future<FakeDiscoverApi> _pumpDiscover(
   );
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: DiscoverScreen(apiService: api),
     ),

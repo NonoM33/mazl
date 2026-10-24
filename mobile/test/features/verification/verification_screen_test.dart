@@ -9,6 +9,7 @@ import 'package:mazl/core/services/verification_api.dart';
 import 'package:mazl/presentation/features/verification/providers/verification_providers.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_screen.dart';
 import 'package:mazl/presentation/features/verification/verification_reasons.dart';
+import '../../helpers/l10n_helpers.dart';
 
 class FakeVerificationApi implements VerificationApi {
   FakeVerificationApi({List<VerificationStatus>? statuses}) : statuses = statuses ?? [_none()];
@@ -100,7 +101,7 @@ Future<void> _pump(WidgetTester tester, FakeVerificationApi api, FakeCapture cap
       verificationApiProvider.overrideWithValue(api),
       livenessCaptureProvider.overrideWithValue(capture),
     ],
-    child: const MaterialApp(home: VerificationScreen()),
+    child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, home: VerificationScreen()),
   ));
   await tester.pumpAndSettle();
 }

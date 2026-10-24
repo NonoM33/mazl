@@ -11,9 +11,10 @@ import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 import 'package:mazl/presentation/features/auth/screens/login_screen.dart';
 import 'package:mazl/presentation/features/onboarding/screens/onboarding_screen.dart';
+import '../../helpers/l10n_helpers.dart';
 
 Widget _app(Widget home) => ProviderScope(
-      child: MaterialApp(theme: AppTheme.lightTheme, home: home),
+      child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, theme: AppTheme.lightTheme, home: home),
     );
 
 /// Parcourt les Container et DecoratedBox montés à la recherche d'un dégradé.
@@ -132,7 +133,7 @@ void main() {
         ],
       );
       await tester.pumpWidget(ProviderScope(
-        child: MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+        child: MaterialApp.router(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: kTestLocale, theme: AppTheme.lightTheme, routerConfig: router),
       ));
 
       await tester.tap(find.widgetWithText(TextButton, 'Connexion fictive (dev)'));

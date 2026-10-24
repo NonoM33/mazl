@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/navigation/widgets/mazl_nav_bar.dart';
 import 'package:mazl/presentation/features/navigation/widgets/nav_bar_collapse.dart';
+import '../../helpers/l10n_helpers.dart';
 
 const _items = [
   MazlNavItem(icon: LucideIcons.layers, label: 'Découvrir'),
@@ -24,6 +25,9 @@ Future<({NavBarCollapseController nav, List<int> taps, List<String> bodyTaps})> 
   final bodyTaps = <String>[];
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: kTestLocale,
       theme: AppTheme.lightTheme,
       home: MediaQuery(
         data: const MediaQueryData(size: _screen, padding: EdgeInsets.only(bottom: _safeBottom)),
