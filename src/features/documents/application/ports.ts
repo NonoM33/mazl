@@ -21,6 +21,8 @@ export interface DocumentRepository {
   findById(id: number): Promise<DocumentRecord | null>;
   latestByType(waitlistId: number): Promise<Record<string, DocumentRecord>>;
   typesByIds(waitlistId: number, ids: readonly number[]): Promise<string[]>;
+  // Documents of the waitlist entry whose file has not been purged.
+  countActive(waitlistId: number): Promise<number>;
 
   decide(params: {
     ids: readonly number[];

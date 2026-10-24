@@ -1,8 +1,9 @@
 import type { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import type { AppVariables } from "../../../shared/http/middleware";
 import type { DocumentsModule } from "../composition";
-import { DocumentUploadError, MAX_DOCUMENT_BYTES, type DocumentErrorCode } from "../domain/types";
+import { DocumentUploadError, MAX_DOCUMENT_BYTES, MAX_UPLOAD_BODY_BYTES, type DocumentErrorCode } from "../domain/types";
 
 const tokenSchema = z.string().min(1).max(256);
 const submitBodySchema = z.object({ os: z.enum(["ios", "android"]).optional() });
@@ -13,7 +14,10 @@ const UPLOAD_ERRORS: Record<DocumentErrorCode, string> = {
   empty_file: "Fichier vide",
   file_too_large: "Fichier trop gros (max 10MB)",
   unsupported_format: "Format non supporté (JPG/PNG/PDF)",
+  too_many_files: "Trop de fichiers envoyés",
 };
+
+const ALREADY_VERIFIED = "Profil déjà vérifié";
 
 // Member-facing verification routes, addressed by the emailed token:
 // GET /api/verify, POST /api/verify/upload, POST /api/verify/submit.
@@ -37,12 +41,21 @@ export function registerDocumentsRoutes(
     });
   });
 
-  app.post("/api/verify/upload", async (c) => {
+  // The body limit looks at Content-Length first: an oversized request is
+  // refused before a byte of it is parsed.
+  const uploadBodyLimit = bodyLimit({
+    maxSize: MAX_UPLOAD_BODY_BYTES,
+    onError: (c) => c.json({ success: false, error: "Requête trop volumineuse" }, 413),
+  });
+
+  app.post("/api/verify/upload", uploadBodyLimit, async (c) => {
     const token = tokenSchema.safeParse(c.req.query("token") || "");
     if (!token.success) return c.json({ success: false, error: "Token manquant" }, 400);
 
-    const waitlistId = await documents.verificationFlow.waitlistIdForToken(token.data);
-    if (waitlistId === null) return c.json({ success: false, error: "Token invalide" }, 404);
+    const target = await documents.verificationFlow.uploadTarget(token.data);
+    if (target.kind === "invalid_token") return c.json({ success: false, error: "Token invalide" }, 404);
+    if (target.kind === "already_verified") return c.json({ success: false, error: ALREADY_VERIFIED }, 409);
+    const waitlistId = target.waitlistId;
 
     const form = await c.req.formData().catch(() => null);
     const type = form?.get("type");
@@ -60,7 +73,7 @@ export function registerDocumentsRoutes(
       return c.json({ success: true, documentId, filename });
     } catch (error) {
       if (error instanceof DocumentUploadError) {
-        return c.json({ success: false, error: UPLOAD_ERRORS[error.code] }, 400);
+        return c.json({ success: false, error: UPLOAD_ERRORS[error.code] }, error.code === "too_many_files" ? 409 : 400);
       }
       console.error("document upload failed:", error instanceof Error ? error.name : "unknown error");
       return c.json({ success: false, error: "Erreur serveur" }, 500);
@@ -76,6 +89,7 @@ export function registerDocumentsRoutes(
 
     const result = await documents.verificationFlow.submit(token.data, os);
     if (result.kind === "invalid_token") return c.json({ success: false, error: "Token invalide" }, 404);
+    if (result.kind === "already_verified") return c.json({ success: false, error: ALREADY_VERIFIED }, 409);
     if (result.kind === "missing_documents") {
       return c.json(
         {
