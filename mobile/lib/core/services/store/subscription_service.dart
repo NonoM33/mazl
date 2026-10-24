@@ -343,9 +343,7 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> _handleConsumable(PurchaseDetails purchase) async {
     final consumables = _consumables;
     if (consumables == null) {
-      debugPrint(
-        'Subscription: consommable ${purchase.productID} sans destinataire',
-      );
+      debugPrint('Subscription: no owner for ${purchase.productID}');
       return;
     }
     await consumables.handlePurchase(purchase);
@@ -441,9 +439,7 @@ class SubscriptionService extends ChangeNotifier {
       }
       _setSubscription(subscription);
     } on FormatException catch (error) {
-      debugPrint(
-        'Subscription: unreadable verification reply - ${error.message}',
-      );
+      debugPrint('Subscription: unreadable verification reply - ${error.message}');
       return const _VerifyOutcome.refused(PurchaseProblem.invalidTransaction);
     }
     await _complete(purchase);

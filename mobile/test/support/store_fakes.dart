@@ -83,6 +83,9 @@ class FakeStoreGateway implements StoreGateway {
   /// Ce que le « store » fait quand on restaure.
   Future<void> Function()? onRestore;
 
+  /// Tant qu'il n'est pas terminé, le store ne répond pas aux prix demandés.
+  Future<void>? queryGate;
+
   /// Les identifiants demandés au store, requête après requête.
   final List<Set<String>> queried = [];
   final List<PurchaseParam> bought = [];
@@ -101,6 +104,7 @@ class FakeStoreGateway implements StoreGateway {
   @override
   Future<ProductDetailsResponse> queryProductDetails(Set<String> ids) async {
     queried.add(ids);
+    await queryGate;
     return productResponse;
   }
 

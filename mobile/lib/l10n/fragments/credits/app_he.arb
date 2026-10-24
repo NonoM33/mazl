@@ -1,0 +1,15 @@
+{
+  "creditsSuperLikesLabel": "סופר לייקים",
+  "creditsSuperLikesTitle": "נגמרו הסופר לייקים.",
+  "creditsSuperLikesSubtitle": "אפשר להוסיף עוד. סופר לייקים שנרכשו לא פגים לעולם.",
+  "creditsBoostsLabel": "בוסטים",
+  "creditsBoostsTitle": "נגמרו הבוסטים.",
+  "creditsBoostsSubtitle": "אפשר להבליט את הפרופיל למשך {minutes} דקות. בוסט שנרכש לא פג לעולם.",
+  "creditsPackSuperLikes": "{count, plural, one{סופר לייק אחד} two{שני סופר לייקים} other{{count} סופר לייקים}}",
+  "creditsPackBoosts": "{count, plural, one{בוסט אחד} two{שני בוסטים} other{{count} בוסטים}}",
+  "creditsPackSemantics": "לרכוש {quantity} תמורת {price}",
+  "creditsLoading": "טוען הצעות",
+  "creditsStoreUnavailable": "החנות אינה זמינה כרגע. אפשר לנסות שוב בעוד רגע.",
+  "creditsPending": "הרכישה ממתינה לאישור. היתרה תתעדכן מיד לאחר האישור.",
+  "creditsBoostAlreadyActive": "בוסט כבר פעיל."
+}

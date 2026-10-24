@@ -1766,6 +1766,72 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get creditsSuperLikesLabel => 'Суперлайки';
+
+  @override
+  String get creditsSuperLikesTitle => 'Суперлайки закончились.';
+
+  @override
+  String get creditsSuperLikesSubtitle =>
+      'Возьмите ещё: купленные суперлайки не сгорают.';
+
+  @override
+  String get creditsBoostsLabel => 'Бусты';
+
+  @override
+  String get creditsBoostsTitle => 'Бустов не осталось.';
+
+  @override
+  String creditsBoostsSubtitle(int minutes) {
+    return 'Поднимите свой профиль выше на $minutes мин. Купленный буст не сгорает.';
+  }
+
+  @override
+  String creditsPackSuperLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count суперлайка',
+      many: '$count суперлайков',
+      few: '$count суперлайка',
+      one: '$count суперлайк',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsPackBoosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count буста',
+      many: '$count бустов',
+      few: '$count буста',
+      one: '$count буст',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsPackSemantics(String quantity, String price) {
+    return 'Купить: $quantity за $price';
+  }
+
+  @override
+  String get creditsLoading => 'Загрузка предложений';
+
+  @override
+  String get creditsStoreUnavailable =>
+      'Магазин сейчас недоступен. Попробуйте ещё раз чуть позже.';
+
+  @override
+  String get creditsPending =>
+      'Покупка ожидает подтверждения. Баланс обновится, как только её одобрят.';
+
+  @override
+  String get creditsBoostAlreadyActive => 'Буст уже включён.';
+
+  @override
   String get eventsTitle => 'Мероприятия';
 
   @override

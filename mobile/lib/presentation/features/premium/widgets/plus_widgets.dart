@@ -143,7 +143,8 @@ class PlusSheetFrame extends StatelessWidget {
   }
 }
 
-TextStyle _sheetTitle(BuildContext context) =>
+/// Le style du titre des fenêtres du bas (« Vos likes du jour sont partis. »).
+TextStyle plusSheetTitleStyle(BuildContext context) =>
     Theme.of(context).textTheme.headlineLarge!.copyWith(
       fontSize: 32,
       fontWeight: FontWeight.w700,
@@ -214,7 +215,7 @@ class DailyLimitSheet extends StatelessWidget {
       children: [
         SectionLabel(l10n.plusDailyLimitLabel(freeLikesPerDay)),
         const SizedBox(height: 10),
-        Text(l10n.plusDailyLimitTitle, style: _sheetTitle(context)),
+        Text(l10n.plusDailyLimitTitle, style: plusSheetTitleStyle(context)),
         const SizedBox(height: 12),
         Text(
           l10n.plusDailyLimitBody,
@@ -283,7 +284,7 @@ class PremiumFeatureSheet extends StatelessWidget {
       children: [
         SectionLabel(l10n.plusReservedLabel),
         const SizedBox(height: 10),
-        Text(feature.title(l10n), style: _sheetTitle(context)),
+        Text(feature.title(l10n), style: plusSheetTitleStyle(context)),
         const SizedBox(height: 12),
         Text(
           feature.description(l10n),

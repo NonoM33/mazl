@@ -58,6 +58,15 @@ const _notUserFacing = <String, (String, List<String>)>{
     'en-tête HTTP',
     [r'Bearer $token'],
   ),
+  'lib/core/services/store/credit_models.dart': (
+    'messages de FormatException (credits du serveur illisible), journal',
+    [
+      r'credits.$kind.$key: entier attendu',
+      r'credits.$name: objet attendu',
+      'credits.resets_at: texte attendu',
+      'credits: objet attendu',
+    ],
+  ),
   'lib/core/services/store/subscription_models.dart': (
     'messages de FormatException (réponse de vérification illisible), journal',
     [

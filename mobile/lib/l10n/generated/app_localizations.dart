@@ -2982,6 +2982,84 @@ abstract class AppLocalizations {
   /// **'{start} – {end}'**
   String coupleSpaceCalendarRangeOtherMonth(String start, String end);
 
+  /// Petit libellé au-dessus du titre de la feuille d’achat de Super Likes (ouverte quand il n’en reste plus). Nom de la fonction, même terme que sur le bouton étoile de Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Likes'**
+  String get creditsSuperLikesLabel;
+
+  /// Titre de la feuille d’achat de Super Likes, quand le serveur dit qu’il n’en reste aucun à envoyer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’avez plus de Super Likes.'**
+  String get creditsSuperLikesTitle;
+
+  /// Phrase sous le titre de la feuille d’achat de Super Likes. Dit que les crédits achetés ne s’effacent pas à minuit, contrairement à l’inclus du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprenez-en : ceux que vous achetez n’expirent jamais.'**
+  String get creditsSuperLikesSubtitle;
+
+  /// Petit libellé au-dessus du titre de la feuille d’achat de Boosts. Nom de la fonction, même terme que dans l’écran Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boosts'**
+  String get creditsBoostsLabel;
+
+  /// Titre de la feuille d’achat de Boosts, quand le serveur dit qu’il n’en reste aucun à activer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’avez plus de Boost.'**
+  String get creditsBoostsTitle;
+
+  /// Phrase sous le titre de la feuille d’achat de Boosts. {minutes} est la durée d’un Boost en minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettez votre profil en tête pendant {minutes} min. Un Boost acheté n’expire jamais.'**
+  String creditsBoostsSubtitle(int minutes);
+
+  /// Quantité d’un pack de Super Likes, en gros sur la ligne du pack. {count} est un entier (5, 15).
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} Super Like} other{{count} Super Likes}}'**
+  String creditsPackSuperLikes(int count);
+
+  /// Quantité d’un pack de Boosts, en gros sur la ligne du pack. {count} est un entier (1, 3).
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} Boost} other{{count} Boosts}}'**
+  String creditsPackBoosts(int count);
+
+  /// Texte lu par le lecteur d’écran sur la ligne d’un pack. {quantity} est la quantité déjà écrite (« 5 Super Likes »), {price} le prix du store avec sa devise (« 3,99 € »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter {quantity} pour {price}'**
+  String creditsPackSemantics(String quantity, String price);
+
+  /// Texte lu par le lecteur d’écran pendant que les prix des packs se chargent depuis le store. Rien d’écrit à l’écran : seulement un indicateur de chargement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des offres'**
+  String get creditsLoading;
+
+  /// Dans la feuille d’achat, quand le store ne rend aucun prix (indisponible, hors ligne). Un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'La boutique n’est pas disponible pour le moment. Réessayez dans un instant.'**
+  String get creditsStoreUnavailable;
+
+  /// Message sous les packs quand l’achat attend une approbation (Ask to Buy : un parent doit valider). Le solde arrivera plus tard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat en attente d’approbation. Votre solde sera mis à jour dès qu’il sera validé.'**
+  String get creditsPending;
+
+  /// Message bref quand on tente d’activer un Boost alors qu’un autre court déjà. Rien n’est débité.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un Boost est déjà en cours.'**
+  String get creditsBoostAlreadyActive;
+
   /// Titre de la liste des événements (soirées, cours, fêtes).
   ///
   /// In fr, this message translates to:

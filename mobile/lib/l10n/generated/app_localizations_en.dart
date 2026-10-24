@@ -1727,6 +1727,68 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get creditsSuperLikesLabel => 'Super Likes';
+
+  @override
+  String get creditsSuperLikesTitle => 'You’re out of Super Likes.';
+
+  @override
+  String get creditsSuperLikesSubtitle =>
+      'Get more. The ones you buy never expire.';
+
+  @override
+  String get creditsBoostsLabel => 'Boosts';
+
+  @override
+  String get creditsBoostsTitle => 'You’re out of Boosts.';
+
+  @override
+  String creditsBoostsSubtitle(int minutes) {
+    return 'Put your profile first for $minutes min. A Boost you buy never expires.';
+  }
+
+  @override
+  String creditsPackSuperLikes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Super Likes',
+      one: '$count Super Like',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsPackBoosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Boosts',
+      one: '$count Boost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsPackSemantics(String quantity, String price) {
+    return 'Buy $quantity for $price';
+  }
+
+  @override
+  String get creditsLoading => 'Loading offers';
+
+  @override
+  String get creditsStoreUnavailable =>
+      'The store isn’t available right now. Try again in a moment.';
+
+  @override
+  String get creditsPending =>
+      'Purchase pending approval. Your balance will update as soon as it is approved.';
+
+  @override
+  String get creditsBoostAlreadyActive => 'A Boost is already running.';
+
+  @override
   String get eventsTitle => 'Events';
 
   @override
