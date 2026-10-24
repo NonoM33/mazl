@@ -1,0 +1,12 @@
+.offer-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.offer-grid.packs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.offer { position: relative; display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 20px; border-radius: var(--r-card); border: 0; background: var(--surface); color: var(--text); box-shadow: inset 0 0 0 1px var(--hairline); }
+.offer[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--text); }
+.offer:disabled { opacity: 0.5; cursor: not-allowed; }
+.offer .tag { align-self: flex-start; }
+.offer-price { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
+.premium-cols { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
+.perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.perks li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.perks svg { flex: none; margin-top: 2px; color: var(--accent); }
+@media (max-width: 1099px) { .premium-cols { grid-template-columns: minmax(0, 1fr); } .offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
