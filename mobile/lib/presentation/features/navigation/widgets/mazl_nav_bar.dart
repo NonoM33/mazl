@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/layout/safe_insets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 
@@ -44,10 +45,18 @@ class MazlNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final safeBottom = MediaQuery.paddingOf(context).bottom;
+    final safe = MediaQuery.paddingOf(context);
     final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : _duration;
+    // The horizontal insets are not symmetric on every display (system
+    // controls can sit along one edge only): each side keeps its own.
+    final direction = Directionality.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(sideMargin, 0, sideMargin, safeBottom + gap),
+      padding: EdgeInsetsDirectional.fromSTEB(
+        sideMargin + safe.startFor(direction),
+        0,
+        sideMargin + safe.endFor(direction),
+        safe.bottom + gap,
+      ),
       child: SizedBox(
         height: barHeight,
         child: LayoutBuilder(
@@ -84,6 +93,59 @@ class MazlNavBar extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The same destinations as [MazlNavBar], as a vertical ink capsule on the
+/// leading side, for a regular-width window. Same buttons, same selected
+/// state, same [MazlNavBar.gap] from the edges and from the system areas; the
+/// leading inset (it can differ from the trailing one) is added to the gap.
+class MazlNavRail extends StatelessWidget {
+  const MazlNavRail({super.key, required this.items, required this.currentIndex, required this.onTap});
+
+  final List<MazlNavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  /// Horizontal room the rail takes, given the safe-area insets.
+  static double reservedWidth(EdgeInsets safe, TextDirection direction) =>
+      safe.startFor(direction) + MazlNavBar.gap + MazlNavBar.barHeight + MazlNavBar.gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final safe = MediaQuery.paddingOf(context);
+    final direction = Directionality.of(context);
+    return SizedBox(
+      width: reservedWidth(safe, direction),
+      child: Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(
+          safe.startFor(direction) + MazlNavBar.gap,
+          safe.top + MazlNavBar.gap,
+          MazlNavBar.gap,
+          safe.bottom + MazlNavBar.gap,
+        ),
+        child: Center(
+          child: Container(
+            key: const Key('mazl-nav-rail'),
+            width: MazlNavBar.barHeight,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.cardDark : AppColors.ink,
+              borderRadius: BorderRadius.circular(MazlNavBar.barHeight / 2),
+              border: isDark ? Border.all(color: AppColors.dividerDark) : null,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  _NavButton(item: items[i], selected: i == currentIndex, onTap: () => onTap(i)),
+              ],
             ),
           ),
         ),

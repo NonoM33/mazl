@@ -2506,6 +2506,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get jewishCalendarParshaVzosHaberacha => 'Вэзот а-браха';
 
   @override
+  String get layoutPaneChatTitle => 'Выберите переписку';
+
+  @override
+  String get layoutPaneChatMessage => 'Она откроется здесь, рядом со списком.';
+
+  @override
+  String get layoutPaneProfileTitle => 'Выберите пару';
+
+  @override
+  String get layoutPaneProfileMessage =>
+      'Её профиль появится здесь, рядом со списком.';
+
+  @override
   String get likesTitle => 'Лайки';
 
   @override

@@ -2436,6 +2436,18 @@ class AppLocalizationsHe extends AppLocalizations {
   String get jewishCalendarParshaVzosHaberacha => 'וזאת הברכה';
 
   @override
+  String get layoutPaneChatTitle => 'לבחור שיחה';
+
+  @override
+  String get layoutPaneChatMessage => 'היא נפתחת כאן, לצד הרשימה.';
+
+  @override
+  String get layoutPaneProfileTitle => 'לבחור התאמה';
+
+  @override
+  String get layoutPaneProfileMessage => 'הפרופיל מוצג כאן, לצד הרשימה.';
+
+  @override
   String get likesTitle => 'לייקים';
 
   @override

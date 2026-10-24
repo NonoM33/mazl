@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_guard.dart';
+import 'detail_screens.dart';
+import '../layout/adaptive_detail.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
@@ -14,7 +16,6 @@ import '../../presentation/features/navigation/screens/main_navigation_screen.da
 import '../../presentation/features/matching/screens/discover_screen.dart';
 import '../../presentation/features/matching/screens/matches_screen.dart';
 import '../../presentation/features/chat/screens/conversations_screen.dart';
-import '../../presentation/features/chat/screens/chat_screen.dart';
 import '../../presentation/features/video_call/screens/video_call_screen.dart';
 import '../../presentation/features/events/screens/events_list_screen.dart';
 import '../../presentation/features/events/screens/event_detail_screen.dart';
@@ -393,7 +394,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state, navigationShell) {
-          return MainNavigationScreen(navigationShell: navigationShell);
+          return MainNavigationScreen(
+            navigationShell: navigationShell,
+            buildDetail: detailScreenFor,
+          );
         },
         branches: [
           // Discover Tab
@@ -437,14 +441,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: RouteNames.matchProfile,
                     parentNavigatorKey: _rootNavigatorKey,
                     pageBuilder: (context, state) {
-                      final userId = state.pathParameters['userId']!;
-                      return CustomTransitionPage(
+                      final target = MatchProfileDetail(
+                        state.pathParameters['userId']!,
+                      );
+                      return AdaptiveDetailPage(
                         key: state.pageKey,
-                        child: ProfileViewScreen(
-                          userId: userId,
-                          isFromMatch: true,
-                        ),
-                        transitionsBuilder: heroTransition,
+                        target: target,
+                        child: detailScreenFor(context, target),
+                        transitionsBuilder: heroMotion,
                       );
                     },
                   ),
@@ -467,12 +471,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: RouteNames.chatDetail,
                     parentNavigatorKey: _rootNavigatorKey,
                     pageBuilder: (context, state) {
-                      final conversationId =
-                          state.pathParameters['conversationId']!;
-                      return CustomTransitionPage(
+                      final target = ChatDetail(
+                        state.pathParameters['conversationId']!,
+                      );
+                      return AdaptiveDetailPage(
                         key: state.pageKey,
-                        child: ChatScreen(conversationId: conversationId),
-                        transitionsBuilder: slideLeftTransition,
+                        target: target,
+                        child: detailScreenFor(context, target),
+                        transitionsBuilder: slideLeftMotion,
                       );
                     },
                     routes: [

@@ -2483,6 +2483,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get jewishCalendarParshaVzosHaberacha => 'Vezot Haberajá';
 
   @override
+  String get layoutPaneChatTitle => 'Elige una conversación';
+
+  @override
+  String get layoutPaneChatMessage => 'Se abre aquí, junto a la lista.';
+
+  @override
+  String get layoutPaneProfileTitle => 'Elige un match';
+
+  @override
+  String get layoutPaneProfileMessage =>
+      'Su perfil se muestra aquí, junto a la lista.';
+
+  @override
   String get likesTitle => 'Likes';
 
   @override

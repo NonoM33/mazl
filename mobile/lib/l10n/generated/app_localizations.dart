@@ -4272,6 +4272,30 @@ abstract class AppLocalizations {
   /// **'Vezos Habracha'**
   String get jewishCalendarParshaVzosHaberacha;
 
+  /// Onglet Messages sur un écran large (face intérieure du téléphone pliable, tablette) : titre du volet de droite tant qu'aucune conversation n'est ouverte. Une ligne, une vingtaine de caractères au plus par ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une conversation'**
+  String get layoutPaneChatTitle;
+
+  /// Onglet Messages sur un écran large : phrase sous le titre du volet vide, qui explique que la conversation choisie dans la liste s'affichera dans ce volet. Deux lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle s\'ouvre ici, à côté de la liste.'**
+  String get layoutPaneChatMessage;
+
+  /// Onglet Matchs sur un écran large : titre du volet de droite tant qu'aucun profil n'est ouvert. Une ligne, une vingtaine de caractères au plus par ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un match'**
+  String get layoutPaneProfileTitle;
+
+  /// Onglet Matchs sur un écran large : phrase sous le titre du volet vide, qui explique que le profil choisi dans la liste s'affichera dans ce volet. Deux lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son profil s\'affiche ici, à côté de la liste.'**
+  String get layoutPaneProfileMessage;
+
   /// Titre de l'écran qui liste les membres qui ont aimé le profil.
   ///
   /// In fr, this message translates to:
