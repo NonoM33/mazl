@@ -23,6 +23,8 @@ abstract class RouteNames {
   static const verification = 'verification';
   static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
+  static const computers = 'computers';
+  static const webScan = 'webScan';
 
   // Couple mode
   static const coupleSetup = 'coupleSetup';
@@ -76,6 +78,8 @@ abstract class RoutePaths {
   static const verification = '/profile/verification';
   static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
+  static const computers = '/profile/settings/computers';
+  static const webScan = '/profile/settings/computers/scan';
 
   // Couple mode
   static const coupleSetup = '/couple/setup';
