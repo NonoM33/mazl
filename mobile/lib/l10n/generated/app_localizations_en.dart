@@ -384,4 +384,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Phone language';
+
+  @override
+  String get visitorsTitle => 'Who visited my profile';
+
+  @override
+  String visitorsTotal(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count visits',
+      one: '$count visit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitorsThisWeek(int count) {
+    return '$count this week';
+  }
+
+  @override
+  String get visitorsBannerTitle => 'See who visited you';
+
+  @override
+  String get visitorsBannerBody => 'Upgrade to mazl+ to see the profiles';
+
+  @override
+  String get visitorsEmptyTitle => 'No visitors yet';
+
+  @override
+  String get visitorsEmptyBody =>
+      'Complete your profile and use a Boost to attract more visitors.';
+
+  @override
+  String get visitorsEmptyAction => 'Turn on a Boost';
+
+  @override
+  String get visitorsLockedTitle => 'Only with mazl+';
+
+  @override
+  String get visitorsLockedBody =>
+      'Upgrade to mazl+ to see who visited your profile and get in touch with them directly.';
+
+  @override
+  String get visitorsLockedAction => 'Discover mazl+';
+
+  @override
+  String get visitorsNew => 'NEW';
+
+  @override
+  String visitorsAgoMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String visitorsAgoHours(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String visitorsAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '$count day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitorsAgoWeeks(int count) {
+    return '$count wk ago';
+  }
 }

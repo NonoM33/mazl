@@ -1,0 +1,18 @@
+{
+  "visitorsTitle": "Who visited my profile",
+  "visitorsTotal": "{count, plural, one{{count} visit} other{{count} visits}}",
+  "visitorsThisWeek": "{count} this week",
+  "visitorsBannerTitle": "See who visited you",
+  "visitorsBannerBody": "Upgrade to mazl+ to see the profiles",
+  "visitorsEmptyTitle": "No visitors yet",
+  "visitorsEmptyBody": "Complete your profile and use a Boost to attract more visitors.",
+  "visitorsEmptyAction": "Turn on a Boost",
+  "visitorsLockedTitle": "Only with mazl+",
+  "visitorsLockedBody": "Upgrade to mazl+ to see who visited your profile and get in touch with them directly.",
+  "visitorsLockedAction": "Discover mazl+",
+  "visitorsNew": "NEW",
+  "visitorsAgoMinutes": "{count} min ago",
+  "visitorsAgoHours": "{count}h ago",
+  "visitorsAgoDays": "{count, plural, one{{count} day ago} other{{count} days ago}}",
+  "visitorsAgoWeeks": "{count} wk ago"
+}

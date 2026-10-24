@@ -395,4 +395,78 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Langue du téléphone';
+
+  @override
+  String get visitorsTitle => 'Qui a visité mon profil';
+
+  @override
+  String visitorsTotal(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count visites',
+      one: '$count visite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitorsThisWeek(int count) {
+    return '$count cette semaine';
+  }
+
+  @override
+  String get visitorsBannerTitle => 'Découvrez qui vous a visité';
+
+  @override
+  String get visitorsBannerBody => 'Passez à mazl+ pour voir les profils';
+
+  @override
+  String get visitorsEmptyTitle => 'Pas encore de visiteurs';
+
+  @override
+  String get visitorsEmptyBody =>
+      'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.';
+
+  @override
+  String get visitorsEmptyAction => 'Activer un Boost';
+
+  @override
+  String get visitorsLockedTitle => 'Réservé à mazl+';
+
+  @override
+  String get visitorsLockedBody =>
+      'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.';
+
+  @override
+  String get visitorsLockedAction => 'Découvrir mazl+';
+
+  @override
+  String get visitorsNew => 'NEW';
+
+  @override
+  String visitorsAgoMinutes(int count) {
+    return 'Il y a $count min';
+  }
+
+  @override
+  String visitorsAgoHours(int count) {
+    return 'Il y a ${count}h';
+  }
+
+  @override
+  String visitorsAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Il y a $count jours',
+      one: 'Il y a $count jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitorsAgoWeeks(int count) {
+    return 'Il y a $count sem.';
+  }
 }

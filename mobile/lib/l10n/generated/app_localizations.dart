@@ -745,6 +745,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Langue du téléphone'**
   String get settingsLanguageSystem;
+
+  /// Titre de la barre d'en-tête de l'écran des visiteurs du profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui a visité mon profil'**
+  String get visitorsTitle;
+
+  /// Grand chiffre de l'en-tête violet : le nombre total de visites. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} visite} other{{count} visites}}'**
+  String visitorsTotal(int count);
+
+  /// Sous le total des visites : combien datent des 7 derniers jours. {count} est un entier.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} cette semaine'**
+  String visitorsThisWeek(int count);
+
+  /// Titre de la bannière qui propose mazl+ à un compte gratuit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez qui vous a visité'**
+  String get visitorsBannerTitle;
+
+  /// Sous le titre de la bannière mazl+ : une ligne courte (12 px). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez à mazl+ pour voir les profils'**
+  String get visitorsBannerBody;
+
+  /// Titre de l'écran des visiteurs quand personne n'a encore visité le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de visiteurs'**
+  String get visitorsEmptyTitle;
+
+  /// Texte sous le titre de l'écran des visiteurs vide : conseil pour attirer des visiteurs. « Boost » est le nom d'une fonction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.'**
+  String get visitorsEmptyBody;
+
+  /// Bouton de l'écran des visiteurs vide : ouvre l'écran du Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer un Boost'**
+  String get visitorsEmptyAction;
+
+  /// Titre de la feuille qui s'ouvre quand un compte gratuit touche une visite verrouillée. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé à mazl+'**
+  String get visitorsLockedTitle;
+
+  /// Texte de la feuille « Réservé à mazl+ ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.'**
+  String get visitorsLockedBody;
+
+  /// Bouton principal de la feuille « Réservé à mazl+ » : ouvre l'abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mazl+'**
+  String get visitorsLockedAction;
+
+  /// Pastille sur la photo d'une visite de moins de 24 heures. 10 px de haut, une seule ligne courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'NEW'**
+  String get visitorsNew;
+
+  /// Il y a moins d'une heure, sous le prénom d'un visiteur. {count} est un entier de minutes (« min » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count} min'**
+  String visitorsAgoMinutes(int count);
+
+  /// Il y a moins d'un jour, sous le prénom d'un visiteur. {count} est un entier d'heures (« h » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count}h'**
+  String visitorsAgoHours(int count);
+
+  /// Il y a 2 à 6 jours, sous le prénom d'un visiteur. {count} est un entier de jours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}'**
+  String visitorsAgoDays(int count);
+
+  /// Il y a une semaine ou plus, sous le prénom d'un visiteur. {count} est un entier de semaines (« sem. » abrégé).
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {count} sem.'**
+  String visitorsAgoWeeks(int count);
 }
 
 class _AppLocalizationsDelegate

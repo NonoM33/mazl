@@ -1,0 +1,18 @@
+{
+  "visitorsTitle": "Кто посещал мой профиль",
+  "visitorsTotal": "{count, plural, one{{count} визит} few{{count} визита} many{{count} визитов} other{{count} визита}}",
+  "visitorsThisWeek": "{count} за эту неделю",
+  "visitorsBannerTitle": "Узнайте, кто Вас посетил",
+  "visitorsBannerBody": "Перейдите на mazl+, чтобы видеть профили",
+  "visitorsEmptyTitle": "Пока нет посетителей",
+  "visitorsEmptyBody": "Заполните профиль и используйте буст, чтобы привлечь больше посетителей.",
+  "visitorsEmptyAction": "Включить буст",
+  "visitorsLockedTitle": "Только в mazl+",
+  "visitorsLockedBody": "Перейдите на mazl+, чтобы узнать, кто посещал Ваш профиль, и написать им напрямую.",
+  "visitorsLockedAction": "Узнать о mazl+",
+  "visitorsNew": "НОВОЕ",
+  "visitorsAgoMinutes": "{count} мин назад",
+  "visitorsAgoHours": "{count} ч назад",
+  "visitorsAgoDays": "{count, plural, one{{count} день назад} few{{count} дня назад} many{{count} дней назад} other{{count} дня назад}}",
+  "visitorsAgoWeeks": "{count} нед. назад"
+}

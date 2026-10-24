@@ -1,0 +1,18 @@
+{
+  "visitorsTitle": "מי ביקר בפרופיל שלי",
+  "visitorsTotal": "{count, plural, one{ביקור אחד} two{שני ביקורים} other{{count} ביקורים}}",
+  "visitorsThisWeek": "{count} השבוע",
+  "visitorsBannerTitle": "אפשר לגלות מי ביקר אצלך",
+  "visitorsBannerBody": "המעבר ל-mazl+‎ מאפשר לראות את הפרופילים",
+  "visitorsEmptyTitle": "עדיין אין מבקרים",
+  "visitorsEmptyBody": "כדאי להשלים את הפרופיל ולהשתמש בבוסט כדי למשוך יותר מבקרים.",
+  "visitorsEmptyAction": "להפעיל בוסט",
+  "visitorsLockedTitle": "בלעדי ל-mazl+‎",
+  "visitorsLockedBody": "המעבר ל-mazl+‎ מאפשר לגלות מי ביקר בפרופיל שלך וליצור קשר ישירות.",
+  "visitorsLockedAction": "להכיר את mazl+‎",
+  "visitorsNew": "חדש",
+  "visitorsAgoMinutes": "לפני {count} דק׳",
+  "visitorsAgoHours": "לפני {count} שע׳",
+  "visitorsAgoDays": "{count, plural, one{לפני יום} two{לפני יומיים} other{לפני {count} ימים}}",
+  "visitorsAgoWeeks": "לפני {count} שב׳"
+}
