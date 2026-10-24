@@ -25,6 +25,7 @@ export interface MemberSpec {
   readonly shabbatObservance?: string;
   readonly photos?: number;
   readonly prompts?: readonly (readonly [string, string])[];
+  readonly consent?: boolean;
 }
 
 const json = (token: string) => ({ Authorization: `Bearer ${token}`, "Content-Type": "application/json" });
@@ -70,6 +71,9 @@ export async function createMember(spec: MemberSpec): Promise<Member> {
   for (const [promptId, answer] of spec.prompts ?? []) {
     await call("/api/profile/prompts", { method: "POST", headers: json(member.token), body: JSON.stringify({ prompt_id: promptId, answer }) });
   }
+  // Every member of the community has answered the art. 9 consent in the app;
+  // scenarios about the consent screen create their member with consent: false.
+  if (spec.consent !== false) await grantReligiousConsent(member);
   return member;
 }
 

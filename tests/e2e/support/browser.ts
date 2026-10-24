@@ -11,9 +11,15 @@ export async function launch(): Promise<Browser> {
   return chromium.launch();
 }
 
+// Each sign-in comes from its own documentation address (RFC 5737), so the
+// per-address limits of the sign-in routes do not stop a long suite.
+let addressSeed = 0;
+const nextAddress = () => `198.51.100.${(addressSeed++ % 250) + 1}`;
+
 async function webSessionCookie(member: Member): Promise<string> {
+  const from = { "X-Forwarded-For": nextAddress() };
   const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
-    fetch(`${BASE_URL}${path}`, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });
+    fetch(`${BASE_URL}${path}`, { method: "POST", headers: { "Content-Type": "application/json", ...from, ...headers }, body: JSON.stringify(body) });
   const challenge = (await (await post("/api/web/auth/challenge", {})).json()) as { challenge: string; difficulty: number };
   const nonce = await solve(challenge.challenge, challenge.difficulty);
   const created = (await (await post("/api/web/auth/qr", { pow: { challenge: challenge.challenge, nonce } }, { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/140.0 Safari/537.36" })).json()) as { pairing: { id: string; code: string; browser_secret: string } };
@@ -22,7 +28,7 @@ async function webSessionCookie(member: Member): Promise<string> {
   if (!scanned.ok) throw new Error(`scan failed ${scanned.status}`);
   const approved = await post(`/api/web/pairings/${created.pairing.id}/approve`, {}, phone);
   if (!approved.ok) throw new Error(`approve failed ${approved.status}`);
-  const poll = await fetch(`${BASE_URL}/api/web/auth/qr/${created.pairing.id}`, { headers: { "X-Pairing-Secret": created.pairing.browser_secret } });
+  const poll = await fetch(`${BASE_URL}/api/web/auth/qr/${created.pairing.id}`, { headers: { "X-Pairing-Secret": created.pairing.browser_secret, ...from } });
   const cookie = poll.headers.get("set-cookie") ?? "";
   const value = /__Host-mazl_web=([^;]+)/.exec(cookie)?.[1];
   if (!value) throw new Error(`no session cookie (${poll.status})`);

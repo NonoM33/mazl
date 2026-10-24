@@ -38,45 +38,56 @@ async function scenarios(filter: readonly string[]): Promise<string[]> {
 
 const build = Bun.spawnSync(["bun", "web/build.ts"], { cwd: root, stdout: "ignore", stderr: "inherit" });
 if (build.exitCode !== 0) process.exit(build.exitCode);
-await resetDatabase();
-const stripe = await startFakeStripe();
 const secret = () => randomBytes(32).toString("hex");
-const env = {
-  ...process.env,
-  NODE_ENV: "development",
-  // Like the production container: TIMESTAMP columns hold UTC and are read as such.
-  TZ: "UTC",
-  PORT: String(E2E_PORT),
-  DATABASE_URL,
-  JWT_SECRET: secret(),
-  ADMIN_JWT_SECRET: secret(),
-  ADMIN_EMAIL: "admin@example.com",
-  ADMIN_EMAILS: "admin@example.com",
-  ADMIN_PASSWORD: secret(),
-  UPLOADS_DIR: `/tmp/mazl-web-e2e-uploads-${E2E_PORT}`,
-  PUBLIC_BASE_URL: BASE_URL,
-  APP_URL: BASE_URL,
-  TRUSTED_PROXY_HOPS: "0",
-  WEB_POW_DIFFICULTY: "8",
-  STRIPE_SECRET_KEY: `sk_test_${secret()}`,
-  STRIPE_WEBHOOK_SECRET: stripe.webhookSecret,
-  STRIPE_API_BASE: stripe.baseUrl,
-  ...stripe.priceEnv,
-};
-const server = Bun.spawn(["bun", "src/index.ts"], { cwd: root, env, stdout: Bun.file(`/tmp/mazl-web-e2e-${E2E_PORT}.log`), stderr: Bun.file(`/tmp/mazl-web-e2e-${E2E_PORT}.err.log`) });
-let exitCode = 1;
-try {
-  await waitForHealth();
-  const files = await scenarios(process.argv.slice(2));
-  const run = Bun.spawn(["bun", "test", "--timeout", "120000", ...files], {
-    cwd: root,
-    env: { ...env, TEST_API_URL: BASE_URL, TEST_DATABASE_URL: DATABASE_URL, E2E_WEBHOOK_SECRET: stripe.webhookSecret, E2E_STRIPE_BASE: stripe.baseUrl },
-    stdout: "inherit",
-    stderr: "inherit",
-  });
-  exitCode = await run.exited;
-} finally {
-  server.kill();
-  stripe.stop();
+
+// Each scenario file gets a fresh database and server: they seed their own
+// community and must not see another file's members.
+async function runScenario(file: string): Promise<number> {
+  await resetDatabase();
+  const stripe = await startFakeStripe();
+  const env = {
+    ...process.env,
+    NODE_ENV: "development",
+    // Like the production container: TIMESTAMP columns hold UTC and are read as such.
+    TZ: "UTC",
+    PORT: String(E2E_PORT),
+    DATABASE_URL,
+    JWT_SECRET: secret(),
+    ADMIN_JWT_SECRET: secret(),
+    ADMIN_EMAIL: "admin@example.com",
+    ADMIN_EMAILS: "admin@example.com",
+    ADMIN_PASSWORD: secret(),
+    UPLOADS_DIR: `/tmp/mazl-web-e2e-uploads-${E2E_PORT}`,
+    PUBLIC_BASE_URL: BASE_URL,
+    APP_URL: BASE_URL,
+    // One client address per test browser (support/browser.ts), as behind Traefik.
+    TRUSTED_PROXY_HOPS: "1",
+    WEB_POW_DIFFICULTY: "8",
+    STRIPE_SECRET_KEY: `sk_test_${secret()}`,
+    STRIPE_WEBHOOK_SECRET: stripe.webhookSecret,
+    STRIPE_API_BASE: stripe.baseUrl,
+    ...stripe.priceEnv,
+  };
+  const server = Bun.spawn(["bun", "src/index.ts"], { cwd: root, env, stdout: Bun.file(`/tmp/mazl-web-e2e-${E2E_PORT}.log`), stderr: Bun.file(`/tmp/mazl-web-e2e-${E2E_PORT}.err.log`) });
+  try {
+    await waitForHealth();
+    const run = Bun.spawn(["bun", "test", "--timeout", "120000", file], {
+      cwd: root,
+      env: { ...env, TEST_API_URL: BASE_URL, TEST_DATABASE_URL: DATABASE_URL, E2E_WEBHOOK_SECRET: stripe.webhookSecret, E2E_STRIPE_BASE: stripe.baseUrl },
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    return await run.exited;
+  } finally {
+    server.kill();
+    await server.exited;
+    stripe.stop();
+  }
 }
-process.exit(exitCode);
+
+const failed: string[] = [];
+for (const file of await scenarios(process.argv.slice(2))) {
+  if ((await runScenario(file)) !== 0) failed.push(file);
+}
+console.log(failed.length === 0 ? "e2e: every scenario passed" : `e2e: failed scenarios: ${failed.join(", ")}`);
+process.exit(failed.length === 0 ? 0 : 1);

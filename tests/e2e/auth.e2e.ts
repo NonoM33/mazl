@@ -36,6 +36,20 @@ describe("sign-in", () => {
     await context.close();
   });
 
+  test("a member who never answered meets the art. 9 consent first; refusing is a real option", async () => {
+    const fresh = await createMember({ name: "Nina", gender: "female", birthdate: "1995-01-20", city: "Paris", latitude: 48.85, longitude: 2.35, photos: 1, consent: false });
+    const { page, context } = await signedIn(browser, fresh);
+    await open(page, "/");
+    await page.getByRole("heading", { name: "Votre pratique religieuse, avec votre accord" }).waitFor();
+    const accept = page.getByRole("button", { name: "J'accepte" });
+    expect(await accept.isDisabled()).toBe(true);
+    await page.getByRole("button", { name: "Continuer sans" }).click();
+    await page.getByRole("navigation", { name: "Navigation principale" }).waitFor();
+    const consents = await page.request.get(`${BASE_URL}/api/privacy/consents`, { headers: { "X-Mazl-Web": "1" } });
+    expect(((await consents.json()) as { consents: { religious_data: { granted: boolean } } }).consents.religious_data.granted).toBe(false);
+    await context.close();
+  });
+
   test("signing out ends the web session: the next visit is the sign-in page", async () => {
     const { page, context } = await signedIn(browser, member);
     await open(page, "/reglages");
