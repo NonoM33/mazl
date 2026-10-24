@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 class MazlNavItem {
   const MazlNavItem({required this.icon, required this.label});
@@ -51,7 +52,7 @@ class MazlNavBar extends StatelessWidget {
         height: barHeight,
         child: LayoutBuilder(
           builder: (context, constraints) => Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AnimatedContainer(
               key: const Key('mazl-nav-bar'),
               duration: duration,
@@ -70,7 +71,7 @@ class MazlNavBar extends StatelessWidget {
                     visible: !collapsed,
                     duration: duration,
                     child: OverflowBox(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       minWidth: constraints.maxWidth,
                       maxWidth: constraints.maxWidth,
                       child: _Tabs(items: items, currentIndex: currentIndex, onTap: onTap),
@@ -147,7 +148,7 @@ class _CollapsedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: 'Afficher les onglets',
+    label: context.l10n.navigationShowTabs,
     value: item.label,
     child: InkResponse(
       onTap: onTap,

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/data_prefetch_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../widgets/mazl_nav_bar.dart';
 import '../widgets/nav_bar_collapse.dart';
 
@@ -48,16 +49,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  static const _items = [
-    MazlNavItem(icon: LucideIcons.layers, label: 'Découvrir'),
-    MazlNavItem(icon: LucideIcons.heart, label: 'Matchs'),
-    MazlNavItem(icon: LucideIcons.messageCircle, label: 'Messages'),
-    MazlNavItem(icon: LucideIcons.calendar, label: 'Événements'),
-    MazlNavItem(icon: LucideIcons.user, label: 'Profil'),
+  List<MazlNavItem> _items(AppLocalizations l10n) => [
+    MazlNavItem(icon: LucideIcons.layers, label: l10n.navigationDiscover),
+    MazlNavItem(icon: LucideIcons.heart, label: l10n.navigationMatches),
+    MazlNavItem(icon: LucideIcons.messageCircle, label: l10n.navigationMessages),
+    MazlNavItem(icon: LucideIcons.calendar, label: l10n.navigationEvents),
+    MazlNavItem(icon: LucideIcons.user, label: l10n.navigationProfile),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final items = _items(context.l10n);
     return Scaffold(
       extendBody: true,
       // Scrolling down a tab folds the bar into its icon; a fast scroll up,
@@ -69,7 +71,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       bottomNavigationBar: ListenableBuilder(
         listenable: _navBar,
         builder: (context, _) => MazlNavBar(
-          items: _items,
+          items: items,
           currentIndex: widget.navigationShell.currentIndex,
           onTap: (index) => _onTap(context, index),
           collapsed: _navBar.collapsed,

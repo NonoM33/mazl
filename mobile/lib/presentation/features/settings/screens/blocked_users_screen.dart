@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends StatefulWidget {
@@ -46,19 +47,21 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
   }
 
   Future<void> _unblockUser(BlockedUser user) async {
+    final name = user.displayName;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Débloquer cet utilisateur ?'),
+        title: Text(context.l10n.settingsBlockedUnblockTitle),
         content: Text(
-          'Voulez-vous débloquer ${user.displayName ?? 'cet utilisateur'} ?\n\n'
-          'Cette personne pourra à nouveau voir votre profil et vous contacter.',
+          name == null
+              ? context.l10n.settingsBlockedUnblockMessageUnnamed
+              : context.l10n.settingsBlockedUnblockMessage(name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -66,7 +69,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Débloquer'),
+            child: Text(context.l10n.settingsBlockedUnblock),
           ),
         ],
       ),
@@ -77,20 +80,25 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
     final result = await _apiService.unblockUser(user.userId);
 
     if (mounted) {
+      final l10n = context.l10n;
       if (result.success) {
         setState(() {
           _blockedUsers.removeWhere((u) => u.id == user.id);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${user.displayName ?? 'Utilisateur'} a été débloqué'),
+            content: Text(
+              name == null
+                  ? l10n.settingsBlockedUnblockedUnnamed
+                  : l10n.settingsBlockedUnblocked(name),
+            ),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.error ?? 'Erreur lors du déblocage'),
+            content: Text(l10n.settingsBlockedUnblockError),
             backgroundColor: Colors.red,
           ),
         );
@@ -102,7 +110,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Utilisateurs bloqués'),
+        title: Text(context.l10n.settingsBlockedUsers),
       ),
       body: _buildBody(),
     );
@@ -121,13 +129,13 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
             Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Erreur de chargement',
+              context.l10n.commonLoadError,
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: _loadBlockedUsers,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
@@ -142,7 +150,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
             Icon(LucideIcons.userCheck, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
-              'Aucun utilisateur bloqué',
+              context.l10n.settingsBlockedEmptyTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -151,7 +159,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Les personnes que vous bloquez\napparaîtront ici',
+              context.l10n.settingsBlockedEmptyHint,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500]),
             ),
@@ -208,11 +216,11 @@ class _BlockedUserTile extends StatelessWidget {
             : null,
       ),
       title: Text(
-        user.displayName ?? 'Utilisateur',
+        user.displayName ?? context.l10n.settingsBlockedUserFallbackName,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
-        'Bloqué le ${_formatDate(user.blockedAt)}',
+        context.l10n.settingsBlockedOn(user.blockedAt),
         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
       ),
       trailing: TextButton(
@@ -220,12 +228,8 @@ class _BlockedUserTile extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
         ),
-        child: const Text('Débloquer'),
+        child: Text(context.l10n.settingsBlockedUnblock),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

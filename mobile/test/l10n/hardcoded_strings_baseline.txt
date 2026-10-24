@@ -75,10 +75,6 @@ lib/core/models/couple_models.dart | En couple
 lib/core/models/couple_models.dart | En train de dater
 lib/core/models/couple_models.dart | Fiancé(e)
 lib/core/models/couple_models.dart | Marié(e)
-lib/core/models/event.dart | $left places restantes
-lib/core/models/event.dart | Complet
-lib/core/models/event.dart | Gratuit
-lib/core/models/event.dart | Places illimitées
 lib/core/models/profile_labels.dart | Amitié d'abord
 lib/core/models/profile_labels.dart | Cacher strict
 lib/core/models/profile_labels.dart | Cacher strict
@@ -928,67 +924,6 @@ lib/presentation/features/couple/widgets/couple_request_dialog.dart | $_name sou
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Accepter
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Cette personne
 lib/presentation/features/couple/widgets/couple_request_dialog.dart | Non merci
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} / ${event.maxAttendees} places
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.attendeeCount} inscrits
-lib/presentation/features/events/screens/event_detail_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | Annuler mon inscription
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Cours
-lib/presentation/features/events/screens/event_detail_screen.dart | Date
-lib/presentation/features/events/screens/event_detail_screen.dart | Description
-lib/presentation/features/events/screens/event_detail_screen.dart | EEEE d MMMM yyyy
-lib/presentation/features/events/screens/event_detail_screen.dart | Fête
-lib/presentation/features/events/screens/event_detail_screen.dart | Gratuit
-lib/presentation/features/events/screens/event_detail_screen.dart | Heure
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription annulée
-lib/presentation/features/events/screens/event_detail_screen.dart | Inscription confirmée
-lib/presentation/features/events/screens/event_detail_screen.dart | Lieu
-lib/presentation/features/events/screens/event_detail_screen.dart | Participants
-lib/presentation/features/events/screens/event_detail_screen.dart | Presque complet
-lib/presentation/features/events/screens/event_detail_screen.dart | Prix
-lib/presentation/features/events/screens/event_detail_screen.dart | Rejoignez-moi à "${event.title}" sur MAZL
-lib/presentation/features/events/screens/event_detail_screen.dart | Retour
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire - ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/event_detail_screen.dart | S\'inscrire gratuitement
-lib/presentation/features/events/screens/event_detail_screen.dart | Shabbat Dinner
-lib/presentation/features/events/screens/event_detail_screen.dart | Social
-lib/presentation/features/events/screens/event_detail_screen.dart | Speed Dating
-lib/presentation/features/events/screens/event_detail_screen.dart | Vous êtes inscrit(e) à cet événement
-lib/presentation/features/events/screens/event_detail_screen.dart | } par personne
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement
-lib/presentation/features/events/screens/event_detail_screen.dart | Événement introuvable
-lib/presentation/features/events/screens/events_list_screen.dart |  : event.currency}
-lib/presentation/features/events/screens/events_list_screen.dart | ${_formatDate(event.date)}${event.time != null ? 
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.attendeeCount} participants
-lib/presentation/features/events/screens/events_list_screen.dart | ${event.price.toStringAsFixed(0)}${event.currency == 
-lib/presentation/features/events/screens/events_list_screen.dart | Aucun événement
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Aujourd'hui
-lib/presentation/features/events/screens/events_list_screen.dart | Calendrier
-lib/presentation/features/events/screens/events_list_screen.dart | Chargement...
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Cours
-lib/presentation/features/events/screens/events_list_screen.dart | Dans ${event.date.difference(DateTime.now()).inDays}j
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | Demain
-lib/presentation/features/events/screens/events_list_screen.dart | EEEE d MMMM
-lib/presentation/features/events/screens/events_list_screen.dart | Fête
-lib/presentation/features/events/screens/events_list_screen.dart | Fêtes
-lib/presentation/features/events/screens/events_list_screen.dart | Gratuit
-lib/presentation/features/events/screens/events_list_screen.dart | Impossible de charger les événements
-lib/presentation/features/events/screens/events_list_screen.dart | Presque complet
-lib/presentation/features/events/screens/events_list_screen.dart | Revenez bientôt pour découvrir\nde nouveaux événements.
-lib/presentation/features/events/screens/events_list_screen.dart | Réessayer
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Shabbat
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Social
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Speed Dating
-lib/presentation/features/events/screens/events_list_screen.dart | Tous
-lib/presentation/features/events/screens/events_list_screen.dart | Événement
-lib/presentation/features/events/screens/events_list_screen.dart | Événements
 lib/presentation/features/likes/screens/likes_screen.dart | ${_formatLikesCount(data.totalCount)} personnes attendent votre réponse.
 lib/presentation/features/likes/screens/likes_screen.dart | ${profile.distance!.round()} km
 lib/presentation/features/likes/screens/likes_screen.dart | Anonyme
@@ -1150,12 +1085,6 @@ lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Act
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Calendrier
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Notre espace
 lib/presentation/features/navigation/screens/couple_navigation_screen.dart | Événements
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Découvrir
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Matchs
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Messages
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Profil
-lib/presentation/features/navigation/screens/main_navigation_screen.dart | Événements
-lib/presentation/features/navigation/widgets/mazl_nav_bar.dart | Afficher les onglets
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | ${(index + 1).toString().padLeft(2, 
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | )} / ${total.toString().padLeft(2, 
 lib/presentation/features/onboarding/screens/onboarding_screen.dart | AI Shadchan
@@ -1489,157 +1418,29 @@ lib/presentation/features/profile/widgets/profile_view/profile_view_data.dart | 
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Ce que je recherche
 lib/presentation/features/profile/widgets/relationship_intention_selector.dart | Montrez aux autres ce que vous recherchez
-lib/presentation/features/settings/screens/blocked_users_screen.dart | ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Annuler
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Aucun utilisateur bloqué
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Bloqué le ${_formatDate(user.blockedAt)}
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Cette personne pourra à nouveau voir votre profil et vous contacter.
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Débloquer cet utilisateur ?
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur de chargement
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Erreur lors du déblocage
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Les personnes que vous bloquez\napparaîtront ici
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Réessayer
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/blocked_users_screen.dart | Voulez-vous débloquer ${user.displayName ?? 
-lib/presentation/features/settings/screens/blocked_users_screen.dart | } a été débloqué
-lib/presentation/features/settings/screens/settings_screen.dart | $_ageMin - $_ageMax ans
-lib/presentation/features/settings/screens/settings_screen.dart | $_distanceMax km
-lib/presentation/features/settings/screens/settings_screen.dart | ${revenueCat.willRenew ? 
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempDistance.round()} km
-lib/presentation/features/settings/screens/settings_screen.dart | ${tempRange.start.round()} - ${tempRange.end.round()} ans
 lib/presentation/features/settings/screens/settings_screen.dart | - ID ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | Abonnement
-lib/presentation/features/settings/screens/settings_screen.dart | Achats restaurés avec succès.
 lib/presentation/features/settings/screens/settings_screen.dart | Activer Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Aide et support
-lib/presentation/features/settings/screens/settings_screen.dart | Alertes fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Annuler
-lib/presentation/features/settings/screens/settings_screen.dart | Autre raison
-lib/presentation/features/settings/screens/settings_screen.dart | Cette action est irréversible.
-lib/presentation/features/settings/screens/settings_screen.dart | Compte
-lib/presentation/features/settings/screens/settings_screen.dart | Conditions d\'utilisation
-lib/presentation/features/settings/screens/settings_screen.dart | Confidentialité et sécurité
-lib/presentation/features/settings/screens/settings_screen.dart | Confirmation finale
-lib/presentation/features/settings/screens/settings_screen.dart | Continuer
 lib/presentation/features/settings/screens/settings_screen.dart | Couple ID: ${activeCouple[
 lib/presentation/features/settings/screens/settings_screen.dart | Debug (Dev Only)
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Distance maximale
-lib/presentation/features/settings/screens/settings_screen.dart | Découverte
 lib/presentation/features/settings/screens/settings_screen.dart | Désactiver Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Email
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Enregistrer
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur lors de la suppression
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Fermer
-lib/presentation/features/settings/screens/settings_screen.dart | Garder mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Gérer les personnes bloquées
 lib/presentation/features/settings/screens/settings_screen.dart | Historique (${allCouples.length} couples):
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible d'annuler la demande. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | Impossible de quitter le mode couple. Réessayez.
-lib/presentation/features/settings/screens/settings_screen.dart | J\'ai trouvé quelqu\'un
-lib/presentation/features/settings/screens/settings_screen.dart | Je n\'utilise plus l\'application
-lib/presentation/features/settings/screens/settings_screen.dart | Je souhaite faire une pause
-lib/presentation/features/settings/screens/settings_screen.dart | Le service ne me convient pas
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
-lib/presentation/features/settings/screens/settings_screen.dart | Localisation
 lib/presentation/features/settings/screens/settings_screen.dart | Menu Debug
-lib/presentation/features/settings/screens/settings_screen.dart | Messages
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Mode Shabbat
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple activé
 lib/presentation/features/settings/screens/settings_screen.dart | Mode couple désactivé
-lib/presentation/features/settings/screens/settings_screen.dart | Mode couple quitté
-lib/presentation/features/settings/screens/settings_screen.dart | Modifier le profil
-lib/presentation/features/settings/screens/settings_screen.dart | Non connecté
-lib/presentation/features/settings/screens/settings_screen.dart | Non défini
-lib/presentation/features/settings/screens/settings_screen.dart | Non vérifié
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications
-lib/presentation/features/settings/screens/settings_screen.dart | Notifications avant les fêtes
-lib/presentation/features/settings/screens/settings_screen.dart | Nouveaux matchs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres juifs
-lib/presentation/features/settings/screens/settings_screen.dart | Paramètres sauvegardés
 lib/presentation/features/settings/screens/settings_screen.dart | Partner: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Pause automatique
-lib/presentation/features/settings/screens/settings_screen.dart | Politique de confidentialité
-lib/presentation/features/settings/screens/settings_screen.dart | Pourquoi souhaitez-vous nous quitter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Problèmes techniques
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter
-lib/presentation/features/settings/screens/settings_screen.dart | Quitter le mode couple
-lib/presentation/features/settings/screens/settings_screen.dart | Rechercher une ville...
 lib/presentation/features/settings/screens/settings_screen.dart | Refusé par le serveur
 lib/presentation/features/settings/screens/settings_screen.dart | Reset Swipes
-lib/presentation/features/settings/screens/settings_screen.dart | Restaurer les achats
-lib/presentation/features/settings/screens/settings_screen.dart | Saisissez le nom de votre ville et sélectionnez une suggestion
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
-lib/presentation/features/settings/screens/settings_screen.dart | Se déconnecter
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple
 lib/presentation/features/settings/screens/settings_screen.dart | Status Couple (Debug)
 lib/presentation/features/settings/screens/settings_screen.dart | Status: ${activeCouple[
-lib/presentation/features/settings/screens/settings_screen.dart | Super Likes
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
-lib/presentation/features/settings/screens/settings_screen.dart | Supprimer mon compte
 lib/presentation/features/settings/screens/settings_screen.dart | Swipes reset
-lib/presentation/features/settings/screens/settings_screen.dart | Toutes vos données seront supprimées :\n• Votre profil et vos photos\n• Vos matchs et conversations\n• Votre historique de likes\n• Vos paramètres
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
-lib/presentation/features/settings/screens/settings_screen.dart | Tranche d\'âge
 lib/presentation/features/settings/screens/settings_screen.dart | User ID: $userId
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateur
-lib/presentation/features/settings/screens/settings_screen.dart | Utilisateurs bloqués
-lib/presentation/features/settings/screens/settings_screen.dart | Version
-lib/presentation/features/settings/screens/settings_screen.dart | Voulez-vous vraiment vous déconnecter ?
-lib/presentation/features/settings/screens/settings_screen.dart | Vous pourrez le réactiver plus tard si vous le souhaitez.
-lib/presentation/features/settings/screens/settings_screen.dart | Vérification du profil
-lib/presentation/features/settings/screens/settings_screen.dart | Vérifié
 lib/presentation/features/settings/screens/settings_screen.dart | ]} (partner: ${c[
-lib/presentation/features/settings/screens/settings_screen.dart | À propos
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | $minutes min
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | ${value.toInt()} minutes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Activer le mode Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Basé sur Paris, France
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Inclure les fêtes
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Les notifications sont mises en pause et les messages attendent. 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Marge avant l\'allumage
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Modifier
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause aussi pendant Yom Tov
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Pause automatique des notifications pendant Shabbat
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Réglages
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | Vous recevrez tout après la fin de Shabbat, et votre statut 
-lib/presentation/features/settings/screens/shabbat_mode_screen.dart | affichera « Mode Shabbat ».
-lib/presentation/features/settings/widgets/settings_couple_card.dart | $days jours
-lib/presentation/features/settings/widgets/settings_couple_card.dart | 1 jour
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Activer
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Annuler la demande
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Avec ${couple.partnerName ?? 
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Calendrier
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Demande envoyée à $name
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Depuis aujourd'hui
-lib/presentation/features/settings/widgets/settings_couple_card.dart | En attente de sa réponse
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Espace couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Mode couple actif
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Quitter le mode couple
-lib/presentation/features/settings/widgets/settings_couple_card.dart | Vous avez trouvé l'amour ?
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Allumage
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Havdala
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Mazl se repose avec vous. Vos messages vous attendront à la havdala.
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Retour
-lib/presentation/features/settings/widgets/shabbat_hero.dart | Shabbat\nshalom.
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Annuler
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Autoriser la caméra
 lib/presentation/features/verification/capture/liveness_capture_screen.dart | Caméra indisponible

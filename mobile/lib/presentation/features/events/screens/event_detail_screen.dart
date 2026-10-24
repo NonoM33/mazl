@@ -7,6 +7,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../l10n/event_texts.dart';
 
 class EventDetailScreen extends StatefulWidget {
   const EventDetailScreen({
@@ -90,8 +93,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               userRsvpStatus: null,
             );
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Inscription annulée'),
+              SnackBar(
+                content: Text(context.l10n.eventsRsvpCancelled),
                 backgroundColor: AppColors.warning,
               ),
             );
@@ -125,8 +128,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               userRsvpStatus: 'going',
             );
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Inscription confirmée'),
+              SnackBar(
+                content: Text(context.l10n.eventsRsvpDone),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -171,7 +174,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(date);
+    return DateFormat.yMMMMEEEEd(context.l10n.localeName).format(date);
   }
 
   @override
@@ -196,11 +199,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 16),
-              const Text('Événement introuvable'),
+              Text(context.l10n.eventsNotFound),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.pop(),
-                child: const Text('Retour'),
+                child: Text(context.l10n.commonBack),
               ),
             ],
           ),
@@ -208,6 +211,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       );
     }
 
+    final l10n = context.l10n;
     final event = _event!;
     final typeColor = _getTypeColor(event.eventType);
     final typeIcon = _getTypeIcon(event.eventType);
@@ -230,8 +234,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [typeColor, AppColors.primary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                            begin: AlignmentDirectional.topStart,
+                            end: AlignmentDirectional.bottomEnd,
                           ),
                         ),
                       ),
@@ -239,8 +243,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [typeColor, AppColors.primary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                            begin: AlignmentDirectional.topStart,
+                            end: AlignmentDirectional.bottomEnd,
                           ),
                         ),
                         child: Center(
@@ -252,8 +256,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [typeColor, AppColors.primary],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                          begin: AlignmentDirectional.topStart,
+                          end: AlignmentDirectional.bottomEnd,
                         ),
                       ),
                       child: Center(
@@ -264,7 +268,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             leading: IconButton(
               icon: const CircleAvatar(
                 backgroundColor: Colors.black26,
-                child: Icon(LucideIcons.arrowLeft, color: Colors.white),
+                child: DirectionalIcon(LucideIcons.arrowLeft, color: Colors.white),
               ),
               onPressed: () => context.pop(),
             ),
@@ -278,7 +282,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   final event = _event;
                   if (event == null) return;
                   Share.share(
-                    'Rejoignez-moi à "${event.title}" sur MAZL',
+                    context.l10n.eventsShareMessage(event.title),
                     subject: event.title,
                   );
                 },
@@ -309,7 +313,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         Icon(typeIcon, size: 16, color: typeColor),
                         const SizedBox(width: 6),
                         Text(
-                          _getTypeLabel(event.eventType),
+                          event.kind.detailLabel(l10n),
                           style: TextStyle(
                             color: typeColor,
                             fontWeight: FontWeight.w600,
@@ -332,13 +336,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   // Info cards
                   _InfoCard(
                     icon: LucideIcons.calendar,
-                    title: 'Date',
+                    title: l10n.eventsInfoDate,
                     subtitle: _formatDate(event.date),
                   ),
                   if (event.time != null)
                     _InfoCard(
                       icon: LucideIcons.clock,
-                      title: 'Heure',
+                      title: l10n.eventsInfoTime,
                       subtitle: event.endTime != null
                           ? '${event.time} - ${event.endTime}'
                           : event.time!,
@@ -346,31 +350,31 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   if (event.location != null)
                     _InfoCard(
                       icon: LucideIcons.mapPin,
-                      title: 'Lieu',
+                      title: l10n.eventsInfoPlace,
                       subtitle: event.location!,
                       secondaryText: event.address,
                     ),
                   _InfoCard(
                     icon: LucideIcons.users,
-                    title: 'Participants',
+                    title: l10n.eventsInfoParticipants,
                     subtitle: event.maxAttendees != null
-                        ? '${event.attendeeCount} / ${event.maxAttendees} places'
-                        : '${event.attendeeCount} inscrits',
+                        ? l10n.eventsCapacity(event.attendeeCount, event.maxAttendees!)
+                        : l10n.eventsRegisteredCount(event.attendeeCount),
                     badge: isFull
-                        ? 'Complet'
+                        ? l10n.eventsFull
                         : event.maxAttendees != null &&
                                 event.attendeeCount >=
                                     event.maxAttendees! * 0.8
-                            ? 'Presque complet'
+                            ? l10n.eventsAlmostFull
                             : null,
                     badgeColor: isFull ? Colors.red : AppColors.warning,
                   ),
                   _InfoCard(
                     icon: LucideIcons.euro,
-                    title: 'Prix',
+                    title: l10n.eventsInfoPrice,
                     subtitle: event.price > 0
-                        ? '${event.price.toStringAsFixed(0)}${event.currency == 'EUR' ? '€' : ' ${event.currency}'} par personne'
-                        : 'Gratuit',
+                        ? l10n.eventsPricePerPerson(eventPriceText(event, l10n.localeName))
+                        : l10n.eventsFree,
                   ),
 
                   const SizedBox(height: 24),
@@ -379,7 +383,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   if (event.description != null &&
                       event.description!.isNotEmpty) ...[
                     Text(
-                      'Description',
+                      l10n.eventsDescription,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -416,9 +420,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             color: AppColors.success,
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Vous êtes inscrit(e) à cet événement',
+                              l10n.eventsRsvpConfirmedBanner,
                               style: TextStyle(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.w600,
@@ -462,7 +466,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Annuler mon inscription'),
+                      : Text(l10n.eventsRsvpCancel),
                 )
               : ElevatedButton(
                   onPressed: isFull || _isRsvping ? null : _handleRsvp,
@@ -477,32 +481,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         )
                       : Text(
                           isFull
-                              ? 'Complet'
+                              ? l10n.eventsFull
                               : event.price > 0
-                                  ? 'S\'inscrire - ${event.price.toStringAsFixed(0)}${event.currency == 'EUR' ? '€' : ' ${event.currency}'}'
-                                  : 'S\'inscrire gratuitement',
+                                  ? l10n.eventsRsvpJoinPaid(eventPriceText(event, l10n.localeName))
+                                  : l10n.eventsRsvpJoinFree,
                         ),
                 ),
         ),
       ),
     );
-  }
-
-  String _getTypeLabel(String? type) {
-    switch (type) {
-      case 'shabbat_dinner':
-        return 'Shabbat Dinner';
-      case 'speed_dating':
-        return 'Speed Dating';
-      case 'holiday':
-        return 'Fête';
-      case 'lecture':
-        return 'Cours';
-      case 'social':
-        return 'Social';
-      default:
-        return 'Événement';
-    }
   }
 }
 
