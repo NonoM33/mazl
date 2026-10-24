@@ -156,3 +156,17 @@ du couple.
   `test/core/reduce_motion_guard_test.dart` échoue. Transitions de pages : un simple fondu.
 - Match : la feuille s'ouvre au-dessus de la barre d'onglets avec une seule poignée, et ses deux
   actions mènent où elles doivent.
+
+## 9. Tirer pour actualiser : l'étoile de David
+
+`MagenDavidRefresh` (`mobile/lib/core/widgets/magen_david_refresh.dart`) remplace partout le rond
+Material. Aucun `RefreshIndicator` nu dans `lib/` (test de balayage).
+
+- **Pendant la traction** : deux triangles équilatéraux au trait fin (1,5 px, jamais plein, jamais
+  jaune). De 0 à 50 % de la traction, le triangle pointe en haut se trace ; de 50 à 100 %, le
+  triangle pointe en bas. Au seuil (25 % de la hauteur visible, comme `RefreshIndicator`), l'étoile est
+  complète et `HapticFeedback.lightImpact` part une fois.
+- **Chargement** : l'étoile tourne en tekhelet, un tour en 2,4 s (`easeInOut`), puis se résorbe en
+  fondu de 250 ms.
+- **Réduire les animations** : ni rotation ni tracé progressif ; l'étoile complète apparaît en
+  fondu de `reducedFade` et reste fixe. Libellé sémantique « Actualisation ».

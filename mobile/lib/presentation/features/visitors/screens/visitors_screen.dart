@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -90,7 +91,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
     final isPremium = _visitorsData?.isPremium ?? false;
     final visitors = _visitorsData?.visitors ?? [];
 
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadVisitors,
       child: CustomScrollView(
         slivers: [

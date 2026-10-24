@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -160,7 +161,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
       );
     }
 
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadBlockedUsers,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),

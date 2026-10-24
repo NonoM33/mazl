@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -296,7 +297,7 @@ class _EventsListScreenState extends State<EventsListScreen>
 
     return Stack(
       children: [
-        RefreshIndicator(
+        MagenDavidRefresh(
           onRefresh: () => _loadEvents(isRefresh: true),
           child: AnimatedOpacity(
             opacity: _isFilterLoading ? 0.5 : 1.0,

@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -170,7 +171,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
     }
 
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       onRefresh: _loadStories,
       child: ListView.builder(
         controller: _scrollController,

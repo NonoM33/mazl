@@ -1,3 +1,4 @@
+import 'package:mazl/core/widgets/magen_david_refresh.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -226,7 +227,7 @@ class _ConversationsScreenState extends State<ConversationsScreen>
     // Le Scaffold parent est en extendBody : la capsule d'onglets est comptée
     // dans ce padding, la liste reste donc libre au-dessus d'elle.
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
+    return MagenDavidRefresh(
       color: scheme.primary,
       onRefresh: () => _loadConversations(isRefresh: true),
       child: visible.isEmpty
