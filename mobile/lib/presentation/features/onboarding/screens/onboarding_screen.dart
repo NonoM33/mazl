@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/router/route_names.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -15,40 +17,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPage> _pages = const [
+  static const _pageCount = 5;
+
+  /// The five pages, in the language of the member.
+  List<OnboardingPage> _pages(AppLocalizations l10n) => [
     OnboardingPage(
-      title: 'Bienvenue sur MAZL',
-      description: "L'application de rencontres pensée pour la communauté juive.",
+      title: l10n.onboardingPage1Title,
+      description: l10n.onboardingPage1Body,
     ),
     OnboardingPage(
-      title: 'Trouvez votre mazal',
-      description:
-          'Découvrez des profils compatibles avec vos valeurs et votre pratique.',
+      title: l10n.onboardingPage2Title,
+      description: l10n.onboardingPage2Body,
     ),
     OnboardingPage(
-      title: 'Mode Couple',
-      description:
-          "Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.",
+      title: l10n.onboardingPage3Title,
+      description: l10n.onboardingPage3Body,
       features: [
-        'Questions quotidiennes',
-        'Milestones de couple',
-        'Calendrier juif partagé',
-        'Activités et suggestions',
+        l10n.onboardingPage3Feature1,
+        l10n.onboardingPage3Feature2,
+        l10n.onboardingPage3Feature3,
+        l10n.onboardingPage3Feature4,
       ],
     ),
     OnboardingPage(
-      title: 'Mode Shabbat',
-      description:
-          'Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.',
+      title: l10n.onboardingPage4Title,
+      description: l10n.onboardingPage4Body,
     ),
     OnboardingPage(
-      title: 'AI Shadchan',
-      description:
-          "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+      title: l10n.onboardingPage5Title,
+      description: l10n.onboardingPage5Body,
     ),
   ];
 
-  bool get _isLastPage => _currentPage == _pages.length - 1;
+  bool get _isLastPage => _currentPage == _pageCount - 1;
 
   @override
   void dispose() {
@@ -69,18 +70,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final pages = _pages(l10n);
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             Align(
-              alignment: Alignment.topRight,
+              alignment: AlignmentDirectional.topEnd,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 12, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 12, 0),
                 child: TextButton(
                   onPressed: () => context.go(RoutePaths.login),
                   child: Text(
-                    'Passer',
+                    l10n.commonSkip,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ),
@@ -89,12 +92,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 onPageChanged: (index) => setState(() => _currentPage = index),
                 itemBuilder: (context, index) => _OnboardingPageView(
-                  page: _pages[index],
+                  page: pages[index],
                   index: index,
-                  total: _pages.length,
+                  total: pages.length,
                 ),
               ),
             ),
@@ -103,11 +106,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _ProgressBars(current: _currentPage, total: _pages.length),
+                  _ProgressBars(current: _currentPage, total: pages.length),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _next,
-                    child: Text(_isLastPage ? 'Commencer' : 'Continuer'),
+                    child: Text(_isLastPage ? l10n.onboardingStart : l10n.commonContinue),
                   ),
                 ],
               ),
@@ -130,8 +133,14 @@ class _OnboardingPageView extends StatelessWidget {
   final int index;
   final int total;
 
-  String get _step =>
-      '${(index + 1).toString().padLeft(2, '0')} / ${total.toString().padLeft(2, '0')}';
+  /// « 01 / 05 », the digits of the language of the member.
+  String _step(AppLocalizations l10n) {
+    final twoDigits = NumberFormat('00', l10n.localeName);
+    return l10n.onboardingStep(
+      twoDigits.format(index + 1),
+      twoDigits.format(total),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +150,7 @@ class _OnboardingPageView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionLabel(_step),
+          SectionLabel(_step(context.l10n)),
           const SizedBox(height: 16),
           Text(page.title, style: theme.textTheme.displaySmall),
           const SizedBox(height: 20),
@@ -203,7 +212,7 @@ class _ProgressBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Page ${current + 1} sur $total',
+      label: context.l10n.onboardingPageOf(current + 1, total),
       excludeSemantics: true,
       child: Row(
         children: [

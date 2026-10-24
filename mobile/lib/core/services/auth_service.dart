@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -83,25 +84,76 @@ enum AuthProvider {
   unknown,
 }
 
+/// Why a sign-in, sign-up or account call did not succeed. The screen writes
+/// the sentence in the member's language; the server's own text is never
+/// shown.
+enum AuthFailure {
+  cancelled,
+  invalidCredentials,
+  emailTaken,
+  invalidInput,
+  rateLimited,
+  network,
+  server,
+  unsupported,
+  notSignedIn,
+  unknown,
+}
+
+/// Which call a refused status belongs to.
+enum AuthCall { socialSignIn, emailSignIn, register, passwordReset, deleteAccount }
+
+/// The failure behind an HTTP [status] refused by the auth endpoints.
+AuthFailure authFailureForStatus(int status, AuthCall call) {
+  if (status == 429) return AuthFailure.rateLimited;
+  if (status >= 500) return AuthFailure.server;
+  switch (call) {
+    case AuthCall.emailSignIn:
+      if (status == 400 || status == 401 || status == 403 || status == 404) {
+        return AuthFailure.invalidCredentials;
+      }
+    case AuthCall.register:
+      if (status == 409) return AuthFailure.emailTaken;
+      if (status == 400 || status == 422) return AuthFailure.invalidInput;
+    case AuthCall.passwordReset:
+      if (status == 400 || status == 422) return AuthFailure.invalidInput;
+    case AuthCall.socialSignIn || AuthCall.deleteAccount:
+      break;
+  }
+  return AuthFailure.unknown;
+}
+
+/// The failure behind an exception thrown while calling the server.
+AuthFailure authFailureOf(Object error) =>
+    error is SocketException || error is http.ClientException || error is TimeoutException
+        ? AuthFailure.network
+        : AuthFailure.unknown;
+
 /// Authentication result
 class AuthResult {
   final bool success;
   final AuthUser? user;
-  final String? errorMessage;
+
+  /// Why it failed; null on success.
+  final AuthFailure? failure;
   final bool isNewUser;
 
   AuthResult({
     required this.success,
     this.user,
-    this.errorMessage,
+    this.failure,
     this.isNewUser = false,
   });
+
+  /// A diagnostic for the logs, never a sentence for the member: screens
+  /// read [failure]. Kept so that screens not yet migrated still compile.
+  String? get errorMessage => failure?.name;
 
   factory AuthResult.success(AuthUser user, {bool isNewUser = false}) =>
       AuthResult(success: true, user: user, isNewUser: isNewUser);
 
-  factory AuthResult.failure(String message) =>
-      AuthResult(success: false, errorMessage: message);
+  factory AuthResult.failure(AuthFailure failure) =>
+      AuthResult(success: false, failure: failure);
 }
 
 /// Authentication Service handling Google and Apple Sign-In
@@ -192,14 +244,14 @@ class AuthService extends ChangeNotifier {
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
 
       if (account == null) {
-        return AuthResult.failure('Google sign-in was cancelled');
+        return AuthResult.failure(AuthFailure.cancelled);
       }
 
       // Get authentication tokens
       final GoogleSignInAuthentication auth = await account.authentication;
 
       if (auth.idToken == null) {
-        return AuthResult.failure('No ID token received from Google');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       debugPrint('AuthService: Google sign-in successful - ${account.email}');
@@ -214,13 +266,13 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure('Backend authentication failed');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
       }
 
       final data = jsonDecode(response.body);
 
       if (data['success'] != true) {
-        return AuthResult.failure(data['error'] ?? 'Authentication failed');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       // Create auth user with backend data
@@ -246,7 +298,7 @@ class AuthService extends ChangeNotifier {
       return AuthResult.success(user, isNewUser: data['isNewUser'] ?? false);
     } catch (e) {
       debugPrint('AuthService: Google sign-in error - $e');
-      return AuthResult.failure('Google sign-in failed: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 
@@ -255,7 +307,7 @@ class AuthService extends ChangeNotifier {
     try {
       // Check if Apple Sign-In is available
       if (!Platform.isIOS && !Platform.isMacOS) {
-        return AuthResult.failure('Apple Sign-In is only available on iOS and macOS');
+        return AuthResult.failure(AuthFailure.unsupported);
       }
 
       // Generate nonce for security
@@ -272,7 +324,7 @@ class AuthService extends ChangeNotifier {
       );
 
       if (credential.identityToken == null) {
-        return AuthResult.failure('No identity token received from Apple');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       // Create display name from Apple credentials
@@ -299,13 +351,13 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure('Backend authentication failed');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
       }
 
       final data = jsonDecode(response.body);
 
       if (data['success'] != true) {
-        return AuthResult.failure(data['error'] ?? 'Authentication failed');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       // Create auth user with backend data
@@ -332,11 +384,11 @@ class AuthService extends ChangeNotifier {
     } catch (e) {
       if (e is SignInWithAppleAuthorizationException) {
         if (e.code == AuthorizationErrorCode.canceled) {
-          return AuthResult.failure('Apple sign-in was cancelled');
+          return AuthResult.failure(AuthFailure.cancelled);
         }
       }
       debugPrint('AuthService: Apple sign-in error - $e');
-      return AuthResult.failure('Apple sign-in failed: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 
@@ -358,11 +410,11 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Login error - ${response.body}');
-        return AuthResult.failure(data['error'] ?? 'Email ou mot de passe incorrect');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.emailSignIn));
       }
 
       if (data['success'] != true) {
-        return AuthResult.failure(data['error'] ?? 'Connexion échouée');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       // Create auth user from backend response
@@ -386,7 +438,7 @@ class AuthService extends ChangeNotifier {
       return AuthResult.success(user, isNewUser: false);
     } catch (e) {
       debugPrint('AuthService: Email sign-in error - $e');
-      return AuthResult.failure('Erreur de connexion: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 
@@ -413,11 +465,11 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         debugPrint('AuthService: Registration error - ${response.body}');
-        return AuthResult.failure(data['error'] ?? 'Inscription échouée');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.register));
       }
 
       if (data['success'] != true) {
-        return AuthResult.failure(data['error'] ?? 'Inscription échouée');
+        return AuthResult.failure(AuthFailure.unknown);
       }
 
       // Create auth user from backend response
@@ -441,7 +493,7 @@ class AuthService extends ChangeNotifier {
       return AuthResult.success(user, isNewUser: true);
     } catch (e) {
       debugPrint('AuthService: Email registration error - $e');
-      return AuthResult.failure('Erreur d\'inscription: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 
@@ -456,11 +508,9 @@ class AuthService extends ChangeNotifier {
         body: jsonEncode({'email': email}),
       );
 
-      final data = jsonDecode(response.body);
-
       if (response.statusCode != 200) {
         debugPrint('AuthService: Password reset error - ${response.body}');
-        return AuthResult.failure(data['error'] ?? 'Erreur lors de l\'envoi');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.passwordReset));
       }
 
       debugPrint('AuthService: Password reset email sent');
@@ -469,7 +519,7 @@ class AuthService extends ChangeNotifier {
       return AuthResult(success: true, isNewUser: false);
     } catch (e) {
       debugPrint('AuthService: Password reset error - $e');
-      return AuthResult.failure('Erreur: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 
@@ -511,7 +561,7 @@ class AuthService extends ChangeNotifier {
   Future<AuthResult> deleteAccount({String? reason}) async {
     try {
       if (_currentUser == null) {
-        return AuthResult.failure('Aucun utilisateur connecté');
+        return AuthResult.failure(AuthFailure.notSignedIn);
       }
 
       debugPrint('AuthService: Deleting account for user ${_currentUser!.id}');
@@ -530,9 +580,8 @@ class AuthService extends ChangeNotifier {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        final data = jsonDecode(response.body);
         debugPrint('AuthService: Delete account error - ${response.body}');
-        return AuthResult.failure(data['error'] ?? 'Erreur lors de la suppression');
+        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.deleteAccount));
       }
 
       debugPrint('AuthService: Account deleted on backend');
@@ -544,7 +593,7 @@ class AuthService extends ChangeNotifier {
       return AuthResult(success: true, isNewUser: false);
     } catch (e) {
       debugPrint('AuthService: Delete account error - $e');
-      return AuthResult.failure('Erreur: $e');
+      return AuthResult.failure(authFailureOf(e));
     }
   }
 

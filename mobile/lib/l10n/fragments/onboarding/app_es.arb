@@ -1,0 +1,19 @@
+{
+  "onboardingStart": "Empezar",
+  "onboardingStep": "{current} / {total}",
+  "onboardingPageOf": "Página {current} de {total}",
+  "onboardingPage1Title": "Te damos la bienvenida a MAZL",
+  "onboardingPage1Body": "La app de citas pensada para la comunidad judía.",
+  "onboardingPage2Title": "Encuentra tu mazal",
+  "onboardingPage2Body": "Descubre perfiles compatibles con tus valores y tu práctica religiosa.",
+  "onboardingPage3Title": "Modo pareja",
+  "onboardingPage3Body": "Cuando encuentras el amor, MAZL te acompaña: encuentra el amor y consérvalo.",
+  "onboardingPage3Feature1": "Preguntas diarias",
+  "onboardingPage3Feature2": "Hitos de pareja",
+  "onboardingPage3Feature3": "Calendario judío compartido",
+  "onboardingPage3Feature4": "Actividades y sugerencias",
+  "onboardingPage4Title": "Modo Shabat",
+  "onboardingPage4Body": "Una pausa automática durante Shabat y las fiestas, sin configurar nada.",
+  "onboardingPage5Title": "AI Shadchan",
+  "onboardingPage5Body": "Nuestra inteligencia artificial te ayuda a encontrar a la persona adecuada."
+}

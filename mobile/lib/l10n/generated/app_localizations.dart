@@ -104,6 +104,348 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// Connexion : petite étiquette en majuscules espacées au-dessus du logo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rencontres · Communauté juive'**
+  String get authLoginEyebrow;
+
+  /// Connexion : promesse en une phrase sous le logo (largeur 300 px, 3 lignes au plus).
+  ///
+  /// In fr, this message translates to:
+  /// **'Des rencontres sérieuses, entre personnes qui partagent vos valeurs.'**
+  String get authLoginTagline;
+
+  /// Connexion : bouton « Sign in with Apple » (iPhone seulement).
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get authLoginApple;
+
+  /// Connexion : bouton de connexion avec le compte Google.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get authLoginGoogle;
+
+  /// Connexion : bouton texte qui ouvre l'écran de connexion par e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser mon e-mail'**
+  String get authLoginEmail;
+
+  /// Connexion : bouton réservé au développement (versions de test uniquement), jamais montré aux membres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion fictive (dev)'**
+  String get authLoginDev;
+
+  /// Connexion : mention légale sous les boutons. {terms} et {privacy} sont deux liens (« Conditions », « Confidentialité ») insérés tels quels dans la phrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'En continuant, vous acceptez les {terms} et la {privacy}.'**
+  String authLegal(String terms, String privacy);
+
+  /// Connexion : mot cliquable « Conditions » dans la mention légale (insère dans la phrase {terms}).
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions'**
+  String get authLegalTermsLink;
+
+  /// Connexion : mot cliquable « Confidentialité » dans la mention légale (insère dans la phrase {privacy}).
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get authLegalPrivacyLink;
+
+  /// Connexion et inscription : erreur sans cause connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Veuillez réessayer.'**
+  String get authErrorGeneric;
+
+  /// Connexion par e-mail : l'adresse ou le mot de passe est faux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email ou mot de passe incorrect'**
+  String get authErrorInvalidCredentials;
+
+  /// Connexion avec Apple ou Google : le membre a fermé la fenêtre de connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion annulée.'**
+  String get authErrorCancelled;
+
+  /// Inscription : un compte existe déjà avec cette adresse e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette adresse e-mail est déjà utilisée.'**
+  String get authErrorEmailTaken;
+
+  /// Connexion avec Apple : proposée sur iPhone et Mac seulement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette méthode de connexion n\'est pas disponible sur cet appareil.'**
+  String get authErrorUnsupported;
+
+  /// Connexion par e-mail : échec dont la cause n'est pas connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de connexion'**
+  String get authErrorLoginFailed;
+
+  /// Inscription par e-mail : échec dont la cause n'est pas connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur d\'inscription'**
+  String get authErrorRegisterFailed;
+
+  /// Inscription : le membre n'a pas coché la case des conditions d'utilisation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez accepter les conditions d\'utilisation'**
+  String get authErrorTermsRequired;
+
+  /// Connexion par e-mail : grand titre en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get authEmailTitleLogin;
+
+  /// Connexion par e-mail : grand titre en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription'**
+  String get authEmailTitleRegister;
+
+  /// Connexion par e-mail : phrase sous le titre en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ravi de vous revoir'**
+  String get authEmailSubtitleLogin;
+
+  /// Connexion par e-mail : phrase sous le titre en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre compte MAZL'**
+  String get authEmailSubtitleRegister;
+
+  /// Inscription : titre du champ du prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom'**
+  String get authFieldName;
+
+  /// Connexion : titre du champ de l'adresse e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get authFieldEmail;
+
+  /// Connexion : titre du champ du mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authFieldPassword;
+
+  /// Inscription : titre du champ qui redemande le mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get authFieldPasswordConfirm;
+
+  /// Inscription : force du mot de passe, niveau le plus bas (à côté de la barre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible'**
+  String get authStrengthWeak;
+
+  /// Inscription : force du mot de passe, deuxième niveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get authStrengthFair;
+
+  /// Inscription : force du mot de passe, troisième niveau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon'**
+  String get authStrengthGood;
+
+  /// Inscription : force du mot de passe, niveau le plus haut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get authStrengthExcellent;
+
+  /// Inscription : phrase à côté de la case à cocher des conditions (12 px, sur deux lignes au plus).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité'**
+  String get authTermsCheckbox;
+
+  /// Connexion par e-mail : lien qui ouvre la réinitialisation du mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié ?'**
+  String get authForgotLink;
+
+  /// Connexion par e-mail : bouton principal en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authSubmitLogin;
+
+  /// Connexion par e-mail : bouton principal en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get authSubmitRegister;
+
+  /// Connexion par e-mail : question en bas du formulaire en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ?'**
+  String get authToggleNoAccount;
+
+  /// Connexion par e-mail : question en bas du formulaire en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte ?'**
+  String get authToggleHaveAccount;
+
+  /// Connexion par e-mail : bouton texte qui passe en mode inscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get authToggleCreate;
+
+  /// Connexion par e-mail : bouton texte qui repasse en mode connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authToggleSignIn;
+
+  /// Formulaire e-mail : champ vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email requis'**
+  String get authValidationEmailRequired;
+
+  /// Formulaire e-mail : adresse mal formée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide'**
+  String get authValidationEmailInvalid;
+
+  /// Formulaire e-mail : mot de passe vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe requis'**
+  String get authValidationPasswordRequired;
+
+  /// Formulaire e-mail : mot de passe trop court (8 caractères).
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 8 caractères'**
+  String get authValidationPasswordMin;
+
+  /// Inscription : le mot de passe n'a pas de majuscule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins une majuscule'**
+  String get authValidationPasswordUpper;
+
+  /// Inscription : le mot de passe n'a pas de chiffre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins un chiffre'**
+  String get authValidationPasswordDigit;
+
+  /// Inscription : les deux mots de passe saisis diffèrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les mots de passe ne correspondent pas'**
+  String get authValidationPasswordMismatch;
+
+  /// Inscription : prénom vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom requis'**
+  String get authValidationNameRequired;
+
+  /// Inscription : prénom trop court (2 caractères).
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 2 caractères'**
+  String get authValidationNameMin;
+
+  /// Inscription : titre de la boîte de dialogue après la création du compte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre email'**
+  String get authVerifyTitle;
+
+  /// Inscription : première ligne de la boîte de dialogue ; l'adresse du membre est affichée juste en dessous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un email de vérification a été envoyé à :'**
+  String get authVerifySent;
+
+  /// Inscription : consigne de la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez sur le lien dans l\'email pour activer votre compte.'**
+  String get authVerifyInstruction;
+
+  /// Inscription : bouton qui ferme la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK, je vais vérifier'**
+  String get authVerifyOk;
+
+  /// Mot de passe oublié : titre de la boîte de dialogue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié'**
+  String get authForgotTitle;
+
+  /// Mot de passe oublié : consigne au-dessus du champ e-mail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre email pour recevoir un lien de réinitialisation.'**
+  String get authForgotInstruction;
+
+  /// Mot de passe oublié : confirmation après l'envoi du lien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email de réinitialisation envoyé'**
+  String get authForgotSent;
+
+  /// Mot de passe oublié : bouton qui envoie le lien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get authForgotSend;
+
+  /// Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page introuvable'**
+  String get authRouteErrorTitle;
+
+  /// Page d'erreur de l'app : phrase sous le titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue'**
+  String get authRouteErrorBody;
+
+  /// Page d'erreur de l'app : bouton qui ramène à l'accueil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à l\'accueil'**
+  String get authRouteErrorHome;
+
   /// Conversations : titre de l'écran (grand titre, 40 px).
   ///
   /// In fr, this message translates to:
@@ -1166,6 +1508,108 @@ abstract class AppLocalizations {
   /// **'Tu préfères petit-déjeuner ou dîner dehors ?'**
   String get icebreakerGenericBreakfastOrDinner;
 
+  /// Présentation : bouton de la dernière page, qui ouvre la connexion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get onboardingStart;
+
+  /// Présentation : repère en haut d'une page, numéro de la page sur le total, chiffres déjà complétés par un zéro (« 01 / 05 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} / {total}'**
+  String onboardingStep(String current, String total);
+
+  /// Présentation : libellé lu par le lecteur d'écran pour les barres de progression.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {current} sur {total}'**
+  String onboardingPageOf(int current, int total);
+
+  /// Présentation, page 1 : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur MAZL'**
+  String get onboardingPage1Title;
+
+  /// Présentation, page 1 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application de rencontres pensée pour la communauté juive.'**
+  String get onboardingPage1Body;
+
+  /// Présentation, page 2 : titre. « mazal » est le mot hébreu pour la chance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouvez votre mazal'**
+  String get onboardingPage2Title;
+
+  /// Présentation, page 2 : texte. « pratique » désigne la pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez des profils compatibles avec vos valeurs et votre pratique.'**
+  String get onboardingPage2Body;
+
+  /// Présentation, page 3 : titre (le mode Couple de l'app).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Couple'**
+  String get onboardingPage3Title;
+
+  /// Présentation, page 3 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fois l\'amour trouvé, MAZL vous accompagne : trouvez l\'amour, et gardez-le.'**
+  String get onboardingPage3Body;
+
+  /// Présentation, page 3 : première ligne de la liste du mode Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions quotidiennes'**
+  String get onboardingPage3Feature1;
+
+  /// Présentation, page 3 : deuxième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Milestones de couple'**
+  String get onboardingPage3Feature2;
+
+  /// Présentation, page 3 : troisième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calendrier juif partagé'**
+  String get onboardingPage3Feature3;
+
+  /// Présentation, page 3 : quatrième ligne de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités et suggestions'**
+  String get onboardingPage3Feature4;
+
+  /// Présentation, page 4 : titre (le mode Shabbat de l'app).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode Shabbat'**
+  String get onboardingPage4Title;
+
+  /// Présentation, page 4 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.'**
+  String get onboardingPage4Body;
+
+  /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
+  ///
+  /// In fr, this message translates to:
+  /// **'AI Shadchan'**
+  String get onboardingPage5Title;
+
+  /// Présentation, page 5 : texte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre intelligence artificielle vous aide à trouver la bonne personne.'**
+  String get onboardingPage5Body;
+
   /// Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app.
   ///
   /// In fr, this message translates to:
@@ -1177,6 +1621,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Langue du téléphone'**
   String get settingsLanguageSystem;
+
+  /// Appel vidéo : texte sous le prénom pendant l'appel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appel en cours...'**
+  String get videoCallInProgress;
+
+  /// Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône).
+  ///
+  /// In fr, this message translates to:
+  /// **'Flip'**
+  String get videoCallFlip;
+
+  /// Appel vidéo : bouton qui coupe ou remet la caméra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caméra'**
+  String get videoCallCamera;
+
+  /// Appel vidéo : bouton qui coupe ou remet le micro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Micro'**
+  String get videoCallMic;
+
+  /// Appel vidéo : bouton rouge qui raccroche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin'**
+  String get videoCallEnd;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,22 @@
+{
+  "videoCallInProgress": "Appel en cours...",
+  "@videoCallInProgress": {
+    "description": "Appel vidéo : texte sous le prénom pendant l'appel."
+  },
+  "videoCallFlip": "Flip",
+  "@videoCallFlip": {
+    "description": "Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône)."
+  },
+  "videoCallCamera": "Caméra",
+  "@videoCallCamera": {
+    "description": "Appel vidéo : bouton qui coupe ou remet la caméra."
+  },
+  "videoCallMic": "Micro",
+  "@videoCallMic": {
+    "description": "Appel vidéo : bouton qui coupe ou remet le micro."
+  },
+  "videoCallEnd": "Fin",
+  "@videoCallEnd": {
+    "description": "Appel vidéo : bouton rouge qui raccroche."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "onboardingStart": "להתחיל",
+  "onboardingStep": "{current} / {total}",
+  "onboardingPageOf": "עמוד {current} מתוך {total}",
+  "onboardingPage1Title": "ברוכים הבאים ל־MAZL",
+  "onboardingPage1Body": "אפליקציית ההיכרויות שנוצרה עבור הקהילה היהודית.",
+  "onboardingPage2Title": "למצוא את המזל שלך",
+  "onboardingPage2Body": "פרופילים שמתאימים לערכים ולאורח החיים הדתי שלך.",
+  "onboardingPage3Title": "מצב זוגיות",
+  "onboardingPage3Body": "אחרי שמוצאים אהבה, MAZL ממשיכה ללוות: למצוא אהבה ולשמור עליה.",
+  "onboardingPage3Feature1": "שאלות יומיות",
+  "onboardingPage3Feature2": "אבני דרך של הזוג",
+  "onboardingPage3Feature3": "לוח שנה יהודי משותף",
+  "onboardingPage3Feature4": "פעילויות והצעות",
+  "onboardingPage4Title": "מצב שבת",
+  "onboardingPage4Body": "הפסקה אוטומטית בשבת ובחגים, בלי להגדיר דבר.",
+  "onboardingPage5Title": "שדכן AI",
+  "onboardingPage5Body": "הבינה המלאכותית שלנו עוזרת למצוא את האדם המתאים."
+}

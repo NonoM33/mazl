@@ -9,6 +9,184 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get authLoginEyebrow => 'Citas · Comunidad judía';
+
+  @override
+  String get authLoginTagline =>
+      'Citas serias entre personas que comparten tus valores.';
+
+  @override
+  String get authLoginApple => 'Continuar con Apple';
+
+  @override
+  String get authLoginGoogle => 'Continuar con Google';
+
+  @override
+  String get authLoginEmail => 'Usar mi correo electrónico';
+
+  @override
+  String get authLoginDev => 'Inicio de sesión ficticio (dev)';
+
+  @override
+  String authLegal(String terms, String privacy) {
+    return 'Al continuar, aceptas las $terms y la $privacy.';
+  }
+
+  @override
+  String get authLegalTermsLink => 'Condiciones';
+
+  @override
+  String get authLegalPrivacyLink => 'Política de privacidad';
+
+  @override
+  String get authErrorGeneric => 'Ha ocurrido un error. Inténtalo de nuevo.';
+
+  @override
+  String get authErrorInvalidCredentials => 'Correo o contraseña incorrectos';
+
+  @override
+  String get authErrorCancelled => 'Inicio de sesión cancelado.';
+
+  @override
+  String get authErrorEmailTaken => 'Este correo ya está en uso.';
+
+  @override
+  String get authErrorUnsupported =>
+      'Este método de inicio de sesión no está disponible en este dispositivo.';
+
+  @override
+  String get authErrorLoginFailed => 'Error al iniciar sesión';
+
+  @override
+  String get authErrorRegisterFailed => 'Error en el registro';
+
+  @override
+  String get authErrorTermsRequired => 'Acepta las condiciones de uso';
+
+  @override
+  String get authEmailTitleLogin => 'Iniciar sesión';
+
+  @override
+  String get authEmailTitleRegister => 'Registro';
+
+  @override
+  String get authEmailSubtitleLogin => 'Qué bueno verte de nuevo';
+
+  @override
+  String get authEmailSubtitleRegister => 'Crea tu cuenta MAZL';
+
+  @override
+  String get authFieldName => 'Nombre';
+
+  @override
+  String get authFieldEmail => 'Correo electrónico';
+
+  @override
+  String get authFieldPassword => 'Contraseña';
+
+  @override
+  String get authFieldPasswordConfirm => 'Confirmar contraseña';
+
+  @override
+  String get authStrengthWeak => 'Débil';
+
+  @override
+  String get authStrengthFair => 'Media';
+
+  @override
+  String get authStrengthGood => 'Buena';
+
+  @override
+  String get authStrengthExcellent => 'Excelente';
+
+  @override
+  String get authTermsCheckbox =>
+      'Acepto las Condiciones de uso y la Política de privacidad';
+
+  @override
+  String get authForgotLink => '¿Olvidaste tu contraseña?';
+
+  @override
+  String get authSubmitLogin => 'Iniciar sesión';
+
+  @override
+  String get authSubmitRegister => 'Crear mi cuenta';
+
+  @override
+  String get authToggleNoAccount => '¿Aún no tienes cuenta?';
+
+  @override
+  String get authToggleHaveAccount => '¿Ya tienes cuenta?';
+
+  @override
+  String get authToggleCreate => 'Crear una cuenta';
+
+  @override
+  String get authToggleSignIn => 'Iniciar sesión';
+
+  @override
+  String get authValidationEmailRequired => 'Correo obligatorio';
+
+  @override
+  String get authValidationEmailInvalid => 'Correo no válido';
+
+  @override
+  String get authValidationPasswordRequired => 'Contraseña obligatoria';
+
+  @override
+  String get authValidationPasswordMin => 'Mínimo 8 caracteres';
+
+  @override
+  String get authValidationPasswordUpper => 'Al menos una mayúscula';
+
+  @override
+  String get authValidationPasswordDigit => 'Al menos un número';
+
+  @override
+  String get authValidationPasswordMismatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get authValidationNameRequired => 'Nombre obligatorio';
+
+  @override
+  String get authValidationNameMin => 'Mínimo 2 caracteres';
+
+  @override
+  String get authVerifyTitle => 'Revisa tu correo';
+
+  @override
+  String get authVerifySent => 'Hemos enviado un correo de verificación a:';
+
+  @override
+  String get authVerifyInstruction =>
+      'Haz clic en el enlace del correo para activar tu cuenta.';
+
+  @override
+  String get authVerifyOk => 'Vale, lo reviso';
+
+  @override
+  String get authForgotTitle => 'Contraseña olvidada';
+
+  @override
+  String get authForgotInstruction =>
+      'Introduce tu correo para recibir un enlace de restablecimiento.';
+
+  @override
+  String get authForgotSent => 'Correo de restablecimiento enviado';
+
+  @override
+  String get authForgotSend => 'Enviar';
+
+  @override
+  String get authRouteErrorTitle => 'Página no encontrada';
+
+  @override
+  String get authRouteErrorBody => 'Ha ocurrido un error';
+
+  @override
+  String get authRouteErrorHome => 'Volver al inicio';
+
+  @override
   String get chatListTitle => 'Mensajes';
 
   @override
@@ -617,8 +795,83 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Prefieres desayunar o cenar fuera?';
 
   @override
+  String get onboardingStart => 'Empezar';
+
+  @override
+  String onboardingStep(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String onboardingPageOf(int current, int total) {
+    return 'Página $current de $total';
+  }
+
+  @override
+  String get onboardingPage1Title => 'Te damos la bienvenida a MAZL';
+
+  @override
+  String get onboardingPage1Body =>
+      'La app de citas pensada para la comunidad judía.';
+
+  @override
+  String get onboardingPage2Title => 'Encuentra tu mazal';
+
+  @override
+  String get onboardingPage2Body =>
+      'Descubre perfiles compatibles con tus valores y tu práctica religiosa.';
+
+  @override
+  String get onboardingPage3Title => 'Modo pareja';
+
+  @override
+  String get onboardingPage3Body =>
+      'Cuando encuentras el amor, MAZL te acompaña: encuentra el amor y consérvalo.';
+
+  @override
+  String get onboardingPage3Feature1 => 'Preguntas diarias';
+
+  @override
+  String get onboardingPage3Feature2 => 'Hitos de pareja';
+
+  @override
+  String get onboardingPage3Feature3 => 'Calendario judío compartido';
+
+  @override
+  String get onboardingPage3Feature4 => 'Actividades y sugerencias';
+
+  @override
+  String get onboardingPage4Title => 'Modo Shabat';
+
+  @override
+  String get onboardingPage4Body =>
+      'Una pausa automática durante Shabat y las fiestas, sin configurar nada.';
+
+  @override
+  String get onboardingPage5Title => 'AI Shadchan';
+
+  @override
+  String get onboardingPage5Body =>
+      'Nuestra inteligencia artificial te ayuda a encontrar a la persona adecuada.';
+
+  @override
   String get settingsLanguage => 'Idioma';
 
   @override
   String get settingsLanguageSystem => 'Idioma del teléfono';
+
+  @override
+  String get videoCallInProgress => 'Llamada en curso...';
+
+  @override
+  String get videoCallFlip => 'Girar';
+
+  @override
+  String get videoCallCamera => 'Cámara';
+
+  @override
+  String get videoCallMic => 'Micro';
+
+  @override
+  String get videoCallEnd => 'Finalizar';
 }

@@ -1,5 +1,241 @@
 {
   "@@locale": "fr",
+  "authLoginEyebrow": "Rencontres · Communauté juive",
+  "@authLoginEyebrow": {
+    "description": "Connexion : petite étiquette en majuscules espacées au-dessus du logo."
+  },
+  "authLoginTagline": "Des rencontres sérieuses, entre personnes qui partagent vos valeurs.",
+  "@authLoginTagline": {
+    "description": "Connexion : promesse en une phrase sous le logo (largeur 300 px, 3 lignes au plus)."
+  },
+  "authLoginApple": "Continuer avec Apple",
+  "@authLoginApple": {
+    "description": "Connexion : bouton « Sign in with Apple » (iPhone seulement)."
+  },
+  "authLoginGoogle": "Continuer avec Google",
+  "@authLoginGoogle": {
+    "description": "Connexion : bouton de connexion avec le compte Google."
+  },
+  "authLoginEmail": "Utiliser mon e-mail",
+  "@authLoginEmail": {
+    "description": "Connexion : bouton texte qui ouvre l'écran de connexion par e-mail."
+  },
+  "authLoginDev": "Connexion fictive (dev)",
+  "@authLoginDev": {
+    "description": "Connexion : bouton réservé au développement (versions de test uniquement), jamais montré aux membres."
+  },
+  "authLegal": "En continuant, vous acceptez les {terms} et la {privacy}.",
+  "@authLegal": {
+    "description": "Connexion : mention légale sous les boutons. {terms} et {privacy} sont deux liens (« Conditions », « Confidentialité ») insérés tels quels dans la phrase.",
+    "placeholders": {
+      "terms": {
+        "type": "String"
+      },
+      "privacy": {
+        "type": "String"
+      }
+    }
+  },
+  "authLegalTermsLink": "Conditions",
+  "@authLegalTermsLink": {
+    "description": "Connexion : mot cliquable « Conditions » dans la mention légale (insère dans la phrase {terms})."
+  },
+  "authLegalPrivacyLink": "Confidentialité",
+  "@authLegalPrivacyLink": {
+    "description": "Connexion : mot cliquable « Confidentialité » dans la mention légale (insère dans la phrase {privacy})."
+  },
+  "authErrorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+  "@authErrorGeneric": {
+    "description": "Connexion et inscription : erreur sans cause connue."
+  },
+  "authErrorInvalidCredentials": "Email ou mot de passe incorrect",
+  "@authErrorInvalidCredentials": {
+    "description": "Connexion par e-mail : l'adresse ou le mot de passe est faux."
+  },
+  "authErrorCancelled": "Connexion annulée.",
+  "@authErrorCancelled": {
+    "description": "Connexion avec Apple ou Google : le membre a fermé la fenêtre de connexion."
+  },
+  "authErrorEmailTaken": "Cette adresse e-mail est déjà utilisée.",
+  "@authErrorEmailTaken": {
+    "description": "Inscription : un compte existe déjà avec cette adresse e-mail."
+  },
+  "authErrorUnsupported": "Cette méthode de connexion n'est pas disponible sur cet appareil.",
+  "@authErrorUnsupported": {
+    "description": "Connexion avec Apple : proposée sur iPhone et Mac seulement."
+  },
+  "authErrorLoginFailed": "Erreur de connexion",
+  "@authErrorLoginFailed": {
+    "description": "Connexion par e-mail : échec dont la cause n'est pas connue."
+  },
+  "authErrorRegisterFailed": "Erreur d'inscription",
+  "@authErrorRegisterFailed": {
+    "description": "Inscription par e-mail : échec dont la cause n'est pas connue."
+  },
+  "authErrorTermsRequired": "Veuillez accepter les conditions d'utilisation",
+  "@authErrorTermsRequired": {
+    "description": "Inscription : le membre n'a pas coché la case des conditions d'utilisation."
+  },
+  "authEmailTitleLogin": "Connexion",
+  "@authEmailTitleLogin": {
+    "description": "Connexion par e-mail : grand titre en mode connexion."
+  },
+  "authEmailTitleRegister": "Inscription",
+  "@authEmailTitleRegister": {
+    "description": "Connexion par e-mail : grand titre en mode inscription."
+  },
+  "authEmailSubtitleLogin": "Ravi de vous revoir",
+  "@authEmailSubtitleLogin": {
+    "description": "Connexion par e-mail : phrase sous le titre en mode connexion."
+  },
+  "authEmailSubtitleRegister": "Créez votre compte MAZL",
+  "@authEmailSubtitleRegister": {
+    "description": "Connexion par e-mail : phrase sous le titre en mode inscription."
+  },
+  "authFieldName": "Prénom",
+  "@authFieldName": {
+    "description": "Inscription : titre du champ du prénom."
+  },
+  "authFieldEmail": "Email",
+  "@authFieldEmail": {
+    "description": "Connexion : titre du champ de l'adresse e-mail."
+  },
+  "authFieldPassword": "Mot de passe",
+  "@authFieldPassword": {
+    "description": "Connexion : titre du champ du mot de passe."
+  },
+  "authFieldPasswordConfirm": "Confirmer le mot de passe",
+  "@authFieldPasswordConfirm": {
+    "description": "Inscription : titre du champ qui redemande le mot de passe."
+  },
+  "authStrengthWeak": "Faible",
+  "@authStrengthWeak": {
+    "description": "Inscription : force du mot de passe, niveau le plus bas (à côté de la barre)."
+  },
+  "authStrengthFair": "Moyen",
+  "@authStrengthFair": {
+    "description": "Inscription : force du mot de passe, deuxième niveau."
+  },
+  "authStrengthGood": "Bon",
+  "@authStrengthGood": {
+    "description": "Inscription : force du mot de passe, troisième niveau."
+  },
+  "authStrengthExcellent": "Excellent",
+  "@authStrengthExcellent": {
+    "description": "Inscription : force du mot de passe, niveau le plus haut."
+  },
+  "authTermsCheckbox": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
+  "@authTermsCheckbox": {
+    "description": "Inscription : phrase à côté de la case à cocher des conditions (12 px, sur deux lignes au plus)."
+  },
+  "authForgotLink": "Mot de passe oublié ?",
+  "@authForgotLink": {
+    "description": "Connexion par e-mail : lien qui ouvre la réinitialisation du mot de passe."
+  },
+  "authSubmitLogin": "Se connecter",
+  "@authSubmitLogin": {
+    "description": "Connexion par e-mail : bouton principal en mode connexion."
+  },
+  "authSubmitRegister": "Créer mon compte",
+  "@authSubmitRegister": {
+    "description": "Connexion par e-mail : bouton principal en mode inscription."
+  },
+  "authToggleNoAccount": "Pas encore de compte ?",
+  "@authToggleNoAccount": {
+    "description": "Connexion par e-mail : question en bas du formulaire en mode connexion."
+  },
+  "authToggleHaveAccount": "Déjà un compte ?",
+  "@authToggleHaveAccount": {
+    "description": "Connexion par e-mail : question en bas du formulaire en mode inscription."
+  },
+  "authToggleCreate": "Créer un compte",
+  "@authToggleCreate": {
+    "description": "Connexion par e-mail : bouton texte qui passe en mode inscription."
+  },
+  "authToggleSignIn": "Se connecter",
+  "@authToggleSignIn": {
+    "description": "Connexion par e-mail : bouton texte qui repasse en mode connexion."
+  },
+  "authValidationEmailRequired": "Email requis",
+  "@authValidationEmailRequired": {
+    "description": "Formulaire e-mail : champ vide."
+  },
+  "authValidationEmailInvalid": "Email invalide",
+  "@authValidationEmailInvalid": {
+    "description": "Formulaire e-mail : adresse mal formée."
+  },
+  "authValidationPasswordRequired": "Mot de passe requis",
+  "@authValidationPasswordRequired": {
+    "description": "Formulaire e-mail : mot de passe vide."
+  },
+  "authValidationPasswordMin": "Minimum 8 caractères",
+  "@authValidationPasswordMin": {
+    "description": "Formulaire e-mail : mot de passe trop court (8 caractères)."
+  },
+  "authValidationPasswordUpper": "Au moins une majuscule",
+  "@authValidationPasswordUpper": {
+    "description": "Inscription : le mot de passe n'a pas de majuscule."
+  },
+  "authValidationPasswordDigit": "Au moins un chiffre",
+  "@authValidationPasswordDigit": {
+    "description": "Inscription : le mot de passe n'a pas de chiffre."
+  },
+  "authValidationPasswordMismatch": "Les mots de passe ne correspondent pas",
+  "@authValidationPasswordMismatch": {
+    "description": "Inscription : les deux mots de passe saisis diffèrent."
+  },
+  "authValidationNameRequired": "Prénom requis",
+  "@authValidationNameRequired": {
+    "description": "Inscription : prénom vide."
+  },
+  "authValidationNameMin": "Minimum 2 caractères",
+  "@authValidationNameMin": {
+    "description": "Inscription : prénom trop court (2 caractères)."
+  },
+  "authVerifyTitle": "Vérifiez votre email",
+  "@authVerifyTitle": {
+    "description": "Inscription : titre de la boîte de dialogue après la création du compte."
+  },
+  "authVerifySent": "Un email de vérification a été envoyé à :",
+  "@authVerifySent": {
+    "description": "Inscription : première ligne de la boîte de dialogue ; l'adresse du membre est affichée juste en dessous."
+  },
+  "authVerifyInstruction": "Cliquez sur le lien dans l'email pour activer votre compte.",
+  "@authVerifyInstruction": {
+    "description": "Inscription : consigne de la boîte de dialogue."
+  },
+  "authVerifyOk": "OK, je vais vérifier",
+  "@authVerifyOk": {
+    "description": "Inscription : bouton qui ferme la boîte de dialogue."
+  },
+  "authForgotTitle": "Mot de passe oublié",
+  "@authForgotTitle": {
+    "description": "Mot de passe oublié : titre de la boîte de dialogue."
+  },
+  "authForgotInstruction": "Entrez votre email pour recevoir un lien de réinitialisation.",
+  "@authForgotInstruction": {
+    "description": "Mot de passe oublié : consigne au-dessus du champ e-mail."
+  },
+  "authForgotSent": "Email de réinitialisation envoyé",
+  "@authForgotSent": {
+    "description": "Mot de passe oublié : confirmation après l'envoi du lien."
+  },
+  "authForgotSend": "Envoyer",
+  "@authForgotSend": {
+    "description": "Mot de passe oublié : bouton qui envoie le lien."
+  },
+  "authRouteErrorTitle": "Page introuvable",
+  "@authRouteErrorTitle": {
+    "description": "Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas."
+  },
+  "authRouteErrorBody": "Une erreur est survenue",
+  "@authRouteErrorBody": {
+    "description": "Page d'erreur de l'app : phrase sous le titre."
+  },
+  "authRouteErrorHome": "Retour à l'accueil",
+  "@authRouteErrorHome": {
+    "description": "Page d'erreur de l'app : bouton qui ramène à l'accueil."
+  },
   "chatListTitle": "Messages",
   "@chatListTitle": {
     "description": "Conversations : titre de l'écran (grand titre, 40 px)."
@@ -779,6 +1015,90 @@
   "@icebreakerGenericBreakfastOrDinner": {
     "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
   },
+  "onboardingStart": "Commencer",
+  "@onboardingStart": {
+    "description": "Présentation : bouton de la dernière page, qui ouvre la connexion."
+  },
+  "onboardingStep": "{current} / {total}",
+  "@onboardingStep": {
+    "description": "Présentation : repère en haut d'une page, numéro de la page sur le total, chiffres déjà complétés par un zéro (« 01 / 05 »).",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingPageOf": "Page {current} sur {total}",
+  "@onboardingPageOf": {
+    "description": "Présentation : libellé lu par le lecteur d'écran pour les barres de progression.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingPage1Title": "Bienvenue sur MAZL",
+  "@onboardingPage1Title": {
+    "description": "Présentation, page 1 : titre."
+  },
+  "onboardingPage1Body": "L'application de rencontres pensée pour la communauté juive.",
+  "@onboardingPage1Body": {
+    "description": "Présentation, page 1 : texte."
+  },
+  "onboardingPage2Title": "Trouvez votre mazal",
+  "@onboardingPage2Title": {
+    "description": "Présentation, page 2 : titre. « mazal » est le mot hébreu pour la chance."
+  },
+  "onboardingPage2Body": "Découvrez des profils compatibles avec vos valeurs et votre pratique.",
+  "@onboardingPage2Body": {
+    "description": "Présentation, page 2 : texte. « pratique » désigne la pratique religieuse."
+  },
+  "onboardingPage3Title": "Mode Couple",
+  "@onboardingPage3Title": {
+    "description": "Présentation, page 3 : titre (le mode Couple de l'app)."
+  },
+  "onboardingPage3Body": "Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.",
+  "@onboardingPage3Body": {
+    "description": "Présentation, page 3 : texte."
+  },
+  "onboardingPage3Feature1": "Questions quotidiennes",
+  "@onboardingPage3Feature1": {
+    "description": "Présentation, page 3 : première ligne de la liste du mode Couple."
+  },
+  "onboardingPage3Feature2": "Milestones de couple",
+  "@onboardingPage3Feature2": {
+    "description": "Présentation, page 3 : deuxième ligne de la liste."
+  },
+  "onboardingPage3Feature3": "Calendrier juif partagé",
+  "@onboardingPage3Feature3": {
+    "description": "Présentation, page 3 : troisième ligne de la liste."
+  },
+  "onboardingPage3Feature4": "Activités et suggestions",
+  "@onboardingPage3Feature4": {
+    "description": "Présentation, page 3 : quatrième ligne de la liste."
+  },
+  "onboardingPage4Title": "Mode Shabbat",
+  "@onboardingPage4Title": {
+    "description": "Présentation, page 4 : titre (le mode Shabbat de l'app)."
+  },
+  "onboardingPage4Body": "Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.",
+  "@onboardingPage4Body": {
+    "description": "Présentation, page 4 : texte."
+  },
+  "onboardingPage5Title": "AI Shadchan",
+  "@onboardingPage5Title": {
+    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+  },
+  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "@onboardingPage5Body": {
+    "description": "Présentation, page 5 : texte."
+  },
   "settingsLanguage": "Langue",
   "@settingsLanguage": {
     "description": "Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app."
@@ -786,5 +1106,25 @@
   "settingsLanguageSystem": "Langue du téléphone",
   "@settingsLanguageSystem": {
     "description": "Réglages, choix de langue : suivre la langue réglée sur le téléphone plutôt qu'une langue fixe."
+  },
+  "videoCallInProgress": "Appel en cours...",
+  "@videoCallInProgress": {
+    "description": "Appel vidéo : texte sous le prénom pendant l'appel."
+  },
+  "videoCallFlip": "Flip",
+  "@videoCallFlip": {
+    "description": "Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône)."
+  },
+  "videoCallCamera": "Caméra",
+  "@videoCallCamera": {
+    "description": "Appel vidéo : bouton qui coupe ou remet la caméra."
+  },
+  "videoCallMic": "Micro",
+  "@videoCallMic": {
+    "description": "Appel vidéo : bouton qui coupe ou remet le micro."
+  },
+  "videoCallEnd": "Fin",
+  "@videoCallEnd": {
+    "description": "Appel vidéo : bouton rouge qui raccroche."
   }
 }

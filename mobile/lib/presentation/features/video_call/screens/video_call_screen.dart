@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
 
 class VideoCallScreen extends StatelessWidget {
   const VideoCallScreen({
@@ -21,11 +22,11 @@ class VideoCallScreen extends StatelessWidget {
           // Remote video (full screen placeholder)
           Container(
             color: AppColors.backgroundDark,
-            child: const Center(
+            child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 60,
                     backgroundColor: AppColors.primary,
                     child: Text(
@@ -37,8 +38,8 @@ class VideoCallScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 16),
+                  const Text(
                     'Sarah',
                     style: TextStyle(
                       color: Colors.white,
@@ -46,10 +47,10 @@ class VideoCallScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Appel en cours...',
-                    style: TextStyle(
+                    context.l10n.videoCallInProgress,
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
                     ),
@@ -60,9 +61,9 @@ class VideoCallScreen extends StatelessWidget {
           ),
 
           // Local video (small preview)
-          Positioned(
+          PositionedDirectional(
             top: 60,
-            right: 16,
+            end: 16,
             child: Container(
               width: 100,
               height: 150,
@@ -114,22 +115,22 @@ class VideoCallScreen extends StatelessWidget {
               children: [
                 _CallButton(
                   icon: LucideIcons.switchCamera,
-                  label: 'Flip',
+                  label: context.l10n.videoCallFlip,
                   onPressed: () {},
                 ),
                 _CallButton(
                   icon: LucideIcons.videoOff,
-                  label: 'Caméra',
+                  label: context.l10n.videoCallCamera,
                   onPressed: () {},
                 ),
                 _CallButton(
                   icon: LucideIcons.micOff,
-                  label: 'Micro',
+                  label: context.l10n.videoCallMic,
                   onPressed: () {},
                 ),
                 _CallButton(
                   icon: LucideIcons.phoneOff,
-                  label: 'Fin',
+                  label: context.l10n.videoCallEnd,
                   color: AppColors.error,
                   onPressed: () => context.pop(),
                 ),

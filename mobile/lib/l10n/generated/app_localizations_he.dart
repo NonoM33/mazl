@@ -9,6 +9,180 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get authLoginEyebrow => 'היכרויות · הקהילה היהודית';
+
+  @override
+  String get authLoginTagline => 'היכרויות רציניות בין אנשים עם ערכים משותפים.';
+
+  @override
+  String get authLoginApple => 'המשך עם Apple';
+
+  @override
+  String get authLoginGoogle => 'המשך עם Google';
+
+  @override
+  String get authLoginEmail => 'שימוש בדוא״ל שלי';
+
+  @override
+  String get authLoginDev => 'התחברות מדומה (פיתוח)';
+
+  @override
+  String authLegal(String terms, String privacy) {
+    return 'המשך מהווה הסכמה $terms ו$privacy.';
+  }
+
+  @override
+  String get authLegalTermsLink => 'לתנאי השימוש';
+
+  @override
+  String get authLegalPrivacyLink => 'למדיניות הפרטיות';
+
+  @override
+  String get authErrorGeneric => 'אירעה שגיאה. יש לנסות שוב.';
+
+  @override
+  String get authErrorInvalidCredentials => 'דוא״ל או סיסמה שגויים';
+
+  @override
+  String get authErrorCancelled => 'ההתחברות בוטלה.';
+
+  @override
+  String get authErrorEmailTaken => 'כתובת הדוא״ל הזו כבר בשימוש.';
+
+  @override
+  String get authErrorUnsupported => 'שיטת ההתחברות הזו אינה זמינה במכשיר הזה.';
+
+  @override
+  String get authErrorLoginFailed => 'שגיאת התחברות';
+
+  @override
+  String get authErrorRegisterFailed => 'שגיאת הרשמה';
+
+  @override
+  String get authErrorTermsRequired => 'יש לאשר את תנאי השימוש';
+
+  @override
+  String get authEmailTitleLogin => 'התחברות';
+
+  @override
+  String get authEmailTitleRegister => 'הרשמה';
+
+  @override
+  String get authEmailSubtitleLogin => 'טוב לראות אותך שוב';
+
+  @override
+  String get authEmailSubtitleRegister => 'יצירת חשבון MAZL';
+
+  @override
+  String get authFieldName => 'שם פרטי';
+
+  @override
+  String get authFieldEmail => 'דוא״ל';
+
+  @override
+  String get authFieldPassword => 'סיסמה';
+
+  @override
+  String get authFieldPasswordConfirm => 'אימות סיסמה';
+
+  @override
+  String get authStrengthWeak => 'חלשה';
+
+  @override
+  String get authStrengthFair => 'בינונית';
+
+  @override
+  String get authStrengthGood => 'טובה';
+
+  @override
+  String get authStrengthExcellent => 'מצוינת';
+
+  @override
+  String get authTermsCheckbox => 'תנאי השימוש ומדיניות הפרטיות מקובלים עליי';
+
+  @override
+  String get authForgotLink => 'שכחת סיסמה?';
+
+  @override
+  String get authSubmitLogin => 'התחברות';
+
+  @override
+  String get authSubmitRegister => 'יצירת החשבון שלי';
+
+  @override
+  String get authToggleNoAccount => 'עדיין אין חשבון?';
+
+  @override
+  String get authToggleHaveAccount => 'כבר יש חשבון?';
+
+  @override
+  String get authToggleCreate => 'יצירת חשבון';
+
+  @override
+  String get authToggleSignIn => 'התחברות';
+
+  @override
+  String get authValidationEmailRequired => 'יש להזין דוא״ל';
+
+  @override
+  String get authValidationEmailInvalid => 'כתובת דוא״ל לא תקינה';
+
+  @override
+  String get authValidationPasswordRequired => 'יש להזין סיסמה';
+
+  @override
+  String get authValidationPasswordMin => 'לפחות 8 תווים';
+
+  @override
+  String get authValidationPasswordUpper => 'לפחות אות לטינית גדולה אחת';
+
+  @override
+  String get authValidationPasswordDigit => 'לפחות ספרה אחת';
+
+  @override
+  String get authValidationPasswordMismatch => 'הסיסמאות אינן תואמות';
+
+  @override
+  String get authValidationNameRequired => 'יש להזין שם פרטי';
+
+  @override
+  String get authValidationNameMin => 'לפחות 2 תווים';
+
+  @override
+  String get authVerifyTitle => 'יש לבדוק את תיבת הדוא״ל';
+
+  @override
+  String get authVerifySent => 'נשלח דוא״ל אימות אל:';
+
+  @override
+  String get authVerifyInstruction =>
+      'יש ללחוץ על הקישור בדוא״ל כדי להפעיל את החשבון.';
+
+  @override
+  String get authVerifyOk => 'אבדוק, תודה';
+
+  @override
+  String get authForgotTitle => 'שכחתי סיסמה';
+
+  @override
+  String get authForgotInstruction => 'יש להזין דוא״ל כדי לקבל קישור לאיפוס.';
+
+  @override
+  String get authForgotSent => 'דוא״ל האיפוס נשלח';
+
+  @override
+  String get authForgotSend => 'שליחה';
+
+  @override
+  String get authRouteErrorTitle => 'העמוד לא נמצא';
+
+  @override
+  String get authRouteErrorBody => 'אירעה שגיאה';
+
+  @override
+  String get authRouteErrorHome => 'חזרה לדף הבית';
+
+  @override
   String get chatListTitle => 'הודעות';
 
   @override
@@ -591,8 +765,83 @@ class AppLocalizationsHe extends AppLocalizations {
       'מה עדיף: ארוחת בוקר בחוץ או ארוחת ערב בחוץ?';
 
   @override
+  String get onboardingStart => 'להתחיל';
+
+  @override
+  String onboardingStep(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String onboardingPageOf(int current, int total) {
+    return 'עמוד $current מתוך $total';
+  }
+
+  @override
+  String get onboardingPage1Title => 'ברוכים הבאים ל־MAZL';
+
+  @override
+  String get onboardingPage1Body =>
+      'אפליקציית ההיכרויות שנוצרה עבור הקהילה היהודית.';
+
+  @override
+  String get onboardingPage2Title => 'למצוא את המזל שלך';
+
+  @override
+  String get onboardingPage2Body =>
+      'פרופילים שמתאימים לערכים ולאורח החיים הדתי שלך.';
+
+  @override
+  String get onboardingPage3Title => 'מצב זוגיות';
+
+  @override
+  String get onboardingPage3Body =>
+      'אחרי שמוצאים אהבה, MAZL ממשיכה ללוות: למצוא אהבה ולשמור עליה.';
+
+  @override
+  String get onboardingPage3Feature1 => 'שאלות יומיות';
+
+  @override
+  String get onboardingPage3Feature2 => 'אבני דרך של הזוג';
+
+  @override
+  String get onboardingPage3Feature3 => 'לוח שנה יהודי משותף';
+
+  @override
+  String get onboardingPage3Feature4 => 'פעילויות והצעות';
+
+  @override
+  String get onboardingPage4Title => 'מצב שבת';
+
+  @override
+  String get onboardingPage4Body =>
+      'הפסקה אוטומטית בשבת ובחגים, בלי להגדיר דבר.';
+
+  @override
+  String get onboardingPage5Title => 'שדכן AI';
+
+  @override
+  String get onboardingPage5Body =>
+      'הבינה המלאכותית שלנו עוזרת למצוא את האדם המתאים.';
+
+  @override
   String get settingsLanguage => 'שפה';
 
   @override
   String get settingsLanguageSystem => 'שפת הטלפון';
+
+  @override
+  String get videoCallInProgress => 'שיחה מתנהלת...';
+
+  @override
+  String get videoCallFlip => 'היפוך';
+
+  @override
+  String get videoCallCamera => 'מצלמה';
+
+  @override
+  String get videoCallMic => 'מיקרופון';
+
+  @override
+  String get videoCallEnd => 'סיום';
 }

@@ -1,0 +1,86 @@
+{
+  "onboardingStart": "Commencer",
+  "@onboardingStart": {
+    "description": "Présentation : bouton de la dernière page, qui ouvre la connexion."
+  },
+  "onboardingStep": "{current} / {total}",
+  "@onboardingStep": {
+    "description": "Présentation : repère en haut d'une page, numéro de la page sur le total, chiffres déjà complétés par un zéro (« 01 / 05 »).",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingPageOf": "Page {current} sur {total}",
+  "@onboardingPageOf": {
+    "description": "Présentation : libellé lu par le lecteur d'écran pour les barres de progression.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingPage1Title": "Bienvenue sur MAZL",
+  "@onboardingPage1Title": {
+    "description": "Présentation, page 1 : titre."
+  },
+  "onboardingPage1Body": "L'application de rencontres pensée pour la communauté juive.",
+  "@onboardingPage1Body": {
+    "description": "Présentation, page 1 : texte."
+  },
+  "onboardingPage2Title": "Trouvez votre mazal",
+  "@onboardingPage2Title": {
+    "description": "Présentation, page 2 : titre. « mazal » est le mot hébreu pour la chance."
+  },
+  "onboardingPage2Body": "Découvrez des profils compatibles avec vos valeurs et votre pratique.",
+  "@onboardingPage2Body": {
+    "description": "Présentation, page 2 : texte. « pratique » désigne la pratique religieuse."
+  },
+  "onboardingPage3Title": "Mode Couple",
+  "@onboardingPage3Title": {
+    "description": "Présentation, page 3 : titre (le mode Couple de l'app)."
+  },
+  "onboardingPage3Body": "Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.",
+  "@onboardingPage3Body": {
+    "description": "Présentation, page 3 : texte."
+  },
+  "onboardingPage3Feature1": "Questions quotidiennes",
+  "@onboardingPage3Feature1": {
+    "description": "Présentation, page 3 : première ligne de la liste du mode Couple."
+  },
+  "onboardingPage3Feature2": "Milestones de couple",
+  "@onboardingPage3Feature2": {
+    "description": "Présentation, page 3 : deuxième ligne de la liste."
+  },
+  "onboardingPage3Feature3": "Calendrier juif partagé",
+  "@onboardingPage3Feature3": {
+    "description": "Présentation, page 3 : troisième ligne de la liste."
+  },
+  "onboardingPage3Feature4": "Activités et suggestions",
+  "@onboardingPage3Feature4": {
+    "description": "Présentation, page 3 : quatrième ligne de la liste."
+  },
+  "onboardingPage4Title": "Mode Shabbat",
+  "@onboardingPage4Title": {
+    "description": "Présentation, page 4 : titre (le mode Shabbat de l'app)."
+  },
+  "onboardingPage4Body": "Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.",
+  "@onboardingPage4Body": {
+    "description": "Présentation, page 4 : texte."
+  },
+  "onboardingPage5Title": "AI Shadchan",
+  "@onboardingPage5Title": {
+    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+  },
+  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "@onboardingPage5Body": {
+    "description": "Présentation, page 5 : texte."
+  }
+}

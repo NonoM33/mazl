@@ -170,9 +170,6 @@ lib/core/models/success_story.dart | En couple
 lib/core/models/success_story.dart | Fiancés
 lib/core/models/success_story.dart | Mariés
 lib/core/models/verification.dart | unknown challenge: $value
-lib/core/router/app_router.dart | Page introuvable
-lib/core/router/app_router.dart | Retour à l\'accueil
-lib/core/router/app_router.dart | Une erreur est survenue
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
 lib/core/services/api_service.dart | Authorization
@@ -269,38 +266,16 @@ lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
 lib/core/services/api_service.dart | Unknown error
-lib/core/services/auth_service.dart | Apple Sign-In is only available on iOS and macOS
-lib/core/services/auth_service.dart | Apple sign-in failed: $e
-lib/core/services/auth_service.dart | Apple sign-in was cancelled
-lib/core/services/auth_service.dart | Aucun utilisateur connecté
-lib/core/services/auth_service.dart | Authentication failed
-lib/core/services/auth_service.dart | Authentication failed
 lib/core/services/auth_service.dart | Authorization
-lib/core/services/auth_service.dart | Backend authentication failed
-lib/core/services/auth_service.dart | Backend authentication failed
 lib/core/services/auth_service.dart | Bearer ${_currentUser!.jwtToken}
-lib/core/services/auth_service.dart | Connexion échouée
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
 lib/core/services/auth_service.dart | Content-Type
-lib/core/services/auth_service.dart | Email ou mot de passe incorrect
-lib/core/services/auth_service.dart | Erreur d\'inscription: $e
-lib/core/services/auth_service.dart | Erreur de connexion: $e
-lib/core/services/auth_service.dart | Erreur lors de l\'envoi
-lib/core/services/auth_service.dart | Erreur lors de la suppression
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Erreur: $e
-lib/core/services/auth_service.dart | Google sign-in failed: $e
-lib/core/services/auth_service.dart | Google sign-in was cancelled
-lib/core/services/auth_service.dart | Inscription échouée
-lib/core/services/auth_service.dart | Inscription échouée
 lib/core/services/auth_service.dart | La connexion fictive est réservée au mode debug.
 lib/core/services/auth_service.dart | Léa (démo)
-lib/core/services/auth_service.dart | No ID token received from Google
-lib/core/services/auth_service.dart | No identity token received from Apple
 lib/core/services/auth_service.dart | Non spécifié
 lib/core/services/couple_api_service.dart | $key holds a non-object item
 lib/core/services/couple_api_service.dart | $key is not a list
@@ -582,64 +557,6 @@ lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Votre
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous avez parcouru toutes vos suggestions.
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Vous recevez des suggestions personnalisées chaque jour
 lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart | Zones de vie compatibles
-lib/presentation/features/auth/screens/email_auth_screen.dart | Annuler
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins un chiffre
-lib/presentation/features/auth/screens/email_auth_screen.dart | Au moins une majuscule
-lib/presentation/features/auth/screens/email_auth_screen.dart | Bon
-lib/presentation/features/auth/screens/email_auth_screen.dart | Cliquez sur le lien dans l\'email pour activer votre compte.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Confirmer le mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer mon compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créer un compte
-lib/presentation/features/auth/screens/email_auth_screen.dart | Créez votre compte MAZL
-lib/presentation/features/auth/screens/email_auth_screen.dart | Déjà un compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email de réinitialisation envoyé
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email invalide
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Email requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Entrez votre email pour recevoir un lien de réinitialisation.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Envoyer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur d\'inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | Erreur de connexion
-lib/presentation/features/auth/screens/email_auth_screen.dart | Excellent
-lib/presentation/features/auth/screens/email_auth_screen.dart | Faible
-lib/presentation/features/auth/screens/email_auth_screen.dart | Fermer
-lib/presentation/features/auth/screens/email_auth_screen.dart | Inscription
-lib/presentation/features/auth/screens/email_auth_screen.dart | J\'accepte les Conditions d\'utilisation et la Politique de confidentialité
-lib/presentation/features/auth/screens/email_auth_screen.dart | Les mots de passe ne correspondent pas
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 2 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Minimum 8 caractères
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe oublié ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Mot de passe requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Moyen
-lib/presentation/features/auth/screens/email_auth_screen.dart | OK, je vais vérifier
-lib/presentation/features/auth/screens/email_auth_screen.dart | Pas encore de compte ?
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom
-lib/presentation/features/auth/screens/email_auth_screen.dart | Prénom requis
-lib/presentation/features/auth/screens/email_auth_screen.dart | Ravi de vous revoir
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Se connecter
-lib/presentation/features/auth/screens/email_auth_screen.dart | Un email de vérification a été envoyé à :
-lib/presentation/features/auth/screens/email_auth_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/email_auth_screen.dart | Veuillez accepter les conditions d\'utilisation
-lib/presentation/features/auth/screens/email_auth_screen.dart | Vérifiez votre email
-lib/presentation/features/auth/screens/login_screen.dart |  et la 
-lib/presentation/features/auth/screens/login_screen.dart | Conditions
-lib/presentation/features/auth/screens/login_screen.dart | Confidentialité
-lib/presentation/features/auth/screens/login_screen.dart | Connexion fictive (dev)
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Apple
-lib/presentation/features/auth/screens/login_screen.dart | Continuer avec Google
-lib/presentation/features/auth/screens/login_screen.dart | Des rencontres sérieuses, entre personnes qui partagent vos valeurs.
-lib/presentation/features/auth/screens/login_screen.dart | En continuant, vous acceptez les 
-lib/presentation/features/auth/screens/login_screen.dart | Rencontres · Communauté juive
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Une erreur est survenue. Veuillez réessayer.
-lib/presentation/features/auth/screens/login_screen.dart | Utiliser mon e-mail
 lib/presentation/features/boost/screens/boost_screen.dart | $remaining boost${remaining > 1 ? 
 lib/presentation/features/boost/screens/boost_screen.dart | ${_boostStatus!.minutesRemaining} min restantes
 lib/presentation/features/boost/screens/boost_screen.dart | 10x plus de visibilité pendant 30 min
@@ -1184,26 +1101,6 @@ lib/presentation/features/navigation/screens/main_navigation_screen.dart | Messa
 lib/presentation/features/navigation/screens/main_navigation_screen.dart | Profil
 lib/presentation/features/navigation/screens/main_navigation_screen.dart | Événements
 lib/presentation/features/navigation/widgets/mazl_nav_bar.dart | Afficher les onglets
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | ${(index + 1).toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | )} / ${total.toString().padLeft(2, 
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | AI Shadchan
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Activités et suggestions
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Bienvenue sur MAZL
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Calendrier juif partagé
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Commencer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Continuer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Découvrez des profils compatibles avec vos valeurs et votre pratique.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | L'application de rencontres pensée pour la communauté juive.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Milestones de couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Couple
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Mode Shabbat
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Notre intelligence artificielle vous aide à trouver la bonne personne.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Page ${current + 1} sur $total
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Passer
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Questions quotidiennes
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Trouvez votre mazal
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une fois l'amour trouvé, MAZL vous accompagne : trouvez l'amour, et gardez-le.
-lib/presentation/features/onboarding/screens/onboarding_screen.dart | Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | $count personnes vous ont aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | 1 personne vous a aimé
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | Abonnement actif
@@ -1869,11 +1766,6 @@ lib/presentation/features/verification/verification_reasons.dart | Votre visage 
 lib/presentation/features/verification/verification_reasons.dart | Votre visage ne correspond pas à votre photo principale. Choisissez une photo récente où vous êtes bien visible.
 lib/presentation/features/verification/verification_reasons.dart | Vous avez atteint la limite d\'essais pour aujourd\'hui. Revenez demain.
 lib/presentation/features/verification/verification_reasons.dart | Vous devez avoir au moins 18 ans.
-lib/presentation/features/video_call/screens/video_call_screen.dart | Appel en cours...
-lib/presentation/features/video_call/screens/video_call_screen.dart | Caméra
-lib/presentation/features/video_call/screens/video_call_screen.dart | Fin
-lib/presentation/features/video_call/screens/video_call_screen.dart | Flip
-lib/presentation/features/video_call/screens/video_call_screen.dart | Micro
 lib/presentation/features/video_call/screens/video_call_screen.dart | Sarah
 lib/presentation/features/visitors/screens/visitors_screen.dart | $thisWeek cette semaine
 lib/presentation/features/visitors/screens/visitors_screen.dart | $total visite${total > 1 ? 
