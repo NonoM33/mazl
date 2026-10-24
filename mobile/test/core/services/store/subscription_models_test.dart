@@ -105,8 +105,13 @@ void main() {
   });
 
   group('identifiants de produit', () {
-    test('la liste des produits est en un seul endroit', () {
-      expect(kSubscriptionProductIds, ['com.mazl.app.plus.1m']);
+    test('la liste suit les quatre durées créées dans App Store Connect', () {
+      expect(kSubscriptionProductIds, [
+        'com.mazl.app.plus.1m',
+        'com.mazl.app.plus.3m',
+        'com.mazl.app.plus.6m',
+        'com.mazl.app.plus.12m',
+      ]);
     });
 
     test('la durée se lit dans com.mazl.app.plus.<n>m', () {
