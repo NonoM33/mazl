@@ -1,0 +1,977 @@
+{
+  "profileMyProfile": "Mon profil",
+  "@profileMyProfile": {
+    "description": "Profil du membre : étiquette en capitales tout en haut de son propre profil."
+  },
+  "profileEdit": "Modifier",
+  "@profileEdit": {
+    "description": "Bouton court qui ouvre la modification (profil, question de profil). Une ligne, environ 12 caractères."
+  },
+  "profileSettings": "Réglages",
+  "@profileSettings": {
+    "description": "Info-bulle de l'icône qui ouvre les réglages, en haut de son propre profil."
+  },
+  "profileMoreOptions": "Plus d'options",
+  "@profileMoreOptions": {
+    "description": "Info-bulle de l'icône « … » du profil d'un autre membre (bloquer, signaler)."
+  },
+  "profilePass": "Passer",
+  "@profilePass": {
+    "description": "Info-bulle de la croix ronde du profil d'un autre membre : passer cette personne sans l'aimer."
+  },
+  "profileLikeName": "J'aime {name}",
+  "@profileLikeName": {
+    "description": "Bouton principal en bas du profil d'un autre membre : aimer cette personne. {name} est son prénom. Une seule ligne, environ 20 caractères.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileThisPerson": "cette personne",
+  "@profileThisPerson": {
+    "description": "Repli à la place du prénom quand il manque, par exemple « J'aime cette personne ». En minuscules, au nominatif."
+  },
+  "profileFallbackName": "Utilisateur",
+  "@profileFallbackName": {
+    "description": "Nom affiché quand un membre n'a pas de prénom."
+  },
+  "profileFallbackReportName": "Cet utilisateur",
+  "@profileFallbackReportName": {
+    "description": "Nom d'un membre sans prénom, dans la fenêtre de blocage et de signalement. Commence une phrase."
+  },
+  "profileDefaultLocation": "France",
+  "@profileDefaultLocation": {
+    "description": "Lieu affiché quand le membre n'a pas indiqué sa ville : le pays par défaut."
+  },
+  "profileDistanceUnderOneKm": "à moins de 1 km",
+  "@profileDistanceUnderOneKm": {
+    "description": "Distance d'un profil, quand la personne est à moins d'un kilomètre. Suit la ville : « Paris · à moins de 1 km »."
+  },
+  "profileDistanceKm": "à {km} km",
+  "@profileDistanceKm": {
+    "description": "Distance d'un profil en kilomètres. Suit la ville : « Paris · à 4 km ».",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "profileGenderMale": "Homme",
+  "@profileGenderMale": {
+    "description": "Genre d'un membre, dans « L'essentiel »."
+  },
+  "profileGenderFemale": "Femme",
+  "@profileGenderFemale": {
+    "description": "Genre d'un membre, dans « L'essentiel »."
+  },
+  "profileFactPractice": "Pratique",
+  "@profileFactPractice": {
+    "description": "Rangée de « L'essentiel » (et critère de compatibilité) : le courant du judaïsme pratiqué, par exemple Massorti."
+  },
+  "profileFactKashrut": "Cacherout",
+  "@profileFactKashrut": {
+    "description": "Rangée de « L'essentiel » : le niveau de cacherout du membre."
+  },
+  "profileShabbat": "Shabbat",
+  "@profileShabbat": {
+    "description": "Titre d'un champ : l'observance du Shabbat (profil, modification, inscription)."
+  },
+  "profileFactGender": "Genre",
+  "@profileFactGender": {
+    "description": "Rangée de « L'essentiel » : le genre du membre."
+  },
+  "profileEssentials": "L'essentiel",
+  "@profileEssentials": {
+    "description": "Titre de section en capitales : les faits principaux d'un profil (pratique, cacherout, Shabbat, genre)."
+  },
+  "profileInAFewWords": "En quelques mots",
+  "@profileInAFewWords": {
+    "description": "Titre de section en capitales : les réponses d'un membre à ses questions de profil."
+  },
+  "profileAbout": "À propos",
+  "@profileAbout": {
+    "description": "Titre de section : la présentation écrite par le membre (profil et modification)."
+  },
+  "profileLookingFor": "Ce que je recherche",
+  "@profileLookingFor": {
+    "description": "Titre de section : ce que le membre cherche (texte libre et choix d'intention)."
+  },
+  "profileAddPhotos": "Ajouter des photos",
+  "@profileAddPhotos": {
+    "description": "Bouton sous la galerie d'un profil sans photo : ouvre la modification des photos."
+  },
+  "profileVerified": "Vérifié",
+  "@profileVerified": {
+    "description": "Pastille d'un profil dont l'identité est vérifiée."
+  },
+  "profileVerifiedPlus": "Vérifié+",
+  "@profileVerifiedPlus": {
+    "description": "Pastille d'un profil vérifié au niveau supérieur (selfie et pièce d'identité)."
+  },
+  "profileVerifyMyProfile": "Vérifier mon profil",
+  "@profileVerifyMyProfile": {
+    "description": "Pastille touchable sur son propre profil : mène à l'écran de vérification."
+  },
+  "profileVerificationStatus": "Statut de vérification : {status}",
+  "@profileVerificationStatus": {
+    "description": "Libellé d'accessibilité (lecteur d'écran) de la pastille de vérification. {status} est « Vérifié » ou « Vérifié+ ».",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "profilePhotoPrevious": "Photo précédente",
+  "@profilePhotoPrevious": {
+    "description": "Libellé d'accessibilité de la zone tactile qui montre la photo précédente."
+  },
+  "profilePhotoNext": "Photo suivante",
+  "@profilePhotoNext": {
+    "description": "Libellé d'accessibilité de la zone tactile qui montre la photo suivante."
+  },
+  "profilePhotoCounter": "Photo {current} sur {total}",
+  "@profilePhotoCounter": {
+    "description": "Libellé d'accessibilité du compteur de la galerie, par exemple « Photo 2 sur 4 ».",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "profileMatchLabel": "Match",
+  "@profileMatchLabel": {
+    "description": "Étiquette en capitales au-dessus du titre de la fenêtre qui annonce un match."
+  },
+  "profileMatchTitle": "C'est un match.",
+  "@profileMatchTitle": {
+    "description": "Grand titre de la fenêtre qui annonce que deux membres se sont aimés. Environ 15 caractères, peut passer sur deux lignes."
+  },
+  "profileMatchBody": "Vous pouvez maintenant discuter avec {name}.",
+  "@profileMatchBody": {
+    "description": "Fenêtre de match : invite à écrire à la personne. {name} est son prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMatchBodyUnnamed": "Vous pouvez maintenant discuter avec cette personne.",
+  "@profileMatchBodyUnnamed": {
+    "description": "Fenêtre de match, quand le prénom manque : invite à écrire à la personne."
+  },
+  "profileSendMessage": "Envoyer un message",
+  "@profileSendMessage": {
+    "description": "Bouton plein de la fenêtre de match : ouvre la conversation."
+  },
+  "profileCompletionEyebrow": "Profil · {done}/{total}",
+  "@profileCompletionEyebrow": {
+    "description": "Étiquette en capitales de la carte « Complétez votre profil » : étapes faites sur le total, par exemple « Profil · 2/4 ».",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "profileCompletionTitle": "Complétez votre profil",
+  "@profileCompletionTitle": {
+    "description": "Titre de la carte qui invite à finir son profil."
+  },
+  "profileCompletionRemaining": "{count, plural, one{{count} étape restante} other{{count} étapes restantes}}",
+  "@profileCompletionRemaining": {
+    "description": "Sous le titre de la carte de complétion : le nombre d'étapes qu'il reste à faire (toujours au moins 1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileCompletionAction": "Compléter maintenant",
+  "@profileCompletionAction": {
+    "description": "Bouton de la carte de complétion : ouvre la première étape qu'il reste à faire."
+  },
+  "profileStepPhotosDone": "Photos ajoutées",
+  "@profileStepPhotosDone": {
+    "description": "Étape de complétion faite (rayée) : au moins deux photos."
+  },
+  "profileStepPhotosTodo": "Ajoutez au moins 2 photos",
+  "@profileStepPhotosTodo": {
+    "description": "Étape de complétion à faire : ajouter des photos."
+  },
+  "profileStepBioDone": "Bio complétée",
+  "@profileStepBioDone": {
+    "description": "Étape de complétion faite (rayée) : la présentation est écrite."
+  },
+  "profileStepBioTodo": "Décrivez-vous en quelques lignes",
+  "@profileStepBioTodo": {
+    "description": "Étape de complétion à faire : écrire sa présentation."
+  },
+  "profileStepCityDone": "Ville renseignée",
+  "@profileStepCityDone": {
+    "description": "Étape de complétion faite (rayée) : la ville est indiquée."
+  },
+  "profileStepCityTodo": "Indiquez votre ville",
+  "@profileStepCityTodo": {
+    "description": "Étape de complétion à faire : indiquer sa ville."
+  },
+  "profileStepVerifiedDone": "Profil vérifié",
+  "@profileStepVerifiedDone": {
+    "description": "Étape de complétion faite (rayée) : le profil est vérifié."
+  },
+  "profileStepVerifiedTodo": "Faites vérifier votre profil",
+  "@profileStepVerifiedTodo": {
+    "description": "Étape de complétion à faire : faire vérifier son profil."
+  },
+  "profileCoupleMode": "Mode couple",
+  "@profileCoupleMode": {
+    "description": "Titre de section en capitales, sur le profil d'un match : l'entrée du mode couple."
+  },
+  "profileCoupleInCoupleTitle": "En couple",
+  "@profileCoupleInCoupleTitle": {
+    "description": "Mode couple : titre quand le membre est déjà en couple avec cette personne."
+  },
+  "profileCoupleInCoupleBody": "Vous êtes en mode couple avec {name}.",
+  "@profileCoupleInCoupleBody": {
+    "description": "Mode couple : explication quand les deux sont déjà en couple. {name} est le prénom de la personne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCoupleElsewhereTitle": "Déjà en mode couple",
+  "@profileCoupleElsewhereTitle": {
+    "description": "Mode couple : titre quand le membre qui regarde est déjà en couple avec quelqu'un d'autre."
+  },
+  "profileCoupleElsewhereBody": "Vous êtes déjà en mode couple avec quelqu'un d'autre.",
+  "@profileCoupleElsewhereBody": {
+    "description": "Mode couple : explication quand le membre qui regarde est déjà en couple avec quelqu'un d'autre."
+  },
+  "profileCoupleReceivedTitle": "Demande reçue",
+  "@profileCoupleReceivedTitle": {
+    "description": "Mode couple : titre quand l'autre personne a demandé le mode couple."
+  },
+  "profileCoupleReceivedBody": "{name} souhaite activer le mode couple avec vous.",
+  "@profileCoupleReceivedBody": {
+    "description": "Mode couple : explication d'une demande reçue. {name} est le prénom de la personne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCoupleRespond": "Répondre",
+  "@profileCoupleRespond": {
+    "description": "Mode couple : bouton qui ouvre la réponse à une demande reçue."
+  },
+  "profileCouplePendingTitle": "Demande envoyée",
+  "@profileCouplePendingTitle": {
+    "description": "Mode couple : titre quand le membre a envoyé une demande qui attend sa réponse."
+  },
+  "profileCouplePendingBody": "{name} n'a pas encore répondu.",
+  "@profileCouplePendingBody": {
+    "description": "Mode couple : explication d'une demande en attente. {name} est le prénom de la personne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCoupleCancelRequest": "Annuler la demande",
+  "@profileCoupleCancelRequest": {
+    "description": "Mode couple : bouton qui annule une demande envoyée."
+  },
+  "profileCoupleAvailableTitle": "Passer au mode couple",
+  "@profileCoupleAvailableTitle": {
+    "description": "Mode couple : titre quand une demande peut être envoyée."
+  },
+  "profileCoupleAvailableBody": "Vous avez matché. Activez le mode couple pour partager des activités ensemble.",
+  "@profileCoupleAvailableBody": {
+    "description": "Mode couple : invitation à l'activer après un match."
+  },
+  "profileCoupleActivate": "Activer avec {name}",
+  "@profileCoupleActivate": {
+    "description": "Mode couple : bouton qui envoie la demande. {name} est le prénom de la personne. Une ligne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCoupleRequestSent": "Demande envoyée à {name}.",
+  "@profileCoupleRequestSent": {
+    "description": "Message bref (snackbar) après l'envoi d'une demande de mode couple. {name} est le prénom de la personne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCompatibility": "Compatibilité",
+  "@profileCompatibility": {
+    "description": "Titre de section en capitales sur le profil d'un autre membre, et titre de la carte de score."
+  },
+  "profileCompatibilityVeryHigh": "Très compatible",
+  "@profileCompatibilityVeryHigh": {
+    "description": "Palier de compatibilité le plus haut (score de 85 % ou plus)."
+  },
+  "profileCompatibilityHigh": "Compatible",
+  "@profileCompatibilityHigh": {
+    "description": "Palier de compatibilité : score de 60 à 84 %."
+  },
+  "profileCompatibilityAverage": "Compatibilité moyenne",
+  "@profileCompatibilityAverage": {
+    "description": "Palier de compatibilité : score de 40 à 59 %."
+  },
+  "profileCompatibilityLow": "Peu compatible",
+  "@profileCompatibilityLow": {
+    "description": "Palier de compatibilité : score sous 40 %."
+  },
+  "profileCompatibilityBasis": "Calculée à partir de vos deux profils.",
+  "@profileCompatibilityBasis": {
+    "description": "Explication du score quand aucun critère détaillé n'est disponible."
+  },
+  "profileCompatibilityUnavailable": "Compatibilité indisponible pour le moment.",
+  "@profileCompatibilityUnavailable": {
+    "description": "Message neutre quand le score de compatibilité n'a pas pu être calculé (abonné)."
+  },
+  "profileCompatibilityUnlockTitle": "Découvrez votre score de compatibilité avec {name}.",
+  "@profileCompatibilityUnlockTitle": {
+    "description": "Invitation (non abonné) à débloquer le score. {name} est le prénom de la personne. Deux ou trois lignes.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCompatibilityUnlockBody": "Calculé à partir de vos pratiques, vos intentions et vos valeurs.",
+  "@profileCompatibilityUnlockBody": {
+    "description": "Sous l'invitation à débloquer le score : ce sur quoi il est calculé."
+  },
+  "profileCompatibilityUnlock": "Débloquer avec mazl+",
+  "@profileCompatibilityUnlock": {
+    "description": "Bouton qui ouvre l'abonnement mazl+ pour voir le score. Une ligne."
+  },
+  "profileFactorIntentions": "Intentions",
+  "@profileFactorIntentions": {
+    "description": "Nom d'un critère de compatibilité : ce que chacun recherche."
+  },
+  "profileFactorAge": "Âge",
+  "@profileFactorAge": {
+    "description": "Nom d'un critère de compatibilité : l'écart d'âge."
+  },
+  "profileFactorDistance": "Distance",
+  "@profileFactorDistance": {
+    "description": "Nom d'un critère de compatibilité : l'éloignement."
+  },
+  "profileVerdictSameIntention": "Vous cherchez la même chose",
+  "@profileVerdictSameIntention": {
+    "description": "Constat d'un critère de compatibilité : les deux membres cherchent la même chose."
+  },
+  "profileVerdictDifferentIntention": "Intentions différentes",
+  "@profileVerdictDifferentIntention": {
+    "description": "Constat d'un critère de compatibilité : les intentions diffèrent."
+  },
+  "profileVerdictSameDenomination": "Même dénomination",
+  "@profileVerdictSameDenomination": {
+    "description": "Constat d'un critère de compatibilité : le même courant du judaïsme."
+  },
+  "profileVerdictSimilarPractice": "Pratique similaire",
+  "@profileVerdictSimilarPractice": {
+    "description": "Constat d'un critère de compatibilité : des courants proches."
+  },
+  "profileVerdictDifferentPractice": "Pratique différente",
+  "@profileVerdictDifferentPractice": {
+    "description": "Constat d'un critère de compatibilité : des courants éloignés."
+  },
+  "profileVerdictVeryCloseAge": "Âge très proche",
+  "@profileVerdictVeryCloseAge": {
+    "description": "Constat d'un critère de compatibilité : 3 ans d'écart ou moins."
+  },
+  "profileVerdictCloseAge": "Âge proche",
+  "@profileVerdictCloseAge": {
+    "description": "Constat d'un critère de compatibilité : 4 à 5 ans d'écart."
+  },
+  "profileVerdictModerateAgeGap": "Différence d'âge modérée",
+  "@profileVerdictModerateAgeGap": {
+    "description": "Constat d'un critère de compatibilité : 6 à 10 ans d'écart."
+  },
+  "profileVerdictLargeAgeGap": "Grande différence d'âge",
+  "@profileVerdictLargeAgeGap": {
+    "description": "Constat d'un critère de compatibilité : plus de 10 ans d'écart."
+  },
+  "profileVerdictVeryNear": "Très proche (< 10 km)",
+  "@profileVerdictVeryNear": {
+    "description": "Constat d'un critère de compatibilité : à moins de 10 km."
+  },
+  "profileVerdictNear": "Proche (< 25 km)",
+  "@profileVerdictNear": {
+    "description": "Constat d'un critère de compatibilité : à moins de 25 km."
+  },
+  "profileVerdictModerateDistance": "Distance modérée",
+  "@profileVerdictModerateDistance": {
+    "description": "Constat d'un critère de compatibilité : entre 25 et 50 km."
+  },
+  "profileVerdictFar": "Assez loin",
+  "@profileVerdictFar": {
+    "description": "Constat d'un critère de compatibilité : à plus de 50 km."
+  },
+  "profileCompatibilityCriteria": "{count, plural, =1{1 critère analysé} other{{count} critères analysés}}",
+  "@profileCompatibilityCriteria": {
+    "description": "Carte de score : nombre de critères pris en compte. Une ligne, petit corps.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileCompatibilityScoreTitle": "Score de compatibilité",
+  "@profileCompatibilityScoreTitle": {
+    "description": "Titre de la feuille de détail du score quand le palier n'est pas « très compatible »."
+  },
+  "profileCompatibilityWith": "Avec {name}",
+  "@profileCompatibilityWith": {
+    "description": "Feuille de détail du score : sous le titre, avec qui. {name} est le prénom de la personne.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCompatibilityDetails": "Détails",
+  "@profileCompatibilityDetails": {
+    "description": "Feuille de détail du score : titre de la liste des critères."
+  },
+  "profileCompatibilityIncomplete": "Complétez vos profils pour voir plus de détails",
+  "@profileCompatibilityIncomplete": {
+    "description": "Feuille de détail du score : message quand aucun critère n'est disponible."
+  },
+  "profileCompatibilityNote": "Le score est basé sur vos préférences et points communs",
+  "@profileCompatibilityNote": {
+    "description": "Feuille de détail du score : note explicative en petit corps."
+  },
+  "profileCompatibilityGotIt": "Compris",
+  "@profileCompatibilityGotIt": {
+    "description": "Feuille de détail du score : bouton qui la ferme."
+  },
+  "profilePromptsMine": "Mes Prompts",
+  "@profilePromptsMine": {
+    "description": "Modification du profil : titre de la section des questions de profil."
+  },
+  "profilePromptsSubtitle": "Répondez à des questions pour montrer votre personnalité",
+  "@profilePromptsSubtitle": {
+    "description": "Modification du profil : sous-titre de la section des questions, petit corps."
+  },
+  "profilePromptsMaxReached": "Maximum {max} prompts atteint",
+  "@profilePromptsMaxReached": {
+    "description": "Message bref (snackbar) quand le membre veut ajouter plus de questions que le maximum. {max} vaut 3.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePromptsAllUsed": "Tous les prompts sont déjà utilisés",
+  "@profilePromptsAllUsed": {
+    "description": "Message bref (snackbar) quand il ne reste aucune question à ajouter."
+  },
+  "profilePromptAdd": "Ajouter un prompt",
+  "@profilePromptAdd": {
+    "description": "Bouton en pointillés qui ouvre la liste des questions de profil à choisir."
+  },
+  "profilePromptChoose": "Choisissez un prompt",
+  "@profilePromptChoose": {
+    "description": "Titre de la feuille qui liste les questions de profil à choisir."
+  },
+  "profilePromptYourAnswer": "Votre réponse…",
+  "@profilePromptYourAnswer": {
+    "description": "Indication du champ où le membre écrit sa réponse à une question de profil (150 caractères au plus)."
+  },
+  "profilePromptDeleteTitle": "Supprimer ce prompt ?",
+  "@profilePromptDeleteTitle": {
+    "description": "Titre de la boîte de dialogue qui confirme la suppression d'une question de profil."
+  },
+  "profileIrreversibleSentence": "Cette action est irréversible.",
+  "@profileIrreversibleSentence": {
+    "description": "Phrase d'avertissement d'une confirmation de suppression (avec point final)."
+  },
+  "profileIrreversible": "Cette action est irréversible",
+  "@profileIrreversible": {
+    "description": "Phrase d'avertissement sous le titre de la feuille de suppression d'une photo (sans point final)."
+  },
+  "profilePromptDeleted": "Prompt supprimé",
+  "@profilePromptDeleted": {
+    "description": "Message bref (snackbar) après la suppression d'une question de profil."
+  },
+  "profilePromptsGetToKnowMe": "Apprenez à me connaître",
+  "@profilePromptsGetToKnowMe": {
+    "description": "Titre au-dessus des questions et réponses d'un membre sur son profil."
+  },
+  "profilePromptCategoryPersonality": "Personnalité",
+  "@profilePromptCategoryPersonality": {
+    "description": "Famille de questions de profil, titre de groupe dans la liste."
+  },
+  "profilePromptCategoryLifestyle": "Mode de vie",
+  "@profilePromptCategoryLifestyle": {
+    "description": "Famille de questions de profil, titre de groupe dans la liste."
+  },
+  "profilePromptCategoryJewish": "Judaïsme",
+  "@profilePromptCategoryJewish": {
+    "description": "Famille de questions de profil sur le judaïsme, titre de groupe dans la liste."
+  },
+  "profilePromptCategoryConversation": "Conversation",
+  "@profilePromptCategoryConversation": {
+    "description": "Famille de questions de profil pour lancer une conversation, titre de groupe dans la liste."
+  },
+  "profileOther": "Autre",
+  "@profileOther": {
+    "description": "Choix « Autre » : famille de questions inconnue, ou courant du judaïsme non listé."
+  },
+  "profilePromptPerfectSunday": "Mon dimanche parfait...",
+  "@profilePromptPerfectSunday": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFunFact": "Un fait surprenant sur moi...",
+  "@profilePromptFunFact": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptLifeGoal": "Un de mes objectifs dans la vie...",
+  "@profilePromptLifeGoal": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptPetPeeve": "Ce qui m'énerve le plus...",
+  "@profilePromptPetPeeve": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptProudOf": "Je suis fier(e) de...",
+  "@profilePromptProudOf": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptLookingFor": "Je cherche quelqu'un qui...",
+  "@profilePromptLookingFor": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptIdealVacation": "Mes vacances idéales...",
+  "@profilePromptIdealVacation": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFavoriteFood": "Mon plat préféré...",
+  "@profilePromptFavoriteFood": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptHiddenTalent": "Mon talent caché...",
+  "@profilePromptHiddenTalent": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptBingeWatching": "En ce moment je regarde...",
+  "@profilePromptBingeWatching": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptShabbatIdeal": "Mon Shabbat idéal...",
+  "@profilePromptShabbatIdeal": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFamilyTradition": "Une tradition familiale que j'adore...",
+  "@profilePromptFamilyTradition": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFavoriteHoliday": "Ma fête juive préférée...",
+  "@profilePromptFavoriteHoliday": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFridayNight": "Le vendredi soir chez moi...",
+  "@profilePromptFridayNight": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptIsraelMemory": "Mon meilleur souvenir en Israël...",
+  "@profilePromptIsraelMemory": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptJewishValue": "Une valeur juive qui me guide...",
+  "@profilePromptJewishValue": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptDebateMe": "Débattez avec moi sur…",
+  "@profilePromptDebateMe": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptTeachMe": "Apprenez-moi quelque chose sur…",
+  "@profilePromptTeachMe": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptTogetherWeCould": "Ensemble on pourrait...",
+  "@profilePromptTogetherWeCould": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profilePromptFirstDate": "Premier date idéal...",
+  "@profilePromptFirstDate": {
+    "description": "Question de profil du catalogue (le membre y répond en une phrase). Elle se termine par des points de suspension : la réponse la complète."
+  },
+  "profileIntentionHint": "Montrez aux autres ce que vous recherchez",
+  "@profileIntentionHint": {
+    "description": "Modification du profil : sous-titre du choix d'intention, petit corps."
+  },
+  "profileIntentionMarriage": "Mariage",
+  "@profileIntentionMarriage": {
+    "description": "Intention de relation : se marier. Pastille de profil, choix du sélecteur et choix d'inscription."
+  },
+  "profileIntentionSerious": "Relation sérieuse",
+  "@profileIntentionSerious": {
+    "description": "Intention de relation : une relation sérieuse. Pastille de profil, choix du sélecteur et choix d'inscription."
+  },
+  "profileIntentionOpen": "Ouvert à tout",
+  "@profileIntentionOpen": {
+    "description": "Intention de relation : ouvert à tout, sur la pastille d'un profil."
+  },
+  "profileIntentionOpenSelector": "Ouvert(e) à tout",
+  "@profileIntentionOpenSelector": {
+    "description": "Intention de relation : ouvert à tout, dans le sélecteur du profil (forme écrite avec le « e » facultatif)."
+  },
+  "profileIntentionFriendsFirst": "Amitié d'abord",
+  "@profileIntentionFriendsFirst": {
+    "description": "Intention de relation : commencer par l'amitié."
+  },
+  "profileIntentionUndecided": "Je ne sais pas",
+  "@profileIntentionUndecided": {
+    "description": "Choix d'objectif à l'inscription : le membre ne sait pas encore."
+  },
+  "profileIntentionMarriageDescription": "Je cherche mon/ma futur(e) mari/femme",
+  "@profileIntentionMarriageDescription": {
+    "description": "Sous l'intention « Mariage » : explication courte."
+  },
+  "profileIntentionSeriousDescription": "Je cherche une relation durable",
+  "@profileIntentionSeriousDescription": {
+    "description": "Sous l'intention « Relation sérieuse » : explication courte."
+  },
+  "profileIntentionOpenDescription": "On verra où ça nous mène",
+  "@profileIntentionOpenDescription": {
+    "description": "Sous l'intention « Ouvert à tout » : explication courte."
+  },
+  "profileIntentionFriendsFirstDescription": "Commençons par apprendre à se connaître",
+  "@profileIntentionFriendsFirstDescription": {
+    "description": "Sous l'intention « Amitié d'abord » : explication courte."
+  },
+  "profileDenomination": "Dénomination",
+  "@profileDenomination": {
+    "description": "Titre d'un champ : le courant du judaïsme pratiqué (modification et inscription)."
+  },
+  "profileDenominationSecular": "Laïque",
+  "@profileDenominationSecular": {
+    "description": "Courant du judaïsme : laïque."
+  },
+  "profileDenominationTraditional": "Traditionaliste",
+  "@profileDenominationTraditional": {
+    "description": "Courant du judaïsme : traditionaliste (attaché aux traditions sans suivre une pratique stricte)."
+  },
+  "profileDenominationMasorti": "Massorti",
+  "@profileDenominationMasorti": {
+    "description": "Courant du judaïsme : massorti, le mouvement conservative."
+  },
+  "profileDenominationLiberal": "Libéral",
+  "@profileDenominationLiberal": {
+    "description": "Courant du judaïsme : libéral, réformé."
+  },
+  "profileDenominationModernOrthodox": "Orthodoxe moderne",
+  "@profileDenominationModernOrthodox": {
+    "description": "Courant du judaïsme : orthodoxe moderne (sioniste religieux)."
+  },
+  "profileDenominationOrthodox": "Orthodoxe",
+  "@profileDenominationOrthodox": {
+    "description": "Courant du judaïsme : orthodoxe."
+  },
+  "profileDenominationChabad": "Habad",
+  "@profileDenominationChabad": {
+    "description": "Courant du judaïsme : Habad-Loubavitch (nom propre)."
+  },
+  "profileFieldKashrut": "Kashrout",
+  "@profileFieldKashrut": {
+    "description": "Titre d'un champ : le niveau de cacherout (modification et inscription)."
+  },
+  "profileKashrutNone": "Non",
+  "@profileKashrutNone": {
+    "description": "Cacherout : le membre ne la suit pas."
+  },
+  "profileKashrutHome": "Cacher à la maison",
+  "@profileKashrutHome": {
+    "description": "Cacherout, sur le profil : le membre la suit chez lui."
+  },
+  "profileKashrutStrict": "Cacher strict",
+  "@profileKashrutStrict": {
+    "description": "Cacherout, sur le profil : le membre la suit strictement."
+  },
+  "profileKashrutGlatt": "Glatt cacher",
+  "@profileKashrutGlatt": {
+    "description": "Cacherout, sur le profil : viande glatt."
+  },
+  "profileKashrutOptionHome": "À la maison",
+  "@profileKashrutOptionHome": {
+    "description": "Cacherout, choix de la modification et de l'inscription : à la maison seulement."
+  },
+  "profileKashrutOptionStrict": "Strict",
+  "@profileKashrutOptionStrict": {
+    "description": "Cacherout, choix de la modification et de l'inscription : strict."
+  },
+  "profileKashrutOptionGlatt": "Glatt",
+  "@profileKashrutOptionGlatt": {
+    "description": "Cacherout, choix de la modification et de l'inscription : glatt."
+  },
+  "profileShabbatNotObservant": "Non observant",
+  "@profileShabbatNotObservant": {
+    "description": "Shabbat : le membre ne l'observe pas (profil, modification et inscription)."
+  },
+  "profileShabbatPartial": "Shabbat en partie",
+  "@profileShabbatPartial": {
+    "description": "Shabbat, sur le profil : observé en partie."
+  },
+  "profileShabbatObserved": "Shabbat observé",
+  "@profileShabbatObserved": {
+    "description": "Shabbat, sur le profil : observé."
+  },
+  "profileShabbatStrict": "Shabbat strict",
+  "@profileShabbatStrict": {
+    "description": "Shabbat, sur le profil : observé strictement."
+  },
+  "profileShabbatFamily": "Shabbat en famille",
+  "@profileShabbatFamily": {
+    "description": "Shabbat, sur le profil : vécu en famille."
+  },
+  "profileShabbatOptionPartial": "Partiellement",
+  "@profileShabbatOptionPartial": {
+    "description": "Shabbat, choix de la modification et de l'inscription : en partie."
+  },
+  "profileShabbatOptionObservant": "Observant",
+  "@profileShabbatOptionObservant": {
+    "description": "Shabbat, choix de la modification et de l'inscription : observant."
+  },
+  "profileShabbatOptionStrict": "Très observant",
+  "@profileShabbatOptionStrict": {
+    "description": "Shabbat, choix de la modification et de l'inscription : très observant."
+  },
+  "profileSynagogue": "Synagogue",
+  "@profileSynagogue": {
+    "description": "Titre d'un champ de l'inscription : à quelle fréquence le membre va à la synagogue."
+  },
+  "profileSynagogueDaily": "Quotidien",
+  "@profileSynagogueDaily": {
+    "description": "Fréquence des visites à la synagogue : tous les jours."
+  },
+  "profileSynagogueWeekly": "Chaque semaine",
+  "@profileSynagogueWeekly": {
+    "description": "Fréquence des visites à la synagogue : chaque semaine."
+  },
+  "profileSynagogueHolidays": "Fêtes",
+  "@profileSynagogueHolidays": {
+    "description": "Fréquence des visites à la synagogue : pour les fêtes."
+  },
+  "profileSynagogueRarely": "Rarement",
+  "@profileSynagogueRarely": {
+    "description": "Fréquence des visites à la synagogue : rarement."
+  },
+  "profileEditTitle": "Modifier le profil",
+  "@profileEditTitle": {
+    "description": "Titre de la barre du haut de l'écran de modification du profil."
+  },
+  "profilePhotos": "Photos",
+  "@profilePhotos": {
+    "description": "Modification du profil : titre de la section des photos."
+  },
+  "profilePhotosHint": "Maintenez appuyé pour définir comme principale",
+  "@profilePhotosHint": {
+    "description": "Modification du profil : astuce sous le titre des photos, petit corps."
+  },
+  "profileBioHint": "Parlez de vous…",
+  "@profileBioHint": {
+    "description": "Indication du champ de présentation (500 caractères au plus)."
+  },
+  "profileBasicInfo": "Informations de base",
+  "@profileBasicInfo": {
+    "description": "Modification du profil : titre de la section prénom et ville."
+  },
+  "profileFirstName": "Prénom",
+  "@profileFirstName": {
+    "description": "Titre d'un champ : le prénom du membre."
+  },
+  "profileCity": "Ville",
+  "@profileCity": {
+    "description": "Titre d'un champ : la ville du membre."
+  },
+  "profilePracticeTitle": "Ma pratique",
+  "@profilePracticeTitle": {
+    "description": "Modification du profil : titre de la section courant, cacherout et Shabbat."
+  },
+  "profilePrimaryPhoto": "Principal",
+  "@profilePrimaryPhoto": {
+    "description": "Étiquette minuscule (10 pt) sur la photo principale de la grille. Un mot court."
+  },
+  "profileEnterFirstName": "Entrez votre prénom",
+  "@profileEnterFirstName": {
+    "description": "Indication du champ de saisie du prénom dans la feuille de modification."
+  },
+  "profileEnterCity": "Entrez votre ville",
+  "@profileEnterCity": {
+    "description": "Indication du champ de saisie de la ville dans la feuille de modification."
+  },
+  "profileUpdated": "Profil mis à jour",
+  "@profileUpdated": {
+    "description": "Message bref (snackbar) après l'enregistrement du profil."
+  },
+  "profilePhotoAdded": "Photo ajoutée",
+  "@profilePhotoAdded": {
+    "description": "Message bref (snackbar) après l'envoi d'une photo."
+  },
+  "profileUploadUnavailable": "Upload non disponible pour le moment",
+  "@profileUploadUnavailable": {
+    "description": "Message bref (snackbar) quand l'envoi de photo n'est pas disponible."
+  },
+  "profileDeletePhotoTitle": "Supprimer la photo ?",
+  "@profileDeletePhotoTitle": {
+    "description": "Titre de la feuille qui confirme la suppression d'une photo."
+  },
+  "profilePhotoDeleted": "Photo supprimée",
+  "@profilePhotoDeleted": {
+    "description": "Message bref (snackbar) après la suppression d'une photo."
+  },
+  "profileServiceUnavailable": "Service temporairement indisponible",
+  "@profileServiceUnavailable": {
+    "description": "Message bref (snackbar) quand le service des photos ne répond pas."
+  },
+  "profilePrimaryUpdated": "Photo principale mise à jour",
+  "@profilePrimaryUpdated": {
+    "description": "Message bref (snackbar) après le choix d'une nouvelle photo principale."
+  },
+  "profileSetupStep": "Étape {step}/{total}",
+  "@profileSetupStep": {
+    "description": "Titre de la barre du haut de l'inscription : étape en cours sur le total, par exemple « Étape 2/4 ».",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSetupNext": "Suivant",
+  "@profileSetupNext": {
+    "description": "Bouton plein du bas de l'inscription : passe à l'étape suivante."
+  },
+  "profileSetupFinish": "Terminer",
+  "@profileSetupFinish": {
+    "description": "Bouton plein du bas de la dernière étape de l'inscription : enregistre le profil."
+  },
+  "profileSetupNameRequired": "Indiquez votre prénom pour continuer",
+  "@profileSetupNameRequired": {
+    "description": "Message d'erreur bref (snackbar) : le prénom est obligatoire à l'inscription."
+  },
+  "profileSetupBirthdateRequired": "Indiquez votre date de naissance",
+  "@profileSetupBirthdateRequired": {
+    "description": "Message d'erreur bref (snackbar) : la date de naissance est obligatoire à l'inscription."
+  },
+  "profileSetupGenderRequired": "Indiquez votre genre",
+  "@profileSetupGenderRequired": {
+    "description": "Message d'erreur bref (snackbar) : le genre est obligatoire à l'inscription."
+  },
+  "profileBirthdate": "Date de naissance",
+  "@profileBirthdate": {
+    "description": "Titre du champ de la date de naissance, et titre du sélecteur de date."
+  },
+  "profileBirthdateHint": "JJ/MM/AAAA",
+  "@profileBirthdateHint": {
+    "description": "Indication du champ de date de naissance : l'ordre jour, mois, année tel qu'on l'écrit dans cette langue (même ordre que la date affichée)."
+  },
+  "profileSetupAboutYouTitle": "Parlez-nous de vous",
+  "@profileSetupAboutYouTitle": {
+    "description": "Inscription, étape 1 : grand titre (28 pt)."
+  },
+  "profileSetupAboutYouSubtitle": "Ces informations seront visibles sur votre profil",
+  "@profileSetupAboutYouSubtitle": {
+    "description": "Inscription, étape 1 : sous-titre."
+  },
+  "profileFirstNameHint": "Comment vous appelez-vous ?",
+  "@profileFirstNameHint": {
+    "description": "Indication du champ du prénom à l'inscription."
+  },
+  "profileIAm": "Je suis",
+  "@profileIAm": {
+    "description": "Inscription : titre du choix de son propre genre, suivi de « Un homme » / « Une femme »."
+  },
+  "profileAMan": "Un homme",
+  "@profileAMan": {
+    "description": "Choix de genre à l'inscription (« Je suis… » ou « Je recherche… »). Une ligne dans une pastille de moitié d'écran."
+  },
+  "profileAWoman": "Une femme",
+  "@profileAWoman": {
+    "description": "Choix de genre à l'inscription (« Je suis… » ou « Je recherche… »). Une ligne dans une pastille de moitié d'écran."
+  },
+  "profileCityHint": "Où habitez-vous ?",
+  "@profileCityHint": {
+    "description": "Indication du champ de la ville à l'inscription."
+  },
+  "profileSetupPhotosTitle": "Ajoutez des photos",
+  "@profileSetupPhotosTitle": {
+    "description": "Inscription, étape 2 : grand titre."
+  },
+  "profileSetupPhotosSubtitle": "Ajoutez au moins 2 photos pour continuer",
+  "@profileSetupPhotosSubtitle": {
+    "description": "Inscription, étape 2 : sous-titre."
+  },
+  "profileSetupPhotosTip": "Les profils avec des photos de bonne qualité reçoivent 3x plus de matchs.",
+  "@profileSetupPhotosTip": {
+    "description": "Inscription, étape 2 : conseil dans un encadré, petit corps."
+  },
+  "profileSetupPracticeTitle": "Votre pratique",
+  "@profileSetupPracticeTitle": {
+    "description": "Inscription, étape 3 : grand titre."
+  },
+  "profileSetupPracticeSubtitle": "Aidez-nous à trouver quelqu'un qui vous correspond",
+  "@profileSetupPracticeSubtitle": {
+    "description": "Inscription, étape 3 : sous-titre."
+  },
+  "profileSetupLookingTitle": "Ce que vous recherchez",
+  "@profileSetupLookingTitle": {
+    "description": "Inscription, étape 4 : grand titre."
+  },
+  "profileSetupLookingSubtitle": "Aidez-nous à vous montrer les bons profils",
+  "@profileSetupLookingSubtitle": {
+    "description": "Inscription, étape 4 : sous-titre."
+  },
+  "profileILookFor": "Je recherche",
+  "@profileILookFor": {
+    "description": "Inscription, étape 4 : titre du choix du genre recherché, suivi de « Un homme » / « Une femme »."
+  },
+  "profileAgeRange": "Tranche d'âge",
+  "@profileAgeRange": {
+    "description": "Inscription, étape 4 : titre du curseur de la tranche d'âge recherchée."
+  },
+  "profileMaxDistance": "Distance maximale",
+  "@profileMaxDistance": {
+    "description": "Inscription, étape 4 : titre du curseur de la distance maximale."
+  },
+  "profileDistanceSliderLabel": "{km} km",
+  "@profileDistanceSliderLabel": {
+    "description": "Inscription, étape 4 : bulle du curseur de distance, par exemple « 50 km ».",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "profileGoal": "Objectif",
+  "@profileGoal": {
+    "description": "Inscription, étape 4 : titre du choix de l'objectif (mariage, relation sérieuse…)."
+  },
+  "profileShadchanNote": "Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.",
+  "@profileShadchanNote": {
+    "description": "Inscription, étape 4 : encadré en bas, petit corps. « AI Shadchan » est le nom de la fonction, à ne pas traduire."
+  },
+  "profileReportThisProfile": "Signaler ce profil",
+  "@profileReportThisProfile": {
+    "description": "Bouton texte en bas du profil d'un autre membre : ouvre la fenêtre de blocage et de signalement."
+  }
+}

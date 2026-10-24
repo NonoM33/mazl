@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Prénom, âge et ligne « Ville · à X km ».
@@ -19,6 +21,10 @@ class ProfileIdentity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final age = this.age;
+    final ageText = age == null
+        ? ''
+        : NumberFormat.decimalPattern(context.l10n.localeName).format(age);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,7 +40,7 @@ class ProfileIdentity extends StatelessWidget {
             children: [
               if (age != null)
                 TextSpan(
-                  text: '  $age',
+                  text: '  $ageText',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w400,
@@ -70,19 +76,22 @@ class ProfileVerificationTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final label = isVerified
-        ? (level == 'verified_plus' ? 'Vérifié+' : 'Vérifié')
-        : 'Vérifier mon profil';
+        ? (level == 'verified_plus' ? l10n.profileVerifiedPlus : l10n.profileVerified)
+        : l10n.profileVerifyMyProfile;
     final tag = TagPill(
       label,
       icon: isVerified ? LucideIcons.badgeCheck : LucideIcons.shieldCheck,
     );
-    if (onTap == null) return Align(alignment: Alignment.centerLeft, child: tag);
+    if (onTap == null) {
+      return Align(alignment: AlignmentDirectional.centerStart, child: tag);
+    }
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Semantics(
         button: true,
-        label: isVerified ? 'Statut de vérification : $label' : label,
+        label: isVerified ? l10n.profileVerificationStatus(label) : label,
         excludeSemantics: true,
         child: InkWell(
           onTap: onTap,

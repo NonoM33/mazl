@@ -20,33 +20,70 @@ class PromptTemplate {
     );
   }
 
-  /// Default prompts list (used if API unavailable)
-  static const List<Map<String, String>> defaultPrompts = [
-    // Personnalité
-    {'id': 'perfect_sunday', 'text': 'Mon dimanche parfait...', 'category': 'personality'},
-    {'id': 'fun_fact', 'text': 'Un fait surprenant sur moi...', 'category': 'personality'},
-    {'id': 'life_goal', 'text': 'Un de mes objectifs dans la vie...', 'category': 'personality'},
-    {'id': 'pet_peeve', 'text': 'Ce qui m\'énerve le plus...', 'category': 'personality'},
-    {'id': 'proud_of', 'text': 'Je suis fier(e) de...', 'category': 'personality'},
-    {'id': 'looking_for', 'text': 'Je cherche quelqu\'un qui...', 'category': 'personality'},
-    // Lifestyle
-    {'id': 'ideal_vacation', 'text': 'Mes vacances idéales...', 'category': 'lifestyle'},
-    {'id': 'favorite_food', 'text': 'Mon plat préféré...', 'category': 'lifestyle'},
-    {'id': 'hidden_talent', 'text': 'Mon talent caché...', 'category': 'lifestyle'},
-    {'id': 'binge_watching', 'text': 'En ce moment je regarde...', 'category': 'lifestyle'},
-    // Judaïsme
-    {'id': 'shabbat_ideal', 'text': 'Mon Shabbat idéal...', 'category': 'jewish'},
-    {'id': 'family_tradition', 'text': 'Une tradition familiale que j\'adore...', 'category': 'jewish'},
-    {'id': 'favorite_holiday', 'text': 'Ma fête juive préférée...', 'category': 'jewish'},
-    {'id': 'friday_night', 'text': 'Le vendredi soir chez moi...', 'category': 'jewish'},
-    {'id': 'israel_memory', 'text': 'Mon meilleur souvenir en Israël...', 'category': 'jewish'},
-    {'id': 'jewish_value', 'text': 'Une valeur juive qui me guide...', 'category': 'jewish'},
-    // Conversation starters
-    {'id': 'debate_me', 'text': 'Débattez avec moi sur…', 'category': 'conversation'},
-    {'id': 'teach_me', 'text': 'Apprenez-moi quelque chose sur…', 'category': 'conversation'},
-    {'id': 'together_we_could', 'text': 'Ensemble on pourrait...', 'category': 'conversation'},
-    {'id': 'first_date', 'text': 'Premier date idéal...', 'category': 'conversation'},
+  /// Default prompts list (used if API unavailable). A question is read in
+  /// the member's language through its id (see [PromptQuestion]): the `text`
+  /// is only the fallback of an id the app does not know, so here it is the
+  /// id itself, never a sentence in one language.
+  static List<Map<String, String>> get defaultPrompts => [
+    for (final question in PromptQuestion.values)
+      {'id': question.id, 'text': question.id, 'category': question.category.id},
   ];
+}
+
+/// Les familles de questions, dans l'ordre d'affichage.
+enum PromptCategory {
+  personality('personality'),
+  lifestyle('lifestyle'),
+  jewish('jewish'),
+  conversation('conversation');
+
+  const PromptCategory(this.id);
+
+  final String id;
+
+  static PromptCategory? fromId(String? id) {
+    for (final category in values) {
+      if (category.id == id) return category;
+    }
+    return null;
+  }
+}
+
+/// Les questions du catalogue, par identifiant stable.
+enum PromptQuestion {
+  perfectSunday('perfect_sunday', PromptCategory.personality),
+  funFact('fun_fact', PromptCategory.personality),
+  lifeGoal('life_goal', PromptCategory.personality),
+  petPeeve('pet_peeve', PromptCategory.personality),
+  proudOf('proud_of', PromptCategory.personality),
+  lookingFor('looking_for', PromptCategory.personality),
+  idealVacation('ideal_vacation', PromptCategory.lifestyle),
+  favoriteFood('favorite_food', PromptCategory.lifestyle),
+  hiddenTalent('hidden_talent', PromptCategory.lifestyle),
+  bingeWatching('binge_watching', PromptCategory.lifestyle),
+  shabbatIdeal('shabbat_ideal', PromptCategory.jewish),
+  familyTradition('family_tradition', PromptCategory.jewish),
+  favoriteHoliday('favorite_holiday', PromptCategory.jewish),
+  fridayNight('friday_night', PromptCategory.jewish),
+  israelMemory('israel_memory', PromptCategory.jewish),
+  jewishValue('jewish_value', PromptCategory.jewish),
+  debateMe('debate_me', PromptCategory.conversation),
+  teachMe('teach_me', PromptCategory.conversation),
+  togetherWeCould('together_we_could', PromptCategory.conversation),
+  firstDate('first_date', PromptCategory.conversation);
+
+  const PromptQuestion(this.id, this.category);
+
+  final String id;
+  final PromptCategory category;
+
+  /// `null` pour un identifiant que cette version de l'app ne connaît pas.
+  static PromptQuestion? fromId(String? id) {
+    for (final question in values) {
+      if (question.id == id) return question;
+    }
+    return null;
+  }
 }
 
 /// Profile prompt model

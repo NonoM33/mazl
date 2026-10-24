@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Galerie de photos : balayage, zones tactiles gauche/droite et compteur
@@ -68,16 +69,24 @@ class _ProfilePhotoGalleryState extends State<ProfilePhotoGallery> {
                 ),
               ),
             if (_hasSeveral) ...[
+              // Le début de la ligne : à gauche en français, à droite en hébreu,
+              // où la page précédente est de ce côté.
               Align(
-                alignment: Alignment.centerLeft,
-                child: _TapZone(label: 'Photo précédente', onTap: () => _go(-1)),
+                alignment: AlignmentDirectional.centerStart,
+                child: _TapZone(
+                  label: context.l10n.profilePhotoPrevious,
+                  onTap: () => _go(-1),
+                ),
               ),
               Align(
-                alignment: Alignment.centerRight,
-                child: _TapZone(label: 'Photo suivante', onTap: () => _go(1)),
+                alignment: AlignmentDirectional.centerEnd,
+                child: _TapZone(
+                  label: context.l10n.profilePhotoNext,
+                  onTap: () => _go(1),
+                ),
               ),
-              Positioned(
-                right: 16,
+              PositionedDirectional(
+                end: 16,
                 bottom: 16,
                 child: _Counter(current: _index + 1, total: widget.photos.length),
               ),
@@ -121,7 +130,7 @@ class _Counter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Photo $current sur $total',
+      label: context.l10n.profilePhotoCounter(current, total),
       excludeSemantics: true,
       child: Container(
         height: 28,

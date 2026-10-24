@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 
 /// Rangée du haut : retour + options sur le profil d'un autre,
@@ -32,29 +33,32 @@ class ProfileTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: isOwnProfile ? _own() : _other(),
+      child: isOwnProfile ? _own(context) : _other(context),
     );
   }
 
-  Widget _other() => Row(
+  Widget _other(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           RoundIconButton(
-            icon: LucideIcons.chevronLeft,
-            tooltip: 'Retour',
+            // « Retour » pointe vers la droite en hébreu.
+            icon: Directionality.of(context) == TextDirection.rtl
+                ? LucideIcons.chevronRight
+                : LucideIcons.chevronLeft,
+            tooltip: context.l10n.commonBack,
             onPressed: onBack,
           ),
           RoundIconButton(
             icon: LucideIcons.ellipsis,
-            tooltip: "Plus d'options",
+            tooltip: context.l10n.profileMoreOptions,
             onPressed: onOptions,
           ),
         ],
       );
 
-  Widget _own() => Row(
+  Widget _own(BuildContext context) => Row(
         children: [
-          const SectionLabel('Mon profil'),
+          SectionLabel(context.l10n.profileMyProfile),
           const Spacer(),
           OutlinedButton(
             onPressed: onEdit,
@@ -62,12 +66,12 @@ class ProfileTopBar extends StatelessWidget {
               minimumSize: const Size(0, 44),
               padding: const EdgeInsets.symmetric(horizontal: 20),
             ),
-            child: const Text('Modifier'),
+            child: Text(context.l10n.profileEdit),
           ),
           const SizedBox(width: 8),
           RoundIconButton(
             icon: LucideIcons.settings,
-            tooltip: 'Réglages',
+            tooltip: context.l10n.profileSettings,
             onPressed: onSettings,
           ),
         ],

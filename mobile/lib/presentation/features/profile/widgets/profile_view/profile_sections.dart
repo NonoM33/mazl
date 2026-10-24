@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
 import 'profile_view_data.dart';
 
@@ -52,7 +53,7 @@ class ProfileFactsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (facts.isEmpty) return const SizedBox.shrink();
     return ProfileSection(
-      label: "L'essentiel",
+      label: context.l10n.profileEssentials,
       child: Column(
         children: [
           for (var i = 0; i < facts.length; i++)
@@ -122,7 +123,7 @@ class ProfilePromptCards extends StatelessWidget {
   Widget build(BuildContext context) {
     if (prompts.isEmpty) return const SizedBox.shrink();
     return ProfileSection(
-      label: 'En quelques mots',
+      label: context.l10n.profileInAFewWords,
       child: Column(
         children: [
           for (var i = 0; i < prompts.length; i++) ...[

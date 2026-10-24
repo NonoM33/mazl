@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../../l10n/l10n.dart';
 import 'profile_sections.dart';
 
 enum CoupleEntryState {
@@ -43,8 +44,9 @@ class ProfileCoupleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return ProfileSection(
-      label: 'Mode couple',
+      label: l10n.profileCoupleMode,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),
@@ -56,34 +58,34 @@ class ProfileCoupleSection extends StatelessWidget {
           CoupleEntryState.inCouple => _info(
               context,
               icon: LucideIcons.heartHandshake,
-              title: 'En couple',
-              body: 'Vous êtes en mode couple avec $userName.',
+              title: l10n.profileCoupleInCoupleTitle,
+              body: l10n.profileCoupleInCoupleBody(userName),
             ),
           CoupleEntryState.coupleWithSomeoneElse => _info(
               context,
               icon: LucideIcons.heartHandshake,
-              title: 'Déjà en mode couple',
-              body: 'Vous êtes déjà en mode couple avec quelqu\'un d\'autre.',
+              title: l10n.profileCoupleElsewhereTitle,
+              body: l10n.profileCoupleElsewhereBody,
             ),
           CoupleEntryState.received => _info(
               context,
               icon: LucideIcons.heartHandshake,
-              title: 'Demande reçue',
-              body: '$userName souhaite activer le mode couple avec vous.',
-              action: ElevatedButton(onPressed: onRespond, child: const Text('Répondre')),
+              title: l10n.profileCoupleReceivedTitle,
+              body: l10n.profileCoupleReceivedBody(userName),
+              action: ElevatedButton(onPressed: onRespond, child: Text(l10n.profileCoupleRespond)),
             ),
           CoupleEntryState.pending => _info(
               context,
               icon: LucideIcons.clock,
-              title: 'Demande envoyée',
-              body: '$userName n\'a pas encore répondu.',
-              action: OutlinedButton(onPressed: onCancel, child: const Text('Annuler la demande')),
+              title: l10n.profileCouplePendingTitle,
+              body: l10n.profileCouplePendingBody(userName),
+              action: OutlinedButton(onPressed: onCancel, child: Text(l10n.profileCoupleCancelRequest)),
             ),
           CoupleEntryState.available => _info(
               context,
               icon: LucideIcons.heartHandshake,
-              title: 'Passer au mode couple',
-              body: 'Vous avez matché. Activez le mode couple pour partager des activités ensemble.',
+              title: l10n.profileCoupleAvailableTitle,
+              body: l10n.profileCoupleAvailableBody,
               action: ElevatedButton(
                 onPressed: isSending ? null : onActivate,
                 child: isSending
@@ -91,7 +93,7 @@ class ProfileCoupleSection extends StatelessWidget {
                         dimension: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text('Activer avec $userName'),
+                    : Text(l10n.profileCoupleActivate(userName)),
               ),
             ),
         },

@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/models/profile_labels.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/api_error_text.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../l10n/profile_answer_labels.dart';
 import '../widgets/profile_prompts_section.dart';
 import '../widgets/relationship_intention_selector.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -26,7 +31,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isUploadingPhoto = false;
-  String? _error;
+  bool _hasLoadError = false;
+  ApiErrorKind? _errorKind;
 
   // Editable fields
   String? _displayName;
@@ -52,7 +58,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _loadProfile() async {
     setState(() {
       _isLoading = true;
-      _error = null;
+      _hasLoadError = false;
+      _errorKind = null;
     });
 
     // Load user profile
@@ -76,7 +83,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
     } else {
       setState(() {
-        _error = userResponse.error ?? 'Erreur de chargement';
+        _hasLoadError = true;
+        _errorKind = userResponse.errorKind;
         _isLoading = false;
       });
     }
@@ -113,8 +121,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (response.success) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profil mis à jour'),
+          SnackBar(
+            content: Text(context.l10n.profileUpdated),
             backgroundColor: AppColors.success,
           ),
         );
@@ -124,7 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.error ?? 'Erreur de sauvegarde'),
+            content: Text(apiErrorText(context.l10n, response.errorKind)),
             backgroundColor: Colors.red,
           ),
         );
@@ -159,8 +167,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Photo ajoutée'),
+            SnackBar(
+              content: Text(context.l10n.profilePhotoAdded),
               backgroundColor: AppColors.success,
             ),
           );
@@ -169,7 +177,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(response.error ?? 'Erreur d\'envoi'),
+              content: Text(apiErrorText(context.l10n, response.errorKind)),
               backgroundColor: Colors.red,
             ),
           );
@@ -179,8 +187,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => _isUploadingPhoto = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Upload non disponible pour le moment'),
+          SnackBar(
+            content: Text(context.l10n.profileUploadUnavailable),
             backgroundColor: Colors.orange,
           ),
         );
@@ -209,16 +217,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Supprimer la photo ?',
-            style: TextStyle(
+          Text(
+            context.l10n.profileDeletePhotoTitle,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Cette action est irréversible',
+            context.l10n.profileIrreversible,
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
@@ -239,7 +247,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Annuler'),
+                    child: Text(context.l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -254,7 +262,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Supprimer'),
+                    child: Text(context.l10n.commonDelete),
                   ),
                 ),
               ],
@@ -276,14 +284,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo supprimée')),
+            SnackBar(content: Text(context.l10n.profilePhotoDeleted)),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(response.error ?? 'Erreur de suppression'),
+              content: Text(apiErrorText(context.l10n, response.errorKind)),
               backgroundColor: Colors.red,
             ),
           );
@@ -292,8 +300,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Service temporairement indisponible'),
+          SnackBar(
+            content: Text(context.l10n.profileServiceUnavailable),
             backgroundColor: Colors.orange,
           ),
         );
@@ -311,15 +319,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Photo principale mise à jour')),
+            SnackBar(content: Text(context.l10n.profilePrimaryUpdated)),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Service temporairement indisponible'),
+          SnackBar(
+            content: Text(context.l10n.profileServiceUnavailable),
             backgroundColor: Colors.orange,
           ),
         );
@@ -327,7 +335,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _showEditSheet(String title, String? currentValue, Function(String) onSave) {
+  void _showEditSheet(
+    String title,
+    String hint,
+    String? currentValue,
+    Function(String) onSave,
+  ) {
     final controller = TextEditingController(text: currentValue);
     showMazlSheet(
       context,
@@ -354,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: controller,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Entrez votre ${title.toLowerCase()}',
+                hintText: hint,
                 filled: true,
                 fillColor: Colors.grey.withValues(alpha: 0.1),
                 border: OutlineInputBorder(
@@ -387,9 +400,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'Enregistrer',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                child: Text(
+                  context.l10n.commonSave,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -400,7 +413,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _showSelectionSheet(String title, String? currentValue, List<String> options, Function(String) onSave) {
+  void _showSelectionSheet(
+    String title,
+    List<_Choice> choices,
+    Function(String) onSave,
+  ) {
     showMazlSheet(
       context,
       isScrollControlled: true,
@@ -420,11 +437,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           // Options
-          ...options.map((option) {
-            final isSelected = currentValue == option;
+          ...choices.map((choice) {
+            final isSelected = choice.isSelected;
             return InkWell(
               onTap: () {
-                onSave(option);
+                onSave(choice.storedValue);
                 Navigator.pop(context);
               },
               child: Container(
@@ -443,7 +460,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        option,
+                        choice.label,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -479,7 +496,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Modifier le profil'),
+        title: Text(context.l10n.profileEditTitle),
         leading: IconButton(
           icon: const Icon(LucideIcons.x),
           onPressed: () => context.pop(),
@@ -493,7 +510,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Enregistrer'),
+                : Text(context.l10n.commonSave),
           ),
         ],
       ),
@@ -506,22 +523,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_error != null) {
+    if (_hasLoadError) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_error!),
+            Text(apiErrorText(context.l10n, _errorKind)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadProfile,
-              child: const Text('Réessayer'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),
       );
     }
 
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -529,9 +547,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Photos',
-              style: TextStyle(
+            Text(
+              l10n.profilePhotos,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -546,7 +564,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Maintenez appuyé pour définir comme principale',
+          l10n.profilePhotosHint,
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
@@ -558,9 +576,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 24),
 
         // Bio
-        const Text(
-          'À propos',
-          style: TextStyle(
+        Text(
+          l10n.profileAbout,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -570,9 +588,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           controller: _bioController,
           maxLines: 4,
           maxLength: 500,
-          decoration: const InputDecoration(
-            hintText: 'Parlez de vous…',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: l10n.profileBioHint,
+            border: const OutlineInputBorder(),
           ),
         ),
 
@@ -592,65 +610,90 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 24),
 
         // Basic info
-        const Text(
-          'Informations de base',
-          style: TextStyle(
+        Text(
+          l10n.profileBasicInfo,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Prénom',
-          value: _displayName ?? 'Non renseigné',
-          onTap: () => _showEditSheet('Prénom', _displayName, (v) => setState(() => _displayName = v)),
+          label: l10n.profileFirstName,
+          value: _displayName ?? l10n.commonNotSpecified,
+          onTap: () => _showEditSheet(
+            l10n.profileFirstName,
+            l10n.profileEnterFirstName,
+            _displayName,
+            (v) => setState(() => _displayName = v),
+          ),
         ),
         _EditField(
-          label: 'Ville',
-          value: _location ?? 'Non renseigné',
-          onTap: () => _showEditSheet('Ville', _location, (v) => setState(() => _location = v)),
+          label: l10n.profileCity,
+          value: _location ?? l10n.commonNotSpecified,
+          onTap: () => _showEditSheet(
+            l10n.profileCity,
+            l10n.profileEnterCity,
+            _location,
+            (v) => setState(() => _location = v),
+          ),
         ),
 
         const SizedBox(height: 24),
 
         // Jewish preferences
-        const Text(
-          'Ma pratique',
-          style: TextStyle(
+        Text(
+          l10n.profilePracticeTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 12),
         _EditField(
-          label: 'Dénomination',
-          value: _denomination ?? 'Non renseigné',
-          onTap: () => _showSelectionSheet(
-            'Dénomination',
-            _denomination,
-            ['Laique', 'Traditionaliste', 'Massorti', 'Modern Orthodox', 'Orthodox', 'Habad', 'Autre'],
-            (v) => setState(() => _denomination = v),
-          ),
+          label: l10n.profileDenomination,
+          value: denominationField(l10n, _denomination),
+          onTap: () {
+            final current = ProfileLabels.denominationAnswer(_denomination)?.kind;
+            _showSelectionSheet(
+              l10n.profileDenomination,
+              [
+                for (final kind in Denomination.choices)
+                  _Choice(kind.label(l10n), kind.storedValue!, kind == current),
+              ],
+              (v) => setState(() => _denomination = v),
+            );
+          },
         ),
         _EditField(
-          label: 'Kashrout',
-          value: _kashrut ?? 'Non renseigné',
-          onTap: () => _showSelectionSheet(
-            'Kashrout',
-            _kashrut,
-            ['Non', 'A la maison', 'Strict', 'Glatt'],
-            (v) => setState(() => _kashrut = v),
-          ),
+          label: l10n.profileFieldKashrut,
+          value: kashrutField(l10n, _kashrut),
+          onTap: () {
+            final current = ProfileLabels.kashrutAnswer(_kashrut)?.kind;
+            _showSelectionSheet(
+              l10n.profileFieldKashrut,
+              [
+                for (final kind in Kashrut.choices)
+                  _Choice(kind.optionLabel(l10n), kind.storedValue, kind == current),
+              ],
+              (v) => setState(() => _kashrut = v),
+            );
+          },
         ),
         _EditField(
-          label: 'Shabbat',
-          value: _shabbatObservance ?? 'Non renseigné',
-          onTap: () => _showSelectionSheet(
-            'Shabbat',
-            _shabbatObservance,
-            ['Non observant', 'Partiellement', 'Observant', 'Tres observant'],
-            (v) => setState(() => _shabbatObservance = v),
-          ),
+          label: l10n.profileShabbat,
+          value: shabbatField(l10n, _shabbatObservance),
+          onTap: () {
+            final current = ProfileLabels.shabbatAnswer(_shabbatObservance)?.kind;
+            _showSelectionSheet(
+              l10n.profileShabbat,
+              [
+                for (final kind in ShabbatObservance.choices)
+                  _Choice(kind.optionLabel(l10n), kind.storedValue!, kind == current),
+              ],
+              (v) => setState(() => _shabbatObservance = v),
+            );
+          },
         ),
 
         const SizedBox(height: 100),
@@ -753,9 +796,9 @@ class _PhotoSlot extends StatelessWidget {
                     ),
                   ),
                   if (onRemove != null)
-                    Positioned(
+                    PositionedDirectional(
                       top: 4,
-                      right: 4,
+                      end: 4,
                       child: GestureDetector(
                         onTap: onRemove,
                         child: Container(
@@ -773,9 +816,9 @@ class _PhotoSlot extends StatelessWidget {
                       ),
                     ),
                   if (isPrimary)
-                    Positioned(
+                    PositionedDirectional(
                       bottom: 4,
-                      left: 4,
+                      start: 4,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
@@ -785,9 +828,9 @@ class _PhotoSlot extends StatelessWidget {
                           color: AppColors.accentGold,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          'Principal',
-                          style: TextStyle(
+                        child: Text(
+                          context.l10n.profilePrimaryPhoto,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
                           ),
@@ -834,8 +877,54 @@ class _EditField extends StatelessWidget {
         value,
         style: const TextStyle(fontSize: 16),
       ),
-      trailing: const Icon(LucideIcons.chevronRight),
+      trailing: const DirectionalIcon(LucideIcons.chevronRight),
       onTap: onTap,
     );
   }
+}
+
+/// Un choix d'une feuille de sélection : ce qu'on lit, et la valeur que l'API
+/// enregistre.
+class _Choice {
+  const _Choice(this.label, this.storedValue, this.isSelected);
+
+  final String label;
+  final String storedValue;
+  final bool isSelected;
+}
+
+// The values the API stores for each choice. The profile ranking compares
+// these strings as they are, so they are not translated and not renamed
+// (the display side lives in l10n/profile_answer_labels.dart).
+
+extension DenominationStoredValue on Denomination {
+  String? get storedValue => switch (this) {
+    Denomination.secular => 'Laique',
+    Denomination.traditional => 'Traditionaliste',
+    Denomination.masorti => 'Massorti',
+    Denomination.modernOrthodox => 'Modern Orthodox',
+    Denomination.orthodox => 'Orthodox',
+    Denomination.chabad => 'Habad',
+    Denomination.other => 'Autre',
+    Denomination.liberal => null,
+  };
+}
+
+extension KashrutStoredValue on Kashrut {
+  String get storedValue => switch (this) {
+    Kashrut.none => 'Non',
+    Kashrut.home => 'A la maison',
+    Kashrut.strict => 'Strict',
+    Kashrut.glatt => 'Glatt',
+  };
+}
+
+extension ShabbatStoredValue on ShabbatObservance {
+  String? get storedValue => switch (this) {
+    ShabbatObservance.notObservant => 'Non observant',
+    ShabbatObservance.partial => 'Partiellement',
+    ShabbatObservance.observant => 'Observant',
+    ShabbatObservance.strict => 'Tres observant',
+    ShabbatObservance.family => null,
+  };
 }

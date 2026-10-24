@@ -1,4 +1,6 @@
-import '../../../../../core/models/profile_labels.dart';
+import '../../../../../l10n/l10n.dart';
+import '../../l10n/profile_answer_labels.dart';
+
 /// Données d'affichage d'un profil, déjà débarrassées de leur origine
 /// (profil d'un autre ou le sien).
 class ProfileViewData {
@@ -20,7 +22,8 @@ class ProfileViewData {
   });
 
   final String name;
-  final String location;
+  /// `null` quand le membre n'a pas indiqué sa ville.
+  final String? location;
   final int? age;
   final double? distance;
   final String? bio;
@@ -37,16 +40,17 @@ class ProfileViewData {
   final String? verificationLevel;
 
   /// Premier mot du nom, pour « J'aime Sarah ».
-  String get firstName {
+  String firstName(AppLocalizations l10n) {
     final parts = name.trim().split(RegExp(r'\s+'));
-    return parts.first.isEmpty ? 'cette personne' : parts.first;
+    return parts.first.isEmpty ? l10n.profileThisPerson : parts.first;
   }
 
-  /// « Paris · à 4 km ».
-  String get metaLine {
+  /// « Paris · à 4 km ». Sans ville, le pays par défaut.
+  String metaLine(AppLocalizations l10n) {
+    final place = location ?? l10n.profileDefaultLocation;
     final parts = <String>[
-      if (location.isNotEmpty) location,
-      if (distance != null) _distanceLabel(distance!),
+      if (place.isNotEmpty) place,
+      if (distance != null) _distanceLabel(l10n, distance!),
     ];
     return parts.join(' · ');
   }
@@ -62,17 +66,17 @@ class ProfileViewData {
   bool get hasNoUploadedPhoto => photos.isEmpty;
 
   /// Lignes de « L'essentiel » : seuls les champs renseignés.
-  List<ProfileFact> get facts {
+  List<ProfileFact> facts(AppLocalizations l10n) {
     final genderLabel = switch (gender) {
-      'male' => 'Homme',
-      'female' => 'Femme',
+      'male' => l10n.profileGenderMale,
+      'female' => l10n.profileGenderFemale,
       _ => null,
     };
     return [
-      _fact('Pratique', ProfileLabels.denomination(denomination)),
-      _fact('Cacherout', ProfileLabels.kashrut(kashrut)),
-      _fact('Shabbat', ProfileLabels.shabbat(shabbatObservance)),
-      _fact('Genre', genderLabel),
+      _fact(l10n.profileFactPractice, denominationFact(l10n, denomination)),
+      _fact(l10n.profileFactKashrut, kashrutFact(l10n, kashrut)),
+      _fact(l10n.profileShabbat, shabbatFact(l10n, shabbatObservance)),
+      _fact(l10n.profileFactGender, genderLabel),
     ].whereType<ProfileFact>().toList();
   }
 
@@ -81,8 +85,8 @@ class ProfileViewData {
     return (trimmed == null || trimmed.isEmpty) ? null : ProfileFact(label, trimmed);
   }
 
-  static String _distanceLabel(double km) =>
-      km < 1 ? 'à moins de 1 km' : 'à ${km.round()} km';
+  static String _distanceLabel(AppLocalizations l10n, double km) =>
+      km < 1 ? l10n.profileDistanceUnderOneKm : l10n.profileDistanceKm(km.round());
 }
 
 class ProfileFact {
