@@ -97,6 +97,28 @@ describe("MAX_SOCKETS_PER_USER", () => {
   });
 });
 
+describe("logging", () => {
+  test("a failed send logs the kind of error, never its message or the frame", () => {
+    const socket = new FakeSocket();
+    socket.send = () => { throw new TypeError("secret message body: bonjour mon amour"); };
+    connections.addConnection(user, asWebSocket(socket));
+    const logged: unknown[][] = [];
+    const original = console.error;
+    console.error = (...args: unknown[]) => { logged.push(args); };
+    try {
+      connections.sendToUser(user, { type: "chat:message", payload: { content: "bonjour mon amour" } });
+    } finally {
+      console.error = original;
+    }
+    const text = JSON.stringify(logged);
+    expect(logged).toHaveLength(1);
+    expect(text).toContain("TypeError");
+    expect(text).not.toContain("bonjour");
+    expect(text).not.toContain("secret");
+    expect(text).not.toContain(String(user));
+  });
+});
+
 describe("closeUserConnections", () => {
   test("closes and forgets every socket of the user and returns how many", () => {
     const sockets = open(user, 3);
