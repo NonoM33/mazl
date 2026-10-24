@@ -30,8 +30,11 @@ mount<PhoneScene>(document.querySelector<HTMLCanvasElement>("[data-phone-canvas]
 mount<FlameScene>(document.querySelector<HTMLCanvasElement>("[data-flame-canvas]"), (canvas) =>
   createFlameScene({ canvas, animate, lightweight }));
 
-mount<OutroScene>(document.querySelector<HTMLCanvasElement>("[data-outro-canvas]"), (canvas) =>
-  createOutroScene({ canvas, animate, lightweight, progress: scroll.outro }));
+const outroWord = document.querySelector<HTMLElement>("[data-outro-word]");
+if (outroWord !== null) {
+  mount<OutroScene>(document.querySelector<HTMLCanvasElement>("[data-outro-canvas]"), (canvas) =>
+    createOutroScene({ canvas, animate, lightweight, progress: scroll.outro, target: outroWord }));
+}
 
 window.addEventListener("pagehide", () => {
   for (const scene of scenes) scene.dispose();

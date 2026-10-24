@@ -219,7 +219,9 @@ export function Security() {
 
 export function FinalCta({ animate, lightweight, scroll }: { readonly animate: boolean; readonly lightweight: boolean; readonly scroll: ScrollProgress }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const { failed } = useScene(canvas, (element) => createOutroScene({ canvas: element, animate, lightweight, progress: scroll.outro }));
+  const word = useRef<HTMLParagraphElement>(null);
+  const { failed } = useScene(canvas, (element) =>
+    word.current === null ? null : createOutroScene({ canvas: element, animate, lightweight, progress: scroll.outro, target: word.current }));
   return (
     <section className="outro" id="telecharger" aria-labelledby="t-final" data-outro>
       <div className="outro__stage">
@@ -228,7 +230,7 @@ export function FinalCta({ animate, lightweight, scroll }: { readonly animate: b
           <h2 className="display display--xl" id="t-final">Votre mazal vous attend<Dot /></h2>
           <p className="outro__sub">Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
         </div>
-        <p className="outro__word" aria-hidden="true">mazl<span>.</span></p>
+        <p className="outro__word" ref={word} aria-hidden="true">mazl<span>.</span></p>
         <div className="outro__actions">
           <div className="hero__actions hero__actions--center">
             <a className="btn btn--accent" href={APP_STORE_URL} rel="noopener">Télécharger sur l’App&nbsp;Store</a>

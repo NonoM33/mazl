@@ -1,4 +1,4 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, PerspectiveCamera, Points, Scene, ShaderMaterial } from "three";
+import { AdditiveBlending, BufferAttribute, BufferGeometry, PerspectiveCamera, Points, Scene, ShaderMaterial, Vector2 } from "three";
 import { createPlayer } from "./player";
 import { gaussian, seeded } from "./random";
 
@@ -12,6 +12,8 @@ export interface OutroOptions {
   readonly lightweight: boolean;
   // Scroll progress of the closing sequence, 0 to 1.
   readonly progress: () => number;
+  // The crisp HTML wordmark the particles land on, then hand over to.
+  readonly target: HTMLElement;
 }
 
 const FOV = 40;
@@ -22,7 +24,10 @@ const SAMPLE_HEIGHT = 440;
 const vertex = /* glsl */ `
 uniform float uTime;
 uniform float uProgress;
-uniform float uScale;
+uniform vec2 uCenter;
+uniform float uWidth;
+uniform float uAspect;
+uniform float uFade;
 uniform float uPixel;
 attribute vec3 aStart;
 attribute vec4 aSeed;
@@ -34,11 +39,15 @@ float easeInOut(float x) { return x < 0.5 ? 4.0 * x * x * x : 1.0 - pow(-2.0 * x
 
 void main() {
   // Each particle leaves a little later than the previous ones: the word builds up.
-  float local = clamp((uProgress - aSeed.x * 0.35) / 0.65, 0.0, 1.0);
+  // The flight runs between 30 % and 80 % of the sequence: every particle has
+  // landed before the crisp wordmark fades in.
+  float flight = clamp((uProgress - 0.3) / 0.5, 0.0, 1.0);
+  float local = clamp((flight - aSeed.x * 0.35) / 0.65, 0.0, 1.0);
   float e = easeInOut(local);
   vec3 drift = vec3(sin(uTime * 0.3 + aSeed.y * 6.28), cos(uTime * 0.25 + aSeed.z * 6.28), sin(uTime * 0.2 + aSeed.x * 6.28)) * 0.35;
   vec3 from = aStart + drift;
-  vec3 to = position * uScale;
+  // position: (u, v) in the wordmark's line box, 0..1 from its top-left corner.
+  vec3 to = vec3(uCenter.x + (position.x - 0.5) * uWidth, uCenter.y - (position.y - 0.5) * uWidth * uAspect, position.z);
   // A spiral on the way in, gone once the particle has landed.
   float swirl = sin(e * 3.14159) * (0.9 + aSeed.y * 0.8);
   float angle = e * 4.0 + aSeed.z * 6.28;
@@ -51,10 +60,10 @@ void main() {
   gl_Position = projectionMatrix * mv;
 
   vDot = aSeed.w > 1.5 ? 1.0 : 0.0;
-  vAlpha = mix(0.28 + aSeed.y * 0.3, 0.8, e);
+  vAlpha = mix(0.28 + aSeed.y * 0.3, 0.8, e) * uFade;
   // A sheen sweeps across the word once it is written.
   float sweep = mod(uTime * 0.45, 2.6) - 1.3;
-  vShine = smoothstep(0.9, 1.0, uProgress) * exp(-pow((position.x - sweep) * 6.0, 2.0));
+  vShine = smoothstep(0.7, 0.85, uProgress) * exp(-pow((position.x * 2.0 - 1.0 - sweep) * 6.0, 2.0));
 }
 `;
 
@@ -76,44 +85,54 @@ void main() {
 interface Sampled {
   readonly letters: Float32Array;
   readonly dot: Float32Array;
+  // Height of the line box over its width (line-height 1).
+  readonly aspect: number;
 }
 
-// The wordmark "mazl." drawn in Geist 700, then read back pixel by pixel:
-// opaque pixels become landing spots, normalised to a width of 2 units.
+const FONT_SIZE = 300;
+// Same letter spacing as .outro__word, so the particles land on the real glyphs.
+const LETTER_SPACING = -0.055 * FONT_SIZE;
+
+// The wordmark "mazl." drawn exactly like the HTML one (Geist 700, line-height 1),
+// read back pixel by pixel: each opaque pixel becomes a landing spot, expressed
+// in the line box (u across, v down, both 0..1).
 async function sampleWordmark(): Promise<Sampled> {
-  await document.fonts.load("700 300px Geist").catch(() => undefined);
+  const empty = { letters: new Float32Array(0), dot: new Float32Array(0), aspect: 1 };
+  await document.fonts.load(`700 ${FONT_SIZE}px Geist`).catch(() => undefined);
   const canvas = document.createElement("canvas");
   canvas.width = SAMPLE_WIDTH;
   canvas.height = SAMPLE_HEIGHT;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (ctx === null) return { letters: new Float32Array(0), dot: new Float32Array(0) };
-  ctx.font = "700 300px Geist, ui-sans-serif, system-ui, sans-serif";
-  if ("letterSpacing" in ctx) ctx.letterSpacing = "-16px";
+  if (ctx === null) return empty;
+  ctx.font = `700 ${FONT_SIZE}px Geist, ui-sans-serif, system-ui, sans-serif`;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = `${LETTER_SPACING}px`;
   ctx.textBaseline = "alphabetic";
   const word = "mazl";
   const wordWidth = ctx.measureText(word).width;
-  const dotWidth = ctx.measureText(".").width;
-  const left = (SAMPLE_WIDTH - wordWidth - dotWidth) / 2;
-  const baseline = SAMPLE_HEIGHT * 0.74;
+  const metrics = ctx.measureText(".");
+  const advance = wordWidth + metrics.width;
+  const ascent = metrics.fontBoundingBoxAscent;
+  const descent = metrics.fontBoundingBoxDescent;
+  // With line-height 1 the line box is one em tall, the content area centred in it.
+  const boxTop = (SAMPLE_HEIGHT - FONT_SIZE) / 2;
+  const baseline = boxTop + (FONT_SIZE - (ascent + descent)) / 2 + ascent;
+  const left = (SAMPLE_WIDTH - advance) / 2;
   ctx.fillStyle = "#ffffff";
   ctx.fillText(word, left, baseline);
   ctx.fillStyle = "#ff0000";
   ctx.fillText(".", left + wordWidth, baseline);
 
   const { data } = ctx.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  const total = wordWidth + dotWidth;
   const letters: number[] = [];
   const dot: number[] = [];
   for (let y = 0; y < SAMPLE_HEIGHT; y += 2) {
     for (let x = 0; x < SAMPLE_WIDTH; x += 2) {
       const i = (y * SAMPLE_WIDTH + x) * 4;
       if ((data[i + 3] ?? 0) < 140) continue;
-      const nx = ((x - left) / total) * 2 - 1;
-      const ny = -((y - SAMPLE_HEIGHT * 0.52) / total) * 2;
-      ((data[i + 1] ?? 0) < 100 ? dot : letters).push(nx, ny);
+      ((data[i + 1] ?? 0) < 100 ? dot : letters).push((x - left) / advance, (y - boxTop) / FONT_SIZE);
     }
   }
-  return { letters: new Float32Array(letters), dot: new Float32Array(dot) };
+  return { letters: new Float32Array(letters), dot: new Float32Array(dot), aspect: FONT_SIZE / advance };
 }
 
 function buildGeometry(sampled: Sampled, count: number): BufferGeometry {
@@ -128,7 +147,7 @@ function buildGeometry(sampled: Sampled, count: number): BufferGeometry {
     const isDot = dotCount > 0 && random() < Math.max(dotShare * 1.6, 0.05);
     const source = isDot ? sampled.dot : sampled.letters;
     const pick = Math.floor(random() * (source.length / 2)) * 2;
-    target.set([(source[pick] ?? 0) + (random() - 0.5) * 0.004, (source[pick + 1] ?? 0) + (random() - 0.5) * 0.004, (random() - 0.5) * 0.02], i * 3);
+    target.set([(source[pick] ?? 0) + (random() - 0.5) * 0.002, (source[pick + 1] ?? 0) + (random() - 0.5) * 0.004, (random() - 0.5) * 0.02], i * 3);
     start.set([gaussian(random) * 3.2, gaussian(random) * 1.8, gaussian(random) * 2.2 - 0.5], i * 3);
     // w: size jitter in [0,1), +2 marks the tekhelet dot.
     seed.set([random(), random(), random(), random() + (isDot ? 2 : 0)], i * 4);
@@ -147,18 +166,26 @@ export function createOutroScene(options: OutroOptions): OutroScene | null {
   const scene = new Scene();
   const camera = new PerspectiveCamera(FOV, 1, 0.1, 60);
   camera.position.set(0, 0, DISTANCE);
-  const uniforms = { uTime: { value: 0 }, uProgress: { value: 0 }, uScale: { value: 1 }, uPixel: { value: 1 } };
+  const uniforms = {
+    uTime: { value: 0 }, uProgress: { value: 0 }, uPixel: { value: 1 }, uFade: { value: 1 },
+    uCenter: { value: new Vector2(0, 0) }, uWidth: { value: 4 }, uAspect: { value: 0.3 },
+  };
   const material = new ShaderMaterial({ vertexShader: vertex, fragmentShader: fragment, uniforms, transparent: true, depthWrite: false, blending: AdditiveBlending });
   let geometry: BufferGeometry | null = null;
 
+  // Lands the word where the HTML wordmark sits, at its size, in world units.
   const place = (width: number, height: number): void => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    const visibleHeight = 2 * DISTANCE * Math.tan((FOV * Math.PI) / 360);
-    const visibleWidth = visibleHeight * camera.aspect;
-    // Half of the word's width: 30 % of the screen on desktop, 42 % on phones.
-    uniforms.uScale.value = Math.min(visibleWidth * (width < 760 ? 0.42 : 0.3), visibleHeight * 0.55);
+    const unitsPerPixel = (2 * DISTANCE * Math.tan((FOV * Math.PI) / 360)) / height;
+    const box = options.target.getBoundingClientRect();
+    const frame = options.canvas.getBoundingClientRect();
+    const cx = box.left + box.width / 2 - frame.left - frame.width / 2;
+    const cy = box.top + box.height / 2 - frame.top - frame.height / 2;
+    uniforms.uCenter.value.set(cx * unitsPerPixel, -cy * unitsPerPixel);
+    uniforms.uWidth.value = box.width * unitsPerPixel;
   };
+
 
   const player = createPlayer({
     canvas: options.canvas,
@@ -168,7 +195,10 @@ export function createOutroScene(options: OutroOptions): OutroScene | null {
     onResize: place,
     onFrame: (renderer, seconds) => {
       uniforms.uTime.value = options.animate ? seconds : 2;
-      uniforms.uProgress.value = options.animate ? options.progress() : 1;
+      const progress = options.animate ? options.progress() : 1;
+      uniforms.uProgress.value = progress;
+      // The particles step aside once the crisp wordmark has taken over.
+      uniforms.uFade.value = 1 - Math.min(1, Math.max(0, (progress - 0.84) / 0.1));
       uniforms.uPixel.value = renderer.getPixelRatio();
       renderer.render(scene, camera);
     },
@@ -180,6 +210,7 @@ export function createOutroScene(options: OutroOptions): OutroScene | null {
 
   void sampleWordmark().then((sampled) => {
     if (sampled.letters.length === 0) return;
+    uniforms.uAspect.value = sampled.aspect;
     geometry = buildGeometry(sampled, options.lightweight ? 7000 : 16000);
     const points = new Points(geometry, material);
     points.frustumCulled = false;

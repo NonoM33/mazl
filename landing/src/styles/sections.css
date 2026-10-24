@@ -127,6 +127,7 @@
 .outro__stage::before { content: ""; position: absolute; left: 50%; top: 50%; width: min(120vw, 1400px); aspect-ratio: 1; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(39, 71, 245, 0.34), rgba(39, 71, 245, 0)); pointer-events: none; }
 .outro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .outro__line, .outro__word, .outro__actions { grid-area: 1 / 1; position: relative; padding: 0 var(--gutter); }
+.outro__word { padding: 0; justify-self: center; align-self: center; white-space: nowrap; }
 .outro__line {
   --k: clamp(0, calc((var(--o) - 0.22) / 0.18), 1);
   opacity: calc(1 - var(--k));
@@ -135,7 +136,7 @@
 }
 .outro__line .dot { color: var(--tekhelet-light); }
 .outro__sub { margin: 28px auto 0; max-width: 40ch; font-size: clamp(17px, 1.6vw, 21px); color: var(--on-ink-muted); }
-.outro__word { margin: 0; font-weight: 700; font-size: clamp(96px, 18vw, 260px); letter-spacing: -0.055em; line-height: 1; opacity: 0; }
+.outro__word { margin: 0; font-weight: 700; font-size: clamp(96px, 18vw, 260px); letter-spacing: -0.055em; line-height: 1; opacity: clamp(0, calc((var(--o) - 0.84) / 0.1), 1); }
 .outro__word span { color: var(--tekhelet-light); }
 .outro__canvas[hidden] ~ .outro__word { opacity: clamp(0, calc((var(--o) - 0.4) / 0.3), 1); }
 .outro__actions {
