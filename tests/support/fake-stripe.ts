@@ -121,8 +121,10 @@ export class FakeStripe {
   }
 
   private nextId(prefix: string): string {
+    // Unique across runs, like Stripe's ids: a counter restarting at 1 would
+    // collide with customers stored by a previous run in the same database.
     this.counter += 1;
-    return `${prefix}_fake_${this.counter}`;
+    return `${prefix}_fake_${this.counter}_${crypto.randomUUID().slice(0, 8)}`;
   }
 
   private async handle(request: Request): Promise<Response> {
