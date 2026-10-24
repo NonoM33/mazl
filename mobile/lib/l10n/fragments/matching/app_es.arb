@@ -22,5 +22,6 @@
   "matchingMatchLineNamed": "{name} y tú os habéis gustado.",
   "matchingMatchLineAnonymous": "Os habéis gustado.",
   "matchingMatchSendMessage": "Enviar un mensaje",
-  "matchingMatchKeepDiscovering": "Seguir descubriendo"
+  "matchingMatchKeepDiscovering": "Seguir descubriendo",
+  "matchingSeeMoreWithPlus": "Ver {count} más con mazl+"
 }

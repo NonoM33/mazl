@@ -22,5 +22,6 @@
   "matchingMatchLineNamed": "You and {name} liked each other.",
   "matchingMatchLineAnonymous": "You liked each other.",
   "matchingMatchSendMessage": "Send a message",
-  "matchingMatchKeepDiscovering": "Keep discovering"
+  "matchingMatchKeepDiscovering": "Keep discovering",
+  "matchingSeeMoreWithPlus": "See {count} more with mazl+"
 }

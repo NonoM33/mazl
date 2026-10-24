@@ -22,5 +22,6 @@
   "matchingMatchLineNamed": "יש חיבור הדדי עם {name}.",
   "matchingMatchLineAnonymous": "יש חיבור הדדי.",
   "matchingMatchSendMessage": "לשלוח הודעה",
-  "matchingMatchKeepDiscovering": "להמשיך לגלות"
+  "matchingMatchKeepDiscovering": "להמשיך לגלות",
+  "matchingSeeMoreWithPlus": "לראות עוד {count} עם mazl+‎"
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// Carte d'un like visible (compte premium) : photo, « Prénom, âge » en bas à
@@ -40,7 +41,7 @@ class LikeCard extends StatelessWidget {
       children: [
         Semantics(
           button: true,
-          label: 'Voir le like de $title',
+          label: context.l10n.likesCardOpen(title),
           excludeSemantics: true,
           onTap: onTap,
           child: GestureDetector(
@@ -61,7 +62,7 @@ class LikeCard extends StatelessWidget {
                     right: 10,
                     bottom: 10,
                     child: Align(
-                      alignment: Alignment.bottomLeft,
+                      alignment: AlignmentDirectional.bottomStart,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -111,13 +112,13 @@ class LikeCard extends StatelessWidget {
             children: [
               RoundIconButton(
                 icon: LucideIcons.x,
-                tooltip: 'Passer $name',
+                tooltip: context.l10n.likesCardPass(name),
                 onPressed: onPass,
               ),
               const SizedBox(width: 12),
               RoundIconButton(
                 icon: LucideIcons.heart,
-                tooltip: 'Aimer $name',
+                tooltip: context.l10n.likesCardLike(name),
                 style: RoundButtonStyle.accent,
                 onPressed: onLike,
               ),
@@ -142,8 +143,8 @@ class LockedLikeTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
-      label: 'Profil masqué',
-      hint: 'Disponible avec mazl+',
+      label: context.l10n.likesLockedLabel,
+      hint: context.l10n.likesLockedHint,
       excludeSemantics: true,
       onTap: onTap,
       child: GestureDetector(
@@ -173,45 +174,52 @@ class LockedLikeTile extends StatelessWidget {
 class MazlPlusPill extends StatelessWidget {
   const MazlPlusPill({
     super.key,
-    required this.prefix,
+    required this.label,
     required this.onPressed,
   });
 
-  /// Texte qui précède « mazl+ », espace final compris : « Voir les 8 autres avec ».
-  final String prefix;
+  static const _brand = 'mazl+';
+
+  /// La phrase entière, dans la langue du membre, qui contient la marque
+  /// « mazl+ » : « Voir les 8 autres avec mazl+ ». Sa place dans la phrase
+  /// change d'une langue à l'autre.
+  final String label;
   final VoidCallback onPressed;
+
+  /// [label] with the brand in bold and its « + » in tekhelet.
+  TextSpan _spans(ColorScheme scheme) {
+    final at = label.indexOf(_brand);
+    if (at < 0) return TextSpan(text: label);
+    final after = label.substring(at + _brand.length);
+    return TextSpan(
+      text: label.substring(0, at),
+      children: [
+        const TextSpan(
+          text: 'mazl',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        TextSpan(
+          text: '+',
+          style: TextStyle(fontWeight: FontWeight.w700, color: scheme.primary),
+        ),
+        if (after.isNotEmpty) TextSpan(text: after),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
-      label: '${prefix}mazl+',
+      label: label,
       excludeSemantics: true,
       onTap: onPressed,
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton(
           onPressed: onPressed,
-          child: Text.rich(
-            TextSpan(
-              text: prefix,
-              children: [
-                const TextSpan(
-                  text: 'mazl',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                TextSpan(
-                  text: '+',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: scheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
+          child: Text.rich(_spans(scheme), textAlign: TextAlign.center),
         ),
       ),
     );

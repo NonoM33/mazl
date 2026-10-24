@@ -7,6 +7,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../../likes/widgets/like_widgets.dart';
@@ -369,9 +370,9 @@ class _MatchesScreenState extends State<MatchesScreen>
       if (!isPremium) ...[
         const SizedBox(height: 16),
         MazlPlusPill(
-          prefix: remaining > 0
-              ? 'Voir les $remaining autres avec '
-              : 'Voir qui vous a aimé avec ',
+          label: remaining > 0
+              ? context.l10n.matchingSeeMoreWithPlus(remaining)
+              : context.l10n.likesSeeWhoWithPlus,
           onPressed: () => context.push(RoutePaths.premium),
         ),
       ] else if (remaining > 0) ...[

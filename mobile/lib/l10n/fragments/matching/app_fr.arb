@@ -119,5 +119,14 @@
   "matchingMatchKeepDiscovering": "Continuer à découvrir",
   "@matchingMatchKeepDiscovering": {
     "description": "Bouton secondaire de la feuille de match : ferme la feuille et revient aux profils."
+  },
+  "matchingSeeMoreWithPlus": "{count, plural, one{Voir {count} autre avec mazl+} other{Voir les {count} autres avec mazl+}}",
+  "@matchingSeeMoreWithPlus": {
+    "description": "Bouton en contour sous les likes visibles de l'écran Matchs. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel. {count} est le nombre de likes encore cachés.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -116,6 +116,121 @@
   "@commonLoadError": {
     "description": "Titre d'un écran ou d'un bloc dont le chargement a échoué."
   },
+  "likesTitle": "Likes",
+  "@likesTitle": {
+    "description": "Titre de l'écran qui liste les membres qui ont aimé le profil."
+  },
+  "likesSection": "Ils vous ont aimé · {count}",
+  "@likesSection": {
+    "description": "Petit titre au-dessus de la liste des likes. {count} est le nombre de likes reçus, arrondi par tranches (« 3 », « 10+ », « 25+ »).",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "likesWaiting": "{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}",
+  "@likesWaiting": {
+    "description": "Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "likesSeeWhoWithPlus": "Voir qui vous a aimé avec mazl+",
+  "@likesSeeWhoWithPlus": {
+    "description": "Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase."
+  },
+  "likesMatchWith": "Match avec {name}",
+  "@likesMatchWith": {
+    "description": "Message bref quand aimer un profil crée un match. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "likesMessageAction": "Message",
+  "@likesMessageAction": {
+    "description": "Bouton du message bref « Match avec … » : ouvre la messagerie."
+  },
+  "likesYouLiked": "Vous avez liké {name}",
+  "@likesYouLiked": {
+    "description": "Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "likesEmptyTitle": "Pas encore de likes",
+  "@likesEmptyTitle": {
+    "description": "Titre de l'écran des likes quand personne n'a encore aimé le profil."
+  },
+  "likesEmptyBody": "Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.",
+  "@likesEmptyBody": {
+    "description": "Texte sous le titre de l'écran des likes vide : conseil pour recevoir des likes."
+  },
+  "likesEmptyAction": "Découvrir des profils",
+  "@likesEmptyAction": {
+    "description": "Bouton de l'écran des likes vide : retourne à Découvrir."
+  },
+  "likesPremiumBody": "Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.",
+  "@likesPremiumBody": {
+    "description": "Texte de la feuille qui présente mazl+ quand on touche un like verrouillé."
+  },
+  "likesPremiumOffers": "Voir les offres",
+  "@likesPremiumOffers": {
+    "description": "Bouton de la feuille mazl+ : ouvre l'écran des offres."
+  },
+  "likesCardOpen": "Voir le like de {title}",
+  "@likesCardOpen": {
+    "description": "Libellé d'accessibilité d'une carte de like : ouvre l'aperçu. {title} est « Prénom, âge ».",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "likesCardPass": "Passer {name}",
+  "@likesCardPass": {
+    "description": "Info-bulle du bouton rond (croix) sous une carte de like. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "likesCardLike": "Aimer {name}",
+  "@likesCardLike": {
+    "description": "Info-bulle du bouton rond (cœur) sous une carte de like. {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "likesLockedLabel": "Profil masqué",
+  "@likesLockedLabel": {
+    "description": "Libellé d'accessibilité d'une tuile de like verrouillée (compte gratuit)."
+  },
+  "likesLockedHint": "Disponible avec mazl+",
+  "@likesLockedHint": {
+    "description": "Indication d'accessibilité d'une tuile de like verrouillée. « mazl+ » est un nom de marque."
+  },
+  "likesDistance": "{km} km",
+  "@likesDistance": {
+    "description": "Pastille de distance dans l'aperçu d'un like. {km} est un nombre entier de kilomètres.",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
   "matchingDiscoverDailyPicks": "Sélections du jour",
   "@matchingDiscoverDailyPicks": {
     "description": "Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour."
@@ -236,6 +351,15 @@
   "matchingMatchKeepDiscovering": "Continuer à découvrir",
   "@matchingMatchKeepDiscovering": {
     "description": "Bouton secondaire de la feuille de match : ferme la feuille et revient aux profils."
+  },
+  "matchingSeeMoreWithPlus": "{count, plural, one{Voir {count} autre avec mazl+} other{Voir les {count} autres avec mazl+}}",
+  "@matchingSeeMoreWithPlus": {
+    "description": "Bouton en contour sous les likes visibles de l'écran Matchs. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel. {count} est le nombre de likes encore cachés.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "safetyBlock": "Bloquer",
   "@safetyBlock": {

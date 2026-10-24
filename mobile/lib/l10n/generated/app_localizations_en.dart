@@ -96,6 +96,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLoadError => 'Couldn’t load';
 
   @override
+  String get likesTitle => 'Likes';
+
+  @override
+  String likesSection(String count) {
+    return 'They liked you · $count';
+  }
+
+  @override
+  String likesWaiting(int count, String label) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$label people are waiting for your reply.',
+      one: '$label person is waiting for your reply.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesSeeWhoWithPlus => 'See who liked you with mazl+';
+
+  @override
+  String likesMatchWith(String name) {
+    return 'It\'s a match with $name';
+  }
+
+  @override
+  String get likesMessageAction => 'Message';
+
+  @override
+  String likesYouLiked(String name) {
+    return 'You liked $name';
+  }
+
+  @override
+  String get likesEmptyTitle => 'No likes yet';
+
+  @override
+  String get likesEmptyBody =>
+      'Keep discovering profiles and complete yours to get more likes.';
+
+  @override
+  String get likesEmptyAction => 'Discover profiles';
+
+  @override
+  String get likesPremiumBody =>
+      'See who liked you and match right away with the people you like.';
+
+  @override
+  String get likesPremiumOffers => 'See plans';
+
+  @override
+  String likesCardOpen(String title) {
+    return 'View $title\'s like';
+  }
+
+  @override
+  String likesCardPass(String name) {
+    return 'Pass on $name';
+  }
+
+  @override
+  String likesCardLike(String name) {
+    return 'Like $name';
+  }
+
+  @override
+  String get likesLockedLabel => 'Hidden profile';
+
+  @override
+  String get likesLockedHint => 'Available with mazl+';
+
+  @override
+  String likesDistance(int km) {
+    return '$km km';
+  }
+
+  @override
   String get matchingDiscoverDailyPicks => 'Daily picks';
 
   @override
@@ -183,6 +261,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get matchingMatchKeepDiscovering => 'Keep discovering';
+
+  @override
+  String matchingSeeMoreWithPlus(int count) {
+    return 'See $count more with mazl+';
+  }
 
   @override
   String get safetyBlock => 'Block';

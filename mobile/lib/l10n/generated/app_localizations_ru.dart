@@ -97,6 +97,86 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonLoadError => 'Ошибка загрузки';
 
   @override
+  String get likesTitle => 'Лайки';
+
+  @override
+  String likesSection(String count) {
+    return 'Вы понравились · $count';
+  }
+
+  @override
+  String likesWaiting(int count, String label) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$label человека ждут Вашего ответа.',
+      many: '$label человек ждут Вашего ответа.',
+      few: '$label человека ждут Вашего ответа.',
+      one: '$label человек ждёт Вашего ответа.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesSeeWhoWithPlus => 'Узнать, кто Вас лайкнул, с mazl+';
+
+  @override
+  String likesMatchWith(String name) {
+    return 'Мэтч с $name';
+  }
+
+  @override
+  String get likesMessageAction => 'Сообщение';
+
+  @override
+  String likesYouLiked(String name) {
+    return 'Вы лайкнули $name';
+  }
+
+  @override
+  String get likesEmptyTitle => 'Пока нет лайков';
+
+  @override
+  String get likesEmptyBody =>
+      'Продолжайте знакомиться и заполните свой профиль, чтобы получать больше лайков.';
+
+  @override
+  String get likesEmptyAction => 'Смотреть профили';
+
+  @override
+  String get likesPremiumBody =>
+      'Узнайте, кто Вас лайкнул, и сразу устройте мэтч с теми, кто Вам нравится.';
+
+  @override
+  String get likesPremiumOffers => 'Посмотреть тарифы';
+
+  @override
+  String likesCardOpen(String title) {
+    return 'Открыть лайк: $title';
+  }
+
+  @override
+  String likesCardPass(String name) {
+    return 'Пропустить: $name';
+  }
+
+  @override
+  String likesCardLike(String name) {
+    return 'Лайкнуть: $name';
+  }
+
+  @override
+  String get likesLockedLabel => 'Скрытый профиль';
+
+  @override
+  String get likesLockedHint => 'Доступно с mazl+';
+
+  @override
+  String likesDistance(int km) {
+    return '$km км';
+  }
+
+  @override
   String get matchingDiscoverDailyPicks => 'Подборка дня';
 
   @override
@@ -186,6 +266,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get matchingMatchKeepDiscovering => 'Продолжить знакомства';
+
+  @override
+  String matchingSeeMoreWithPlus(int count) {
+    return 'Показать ещё $count с mazl+';
+  }
 
   @override
   String get safetyBlock => 'Заблокировать';

@@ -99,6 +99,84 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonLoadError => 'Erreur de chargement';
 
   @override
+  String get likesTitle => 'Likes';
+
+  @override
+  String likesSection(String count) {
+    return 'Ils vous ont aimé · $count';
+  }
+
+  @override
+  String likesWaiting(int count, String label) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$label personnes attendent votre réponse.',
+      one: '$label personne attend votre réponse.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesSeeWhoWithPlus => 'Voir qui vous a aimé avec mazl+';
+
+  @override
+  String likesMatchWith(String name) {
+    return 'Match avec $name';
+  }
+
+  @override
+  String get likesMessageAction => 'Message';
+
+  @override
+  String likesYouLiked(String name) {
+    return 'Vous avez liké $name';
+  }
+
+  @override
+  String get likesEmptyTitle => 'Pas encore de likes';
+
+  @override
+  String get likesEmptyBody =>
+      'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.';
+
+  @override
+  String get likesEmptyAction => 'Découvrir des profils';
+
+  @override
+  String get likesPremiumBody =>
+      'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.';
+
+  @override
+  String get likesPremiumOffers => 'Voir les offres';
+
+  @override
+  String likesCardOpen(String title) {
+    return 'Voir le like de $title';
+  }
+
+  @override
+  String likesCardPass(String name) {
+    return 'Passer $name';
+  }
+
+  @override
+  String likesCardLike(String name) {
+    return 'Aimer $name';
+  }
+
+  @override
+  String get likesLockedLabel => 'Profil masqué';
+
+  @override
+  String get likesLockedHint => 'Disponible avec mazl+';
+
+  @override
+  String likesDistance(int km) {
+    return '$km km';
+  }
+
+  @override
   String get matchingDiscoverDailyPicks => 'Sélections du jour';
 
   @override
@@ -186,6 +264,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get matchingMatchKeepDiscovering => 'Continuer à découvrir';
+
+  @override
+  String matchingSeeMoreWithPlus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Voir les $count autres avec mazl+',
+      one: 'Voir $count autre avec mazl+',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get safetyBlock => 'Bloquer';

@@ -96,6 +96,85 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonLoadError => 'שגיאה בטעינה';
 
   @override
+  String get likesTitle => 'לייקים';
+
+  @override
+  String likesSection(String count) {
+    return 'אהבו אותך · $count';
+  }
+
+  @override
+  String likesWaiting(int count, String label) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$label אנשים ממתינים לתשובה שלך.',
+      two: 'שני אנשים ממתינים לתשובה שלך.',
+      one: 'אדם אחד ממתין לתשובה שלך.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get likesSeeWhoWithPlus => 'לראות מי אהב אותך עם mazl+‎';
+
+  @override
+  String likesMatchWith(String name) {
+    return 'יש מאץ\' עם $name';
+  }
+
+  @override
+  String get likesMessageAction => 'הודעה';
+
+  @override
+  String likesYouLiked(String name) {
+    return 'נשלח לייק ל-$name';
+  }
+
+  @override
+  String get likesEmptyTitle => 'עדיין אין לייקים';
+
+  @override
+  String get likesEmptyBody =>
+      'כדאי להמשיך לגלות פרופילים ולהשלים את הפרופיל כדי לקבל יותר לייקים.';
+
+  @override
+  String get likesEmptyAction => 'לגלות פרופילים';
+
+  @override
+  String get likesPremiumBody =>
+      'אפשר לגלות מי אהב אותך וליצור מאץ\' מיד עם מי שמוצא חן בעיניך.';
+
+  @override
+  String get likesPremiumOffers => 'לצפייה במסלולים';
+
+  @override
+  String likesCardOpen(String title) {
+    return 'לצפייה בלייק של $title';
+  }
+
+  @override
+  String likesCardPass(String name) {
+    return 'לדלג על $name';
+  }
+
+  @override
+  String likesCardLike(String name) {
+    return 'לתת לייק ל-$name';
+  }
+
+  @override
+  String get likesLockedLabel => 'פרופיל מוסתר';
+
+  @override
+  String get likesLockedHint => 'זמין עם mazl+‎';
+
+  @override
+  String likesDistance(int km) {
+    return '$km ק״מ';
+  }
+
+  @override
   String get matchingDiscoverDailyPicks => 'הבחירות של היום';
 
   @override
@@ -184,6 +263,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get matchingMatchKeepDiscovering => 'להמשיך לגלות';
+
+  @override
+  String matchingSeeMoreWithPlus(int count) {
+    return 'לראות עוד $count עם mazl+‎';
+  }
 
   @override
   String get safetyBlock => 'לחסום';

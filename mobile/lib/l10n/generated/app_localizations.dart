@@ -278,6 +278,114 @@ abstract class AppLocalizations {
   /// **'Erreur de chargement'**
   String get commonLoadError;
 
+  /// Titre de l'écran qui liste les membres qui ont aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get likesTitle;
+
+  /// Petit titre au-dessus de la liste des likes. {count} est le nombre de likes reçus, arrondi par tranches (« 3 », « 10+ », « 25+ »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ils vous ont aimé · {count}'**
+  String likesSection(String count);
+
+  /// Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}'**
+  String likesWaiting(int count, String label);
+
+  /// Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir qui vous a aimé avec mazl+'**
+  String get likesSeeWhoWithPlus;
+
+  /// Message bref quand aimer un profil crée un match. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match avec {name}'**
+  String likesMatchWith(String name);
+
+  /// Bouton du message bref « Match avec … » : ouvre la messagerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get likesMessageAction;
+
+  /// Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez liké {name}'**
+  String likesYouLiked(String name);
+
+  /// Titre de l'écran des likes quand personne n'a encore aimé le profil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de likes'**
+  String get likesEmptyTitle;
+
+  /// Texte sous le titre de l'écran des likes vide : conseil pour recevoir des likes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuez à découvrir des profils et complétez votre profil pour attirer plus de likes.'**
+  String get likesEmptyBody;
+
+  /// Bouton de l'écran des likes vide : retourne à Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir des profils'**
+  String get likesEmptyAction;
+
+  /// Texte de la feuille qui présente mazl+ quand on touche un like verrouillé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.'**
+  String get likesPremiumBody;
+
+  /// Bouton de la feuille mazl+ : ouvre l'écran des offres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les offres'**
+  String get likesPremiumOffers;
+
+  /// Libellé d'accessibilité d'une carte de like : ouvre l'aperçu. {title} est « Prénom, âge ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le like de {title}'**
+  String likesCardOpen(String title);
+
+  /// Info-bulle du bouton rond (croix) sous une carte de like. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer {name}'**
+  String likesCardPass(String name);
+
+  /// Info-bulle du bouton rond (cœur) sous une carte de like. {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aimer {name}'**
+  String likesCardLike(String name);
+
+  /// Libellé d'accessibilité d'une tuile de like verrouillée (compte gratuit).
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil masqué'**
+  String get likesLockedLabel;
+
+  /// Indication d'accessibilité d'une tuile de like verrouillée. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible avec mazl+'**
+  String get likesLockedHint;
+
+  /// Pastille de distance dans l'aperçu d'un like. {km} est un nombre entier de kilomètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'{km} km'**
+  String likesDistance(int km);
+
   /// Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour.
   ///
   /// In fr, this message translates to:
@@ -421,6 +529,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Continuer à découvrir'**
   String get matchingMatchKeepDiscovering;
+
+  /// Bouton en contour sous les likes visibles de l'écran Matchs. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel. {count} est le nombre de likes encore cachés.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Voir {count} autre avec mazl+} other{Voir les {count} autres avec mazl+}}'**
+  String matchingSeeMoreWithPlus(int count);
 
   /// Bloquer un membre : titre de l'option dans la feuille « Bloquer / Signaler » et bouton rouge de la boîte de confirmation.
   ///

@@ -22,5 +22,6 @@
   "matchingMatchLineNamed": "Вы с {name} понравились друг другу.",
   "matchingMatchLineAnonymous": "Вы понравились друг другу.",
   "matchingMatchSendMessage": "Написать сообщение",
-  "matchingMatchKeepDiscovering": "Продолжить знакомства"
+  "matchingMatchKeepDiscovering": "Продолжить знакомства",
+  "matchingSeeMoreWithPlus": "Показать ещё {count} с mazl+"
 }
