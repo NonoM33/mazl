@@ -121,11 +121,45 @@ final class PurchasePending extends PurchaseResult {
   const PurchasePending();
 }
 
-/// L'achat n'a pas abouti. [message] est écrit pour l'utilisateur, en français.
-final class PurchaseFailed extends PurchaseResult {
-  const PurchaseFailed(this.message);
+/// Pourquoi un achat ou une restauration n'a pas abouti. Le cœur ne parle pas :
+/// il rend ce type, et l'écran écrit la phrase dans la langue du membre.
+enum PurchaseProblem {
+  /// Un autre achat n'est pas terminé.
+  purchaseInProgress,
 
-  final String message;
+  /// Android ne vend pas encore : le serveur ne vérifie pas Google Play.
+  androidSoon,
+
+  /// L'achat Apple est déjà lié à un autre compte mazl (HTTP 409).
+  ownedByAnotherAccount,
+
+  /// Le serveur n'a pas pu valider la transaction (HTTP 422, réponse illisible).
+  invalidTransaction,
+
+  /// Le serveur a refusé les données envoyées (HTTP 400).
+  invalidBody,
+
+  /// Session expirée pendant l'achat (HTTP 401 ou 403).
+  signInAgain,
+
+  /// Réseau coupé ou serveur en panne : l'achat est gardé pour plus tard.
+  offline,
+
+  /// Échec du store sans cause plus précise.
+  generic,
+
+  /// Le serveur a reçu l'achat mais l'abonnement n'est pas actif.
+  inactive,
+
+  /// La restauration auprès du store a échoué.
+  restoreFailed,
+}
+
+/// L'achat n'a pas abouti pour la raison [problem].
+final class PurchaseFailed extends PurchaseResult {
+  const PurchaseFailed(this.problem);
+
+  final PurchaseProblem problem;
 }
 
 /// Issue d'une restauration.
@@ -143,9 +177,9 @@ final class RestoreNothing extends RestoreResult {
   const RestoreNothing();
 }
 
-/// La restauration a échoué. [message] est écrit pour l'utilisateur.
+/// La restauration a échoué pour la raison [problem].
 final class RestoreFailed extends RestoreResult {
-  const RestoreFailed(this.message);
+  const RestoreFailed(this.problem);
 
-  final String message;
+  final PurchaseProblem problem;
 }

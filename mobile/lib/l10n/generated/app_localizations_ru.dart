@@ -3041,6 +3041,349 @@ class AppLocalizationsRu extends AppLocalizations {
       'Наш искусственный интеллект поможет Вам найти подходящего человека.';
 
   @override
+  String get plusFeatureUnlimitedLikesTitle => 'Безлимитные лайки';
+
+  @override
+  String get plusFeatureUnlimitedLikesDescription =>
+      'Ставьте лайки сколько угодно, без дневного лимита.';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouTitle => 'Узнать, кто Вас лайкнул';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouDescription =>
+      'Узнайте, кто Вас лайкнул, ещё до встречи.';
+
+  @override
+  String get plusFeatureSuperLikesTitle => 'Суперлайки';
+
+  @override
+  String get plusFeatureSuperLikesDescription =>
+      'Выделяйтесь с 5 суперлайками в день.';
+
+  @override
+  String get plusFeatureBoostTitle => 'Буст';
+
+  @override
+  String get plusFeatureBoostDescription => 'Будьте в начале очереди 30 минут.';
+
+  @override
+  String get plusFeatureRewindTitle => 'Вернуться назад';
+
+  @override
+  String get plusFeatureRewindDescription =>
+      'Исправьте слишком быстрое «Пропустить».';
+
+  @override
+  String get plusFeatureReadReceiptsTitle => 'Подтверждения прочтения';
+
+  @override
+  String get plusFeatureReadReceiptsDescription =>
+      'Узнавайте, когда Ваши сообщения прочитаны.';
+
+  @override
+  String get plusFeatureAdvancedFiltersTitle => 'Расширенные фильтры';
+
+  @override
+  String get plusFeatureAdvancedFiltersDescription =>
+      'Фильтруйте по практике, общине и не только.';
+
+  @override
+  String get plusFeaturePrioritySupportTitle => 'Приоритетная поддержка';
+
+  @override
+  String get plusFeaturePrioritySupportDescription =>
+      'Получайте быстрый ответ от нашей команды.';
+
+  @override
+  String get plusReservedLabel => 'Только для mazl+';
+
+  @override
+  String get plusDiscover => 'Узнать о mazl+';
+
+  @override
+  String get plusNotNow => 'Не сейчас';
+
+  @override
+  String plusDailyLimitLabel(int limit) {
+    return 'Лимит дня · $limit / $limit';
+  }
+
+  @override
+  String get plusDailyLimitTitle => 'Ваши лайки на сегодня закончились.';
+
+  @override
+  String get plusDailyLimitBody =>
+      'Они вернутся в полночь. Или продолжайте без ограничений и узнайте, кто Вас уже лайкнул.';
+
+  @override
+  String get plusDailyLimitNext => 'Следующие лайки через';
+
+  @override
+  String get plusDailyLimitWait => 'Дождаться полуночи';
+
+  @override
+  String get plusOfferTagline => 'Знакомьтесь без счёта.';
+
+  @override
+  String get plusPerkUnlimitedLikesDetail => 'Больше никаких 10 в день.';
+
+  @override
+  String get plusPerkSeeWhoDetail => 'Ещё до встречи.';
+
+  @override
+  String get plusPerkSuperLikesTitle => '5 суперлайков в день';
+
+  @override
+  String get plusPerkSuperLikesDetail => 'Вместо одного.';
+
+  @override
+  String get plusPerkBoostTitle => 'Один буст в день';
+
+  @override
+  String get plusPerkBoostDetail => 'В начале очереди 30 минут.';
+
+  @override
+  String get plusPerkFiltersDetail => 'Практика, община и не только.';
+
+  @override
+  String get plusYourPlan => 'Ваш тариф';
+
+  @override
+  String plusMonths(int months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months месяца',
+      many: '$months месяцев',
+      few: '$months месяца',
+      one: '$months месяц',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plusPerMonth(String price) {
+    return '$price в месяц';
+  }
+
+  @override
+  String plusPlanSavings(int percent) {
+    return '-$percent %';
+  }
+
+  @override
+  String plusPlanSemantics(String duration, String price, String perMonth) {
+    return '$duration, $price, $perMonth';
+  }
+
+  @override
+  String plusPlanSemanticsSaving(
+    String duration,
+    String price,
+    String perMonth,
+    String saving,
+  ) {
+    return '$duration, $price, $perMonth, экономия $saving';
+  }
+
+  @override
+  String plusContinuePrice(String price) {
+    return 'Продолжить · $price';
+  }
+
+  @override
+  String get plusAndroidSoon => 'Скоро на Android';
+
+  @override
+  String get plusRestore => 'Восстановить';
+
+  @override
+  String get plusTerms => 'Условия';
+
+  @override
+  String get plusPrivacy => 'Конфиденциальность';
+
+  @override
+  String get plusLegalAppStore =>
+      'Автоматическое продление, отменить можно в любой момент в настройках App Store.';
+
+  @override
+  String get plusLegalGooglePlay =>
+      'Автоматическое продление, отменить можно в любой момент в настройках Google Play.';
+
+  @override
+  String get plusPendingApproval =>
+      'Покупка ожидает подтверждения. Подписка включится, как только её одобрят.';
+
+  @override
+  String get plusOfferRestored => 'Подписка восстановлена';
+
+  @override
+  String get plusOfferNothingFound => 'Подписка не найдена';
+
+  @override
+  String get plusPlansSoon => 'Подписки скоро будут доступны.';
+
+  @override
+  String get plusErrorPurchaseInProgress => 'Покупка уже выполняется.';
+
+  @override
+  String get plusErrorOwnedByAnotherAccount =>
+      'Эта покупка в App Store уже привязана к другому аккаунту mazl.';
+
+  @override
+  String get plusErrorInvalidTransaction =>
+      'Не удалось подтвердить покупку в App Store. Её проверят снова при следующем запуске.';
+
+  @override
+  String get plusErrorInvalidBody =>
+      'Не удалось корректно передать Вашу покупку. Повторите через минуту.';
+
+  @override
+  String get plusErrorSignInAgain =>
+      'Войдите в mazl снова, чтобы завершить покупку.';
+
+  @override
+  String get plusErrorOffline =>
+      'Нет соединения. Ваша покупка сохранена и будет подтверждена, как только это станет возможным.';
+
+  @override
+  String get plusErrorGeneric =>
+      'Не удалось завершить покупку. Повторите через минуту.';
+
+  @override
+  String get plusErrorInactive => 'Ваша подписка не активна.';
+
+  @override
+  String get plusErrorRestoreFailed =>
+      'Не удалось восстановить покупки. Повторите через минуту.';
+
+  @override
+  String get plusActiveSubscription => 'Подписка активна';
+
+  @override
+  String plusActiveSubscriptionPlan(String plan) {
+    return 'Подписка активна · $plan';
+  }
+
+  @override
+  String get plusWelcomeTitle => 'Добро пожаловать в mazl+.';
+
+  @override
+  String get plusWelcomeSubtitle => 'Всё разблокировано. С чего начнёте?';
+
+  @override
+  String plusWelcomeLikesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count человека поставили Вам лайк',
+      many: '$count человек поставили Вам лайк',
+      few: '$count человека поставили Вам лайк',
+      one: '$count человек поставил Вам лайк',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plusWelcomeLikesDetail => 'Посмотреть сейчас';
+
+  @override
+  String get plusWelcomeBoostTitle => 'Запустить буст';
+
+  @override
+  String get plusWelcomeBoostDetail => 'В начале очереди 30 минут';
+
+  @override
+  String get plusWelcomeFiltersTitle => 'Настроить фильтры';
+
+  @override
+  String get plusWelcomeFiltersDetail => 'Практика, община и не только';
+
+  @override
+  String plusTitleDetail(String title, String detail) {
+    return '$title. $detail';
+  }
+
+  @override
+  String get plusSubscriptionTitle => 'Подписка';
+
+  @override
+  String get plusStatusActive => 'Активна';
+
+  @override
+  String get plusStatusCancelled => 'Отменена';
+
+  @override
+  String get plusFactPlan => 'Тариф';
+
+  @override
+  String get plusFactRenewal => 'Продление';
+
+  @override
+  String get plusFactExpiration => 'Окончание';
+
+  @override
+  String plusPlanAndPrice(String duration, String price) {
+    return '$duration · $price';
+  }
+
+  @override
+  String plusSuperLikesOf(int left, int max) {
+    return '$left из $max';
+  }
+
+  @override
+  String get plusBoostAvailable => 'Доступен';
+
+  @override
+  String get plusBoostUsed => 'Использован сегодня';
+
+  @override
+  String get plusLikesLabel => 'Лайки';
+
+  @override
+  String get plusLikesUnlimited => 'Безлимит';
+
+  @override
+  String get plusManageAppStore => 'Управлять в App Store';
+
+  @override
+  String get plusManageGooglePlay => 'Управлять в Google Play';
+
+  @override
+  String get plusManageFailed => 'Не удалось открыть управление подпиской.';
+
+  @override
+  String get plusRestorePurchases => 'Восстановить покупки';
+
+  @override
+  String get plusNoActiveSubscription => 'Активной подписки нет.';
+
+  @override
+  String get plusPurchasesRestored => 'Покупки восстановлены.';
+
+  @override
+  String get plusNothingToRestore => 'Подписка не найдена.';
+
+  @override
+  String get plusSettingsPitch => 'Безлимитные лайки, кто Вас лайкнул, буст';
+
+  @override
+  String get plusUpgradeTo => 'Перейти на mazl+';
+
+  @override
+  String plusSettingsSemanticsActive(String detail) {
+    return 'mazl+. $detail';
+  }
+
+  @override
+  String plusSettingsSemanticsUpgrade(String detail) {
+    return 'Перейти на mazl+. $detail';
+  }
+
+  @override
   String get profileMyProfile => 'Мой профиль';
 
   @override

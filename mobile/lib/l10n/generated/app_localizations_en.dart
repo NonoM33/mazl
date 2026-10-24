@@ -2986,6 +2986,348 @@ class AppLocalizationsEn extends AppLocalizations {
       'Our artificial intelligence helps you find the right person.';
 
   @override
+  String get plusFeatureUnlimitedLikesTitle => 'Unlimited likes';
+
+  @override
+  String get plusFeatureUnlimitedLikesDescription =>
+      'Like as much as you want, with no daily limit.';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouTitle => 'See who liked you';
+
+  @override
+  String get plusFeatureSeeWhoLikesYouDescription =>
+      'See who liked you before you even cross paths.';
+
+  @override
+  String get plusFeatureSuperLikesTitle => 'Super Likes';
+
+  @override
+  String get plusFeatureSuperLikesDescription =>
+      'Stand out with 5 Super Likes a day.';
+
+  @override
+  String get plusFeatureBoostTitle => 'Boost';
+
+  @override
+  String get plusFeatureBoostDescription =>
+      'Be at the top of the stack for 30 minutes.';
+
+  @override
+  String get plusFeatureRewindTitle => 'Rewind';
+
+  @override
+  String get plusFeatureRewindDescription =>
+      'Take back a “Pass” that was too quick.';
+
+  @override
+  String get plusFeatureReadReceiptsTitle => 'Read receipts';
+
+  @override
+  String get plusFeatureReadReceiptsDescription =>
+      'Know when your messages have been read.';
+
+  @override
+  String get plusFeatureAdvancedFiltersTitle => 'Advanced filters';
+
+  @override
+  String get plusFeatureAdvancedFiltersDescription =>
+      'Filter by practice, community and more.';
+
+  @override
+  String get plusFeaturePrioritySupportTitle => 'Priority support';
+
+  @override
+  String get plusFeaturePrioritySupportDescription =>
+      'Get a quick answer from our team.';
+
+  @override
+  String get plusReservedLabel => 'Reserved for mazl+';
+
+  @override
+  String get plusDiscover => 'Discover mazl+';
+
+  @override
+  String get plusNotNow => 'Not now';
+
+  @override
+  String plusDailyLimitLabel(int limit) {
+    return 'Daily limit · $limit / $limit';
+  }
+
+  @override
+  String get plusDailyLimitTitle => 'Your likes for today are gone.';
+
+  @override
+  String get plusDailyLimitBody =>
+      'They come back at midnight. Or keep going without counting, and see who already liked you.';
+
+  @override
+  String get plusDailyLimitNext => 'Next likes in';
+
+  @override
+  String get plusDailyLimitWait => 'Wait until midnight';
+
+  @override
+  String get plusOfferTagline => 'Meet without counting.';
+
+  @override
+  String get plusPerkUnlimitedLikesDetail => 'No more 10 a day.';
+
+  @override
+  String get plusPerkSeeWhoDetail => 'Before you even cross paths.';
+
+  @override
+  String get plusPerkSuperLikesTitle => '5 Super Likes a day';
+
+  @override
+  String get plusPerkSuperLikesDetail => 'Instead of just one.';
+
+  @override
+  String get plusPerkBoostTitle => 'One Boost a day';
+
+  @override
+  String get plusPerkBoostDetail => 'At the top of the stack for 30 minutes.';
+
+  @override
+  String get plusPerkFiltersDetail => 'Practice, community, and more.';
+
+  @override
+  String get plusYourPlan => 'Your plan';
+
+  @override
+  String plusMonths(int months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plusPerMonth(String price) {
+    return '$price per month';
+  }
+
+  @override
+  String plusPlanSavings(int percent) {
+    return '-$percent%';
+  }
+
+  @override
+  String plusPlanSemantics(String duration, String price, String perMonth) {
+    return '$duration, $price, $perMonth';
+  }
+
+  @override
+  String plusPlanSemanticsSaving(
+    String duration,
+    String price,
+    String perMonth,
+    String saving,
+  ) {
+    return '$duration, $price, $perMonth, saves $saving';
+  }
+
+  @override
+  String plusContinuePrice(String price) {
+    return 'Continue · $price';
+  }
+
+  @override
+  String get plusAndroidSoon => 'Coming soon on Android';
+
+  @override
+  String get plusRestore => 'Restore';
+
+  @override
+  String get plusTerms => 'Terms';
+
+  @override
+  String get plusPrivacy => 'Privacy';
+
+  @override
+  String get plusLegalAppStore =>
+      'Renews automatically. Cancel anytime in the App Store settings.';
+
+  @override
+  String get plusLegalGooglePlay =>
+      'Renews automatically. Cancel anytime in the Google Play settings.';
+
+  @override
+  String get plusPendingApproval =>
+      'Purchase pending approval. Your subscription will activate as soon as it is approved.';
+
+  @override
+  String get plusOfferRestored => 'Subscription restored';
+
+  @override
+  String get plusOfferNothingFound => 'No subscription found';
+
+  @override
+  String get plusPlansSoon => 'Subscriptions will be available soon.';
+
+  @override
+  String get plusErrorPurchaseInProgress =>
+      'A purchase is already in progress.';
+
+  @override
+  String get plusErrorOwnedByAnotherAccount =>
+      'This App Store purchase is already linked to another mazl account.';
+
+  @override
+  String get plusErrorInvalidTransaction =>
+      'We couldn\'t validate this purchase with the App Store. It will be checked again at the next launch.';
+
+  @override
+  String get plusErrorInvalidBody =>
+      'Your purchase couldn\'t be sent correctly. Try again in a moment.';
+
+  @override
+  String get plusErrorSignInAgain =>
+      'Sign in to mazl again to finish your purchase.';
+
+  @override
+  String get plusErrorOffline =>
+      'Can\'t connect. Your purchase is kept and will be validated as soon as possible.';
+
+  @override
+  String get plusErrorGeneric =>
+      'The purchase couldn\'t be completed. Try again in a moment.';
+
+  @override
+  String get plusErrorInactive => 'Your subscription isn\'t active.';
+
+  @override
+  String get plusErrorRestoreFailed =>
+      'Restoring failed. Try again in a moment.';
+
+  @override
+  String get plusActiveSubscription => 'Active subscription';
+
+  @override
+  String plusActiveSubscriptionPlan(String plan) {
+    return 'Active subscription · $plan';
+  }
+
+  @override
+  String get plusWelcomeTitle => 'Welcome to mazl+.';
+
+  @override
+  String get plusWelcomeSubtitle =>
+      'Everything is unlocked. Where do you want to start?';
+
+  @override
+  String plusWelcomeLikesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people liked you',
+      one: '1 person liked you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plusWelcomeLikesDetail => 'See them now';
+
+  @override
+  String get plusWelcomeBoostTitle => 'Start your Boost';
+
+  @override
+  String get plusWelcomeBoostDetail => 'At the top of the stack for 30 minutes';
+
+  @override
+  String get plusWelcomeFiltersTitle => 'Fine-tune your filters';
+
+  @override
+  String get plusWelcomeFiltersDetail => 'Practice, community, and more';
+
+  @override
+  String plusTitleDetail(String title, String detail) {
+    return '$title. $detail';
+  }
+
+  @override
+  String get plusSubscriptionTitle => 'Subscription';
+
+  @override
+  String get plusStatusActive => 'Active';
+
+  @override
+  String get plusStatusCancelled => 'Cancelled';
+
+  @override
+  String get plusFactPlan => 'Plan';
+
+  @override
+  String get plusFactRenewal => 'Renewal';
+
+  @override
+  String get plusFactExpiration => 'Expiration';
+
+  @override
+  String plusPlanAndPrice(String duration, String price) {
+    return '$duration · $price';
+  }
+
+  @override
+  String plusSuperLikesOf(int left, int max) {
+    return '$left of $max';
+  }
+
+  @override
+  String get plusBoostAvailable => 'Available';
+
+  @override
+  String get plusBoostUsed => 'Used today';
+
+  @override
+  String get plusLikesLabel => 'Likes';
+
+  @override
+  String get plusLikesUnlimited => 'Unlimited';
+
+  @override
+  String get plusManageAppStore => 'Manage in the App Store';
+
+  @override
+  String get plusManageGooglePlay => 'Manage in Google Play';
+
+  @override
+  String get plusManageFailed => 'Couldn\'t open subscription management.';
+
+  @override
+  String get plusRestorePurchases => 'Restore my purchases';
+
+  @override
+  String get plusNoActiveSubscription => 'No active subscription.';
+
+  @override
+  String get plusPurchasesRestored => 'Purchases restored.';
+
+  @override
+  String get plusNothingToRestore => 'No subscription found.';
+
+  @override
+  String get plusSettingsPitch => 'Unlimited likes, see who liked you, Boost';
+
+  @override
+  String get plusUpgradeTo => 'Upgrade to mazl+';
+
+  @override
+  String plusSettingsSemanticsActive(String detail) {
+    return 'mazl+. $detail';
+  }
+
+  @override
+  String plusSettingsSemanticsUpgrade(String detail) {
+    return 'Upgrade to mazl+. $detail';
+  }
+
+  @override
   String get profileMyProfile => 'My profile';
 
   @override

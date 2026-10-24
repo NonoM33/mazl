@@ -11,7 +11,8 @@ import '../../presentation/features/premium/widgets/plus_widgets.dart';
 import '../theme/app_colors.dart';
 import 'store/subscription_service.dart';
 
-/// Fonctions réservées aux abonnés mazl+
+/// Fonctions réservées aux abonnés mazl+. Leur titre et leur description
+/// s'écrivent dans la langue du membre (`PremiumFeatureText`).
 enum PremiumFeature {
   unlimitedLikes,
   seeWhoLikesYou,
@@ -21,51 +22,6 @@ enum PremiumFeature {
   readReceipts,
   advancedFilters,
   prioritySupport,
-}
-
-/// Extension to get feature info
-extension PremiumFeatureInfo on PremiumFeature {
-  String get title {
-    switch (this) {
-      case PremiumFeature.unlimitedLikes:
-        return 'Likes illimités';
-      case PremiumFeature.seeWhoLikesYou:
-        return 'Voir qui vous a aimé';
-      case PremiumFeature.superLikes:
-        return 'Super Likes';
-      case PremiumFeature.boost:
-        return 'Boost';
-      case PremiumFeature.rewind:
-        return 'Revenir en arrière';
-      case PremiumFeature.readReceipts:
-        return 'Confirmations de lecture';
-      case PremiumFeature.advancedFilters:
-        return 'Filtres avancés';
-      case PremiumFeature.prioritySupport:
-        return 'Support prioritaire';
-    }
-  }
-
-  String get description {
-    switch (this) {
-      case PremiumFeature.unlimitedLikes:
-        return 'Likez autant que vous voulez, sans limite quotidienne.';
-      case PremiumFeature.seeWhoLikesYou:
-        return 'Voyez qui vous a aimé avant même de le croiser.';
-      case PremiumFeature.superLikes:
-        return 'Faites-vous remarquer avec 5 Super Likes par jour.';
-      case PremiumFeature.boost:
-        return 'Soyez en tête de pile pendant 30 minutes.';
-      case PremiumFeature.rewind:
-        return 'Rattrapez un « Passer » trop rapide.';
-      case PremiumFeature.readReceipts:
-        return 'Sachez quand vos messages ont été lus.';
-      case PremiumFeature.advancedFilters:
-        return 'Filtrez par pratique, communauté, et plus.';
-      case PremiumFeature.prioritySupport:
-        return 'Obtenez une réponse rapide de notre équipe.';
-    }
-  }
 }
 
 /// Helper class to gate premium features
@@ -241,10 +197,7 @@ class PremiumGate {
 
     final result = await _showSheet(
       context,
-      PremiumFeatureSheet(
-        title: feature.title,
-        description: feature.description,
-      ),
+PremiumFeatureSheet(feature: feature),
     );
 
     if (result == true) {

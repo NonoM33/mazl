@@ -6,17 +6,18 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
-import '../../../../core/services/subscription_format.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../l10n/plus_text.dart';
 import '../widgets/plus_widgets.dart';
 
 /// Ce que l'écran « Abonnement » affiche.
 class SubscriptionSnapshot {
   const SubscriptionSnapshot({
     required this.isActive,
-    this.planLabel,
+    this.planMonths,
     this.price,
     this.renewalDate,
     this.willRenew = true,
@@ -33,7 +34,7 @@ class SubscriptionSnapshot {
     final subscriptions = service ?? SubscriptionService();
     return SubscriptionSnapshot(
       isActive: subscriptions.isMazlPro,
-      planLabel: subscriptions.activePlanLabel,
+      planMonths: subscriptions.activePlanMonths,
       price: price,
       renewalDate: subscriptions.expirationDate,
       willRenew: subscriptions.willRenew,
@@ -44,7 +45,11 @@ class SubscriptionSnapshot {
   }
 
   final bool isActive;
-  final String? planLabel;
+
+  /// Durée de la formule, en mois ; null si inconnue.
+  final int? planMonths;
+
+  /// Prix de la formule tel que le store l'écrit (« 59,99 € »).
   final String? price;
   final DateTime? renewalDate;
   final bool willRenew;
@@ -53,14 +58,19 @@ class SubscriptionSnapshot {
   final bool boostAvailable;
 
   /// « 6 mois · 59,99 € », ou ce qu'on en sait.
-  String get formula {
-    final parts = [?planLabel, ?price];
-    return parts.isEmpty ? '—' : parts.join(' · ');
+  String formula(AppLocalizations l10n) {
+    final months = planMonths;
+    final cost = price;
+    if (months != null && cost != null) {
+      return l10n.plusPlanAndPrice(l10n.plusMonths(months), cost);
+    }
+    if (months != null) return l10n.plusMonths(months);
+    return cost ?? '—';
   }
 
-  String get renewalValue {
+  String renewalValue(AppLocalizations l10n) {
     final date = renewalDate;
-    return date == null ? '—' : formatFrenchDate(date.toLocal());
+    return date == null ? '—' : plusDateText(l10n, date.toLocal());
   }
 }
 
@@ -122,9 +132,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final opened = await _subscriptions.manageSubscriptions();
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Impossible d’ouvrir la gestion de l’abonnement.'),
-        ),
+        SnackBar(content: Text(context.l10n.plusManageFailed)),
       );
     }
   }
@@ -135,10 +143,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     setState(
       () => _snapshot = SubscriptionSnapshot.current(service: widget.service),
     );
+    final l10n = context.l10n;
     final message = switch (result) {
-      RestoreFound() => 'Achats restaurés.',
-      RestoreNothing() => 'Aucun abonnement trouvé.',
-      RestoreFailed(:final message) => message,
+      RestoreFound() => l10n.plusPurchasesRestored,
+      RestoreNothing() => l10n.plusNothingToRestore,
+      RestoreFailed(:final problem) => purchaseProblemText(l10n, problem),
     };
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -148,6 +157,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshot = _snapshot;
+    final l10n = context.l10n;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -156,13 +167,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RoundIconButton(
-                icon: LucideIcons.chevronLeft,
-                tooltip: 'Retour',
+                icon: rtl ? LucideIcons.chevronRight : LucideIcons.chevronLeft,
+                tooltip: l10n.commonBack,
                 onPressed: () => context.pop(),
               ),
               const SizedBox(height: 24),
               Text(
-                'Abonnement',
+                l10n.plusSubscriptionTitle,
                 style: Theme.of(
                   context,
                 ).textTheme.displaySmall!.copyWith(letterSpacing: -2),
@@ -181,8 +192,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     onPressed: _manage,
                     child: Text(
                       Theme.of(context).platform == TargetPlatform.android
-                          ? 'Gérer dans Google Play'
-                          : 'Gérer dans l’App Store',
+                          ? l10n.plusManageGooglePlay
+                          : l10n.plusManageAppStore,
                     ),
                   ),
                 ),
@@ -193,7 +204,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 height: 48,
                 child: TextButton(
                   onPressed: _restore,
-                  child: const Text('Restaurer mes achats'),
+                  child: Text(l10n.plusRestorePurchases),
                 ),
               ),
             ],
@@ -212,6 +223,7 @@ class _ActiveBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final onInk = scheme.surface;
     final labelColor = Theme.of(context).brightness == Brightness.light
         ? AppColors.iconOnInk
@@ -248,7 +260,9 @@ class _ActiveBody extends StatelessWidget {
                       borderRadius: BorderRadius.circular(13),
                     ),
                     child: Text(
-                      snapshot.willRenew ? 'Actif' : 'Résilié',
+                      snapshot.willRenew
+                          ? l10n.plusStatusActive
+                          : l10n.plusStatusCancelled,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -264,8 +278,8 @@ class _ActiveBody extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _CardFact(
-                      label: 'Formule',
-                      value: snapshot.formula,
+                      label: l10n.plusFactPlan,
+                      value: snapshot.formula(l10n),
                       labelColor: labelColor,
                       valueColor: onInk,
                     ),
@@ -274,9 +288,9 @@ class _ActiveBody extends StatelessWidget {
                   Expanded(
                     child: _CardFact(
                       label: snapshot.willRenew
-                          ? 'Renouvellement'
-                          : 'Expiration',
-                      value: snapshot.renewalValue,
+                          ? l10n.plusFactRenewal
+                          : l10n.plusFactExpiration,
+                      value: snapshot.renewalValue(l10n),
                       labelColor: labelColor,
                       valueColor: onInk,
                     ),
@@ -287,17 +301,26 @@ class _ActiveBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 32),
-        const SectionLabel('Aujourd\'hui'),
+        SectionLabel(l10n.commonToday),
         const SizedBox(height: 6),
         FactRow(
-          label: 'Super Likes',
-          value: '${snapshot.superLikesLeft} sur ${snapshot.superLikesMax}',
+          label: l10n.plusFeatureSuperLikesTitle,
+          value: l10n.plusSuperLikesOf(
+            snapshot.superLikesLeft,
+            snapshot.superLikesMax,
+          ),
         ),
         FactRow(
-          label: 'Boost',
-          value: snapshot.boostAvailable ? 'Disponible' : 'Utilisé aujourd’hui',
+          label: l10n.plusFeatureBoostTitle,
+          value: snapshot.boostAvailable
+              ? l10n.plusBoostAvailable
+              : l10n.plusBoostUsed,
         ),
-        const FactRow(label: 'Likes', value: 'Illimités', last: true),
+        FactRow(
+          label: l10n.plusLikesLabel,
+          value: l10n.plusLikesUnlimited,
+          last: true,
+        ),
       ],
     );
   }
@@ -345,20 +368,21 @@ class _InactiveBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Aucun abonnement actif.',
+            l10n.plusNoActiveSubscription,
             style: Theme.of(
               context,
             ).textTheme.bodyLarge!.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
           PlusCtaButton(
-            prefix: 'Découvrir ',
+            label: l10n.plusDiscover,
             onPressed: () => context.push(RoutePaths.premium),
           ),
         ],
