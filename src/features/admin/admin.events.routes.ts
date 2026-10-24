@@ -14,7 +14,7 @@ import {
   duplicateEvent,
 } from "../../db";
 import { assertAdmin } from "./admin.auth";
-
+import { toCsv } from "./admin.csv";
 // Admin events routes, moved verbatim from the monolith (src/index.ts). Two
 // original blocks are preserved in order: the "ADMIN EVENTS" CRUD block, then
 // (after members) the "MODULE 2: GESTION EVENTS" block (details, photos,
@@ -245,12 +245,7 @@ export function registerAdminEventsModuleRoutes(app: Hono<{ Variables: AppVariab
 
       // Generate CSV
       const headers = ["email", "name", "display_name", "status", "paid", "rsvp_at", "checked_in_at"];
-      const csv = [
-        headers.join(","),
-        ...(attendees as Array<Record<string, unknown>>).map((a) =>
-          headers.map((h) => `"${(a[h] ?? "").toString().replace(/"/g, '""')}"`).join(",")
-        ),
-      ].join("\n");
+      const csv = toCsv(headers, attendees as Array<Record<string, unknown>>);
 
       return new Response(csv, {
         headers: {
