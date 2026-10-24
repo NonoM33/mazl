@@ -114,8 +114,8 @@ describe("POST /api/subscriptions/apple/verify", () => {
 });
 
 describe("POST /api/subscriptions/apple/notifications", () => {
-  async function subscribe(): Promise<void> {
-    await post("/api/subscriptions/apple/verify", { signedTransaction: signedByPki(pki, transaction()) }, 11);
+  async function subscribe(overrides: Record<string, unknown> = {}): Promise<void> {
+    await post("/api/subscriptions/apple/verify", { signedTransaction: signedByPki(pki, transaction(overrides)) }, 11);
   }
 
   function notificationBody(type: string, tx: Record<string, unknown>, chain: TestPki = pki): { signedPayload: string } {
@@ -137,8 +137,10 @@ describe("POST /api/subscriptions/apple/notifications", () => {
   });
 
   test("applies an expiry", async () => {
-    await subscribe();
-    const res = await post("/api/subscriptions/apple/notifications", notificationBody("EXPIRED", transaction({ expiresDate: Date.now() - 1000 })));
+    // Apple's EXPIRED carries the expiry of the period that ended: the stored one.
+    const periodEnd = Date.now() + 30 * DAY;
+    await subscribe({ expiresDate: periodEnd });
+    const res = await post("/api/subscriptions/apple/notifications", notificationBody("EXPIRED", transaction({ expiresDate: periodEnd })));
     expect(res.status).toBe(200);
     expect(repository.rows.get(11)?.status).toBe("expired");
   });

@@ -28,11 +28,11 @@ describe("embedded Apple Root CA - G3", () => {
 
 describe("readProductPolicy", () => {
   test("defaults to the MAZL bundle and the one-month product", () => {
-    expect(readProductPolicy({})).toEqual({ bundleId: "com.mazl.app", productIds: ["com.mazl.app.plus.1m", "com.mazl.app.plus.3m", "com.mazl.app.plus.6m", "com.mazl.app.plus.12m"] });
+    expect(readProductPolicy({})).toEqual({ bundleId: "com.mazl.app", productIds: ["com.mazl.app.plus.1m", "com.mazl.app.plus.3m", "com.mazl.app.plus.6m", "com.mazl.app.plus.12m"], allowSandbox: true });
   });
 
   test("reads a comma separated list, trimming blanks", () => {
     const policy = readProductPolicy({ APPLE_BUNDLE_ID: "com.example.app", APPLE_PRODUCT_IDS: " a.1m, b.12m ,," });
-    expect(policy).toEqual({ bundleId: "com.example.app", productIds: ["a.1m", "b.12m"] });
+    expect(policy).toEqual({ bundleId: "com.example.app", productIds: ["a.1m", "b.12m"], allowSandbox: true });
   });
 });
