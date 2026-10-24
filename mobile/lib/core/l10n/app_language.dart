@@ -6,7 +6,9 @@ import 'dart:ui';
 enum AppLanguage {
   fr('fr', 'Français'),
   en('en', 'English'),
-  he('he', 'עברית', isRightToLeft: true);
+  he('he', 'עברית', isRightToLeft: true),
+  es('es', 'Español'),
+  ru('ru', 'Русский');
 
   const AppLanguage(this.code, this.autonym, {this.isRightToLeft = false});
 

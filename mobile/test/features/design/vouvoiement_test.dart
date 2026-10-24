@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -180,6 +181,28 @@ void main() {
             'Ces dérogations ne servent plus, les retirer de '
             '_allowedLiterals : $stale',
       );
+    });
+
+    test('aucun texte français des traductions (ARB) ne tutoie', () {
+      final violations = <String>[];
+      final fragments = Directory('lib/l10n/fragments')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('app_fr.arb'));
+      for (final file in fragments) {
+        final arb = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+        for (final entry in arb.entries) {
+          if (entry.key.startsWith('@')) continue;
+          // Same exception as icebreaker_service.dart: drafts written in the
+          // member's name for another member.
+          if (entry.key.startsWith('icebreaker')) continue;
+          final fragments = tutoiementsDans('${entry.value}');
+          if (fragments.isNotEmpty) {
+            violations.add('${file.path} ${entry.key} ${fragments.join(', ')}');
+          }
+        }
+      }
+      expect(violations, isEmpty, reason: violations.join('\n'));
     });
 
     test('les fichiers autorisés existent encore', () {

@@ -63,6 +63,8 @@ void main() {
       expect(AppLanguage.fr.autonym, 'Français');
       expect(AppLanguage.en.autonym, 'English');
       expect(AppLanguage.he.autonym, 'עברית');
+      expect(AppLanguage.es.autonym, 'Español');
+      expect(AppLanguage.ru.autonym, 'Русский');
     });
 
     test('se retrouve depuis son code, inconnu donne null', () {
@@ -75,6 +77,8 @@ void main() {
       expect(AppLanguage.he.isRightToLeft, isTrue);
       expect(AppLanguage.fr.isRightToLeft, isFalse);
       expect(AppLanguage.en.isRightToLeft, isFalse);
+      expect(AppLanguage.es.isRightToLeft, isFalse);
+      expect(AppLanguage.ru.isRightToLeft, isFalse);
     });
   });
 }

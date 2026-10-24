@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Aucun texte visible écrit en dur dans l'interface : tout passe par
 /// `context.l10n` (fichiers ARB, français en référence).
 ///
-/// Le test lit les SOURCES de [_scannedRoots] et relève chaque littéral qui
+/// Le test lit les SOURCES de [_scannedRoots] (hors [_skippedRoots]) et relève chaque littéral qui
 /// ressemble à un texte pour l'utilisateur (une lettre accentuée, une espace
 /// entre deux mots, ou une majuscule en tête de mot), dans un `Text(` comme
 /// dans un `title:`, un ternaire ou une constante.
@@ -19,13 +19,28 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// (refusé si un texte nouveau est apparu : il faut le traduire).
 
-const _scannedRoots = ['lib/presentation'];
+const _scannedRoots = ['lib/presentation', 'lib/core'];
+
+/// Pas de l'interface : les profils et conversations de démo sont du contenu
+/// écrit par des membres fictifs, servi en debug seulement.
+const _skippedRoots = ['lib/core/dev'];
 const _baselinePath = 'test/l10n/hardcoded_strings_baseline.txt';
 
 /// Littéraux qui ne sont pas du texte à traduire, avec la raison.
 const _notTranslatable = <String, String>{
   'mazl': 'nom de la marque',
   'MAZL': 'nom de la marque',
+  'Français': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
+  'English': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
+  'Español': 'nom de la langue écrit dans sa langue (AppLanguage.autonym)',
+};
+
+/// Littéraux d'UN fichier qui ne s'affichent jamais (message de journal,
+/// motif de détection, valeur envoyée à l'API), clé « chemin | texte »,
+/// avec la raison. Un texte que le membre peut voir n'a rien à faire ici.
+const _notUserFacing = <String, String>{
+  r'lib/core/services/api_service.dart | $diagnostic (HTTP ${response.statusCode})':
+      'diagnostic de journal ; l\'écran affiche apiErrorText',
 };
 
 final _stringLiteral = RegExp(r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")""");
@@ -74,10 +89,12 @@ List<String> _scanSources() {
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.endsWith('.dart'))
+        .where((f) => !_skippedRoots.any(f.path.startsWith))
         .toList();
     for (final file in files) {
       for (final text in hardcodedTextsIn(file.readAsStringSync())) {
-        entries.add('${file.path} | $text');
+        final entry = '${file.path} | $text';
+        if (!_notUserFacing.containsKey(entry)) entries.add(entry);
       }
     }
   }

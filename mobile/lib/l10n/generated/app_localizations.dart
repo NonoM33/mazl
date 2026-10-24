@@ -6,8 +6,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_he.dart';
+import 'app_localizations_ru.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,8 +98,10 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
     Locale('fr'),
     Locale('he'),
+    Locale('ru'),
   ];
 
   /// Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire.
@@ -130,6 +134,150 @@ abstract class AppLocalizations {
   /// **'Retour'**
   String get commonBack;
 
+  /// Erreur : le serveur n'a pas répondu à temps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai dépassé. Vérifiez votre connexion.'**
+  String get errorTimeout;
+
+  /// Erreur : le téléphone n'a pas de connexion ou le serveur est injoignable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion. Vérifiez votre réseau et réessayez.'**
+  String get errorNetwork;
+
+  /// Erreur : le serveur a une panne (HTTP 5xx).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur est indisponible. Réessayez dans un instant.'**
+  String get errorServer;
+
+  /// Erreur : la connexion du membre a expiré (HTTP 401), il doit se reconnecter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée. Reconnectez-vous.'**
+  String get errorSessionExpired;
+
+  /// Erreur : le membre n'a pas le droit de faire cette action (HTTP 403).
+  ///
+  /// In fr, this message translates to:
+  /// **'Action non autorisée.'**
+  String get errorForbidden;
+
+  /// Erreur : l'élément demandé (profil, message, événement) n'existe plus (HTTP 404).
+  ///
+  /// In fr, this message translates to:
+  /// **'Introuvable : cet élément n\'existe plus.'**
+  String get errorNotFound;
+
+  /// Erreur : l'action n'est plus possible, l'état a changé entre-temps (HTTP 409).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action n\'est plus possible.'**
+  String get errorConflict;
+
+  /// Erreur : la photo ou le fichier envoyé est trop lourd (HTTP 413).
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier trop volumineux.'**
+  String get errorTooLarge;
+
+  /// Erreur : trop de tentatives en peu de temps (HTTP 429).
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Patientez un instant.'**
+  String get errorRateLimited;
+
+  /// Erreur : le serveur a refusé la demande, données invalides (HTTP 400/422).
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande refusée. Vérifiez les informations saisies.'**
+  String get errorInvalid;
+
+  /// Erreur sans cause connue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue. Réessayez.'**
+  String get errorUnknown;
+
+  /// Bouton qui enregistre les modifications d'un formulaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get commonSave;
+
+  /// Bouton qui supprime un élément (photo, date, activité).
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get commonDelete;
+
+  /// Bouton qui retire un élément d'une liste sans le détruire (favori, réaction).
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get commonRemove;
+
+  /// Bouton qui saute une étape facultative (onboarding, question).
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get commonSkip;
+
+  /// Bouton court qui ouvre le détail d'un élément.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get commonSee;
+
+  /// Bouton qui ouvre la feuille de partage du téléphone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get commonShare;
+
+  /// Bouton qui signale un membre ou un contenu à la modération.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler'**
+  String get commonReport;
+
+  /// Bouton qui referme une boîte de dialogue d'information.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get commonOk;
+
+  /// Bouton qui remet une action à plus tard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get commonLater;
+
+  /// Date relative : le jour même (liste de messages, événements).
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get commonToday;
+
+  /// Date relative : la veille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get commonYesterday;
+
+  /// Champ de profil laissé vide par le membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get commonNotSpecified;
+
+  /// Titre d'un écran ou d'un bloc dont le chargement a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de chargement'**
+  String get commonLoadError;
+
   /// Réglages : ligne et titre de la feuille où l'on choisit la langue de l'app.
   ///
   /// In fr, this message translates to:
@@ -154,7 +302,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fr', 'he'].contains(locale.languageCode);
+      <String>['en', 'es', 'fr', 'he', 'ru'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -165,10 +313,14 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
     case 'fr':
       return AppLocalizationsFr();
     case 'he':
       return AppLocalizationsHe();
+    case 'ru':
+      return AppLocalizationsRu();
   }
 
   throw FlutterError(

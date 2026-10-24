@@ -17,6 +17,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../../../../core/l10n/app_language_controller.dart';
+import '../../../../l10n/l10n.dart';
+import '../widgets/language_picker_sheet.dart';
 import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -397,6 +400,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showLanguageSheet() {
+    showMazlSheet(
+      context,
+      padded: false,
+      builder: (sheetContext) => LanguagePickerSheet(
+        onChosen: () => Navigator.of(sheetContext).pop(),
       ),
     );
   }
@@ -1024,6 +1037,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 subtitle: userEmail,
                 showChevron: false,
                 onTap: () {},
+              ),
+              _SettingTile(
+                icon: LucideIcons.languages,
+                title: context.l10n.settingsLanguage,
+                subtitle: ref.watch(appLanguageProvider)?.autonym ??
+                    context.l10n.settingsLanguageSystem,
+                onTap: _showLanguageSheet,
               ),
 
               // Discovery section (meaningless once the member is in a couple)

@@ -190,6 +190,12 @@ void main() {
           service: service,
           size: const Size(360, 740),
         );
+        // The Language row pushed the card below the fold of a small phone.
+        await tester.scrollUntilVisible(
+          find.text('Quitter le mode couple'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
 
         for (final label in [
           'Espace couple',
