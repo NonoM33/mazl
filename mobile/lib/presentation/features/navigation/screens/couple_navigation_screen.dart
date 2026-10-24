@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../widgets/mazl_nav_bar.dart';
 import '../widgets/nav_bar_collapse.dart';
 
@@ -19,11 +20,11 @@ class CoupleNavigationScreen extends StatefulWidget {
 class _CoupleNavigationScreenState extends State<CoupleNavigationScreen> {
   final NavBarCollapseController _navBar = NavBarCollapseController();
 
-  static const _items = [
-    MazlNavItem(icon: LucideIcons.sparkles, label: 'Activités'),
-    MazlNavItem(icon: LucideIcons.calendarHeart, label: 'Calendrier'),
-    MazlNavItem(icon: LucideIcons.partyPopper, label: 'Événements'),
-    MazlNavItem(icon: LucideIcons.heart, label: 'Notre espace'),
+  List<MazlNavItem> _items(AppLocalizations l10n) => [
+    MazlNavItem(icon: LucideIcons.sparkles, label: l10n.coupleSpaceTabActivities),
+    MazlNavItem(icon: LucideIcons.calendarHeart, label: l10n.coupleSpaceTabCalendar),
+    MazlNavItem(icon: LucideIcons.partyPopper, label: l10n.coupleSpaceTabEvents),
+    MazlNavItem(icon: LucideIcons.heart, label: l10n.coupleSpaceTabSpace),
   ];
 
   @override
@@ -51,7 +52,7 @@ class _CoupleNavigationScreenState extends State<CoupleNavigationScreen> {
       bottomNavigationBar: ListenableBuilder(
         listenable: _navBar,
         builder: (context, _) => MazlNavBar(
-          items: _items,
+          items: _items(context.l10n),
           currentIndex: widget.navigationShell.currentIndex,
           onTap: _onTap,
           collapsed: _navBar.collapsed,

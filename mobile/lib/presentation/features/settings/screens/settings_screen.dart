@@ -20,6 +20,7 @@ import '../../../common/widgets/mazl_sheet.dart';
 import '../../../../core/l10n/app_language_controller.dart';
 import '../../../../l10n/l10n.dart';
 import '../widgets/language_picker_sheet.dart';
+import '../../couple/l10n/couple_failure_label.dart';
 import '../widgets/settings_couple_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -734,10 +735,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // The server answers first: on failure nothing changes. On success the
     // router guard brings the member back to the dating screens.
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final result = await _coupleService.leaveCouple();
     messenger.showSnackBar(
       SnackBar(
-        content: Text(result.ok ? 'Mode couple quitté' : result.message ?? 'Impossible de quitter le mode couple. Réessayez.'),
+        content: Text(result.ok ? 'Mode couple quitté' : result.failure?.label(l10n) ?? 'Impossible de quitter le mode couple. Réessayez.'),
       ),
     );
     if (mounted) setState(() {});
@@ -828,9 +830,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _handleCancelCoupleRequest() async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final result = await _coupleService.cancelCoupleRequest();
     if (!result.ok) {
-      messenger.showSnackBar(SnackBar(content: Text(result.message ?? "Impossible d'annuler la demande. Réessayez.")));
+      messenger.showSnackBar(SnackBar(content: Text(result.failure?.label(l10n) ?? "Impossible d'annuler la demande. Réessayez.")));
     }
     if (mounted) setState(() {});
   }

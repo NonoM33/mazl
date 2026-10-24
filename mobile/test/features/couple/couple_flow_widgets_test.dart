@@ -361,7 +361,7 @@ void main() {
 
       expect(api.calls, contains('end:12'));
       expect(service.isCoupleModeEnabled, isTrue);
-      expect(find.text('Une erreur est survenue, réessayez dans un instant.'), findsOneWidget);
+      expect(find.text('Le serveur est indisponible. Réessayez dans un instant.'), findsOneWidget);
       expect(find.text('PAGE DECOUVRIR'), findsNothing);
     });
 

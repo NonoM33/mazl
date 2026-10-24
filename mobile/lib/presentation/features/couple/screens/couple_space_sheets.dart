@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/couple_failure_label.dart';
 
 // The three "add" forms of the couple space. They are opened with
 // `showMazlSheet` by the screen and pop `true` once the server accepted the
@@ -57,7 +60,7 @@ class _SheetSubmit extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                   ),
                 )
-              : const Text('Ajouter'),
+              : Text(context.l10n.coupleSpaceSheetAdd),
         ),
       ],
     );
@@ -101,29 +104,33 @@ class _AddMemorySheetState extends State<AddMemorySheet> {
       case CoupleOk():
         Navigator.pop(context, true);
       case CoupleFailed(:final failure):
+        final l10n = context.l10n;
         setState(() {
           _busy = false;
-          _error = 'Ajout impossible. ${failure.message}';
+          _error = l10n.coupleSpaceAddFailed(failure.label(l10n));
         });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SheetTitle('Ajouter un souvenir'),
+        _SheetTitle(l10n.coupleSpaceAddMemoryTitle),
         TextField(
           controller: _titleController,
-          decoration: const InputDecoration(labelText: 'Titre'),
+          decoration: InputDecoration(labelText: l10n.coupleSpaceFieldTitle),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _contentController,
           maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Description'),
+          decoration: InputDecoration(
+            labelText: l10n.coupleSpaceFieldDescription,
+          ),
         ),
         const SizedBox(height: 20),
         ListenableBuilder(
@@ -172,25 +179,27 @@ class _AddBucketItemSheetState extends State<AddBucketItemSheet> {
       case CoupleOk():
         Navigator.pop(context, true);
       case CoupleFailed(:final failure):
+        final l10n = context.l10n;
         setState(() {
           _busy = false;
-          _error = 'Ajout impossible. ${failure.message}';
+          _error = l10n.coupleSpaceAddFailed(failure.label(l10n));
         });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SheetTitle('Ajouter à la bucket list'),
+        _SheetTitle(l10n.coupleSpaceAddBucketTitle),
         TextField(
           controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Que voulez-vous faire ensemble ?',
-            hintText: 'Ex: Voir les aurores boréales',
+          decoration: InputDecoration(
+            labelText: l10n.coupleSpaceBucketFieldLabel,
+            hintText: l10n.coupleSpaceBucketFieldHint,
           ),
         ),
         const SizedBox(height: 20),
@@ -243,25 +252,27 @@ class _AddDateSheetState extends State<AddDateSheet> {
       case CoupleOk():
         Navigator.pop(context, true);
       case CoupleFailed(:final failure):
+        final l10n = context.l10n;
         setState(() {
           _busy = false;
-          _error = 'Ajout impossible. ${failure.message}';
+          _error = l10n.coupleSpaceAddFailed(failure.label(l10n));
         });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SheetTitle('Ajouter une date importante'),
+        _SheetTitle(l10n.coupleSpaceAddDateTitle),
         TextField(
           controller: _titleController,
-          decoration: const InputDecoration(
-            labelText: 'Titre',
-            hintText: 'Ex: Notre anniversaire',
+          decoration: InputDecoration(
+            labelText: l10n.coupleSpaceFieldTitle,
+            hintText: l10n.coupleSpaceDateFieldHint,
           ),
         ),
         const SizedBox(height: 16),
@@ -271,10 +282,8 @@ class _AddDateSheetState extends State<AddDateSheet> {
             borderRadius: BorderRadius.circular(24),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-          title: const Text('Date'),
-          subtitle: Text(
-            '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-          ),
+          title: Text(l10n.coupleSpaceFieldDate),
+          subtitle: Text(DateFormat.yMd(l10n.localeName).format(_selectedDate)),
           trailing: Icon(
             LucideIcons.calendar,
             color: Theme.of(context).colorScheme.primary,

@@ -15,7 +15,8 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     api = FakeCoupleApi();
-    service = CoupleService.forTesting(api: api, pollInterval: const Duration(milliseconds: 30));
+    service = CoupleService.forTesting(api: api, pollInterval: const Duration(milliseconds: 30))
+      ..archiveMessageProvider = () => 'archive sentence';
     events = [];
     service.events.listen(events.add);
   });
@@ -80,19 +81,39 @@ void main() {
       expect(service.pendingRequest, isNull);
     });
 
-    test('not_matched : rien n\'est en attente et le message est français', () async {
+    test('not_matched : rien n\'est en attente et la cause est nommée, pas écrite', () async {
       api.sendError = 'not_matched';
       final result = await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam');
       expect(result.ok, isFalse);
-      expect(result.message, 'Le mode couple ne s\'active qu\'avec un match.');
+      expect(result.failure, CoupleActionFailure.notMatched);
       expect(service.pendingRequest, isNull);
     });
 
-    test('déjà en couple et demande déjà en attente ont leur message', () async {
+    test('déjà en couple et demande déjà en attente ont leur cause', () async {
       api.sendError = 'One of the users is already in a couple';
-      expect((await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam')).message, 'L\'un de vous est déjà en mode couple.');
+      expect((await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam')).failure, CoupleActionFailure.alreadyInCouple);
       api.sendError = 'A pending couple request already exists';
-      expect((await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam')).message, 'Une demande est déjà en attente avec cette personne.');
+      expect((await service.sendCoupleRequest(targetUserId: 45, targetName: 'Myriam')).failure, CoupleActionFailure.requestPending);
+    });
+
+    test('l\'archivage envoie la phrase dans la langue fournie par l\'écran', () async {
+      service.archiveMessageProvider = () => 'sentence in the member language';
+      api.received = [contractReceivedRequest()];
+      api.acceptedCouple = contractCouple();
+      await service.refresh();
+      await service.acceptCoupleRequest(service.receivedRequest!);
+      expect(api.archiveMessages, ['sentence in the member language']);
+    });
+
+    test('sans phrase fournie, aucune conversation n\'est archivée (jamais la mauvaise langue)', () async {
+      service.archiveMessageProvider = null;
+      api.received = [contractReceivedRequest()];
+      api.acceptedCouple = contractCouple();
+      await service.refresh();
+      final result = await service.acceptCoupleRequest(service.receivedRequest!);
+      expect(result.ok, isTrue);
+      expect(service.isCoupleModeEnabled, isTrue);
+      expect(api.archiveMessages, isEmpty);
     });
 
     test('accepté, vu au recalage : couple, archivage, Mazel Tov côté émetteur', () async {
@@ -232,7 +253,7 @@ void main() {
       final result = await service.acceptCoupleRequest(request);
 
       expect(result.ok, isFalse);
-      expect(result.message, 'Cette demande n\'est plus en attente.');
+      expect(result.failure, CoupleActionFailure.requestNoLongerPending);
       expect(service.isCoupleModeEnabled, isFalse);
       expect(service.receivedRequest, isNull);
     });
@@ -266,7 +287,7 @@ void main() {
       api.endError = 'boom';
       final result = await service.leaveCouple();
       expect(result.ok, isFalse);
-      expect(result.message, isNotEmpty);
+      expect(result.failure, CoupleActionFailure.server);
       expect(service.isCoupleModeEnabled, isTrue);
       expect(service.coupleData?.coupleId, 12);
     });

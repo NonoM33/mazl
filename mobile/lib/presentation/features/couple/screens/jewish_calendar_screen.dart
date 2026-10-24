@@ -1,41 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/jewish_calendar_service.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
-
-const _months = [
-  'Janvier',
-  'Février',
-  'Mars',
-  'Avril',
-  'Mai',
-  'Juin',
-  'Juillet',
-  'Août',
-  'Septembre',
-  'Octobre',
-  'Novembre',
-  'Décembre',
-];
-
-const _monthsShort = [
-  'Jan',
-  'Fév',
-  'Mar',
-  'Avr',
-  'Mai',
-  'Juin',
-  'Juil',
-  'Août',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Déc',
-];
-
-const _weekdayInitials = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+import '../l10n/jewish_calendar_labels.dart';
 
 DateTime _dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
@@ -101,8 +72,9 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
     final shabbat = _calendarService.getThisWeekShabbat();
     final holidays = _calendarService.getUpcomingHolidays();
     final shabbatActivities = _calendarService.getActivitiesForOccasion(
-      'shabbat',
+      JewishOccasion.shabbat,
     );
+    final l10n = context.l10n;
     final top = MediaQuery.paddingOf(context).top;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final titleStyle = Theme.of(context).textTheme.titleLarge;
@@ -111,9 +83,9 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
       body: ListView(
         padding: EdgeInsets.fromLTRB(24, top + 16, 24, bottom + 24),
         children: [
-          const Text(
-            'Calendrier',
-            style: TextStyle(
+          Text(
+            l10n.coupleSpaceCalendarTitle,
+            style: const TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.w700,
               letterSpacing: -2,
@@ -132,12 +104,12 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
           const SizedBox(height: 32),
           _ShabbatCard(shabbat: shabbat),
           const SizedBox(height: 32),
-          Text('Idées pour ce Shabbat', style: titleStyle),
+          Text(l10n.coupleSpaceCalendarShabbatIdeas, style: titleStyle),
           const SizedBox(height: 12),
           for (final activity in shabbatActivities)
             _ActivityCard(activity: activity),
           const SizedBox(height: 20),
-          Text('Prochaines fêtes', style: titleStyle),
+          Text(l10n.coupleSpaceCalendarUpcoming, style: titleStyle),
           const SizedBox(height: 12),
           for (final holiday in holidays)
             _HolidayCard(
@@ -172,9 +144,21 @@ class _MonthGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final locale = l10n.localeName;
     final today = _dayOnly(DateTime.now());
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leading = DateTime(month.year, month.month).weekday - 1;
+    // The week starts on the day the language says (Monday in French, Sunday
+    // in English and Hebrew); `weekday % 7` counts Sunday as 0.
+    final firstDay = MaterialLocalizations.of(context).firstDayOfWeekIndex;
+    final leading =
+        (DateTime(month.year, month.month).weekday % 7 - firstDay + 7) % 7;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final weekdayInitials = [
+      for (var i = 0; i < 7; i++)
+        // 7 January 2024 was a Sunday.
+        DateFormat.EEEEE(locale).format(DateTime(2024, 1, 7 + (firstDay + i) % 7)),
+    ];
     final cellCount = ((leading + daysInMonth + 6) ~/ 7) * 7;
 
     DateTime dayAt(int cell) =>
@@ -209,21 +193,24 @@ class _MonthGrid extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                '${_months[month.month - 1]} ${month.year}',
+                toBeginningOfSentenceCase(
+                  DateFormat.yMMMM(locale).format(month),
+                  locale,
+                )!,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             RoundIconButton(
-              icon: LucideIcons.chevronLeft,
-              tooltip: 'Mois précédent',
+              icon: rtl ? LucideIcons.chevronRight : LucideIcons.chevronLeft,
+              tooltip: l10n.coupleSpaceCalendarPrevMonth,
               size: 40,
               iconSize: 18,
               onPressed: onPrevious,
             ),
             const SizedBox(width: 8),
             RoundIconButton(
-              icon: LucideIcons.chevronRight,
-              tooltip: 'Mois suivant',
+              icon: rtl ? LucideIcons.chevronLeft : LucideIcons.chevronRight,
+              tooltip: l10n.coupleSpaceCalendarNextMonth,
               size: 40,
               iconSize: 18,
               onPressed: onNext,
@@ -233,7 +220,7 @@ class _MonthGrid extends StatelessWidget {
         const SizedBox(height: 16),
         Row(
           children: [
-            for (final initial in _weekdayInitials)
+            for (final initial in weekdayInitials)
               Expanded(
                 child: Center(
                   child: Text(
@@ -285,7 +272,7 @@ class _DayCell extends StatelessWidget {
     return Semantics(
       button: true,
       selected: isSelected,
-      label: '${day.day} ${_months[day.month - 1]}',
+      label: DateFormat.MMMMd(context.l10n.localeName).format(day),
       excludeSemantics: true,
       onTap: () => onTap(day),
       child: GestureDetector(
@@ -368,14 +355,18 @@ class _ShabbatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    String clock(DateTime? moment, String fallback) => moment == null
+        ? fallback
+        : DateFormat.Hm(l10n.localeName).format(moment);
     return _MistCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionLabel('Ce Shabbat'),
+          SectionLabel(l10n.jewishCalendarShabbatTitle),
           const SizedBox(height: 8),
           Text(
-            'Parashat ${shabbat.parasha}',
+            l10n.jewishCalendarParashat(shabbat.parsha.title(l10n)),
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontSize: 22),
@@ -385,16 +376,16 @@ class _ShabbatCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _ShabbatTime(
-                  label: 'Allumage',
-                  time: shabbat.candleLighting,
+                  label: l10n.jewishCalendarCandleLighting,
+                  time: clock(shabbat.candleLightingAt, shabbat.candleLighting),
                   icon: LucideIcons.flame,
                 ),
               ),
               Container(width: 1, height: 48, color: scheme.outline),
               Expanded(
                 child: _ShabbatTime(
-                  label: 'Havdala',
-                  time: shabbat.havdala,
+                  label: l10n.jewishCalendarHavdalah,
+                  time: clock(shabbat.havdalaAt, shabbat.havdala),
                   icon: LucideIcons.star,
                 ),
               ),
@@ -450,7 +441,7 @@ class _ShabbatTime extends StatelessWidget {
 class _ActivityCard extends StatelessWidget {
   const _ActivityCard({required this.activity});
 
-  final CoupleActivity activity;
+  final OccasionActivity activity;
 
   IconData get _icon {
     switch (activity.icon) {
@@ -470,6 +461,7 @@ class _ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: _MistCard(
@@ -490,15 +482,15 @@ class _ActivityCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SectionLabel(activity.category),
+                  SectionLabel(activity.category.label(l10n)),
                   const SizedBox(height: 4),
                   Text(
-                    activity.title,
+                    activity.id.title(l10n),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    activity.description,
+                    activity.id.body(l10n),
                     style: TextStyle(
                       fontSize: 14,
                       color: scheme.onSurfaceVariant,
@@ -520,26 +512,37 @@ class _HolidayCard extends StatelessWidget {
   final JewishHoliday holiday;
   final bool highlighted;
 
-  String get _dateLabel {
+  String _dateLabel(AppLocalizations l10n) {
+    final locale = l10n.localeName;
     final start = holiday.date;
     final end = holiday.endDate;
-    final first = '${start.day} ${_monthsShort[start.month - 1]}';
+    final first = DateFormat.MMMd(locale).format(start);
     if (end == null || _dayOnly(end) == _dayOnly(start)) return first;
     if (end.month == start.month) {
-      return '${start.day} – ${end.day} ${_monthsShort[start.month - 1]}';
+      return l10n.coupleSpaceCalendarRangeSameMonth(
+        '${start.day}',
+        '${end.day}',
+        DateFormat.MMM(locale).format(start),
+      );
     }
-    return '$first – ${end.day} ${_monthsShort[end.month - 1]}';
+    return l10n.coupleSpaceCalendarRangeOtherMonth(
+      first,
+      DateFormat.MMMd(locale).format(end),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
-    final ideas = holiday.coupleIdeas ?? const <String>[];
+    final ideas = holiday.ideas;
     final String? status = holiday.isOngoing
-        ? 'En cours'
+        ? l10n.coupleSpaceCalendarOngoing
         : holiday.daysUntil <= 7
-        ? 'J-${holiday.daysUntil}'
+        ? l10n.coupleSpaceCalendarCountdown(holiday.daysUntil)
         : null;
+    // In Hebrew the name already is the Hebrew name: show it once.
+    final showHebrewName = l10n.localeName != 'he';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -550,7 +553,7 @@ class _HolidayCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: SectionLabel(_dateLabel)),
+                Expanded(child: SectionLabel(_dateLabel(l10n))),
                 if (status != null) SectionLabel(status, color: scheme.primary),
               ],
             ),
@@ -560,33 +563,34 @@ class _HolidayCard extends StatelessWidget {
               spacing: 8,
               children: [
                 Text(
-                  holiday.name,
+                  holiday.id.title(l10n),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontSize: 20),
                 ),
-                Text(
-                  holiday.hebrewName,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: scheme.onSurfaceVariant,
+                if (showHebrewName)
+                  Text(
+                    holiday.hebrewName,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
-              holiday.description,
+              holiday.id.description(l10n),
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
             if (ideas.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const SectionLabel('Idées en couple'),
+              SectionLabel(l10n.coupleSpaceCalendarIdeas),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [for (final idea in ideas) _IdeaChip(idea)],
+                children: [for (final idea in ideas) _IdeaChip(idea.label(l10n))],
               ),
             ],
           ],

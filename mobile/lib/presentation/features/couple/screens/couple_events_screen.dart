@@ -7,6 +7,8 @@ import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../../l10n/l10n.dart';
+import '../l10n/couple_failure_label.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 
@@ -212,7 +214,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
         showCoupleError(
           context,
           failure.kind == CoupleFailureKind.full
-              ? failure.message
+              ? failure.label(context.l10n)
               : 'Inscription impossible. Réessayez.',
         );
     }

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_space.dart';
@@ -10,7 +11,9 @@ import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../l10n/couple_failure_label.dart';
 import '../widgets/couple_message_view.dart';
 import 'couple_space_sheets.dart';
 
@@ -72,9 +75,10 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
 
     if (failure != null) {
       if (quiet) {
+        final l10n = context.l10n;
         showCoupleError(
           context,
-          'Actualisation impossible. ${failure.message}',
+          l10n.coupleSpaceRefreshFailed(failure.label(l10n)),
         );
       }
       setState(() {
@@ -115,13 +119,13 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
         children: [
           Expanded(
             child: Text(
-              'Notre espace',
+              context.l10n.coupleSpaceTitle,
               style: Theme.of(context).textTheme.displaySmall,
             ),
           ),
           RoundIconButton(
             icon: LucideIcons.settings,
-            tooltip: 'Réglages',
+            tooltip: context.l10n.coupleSpaceSettingsTooltip,
             onPressed: () => context.push('/couple/space/settings'),
           ),
         ],
@@ -163,8 +167,9 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
     final scheme = Theme.of(context).colorScheme;
     final couple = CoupleService().coupleData;
     final user = AuthService().currentUser;
-    final userName = user?.displayName ?? 'Vous';
-    final partnerName = couple?.partnerName ?? 'Votre Moitié';
+    final l10n = context.l10n;
+    final userName = user?.displayName ?? l10n.coupleSpaceYou;
+    final partnerName = couple?.partnerName ?? l10n.coupleSpacePartnerFallback;
     final daysTogether = couple?.daysTogether ?? 0;
 
     return Container(
@@ -217,8 +222,8 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           const SizedBox(height: 4),
           Text(
             daysTogether > 0
-                ? 'Ensemble depuis $daysTogether jours'
-                : 'Votre histoire commence',
+                ? l10n.coupleSpaceTogetherSince(daysTogether)
+                : l10n.coupleSpaceStoryBegins,
             textAlign: TextAlign.center,
             style: Theme.of(
               context,
@@ -231,55 +236,57 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
 
   Widget _buildStatsSection() {
     final stats = _snapshot.stats;
+    final l10n = context.l10n;
     return Row(
       children: [
         _StatCard(
           key: const Key('couple-stat-0'),
           icon: LucideIcons.bookmark,
           value: '${stats.savedActivities}',
-          label: 'Activités\nsauvegardées',
+          label: l10n.coupleSpaceStatSavedActivities,
         ),
         const SizedBox(width: 12),
         _StatCard(
           key: const Key('couple-stat-1'),
           icon: LucideIcons.calendar,
           value: '${stats.eventsRegistered}',
-          label: 'Événements\nà venir',
+          label: l10n.coupleSpaceStatUpcomingEvents,
         ),
         const SizedBox(width: 12),
         _StatCard(
           key: const Key('couple-stat-2'),
           icon: LucideIcons.camera,
           value: '${stats.memoriesCount}',
-          label: 'Souvenirs\ncréés',
+          label: l10n.coupleSpaceStatMemories,
         ),
       ],
     );
   }
 
   Widget _buildQuickActions() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionLabel('Actions rapides'),
+        SectionLabel(l10n.coupleSpaceQuickActions),
         const SizedBox(height: 12),
         Row(
           children: [
             _QuickActionButton(
               icon: LucideIcons.camera,
-              label: 'Ajouter\nun souvenir',
+              label: l10n.coupleSpaceQuickAddMemory,
               onTap: _showAddMemorySheet,
             ),
             const SizedBox(width: 12),
             _QuickActionButton(
               icon: LucideIcons.target,
-              label: 'Ajouter à\nla bucket list',
+              label: l10n.coupleSpaceQuickAddBucket,
               onTap: _showAddBucketItemSheet,
             ),
             const SizedBox(width: 12),
             _QuickActionButton(
               icon: LucideIcons.calendarPlus,
-              label: 'Ajouter\nune date',
+              label: l10n.coupleSpaceQuickAddDate,
               onTap: _showAddDateSheet,
             ),
           ],
@@ -289,16 +296,17 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildMemoriesSection() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionLabel('Nos souvenirs'),
+        SectionLabel(l10n.coupleSpaceMemoriesTitle),
         const SizedBox(height: 12),
         if (_memories.isEmpty)
-          const _EmptyCard(
+          _EmptyCard(
             icon: LucideIcons.camera,
-            title: 'Aucun souvenir pour l\'instant',
-            hint: 'Ajoutez vos premiers souvenirs ensemble.',
+            title: l10n.coupleSpaceMemoriesEmptyTitle,
+            hint: l10n.coupleSpaceMemoriesEmptyHint,
           )
         else
           SizedBox(
@@ -318,21 +326,25 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   Widget _buildBucketListSection() {
     final pending = _bucketList.where((i) => !i.isCompleted).toList();
     final completed = _bucketList.where((i) => i.isCompleted).toList();
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionLabel(
           _bucketList.isEmpty
-              ? 'Bucket list'
-              : 'Bucket list · ${completed.length}/${_bucketList.length}',
+              ? l10n.coupleSpaceBucketTitle
+              : l10n.coupleSpaceBucketProgress(
+                  completed.length,
+                  _bucketList.length,
+                ),
         ),
         const SizedBox(height: 12),
         if (_bucketList.isEmpty)
-          const _EmptyCard(
+          _EmptyCard(
             icon: LucideIcons.target,
-            title: 'Votre bucket list est vide',
-            hint: 'Ajoutez des expériences à vivre ensemble.',
+            title: l10n.coupleSpaceBucketEmptyTitle,
+            hint: l10n.coupleSpaceBucketEmptyHint,
           )
         else
           for (final item in pending.take(3))
@@ -347,24 +359,25 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildDatesSection() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Expanded(child: SectionLabel('Dates importantes')),
+            Expanded(child: SectionLabel(l10n.coupleSpaceDatesTitle)),
             TextButton(
               onPressed: () => context.go('/couple/calendar'),
-              child: const Text('Voir tout'),
+              child: Text(l10n.coupleSpaceSeeAll),
             ),
           ],
         ),
         const SizedBox(height: 4),
         if (_dates.isEmpty)
-          const _EmptyCard(
+          _EmptyCard(
             icon: LucideIcons.calendarHeart,
-            title: 'Aucune date importante',
-            hint: 'Ajoutez vos anniversaires, fêtes, etc.',
+            title: l10n.coupleSpaceDatesEmptyTitle,
+            hint: l10n.coupleSpaceDatesEmptyHint,
           )
         else
           for (final date in _dates.take(3))
@@ -379,17 +392,18 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
 
   Widget _buildAchievementsSection() {
     final achievements = _snapshot.achievements;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionLabel('Nos badges'),
+        SectionLabel(l10n.coupleSpaceBadgesTitle),
         const SizedBox(height: 12),
         if (achievements.isEmpty)
-          const _EmptyCard(
+          _EmptyCard(
             icon: LucideIcons.award,
-            title: 'Aucun badge pour l\'instant',
-            hint: 'Faites des activités ensemble pour débloquer des badges.',
+            title: l10n.coupleSpaceBadgesEmptyTitle,
+            hint: l10n.coupleSpaceBadgesEmptyHint,
           )
         else
           Wrap(
@@ -428,42 +442,25 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   Future<void> _completeBucketItem(int itemId) async {
     final result = await _apiService.completeBucketListItem(itemId);
     if (!mounted) return;
+    final l10n = context.l10n;
     switch (result) {
       case CoupleOk():
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Objectif accompli'),
+          SnackBar(
+            content: Text(l10n.coupleSpaceGoalDone),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
         );
         await _loadData(quiet: true);
       case CoupleFailed():
-        showCoupleError(
-          context,
-          'Impossible de valider cet objectif. Réessayez.',
-        );
+        showCoupleError(context, l10n.coupleSpaceGoalFailed);
     }
   }
 
-  static const _months = [
-    'janv.',
-    'févr.',
-    'mars',
-    'avr.',
-    'mai',
-    'juin',
-    'juil.',
-    'août',
-    'sept.',
-    'oct.',
-    'nov.',
-    'déc.',
-  ];
-
   String _formatDate(DateTime? date) {
     if (date == null) return '';
-    return '${date.day} ${_months[date.month - 1]} ${date.year}';
+    return DateFormat.yMMMd(context.l10n.localeName).format(date);
   }
 
   IconData _getAchievementIcon(String? type) {
@@ -708,7 +705,7 @@ class _BucketListItem extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(8, 4, 16, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 16, 4),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(24),
