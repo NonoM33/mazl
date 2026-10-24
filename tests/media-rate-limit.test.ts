@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, makeUser, type TestUser } from "./media-helpers";
 
 // Integration tests of CONTRAT.md §2.3 (anti-scraping). Needs a running server.
 // Each test uses fresh users: the limiter is per user and lives in memory.
@@ -18,7 +18,11 @@ async function expectBlocked(res: Response): Promise<void> {
 describe("profile views: 120 per hour", () => {
   let viewer: TestUser;
   let target: TestUser;
-  beforeAll(async () => { viewer = await makeUser("rlview"); target = await makeUser("rltarget"); });
+  beforeAll(async () => { 
+    viewer = await makeUser("rlview");
+    target = await makeUser("rltarget");
+    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${target.id}`;
+  });
 
   test("the 121st view is a 429, another user is unaffected", async () => {
     for (let i = 0; i < 120; i++) {

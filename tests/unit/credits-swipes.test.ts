@@ -34,6 +34,12 @@ class FakeSwipes implements SwipeStore {
     return this.stored.get(`${userId}:${targetUserId}`) ?? null;
   }
 
+  unreachable = new Set<number>();
+
+  async canSwipeOn(_userId: number, targetUserId: number): Promise<boolean> {
+    return !this.unreachable.has(targetUserId);
+  }
+
   async record(userId: number, targetUserId: number, action: string): Promise<SwipeResult> {
     if (this.failRecord) throw new Error("database unavailable");
     this.recorded += 1;
@@ -97,6 +103,23 @@ describe("likes and passes are not credits", () => {
       body: JSON.stringify({ target_user_id: 20, action: "mega_like" }),
     });
     expect(res.status).toBe(400);
+    expect(repository.spends).toHaveLength(0);
+  });
+});
+
+describe("a target that cannot be swiped on", () => {
+  test("is a 404 whatever the action, and a super like is neither debited nor recorded", async () => {
+    swipes.unreachable.add(30);
+    for (const action of ["like", "pass", "super_like"]) {
+      expect((await swipe(30, action)).status).toBe(404);
+    }
+    expect(repository.spends).toHaveLength(0);
+    expect(swipes.recorded).toBe(0);
+    expect(swipes.matches).toEqual([]);
+  });
+
+  test("yourself is a 400 before anything else", async () => {
+    expect((await swipe(USER, "super_like")).status).toBe(400);
     expect(repository.spends).toHaveLength(0);
   });
 });

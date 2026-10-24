@@ -1138,6 +1138,27 @@ export async function getFullProfile(userId: number, includePrivate = false) {
   };
 }
 
+// Whether `viewerId` may see the profile of `targetId`: the profile is
+// complete, the account is active and neither member blocked the other. Every
+// "no" looks the same to the caller (a missing profile), so that a block, a ban
+// or an unfinished profile cannot be told apart from an unknown id.
+export async function isProfileVisibleTo(viewerId: number, targetId: number): Promise<boolean> {
+  const rows = await sql`
+    SELECT 1
+    FROM profiles p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.user_id = ${targetId}
+      AND p.is_complete = true
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${viewerId} AND b.blocked_id = ${targetId})
+           OR (b.blocker_id = ${targetId} AND b.blocked_id = ${viewerId})
+      )
+  `;
+  return rows.length > 0;
+}
+
 export async function upsertProfile(userId: number, params: {
   displayName?: string;
   birthdate?: string;
@@ -1198,7 +1219,18 @@ export async function upsertProfile(userId: number, params: {
       updated_at = NOW()
     RETURNING *
   `;
-  return result[0];
+  // Nothing else ever marks a profile complete: once the member has a name, a
+  // birthdate and a gender, others may see them (discover, profile view).
+  const completed = await sql`
+    UPDATE profiles SET is_complete = true
+    WHERE user_id = ${userId}
+      AND is_complete = false
+      AND COALESCE(display_name, '') <> ''
+      AND birthdate IS NOT NULL
+      AND gender IS NOT NULL
+    RETURNING *
+  `;
+  return completed[0] ?? result[0];
 }
 
 // ============ DISCOVER & SWIPES ============
@@ -1394,6 +1426,7 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
     JOIN users u ON u.id = p.user_id
     CROSS JOIN me
     WHERE p.user_id != ${userId}
+      AND u.is_active = true
       AND p.is_complete = true
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
@@ -1454,7 +1487,8 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
         + CASE WHEN me.kashrut_level IS NOT NULL AND p.kashrut_level = me.kashrut_level THEN 2 ELSE 0 END
         + CASE WHEN me.shabbat_observance IS NOT NULL AND p.shabbat_observance = me.shabbat_observance THEN 2 ELSE 0 END
       ) DESC,
-      p.created_at DESC
+      p.created_at DESC,
+      p.user_id DESC
     LIMIT ${limit}
     OFFSET ${offset}
   `;
@@ -1488,6 +1522,24 @@ export async function getSwipeAction(userId: number, targetUserId: number): Prom
     SELECT action FROM swipes WHERE user_id = ${userId} AND target_user_id = ${targetUserId}
   `;
   return rows[0]?.action ?? null;
+}
+
+// Whether `userId` may swipe on `targetUserId`: another member whose account
+// exists and is active, with no block in either direction. A refusal never says
+// which of these held.
+export async function canSwipeOn(userId: number, targetUserId: number): Promise<boolean> {
+  if (userId === targetUserId) return false;
+  const rows = await sql`
+    SELECT 1 FROM users u
+    WHERE u.id = ${targetUserId}
+      AND u.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users b
+        WHERE (b.blocker_id = ${userId} AND b.blocked_id = ${targetUserId})
+           OR (b.blocker_id = ${targetUserId} AND b.blocked_id = ${userId})
+      )
+  `;
+  return rows.length > 0;
 }
 
 export async function recordSwipe(userId: number, targetUserId: number, action: string) {
@@ -1612,6 +1664,7 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
     JOIN users u ON u.id = s.user_id
     LEFT JOIN profiles p ON p.user_id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       -- not already matched
       AND NOT EXISTS (
@@ -1642,7 +1695,9 @@ export async function getReceivedLikesCount(userId: number): Promise<number> {
   const rows = await sql`
     SELECT COUNT(*) AS count
     FROM swipes s
+    JOIN users u ON u.id = s.user_id
     WHERE s.target_user_id = ${userId}
+      AND u.is_active = true
       AND s.action IN ('like', 'super_like')
       AND NOT EXISTS (
         SELECT 1 FROM matches m
@@ -1701,6 +1756,10 @@ export function getPromptText(promptId: string): string {
   return PROMPT_TEXT_BY_ID.get(promptId) ?? '';
 }
 
+const MAX_PROFILE_PROMPTS = 3;
+// First key of the advisory lock that serialises a member's prompt additions.
+const PROFILE_PROMPTS_LOCK_NAMESPACE = 7201;
+
 export class ProfilePromptLimitError extends Error {
   constructor() {
     super('Maximum of 3 prompts reached');
@@ -1724,20 +1783,27 @@ export async function addProfilePrompt(
   answer: string,
   position: number,
 ): Promise<ProfilePromptRow> {
-  const countRows = await sql`
-    SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
-  `;
-  const existing = parseInt((countRows[0] as { count: string }).count);
-  if (existing >= 3) {
-    throw new ProfilePromptLimitError();
-  }
+  // Counting then inserting would let simultaneous requests all see "2" and
+  // each add a third prompt: the whole check runs under a lock held per member
+  // until the transaction ends.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PROMPTS_LOCK_NAMESPACE}, ${userId})`;
+    const countRows = await tx`
+      SELECT COUNT(*) AS count FROM profile_prompts WHERE user_id = ${userId}
+    `;
+    const existing = parseInt((countRows[0] as { count: string }).count);
+    if (existing >= MAX_PROFILE_PROMPTS) {
+      throw new ProfilePromptLimitError();
+    }
 
-  const rows = await sql`
-    INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
-    VALUES (${userId}, ${promptId}, ${answer}, ${position})
-    RETURNING id, prompt_id, answer, position
-  `;
-  return rows[0] as unknown as ProfilePromptRow;
+    const rows = await tx`
+      INSERT INTO profile_prompts (user_id, prompt_id, answer, position)
+      VALUES (${userId}, ${promptId}, ${answer}, ${position})
+      RETURNING id, prompt_id, answer, position
+    `;
+    return rows[0] as unknown as ProfilePromptRow;
+  });
 }
 
 export async function updateProfilePrompt(
@@ -2184,15 +2250,58 @@ export async function getEventById(eventId: number) {
   return result.length ? result[0] : null;
 }
 
-export async function createRsvp(eventId: number, userId: number, status = 'going') {
+// An event as the public sees it: published only. A draft, like an unknown id,
+// is simply absent.
+export async function getPublishedEventById(eventId: number) {
   const result = await sql`
-    INSERT INTO event_rsvps (event_id, user_id, status)
-    VALUES (${eventId}, ${userId}, ${status})
-    ON CONFLICT (event_id, user_id)
-    DO UPDATE SET status = ${status}
-    RETURNING *
+    SELECT e.*,
+      (SELECT COUNT(*) FROM event_rsvps WHERE event_id = e.id AND status = 'going') as attendee_count
+    FROM events e
+    WHERE e.id = ${eventId} AND e.is_published = true
   `;
-  return result[0];
+  return result.length ? result[0] : null;
+}
+
+export type RsvpOutcome =
+  | { readonly kind: "registered"; readonly rsvp: Record<string, unknown> }
+  | { readonly kind: "not_found" }
+  | { readonly kind: "over" }
+  | { readonly kind: "full" };
+
+// Registers a member for a published, not yet past event. The event row is
+// locked for the duration of the transaction, so the seat count and the
+// insertion cannot be raced by other registrations of the same event.
+export async function rsvpToEvent(eventId: number, userId: number, status: string): Promise<RsvpOutcome> {
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const events = await tx`
+      SELECT max_attendees, date >= CURRENT_DATE AS is_open
+      FROM events
+      WHERE id = ${eventId} AND is_published = true
+      FOR UPDATE
+    `;
+    const event = events[0] as { max_attendees: number | null; is_open: boolean } | undefined;
+    if (!event) return { kind: "not_found" } as const;
+    if (!event.is_open) return { kind: "over" } as const;
+
+    if (status === "going" && event.max_attendees !== null) {
+      // The member's own seat does not count against them when they confirm again.
+      const taken = await tx`
+        SELECT COUNT(*) AS n FROM event_rsvps
+        WHERE event_id = ${eventId} AND status = 'going' AND user_id <> ${userId}
+      `;
+      if (Number((taken[0] as { n: string }).n) >= event.max_attendees) return { kind: "full" } as const;
+    }
+
+    const result = await tx`
+      INSERT INTO event_rsvps (event_id, user_id, status)
+      VALUES (${eventId}, ${userId}, ${status})
+      ON CONFLICT (event_id, user_id)
+      DO UPDATE SET status = ${status}
+      RETURNING *
+    `;
+    return { kind: "registered", rsvp: result[0] as Record<string, unknown> } as const;
+  });
 }
 
 export async function deleteRsvp(eventId: number, userId: number) {
@@ -3240,6 +3349,34 @@ export async function getUserActivity(userId: number, limit = 50) {
   return { swipes, matches, messages, rsvps };
 }
 
+// The waitlist is tied to a member by e-mail address only (case aside). Its rows
+// go with the account. An entry whose identity documents still have a file to
+// purge is kept, with its address and token wiped, so that the documents purge
+// (src/features/documents) still finds those files: deleting the row would
+// cascade-delete the document rows and leave the files on disk for good.
+async function eraseWaitlistEntries(tx: typeof sql, userId: number): Promise<void> {
+  const entries = await tx`
+    SELECT w.id,
+      EXISTS (
+        SELECT 1 FROM documents d
+        WHERE d.waitlist_id = w.id AND d.filename IS NOT NULL AND d.purged_at IS NULL
+      ) AS has_files
+    FROM waitlist w
+    WHERE LOWER(w.email) = (SELECT LOWER(email) FROM users WHERE id = ${userId})
+  `;
+  for (const entry of entries as unknown as Array<{ id: number; has_files: boolean }>) {
+    if (entry.has_files) {
+      await tx`
+        UPDATE waitlist
+        SET email = ${`erased-${entry.id}@erased.invalid`}, verification_token = NULL
+        WHERE id = ${entry.id}
+      `;
+    } else {
+      await tx`DELETE FROM waitlist WHERE id = ${entry.id}`;
+    }
+  }
+}
+
 // Delete user completely
 export async function deleteUserCompletely(userId: number, adminEmail: string) {
   // Log before deletion
@@ -3271,6 +3408,7 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
     await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
     await eraseCredits(tx, userId);
     await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
+    await eraseWaitlistEntries(tx, userId);
     await tx`DELETE FROM users WHERE id = ${userId}`;
   });
 
@@ -3299,6 +3437,33 @@ export async function getProfilePhotos(userId: number) {
   return photos;
 }
 
+export const MAX_PROFILE_PHOTOS = 6;
+// First key of the advisory lock that serialises a member's photo additions.
+const PROFILE_PHOTOS_LOCK_NAMESPACE = 7202;
+
+export class ProfilePhotoLimitError extends Error {
+  constructor() {
+    super(`Maximum of ${MAX_PROFILE_PHOTOS} photos reached`);
+    this.name = "ProfilePhotoLimitError";
+  }
+}
+
+// The photo does not exist or belongs to someone else: both look the same.
+export class ProfilePhotoNotFoundError extends Error {
+  constructor() {
+    super("Photo not found");
+    this.name = "ProfilePhotoNotFoundError";
+  }
+}
+
+// A reorder that names photos that are not the member's.
+export class ProfilePhotoSelectionError extends Error {
+  constructor() {
+    super("Invalid photo ID");
+    this.name = "ProfilePhotoSelectionError";
+  }
+}
+
 // Add profile photo
 export async function addProfilePhoto(params: {
   userId: number;
@@ -3306,24 +3471,32 @@ export async function addProfilePhoto(params: {
   position?: number;
   isPrimary?: boolean;
 }) {
-  // If this is the first photo or marked as primary, set it as primary
-  const existingPhotos = await getProfilePhotos(params.userId);
-  const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
-  const position = params.position ?? existingPhotos.length;
+  // The count, the cap and the insert run under a lock held per member until
+  // the transaction ends: simultaneous uploads cannot overrun the cap.
+  return sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    await tx`SELECT pg_advisory_xact_lock(${PROFILE_PHOTOS_LOCK_NAMESPACE}, ${params.userId})`;
+    const existingPhotos = await tx`SELECT id FROM profile_photos WHERE user_id = ${params.userId}`;
+    if (existingPhotos.length >= MAX_PROFILE_PHOTOS) throw new ProfilePhotoLimitError();
 
-  // If setting as primary, unset other primaries
-  if (shouldBePrimary) {
-    await sql`
-      UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+    // If this is the first photo or marked as primary, set it as primary
+    const shouldBePrimary = params.isPrimary || existingPhotos.length === 0;
+    const position = params.position ?? existingPhotos.length;
+
+    // If setting as primary, unset other primaries
+    if (shouldBePrimary) {
+      await tx`
+        UPDATE profile_photos SET is_primary = false WHERE user_id = ${params.userId}
+      `;
+    }
+
+    const result = await tx`
+      INSERT INTO profile_photos (user_id, url, position, is_primary)
+      VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
+      RETURNING *
     `;
-  }
-
-  const result = await sql`
-    INSERT INTO profile_photos (user_id, url, position, is_primary)
-    VALUES (${params.userId}, ${params.url}, ${position}, ${shouldBePrimary})
-    RETURNING *
-  `;
-  return result[0];
+    return result[0];
+  });
 }
 
 // Delete profile photo
@@ -3335,7 +3508,7 @@ export async function deleteProfilePhoto(photoId: number, userId: number) {
 
   const deletedPhoto = photo[0];
   if (!deletedPhoto) {
-    throw new Error("Photo not found");
+    throw new ProfilePhotoNotFoundError();
   }
 
   await sql`DELETE FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}`;
@@ -3372,7 +3545,7 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
   const userPhotoIds = new Set(userPhotos.map((p: any) => p.id));
   for (const id of photoIds) {
     if (!userPhotoIds.has(id)) {
-      throw new Error("Invalid photo ID");
+      throw new ProfilePhotoSelectionError();
     }
   }
 
@@ -3392,11 +3565,14 @@ export async function reorderProfilePhotos(userId: number, photoIds: number[]) {
 
 // Set profile photo as primary
 export async function setProfilePhotoPrimary(photoId: number, userId: number) {
-  // Unset all primaries for this user
-  await sql`UPDATE profile_photos SET is_primary = false WHERE user_id = ${userId}`;
-
-  // Set this one as primary
-  await sql`UPDATE profile_photos SET is_primary = true WHERE id = ${photoId} AND user_id = ${userId}`;
+  // One statement sequence in one transaction, and only for the member's own
+  // photo: otherwise the current primary would be unset for nothing.
+  await sql.begin(async (transaction) => {
+    const tx = transaction as unknown as typeof sql;
+    const own = await tx`SELECT id FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId} FOR UPDATE`;
+    if (own.length === 0) throw new ProfilePhotoNotFoundError();
+    await tx`UPDATE profile_photos SET is_primary = (id = ${photoId}) WHERE user_id = ${userId}`;
+  });
 
   return await getProfilePhotos(userId);
 }

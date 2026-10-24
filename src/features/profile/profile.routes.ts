@@ -1,8 +1,9 @@
 import { Hono } from "hono";
-import { z } from "zod";
 import {
+  getUserProfile,
   upsertProfile,
   getFullProfile,
+  isProfileVisibleTo,
   PROMPT_CATALOG,
   getPromptText,
   getProfilePrompts,
@@ -12,7 +13,13 @@ import {
   ProfilePromptLimitError,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { parseBody } from "../../shared/http/validation";
+import {
+  addPromptBodySchema,
+  parseBody,
+  parseId,
+  updateProfileBodySchema,
+  updatePromptBodySchema,
+} from "../../shared/http/validation";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import { clampDistanceMax } from "../media/domain/geo-fuzz";
 import type { MediaModule } from "../media";
@@ -29,43 +36,6 @@ import { registerPhotoRoutes } from "../media/presentation/photo.routes";
 // :userId (parseInt("prompts") = NaN). They live in this same file so the
 // ordering is guaranteed regardless of where registerProfileRoutes is called.
 
-// PUT /api/profile: guard the numeric field TYPES (ageMin/ageMax/distanceMax,
-// lat/long) and declare the string fields the handler reads so they stay
-// well-typed. Everything is optional and `.passthrough()` keeps any other
-// field the mobile app may send — nothing legitimate is rejected.
-const updateProfileBodySchema = z
-  .object({
-    displayName: z.string().optional(),
-    birthdate: z.string().optional(),
-    gender: z.string().optional(),
-    bio: z.string().optional(),
-    location: z.string().optional(),
-    latitude: z.number().min(-90).max(90).optional(),
-    longitude: z.number().min(-180).max(180).optional(),
-    denomination: z.string().optional(),
-    kashrutLevel: z.string().optional(),
-    shabbatObservance: z.string().optional(),
-    lookingFor: z.string().optional(),
-    ageMin: z.number().optional(),
-    ageMax: z.number().optional(),
-    distanceMax: z.number().optional(),
-  })
-  .passthrough();
-
-const addPromptBodySchema = z
-  .object({
-    prompt_id: z.string(),
-    answer: z.string(),
-    position: z.number().optional(),
-  })
-  .passthrough();
-
-const updatePromptBodySchema = z
-  .object({
-    answer: z.string(),
-  })
-  .passthrough();
-
 export interface ProfileRouteDeps {
   readonly media: MediaModule;
 }
@@ -73,6 +43,22 @@ export interface ProfileRouteDeps {
 // CONTRAT.md §2.3: at most 120 other-member profile views per hour and user.
 const PROFILE_VIEWS_PER_HOUR = 120;
 const HOUR_MS = 60 * 60 * 1000;
+
+// True when only one of the two bounds is sent and it crosses the other one,
+// which is already stored. (When both are sent, the schema compares them.)
+async function contradictsStoredAgeRange(
+  userId: number,
+  ageMin: number | undefined,
+  ageMax: number | undefined,
+): Promise<boolean> {
+  if ((ageMin === undefined) === (ageMax === undefined)) return false;
+  const stored = await getUserProfile(userId);
+  if (!stored) return false;
+  const storedMin = Number(stored.age_min);
+  const storedMax = Number(stored.age_max);
+  if (ageMin !== undefined) return ageMin > storedMax;
+  return ageMax !== undefined && ageMax < storedMin;
+}
 
 export function registerProfileRoutes(
   app: Hono<{ Variables: AppVariables }>,
@@ -89,6 +75,11 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: parsed.error }, 400);
       }
       const body = parsed.data;
+
+      // A single bound must not contradict the one already stored.
+      if (await contradictsStoredAgeRange(userId, body.ageMin, body.ageMax)) {
+        return c.json({ success: false, error: "ageMin: must not exceed ageMax" }, 400);
+      }
 
       // Exact coordinates are never stored (CONTRAT.md §2.2).
       const position = await deps.media.location.resolve(userId, body.latitude, body.longitude);
@@ -159,8 +150,8 @@ export function registerProfileRoutes(
       const body = parsed.data;
       const promptId = body.prompt_id;
       const answer = body.answer;
-      if (!promptId || !answer || !answer.trim()) {
-        return c.json({ success: false, error: "Missing prompt_id or answer" }, 400);
+      if (getPromptText(promptId) === "") {
+        return c.json({ success: false, error: "prompt_id: unknown prompt" }, 400);
       }
       const position = typeof body.position === "number" ? body.position : 0;
 
@@ -188,8 +179,8 @@ export function registerProfileRoutes(
   app.put("/api/profile/prompts/:id", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const promptId = parseInt(c.req.param("id"));
-      if (isNaN(promptId)) {
+      const promptId = parseId(c.req.param("id"));
+      if (promptId === null) {
         return c.json({ success: false, error: "Invalid prompt ID" }, 400);
       }
       const parsed = await parseBody(updatePromptBodySchema, c);
@@ -197,9 +188,6 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: parsed.error }, 400);
       }
       const answer = parsed.data.answer;
-      if (!answer || !answer.trim()) {
-        return c.json({ success: false, error: "Missing answer" }, 400);
-      }
 
       const row = await updateProfilePrompt(userId, promptId, answer);
       if (!row) {
@@ -225,8 +213,8 @@ export function registerProfileRoutes(
   app.delete("/api/profile/prompts/:id", requireAuth, async (c) => {
     try {
       const userId = c.get("userId");
-      const promptId = parseInt(c.req.param("id"));
-      if (isNaN(promptId)) {
+      const promptId = parseId(c.req.param("id"));
+      if (promptId === null) {
         return c.json({ success: false, error: "Invalid prompt ID" }, 400);
       }
 
@@ -244,13 +232,21 @@ export function registerProfileRoutes(
   // Get user profile by ID (for viewing other users)
   app.get("/api/profile/:userId", requireAuth, profileViewLimiter, async (c) => {
     try {
-      const targetUserId = parseInt(c.req.param("userId"));
-      if (isNaN(targetUserId)) {
+      const targetUserId = parseId(c.req.param("userId"));
+      if (targetUserId === null) {
         return c.json({ success: false, error: "Invalid user ID" }, 400);
       }
 
-      // Email and account name only for the caller's own profile.
-      const profile = await getFullProfile(targetUserId, targetUserId === c.get("userId"));
+      // Email and account name only for the caller's own profile. Someone else's
+      // profile is served only when it is complete, its account is active and
+      // no block exists in either direction: otherwise the answer is the very
+      // same 404 as for an unknown id.
+      const viewerId = c.get("userId");
+      const isOwn = targetUserId === viewerId;
+      if (!isOwn && !(await isProfileVisibleTo(viewerId, targetUserId))) {
+        return c.json({ success: false, error: "Profile not found" }, 404);
+      }
+      const profile = await getFullProfile(targetUserId, isOwn);
       if (!profile) {
         return c.json({ success: false, error: "Profile not found" }, 404);
       }

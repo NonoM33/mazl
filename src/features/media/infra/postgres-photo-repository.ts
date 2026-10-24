@@ -1,10 +1,16 @@
-import { sql, addProfilePhoto, deleteProfilePhoto } from "../../../db";
+import { sql, addProfilePhoto, deleteProfilePhoto, ProfilePhotoLimitError } from "../../../db";
+import { PhotoLimitError } from "../domain/errors";
 import type { PhotoRepository, StoredPhoto } from "../application/ports";
 
 export const postgresPhotoRepository: PhotoRepository = {
   async addPhoto({ userId, key, isPrimary }) {
-    const row = await addProfilePhoto({ userId, url: key, isPrimary });
-    return row as unknown as StoredPhoto;
+    try {
+      const row = await addProfilePhoto({ userId, url: key, isPrimary });
+      return row as unknown as StoredPhoto;
+    } catch (error: unknown) {
+      if (error instanceof ProfilePhotoLimitError) throw new PhotoLimitError();
+      throw error;
+    }
   },
 
   async findKey(photoId) {
@@ -16,7 +22,7 @@ export const postgresPhotoRepository: PhotoRepository = {
     const rows = await sql<{ url: string }[]>`
       SELECT url FROM profile_photos WHERE id = ${photoId} AND user_id = ${userId}
     `;
-    // Throws "Photo not found" when the photo is not the user's (existing behaviour).
+    // Throws ProfilePhotoNotFoundError when the photo is not the user's.
     await deleteProfilePhoto(photoId, userId);
     return rows[0]?.url ?? null;
   },

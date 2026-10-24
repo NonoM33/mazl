@@ -184,6 +184,7 @@ describe("responses carry signed photo URLs", () => {
 
   test("a Google avatar is kept as the fallback picture", async () => {
     const guest = await makeUser("guest");
+    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${guest.id}`;
     await db`UPDATE users SET picture = 'https://lh3.googleusercontent.com/a/AAA=s96-c' WHERE id = ${guest.id}`;
     const res = await fetch(`${BASE_URL}/api/profile/${guest.id}`, { headers: auth(alice.token) });
     const { profile } = (await res.json()) as { profile: { picture: string | null; photos: string[] } };
@@ -243,6 +244,7 @@ describe("verification badge (contract 3, Badge)", () => {
     owner = await makeUser("badge");
     viewer = await makeUser("badgeviewer");
     photo = await uploadOk(owner.token, await jpegWithGps(60, 60, 1), true);
+    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${owner.id}`;
   });
 
   async function badge() {
