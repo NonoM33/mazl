@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../l10n/l10n.dart';
 import '../../../../common/widgets/mazl_components.dart';
+import '../../../../common/l10n/content_direction.dart';
 import 'profile_view_data.dart';
 
 /// Une étiquette de section au-dessus de son contenu.
@@ -37,6 +38,8 @@ class ProfileTextSection extends StatelessWidget {
       label: label,
       child: Text(
         text,
+        textDirection: contentDirection(context, text),
+        textAlign: interfaceStart(context),
         style: const TextStyle(fontSize: 17, height: 1.5, letterSpacing: -0.2),
       ),
     );
@@ -99,6 +102,8 @@ class ProfilePromptCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             answer,
+            textDirection: contentDirection(context, answer),
+            textAlign: interfaceStart(context),
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w500,

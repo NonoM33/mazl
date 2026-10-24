@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../l10n/l10n.dart';
 
+import '../../../common/l10n/content_direction.dart';
 import 'bubble_style.dart';
 
 /// The quoted message inside a bubble (docs/design/CHAT.md §6): a name line
@@ -139,6 +140,8 @@ class ReplyComposerBar extends StatelessWidget {
                         ),
                         Text(
                           preview,
+                          textDirection: contentDirection(context, preview),
+                          textAlign: interfaceStart(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

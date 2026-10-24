@@ -8,6 +8,7 @@ import 'bubble_style.dart';
 import 'link_preview_card.dart';
 import 'photo_grid.dart';
 import 'reply_quote.dart';
+import '../../../common/l10n/content_direction.dart';
 import 'voice_bubble.dart';
 
 /// Everything a bubble needs from the thread around it.
@@ -128,6 +129,7 @@ class MessageBubble extends StatelessWidget {
           padding: inset.add(EdgeInsets.symmetric(vertical: hasPhotos ? 8 : 0)),
           child: Text(
             message.content,
+            textDirection: contentDirection(context, message.content),
             style: TextStyle(fontSize: 15, height: 1.4, color: colors.text),
           ),
         ),

@@ -13,6 +13,7 @@ import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../conversation_lookup.dart';
 import '../conversation_time.dart';
+import '../../../common/l10n/content_direction.dart';
 import '../l10n/chat_preview_text.dart';
 
 class ConversationsScreen extends StatefulWidget {
@@ -413,6 +414,8 @@ class ConversationRow extends StatelessWidget {
                     Text(
                       preview,
                       key: previewKey,
+                      textDirection: contentDirection(context, preview),
+                      textAlign: interfaceStart(context),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
