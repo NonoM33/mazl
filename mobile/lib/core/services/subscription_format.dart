@@ -1,14 +1,15 @@
+import 'store/store_products.dart';
+
 /// Libellé de la durée d'une formule à partir de l'identifiant du produit
-/// (« six_month » -> « 6 mois »). Null si le produit n'est pas reconnu.
+/// (« com.mazl.app.plus.6m » -> « 6 mois »). Null si le produit n'est pas
+/// reconnu.
 String? planLabelForProduct(String productIdentifier) {
-  final id = productIdentifier.toLowerCase();
-  if (id.contains('six_month') || id.contains('6_month')) return '6 mois';
-  if (id.contains('three_month') || id.contains('3_month')) return '3 mois';
-  if (id.contains('two_month') || id.contains('2_month')) return '2 mois';
-  if (id.contains('yearly') || id.contains('annual')) return '12 mois';
-  if (id.contains('monthly')) return '1 mois';
-  return null;
+  final months = monthsFromProductId(productIdentifier);
+  return months == null ? null : monthsLabel(months);
 }
+
+/// « 1 mois », « 6 mois ».
+String monthsLabel(int months) => '$months mois';
 
 const _frenchMonths = [
   'janvier',

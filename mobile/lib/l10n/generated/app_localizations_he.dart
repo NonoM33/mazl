@@ -3533,6 +3533,9 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get settingsRestoreNothing => 'לא נמצא מינוי.';
+
+  @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';
 
   @override

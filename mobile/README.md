@@ -29,7 +29,7 @@ session de démonstration (« Léa (démo) ») et envoie sur la découverte.
   depuis des données synthétiques (`lib/core/dev/demo_fixtures.dart`) ; une
   route inconnue renvoie un 503 « Mode démo : indisponible ».
 - **Rien n'est persisté** (ni stockage sécurisé, ni préférences), pas de JWT,
-  pas de RevenueCat, pas de notifications push. Se déconnecter ou tuer
+  pas d’abonnement, pas de notifications push. Se déconnecter ou tuer
   l'application met fin à la session.
 - Pour ajouter une route de démo : `lib/core/dev/demo_routes.dart`, puis la
   vérifier dans `test/core/dev/demo_api_shapes_test.dart` avec le vrai

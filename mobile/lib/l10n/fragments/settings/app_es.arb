@@ -103,5 +103,6 @@
   "settingsBlockedUnblockError": "No se pudo desbloquear",
   "settingsBlockedEmptyTitle": "Ningún usuario bloqueado",
   "settingsBlockedEmptyHint": "Las personas que bloquees\naparecerán aquí",
-  "settingsBlockedOn": "Bloqueado el {date}"
+  "settingsBlockedOn": "Bloqueado el {date}",
+  "settingsRestoreNothing": "No se encontró ninguna suscripción."
 }

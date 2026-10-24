@@ -3630,6 +3630,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get settingsRestoreNothing => 'Подписка не найдена.';
+
+  @override
   String get verificationProfileEyebrow => 'Ваш профиль';
 
   @override

@@ -81,7 +81,7 @@ import {
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
 import { registerEventsRoutes } from "./features/events/events.routes";
-import { registerSubscriptionsRoutes } from "./features/subscriptions/subscriptions.routes";
+import { registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
@@ -304,12 +304,12 @@ registerEventsRoutes(app);
 
 // ============ SUBSCRIPTIONS ENDPOINTS ============
 
-// User-facing subscription status + the RevenueCat webhook now live in the
-// subscriptions feature. The former POST /api/subscription/sync route was
+// User-facing subscription status, native Apple purchase verification
+// (StoreKit 2 signed transactions) and App Store Server Notifications V2 live in
+// the subscriptions feature. The former POST /api/subscription/sync route was
 // REMOVED during the audit (it let any authenticated user declare themselves
-// premium); premium status is driven client-side by RevenueCat entitlements
-// and the server is informed only via the authenticated webhook below.
-registerSubscriptionsRoutes(app);
+// premium): the server now trusts only Apple-signed payloads.
+registerSubscriptions(app, { sql, authenticate: requireAuth });
 
 
 

@@ -500,5 +500,9 @@
         "example": "24/10/2026"
       }
     }
+  },
+  "settingsRestoreNothing": "Aucun abonnement trouvé.",
+  "@settingsRestoreNothing": {
+    "description": "Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte."
   }
 }

@@ -1021,6 +1021,7 @@
   "settingsBlockedEmptyTitle": "Ningún usuario bloqueado",
   "settingsBlockedEmptyHint": "Las personas que bloquees\naparecerán aquí",
   "settingsBlockedOn": "Bloqueado el {date}",
+  "settingsRestoreNothing": "No se encontró ninguna suscripción.",
   "verificationProfileEyebrow": "Tu perfil",
   "verificationTitle": "Verificación",
   "verificationLevel1": "Nivel 1",

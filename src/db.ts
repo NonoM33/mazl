@@ -230,19 +230,26 @@ export async function initDb() {
     )
   `;
 
-  // Subscriptions table (sync with RevenueCat)
+  // Subscriptions table (Apple App Store purchases)
   await sql`
     CREATE TABLE IF NOT EXISTS subscriptions (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id) UNIQUE,
       plan_type VARCHAR(50),
       status VARCHAR(20) DEFAULT 'active',
-      revenuecat_id VARCHAR(255),
+      revenuecat_id VARCHAR(255), -- legacy RevenueCat column: kept for existing rows, no longer written
       started_at TIMESTAMP,
       expires_at TIMESTAMP,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
+  `;
+  await sql`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS store VARCHAR(20)`;
+  await sql`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS product_id VARCHAR(100)`;
+  await sql`ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS original_transaction_id VARCHAR(64)`;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_subscriptions_original_tx
+    ON subscriptions(original_transaction_id) WHERE original_transaction_id IS NOT NULL
   `;
 
   // Couples table for couple mode
@@ -2125,47 +2132,14 @@ export interface Subscription {
   user_id: number;
   plan_type: string | null;
   status: string;
-  revenuecat_id: string | null;
+  revenuecat_id: string | null; // legacy RevenueCat column, no longer written
+  store: string | null;
+  product_id: string | null;
+  original_transaction_id: string | null;
   started_at: Date | null;
   expires_at: Date | null;
   created_at: Date;
   updated_at: Date;
-}
-
-export async function syncSubscription(userId: number, params: {
-  planType?: string;
-  status?: string;
-  revenuecatId?: string;
-  startsAt?: string;
-  expiresAt?: string;
-}) {
-  const result = await sql`
-    INSERT INTO subscriptions (user_id, plan_type, status, revenuecat_id, started_at, expires_at)
-    VALUES (
-      ${userId},
-      ${params.planType ?? null},
-      ${params.status ?? 'active'},
-      ${params.revenuecatId ?? null},
-      ${params.startsAt ?? null},
-      ${params.expiresAt ?? null}
-    )
-    ON CONFLICT (user_id)
-    DO UPDATE SET
-      plan_type = COALESCE(${params.planType ?? null}, subscriptions.plan_type),
-      status = COALESCE(${params.status ?? null}, subscriptions.status),
-      revenuecat_id = COALESCE(${params.revenuecatId ?? null}, subscriptions.revenuecat_id),
-      expires_at = COALESCE(${params.expiresAt ?? null}, subscriptions.expires_at),
-      updated_at = NOW()
-    RETURNING *
-  `;
-  return result[0] as Subscription;
-}
-
-export async function getSubscription(userId: number) {
-  const result = await sql`
-    SELECT * FROM subscriptions WHERE user_id = ${userId}
-  `;
-  return result.length ? result[0] as Subscription : null;
 }
 
 export async function getAllSubscriptions(filters?: {

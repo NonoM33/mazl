@@ -1021,6 +1021,7 @@
   "settingsBlockedEmptyTitle": "No blocked users",
   "settingsBlockedEmptyHint": "People you block\nwill appear here",
   "settingsBlockedOn": "Blocked on {date}",
+  "settingsRestoreNothing": "No subscription found.",
   "verificationProfileEyebrow": "Your profile",
   "verificationTitle": "Verification",
   "verificationLevel1": "Level 1",

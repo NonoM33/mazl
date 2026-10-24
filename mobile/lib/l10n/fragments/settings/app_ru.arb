@@ -103,5 +103,6 @@
   "settingsBlockedUnblockError": "Не удалось разблокировать",
   "settingsBlockedEmptyTitle": "Нет заблокированных пользователей",
   "settingsBlockedEmptyHint": "Заблокированные Вами люди\nпоявятся здесь",
-  "settingsBlockedOn": "Дата блокировки: {date}"
+  "settingsBlockedOn": "Дата блокировки: {date}",
+  "settingsRestoreNothing": "Подписка не найдена."
 }

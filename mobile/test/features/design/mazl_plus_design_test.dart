@@ -69,7 +69,7 @@ void _expectTouchTarget(WidgetTester tester, Finder finder) {
 Future<void> _pumpOffer(WidgetTester tester, {ThemeData? theme}) async {
   await _pump(
     tester,
-    PremiumScreen(loadOffering: () async => null),
+    PremiumScreen(loadPlans: () async => const []),
     theme: theme,
   );
   await tester.pump(const Duration(milliseconds: 50));
@@ -111,10 +111,13 @@ void main() {
         }
         expect(find.text('VOTRE FORMULE'), findsOneWidget);
         expect(find.text('1 mois'), findsOneWidget);
+        expect(find.text('3 mois'), findsOneWidget);
         expect(find.text('6 mois'), findsOneWidget);
         expect(find.text('12 mois'), findsOneWidget);
-        expect(find.text('-33 %'), findsOneWidget);
-        expect(find.text('-50 %'), findsOneWidget);
+        expect(find.text('2 mois'), findsNothing);
+        expect(find.text('-25 %'), findsOneWidget);
+        expect(find.text('-42 %'), findsOneWidget);
+        expect(find.text('-58 %'), findsOneWidget);
         expect(find.text('Restaurer'), findsOneWidget);
         expect(find.text('Conditions'), findsOneWidget);
         expect(find.text('Confidentialité'), findsOneWidget);
@@ -125,17 +128,21 @@ void main() {
     testWidgets('choisir une formule change le prix du bouton', (tester) async {
       await _pumpOffer(tester);
 
-      // 6 mois est présélectionné
-      expect(find.text('Continuer · 59,99 €'), findsOneWidget);
+      // 3 mois, la formule mise en avant, est présélectionné
+      expect(find.text('Continuer · 44,99 €'), findsOneWidget);
 
       await tester.tap(find.text('1 mois'));
       await tester.pump();
-      expect(find.text('Continuer · 14,99 €'), findsOneWidget);
-      expect(find.text('Continuer · 59,99 €'), findsNothing);
+      expect(find.text('Continuer · 19,99 €'), findsOneWidget);
+      expect(find.text('Continuer · 44,99 €'), findsNothing);
+
+      await tester.tap(find.text('6 mois'));
+      await tester.pump();
+      expect(find.text('Continuer · 69,99 €'), findsOneWidget);
 
       await tester.tap(find.text('12 mois'));
       await tester.pump();
-      expect(find.text('Continuer · 89,99 €'), findsOneWidget);
+      expect(find.text('Continuer · 99,99 €'), findsOneWidget);
     });
 
     testWidgets(
@@ -197,7 +204,7 @@ void main() {
     testWidgets('tient à 320 px de large sans débordement', (tester) async {
       await _pump(
         tester,
-        PremiumScreen(loadOffering: () async => null),
+        PremiumScreen(loadPlans: () async => const []),
         size: const Size(320, 700),
       );
       await tester.pump(const Duration(milliseconds: 50));

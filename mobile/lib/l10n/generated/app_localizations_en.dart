@@ -3574,6 +3574,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsRestoreNothing => 'No subscription found.';
+
+  @override
   String get verificationProfileEyebrow => 'Your profile';
 
   @override

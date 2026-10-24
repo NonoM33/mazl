@@ -1021,6 +1021,7 @@
   "settingsBlockedEmptyTitle": "Нет заблокированных пользователей",
   "settingsBlockedEmptyHint": "Заблокированные Вами люди\nпоявятся здесь",
   "settingsBlockedOn": "Дата блокировки: {date}",
+  "settingsRestoreNothing": "Подписка не найдена.",
   "verificationProfileEyebrow": "Ваш профиль",
   "verificationTitle": "Верификация",
   "verificationLevel1": "Уровень 1",

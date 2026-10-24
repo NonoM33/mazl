@@ -15,7 +15,7 @@ import 'couple_service.dart';
 import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'push_notification_service.dart';
-import 'revenuecat_service.dart';
+import 'store/subscription_service.dart';
 
 /// User authentication data
 class AuthUser {
@@ -163,7 +163,7 @@ class AuthService extends ChangeNotifier {
   AuthService._internal();
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final RevenueCatService _revenueCat = RevenueCatService();
+  final SubscriptionService _subscriptions = SubscriptionService();
   final PushNotificationService _pushService = PushNotificationService();
 
   static const String _userKey = 'current_user';
@@ -195,9 +195,9 @@ class AuthService extends ChangeNotifier {
         _currentUser = AuthUser.fromJson(jsonDecode(userJson));
         debugPrint('AuthService: Restored user session - ${_currentUser?.email}');
 
-        // Login to RevenueCat and OneSignal with restored user
+        // Relit l'abonnement et connecte OneSignal avec l'utilisateur restauré
         if (_currentUser != null) {
-          await _revenueCat.login(_currentUser!.id);
+          unawaited(_subscriptions.onSignedIn(_currentUser!.jwtToken));
           await _pushService.loginUser(int.parse(_currentUser!.id));
         }
       }
@@ -212,7 +212,7 @@ class AuthService extends ChangeNotifier {
   /// Connexion fictive, réservée au développement local.
   ///
   /// Session purement en mémoire : pas de JWT, aucun appel au vrai serveur,
-  /// rien d'écrit en stockage sécurisé, ni RevenueCat ni notifications push.
+  /// rien d'écrit en stockage sécurisé, ni abonnement ni notifications push.
   /// Les requêtes sont servies par `DemoHttpClient` tant que la session dure.
   Future<AuthResult> signInAsDemo() async {
     if (!kDevLoginAvailable) {
@@ -288,9 +288,9 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -373,9 +373,9 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
@@ -428,9 +428,9 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email login successful - user ID: ${user.id}');
@@ -483,9 +483,9 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user and login to RevenueCat + OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
       await _saveUser(user);
-      await _revenueCat.login(user.id);
+      unawaited(_subscriptions.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
 
       debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
@@ -526,7 +526,7 @@ class AuthService extends ChangeNotifier {
   /// Sign out current user
   Future<void> signOut() async {
     if (DevSession.isActive) {
-      // Session fictive : rien à révoquer côté RevenueCat / push / stockage.
+      // Session fictive : rien à révoquer côté abonnement / push / stockage.
       DevSession.stop();
       _currentUser = null;
       debugPrint('AuthService: session fictive terminée');
@@ -539,8 +539,8 @@ class AuthService extends ChangeNotifier {
         await _googleSignIn.signOut();
       }
 
-      // Logout from RevenueCat and OneSignal
-      await _revenueCat.logout();
+      // Efface l'abonnement en mémoire et déconnecte OneSignal
+      _subscriptions.onSignedOut();
       await _pushService.logoutUser();
 
       // Clear stored user data

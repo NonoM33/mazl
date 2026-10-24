@@ -10,7 +10,8 @@ import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_models.dart';
+import '../../../../core/services/store/subscription_service.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
@@ -446,7 +447,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleOpenSubscription() async {
-    final isPremium = RevenueCatService().isMazlPro;
+    final isPremium = SubscriptionService().isMazlPro;
     await context.push<bool>(isPremium ? RoutePaths.subscription : RoutePaths.premium);
     if (mounted) setState(() {});
   }
@@ -454,19 +455,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _handleRestorePurchases() async {
     setState(() => _isLoading = true);
     try {
-      await RevenueCatService().restorePurchases();
+      final result = await SubscriptionService().restore();
       if (mounted) {
+        final message = switch (result) {
+          RestoreFound() => context.l10n.settingsRestoreSuccess,
+          RestoreNothing() => context.l10n.settingsRestoreNothing,
+          // The store's own wording is a diagnostic, not for the screen.
+          RestoreFailed() => context.l10n.settingsRestoreError,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.settingsRestoreSuccess)),
+          SnackBar(content: Text(message)),
         );
         setState(() {});
-      }
-    } catch (e) {
-      debugPrint('Restore purchases failed: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.settingsRestoreError)),
-        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -887,7 +887,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text(context.l10n.settingsRestoreError), backgroundColor: AppColors.error),
         );
       }
     }
@@ -985,13 +985,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final revenueCat = RevenueCatService();
-    final isMazlPro = revenueCat.isMazlPro;
-    final renewal = revenueCat.mazlProExpirationDate;
+    final subscriptions = SubscriptionService();
+    final isMazlPro = subscriptions.isMazlPro;
+    final renewal = subscriptions.expirationDate;
     final subscriptionDetail = [
-      ?revenueCat.activePlanLabel,
+      ?subscriptions.activePlanLabel,
       if (renewal != null)
-        if (revenueCat.willRenew)
+        if (subscriptions.willRenew)
           l10n.settingsSubscriptionRenewsOn(renewal.toLocal())
         else
           l10n.settingsSubscriptionEndsOn(renewal.toLocal()),

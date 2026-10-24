@@ -103,5 +103,6 @@
   "settingsBlockedUnblockError": "ביטול החסימה נכשל",
   "settingsBlockedEmptyTitle": "אין משתמשים חסומים",
   "settingsBlockedEmptyHint": "אנשים שנחסמו\nיופיעו כאן",
-  "settingsBlockedOn": "תאריך החסימה: {date}"
+  "settingsBlockedOn": "תאריך החסימה: {date}",
+  "settingsRestoreNothing": "לא נמצא מינוי."
 }

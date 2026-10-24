@@ -246,16 +246,27 @@ lib/core/services/premium_gate.dart | Super Likes
 lib/core/services/premium_gate.dart | Support prioritaire
 lib/core/services/premium_gate.dart | Voir qui vous a aimé
 lib/core/services/premium_gate.dart | Voyez qui vous a aimé avant même de le croiser.
-lib/core/services/revenuecat_service.dart | Gratuit
-lib/core/services/revenuecat_service.dart | Gratuit
-lib/core/services/revenuecat_service.dart | Mazl Pro
-lib/core/services/revenuecat_service.dart | mazl+ (actif)
-lib/core/services/revenuecat_service.dart | mazl+ (expire bientôt)
-lib/core/services/subscription_format.dart | 1 mois
-lib/core/services/subscription_format.dart | 12 mois
-lib/core/services/subscription_format.dart | 2 mois
-lib/core/services/subscription_format.dart | 3 mois
-lib/core/services/subscription_format.dart | 6 mois
+lib/core/services/store/subscription_api.dart | Authorization
+lib/core/services/store/subscription_api.dart | Bearer $token
+lib/core/services/store/subscription_api.dart | Content-Type
+lib/core/services/store/subscription_models.dart | subscription.$key: texte attendu
+lib/core/services/store/subscription_models.dart | subscription.expires_at: texte attendu
+lib/core/services/store/subscription_models.dart | subscription: objet attendu
+lib/core/services/store/subscription_service.dart | Bientôt disponible sur Android
+lib/core/services/store/subscription_service.dart | Cet achat App Store est déjà associé à un autre compte mazl.
+lib/core/services/store/subscription_service.dart | Connexion impossible. Votre achat est conservé et sera validé dès que possible.
+lib/core/services/store/subscription_service.dart | Gratuit
+lib/core/services/store/subscription_service.dart | Il sera revérifié au prochain lancement.
+lib/core/services/store/subscription_service.dart | La restauration a échoué. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | L’achat n’a pas pu aboutir. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | Nous n’avons pas pu valider cet achat auprès de l’App Store. 
+lib/core/services/store/subscription_service.dart | Reconnectez-vous à mazl pour finaliser votre achat.
+lib/core/services/store/subscription_service.dart | Subscription: réponse de vérification illisible - ${error.message}
+lib/core/services/store/subscription_service.dart | Un achat est déjà en cours.
+lib/core/services/store/subscription_service.dart | Votre abonnement n’est pas actif.
+lib/core/services/store/subscription_service.dart | Votre achat n’a pas pu être transmis correctement. Réessayez dans un instant.
+lib/core/services/store/subscription_service.dart | mazl+ (actif)
+lib/core/services/subscription_format.dart | $months mois
 lib/core/services/subscription_format.dart | août
 lib/core/services/subscription_format.dart | décembre
 lib/core/services/subscription_format.dart | février
@@ -508,18 +519,16 @@ lib/presentation/features/premium/screens/plus_welcome_screen.dart | Tout est d�
 lib/presentation/features/premium/screens/plus_welcome_screen.dart | Voir qui vous a aimé
 lib/presentation/features/premium/screens/premium_screen.dart | ${saving == null ? 
 lib/presentation/features/premium/screens/premium_screen.dart | 1 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 1 mois
+lib/presentation/features/premium/screens/premium_screen.dart | 11,67 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | 12 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 12 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 14,99 € par mois
-lib/presentation/features/premium/screens/premium_screen.dart | 2 mois
+lib/presentation/features/premium/screens/premium_screen.dart | 15,00 € par mois
+lib/presentation/features/premium/screens/premium_screen.dart | 19,99 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | 3 mois
 lib/presentation/features/premium/screens/premium_screen.dart | 5 Super Likes par jour
 lib/presentation/features/premium/screens/premium_screen.dart | 6 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 6 mois
-lib/presentation/features/premium/screens/premium_screen.dart | 7,49 € par mois
-lib/presentation/features/premium/screens/premium_screen.dart | 9,99 € par mois
+lib/presentation/features/premium/screens/premium_screen.dart | 8,33 € par mois
 lib/presentation/features/premium/screens/premium_screen.dart | Abonnement restauré
+lib/presentation/features/premium/screens/premium_screen.dart | Achat en attente d’approbation. Votre abonnement s’activera dès qu’il sera validé.
 lib/presentation/features/premium/screens/premium_screen.dart | Au lieu d’un seul.
 lib/presentation/features/premium/screens/premium_screen.dart | Aucun abonnement trouvé
 lib/presentation/features/premium/screens/premium_screen.dart | Avant même de les croiser.
@@ -527,8 +536,6 @@ lib/presentation/features/premium/screens/premium_screen.dart | Conditions
 lib/presentation/features/premium/screens/premium_screen.dart | Confidentialité
 lib/presentation/features/premium/screens/premium_screen.dart | Continuer · ${plans[selected].price}
 lib/presentation/features/premium/screens/premium_screen.dart | En tête de pile pendant 30 minutes.
-lib/presentation/features/premium/screens/premium_screen.dart | Erreur: $e
-lib/presentation/features/premium/screens/premium_screen.dart | Erreur: $e
 lib/presentation/features/premium/screens/premium_screen.dart | Fermer
 lib/presentation/features/premium/screens/premium_screen.dart | Filtres avancés
 lib/presentation/features/premium/screens/premium_screen.dart | Fini les 10 par jour.
@@ -555,7 +562,6 @@ lib/presentation/features/premium/screens/subscription_screen.dart | Aujourd\'hu
 lib/presentation/features/premium/screens/subscription_screen.dart | Boost
 lib/presentation/features/premium/screens/subscription_screen.dart | Disponible
 lib/presentation/features/premium/screens/subscription_screen.dart | Découvrir 
-lib/presentation/features/premium/screens/subscription_screen.dart | Erreur: $e
 lib/presentation/features/premium/screens/subscription_screen.dart | Expiration
 lib/presentation/features/premium/screens/subscription_screen.dart | Formule
 lib/presentation/features/premium/screens/subscription_screen.dart | Gérer dans Google Play
@@ -607,7 +613,6 @@ lib/presentation/features/settings/screens/settings_screen.dart | Activer Couple
 lib/presentation/features/settings/screens/settings_screen.dart | Couple ID: ${activeCouple[
 lib/presentation/features/settings/screens/settings_screen.dart | Debug (Dev Only)
 lib/presentation/features/settings/screens/settings_screen.dart | Désactiver Couple
-lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Erreur: $e
 lib/presentation/features/settings/screens/settings_screen.dart | Fermer

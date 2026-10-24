@@ -3610,6 +3610,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settingsRestoreNothing => 'Aucun abonnement trouvé.';
+
+  @override
   String get verificationProfileEyebrow => 'Votre profil';
 
   @override

@@ -4690,6 +4690,10 @@
       }
     }
   },
+  "settingsRestoreNothing": "Aucun abonnement trouvé.",
+  "@settingsRestoreNothing": {
+    "description": "Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte."
+  },
   "verificationProfileEyebrow": "Votre profil",
   "@verificationProfileEyebrow": {
     "description": "Page Vérification : petite étiquette au-dessus du grand titre."

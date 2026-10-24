@@ -6234,6 +6234,12 @@ abstract class AppLocalizations {
   /// **'Bloqué le {date}'**
   String settingsBlockedOn(DateTime date);
 
+  /// Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement trouvé.'**
+  String get settingsRestoreNothing;
+
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
   /// In fr, this message translates to:

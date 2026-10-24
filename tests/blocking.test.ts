@@ -1,4 +1,5 @@
 import { test, expect, describe, beforeAll } from "bun:test";
+import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 // Integration test for user blocking + report.
 // Requires a running server (TEST_API_URL, default http://localhost:3000) with a
@@ -15,7 +16,7 @@ async function makeUser(label: string): Promise<TestUser> {
   const res = await fetch(`${BASE_URL}/api/dev/test-user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: "test123", name: `Block ${label}` }),
+    body: JSON.stringify({ email, password: THROWAWAY_CREDENTIAL, name: `Block ${label}` }),
   });
   const data = (await res.json()) as {
     success: boolean;

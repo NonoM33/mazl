@@ -103,5 +103,6 @@
   "settingsBlockedUnblockError": "Couldn't unblock this user",
   "settingsBlockedEmptyTitle": "No blocked users",
   "settingsBlockedEmptyHint": "People you block\nwill appear here",
-  "settingsBlockedOn": "Blocked on {date}"
+  "settingsBlockedOn": "Blocked on {date}",
+  "settingsRestoreNothing": "No subscription found."
 }

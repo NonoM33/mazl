@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/revenuecat_service.dart';
+import '../../../../core/services/store/subscription_service.dart';
 import '../../../common/widgets/mazl_components.dart';
 
 /// Écran affiché juste après un achat réussi : trois façons de commencer.
@@ -64,7 +64,7 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final plan = widget.planLabel ?? RevenueCatService().activePlanLabel;
+    final plan = widget.planLabel ?? SubscriptionService().activePlanLabel;
     final eyebrow = plan == null
         ? 'Abonnement actif'
         : 'Abonnement actif · $plan';
