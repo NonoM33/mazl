@@ -11,9 +11,13 @@ export interface WebAppOptions {
   readonly webOrigin: string | null;
   // Origin of the signed media URLs (PUBLIC_BASE_URL), when it is not the web host.
   readonly mediaBaseUrl?: string | null;
+  // Built showcase (landing/dist), served at "/" and under /l/ on the web host.
+  // Absent or not built: "/" redirects to the client as before.
+  readonly landingDistDir?: string | null;
 }
 
 const PREFIX = "/app";
+const LANDING_PREFIX = "/l/";
 // Paths the web host also serves: the API, its socket and signed media, and
 // the legal pages (static, without any script) with their stylesheet and icon,
 // so WEB_ORIGIN may be https://mazl.app itself.
@@ -36,6 +40,17 @@ const HASHED = /-[a-z0-9]{8}\.(?:js|css|svg|png|woff2?)$/;
 function fileUnder(distDir: string, path: string): string | null {
   const relative = normalize(path.slice(PREFIX.length)).replace(/^\/+/, "");
   if (relative.length === 0 || relative.startsWith("..")) return null;
+  return join(distDir, relative);
+}
+
+function landingFileUnder(distDir: string, path: string): string | null {
+  let relative: string;
+  try {
+    relative = normalize(decodeURIComponent(path.slice(LANDING_PREFIX.length))).replace(/^\/+/, "");
+  } catch {
+    return null;
+  }
+  if (relative.length === 0 || relative.startsWith("..") || relative.includes("\0")) return null;
   return join(distDir, relative);
 }
 
@@ -89,11 +104,37 @@ export function createWebApp(options: WebAppOptions) {
     return serveIndex();
   }
 
+  async function serveLanding(): Promise<Response | null> {
+    if (!options.landingDistDir) return null;
+    const index = Bun.file(join(options.landingDistDir, "index.html"));
+    if (!(await index.exists())) return null;
+    return new Response(index, { headers: { ...headers(), "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_STORE } });
+  }
+
+  // Files of the showcase under /l/: a missing one is a 404, never the page.
+  async function serveLandingFile(path: string, acceptEncoding: string | null): Promise<Response> {
+    const notFound = () => new Response("Not found", { status: 404, headers: { "Cache-Control": NO_STORE } });
+    if (!options.landingDistDir) return notFound();
+    const file = landingFileUnder(options.landingDistDir, path);
+    if (file === null || file.endsWith(".gz")) return notFound();
+    const gz = await compressed(file, acceptEncoding);
+    if (gz) return gz;
+    const asset = Bun.file(file);
+    if (!(await asset.exists())) return notFound();
+    return new Response(asset, { headers: { ...headers(), "Cache-Control": cacheFor(file.slice(options.landingDistDir.length + 1)) } });
+  }
+
   // The response for a web client request, or null to let the API handle it.
   async function handle(req: Request): Promise<Response | null> {
     if (req.method !== "GET" && req.method !== "HEAD") return null;
     const url = new URL(req.url);
     const onWebHost = origin !== null && req.headers.get("host") === origin.host;
+    if (origin !== null && req.headers.get("host") === `www.${origin.host}`) return Response.redirect(`${origin.origin}${url.pathname}${url.search}`, 301);
+    if (onWebHost && url.pathname.startsWith(LANDING_PREFIX)) return serveLandingFile(url.pathname, req.headers.get("accept-encoding"));
+    if (onWebHost && url.pathname === "/") {
+      const landing = await serveLanding();
+      if (landing) return landing;
+    }
     const underApp = url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`);
     if (origin !== null && underApp && !onWebHost) return Response.redirect(`${origin.origin}${url.pathname}${url.search}`, 301);
     if (underApp) return serveClient(url.pathname, req.headers.get("accept-encoding"));
