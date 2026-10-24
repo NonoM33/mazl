@@ -83,8 +83,8 @@ void main() {
       });
     });
 
-    group('formattedPrice', () {
-      test('returns Gratuit for null price', () {
+    group('priceEuros', () {
+      test('is null for a null price', () {
         final activity = CoupleActivity(
           id: 1,
           title: 'Free Activity',
@@ -92,10 +92,10 @@ void main() {
           category: 'culture',
         );
 
-        expect(activity.formattedPrice, equals('Gratuit'));
+        expect(activity.priceEuros, isNull);
       });
 
-      test('returns Gratuit for zero price', () {
+      test('is null for a zero price', () {
         final activity = CoupleActivity(
           id: 1,
           title: 'Free Activity',
@@ -104,10 +104,10 @@ void main() {
           priceCents: 0,
         );
 
-        expect(activity.formattedPrice, equals('Gratuit'));
+        expect(activity.priceEuros, isNull);
       });
 
-      test('formats price in euros correctly', () {
+      test('drops the cents', () {
         final activity = CoupleActivity(
           id: 1,
           title: 'Paid Activity',
@@ -116,56 +116,7 @@ void main() {
           priceCents: 12500,
         );
 
-        expect(activity.formattedPrice, equals('125€'));
-      });
-    });
-
-    group('formattedDuration', () {
-      test('returns empty string for null duration', () {
-        final activity = CoupleActivity(
-          id: 1,
-          title: 'Activity',
-          description: '',
-          category: 'culture',
-        );
-
-        expect(activity.formattedDuration, isEmpty);
-      });
-
-      test('formats minutes only correctly', () {
-        final activity = CoupleActivity(
-          id: 1,
-          title: 'Activity',
-          description: '',
-          category: 'culture',
-          durationMinutes: 45,
-        );
-
-        expect(activity.formattedDuration, equals('45min'));
-      });
-
-      test('formats hours only correctly', () {
-        final activity = CoupleActivity(
-          id: 1,
-          title: 'Activity',
-          description: '',
-          category: 'culture',
-          durationMinutes: 120,
-        );
-
-        expect(activity.formattedDuration, equals('2h'));
-      });
-
-      test('formats hours and minutes correctly', () {
-        final activity = CoupleActivity(
-          id: 1,
-          title: 'Activity',
-          description: '',
-          category: 'culture',
-          durationMinutes: 150,
-        );
-
-        expect(activity.formattedDuration, equals('2h30min'));
+        expect(activity.priceEuros, equals(125));
       });
     });
 
@@ -205,25 +156,6 @@ void main() {
       });
     });
 
-    group('categoryLabel', () {
-      test('returns correct French label for each category', () {
-        expect(
-          CoupleActivity(id: 1, title: '', description: '', category: 'wellness')
-              .categoryLabel,
-          equals('Bien-être'),
-        );
-        expect(
-          CoupleActivity(id: 1, title: '', description: '', category: 'gastronomy')
-              .categoryLabel,
-          equals('Gastronomie'),
-        );
-        expect(
-          CoupleActivity(id: 1, title: '', description: '', category: 'spiritual')
-              .categoryLabel,
-          equals('Spirituel'),
-        );
-      });
-    });
   });
 
   group('CoupleEvent', () {
@@ -283,8 +215,8 @@ void main() {
       });
     });
 
-    group('formattedPrice', () {
-      test('returns Gratuit for null price', () {
+    group('priceEuros', () {
+      test('is null for a null price', () {
         final event = CoupleEvent(
           id: 1,
           title: 'Free Event',
@@ -292,10 +224,10 @@ void main() {
           eventDate: DateTime.now(),
         );
 
-        expect(event.formattedPrice, equals('Gratuit'));
+        expect(event.priceEuros, isNull);
       });
 
-      test('formats price with /couple suffix', () {
+      test('drops the cents', () {
         final event = CoupleEvent(
           id: 1,
           title: 'Paid Event',
@@ -304,7 +236,7 @@ void main() {
           priceCents: 7500,
         );
 
-        expect(event.formattedPrice, equals('75€/couple'));
+        expect(event.priceEuros, equals(75));
       });
     });
 
@@ -374,22 +306,8 @@ void main() {
       });
     });
 
-    group('formattedDate', () {
-      test('formats date in French', () {
-        final event = CoupleEvent(
-          id: 1,
-          title: 'Event',
-          description: '',
-          eventDate: DateTime(2024, 6, 15), // Saturday June 15
-        );
-
-        expect(event.formattedDate, contains('15'));
-        expect(event.formattedDate, contains('Juin'));
-      });
-    });
-
-    group('formattedTime', () {
-      test('returns empty string for null time', () {
+    group('startTime', () {
+      test('is null for a null time', () {
         final event = CoupleEvent(
           id: 1,
           title: 'Event',
@@ -397,10 +315,10 @@ void main() {
           eventDate: DateTime.now(),
         );
 
-        expect(event.formattedTime, isEmpty);
+        expect(event.startTime, isNull);
       });
 
-      test('formats time correctly', () {
+      test('reads hour and minute, seconds or not', () {
         final event = CoupleEvent(
           id: 1,
           title: 'Event',
@@ -408,8 +326,28 @@ void main() {
           eventDate: DateTime.now(),
           eventTime: '19:30',
         );
+        final withSeconds = CoupleEvent(
+          id: 1,
+          title: 'Event',
+          description: '',
+          eventDate: DateTime.now(),
+          eventTime: '19:30:00',
+        );
 
-        expect(event.formattedTime, equals('19h30'));
+        expect(event.startTime, equals((hour: 19, minute: 30)));
+        expect(withSeconds.startTime, equals((hour: 19, minute: 30)));
+      });
+
+      test('is null for a time the server wrote in another shape', () {
+        final event = CoupleEvent(
+          id: 1,
+          title: 'Event',
+          description: '',
+          eventDate: DateTime.now(),
+          eventTime: '7pm',
+        );
+
+        expect(event.startTime, isNull);
       });
     });
 

@@ -34,17 +34,6 @@ class SuccessStory {
     this.isApproved = false,
   });
 
-  String get statusLabel {
-    switch (status) {
-      case 'engaged':
-        return 'Fiancés';
-      case 'married':
-        return 'Mariés';
-      default:
-        return 'En couple';
-    }
-  }
-
   String get statusEmoji {
     switch (status) {
       case 'engaged':

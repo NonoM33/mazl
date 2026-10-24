@@ -108,27 +108,6 @@ class CoupleEvent {
     return (hour: hour, minute: minute);
   }
 
-  String get formattedPrice {
-    if (priceCents == null || priceCents == 0) return 'Gratuit';
-    final euros = priceCents! ~/ 100;
-    return '$euros€/couple';
-  }
-
-  String get formattedDate {
-    final months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    final days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    return '${days[eventDate.weekday - 1]} ${eventDate.day} ${months[eventDate.month - 1]}';
-  }
-
-  String get formattedTime {
-    if (eventTime == null) return '';
-    final parts = eventTime!.split(':');
-    if (parts.length >= 2) {
-      return '${parts[0]}h${parts[1]}';
-    }
-    return eventTime!;
-  }
-
   int get spotsLeft {
     if (maxCouples == null) return -1; // Unlimited
     return maxCouples! - currentCouples;

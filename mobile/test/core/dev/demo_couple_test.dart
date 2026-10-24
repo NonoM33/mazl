@@ -323,7 +323,7 @@ void main() {
         expect(feed, hasLength(6));
         expect(feed.every((a) => a.title.isNotEmpty), isTrue);
         expect(feed.every((a) => a.imageUrl == null), isTrue);
-        expect(feed.first.formattedPrice, isNotEmpty);
+        expect(feed.first.priceEuros, isNotNull);
         expect(_okValue(await content.getActivities(category: 'gastronomy')), hasLength(1));
         expect(_okValue(await content.getActivities(limit: 2, offset: 4)), hasLength(2));
 

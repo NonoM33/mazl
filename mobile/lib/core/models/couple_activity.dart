@@ -122,21 +122,6 @@ class CoupleActivity {
     return cents ~/ 100;
   }
 
-  String get formattedPrice {
-    if (priceCents == null || priceCents == 0) return 'Gratuit';
-    final euros = priceCents! ~/ 100;
-    return '$euros€';
-  }
-
-  String get formattedDuration {
-    if (durationMinutes == null) return '';
-    if (durationMinutes! < 60) return '${durationMinutes}min';
-    final hours = durationMinutes! ~/ 60;
-    final mins = durationMinutes! % 60;
-    if (mins == 0) return '${hours}h';
-    return '${hours}h${mins}min';
-  }
-
   String get categoryEmoji {
     switch (category) {
       case 'wellness':
@@ -157,29 +142,6 @@ class CoupleActivity {
         return '💕';
       default:
         return '✨';
-    }
-  }
-
-  String get categoryLabel {
-    switch (category) {
-      case 'wellness':
-        return 'Bien-être';
-      case 'gastronomy':
-        return 'Gastronomie';
-      case 'culture':
-        return 'Culture';
-      case 'sport':
-        return 'Sport';
-      case 'travel':
-        return 'Voyage';
-      case 'spiritual':
-        return 'Spirituel';
-      case 'diy':
-        return 'DIY';
-      case 'romantic':
-        return 'Romantique';
-      default:
-        return category;
     }
   }
 

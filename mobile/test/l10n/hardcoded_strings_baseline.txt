@@ -64,40 +64,12 @@ lib/core/models/compatibility_score.dart | Âge
 lib/core/models/compatibility_score.dart | Âge
 lib/core/models/compatibility_score.dart | Âge proche
 lib/core/models/compatibility_score.dart | Âge très proche
-lib/core/models/couple_activity.dart | Bien-être
-lib/core/models/couple_activity.dart | Culture
-lib/core/models/couple_activity.dart | Gastronomie
-lib/core/models/couple_activity.dart | Gratuit
-lib/core/models/couple_activity.dart | Romantique
-lib/core/models/couple_activity.dart | Spirituel
-lib/core/models/couple_activity.dart | Sport
-lib/core/models/couple_activity.dart | Voyage
 lib/core/models/couple_anniversary.dart | 1 an
 lib/core/models/couple_anniversary.dart | 1 mois
 lib/core/models/couple_anniversary.dart | 1 semaine
 lib/core/models/couple_anniversary.dart | 2 ans
 lib/core/models/couple_anniversary.dart | 3 mois
 lib/core/models/couple_anniversary.dart | 6 mois
-lib/core/models/couple_event.dart | Août
-lib/core/models/couple_event.dart | Avr
-lib/core/models/couple_event.dart | Dim
-lib/core/models/couple_event.dart | Déc
-lib/core/models/couple_event.dart | Fév
-lib/core/models/couple_event.dart | Gratuit
-lib/core/models/couple_event.dart | Jan
-lib/core/models/couple_event.dart | Jeu
-lib/core/models/couple_event.dart | Juil
-lib/core/models/couple_event.dart | Juin
-lib/core/models/couple_event.dart | Lun
-lib/core/models/couple_event.dart | Mai
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mar
-lib/core/models/couple_event.dart | Mer
-lib/core/models/couple_event.dart | Nov
-lib/core/models/couple_event.dart | Oct
-lib/core/models/couple_event.dart | Sam
-lib/core/models/couple_event.dart | Sep
-lib/core/models/couple_event.dart | Ven
 lib/core/models/couple_models.dart | Célibataire
 lib/core/models/couple_models.dart | En couple
 lib/core/models/couple_models.dart | En train de dater
@@ -179,9 +151,6 @@ lib/core/models/report_category.dart | Photos inappropriées
 lib/core/models/report_category.dart | Photos volées, identité fausse
 lib/core/models/report_category.dart | Publicité, demande d\'argent, liens suspects
 lib/core/models/report_category.dart | Spam / Arnaque
-lib/core/models/success_story.dart | En couple
-lib/core/models/success_story.dart | Fiancés
-lib/core/models/success_story.dart | Mariés
 lib/core/models/verification.dart | unknown challenge: $value
 lib/core/router/app_router.dart | Page introuvable
 lib/core/router/app_router.dart | Retour à l\'accueil
