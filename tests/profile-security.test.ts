@@ -68,3 +68,140 @@ describe("GET /api/profile/:userId only shows what the viewer may see", () => {
     expect(body.profile.email).toContain("@");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Majority and plausible ranges
+
+function isoDate(yearsAgo: number, dayOffset = 0): string {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getUTCFullYear() - yearsAgo, now.getUTCMonth(), now.getUTCDate() + dayOffset));
+  return d.toISOString().slice(0, 10);
+}
+
+const storedProfile = async (user: TestUser) => {
+  const [row] = await db<{ birthdate: string | null; age_min: number; age_max: number; bio: string | null }[]>`
+    SELECT to_char(birthdate, 'YYYY-MM-DD') AS birthdate, age_min, age_max, bio FROM profiles WHERE user_id = ${user.id}
+  `;
+  if (!row) throw new Error("profile row missing");
+  return row;
+};
+
+describe("PUT /api/profile refuses minors and impossible dates", () => {
+  test("a minor cannot register a birthdate, and nothing is stored", async () => {
+    const user = await makeUser("maj-minor");
+    const res = await putProfile(user, { birthdate: isoDate(15) });
+    expect(res.status).toBe(400);
+    expect((await storedProfile(user)).birthdate).toBeNull();
+  });
+
+  test("the 18th birthday is the limit, to the day", async () => {
+    const user = await makeUser("maj-limit");
+    expect((await putProfile(user, { birthdate: isoDate(18, 1) })).status).toBe(400);
+    expect((await putProfile(user, { birthdate: isoDate(18) })).status).toBe(200);
+    expect((await storedProfile(user)).birthdate).toBe(isoDate(18));
+  });
+
+  test.each([
+    ["not a date", "hier"],
+    ["month 13", "2000-13-01"],
+    ["31 February", "2000-02-31"],
+    ["no zero padding", "2000-1-5"],
+    ["with a time", "2000-01-05T00:00:00Z"],
+    ["in the future", isoDate(-2)],
+    ["older than 120 years", isoDate(121)],
+    ["a number", 19990101],
+  ])("a birthdate that is %s is a 400, never a 500", async (_label, birthdate) => {
+    const user = await makeUser("maj-bad");
+    expect((await putProfile(user, { birthdate })).status).toBe(400);
+  });
+
+  test("a regular adult birthdate is still accepted", async () => {
+    const user = await makeUser("maj-ok");
+    expect((await putProfile(user, { birthdate: "1994-03-12" })).status).toBe(200);
+  });
+});
+
+describe("PUT /api/profile bounds the preferred age range", () => {
+  test.each([
+    ["ageMin under 18", { ageMin: 5 }],
+    ["ageMin negative", { ageMin: -3 }],
+    ["ageMax over 99", { ageMax: 500 }],
+    ["min above max", { ageMin: 40, ageMax: 30 }],
+    ["fractional age", { ageMin: 25.5 }],
+  ])("%s is refused and stored nowhere", async (_label, body) => {
+    const user = await makeUser("age-bad");
+    const before = await storedProfile(user);
+    expect((await putProfile(user, body)).status).toBe(400);
+    const after = await storedProfile(user);
+    expect([after.age_min, after.age_max]).toEqual([before.age_min, before.age_max]);
+  });
+
+  test("a single bound that contradicts the stored one is refused", async () => {
+    const user = await makeUser("age-half");
+    expect((await putProfile(user, { ageMin: 20, ageMax: 30 })).status).toBe(200);
+    expect((await putProfile(user, { ageMin: 45 })).status).toBe(400);
+    expect((await putProfile(user, { ageMax: 19 })).status).toBe(400);
+  });
+
+  test("the ranges the app really sends are accepted", async () => {
+    const user = await makeUser("age-ok");
+    expect((await putProfile(user, { ageMin: 18, ageMax: 99, distanceMax: 100 })).status).toBe(200);
+    expect((await putProfile(user, { ageMin: 22, ageMax: 35 })).status).toBe(200);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Content bounds
+
+const repeat = (n: number): string => "a".repeat(n);
+
+describe("PUT /api/profile bounds free text and closed lists", () => {
+  test("bio, display name and location have a length limit", async () => {
+    const user = await makeUser("len");
+    expect((await putProfile(user, { bio: repeat(1001) })).status).toBe(400);
+    expect((await putProfile(user, { displayName: repeat(51) })).status).toBe(400);
+    expect((await putProfile(user, { location: repeat(101) })).status).toBe(400);
+    expect((await storedProfile(user)).bio).toBeNull();
+    expect((await putProfile(user, { bio: repeat(1000), displayName: repeat(50), location: repeat(100) })).status).toBe(200);
+  });
+
+  test("gender and lookingFor accept only the values the app offers", async () => {
+    const user = await makeUser("enum");
+    expect((await putProfile(user, { gender: "attack helicopter" })).status).toBe(400);
+    expect((await putProfile(user, { lookingFor: "<script>alert(1)</script>" })).status).toBe(400);
+    expect((await putProfile(user, { gender: "male", lookingFor: "female" })).status).toBe(200);
+  });
+
+  test("denomination, kashrut and shabbat are capped at their column width", async () => {
+    const user = await makeUser("cap");
+    for (const field of ["denomination", "kashrutLevel", "shabbatObservance"]) {
+      expect([field, (await putProfile(user, { [field]: repeat(51) })).status]).toEqual([field, 400]);
+    }
+    const sent = { denomination: "Modern Orthodox", kashrutLevel: "A la maison", shabbatObservance: "Tres observant" };
+    expect((await putProfile(user, sent)).status).toBe(200);
+  });
+
+  test("an explicit null (the edit screen sends one for an unset field) leaves the field alone", async () => {
+    const user = await makeUser("null");
+    expect((await putProfile(user, { denomination: "Massorti" })).status).toBe(200);
+    expect((await putProfile(user, { denomination: null, bio: null })).status).toBe(200);
+  });
+});
+
+describe("a profile becomes visible once name, birthdate and gender are known", () => {
+  test("the profile setup of the app makes the member discoverable by others", async () => {
+    const member = await makeUser("done");
+    const viewer = await makeUser("done-viewer");
+    expect((await getProfile(viewer, member.id)).status).toBe(404);
+
+    expect((await putProfile(member, { displayName: "Noa", birthdate: "1994-03-12", gender: "female", lookingFor: "male" })).status).toBe(200);
+    expect((await getProfile(viewer, member.id)).status).toBe(200);
+  });
+
+  test("a half-filled profile stays hidden", async () => {
+    const member = await makeUser("half");
+    const viewer = await makeUser("half-viewer");
+    await putProfile(member, { displayName: "Noa", bio: "Bonjour" });
+    expect((await getProfile(viewer, member.id)).status).toBe(404);
+  });
+});

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { z } from "zod";
 import {
+  getUserProfile,
   upsertProfile,
   getFullProfile,
   isProfileVisibleTo,
@@ -13,7 +13,13 @@ import {
   ProfilePromptLimitError,
 } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { parseBody, parseId } from "../../shared/http/validation";
+import {
+  addPromptBodySchema,
+  parseBody,
+  parseId,
+  updateProfileBodySchema,
+  updatePromptBodySchema,
+} from "../../shared/http/validation";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import { clampDistanceMax } from "../media/domain/geo-fuzz";
 import type { MediaModule } from "../media";
@@ -30,43 +36,6 @@ import { registerPhotoRoutes } from "../media/presentation/photo.routes";
 // :userId (parseInt("prompts") = NaN). They live in this same file so the
 // ordering is guaranteed regardless of where registerProfileRoutes is called.
 
-// PUT /api/profile: guard the numeric field TYPES (ageMin/ageMax/distanceMax,
-// lat/long) and declare the string fields the handler reads so they stay
-// well-typed. Everything is optional and `.passthrough()` keeps any other
-// field the mobile app may send — nothing legitimate is rejected.
-const updateProfileBodySchema = z
-  .object({
-    displayName: z.string().optional(),
-    birthdate: z.string().optional(),
-    gender: z.string().optional(),
-    bio: z.string().optional(),
-    location: z.string().optional(),
-    latitude: z.number().min(-90).max(90).optional(),
-    longitude: z.number().min(-180).max(180).optional(),
-    denomination: z.string().optional(),
-    kashrutLevel: z.string().optional(),
-    shabbatObservance: z.string().optional(),
-    lookingFor: z.string().optional(),
-    ageMin: z.number().optional(),
-    ageMax: z.number().optional(),
-    distanceMax: z.number().optional(),
-  })
-  .passthrough();
-
-const addPromptBodySchema = z
-  .object({
-    prompt_id: z.string(),
-    answer: z.string(),
-    position: z.number().optional(),
-  })
-  .passthrough();
-
-const updatePromptBodySchema = z
-  .object({
-    answer: z.string(),
-  })
-  .passthrough();
-
 export interface ProfileRouteDeps {
   readonly media: MediaModule;
 }
@@ -74,6 +43,22 @@ export interface ProfileRouteDeps {
 // CONTRAT.md §2.3: at most 120 other-member profile views per hour and user.
 const PROFILE_VIEWS_PER_HOUR = 120;
 const HOUR_MS = 60 * 60 * 1000;
+
+// True when only one of the two bounds is sent and it crosses the other one,
+// which is already stored. (When both are sent, the schema compares them.)
+async function contradictsStoredAgeRange(
+  userId: number,
+  ageMin: number | undefined,
+  ageMax: number | undefined,
+): Promise<boolean> {
+  if ((ageMin === undefined) === (ageMax === undefined)) return false;
+  const stored = await getUserProfile(userId);
+  if (!stored) return false;
+  const storedMin = Number(stored.age_min);
+  const storedMax = Number(stored.age_max);
+  if (ageMin !== undefined) return ageMin > storedMax;
+  return ageMax !== undefined && ageMax < storedMin;
+}
 
 export function registerProfileRoutes(
   app: Hono<{ Variables: AppVariables }>,
@@ -90,6 +75,11 @@ export function registerProfileRoutes(
         return c.json({ success: false, error: parsed.error }, 400);
       }
       const body = parsed.data;
+
+      // A single bound must not contradict the one already stored.
+      if (await contradictsStoredAgeRange(userId, body.ageMin, body.ageMax)) {
+        return c.json({ success: false, error: "ageMin: must not exceed ageMax" }, 400);
+      }
 
       // Exact coordinates are never stored (CONTRAT.md §2.2).
       const position = await deps.media.location.resolve(userId, body.latitude, body.longitude);

@@ -1125,7 +1125,18 @@ export async function upsertProfile(userId: number, params: {
       updated_at = NOW()
     RETURNING *
   `;
-  return result[0];
+  // Nothing else ever marks a profile complete: once the member has a name, a
+  // birthdate and a gender, others may see them (discover, profile view).
+  const completed = await sql`
+    UPDATE profiles SET is_complete = true
+    WHERE user_id = ${userId}
+      AND is_complete = false
+      AND COALESCE(display_name, '') <> ''
+      AND birthdate IS NOT NULL
+      AND gender IS NOT NULL
+    RETURNING *
+  `;
+  return completed[0] ?? result[0];
 }
 
 // ============ DISCOVER & SWIPES ============
