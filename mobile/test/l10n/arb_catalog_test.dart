@@ -106,6 +106,22 @@ void main() {
     expect(problems, isEmpty, reason: problems.join('\n'));
   });
 
+  test('en hébreu, « mazl+ » garde son « + » à droite (marque U+200E)', () {
+    // Dans une phrase de droite à gauche, le « + » final est neutre et se
+    // range à gauche du mot : une marque gauche-à-droite le retient.
+    final problems = <String>[];
+    for (final feature in (fragments['he'] ?? {}).entries) {
+      for (final entry in feature.value.entries) {
+        final value = entry.value;
+        if (entry.key.startsWith('@') || value is! String) continue;
+        if (RegExp('mazl\\+(?!\u200e)').hasMatch(value)) {
+          problems.add('${feature.key} : « ${entry.key} »');
+        }
+      }
+    }
+    expect(problems, isEmpty, reason: problems.join('\n'));
+  });
+
   test('aucun compte de démo, adresse ou secret dans les traductions', () {
     final forbidden = <String, RegExp>{
       'adresse e-mail': RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+'),

@@ -3210,7 +3210,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'מחושב לפי אורח החיים, הכוונות והערכים.';
 
   @override
-  String get profileCompatibilityUnlock => 'לפתוח עם mazl+';
+  String get profileCompatibilityUnlock => 'לפתוח עם mazl+‎';
 
   @override
   String get profileFactorIntentions => 'כוונות';
