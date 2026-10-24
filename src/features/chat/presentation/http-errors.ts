@@ -18,6 +18,9 @@ export function respondToFailure(c: Context, error: unknown): Response {
         return c.json({ success: false, error: "File too large", detail: error.detail }, 413);
       case "too_many_pending":
         return c.json({ success: false, error: "too_many_pending" }, 429);
+      case "busy":
+        c.header("Retry-After", "5");
+        return c.json({ success: false, error: "busy" }, 503);
       case "invalid":
         return c.json({ success: false, error: error.detail }, 400);
     }

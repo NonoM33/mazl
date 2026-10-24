@@ -1,6 +1,8 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import { createChatLimits, type ChatLimits } from "./application/chat-limits";
+import { limitImageProcessing } from "./application/limited-images";
+import { createSemaphore } from "./application/semaphore";
 import { createChatMediaService, type ChatMediaService } from "./application/chat-media-service";
 import { createChatService, type ChatService } from "./application/chat-service";
 import { createGuardedFetcher } from "./application/guarded-fetch";
@@ -30,15 +32,21 @@ export interface ChatModule {
   readonly limits: ChatLimits;
 }
 
+// Image decoding for the whole chat (photos and preview images): 3 at a time,
+// 24 waiting, the rest told to retry.
+const IMAGE_CONCURRENCY = 3;
+const IMAGE_QUEUE = 24;
+
 export function createChatModule(options: { uploadsDir: string }): ChatModule {
   const storage = createChatDiskStorage(options.uploadsDir);
   const now = (): Date => new Date();
   const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
   const limits = createChatLimits();
+  const images = limitImageProcessing(sharpChatImages, createSemaphore({ permits: IMAGE_CONCURRENCY, maxQueue: IMAGE_QUEUE }));
 
   const previews = createLinkPreviewService({
     fetcher: createGuardedFetcher({ resolver: systemDnsResolver, transport: createPinnedHttpTransport() }),
-    images: sharpChatImages,
+    images,
     storage,
     cache: postgresPreviewCache,
     repository: postgresMessageRepository,
@@ -54,7 +62,7 @@ export function createChatModule(options: { uploadsDir: string }): ChatModule {
     repository: postgresMessageRepository, presenter, events: websocketEvents, storage, previews, now,
   });
   const media = createChatMediaService({
-    messages: postgresMessageRepository, media: postgresMediaRepository, storage, images: sharpChatImages, now,
+    messages: postgresMessageRepository, media: postgresMediaRepository, storage, images, now,
   });
   return { chat, media, previews, sockets: createChatSocketHandlers(chat, limits), limits };
 }
