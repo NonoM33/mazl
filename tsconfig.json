@@ -25,5 +25,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  // The web client has its own config (DOM, stricter flags): web/tsconfig.json.
+  "exclude": ["node_modules", "web", "mobile"]
 }

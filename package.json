@@ -8,11 +8,17 @@
     "start": "bun src/index.ts",
     "test:unit": "bun test tests/unit",
     "typecheck": "tsc --noEmit",
+    "web:build": "bun web/build.ts",
+    "web:watch": "NODE_ENV=development bun build ./web/index.html --outdir ./web/dist --public-path /app/ --external '/app/fonts/*' --watch",
+    "web:check": "tsc --noEmit -p web/tsconfig.json && eslint --max-warnings 0 web/src",
+    "test:web": "bun test tests/web-client",
+    "test:e2e": "bun tests/e2e/run.ts",
     "models:fetch": "bun scripts/fetch-face-models.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
+    "@types/luxon": "1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^10.13.0",

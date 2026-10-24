@@ -91,6 +91,7 @@ import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
+import { createWebApp } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
@@ -310,6 +311,8 @@ registerAuthRoutes(app);
 // Web sign-in (QR, Google, Apple), revocable web sessions and the cookie bridge.
 const webSession = createWebSessionModule({ sql });
 registerWebSession(app, webSession);
+// The built web client under /app, with its own headers (docs/web/adr/W01).
+const webApp = createWebApp({ distDir: process.env.WEB_DIST_DIR || "web/dist", webOrigin: process.env.WEB_ORIGIN || null });
 
 // ============ PROFILE, PHOTOS & PROMPTS ============
 // Profile feature routes (PUT /api/profile, photos upload/delete/reorder/
@@ -755,6 +758,8 @@ const server = Bun.serve<WebSocketData>({
   port,
   async fetch(req, server) {
     await webSession.bridge(req);
+    const page = await webApp.handle(req);
+    if (page) return page;
     const url = new URL(req.url);
     if (url.pathname === "/ws") return upgradeToSocket(req, url, server);
 
