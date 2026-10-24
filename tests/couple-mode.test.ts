@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { db } from "./media-helpers";
 import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 
 const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
@@ -273,19 +274,19 @@ describe("Couple Mode API Tests", () => {
     });
 
     test("POST /api/couple/events/:id/register - should register for event", async () => {
-      const listRes = await authFetch("/api/couple/events");
-      const listData = (await listRes.json()) as EventsResponse;
+      // Paid, past or full events are refused by design: register for an event
+      // this test owns, free and with room, instead of whichever is listed first.
+      const [event] = await db<{ id: number }[]>`
+        INSERT INTO couple_events (title, event_date, max_couples, current_couples)
+        VALUES ('Soirée inscription', CURRENT_DATE + 30, 20, 0) RETURNING id
+      `;
+      const res = await authFetch(`/api/couple/events/${event!.id}/register`, {
+        method: "POST",
+      });
+      const data = (await res.json()) as EventsResponse;
 
-      if ((listData.events?.length ?? 0) > 0) {
-        const eventId = listData.events![0]!.id;
-        const res = await authFetch(`/api/couple/events/${eventId}/register`, {
-          method: "POST",
-        });
-        const data = (await res.json()) as EventsResponse;
-
-        expect(res.status).toBe(200);
-        expect(data.success).toBe(true);
-      }
+      expect(res.status).toBe(200);
+      expect(data.success).toBe(true);
     });
 
     test("GET /api/couple/events/registered - should return registered events", async () => {
