@@ -2835,90 +2835,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get matchingFiltersDenomination => 'Courant religieux';
 
   @override
-  String get matchingFiltersDenominationAll => 'Toutes';
+  String get matchingFiltersKashrut => 'Kashrout';
 
   @override
-  String get matchingFiltersDenominationOrthodox => 'Orthodoxe';
+  String get matchingFiltersShabbatSection => 'Shabbat';
 
   @override
-  String get matchingFiltersDenominationMasorti => 'Massorti';
-
-  @override
-  String get matchingFiltersDenominationLiberal => 'Libéral';
-
-  @override
-  String get matchingFiltersDenominationTraditional => 'Traditionaliste';
-
-  @override
-  String get matchingFiltersDenominationChabad => 'Loubavitch';
-
-  @override
-  String get matchingFiltersDenominationSephardi => 'Séfarade';
-
-  @override
-  String get matchingFiltersDenominationAshkenazi => 'Ashkénaze';
-
-  @override
-  String get matchingFiltersObservances => 'Pratiques religieuses';
-
-  @override
-  String get matchingFiltersShabbat => 'Shomer Shabbat';
-
-  @override
-  String get matchingFiltersKosher => 'Casher';
-
-  @override
-  String get matchingFiltersKosherStrict => 'Casher strict';
-
-  @override
-  String get matchingFiltersDailyPrayer => 'Prière quotidienne';
-
-  @override
-  String get matchingFiltersMikveh => 'Mikvé';
-
-  @override
-  String get matchingFiltersTzniut => 'Tsniout';
-
-  @override
-  String get matchingFiltersEducation => 'Niveau d\'études';
-
-  @override
-  String get matchingFiltersEducationAll => 'Tous';
-
-  @override
-  String get matchingFiltersEducationHighSchool => 'Lycée';
-
-  @override
-  String get matchingFiltersEducationBaccalaureate => 'Bac';
-
-  @override
-  String get matchingFiltersEducationBachelor => 'Licence';
-
-  @override
-  String get matchingFiltersEducationMaster => 'Master';
-
-  @override
-  String get matchingFiltersEducationDoctorate => 'Doctorat';
-
-  @override
-  String get matchingFiltersEducationYeshiva => 'Yeshiva/Sem';
-
-  @override
-  String get matchingFiltersHeight => 'Taille';
-
-  @override
-  String get matchingFiltersHeightMin => 'Min';
-
-  @override
-  String get matchingFiltersHeightMax => 'Max';
-
-  @override
-  String matchingFiltersCm(int count) {
-    return '$count cm';
-  }
-
-  @override
-  String get matchingFiltersHeightClear => 'Effacer le filtre taille';
+  String get matchingFiltersChoiceHint =>
+      'Plusieurs choix possibles. Les profils qui n\'ont pas répondu ne sont pas proposés.';
 
   @override
   String get matchingFiltersOptions => 'Options';
@@ -2937,12 +2861,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get matchingFiltersPhotoHint => 'Exclure les profils sans photo';
 
   @override
-  String get matchingFiltersOnlineTitle => 'En ligne maintenant';
-
-  @override
-  String get matchingFiltersOnlineHint => 'Voir les utilisateurs actifs';
-
-  @override
   String get matchingFiltersUpsellTitle => 'Débloquer tous les filtres';
 
   @override
@@ -2957,6 +2875,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get matchingFiltersSaveFailed => 'Erreur lors de la sauvegarde';
+
+  @override
+  String get matchingFiltersAdvanced => 'Filtres avancés';
+
+  @override
+  String get matchingFiltersLoadFailed =>
+      'Vos filtres avancés n\'ont pas pu être chargés.';
+
+  @override
+  String get matchingFiltersConsentNeeded =>
+      'Ces critères demandent votre accord pour traiter votre pratique religieuse. Ils n\'ont pas été enregistrés.';
 
   @override
   String get navigationDiscover => 'Découvrir';

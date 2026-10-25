@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/di/providers/privacy_providers.dart';
+import '../../../../core/matching/discover_filters.dart';
+import '../../../../core/matching/discover_filters_api.dart';
+import '../../../../core/matching/discover_filters_providers.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
-import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
+import '../../privacy/widgets/religious_consent_sheet.dart';
 import '../l10n/filter_options.dart';
 
-/// Advanced filters for discovery (Premium feature)
+/// Discovery filters. Age and distance describe the search and stay in the
+/// profile (free); the advanced filters (religious practice, verified, photo)
+/// are mazl+ and live on the server apart from the profile
+/// (`GET/PUT /api/discover/filters`).
 class FiltersScreen extends ConsumerStatefulWidget {
   const FiltersScreen({super.key, this.apiService});
 
@@ -19,109 +28,253 @@ class FiltersScreen extends ConsumerStatefulWidget {
   ConsumerState<FiltersScreen> createState() => _FiltersScreenState();
 }
 
-class _FiltersScreenState extends ConsumerState<FiltersScreen> {
-  late final ApiService _apiService = widget.apiService ?? ApiService();
-  bool _isLoading = false;
-  bool _hasChanges = false;
+enum _AdvancedState { loading, ready, failed }
 
-  // Filter values
-  RangeValues _ageRange = const RangeValues(18, 45);
-  double _distanceMax = 50;
-  FilterDenomination? _selectedDenomination;
-  Set<FilterObservance> _selectedObservances = {};
-  FilterEducation? _selectedEducation;
-  RangeValues? _heightRange;
-  bool _onlyVerified = false;
-  bool _onlyWithPhoto = true;
-  bool _onlyOnline = false;
+/// What the member ticked: choices, not spellings. A choice stands for every
+/// spelling the profiles hold ([FilterChoice.storedValues]), so comparing the
+/// choices tells whether the member changed anything, whereas comparing the
+/// answers sent would not (the server keeps only the spellings that were sent).
+class _Selection {
+  _Selection({
+    required this.denominations,
+    required this.kashrut,
+    required this.shabbat,
+    required this.onlyVerified,
+    required this.onlyWithPhoto,
+  });
+
+  factory _Selection.empty() => _Selection(
+    denominations: {},
+    kashrut: {},
+    shabbat: {},
+    onlyVerified: false,
+    onlyWithPhoto: false,
+  );
+
+  factory _Selection.of(DiscoverFilters filters) {
+    Set<FilterChoice> chosen(List<FilterChoice> all, List<String>? saved) =>
+        saved == null ? {} : {...all.where((c) => c.isIn(saved))};
+    return _Selection(
+      denominations: chosen(denominationChoices, filters.denominations),
+      kashrut: chosen(kashrutChoices, filters.kashrutLevels),
+      shabbat: chosen(shabbatChoices, filters.shabbatObservances),
+      onlyVerified: filters.onlyVerified,
+      onlyWithPhoto: filters.onlyWithPhoto,
+    );
+  }
+
+  final Set<FilterChoice> denominations;
+  final Set<FilterChoice> kashrut;
+  final Set<FilterChoice> shabbat;
+  bool onlyVerified;
+  bool onlyWithPhoto;
+
+  _Selection copy() => _Selection(
+    denominations: {...denominations},
+    kashrut: {...kashrut},
+    shabbat: {...shabbat},
+    onlyVerified: onlyVerified,
+    onlyWithPhoto: onlyWithPhoto,
+  );
+
+  /// The body of the save: every criterion, `null` for none.
+  DiscoverFilters toFilters() {
+    List<String>? answers(Set<FilterChoice> selected) =>
+        selected.isEmpty ? null : answersOf(selected);
+    return DiscoverFilters(
+      denominations: answers(denominations),
+      kashrutLevels: answers(kashrut),
+      shabbatObservances: answers(shabbat),
+      onlyVerified: onlyVerified,
+      onlyWithPhoto: onlyWithPhoto,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is _Selection &&
+      _sameSet(denominations, other.denominations) &&
+      _sameSet(kashrut, other.kashrut) &&
+      _sameSet(shabbat, other.shabbat) &&
+      onlyVerified == other.onlyVerified &&
+      onlyWithPhoto == other.onlyWithPhoto;
+
+  @override
+  int get hashCode => Object.hash(
+    denominations.length,
+    kashrut.length,
+    shabbat.length,
+    onlyVerified,
+    onlyWithPhoto,
+  );
+
+  static bool _sameSet(Set<FilterChoice> a, Set<FilterChoice> b) =>
+      a.length == b.length && a.containsAll(b);
+}
+
+class _FiltersScreenState extends ConsumerState<FiltersScreen> {
+  static const _defaultAges = RangeValues(18, 45);
+  static const _defaultDistance = 50.0;
+
+  late final ApiService _apiService = widget.apiService ?? ApiService();
+  late final DiscoverFiltersApi _filtersApi = ref.read(
+    discoverFiltersApiProvider,
+  );
+
+  bool _isSaving = false;
+
+  // Age and distance, and what the profile holds.
+  RangeValues _ageRange = _defaultAges;
+  double _distanceMax = _defaultDistance;
+  RangeValues _savedAgeRange = _defaultAges;
+  double _savedDistanceMax = _defaultDistance;
+
+  // The advanced filters, and what the server holds.
+  _AdvancedState _advanced = _AdvancedState.loading;
+  bool _plus = false;
+  _Selection _savedSelection = _Selection.empty();
+  _Selection _selection = _Selection.empty();
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentFilters();
+    _loadProfile();
+    _loadFilters();
   }
 
-  Future<void> _loadCurrentFilters() async {
-    // Load saved filters from API or local storage
+  Future<void> _loadProfile() async {
     final response = await _apiService.getCurrentUser();
-    if (response.success && response.data?.profile != null) {
-      final profile = response.data!.profile!;
-      setState(() {
-        _ageRange = RangeValues(
-          (profile.ageMin ?? 18).toDouble(),
-          (profile.ageMax ?? 45).toDouble(),
-        );
-        _distanceMax = (profile.distanceMax ?? 50).toDouble();
-      });
+    if (!mounted || !response.success || response.data?.profile == null) {
+      return;
+    }
+    final profile = response.data!.profile!;
+    setState(() {
+      _savedAgeRange = RangeValues(
+        (profile.ageMin ?? 18).toDouble(),
+        (profile.ageMax ?? 45).toDouble(),
+      );
+      _savedDistanceMax = (profile.distanceMax ?? 50).toDouble();
+      _ageRange = _savedAgeRange;
+      _distanceMax = _savedDistanceMax;
+    });
+  }
+
+  Future<void> _loadFilters() async {
+    setState(() => _advanced = _AdvancedState.loading);
+    final response = await _filtersApi.load();
+    if (!mounted) return;
+    final state = response.data;
+    if (!response.success || state == null) {
+      setState(() => _advanced = _AdvancedState.failed);
+      return;
+    }
+    setState(() {
+      _plus = state.plus;
+      _savedSelection = _Selection.of(state.filters);
+      _selection = _savedSelection.copy();
+      _advanced = _AdvancedState.ready;
+    });
+  }
+
+  bool get _profileChanged =>
+      _ageRange != _savedAgeRange || _distanceMax != _savedDistanceMax;
+
+  // Only once the server's filters are known: before that nothing is changed.
+  bool get _filtersChanged =>
+      _advanced == _AdvancedState.ready && _selection != _savedSelection;
+
+  bool get _hasChanges => _profileChanged || _filtersChanged;
+
+  void _snack(String message, Color color) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  }
+
+  Future<void> _save() async {
+    setState(() => _isSaving = true);
+    var saved = true;
+    if (_profileChanged) saved = await _saveProfile();
+    if (saved && _filtersChanged) saved = await _saveFilters();
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+    if (saved) {
+      _snack(context.l10n.matchingFiltersSaved, AppColors.success);
+      Navigator.pop(context, true);
     }
   }
 
-  Future<void> _saveFilters() async {
-    setState(() => _isLoading = true);
-
-    final data = {
+  Future<bool> _saveProfile() async {
+    final response = await _apiService.updateProfile({
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _distanceMax.round(),
-      if (_selectedDenomination != null &&
-          _selectedDenomination != FilterDenomination.all)
-        'denomination': _selectedDenomination!.apiValue,
-      if (_selectedObservances.isNotEmpty)
-        'observances': _selectedObservances.map((o) => o.apiValue).toList(),
-      if (_selectedEducation != null &&
-          _selectedEducation != FilterEducation.all)
-        'education': _selectedEducation!.apiValue,
-      if (_heightRange != null)
-        'heightMin': _heightRange!.start.round(),
-      if (_heightRange != null)
-        'heightMax': _heightRange!.end.round(),
-      'onlyVerified': _onlyVerified,
-      'onlyWithPhoto': _onlyWithPhoto,
-      'onlyOnline': _onlyOnline,
-    };
-
-    final response = await _apiService.updateProfile(data);
-
-    setState(() => _isLoading = false);
-
-    if (response.success && mounted) {
-      _hasChanges = false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.matchingFiltersSaved),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context, true);
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.matchingFiltersSaveFailed),
-          backgroundColor: AppColors.error,
-        ),
-      );
+    });
+    if (!mounted) return false;
+    if (!response.success) {
+      _snack(context.l10n.matchingFiltersSaveFailed, AppColors.error);
+      return false;
     }
+    _savedAgeRange = _ageRange;
+    _savedDistanceMax = _distanceMax;
+    return true;
+  }
+
+  Future<bool> _saveFilters({bool afterConsent = false}) async {
+    final response = await _filtersApi.save(_selection.toFilters());
+    if (!mounted) return false;
+    if (response.success) {
+      _savedSelection = _selection.copy();
+      return true;
+    }
+    switch (response.errorCode) {
+      case DiscoverFiltersError.plusRequired:
+        await _openPremium();
+      case DiscoverFiltersError.religiousConsentRequired:
+        if (!afterConsent && await _askReligiousConsent()) {
+          return _saveFilters(afterConsent: true);
+        }
+        if (mounted) {
+          _snack(context.l10n.matchingFiltersConsentNeeded, AppColors.error);
+        }
+      default:
+        _snack(context.l10n.matchingFiltersSaveFailed, AppColors.error);
+    }
+    return false;
+  }
+
+  /// The religious criteria need the article 9 consent: the member is asked in
+  /// the usual sheet. True when it was given.
+  Future<bool> _askReligiousConsent() async {
+    final consent =
+        (await ref.read(privacyConsentApiProvider).religiousData()).data;
+    if (!mounted || consent == null) return false;
+    final granted = await showReligiousConsentSheet(context, consent);
+    ref.invalidate(religiousDataConsentProvider);
+    return granted == true;
+  }
+
+  /// The subscription screen, then the server is asked again who is mazl+.
+  Future<void> _openPremium() async {
+    await context.push<bool>(RoutePaths.premium);
+    if (mounted) await _loadFilters();
   }
 
   void _resetFilters() {
     setState(() {
-      _ageRange = const RangeValues(18, 45);
-      _distanceMax = 50;
-      _selectedDenomination = null;
-      _selectedObservances = {};
-      _selectedEducation = null;
-      _heightRange = null;
-      _onlyVerified = false;
-      _onlyWithPhoto = true;
-      _onlyOnline = false;
-      _hasChanges = true;
+      _ageRange = _defaultAges;
+      _distanceMax = _defaultDistance;
+      _selection = _Selection.empty();
     });
+  }
+
+  void _toggle(Set<FilterChoice> into, FilterChoice choice, bool selected) {
+    setState(() => selected ? into.add(choice) : into.remove(choice));
   }
 
   @override
   Widget build(BuildContext context) {
-    final isPremium = PremiumGate.isPremium;
-
+    final locked = !_plus;
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.matchingFilters),
@@ -137,7 +290,6 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
           ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // Age range
               _FilterSection(
                 title: context.l10n.matchingFiltersAge,
                 icon: LucideIcons.users,
@@ -166,18 +318,11 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       max: 70,
                       divisions: 52,
                       activeColor: AppColors.primary,
-                      onChanged: (values) {
-                        setState(() {
-                          _ageRange = values;
-                          _hasChanges = true;
-                        });
-                      },
+                      onChanged: (values) => setState(() => _ageRange = values),
                     ),
                   ],
                 ),
               ),
-
-              // Distance
               _FilterSection(
                 title: context.l10n.matchingFiltersDistance,
                 icon: LucideIcons.mapPin,
@@ -197,277 +342,16 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       max: 200,
                       divisions: 39,
                       activeColor: AppColors.primary,
-                      onChanged: (value) {
-                        setState(() {
-                          _distanceMax = value;
-                          _hasChanges = true;
-                        });
-                      },
+                      onChanged: (value) =>
+                          setState(() => _distanceMax = value),
                     ),
                   ],
                 ),
               ),
-
-              // Denomination (Premium)
-              _FilterSection(
-                title: context.l10n.matchingFiltersDenomination,
-                icon: LucideIcons.star,
-                isPremium: !isPremium,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: FilterDenomination.values.map((denom) {
-                    final isSelected = _selectedDenomination == denom ||
-                        (_selectedDenomination == null &&
-                            denom == FilterDenomination.all);
-                    return FilterChip(
-                      label: Text(denom.label(context.l10n)),
-                      selected: isSelected,
-                      onSelected: isPremium
-                          ? (selected) {
-                              setState(() {
-                                _selectedDenomination = selected ? denom : null;
-                                _hasChanges = true;
-                              });
-                            }
-                          : null,
-                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                      checkmarkColor: AppColors.primary,
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              // Observances (Premium)
-              _FilterSection(
-                title: context.l10n.matchingFiltersObservances,
-                icon: LucideIcons.heart,
-                isPremium: !isPremium,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: FilterObservance.values.map((obs) {
-                    final isSelected = _selectedObservances.contains(obs);
-                    return FilterChip(
-                      label: Text(obs.label(context.l10n)),
-                      selected: isSelected,
-                      onSelected: isPremium
-                          ? (selected) {
-                              setState(() {
-                                if (selected) {
-                                  _selectedObservances.add(obs);
-                                } else {
-                                  _selectedObservances.remove(obs);
-                                }
-                                _hasChanges = true;
-                              });
-                            }
-                          : null,
-                      selectedColor: AppColors.secondary.withValues(alpha: 0.2),
-                      checkmarkColor: AppColors.secondary,
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              // Education (Premium)
-              _FilterSection(
-                title: context.l10n.matchingFiltersEducation,
-                icon: LucideIcons.graduationCap,
-                isPremium: !isPremium,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: FilterEducation.values.map((edu) {
-                    final isSelected = _selectedEducation == edu ||
-                        (_selectedEducation == null &&
-                            edu == FilterEducation.all);
-                    return FilterChip(
-                      label: Text(edu.label(context.l10n)),
-                      selected: isSelected,
-                      onSelected: isPremium
-                          ? (selected) {
-                              setState(() {
-                                _selectedEducation = selected ? edu : null;
-                                _hasChanges = true;
-                              });
-                            }
-                          : null,
-                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                      checkmarkColor: AppColors.primary,
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              // Height (Premium)
-              _FilterSection(
-                title: context.l10n.matchingFiltersHeight,
-                icon: LucideIcons.ruler,
-                isPremium: !isPremium,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _heightRange != null
-                              ? context.l10n.matchingFiltersCm(
-                                  _heightRange!.start.round(),
-                                )
-                              : context.l10n.matchingFiltersHeightMin,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          _heightRange != null
-                              ? context.l10n.matchingFiltersCm(
-                                  _heightRange!.end.round(),
-                                )
-                              : context.l10n.matchingFiltersHeightMax,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                    RangeSlider(
-                      values: _heightRange ?? const RangeValues(150, 200),
-                      min: 140,
-                      max: 210,
-                      divisions: 70,
-                      activeColor: AppColors.primary,
-                      onChanged: isPremium
-                          ? (values) {
-                              setState(() {
-                                _heightRange = values;
-                                _hasChanges = true;
-                              });
-                            }
-                          : null,
-                    ),
-                    if (_heightRange != null)
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _heightRange = null;
-                            _hasChanges = true;
-                          });
-                        },
-                        child: Text(context.l10n.matchingFiltersHeightClear),
-                      ),
-                  ],
-                ),
-              ),
-
-              // Verification
-              _FilterSection(
-                title: context.l10n.matchingFiltersOptions,
-                icon: LucideIcons.settings,
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      title: Text(context.l10n.matchingFiltersVerifiedTitle),
-                      subtitle: Text(context.l10n.matchingFiltersVerifiedHint),
-                      value: _onlyVerified,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: (value) {
-                        setState(() {
-                          _onlyVerified = value;
-                          _hasChanges = true;
-                        });
-                      },
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    SwitchListTile(
-                      title: Text(context.l10n.matchingFiltersPhotoTitle),
-                      subtitle: Text(context.l10n.matchingFiltersPhotoHint),
-                      value: _onlyWithPhoto,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: (value) {
-                        setState(() {
-                          _onlyWithPhoto = value;
-                          _hasChanges = true;
-                        });
-                      },
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    SwitchListTile(
-                      title: Text(context.l10n.matchingFiltersOnlineTitle),
-                      subtitle: Text(context.l10n.matchingFiltersOnlineHint),
-                      value: _onlyOnline,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: isPremium
-                          ? (value) {
-                              setState(() {
-                                _onlyOnline = value;
-                                _hasChanges = true;
-                              });
-                            }
-                          : null,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ],
-                ),
-              ),
-
-              // Upgrade banner for free users
-              if (!isPremium) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: AppColors.premiumGradient,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(LucideIcons.plus, color: Colors.white),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10n.matchingFiltersUpsellTitle,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              context.l10n.matchingFiltersUpsellBody,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await PremiumGate.checkAccess(
-                            context,
-                            PremiumFeature.advancedFilters,
-                          );
-                          setState(() {});
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primary,
-                        ),
-                        child: Text(context.l10n.commonSee),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              const SizedBox(height: 100), // Space for FAB
+              ..._advancedSections(locked),
+              const SizedBox(height: 100), // Space for the apply button
             ],
           ),
-
-          // Save button
           if (_hasChanges)
             Positioned(
               bottom: 24,
@@ -475,7 +359,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
               right: 16,
               child: SafeArea(
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveFilters,
+                  onPressed: _isSaving ? null : _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -484,7 +368,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: _isLoading
+                  child: _isSaving
                       ? const SizedBox(
                           width: 24,
                           height: 24,
@@ -507,6 +391,171 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
       ),
     );
   }
+
+  List<Widget> _advancedSections(bool locked) {
+    switch (_advanced) {
+      case _AdvancedState.loading:
+        return const [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ];
+      case _AdvancedState.failed:
+        return [
+          _FilterSection(
+            title: context.l10n.matchingFiltersAdvanced,
+            icon: LucideIcons.settings,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(context.l10n.matchingFiltersLoadFailed),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: _loadFilters,
+                  child: Text(context.l10n.commonRetry),
+                ),
+              ],
+            ),
+          ),
+        ];
+      case _AdvancedState.ready:
+        return [
+          _choiceSection(
+            title: context.l10n.matchingFiltersDenomination,
+            icon: LucideIcons.star,
+            choices: denominationChoices,
+            selected: _selection.denominations,
+            locked: locked,
+          ),
+          _choiceSection(
+            title: context.l10n.matchingFiltersKashrut,
+            icon: LucideIcons.utensils,
+            choices: kashrutChoices,
+            selected: _selection.kashrut,
+            locked: locked,
+          ),
+          _choiceSection(
+            title: context.l10n.matchingFiltersShabbatSection,
+            icon: LucideIcons.heart,
+            choices: shabbatChoices,
+            selected: _selection.shabbat,
+            locked: locked,
+          ),
+          _FilterSection(
+            title: context.l10n.matchingFiltersOptions,
+            icon: LucideIcons.settings,
+            locked: locked,
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: Text(context.l10n.matchingFiltersVerifiedTitle),
+                  subtitle: Text(context.l10n.matchingFiltersVerifiedHint),
+                  value: _selection.onlyVerified,
+                  activeThumbColor: AppColors.primary,
+                  onChanged: (value) =>
+                      setState(() => _selection.onlyVerified = value),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  title: Text(context.l10n.matchingFiltersPhotoTitle),
+                  subtitle: Text(context.l10n.matchingFiltersPhotoHint),
+                  value: _selection.onlyWithPhoto,
+                  activeThumbColor: AppColors.primary,
+                  onChanged: (value) =>
+                      setState(() => _selection.onlyWithPhoto = value),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+          ),
+          if (locked) _upsell(),
+        ];
+    }
+  }
+
+  Widget _choiceSection({
+    required String title,
+    required IconData icon,
+    required List<FilterChoice> choices,
+    required Set<FilterChoice> selected,
+    required bool locked,
+  }) {
+    return _FilterSection(
+      title: title,
+      icon: icon,
+      locked: locked,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final choice in choices)
+                FilterChip(
+                  label: Text(choice.label(context.l10n)),
+                  selected: selected.contains(choice),
+                  onSelected: (on) => _toggle(selected, choice, on),
+                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                  checkmarkColor: AppColors.primary,
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            context.l10n.matchingFiltersChoiceHint,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _upsell() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: AppColors.premiumGradient),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          const Icon(LucideIcons.plus, color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.l10n.matchingFiltersUpsellTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  context.l10n.matchingFiltersUpsellBody,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _openPremium,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.primary,
+            ),
+            child: Text(context.l10n.commonSee),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _FilterSection extends StatelessWidget {
@@ -514,13 +563,13 @@ class _FilterSection extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.child,
-    this.isPremium = false,
+    this.locked = false,
   });
 
   final String title;
   final IconData icon;
   final Widget child;
-  final bool isPremium;
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
@@ -530,9 +579,7 @@ class _FilterSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,7 +597,7 @@ class _FilterSection extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isPremium) ...[
+              if (locked) ...[
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -586,9 +633,9 @@ class _FilterSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Opacity(
-            opacity: isPremium ? 0.5 : 1.0,
+            opacity: locked ? 0.5 : 1.0,
             child: IgnorePointer(
-              ignoring: isPremium,
+              ignoring: locked,
               // The list tiles paint their ink here, above the card's colour.
               child: Material(type: MaterialType.transparency, child: child),
             ),

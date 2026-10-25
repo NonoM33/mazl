@@ -2847,90 +2847,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchingFiltersDenomination => 'Религиозное течение';
 
   @override
-  String get matchingFiltersDenominationAll => 'Все';
+  String get matchingFiltersKashrut => 'Кашрут';
 
   @override
-  String get matchingFiltersDenominationOrthodox => 'Ортодоксальный';
+  String get matchingFiltersShabbatSection => 'Шаббат';
 
   @override
-  String get matchingFiltersDenominationMasorti => 'Масорти';
-
-  @override
-  String get matchingFiltersDenominationLiberal => 'Либеральный';
-
-  @override
-  String get matchingFiltersDenominationTraditional => 'Традиционный';
-
-  @override
-  String get matchingFiltersDenominationChabad => 'Хабад';
-
-  @override
-  String get matchingFiltersDenominationSephardi => 'Сефардский';
-
-  @override
-  String get matchingFiltersDenominationAshkenazi => 'Ашкеназский';
-
-  @override
-  String get matchingFiltersObservances => 'Религиозные практики';
-
-  @override
-  String get matchingFiltersShabbat => 'Шомер шабат';
-
-  @override
-  String get matchingFiltersKosher => 'Кашрут';
-
-  @override
-  String get matchingFiltersKosherStrict => 'Строгий кашрут';
-
-  @override
-  String get matchingFiltersDailyPrayer => 'Ежедневная молитва';
-
-  @override
-  String get matchingFiltersMikveh => 'Миква';
-
-  @override
-  String get matchingFiltersTzniut => 'Цниют';
-
-  @override
-  String get matchingFiltersEducation => 'Уровень образования';
-
-  @override
-  String get matchingFiltersEducationAll => 'Любой';
-
-  @override
-  String get matchingFiltersEducationHighSchool => 'Школа';
-
-  @override
-  String get matchingFiltersEducationBaccalaureate => 'Аттестат';
-
-  @override
-  String get matchingFiltersEducationBachelor => 'Бакалавр';
-
-  @override
-  String get matchingFiltersEducationMaster => 'Магистр';
-
-  @override
-  String get matchingFiltersEducationDoctorate => 'Докторская степень';
-
-  @override
-  String get matchingFiltersEducationYeshiva => 'Ешива / семинария';
-
-  @override
-  String get matchingFiltersHeight => 'Рост';
-
-  @override
-  String get matchingFiltersHeightMin => 'Мин.';
-
-  @override
-  String get matchingFiltersHeightMax => 'Макс.';
-
-  @override
-  String matchingFiltersCm(int count) {
-    return '$count см';
-  }
-
-  @override
-  String get matchingFiltersHeightClear => 'Сбросить фильтр роста';
+  String get matchingFiltersChoiceHint =>
+      'Можно выбрать несколько вариантов. Профили, не ответившие на этот вопрос, не показываются.';
 
   @override
   String get matchingFiltersOptions => 'Параметры';
@@ -2949,12 +2873,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchingFiltersPhotoHint => 'Скрыть профили без фото';
 
   @override
-  String get matchingFiltersOnlineTitle => 'Сейчас онлайн';
-
-  @override
-  String get matchingFiltersOnlineHint => 'Показывать тех, кто сейчас в сети';
-
-  @override
   String get matchingFiltersUpsellTitle => 'Откройте все фильтры';
 
   @override
@@ -2969,6 +2887,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get matchingFiltersSaveFailed => 'Ошибка при сохранении';
+
+  @override
+  String get matchingFiltersAdvanced => 'Расширенные фильтры';
+
+  @override
+  String get matchingFiltersLoadFailed =>
+      'Не удалось загрузить Ваши расширенные фильтры.';
+
+  @override
+  String get matchingFiltersConsentNeeded =>
+      'Для этих критериев нужно Ваше согласие на обработку сведений о религиозной практике. Они не сохранены.';
 
   @override
   String get navigationDiscover => 'Поиск';

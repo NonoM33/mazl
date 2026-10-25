@@ -313,128 +313,23 @@
   },
   "matchingFiltersDenomination": "Courant religieux",
   "@matchingFiltersDenomination": {
-    "description": "Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+)."
+    "description": "Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+, plusieurs choix possibles)."
   },
-  "matchingFiltersDenominationAll": "Toutes",
-  "@matchingFiltersDenominationAll": {
-    "description": "Choix du filtre « courant religieux » : aucun filtre."
+  "matchingFiltersKashrut": "Kashrout",
+  "@matchingFiltersKashrut": {
+    "description": "Titre de la section « kashrout » (mazl+) de l'écran des filtres : le niveau de pratique des repas casher des autres membres."
   },
-  "matchingFiltersDenominationOrthodox": "Orthodoxe",
-  "@matchingFiltersDenominationOrthodox": {
-    "description": "Choix du filtre « courant religieux » : judaïsme orthodoxe."
+  "matchingFiltersShabbatSection": "Shabbat",
+  "@matchingFiltersShabbatSection": {
+    "description": "Titre de la section « Shabbat » (mazl+) de l'écran des filtres : l'observance du Shabbat des autres membres."
   },
-  "matchingFiltersDenominationMasorti": "Massorti",
-  "@matchingFiltersDenominationMasorti": {
-    "description": "Choix du filtre « courant religieux » : mouvement massorti (conservative)."
-  },
-  "matchingFiltersDenominationLiberal": "Libéral",
-  "@matchingFiltersDenominationLiberal": {
-    "description": "Choix du filtre « courant religieux » : judaïsme libéral ou réformé."
-  },
-  "matchingFiltersDenominationTraditional": "Traditionaliste",
-  "@matchingFiltersDenominationTraditional": {
-    "description": "Choix du filtre « courant religieux » : traditionaliste, attaché aux traditions sans suivre un mouvement."
-  },
-  "matchingFiltersDenominationChabad": "Loubavitch",
-  "@matchingFiltersDenominationChabad": {
-    "description": "Choix du filtre « courant religieux » : mouvement loubavitch (Habad)."
-  },
-  "matchingFiltersDenominationSephardi": "Séfarade",
-  "@matchingFiltersDenominationSephardi": {
-    "description": "Choix du filtre « courant religieux » : tradition séfarade."
-  },
-  "matchingFiltersDenominationAshkenazi": "Ashkénaze",
-  "@matchingFiltersDenominationAshkenazi": {
-    "description": "Choix du filtre « courant religieux » : tradition ashkénaze."
-  },
-  "matchingFiltersObservances": "Pratiques religieuses",
-  "@matchingFiltersObservances": {
-    "description": "Titre de la section « pratiques religieuses » de l'écran des filtres (fonction mazl+)."
-  },
-  "matchingFiltersShabbat": "Shomer Shabbat",
-  "@matchingFiltersShabbat": {
-    "description": "Choix du filtre « pratiques » : observer le chabbat (shomer shabbat)."
-  },
-  "matchingFiltersKosher": "Casher",
-  "@matchingFiltersKosher": {
-    "description": "Choix du filtre « pratiques » : manger casher."
-  },
-  "matchingFiltersKosherStrict": "Casher strict",
-  "@matchingFiltersKosherStrict": {
-    "description": "Choix du filtre « pratiques » : casher strict."
-  },
-  "matchingFiltersDailyPrayer": "Prière quotidienne",
-  "@matchingFiltersDailyPrayer": {
-    "description": "Choix du filtre « pratiques » : prière quotidienne."
-  },
-  "matchingFiltersMikveh": "Mikvé",
-  "@matchingFiltersMikveh": {
-    "description": "Choix du filtre « pratiques » : pratique du mikvé (bain rituel)."
-  },
-  "matchingFiltersTzniut": "Tsniout",
-  "@matchingFiltersTzniut": {
-    "description": "Choix du filtre « pratiques » : tsniout (pudeur dans l'habillement et le comportement)."
-  },
-  "matchingFiltersEducation": "Niveau d'études",
-  "@matchingFiltersEducation": {
-    "description": "Titre de la section « niveau d'études » de l'écran des filtres (fonction mazl+)."
-  },
-  "matchingFiltersEducationAll": "Tous",
-  "@matchingFiltersEducationAll": {
-    "description": "Choix du filtre « niveau d'études » : aucun filtre."
-  },
-  "matchingFiltersEducationHighSchool": "Lycée",
-  "@matchingFiltersEducationHighSchool": {
-    "description": "Choix du filtre « niveau d'études » : lycée."
-  },
-  "matchingFiltersEducationBaccalaureate": "Bac",
-  "@matchingFiltersEducationBaccalaureate": {
-    "description": "Choix du filtre « niveau d'études » : baccalauréat."
-  },
-  "matchingFiltersEducationBachelor": "Licence",
-  "@matchingFiltersEducationBachelor": {
-    "description": "Choix du filtre « niveau d'études » : licence (bac+3)."
-  },
-  "matchingFiltersEducationMaster": "Master",
-  "@matchingFiltersEducationMaster": {
-    "description": "Choix du filtre « niveau d'études » : master (bac+5)."
-  },
-  "matchingFiltersEducationDoctorate": "Doctorat",
-  "@matchingFiltersEducationDoctorate": {
-    "description": "Choix du filtre « niveau d'études » : doctorat."
-  },
-  "matchingFiltersEducationYeshiva": "Yeshiva/Sem",
-  "@matchingFiltersEducationYeshiva": {
-    "description": "Choix du filtre « niveau d'études » : yeshiva (hommes) ou séminaire (femmes), études religieuses."
-  },
-  "matchingFiltersHeight": "Taille",
-  "@matchingFiltersHeight": {
-    "description": "Titre de la section « taille » de l'écran des filtres (fonction mazl+)."
-  },
-  "matchingFiltersHeightMin": "Min",
-  "@matchingFiltersHeightMin": {
-    "description": "Valeur minimale de taille quand aucun filtre n'est posé, à gauche du curseur."
-  },
-  "matchingFiltersHeightMax": "Max",
-  "@matchingFiltersHeightMax": {
-    "description": "Valeur maximale de taille quand aucun filtre n'est posé, à droite du curseur."
-  },
-  "matchingFiltersCm": "{count} cm",
-  "@matchingFiltersCm": {
-    "description": "Taille minimale ou maximale choisie. {count} est un entier de centimètres.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "matchingFiltersHeightClear": "Effacer le filtre taille",
-  "@matchingFiltersHeightClear": {
-    "description": "Bouton qui retire le filtre de taille."
+  "matchingFiltersChoiceHint": "Plusieurs choix possibles. Les profils qui n'ont pas répondu ne sont pas proposés.",
+  "@matchingFiltersChoiceHint": {
+    "description": "Petite note sous les trois listes de choix de pratique religieuse. Deux phrases : on peut cocher plusieurs réponses ; un profil sans réponse à cette question est écarté dès qu'un choix est coché."
   },
   "matchingFiltersOptions": "Options",
   "@matchingFiltersOptions": {
-    "description": "Titre de la section des options à bascule (profils vérifiés, avec photo, en ligne)."
+    "description": "Titre de la section des options à bascule (profils vérifiés, avec photo)."
   },
   "matchingFiltersVerifiedTitle": "Profils vérifiés uniquement",
   "@matchingFiltersVerifiedTitle": {
@@ -451,14 +346,6 @@
   "matchingFiltersPhotoHint": "Exclure les profils sans photo",
   "@matchingFiltersPhotoHint": {
     "description": "Explication sous l'interrupteur « avec photo uniquement »."
-  },
-  "matchingFiltersOnlineTitle": "En ligne maintenant",
-  "@matchingFiltersOnlineTitle": {
-    "description": "Interrupteur : ne montrer que les membres connectés en ce moment (fonction mazl+)."
-  },
-  "matchingFiltersOnlineHint": "Voir les utilisateurs actifs",
-  "@matchingFiltersOnlineHint": {
-    "description": "Explication sous l'interrupteur « en ligne maintenant »."
   },
   "matchingFiltersUpsellTitle": "Débloquer tous les filtres",
   "@matchingFiltersUpsellTitle": {
@@ -479,5 +366,17 @@
   "matchingFiltersSaveFailed": "Erreur lors de la sauvegarde",
   "@matchingFiltersSaveFailed": {
     "description": "Message bref (fond rouge) quand l'enregistrement des filtres a échoué."
+  },
+  "matchingFiltersAdvanced": "Filtres avancés",
+  "@matchingFiltersAdvanced": {
+    "description": "Titre de la section qui remplace les filtres avancés (mazl+) quand le serveur ne les a pas rendus."
+  },
+  "matchingFiltersLoadFailed": "Vos filtres avancés n'ont pas pu être chargés.",
+  "@matchingFiltersLoadFailed": {
+    "description": "Message affiché à la place des filtres avancés quand leur chargement a échoué ; un bouton « Réessayer » suit."
+  },
+  "matchingFiltersConsentNeeded": "Ces critères demandent votre accord pour traiter votre pratique religieuse. Ils n'ont pas été enregistrés.",
+  "@matchingFiltersConsentNeeded": {
+    "description": "Message bref (fond rouge) quand le membre a refusé le consentement de l'article 9 au moment d'enregistrer un critère de pratique religieuse."
   }
 }
