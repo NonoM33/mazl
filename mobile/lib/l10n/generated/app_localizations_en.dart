@@ -190,9 +190,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatHeaderTyping => 'typing…';
 
   @override
-  String get chatHeaderOnline => 'Online';
-
-  @override
   String get chatHeaderOptions => 'Options';
 
   @override

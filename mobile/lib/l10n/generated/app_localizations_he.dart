@@ -194,9 +194,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatHeaderTyping => 'הקלדה…';
 
   @override
-  String get chatHeaderOnline => 'מחובר/ת';
-
-  @override
   String get chatHeaderOptions => 'אפשרויות';
 
   @override

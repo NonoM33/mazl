@@ -192,9 +192,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatHeaderTyping => 'печатает…';
 
   @override
-  String get chatHeaderOnline => 'В сети';
-
-  @override
   String get chatHeaderOptions => 'Параметры';
 
   @override

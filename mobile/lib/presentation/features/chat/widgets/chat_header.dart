@@ -6,7 +6,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 
-/// Back, avatar, name and status, options (docs/design/CHAT.md §13).
+/// Back, avatar, name and « typing… » when it is, options (docs/design/CHAT.md §13).
 class ChatHeader extends StatelessWidget {
   const ChatHeader({
     super.key,
@@ -77,17 +77,14 @@ class ChatHeader extends StatelessWidget {
                               letterSpacing: -0.2,
                             ),
                           ),
-                          Text(
-                            isTyping
-                                ? context.l10n.chatHeaderTyping
-                                : context.l10n.chatHeaderOnline,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isTyping
-                                  ? scheme.primary
-                                  : scheme.onSurfaceVariant,
+                          if (isTyping)
+                            Text(
+                              context.l10n.chatHeaderTyping,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: scheme.primary,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),

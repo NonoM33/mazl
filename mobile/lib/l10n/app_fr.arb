@@ -246,10 +246,6 @@
   "@chatHeaderTyping": {
     "description": "Chat, en-tête : statut sous le prénom quand l'autre membre est en train d'écrire (couleur d'accent, une ligne)."
   },
-  "chatHeaderOnline": "En ligne",
-  "@chatHeaderOnline": {
-    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
-  },
   "chatHeaderOptions": "Options",
   "@chatHeaderOptions": {
     "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."

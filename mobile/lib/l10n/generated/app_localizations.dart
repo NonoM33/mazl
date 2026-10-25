@@ -416,12 +416,6 @@ abstract class AppLocalizations {
   /// **'écrit…'**
   String get chatHeaderTyping;
 
-  /// Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas.
-  ///
-  /// In fr, this message translates to:
-  /// **'En ligne'**
-  String get chatHeaderOnline;
-
   /// Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation.
   ///
   /// In fr, this message translates to:

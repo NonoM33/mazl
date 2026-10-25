@@ -35,7 +35,7 @@ void main() {
       );
       await harness.pump(tester, locale: _en);
 
-      expect(find.text('Online'), findsOneWidget);
+      expect(find.text('Online'), findsNothing);
       expect(find.text('Seen at 10:06'), findsOneWidget);
       expect(find.byTooltip('Attach photos'), findsOneWidget);
       expect(find.bySemanticsLabel('Video call'), findsNothing);
