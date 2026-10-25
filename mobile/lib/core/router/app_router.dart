@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'app_guard.dart';
 import 'detail_screens.dart';
 import '../layout/adaptive_detail.dart';
+import 'root_navigator.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
@@ -50,11 +51,10 @@ import '../../presentation/features/matching/screens/filters_screen.dart';
 import '../../presentation/features/matching/screens/daily_picks_screen.dart';
 import '../../presentation/features/navigation/screens/couple_navigation_screen.dart';
 
-/// Global navigator key
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+export 'root_navigator.dart' show rootNavigatorKey;
 
-/// The root navigator, for the screens that open dialogs from outside the tree.
-final GlobalKey<NavigatorState> rootNavigatorKey = _rootNavigatorKey;
+/// Short name for the routes below.
+final GlobalKey<NavigatorState> _rootNavigatorKey = rootNavigatorKey;
 
 /// Shell navigator keys for each tab
 final GlobalKey<NavigatorState> _shellNavigatorKeyDiscover =
