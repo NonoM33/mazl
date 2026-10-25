@@ -8,6 +8,7 @@ import 'package:mazl/core/services/push_destination.dart';
 //   new_message      -> /chat/<conversation_id>
 //   couple_request   -> /couple/space
 //   couple_question  -> /couple/space
+//   couple_accepted  -> /couple/space (complément du coordinateur, sans autre champ)
 void main() {
   group('new_match', () {
     test('avec la conversation : ouvre la conversation', () {
@@ -101,6 +102,10 @@ void main() {
 
     test('la question du jour ouvre l\'espace couple', () {
       expect(pushDestination({'type': 'couple_question'}), '/couple/space');
+    });
+
+    test('une demande acceptée ouvre l\'espace couple (ajout au contrat §1)', () {
+      expect(pushDestination({'type': 'couple_accepted'}), '/couple/space');
     });
   });
 

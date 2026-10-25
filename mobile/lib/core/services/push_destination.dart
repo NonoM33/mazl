@@ -9,6 +9,7 @@ import '../router/route_names.dart';
 /// | `new_message`     | `/chat/<conversation_id>`, else `/chat`            |
 /// | `couple_request`  | `/couple/space`                                    |
 /// | `couple_question` | `/couple/space`                                    |
+/// | `couple_accepted` | `/couple/space`                                    |
 ///
 /// Older or unknown types (`event_reminder`…) lead nowhere. An identifier is
 /// only ever read as a positive whole number and rebuilt into the path, never
@@ -26,7 +27,7 @@ String? pushDestination(Map<String, dynamic> data) {
       return conversation == null
           ? RoutePaths.chat
           : _conversationPath(conversation);
-    case 'couple_request' || 'couple_question':
+    case 'couple_request' || 'couple_question' || 'couple_accepted':
       return RoutePaths.coupleSpace;
     default:
       return null;
