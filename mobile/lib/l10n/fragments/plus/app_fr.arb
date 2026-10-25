@@ -31,14 +31,6 @@
   "@plusFeatureBoostDescription": {
     "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le Boost. « En tête de pile » = votre profil est montré en premier aux autres membres."
   },
-  "plusFeatureRewindTitle": "Revenir en arrière",
-  "@plusFeatureRewindTitle": {
-    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre."
-  },
-  "plusFeatureRewindDescription": "Rattrapez un « Passer » trop rapide.",
-  "@plusFeatureRewindDescription": {
-    "description": "Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte."
-  },
   "plusFeatureReadReceiptsTitle": "Confirmations de lecture",
   "@plusFeatureReadReceiptsTitle": {
     "description": "Titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture des messages."

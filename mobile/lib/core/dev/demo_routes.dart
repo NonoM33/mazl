@@ -271,6 +271,21 @@ abstract final class DemoRoutes {
       '/api/daily-picks',
       (r, m) => _json({'success': true, 'picks': DemoFixtures.dailyPicks()}),
     ),
+    DemoRoute(
+      'GET',
+      '/api/likes/allowance',
+      (r, m) => _json({
+        'success': true,
+        'allowance': {
+          'daily_allowance': null,
+          'remaining': null,
+          'resets_at': DateTime.now()
+              .toUtc()
+              .add(const Duration(days: 1))
+              .toIso8601String(),
+        },
+      }),
+    ),
     DemoRoute('POST', '/api/swipes', _swipe),
     DemoRoute('POST', '/api/swipes/like-prompt', _swipe),
     DemoRoute(

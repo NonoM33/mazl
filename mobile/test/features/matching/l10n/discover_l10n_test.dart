@@ -51,7 +51,10 @@ Future<void> _pumpDiscover(
 ) async {
   await pumpLocalized(
     tester,
-    DiscoverScreen(apiService: api),
+    DiscoverScreen(
+      apiService: api,
+      likeAllowanceApi: FakeLikeAllowanceApi.free(),
+    ),
     locale: c.locale,
     brightness: c.brightness,
   );
@@ -68,7 +71,7 @@ void main() {
     expect(find.bySemanticsLabel('Pass'), findsOneWidget);
     expect(find.bySemanticsLabel('Like'), findsOneWidget);
     expect(find.bySemanticsLabel('Super like'), findsOneWidget);
-    expect(find.bySemanticsLabel('Undo'), findsOneWidget);
+    expect(find.bySemanticsLabel('Undo'), findsNothing);
     expect(find.bySemanticsLabel('Boost'), findsOneWidget);
     expect(find.bySemanticsLabel('Daily picks'), findsOneWidget);
     expect(find.bySemanticsLabel('Filters'), findsOneWidget);

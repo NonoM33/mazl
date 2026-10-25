@@ -5,7 +5,6 @@
   "matchingDiscoverEmptyBody": "Vuelve más tarde o amplía tus filtros para ver perfiles nuevos.",
   "matchingDiscoverOpenFilters": "Abrir filtros",
   "matchingDiscoverRefresh": "Actualizar",
-  "matchingDiscoverUndo": "Deshacer",
   "matchingDiscoverSuperLike": "Super like",
   "matchingDiscoverBoost": "Boost",
   "matchingDiscoverBoostOn": "Boost activado. Estás en lo más alto durante {minutes, plural, one{{minutes} minuto} other{{minutes} minutos}}.",

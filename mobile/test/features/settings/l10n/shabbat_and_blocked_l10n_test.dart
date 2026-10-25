@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mazl/presentation/common/widgets/directional_icon.dart';
 import 'package:mazl/presentation/features/settings/screens/blocked_users_screen.dart';
-import 'package:mazl/presentation/features/settings/screens/shabbat_mode_screen.dart';
 import 'package:mazl/presentation/features/settings/widgets/shabbat_hero.dart';
 
 import '../../../helpers/l10n_helpers.dart';
@@ -41,12 +40,7 @@ void main() {
       expect(find.text('Shabbat\nshalom.'), findsOneWidget);
       expect(find.text('CANDLE LIGHTING'), findsOneWidget);
       expect(find.text('HAVDALAH'), findsOneWidget);
-      expect(
-        find.text(
-          'Mazl is resting with you. Your messages will wait for you at Havdalah.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Mazl is resting with you.'), findsOneWidget);
       expect(find.bySemanticsLabel('Back'), findsOneWidget);
     });
 
@@ -93,120 +87,6 @@ void main() {
         lessThan(tester.getCenter(find.text('HAVDALA')).dx),
       );
     });
-  });
-
-  group('écran du mode Shabbat', () {
-    testWidgets('en anglais : réglages, curseur de marge, explication', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(360, 1600);
-      await pumpLocalized(
-        tester,
-        const ShabbatModeScreen(),
-        locale: _english,
-        size: const Size(360, 1600),
-      );
-
-      expect(find.text('SETTINGS'), findsOneWidget);
-      expect(find.text('Turn on Shabbat mode'), findsOneWidget);
-      expect(
-        find.text('Notifications pause automatically during Shabbat'),
-        findsOneWidget,
-      );
-      expect(find.text('Include holidays'), findsOneWidget);
-      expect(find.text('Also pause during Yom Tov'), findsOneWidget);
-      expect(find.text('Margin before candle lighting'), findsOneWidget);
-      expect(find.text('18 min'), findsOneWidget);
-      expect(find.text('Based on Paris, France'), findsWidgets);
-      expect(find.text('Edit'), findsOneWidget);
-      expect(
-        find.textContaining('your status will show “Shabbat mode”.'),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('en français, les textes d\'origine', (tester) async {
-      await pumpLocalized(
-        tester,
-        const ShabbatModeScreen(),
-        size: const Size(360, 1600),
-      );
-
-      expect(find.text('RÉGLAGES'), findsOneWidget);
-      expect(find.text('Activer le mode Shabbat'), findsOneWidget);
-      expect(find.text("Marge avant l'allumage"), findsOneWidget);
-      expect(find.text('18 min'), findsOneWidget);
-      expect(find.text('Modifier'), findsOneWidget);
-      expect(
-        find.text(
-          'Les notifications sont mises en pause et les messages attendent. '
-          'Vous recevrez tout après la fin de Shabbat, et votre statut '
-          'affichera « Mode Shabbat ».',
-        ),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('le curseur annonce ses pas en toutes lettres, au bon pluriel', (
-      tester,
-    ) async {
-      final semantics = tester.ensureSemantics();
-      await pumpLocalized(
-        tester,
-        const ShabbatModeScreen(),
-        locale: _russian,
-        size: const Size(360, 1600),
-      );
-
-      final slider = tester.getSemantics(find.byType(Slider));
-      final labels = <String>[];
-      final spoken = <String>[];
-      slider.visitChildren((child) {
-        labels.add(child.label);
-        spoken
-          ..add(child.value)
-          ..add(child.increasedValue)
-          ..add(child.decreasedValue);
-        return true;
-      });
-      // The short label is what the thumb shows; the values are spoken in full.
-      expect(labels, contains('18 мин'));
-      expect(spoken.where((text) => text.isNotEmpty), isNotEmpty);
-      for (final text in spoken.where((text) => text.isNotEmpty)) {
-        expect(text, matches(RegExp(r'^\d+ (минута|минуты|минут)$')));
-      }
-      semantics.dispose();
-    });
-
-    for (final brightness in Brightness.values) {
-      testWidgets(
-        'en hébreu (${brightness.name}) : de droite à gauche, sans débordement',
-        (tester) async {
-          await pumpLocalized(
-            tester,
-            const ShabbatModeScreen(),
-            locale: _hebrew,
-            brightness: brightness,
-            size: const Size(360, 1600),
-          );
-
-          expect(find.text('הפעלת מצב שבת'), findsOneWidget);
-          expect(
-            textDirectionAt(tester, find.text('הפעלת מצב שבת')),
-            TextDirection.rtl,
-          );
-          expect(find.text('18 דק׳'), findsOneWidget);
-          expect(find.text('עריכה'), findsOneWidget);
-          // The title of a row starts at the right edge.
-          expect(
-            tester.getTopRight(find.text('הפעלת מצב שבת')).dx,
-            greaterThan(kSmallPhone.width / 2),
-          );
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
   });
 
   group('utilisateurs bloqués', () {

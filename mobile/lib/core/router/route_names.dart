@@ -10,7 +10,6 @@ abstract class RouteNames {
   static const matches = 'matches';
   static const chat = 'chat';
   static const chatDetail = 'chatDetail';
-  static const videoCall = 'videoCall';
   static const events = 'events';
   static const eventDetail = 'eventDetail';
   static const profile = 'profile';
@@ -19,7 +18,6 @@ abstract class RouteNames {
   static const editProfile = 'editProfile';
   static const profileSetup = 'profileSetup';
   static const settings = 'settings';
-  static const aiShadchan = 'aiShadchan';
   static const verification = 'verification';
   static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
@@ -48,8 +46,6 @@ abstract class RouteNames {
   static const subscription = 'subscription';
   static const likes = 'likes';
   static const boost = 'boost';
-  static const visitors = 'visitors';
-  static const successStories = 'successStories';
   static const filters = 'filters';
   static const dailyPicks = 'dailyPicks';
 }
@@ -66,7 +62,6 @@ abstract class RoutePaths {
   static const matches = '/matches';
   static const chat = '/chat';
   static const chatDetail = '/chat/:conversationId';
-  static const videoCall = '/chat/:conversationId/video-call';
   static const events = '/events';
   static const eventDetail = '/events/:eventId';
   static const profile = '/profile';
@@ -75,7 +70,6 @@ abstract class RoutePaths {
   static const editProfile = '/profile/edit';
   static const profileSetup = '/profile/setup';
   static const settings = '/profile/settings';
-  static const aiShadchan = '/profile/ai-shadchan';
   static const verification = '/profile/verification';
   static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
@@ -107,8 +101,6 @@ abstract class RoutePaths {
   static const subscription = '/subscription';
   static const likes = '/likes';
   static const boost = '/boost';
-  static const visitors = '/visitors';
-  static const successStories = '/success-stories';
   static const filters = '/filters';
   static const dailyPicks = '/daily-picks';
 

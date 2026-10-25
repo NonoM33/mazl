@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'app_guard.dart';
 import 'detail_screens.dart';
 import '../layout/adaptive_detail.dart';
+import 'root_navigator.dart';
 import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
@@ -16,7 +17,6 @@ import '../../presentation/features/navigation/screens/main_navigation_screen.da
 import '../../presentation/features/matching/screens/discover_screen.dart';
 import '../../presentation/features/matching/screens/matches_screen.dart';
 import '../../presentation/features/chat/screens/conversations_screen.dart';
-import '../../presentation/features/video_call/screens/video_call_screen.dart';
 import '../../presentation/features/events/screens/events_list_screen.dart';
 import '../../presentation/features/events/screens/event_detail_screen.dart';
 import '../../presentation/features/profile/screens/profile_view_screen.dart';
@@ -27,7 +27,6 @@ import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/privacy/screens/religious_data_settings_screen.dart';
 import '../../presentation/features/web_sessions/screens/computers_screen.dart';
 import '../../presentation/features/web_sessions/screens/web_scan_screen.dart';
-import '../../presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart';
 import '../../presentation/features/verification/screens/verification_screen.dart';
 import '../../presentation/features/premium/screens/plus_welcome_screen.dart';
 import '../../presentation/features/verification/identity/identity_flow_screen.dart';
@@ -44,17 +43,14 @@ import '../../presentation/features/couple/screens/couple_space_screen.dart';
 import '../../presentation/features/couple/screens/saved_activities_screen.dart';
 import '../../presentation/features/likes/screens/likes_screen.dart';
 import '../../presentation/features/boost/screens/boost_screen.dart';
-import '../../presentation/features/visitors/screens/visitors_screen.dart';
-import '../../presentation/features/couple/screens/success_stories_screen.dart';
 import '../../presentation/features/matching/screens/filters_screen.dart';
 import '../../presentation/features/matching/screens/daily_picks_screen.dart';
 import '../../presentation/features/navigation/screens/couple_navigation_screen.dart';
 
-/// Global navigator key
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+export 'root_navigator.dart' show rootNavigatorKey;
 
-/// The root navigator, for the screens that open dialogs from outside the tree.
-final GlobalKey<NavigatorState> rootNavigatorKey = _rootNavigatorKey;
+/// Short name for the routes below.
+final GlobalKey<NavigatorState> _rootNavigatorKey = rootNavigatorKey;
 
 /// Shell navigator keys for each tab
 final GlobalKey<NavigatorState> _shellNavigatorKeyDiscover =
@@ -204,30 +200,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const BoostScreen(),
-          transitionsBuilder: slideUpTransition,
-        ),
-      ),
-
-      // Visitors Screen
-      GoRoute(
-        path: RoutePaths.visitors,
-        name: RouteNames.visitors,
-        parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const VisitorsScreen(),
-          transitionsBuilder: slideUpTransition,
-        ),
-      ),
-
-      // Success Stories Screen
-      GoRoute(
-        path: RoutePaths.successStories,
-        name: RouteNames.successStories,
-        parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const SuccessStoriesScreen(),
           transitionsBuilder: slideUpTransition,
         ),
       ),
@@ -485,23 +457,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         transitionsBuilder: slideLeftMotion,
                       );
                     },
-                    routes: [
-                      GoRoute(
-                        path: 'video-call',
-                        name: RouteNames.videoCall,
-                        parentNavigatorKey: _rootNavigatorKey,
-                        pageBuilder: (context, state) {
-                          final conversationId =
-                              state.pathParameters['conversationId']!;
-                          return CustomTransitionPage(
-                            key: state.pageKey,
-                            child:
-                                VideoCallScreen(conversationId: conversationId),
-                            transitionsBuilder: scaleTransition,
-                          );
-                        },
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -593,16 +548,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         ],
                       ),
                     ],
-                  ),
-                  GoRoute(
-                    path: 'ai-shadchan',
-                    name: RouteNames.aiShadchan,
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) => CustomTransitionPage(
-                      key: state.pageKey,
-                      child: const AISuggestionsScreen(),
-                      transitionsBuilder: fadeTransition,
-                    ),
                   ),
                   GoRoute(
                     path: 'verification',

@@ -9,7 +9,6 @@ import 'package:mazl/presentation/features/auth/l10n/linked_text.dart';
 import 'package:mazl/presentation/features/auth/screens/login_screen.dart';
 import 'package:mazl/presentation/features/auth/screens/route_error_screen.dart';
 import 'package:mazl/presentation/features/onboarding/screens/onboarding_screen.dart';
-import 'package:mazl/presentation/features/video_call/screens/video_call_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
 import '../../chat/chat_test_support.dart' show loadChatFonts;
@@ -283,14 +282,7 @@ void main() {
           }
           expect(tester.takeException(), isNull);
         });
-        testWidgets('video call and route error $label', (tester) async {
-          await pumpLocalized(
-            tester,
-            const VideoCallScreen(conversationId: '1'),
-            locale: locale,
-            brightness: brightness,
-          );
-          expect(tester.takeException(), isNull);
+        testWidgets('route error $label', (tester) async {
           await pumpLocalized(
             tester,
             const RouteErrorScreen(),
@@ -304,18 +296,6 @@ void main() {
   });
 
   group('the other screens', () {
-    testWidgets('video call, in English', (tester) async {
-      await pumpLocalized(
-        tester,
-        const VideoCallScreen(conversationId: '1'),
-        locale: _en,
-      );
-      expect(find.text('Call in progress...'), findsOneWidget);
-      for (final label in ['Flip', 'Camera', 'Mic', 'End']) {
-        expect(find.text(label), findsOneWidget, reason: label);
-      }
-    });
-
     testWidgets('route error, in Hebrew', (tester) async {
       await pumpLocalized(tester, const RouteErrorScreen(), locale: _he);
       expect(find.text('העמוד לא נמצא'), findsOneWidget);

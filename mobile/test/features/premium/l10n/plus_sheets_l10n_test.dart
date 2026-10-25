@@ -109,12 +109,15 @@ void main() {
   testWidgets('the feature sheet in English', (tester) async {
     await pumpPlus(
       tester,
-      const Scaffold(body: PremiumFeatureSheet(feature: PremiumFeature.rewind)),
+      const Scaffold(body: PremiumFeatureSheet(feature: PremiumFeature.seeWhoLikesYou)),
       locale: const Locale('en'),
     );
     expect(find.text('RESERVED FOR MAZL+'), findsOneWidget);
-    expect(find.text('Rewind'), findsOneWidget);
-    expect(find.text('Take back a “Pass” that was too quick.'), findsOneWidget);
+    expect(find.text('See who liked you'), findsOneWidget);
+    expect(
+      find.text('See who liked you before you even cross paths.'),
+      findsOneWidget,
+    );
     expect(find.text('Discover mazl+'), findsOneWidget);
     expect(find.text('Not now'), findsOneWidget);
   });

@@ -90,7 +90,10 @@ void main() {
     testWidgets('a like on the profile page throws the card: the person does '
         'not come back, and the like is sent once', (tester) async {
       final api = FakeDiscoverApi(discoverProfiles(3));
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+      await _pumpWithProfilePage(tester, api, DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ));
       await _openProfileFromDiscover(tester);
 
       await tester.tap(find.text("J'aime Profil1"));
@@ -100,14 +103,16 @@ void main() {
       expect(_card(101), findsNothing, reason: 'Profil1 is still on Discover');
       expect(_card(102), findsOneWidget);
       expect(api.swipes, ['101:like']);
-      expect(PremiumGate.remainingFreeLikes, PremiumGate.freeLikesPerDay - 1);
     });
 
     testWidgets('a pass on the profile page throws the card too', (
       tester,
     ) async {
       final api = FakeDiscoverApi(discoverProfiles(3));
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+      await _pumpWithProfilePage(tester, api, DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ));
       await _openProfileFromDiscover(tester);
 
       await tester.tap(
@@ -125,7 +130,10 @@ void main() {
     testWidgets('a match on the profile page opens the match sheet, once, '
         'and the card is gone after it', (tester) async {
       final api = FakeDiscoverApi(discoverProfiles(3))..matchWith.add(101);
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+      await _pumpWithProfilePage(tester, api, DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ));
       await _openProfileFromDiscover(tester);
 
       await tester.tap(find.text("J'aime Profil1"));
@@ -143,7 +151,10 @@ void main() {
       tester,
     ) async {
       final api = FakeDiscoverApi(discoverProfiles(3))..matchWith.add(101);
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+      await _pumpWithProfilePage(tester, api, DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ));
       await _openProfileFromDiscover(tester);
 
       await tester.tap(find.text("J'aime Profil1"));
@@ -158,7 +169,10 @@ void main() {
       tester,
     ) async {
       final api = FakeDiscoverApi(discoverProfiles(3))..swipesFail = true;
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+      await _pumpWithProfilePage(tester, api, DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ));
       await _openProfileFromDiscover(tester);
 
       await tester.tap(find.text("J'aime Profil1"));
@@ -171,21 +185,29 @@ void main() {
       );
     });
 
-    testWidgets('no free like left: the page stays and nothing is sent', (
-      tester,
-    ) async {
-      final api = FakeDiscoverApi(discoverProfiles(3));
-      while (PremiumGate.remainingFreeLikes > 0) {
-        PremiumGate.useFreeLike();
-      }
-      await _pumpWithProfilePage(tester, api, DiscoverScreen(apiService: api));
+    testWidgets('the server has no like left (402): the page stays, the offer '
+        'opens, nothing is recorded', (tester) async {
+      final api = FakeDiscoverApi(discoverProfiles(3))..refuseLikes = true;
+      await _pumpWithProfilePage(
+        tester,
+        api,
+        DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(),
+        ),
+      );
       await _openProfileFromDiscover(tester);
 
       await tester.tap(find.text("J'aime Profil1"));
       await tester.pumpAndSettle();
 
+      expect(find.byType(ProfileViewScreen), findsOneWidget);
       expect(find.text('Vos likes du jour sont partis.'), findsOneWidget);
-      expect(api.swipes, isEmpty);
+      expect(api.refusedLikes, ['101:like']);
+      expect(
+        find.text("Votre choix n'est pas parti. Réessayez."),
+        findsNothing,
+      );
     });
   });
 

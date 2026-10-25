@@ -6,7 +6,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 
-/// Back, avatar, name and status, video call, options (docs/design/CHAT.md §13).
+/// Back, avatar, name and status, options (docs/design/CHAT.md §13).
 class ChatHeader extends StatelessWidget {
   const ChatHeader({
     super.key,
@@ -14,7 +14,6 @@ class ChatHeader extends StatelessWidget {
     required this.isTyping,
     required this.onBack,
     required this.onOpenProfile,
-    required this.onVideoCall,
     required this.onOptions,
   });
 
@@ -22,7 +21,6 @@ class ChatHeader extends StatelessWidget {
   final bool isTyping;
   final VoidCallback onBack;
   final VoidCallback? onOpenProfile;
-  final VoidCallback onVideoCall;
   final VoidCallback onOptions;
 
   @override
@@ -98,12 +96,6 @@ class ChatHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            RoundIconButton(
-              icon: LucideIcons.video,
-              tooltip: context.l10n.chatHeaderVideoCall,
-              size: 44,
-              onPressed: onVideoCall,
-            ),
             IconButton(
               tooltip: context.l10n.chatHeaderOptions,
               constraints: const BoxConstraints.tightFor(width: 44, height: 44),

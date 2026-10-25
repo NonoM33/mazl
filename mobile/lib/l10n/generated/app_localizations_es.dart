@@ -200,9 +200,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get chatHeaderOnline => 'En línea';
 
   @override
-  String get chatHeaderVideoCall => 'Videollamada';
-
-  @override
   String get chatHeaderOptions => 'Opciones';
 
   @override
@@ -553,209 +550,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String linkOpenError(String target) {
     return 'No se puede abrir $target ahora mismo.';
   }
-
-  @override
-  String get coupleFeedDashboardSettingsTooltip => 'Ajustes';
-
-  @override
-  String get coupleFeedDashboardMe => 'Yo';
-
-  @override
-  String get coupleFeedDashboardPartnerFallback => 'Pareja';
-
-  @override
-  String coupleFeedDashboardDaysTogether(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString días juntos',
-      one: '1 día juntos',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get coupleFeedDashboardDailyQuestion => 'Pregunta del día';
-
-  @override
-  String get coupleFeedDashboardAnswer => 'Responder';
-
-  @override
-  String get coupleFeedDashboardAnswerHint => 'Tu respuesta…';
-
-  @override
-  String get coupleFeedDashboardSend => 'Enviar';
-
-  @override
-  String get coupleFeedDashboardAnswerSent =>
-      'Respuesta enviada. Tu pareja recibirá una notificación.';
-
-  @override
-  String get coupleFeedDashboardActivities => 'Actividades en pareja';
-
-  @override
-  String get coupleFeedDashboardMilestones => 'Nuestros hitos';
-
-  @override
-  String get coupleFeedDashboardSeeAll => 'Ver todo';
-
-  @override
-  String get coupleFeedDashboardEvents => 'Eventos para parejas';
-
-  @override
-  String get coupleFeedDashboardJewishCalendar => 'Calendario judío';
-
-  @override
-  String get coupleFeedStoriesTitle => 'Historias de parejas';
-
-  @override
-  String get coupleFeedDashboardSeeAllStories => 'Ver todas';
-
-  @override
-  String get coupleFeedDashboardEventSampleTitle => 'Clase de cocina kosher';
-
-  @override
-  String get coupleFeedDashboardEventSampleWhen =>
-      'Domingo 20 de enero - 15:00';
-
-  @override
-  String get coupleFeedDashboardEventSampleTag => 'Parejas';
-
-  @override
-  String get coupleFeedDashboardAllEvents => 'Ver todos los eventos';
-
-  @override
-  String get coupleFeedDashboardParasha => 'Shabat Beshalaj';
-
-  @override
-  String get coupleFeedDashboardShabbatTimes =>
-      'Entrada: 17:23 - Salida: 18:34';
-
-  @override
-  String get coupleFeedDashboardShabbatDinner => 'Cena';
-
-  @override
-  String get coupleFeedDashboardShabbatPrayer => 'Oración';
-
-  @override
-  String get coupleFeedDashboardShabbatRest => 'Descanso';
-
-  @override
-  String get coupleFeedStoryShareTitle => 'Comparte tu historia';
-
-  @override
-  String get coupleFeedDashboardShareStoryLine =>
-      'Inspira a la comunidad MAZL con tu historia';
-
-  @override
-  String get coupleFeedDashboardSeeStories => 'Ver historias';
-
-  @override
-  String get coupleFeedMilestoneFirstWeekTitle => 'Primera semana';
-
-  @override
-  String get coupleFeedMilestoneFirstWeekLine => '7 días juntos';
-
-  @override
-  String get coupleFeedMilestoneFirstMonthTitle => 'Primer mes';
-
-  @override
-  String get coupleFeedMilestoneFirstMonthLine => '30 días de amor';
-
-  @override
-  String get coupleFeedMilestoneThreeMonthsTitle => 'Un trimestre';
-
-  @override
-  String get coupleFeedMilestoneThreeMonthsLine => '3 meses de felicidad';
-
-  @override
-  String get coupleFeedMilestoneSixMonthsTitle => 'Medio año';
-
-  @override
-  String get coupleFeedMilestoneSixMonthsLine => '6 meses de la mano';
-
-  @override
-  String get coupleFeedMilestoneFirstYearTitle => 'Primer año';
-
-  @override
-  String get coupleFeedMilestoneFirstYearLine => '365 días de MAZL';
-
-  @override
-  String get coupleFeedQuestion1 =>
-      '¿Cuál es tu momento favorito de la semana juntos?';
-
-  @override
-  String get coupleFeedQuestion1Category => 'Conexión';
-
-  @override
-  String get coupleFeedQuestion2 =>
-      'Si pudieras viajar a cualquier lugar, ¿adónde irías?';
-
-  @override
-  String get coupleFeedQuestion2Category => 'Sueños';
-
-  @override
-  String get coupleFeedQuestion3 => '¿Qué te hizo sonreír hoy?';
-
-  @override
-  String get coupleFeedQuestion3Category => 'Día a día';
-
-  @override
-  String get coupleFeedQuestion4 =>
-      '¿Cómo te gustaría celebrar tu próximo Shabat?';
-
-  @override
-  String get coupleFeedQuestion4Category => 'Judaísmo';
-
-  @override
-  String get coupleFeedQuestion4Option1 => 'Cena romántica en casa';
-
-  @override
-  String get coupleFeedQuestion4Option2 => 'Invitación en casa de amigos';
-
-  @override
-  String get coupleFeedQuestion4Option3 => 'Restaurante kosher';
-
-  @override
-  String get coupleFeedQuestion4Option4 => 'Shabatón comunitario';
-
-  @override
-  String get coupleFeedQuestion5 =>
-      '¿Qué rasgo de carácter admiras más de tu pareja?';
-
-  @override
-  String get coupleFeedQuestion5Category => 'Aprecio';
-
-  @override
-  String get coupleFeedIdeaShabbatCookingTitle => 'Cocinar para Shabat';
-
-  @override
-  String get coupleFeedIdeaShabbatCookingCategory => 'Hogar';
-
-  @override
-  String get coupleFeedIdeaTorahTitle => 'Estudio de la Torá';
-
-  @override
-  String get coupleFeedIdeaDateNightTitle => 'Cita nocturna';
-
-  @override
-  String get coupleFeedIdeaDateNightCategory => 'Romance';
-
-  @override
-  String get coupleFeedIdeaSportTitle => 'Deporte juntos';
-
-  @override
-  String get coupleFeedIdeaChesedTitle => 'Jésed juntos';
-
-  @override
-  String get coupleFeedIdeaChesedCategory => 'Comunidad';
-
-  @override
-  String get coupleFeedIdeaTravelCategory => 'Aventura';
 
   @override
   String get coupleFeedCategoryWellness => 'Bienestar';
@@ -1114,63 +908,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coupleFeedLoadFailedTitle => 'No se pudo cargar';
 
   @override
-  String get coupleFeedStoriesEmptyTitle => 'Aún no hay historias de parejas';
-
-  @override
-  String get coupleFeedStoriesEmptyLine =>
-      'Las primeras historias de amor de MAZL se compartirán pronto.';
-
-  @override
-  String coupleFeedStoryShareText(String name1, String name2, String excerpt) {
-    return '$name1 y $name2 se conocieron en MAZL. Su historia: $excerpt...';
-  }
-
-  @override
-  String coupleFeedStoryStatusSince(String status, String date) {
-    return '$status · desde $date';
-  }
-
-  @override
-  String get coupleFeedStatusDating => 'En pareja';
-
-  @override
-  String get coupleFeedStatusEngaged => 'Comprometidos';
-
-  @override
-  String get coupleFeedStatusMarried => 'Casados';
-
-  @override
-  String get coupleFeedStoryShareLine =>
-      'Inspira a la comunidad MAZL compartiendo tu historia.';
-
-  @override
-  String get coupleFeedStoryStatusLabel => 'Tu estado';
-
-  @override
-  String get coupleFeedStoryTextLabel => 'Tu historia (mín. 100 caracteres)';
-
-  @override
-  String get coupleFeedStoryTextHint =>
-      '¿Cómo se conocieron? ¿Qué fue lo que más te gustó de tu pareja?…';
-
-  @override
-  String get coupleFeedStoryPhotosLabel => 'Fotos (opcional)';
-
-  @override
-  String get coupleFeedStoryPhotosHint => 'Añade fotos de pareja';
-
-  @override
-  String get coupleFeedStorySubmit => 'Enviar nuestra historia';
-
-  @override
-  String get coupleFeedStoryTooShort =>
-      'Tu historia debe tener al menos 100 caracteres';
-
-  @override
-  String get coupleFeedStoryThanks =>
-      'Gracias. Tu historia se publicará tras su validación.';
-
-  @override
   String get coupleSpaceTabActivities => 'Actividades';
 
   @override
@@ -1510,78 +1247,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get coupleSpaceAnniversaryTag => 'Feliz aniversario en MAZL';
-
-  @override
-  String coupleSpaceAnniversaryDaysLabel(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'días juntos',
-      one: 'día juntos',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceAnniversaryWith(String name) {
-    return 'con $name';
-  }
-
-  @override
-  String coupleSpaceAnniversaryNext(String milestone, int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count días',
-      one: '$count día',
-    );
-    return 'Próximo: $milestone en $_temp0';
-  }
-
-  @override
-  String get coupleSpaceAnniversaryHappy => 'Feliz aniversario';
-
-  @override
-  String coupleSpaceAnniversaryDaysWith(int count, String name) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count días',
-      one: '$count día',
-    );
-    return '$_temp0 con $name';
-  }
-
-  @override
-  String get coupleSpaceAnniversaryThanks => 'Gracias';
-
-  @override
-  String coupleSpaceAnniversaryShare(int count, String milestone) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count días',
-      one: '$count día',
-    );
-    return 'Celebramos $_temp0 juntos en MAZL. $milestone';
-  }
-
-  @override
-  String get coupleSpaceMilestonesTitle => 'Vuestros hitos';
-
-  @override
-  String coupleSpaceMilestoneIn(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count días',
-      one: '$count día',
-    );
-    return 'en $_temp0';
-  }
-
-  @override
   String get coupleSpaceCalendarTitle => 'Calendario';
 
   @override
@@ -1623,9 +1288,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get eventsTitle => 'Eventos';
-
-  @override
-  String get eventsCalendarTooltip => 'Calendario';
 
   @override
   String get eventsFilterAll => 'Todos';
@@ -2468,9 +2130,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get matchingDiscoverRefresh => 'Actualizar';
 
   @override
-  String get matchingDiscoverUndo => 'Deshacer';
-
-  @override
   String get matchingDiscoverSuperLike => 'Super like';
 
   @override
@@ -2808,7 +2467,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get onboardingPage4Body =>
-      'Una pausa automática durante Shabat y las fiestas, sin configurar nada.';
+      'Los horarios de encendido de velas y de Havdalá de tu ciudad, y una pantalla de descanso.';
 
   @override
   String get onboardingPage5Title => 'AI Shadchan';
@@ -2909,13 +2568,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get plusFeatureBoostDescription =>
       'Ponte a la cabeza durante 30 minutos.';
-
-  @override
-  String get plusFeatureRewindTitle => 'Retroceder';
-
-  @override
-  String get plusFeatureRewindDescription =>
-      'Recupera un «Pasar» demasiado rápido.';
 
   @override
   String get plusFeatureReadReceiptsTitle => 'Confirmaciones de lectura';
@@ -4197,7 +3849,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsShabbatMode => 'Modo Shabat';
 
   @override
-  String get settingsShabbatAutoPause => 'Pausa automática';
+  String get settingsShabbatAutoPause => 'Horarios de Shabat';
 
   @override
   String get settingsHolidayAlerts => 'Alertas de fiestas';
@@ -4414,57 +4066,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsCoupleActivate => 'Activar';
 
   @override
-  String get settingsShabbatCity => 'Basado en París, Francia';
-
-  @override
-  String get settingsShabbatSettingsHeader => 'Ajustes';
-
-  @override
-  String get settingsShabbatEnable => 'Activar el modo Shabat';
-
-  @override
-  String get settingsShabbatEnableHint =>
-      'Las notificaciones se pausan automáticamente durante Shabat';
-
-  @override
-  String get settingsShabbatIncludeHolidays => 'Incluir las fiestas';
-
-  @override
-  String get settingsShabbatIncludeHolidaysHint =>
-      'Pausa también durante Yom Tov';
-
-  @override
-  String get settingsShabbatBuffer => 'Margen antes de encender las velas';
-
-  @override
-  String settingsMinutesShort(int minutes) {
-    return '$minutes min';
+  String settingsShabbatBasedOn(String place) {
+    return 'Basado en $place';
   }
 
   @override
-  String settingsMinutesSpoken(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes minutos',
-      one: '1 minuto',
-    );
-    return '$_temp0';
-  }
+  String get settingsShabbatDefaultPlace => 'París, Francia';
 
   @override
-  String get settingsShabbatEdit => 'Editar';
+  String get settingsShabbatUnknownPlaceHint =>
+      'Los horarios son los de París, porque no se conoce tu ciudad. Añádela en los ajustes para obtener horarios exactos.';
 
   @override
   String get settingsShabbatExplanation =>
-      'Las notificaciones se pausan y los mensajes esperan. Lo recibirás todo al terminar Shabat, y tu estado mostrará «Modo Shabat».';
+      'El encendido de velas es 18 minutos antes de la puesta de sol, y la Havdalá al caer la noche. Para cambiar de lugar, actualiza tu ciudad en los ajustes.';
 
   @override
   String get settingsShabbatHeroTitle => 'Shabat\nshalom.';
 
   @override
-  String get settingsShabbatHeroSubtitle =>
-      'Mazl descansa contigo. Tus mensajes te esperarán hasta la Havdalá.';
+  String get settingsShabbatHeroSubtitle => 'Mazl descansa contigo.';
 
   @override
   String get settingsShabbatCandleLighting => 'Encendido de velas';
@@ -4518,98 +4139,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsRestoreNothing => 'No se encontró ninguna suscripción.';
-
-  @override
-  String get shadchanTitle => 'Shadchan IA';
-
-  @override
-  String get shadchanHeaderTitle => 'Tu Shadchan personal';
-
-  @override
-  String get shadchanHeaderBody =>
-      'Nuestra IA analiza tus preferencias para proponerte perfiles muy compatibles';
-
-  @override
-  String get shadchanTodayTitle => 'Sugerencias del día';
-
-  @override
-  String shadchanNewCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count nuevas',
-      one: '$count nueva',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get shadchanEmptyTitle => 'Has repasado todas tus sugerencias.';
-
-  @override
-  String get shadchanEmptyBody =>
-      'Vuelve mañana para ver nuevas propuestas de tu Shadchan.';
-
-  @override
-  String get shadchanEmptyAction => 'Descubrir más perfiles';
-
-  @override
-  String shadchanPassed(String name) {
-    return 'Has descartado a $name';
-  }
-
-  @override
-  String shadchanLiked(String name) {
-    return 'Has añadido a $name a tus likes';
-  }
-
-  @override
-  String get shadchanHowTitle => '¿Cómo funciona?';
-
-  @override
-  String get shadchanHowStepAnalyze =>
-      'Nuestra IA analiza tu perfil y tus preferencias';
-
-  @override
-  String get shadchanHowStepCompare =>
-      'Los compara con los perfiles compatibles';
-
-  @override
-  String get shadchanHowStepDaily =>
-      'Recibes sugerencias personalizadas cada día';
-
-  @override
-  String get shadchanWhy => '¿Por qué esta sugerencia?';
-
-  @override
-  String get shadchanMatchBadge => 'Match';
-
-  @override
-  String get shadchanReasonSamePractice => 'Mismo nivel de práctica';
-
-  @override
-  String get shadchanReasonInterests => 'Intereses en común: viajes, cocina';
-
-  @override
-  String get shadchanReasonGoals => 'Objetivos parecidos';
-
-  @override
-  String get shadchanReasonFamily => 'Valores familiares alineados';
-
-  @override
-  String get shadchanReasonMusic => 'Pasión compartida por la música';
-
-  @override
-  String get shadchanReasonLocation => 'Zonas de residencia compatibles';
-
-  @override
-  String get shadchanReasonReligion => 'Práctica religiosa parecida';
-
-  @override
-  String get shadchanReasonProfession => 'Sectores profesionales cercanos';
-
-  @override
-  String get shadchanReasonCouple => 'La misma visión de la pareja';
 
   @override
   String get verificationProfileEyebrow => 'Tu perfil';
@@ -5214,95 +4743,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'Terminado.';
-
-  @override
-  String get videoCallInProgress => 'Llamada en curso...';
-
-  @override
-  String get videoCallFlip => 'Girar';
-
-  @override
-  String get videoCallCamera => 'Cámara';
-
-  @override
-  String get videoCallMic => 'Micro';
-
-  @override
-  String get videoCallEnd => 'Finalizar';
-
-  @override
-  String get visitorsTitle => 'Quién ha visitado mi perfil';
-
-  @override
-  String visitorsTotal(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count visitas',
-      one: '$count visita',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String visitorsThisWeek(int count) {
-    return '$count esta semana';
-  }
-
-  @override
-  String get visitorsBannerTitle => 'Descubre quién te ha visitado';
-
-  @override
-  String get visitorsBannerBody => 'Pásate a mazl+ para ver los perfiles';
-
-  @override
-  String get visitorsEmptyTitle => 'Aún no hay visitas';
-
-  @override
-  String get visitorsEmptyBody =>
-      'Completa tu perfil y usa un Boost para atraer más visitas.';
-
-  @override
-  String get visitorsEmptyAction => 'Activar un Boost';
-
-  @override
-  String get visitorsLockedTitle => 'Solo con mazl+';
-
-  @override
-  String get visitorsLockedBody =>
-      'Pásate a mazl+ para descubrir quién ha visitado tu perfil y contactar con esas personas directamente.';
-
-  @override
-  String get visitorsLockedAction => 'Descubrir mazl+';
-
-  @override
-  String get visitorsNew => 'NUEVO';
-
-  @override
-  String visitorsAgoMinutes(int count) {
-    return 'Hace $count min';
-  }
-
-  @override
-  String visitorsAgoHours(int count) {
-    return 'Hace $count h';
-  }
-
-  @override
-  String visitorsAgoDays(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Hace $count días',
-      one: 'Hace $count día',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String visitorsAgoWeeks(int count) {
-    return 'Hace $count sem.';
-  }
 
   @override
   String get webSessionsTitle => 'Ordenadores conectados';

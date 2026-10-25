@@ -127,7 +127,6 @@ class _ChatScreenState extends State<ChatScreen> {
     otherUser: _otherUser,
     onBack: () => context.pop(),
     onOpenProfile: _openProfile,
-    onVideoCall: () => context.go('/chat/${widget.conversationId}/video-call'),
     onOptions: _showOptions,
   );
 }

@@ -13,15 +13,6 @@ class JewishCalendarService {
   factory JewishCalendarService() => _instance;
   JewishCalendarService._internal();
 
-  /// Default location used for astronomical calculations (candle lighting,
-  /// Havdala). Defaults to Paris, the primary audience of the app. Times are
-  /// therefore real, longitude/latitude-derived values rather than per-month
-  /// constants. Diaspora rules (`inIsrael = false`) apply.
-  static const String _locationName = 'Paris';
-  static const double _latitude = 48.8566;
-  static const double _longitude = 2.3522;
-  static const double _elevation = 35;
-
   /// How far ahead (in days) we scan the Hebrew calendar for upcoming holidays.
   /// A little over one year guarantees at least one full cycle of every
   /// annual holiday whatever the current date.
@@ -85,9 +76,17 @@ class JewishCalendarService {
   }
 
   /// Get this week's Shabbat info, with a real parasha and astronomically
-  /// computed candle-lighting / Havdala times for [_locationName].
-  ShabbatInfo getThisWeekShabbat() {
-    final now = DateTime.now();
+  /// computed candle-lighting / Havdala times for [location] (Paris when none
+  /// is given). Candle lighting is 18 minutes before sunset, Havdala when the
+  /// sun is 8.5 degrees below the horizon; Diaspora rules apply.
+  ///
+  /// The moments are exact instants. [ShabbatInfo.candleLighting] and
+  /// [ShabbatInfo.havdala] write them on the clock of the phone.
+  ShabbatInfo getThisWeekShabbat({
+    ShabbatLocation location = ShabbatLocation.paris,
+    DateTime? now,
+  }) {
+    now ??= DateTime.now();
     // Find the coming Friday (or today if today is Friday).
     var friday = DateTime(now.year, now.month, now.day);
     while (friday.weekday != DateTime.friday) {
@@ -95,8 +94,11 @@ class JewishCalendarService {
     }
     final saturday = friday.add(const Duration(days: 1));
 
-    final candleLightingAt = _zmanimFor(friday).getCandleLighting()?.toLocal();
-    final havdalaAt = _zmanimFor(saturday).getTzais()?.toLocal();
+    final candleLightingAt = _zmanimFor(
+      friday,
+      location,
+    ).getCandleLighting()?.toLocal();
+    final havdalaAt = _zmanimFor(saturday, location).getTzais()?.toLocal();
     return ShabbatInfo(
       parsha: _getParsha(saturday),
       candleLighting: _clock(candleLightingAt),
@@ -171,14 +173,14 @@ class JewishCalendarService {
   String _clock(DateTime? moment) =>
       moment == null ? '--:--' : _timeFormatter.format(moment);
 
-  /// Build a zmanim calendar anchored on [date] at the configured location.
-  ComplexZmanimCalendar _zmanimFor(DateTime date) {
+  /// Build a zmanim calendar anchored on [date] at [place].
+  ComplexZmanimCalendar _zmanimFor(DateTime date, ShabbatLocation place) {
     final location = GeoLocation.setLocation(
-      _locationName,
-      _latitude,
-      _longitude,
+      place.name,
+      place.latitude,
+      place.longitude,
       date,
-    )..setElevation(_elevation);
+    )..setElevation(place.elevation);
     return ComplexZmanimCalendar.intGeoLocation(location)..setCalendar(date);
   }
 
@@ -422,6 +424,30 @@ extension HolidayTypeExtension on HolidayType {
         return '';
     }
   }
+}
+
+/// A place on Earth the Shabbat times are worked out for.
+class ShabbatLocation {
+  const ShabbatLocation({
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+    this.elevation = 0,
+  });
+
+  /// Paris, the primary audience of the app: used when the member's own place
+  /// is not known.
+  static const paris = ShabbatLocation(
+    name: 'Paris',
+    latitude: 48.8566,
+    longitude: 2.3522,
+    elevation: 35,
+  );
+
+  final String name;
+  final double latitude;
+  final double longitude;
+  final double elevation;
 }
 
 /// Model for Shabbat info

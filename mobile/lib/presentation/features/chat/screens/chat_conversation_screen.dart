@@ -26,7 +26,6 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
     this.otherUser,
     this.onBack,
     this.onOpenProfile,
-    this.onVideoCall,
     this.onOptions,
     this.isScamFlagged,
   });
@@ -37,7 +36,6 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
   final ConversationUser? otherUser;
   final VoidCallback? onBack;
   final VoidCallback? onOpenProfile;
-  final VoidCallback? onVideoCall;
   final VoidCallback? onOptions;
 
   /// Replaces the built-in scam rules (`lib/core/chat/scam_rules.dart`) that
@@ -182,7 +180,6 @@ class _ChatConversationScreenState
                 isTyping: state.otherIsTyping,
                 onBack: widget.onBack ?? () => Navigator.of(context).maybePop(),
                 onOpenProfile: other == null ? null : widget.onOpenProfile,
-                onVideoCall: widget.onVideoCall ?? () {},
                 onOptions: widget.onOptions ?? () {},
               ),
               Expanded(

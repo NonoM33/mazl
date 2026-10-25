@@ -23,10 +23,6 @@
   "@matchingDiscoverRefresh": {
     "description": "Bouton de Découvrir (état vide) qui recharge les profils."
   },
-  "matchingDiscoverUndo": "Annuler",
-  "@matchingDiscoverUndo": {
-    "description": "Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+)."
-  },
   "matchingDiscoverSuperLike": "Super like",
   "@matchingDiscoverSuperLike": {
     "description": "Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre."

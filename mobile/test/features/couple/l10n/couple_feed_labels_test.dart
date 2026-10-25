@@ -3,9 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mazl/core/models/couple_activity.dart';
 import 'package:mazl/core/models/couple_event.dart';
-import 'package:mazl/core/models/couple_models.dart' show DailyQuestion;
 import 'package:mazl/presentation/features/couple/l10n/couple_feed_labels.dart';
-import 'package:mazl/presentation/features/couple/l10n/couple_feed_service_content.dart';
 import 'package:mazl/l10n/generated/app_localizations.dart';
 
 import 'feed_l10n_support.dart';
@@ -83,34 +81,8 @@ void main() {
     });
 
     test('plurals follow the rules of the language', () {
-      expect(fr.coupleFeedDashboardDaysTogether(1), '1 jour ensemble');
-      expect(fr.coupleFeedDashboardDaysTogether(0), '0 jours ensemble');
-      expect(fr.coupleFeedDashboardDaysTogether(1200), contains('1 200'));
-      expect(en.coupleFeedDashboardDaysTogether(1), '1 day together');
-      expect(he.coupleFeedDashboardDaysTogether(2), 'יומיים יחד');
-      expect(ru.coupleFeedDashboardDaysTogether(1), '1 день вместе');
-      expect(ru.coupleFeedDashboardDaysTogether(3), '3 дня вместе');
-      expect(ru.coupleFeedDashboardDaysTogether(11), '11 дней вместе');
       expect(ru.coupleFeedEventSpotsLeft(21), 'Остался 21 место');
       expect(en.coupleFeedEventSpotsLeft(1), '1 spot left');
-    });
-
-    test('the dashboard\'s fixed content is translated by identifier', () {
-      final question = DailyQuestion(
-        id: '4',
-        question: 'x',
-        category: 'x',
-        options: ['a', 'b', 'Restaurant casher', 'd'],
-      );
-      expect(questionText(en, question), contains('Shabbat'));
-      expect(questionOption(en, question, 2), 'Kosher restaurant');
-      expect(questionOption(fr, question, 2), 'Restaurant casher');
-    });
-
-    test('a status is translated, an unknown one reads as « dating »', () {
-      expect(successStatusLabel(fr, 'married'), 'Mariés');
-      expect(successStatusLabel(en, 'engaged'), 'Engaged');
-      expect(successStatusLabel(en, 'whatever'), 'In a relationship');
     });
   });
 }

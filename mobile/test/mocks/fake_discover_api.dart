@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:mazl/core/likes/like_allowance.dart';
+import 'package:mazl/core/likes/like_allowance_api.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/services/store/credits_service.dart';
 
@@ -53,6 +57,19 @@ class FakeDiscoverApi implements ApiService {
   /// Every swipe fails, as when the network is down.
   bool swipesFail = false;
 
+  /// The server refuses every like with its 402 `likes_exhausted`
+  /// (`like-allowance.routes.ts`): nothing is recorded, the day's likes are gone.
+  bool refuseLikes = false;
+
+  /// What the 402 carries as `allowance`.
+  int refusedDailyAllowance = 10;
+
+  /// `userId:like` the server refused with a 402.
+  final List<String> refusedLikes = [];
+
+  /// While set, a like waits for it before the server answers (a slow reply).
+  Completer<void>? holdLikes;
+
   /// What the profile page loads.
   @override
   Future<ApiResponse<Profile>> getProfileById(int userId) async {
@@ -96,6 +113,32 @@ class FakeDiscoverApi implements ApiService {
   }) async {
     if (swipesFail) return ApiResponse.failure('Failed to send swipe');
     swipes.add('$targetUserId:$action');
+    if (action == 'like') {
+      final hold = holdLikes;
+      if (hold != null) await hold.future;
+      if (refuseLikes) {
+        refusedLikes.add('$targetUserId:$action');
+        return ApiResponse(
+          success: false,
+          error: 'Failed to send swipe (HTTP 402)',
+          errorKind: ApiErrorKind.creditsExhausted,
+          errorCode: 'likes_exhausted',
+          statusCode: 402,
+          body: {
+            'success': false,
+            'error': 'likes_exhausted',
+            'allowance': {
+              'daily_allowance': refusedDailyAllowance,
+              'remaining': 0,
+              'resets_at': DateTime.now()
+                  .toUtc()
+                  .add(const Duration(hours: 5))
+                  .toIso8601String(),
+            },
+          },
+        );
+      }
+    }
     // The server's answer, SwipeResult in src/features/matching/swipe.routes.ts.
     final matched = action != 'pass' && matchWith.contains(targetUserId);
     if (action != 'super_like') {
@@ -188,3 +231,49 @@ List<Profile> discoverProfiles(
       isVerified: verified,
     ),
 ];
+
+/// Stands in for `GET /api/likes/allowance`: answers [answers] in turn, the
+/// last one for ever after, or fails when [failure] is set.
+class FakeLikeAllowanceApi implements LikeAllowanceApi {
+  FakeLikeAllowanceApi(List<LikeAllowance> answers) : _answers = answers;
+
+  /// A free member with [remaining] likes left today.
+  FakeLikeAllowanceApi.free({int remaining = 10, Duration resetsIn = const Duration(hours: 5)})
+    : _answers = [freeAllowance(remaining: remaining, resetsIn: resetsIn)];
+
+  /// A mazl+ member: no limit.
+  FakeLikeAllowanceApi.unlimited()
+    : _answers = [
+        LikeAllowance(
+          dailyAllowance: null,
+          remaining: null,
+          resetsAt: DateTime.now().toUtc().add(const Duration(hours: 5)),
+        ),
+      ];
+
+  final List<LikeAllowance> _answers;
+
+  /// How many times the screen asked.
+  int reads = 0;
+
+  /// When set, every read fails with it.
+  LikeAllowanceException? failure;
+
+  @override
+  Future<LikeAllowance> getAllowance() async {
+    final index = reads < _answers.length ? reads : _answers.length - 1;
+    reads++;
+    final error = failure;
+    if (error != null) throw error;
+    return _answers[index];
+  }
+}
+
+LikeAllowance freeAllowance({
+  int remaining = 10,
+  Duration resetsIn = const Duration(hours: 5),
+}) => LikeAllowance(
+  dailyAllowance: 10,
+  remaining: remaining,
+  resetsAt: DateTime.now().toUtc().add(resetsIn),
+);

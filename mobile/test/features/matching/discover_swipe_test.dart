@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/services/store/credits_service.dart';
@@ -42,6 +43,7 @@ Future<FakeDiscoverApi> _pumpDiscover(
   int superLikes = 1,
   int boosts = 0,
   bool boostActive = false,
+  FakeLikeAllowanceApi? allowance,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
@@ -72,7 +74,10 @@ Future<FakeDiscoverApi> _pumpDiscover(
       theme: AppTheme.lightTheme,
       // As in the app: the iPhone's Reduce Motion reaches the screen here.
       builder: (context, child) => ReduceMotionScope(child: child!),
-      home: DiscoverScreen(apiService: api),
+      home: DiscoverScreen(
+        apiService: api,
+        likeAllowanceApi: allowance ?? FakeLikeAllowanceApi.free(),
+      ),
     ),
   );
   await tester.pump();
@@ -196,10 +201,11 @@ void main() {
 
   testWidgets('a refused like springs back from where it is, stays mounted, '
       'and asks for the gate only once it is back', (tester) async {
-    for (var i = 0; i < PremiumGate.freeLikesPerDay; i++) {
-      PremiumGate.tryConsumeFreeLike();
-    }
-    final api = await _pumpDiscover(tester);
+    // The server says none is left today.
+    final api = await _pumpDiscover(
+      tester,
+      allowance: FakeLikeAllowanceApi.free(remaining: 0),
+    );
 
     await _releaseRefusedAndWatch(
       tester,
@@ -406,21 +412,6 @@ void main() {
     expect(_card(102), findsOneWidget);
   });
 
-  testWidgets('a like uses one of the free likes, a pass uses none', (
-    tester,
-  ) async {
-    await _pumpDiscover(tester);
-    final before = PremiumGate.remainingFreeLikes;
-
-    await dragSlowly(tester, _card(101), const Offset(-170, 0));
-    await settle(tester);
-    expect(PremiumGate.remainingFreeLikes, before);
-
-    await dragSlowly(tester, _card(102), const Offset(170, 0));
-    await settle(tester);
-    expect(PremiumGate.remainingFreeLikes, before - 1);
-  });
-
   testWidgets(
     'a super like by finger sends super_like, spends one, and gives the '
     'threshold click then a medium impact',
@@ -485,23 +476,15 @@ void main() {
     expect(_card(101), findsNothing);
   });
 
-  testWidgets('undo brings the last card back, from the side it left', (
-    tester,
-  ) async {
+  testWidgets('there is no undo button, even for a subscriber', (tester) async {
     PremiumGate.debugPremiumOverride = true;
-    final api = await _pumpDiscover(tester);
-    await dragSlowly(tester, _card(101), const Offset(-170, 0));
-    await settle(tester);
-    expect(_card(101), findsNothing);
+    final semantics = tester.ensureSemantics();
+    await _pumpDiscover(tester);
 
-    await tester.tap(find.bySemanticsLabel('Annuler'));
-    await tester.pump(); // the animation starts on this frame
-    await tester.pump(const Duration(milliseconds: 60));
-    expect(tester.getCenter(_card(101)).dx, lessThan(_restX(tester) - 40));
-    await settle(tester);
-
-    _expectAtRest(tester, _card(101));
-    expect(api.swipes, ['101:pass']);
+    // Nothing is cancelled server side, so the offer does not promise it.
+    expect(find.bySemanticsLabel('Annuler'), findsNothing);
+    expect(find.byIcon(LucideIcons.rotateCcw), findsNothing);
+    semantics.dispose();
   });
 
   group('photo indicator', () {

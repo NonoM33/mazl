@@ -1,35 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/jewish_calendar_service.dart';
 import '../../../../l10n/l10n.dart';
-import '../../../common/widgets/mazl_components.dart';
 import '../widgets/shabbat_hero.dart';
 
+/// Mode Shabbat : les horaires d'allumage et de havdala du lieu du membre, sur
+/// l'écran de repos. L'app ne met rien en pause : l'écran ne le promet pas.
+///
+/// Le lieu est celui du profil (coordonnées de la ville). Sans coordonnées, ou
+/// si le profil ne peut pas être lu, ce sont les horaires de Paris, et l'écran
+/// le dit.
 class ShabbatModeScreen extends StatefulWidget {
-  const ShabbatModeScreen({super.key});
+  const ShabbatModeScreen({super.key, this.apiService, this.clock});
+
+  /// Injected by tests; the app uses the real service.
+  final ApiService? apiService;
+
+  /// L'heure qu'il est ; injectée par les tests.
+  final DateTime Function()? clock;
 
   @override
   State<ShabbatModeScreen> createState() => _ShabbatModeScreenState();
 }
 
 class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
-  bool _isEnabled = true;
-  bool _includeHolidays = true;
-  int _bufferMinutes = 18;
+  late final ApiService _api = widget.apiService ?? ApiService();
 
-  late final ShabbatInfo _shabbat = JewishCalendarService().getThisWeekShabbat();
+  ShabbatInfo? _shabbat;
+
+  /// Le nom du lieu du membre ; null quand les horaires sont ceux de Paris
+  /// par défaut.
+  String? _place;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final response = await _api.getCurrentUser();
+    final profile = response.success ? response.data?.profile : null;
+    final latitude = profile?.latitude;
+    final longitude = profile?.longitude;
+    final place = shabbatPlaceName(profile?.location);
+    // Coordinates without a city name cannot be told to the member: Paris.
+    final location = latitude != null && longitude != null && place != null
+        ? ShabbatLocation(name: place, latitude: latitude, longitude: longitude)
+        : null;
+    final shabbat = JewishCalendarService().getThisWeekShabbat(
+      location: location ?? ShabbatLocation.paris,
+      now: widget.clock?.call(),
+    );
+    if (!mounted) return;
+    setState(() {
+      _shabbat = shabbat;
+      _place = location?.name;
+    });
+  }
 
   /// Le service rend « --:-- » quand le calcul astronomique échoue.
-  static String _display(String time) => time.contains('-') ? '—' : time;
+  static String _display(String? time) =>
+      time == null || time.contains('-') ? '—' : time;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
-    final city = l10n.settingsShabbatCity;
+    final shabbat = _shabbat;
+    final place = _place;
+    final usesDefaultPlace = shabbat != null && place == null;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -41,48 +84,29 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
           padding: EdgeInsets.zero,
           children: [
             ShabbatHero(
-              candleLighting: _display(_shabbat.candleLighting),
-              havdala: _display(_shabbat.havdala),
-              city: city,
+              candleLighting: _display(shabbat?.candleLighting),
+              havdala: _display(shabbat?.havdala),
+              city: shabbat == null
+                  ? ''
+                  : l10n.settingsShabbatBasedOn(
+                      place ?? l10n.settingsShabbatDefaultPlace,
+                    ),
               onBack: () => context.pop(),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-              child: SectionLabel(l10n.settingsShabbatSettingsHeader),
-            ),
-            const SizedBox(height: 8),
-            _SwitchRow(
-              title: l10n.settingsShabbatEnable,
-              subtitle: l10n.settingsShabbatEnableHint,
-              value: _isEnabled,
-              onChanged: (value) => setState(() => _isEnabled = value),
-            ),
-            if (_isEnabled) ...[
-              _SwitchRow(
-                title: l10n.settingsShabbatIncludeHolidays,
-                subtitle: l10n.settingsShabbatIncludeHolidaysHint,
-                value: _includeHolidays,
-                onChanged: (value) => setState(() => _includeHolidays = value),
-              ),
-              _BufferRow(
-                minutes: _bufferMinutes,
-                onChanged: (value) => setState(() => _bufferMinutes = value),
-              ),
-              _LocationRow(
-                label: city,
-                onEdit: () {
-                  // TODO: Change location
-                },
-              ),
+            if (shabbat != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                padding: const EdgeInsets.fromLTRB(24, 28, 24, 48),
                 child: Text(
-                  l10n.settingsShabbatExplanation,
-                  style: TextStyle(fontSize: 14, height: 1.5, color: scheme.onSurfaceVariant),
+                  usesDefaultPlace
+                      ? l10n.settingsShabbatUnknownPlaceHint
+                      : l10n.settingsShabbatExplanation,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ],
-            const SizedBox(height: 48),
           ],
         ),
       ),
@@ -90,131 +114,11 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
   }
 }
 
-class _Hairline extends StatelessWidget {
-  const _Hairline();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant),
-    );
-  }
-}
-
-class _SwitchRow extends StatelessWidget {
-  const _SwitchRow({
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-          title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(subtitle, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
-          ),
-          value: value,
-          onChanged: onChanged,
-        ),
-        const _Hairline(),
-      ],
-    );
-  }
-}
-
-class _BufferRow extends StatelessWidget {
-  const _BufferRow({required this.minutes, required this.onChanged});
-
-  final int minutes;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final l10n = context.l10n;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.settingsShabbatBuffer,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Text(l10n.settingsMinutesShort(minutes), style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant)),
-                ],
-              ),
-              Slider(
-                value: minutes.toDouble(),
-                min: 0,
-                max: 30,
-                divisions: 6,
-                label: l10n.settingsMinutesShort(minutes),
-                semanticFormatterCallback: (value) => l10n.settingsMinutesSpoken(value.round()),
-                onChanged: (value) => onChanged(value.toInt()),
-              ),
-            ],
-          ),
-        ),
-        const _Hairline(),
-      ],
-    );
-  }
-}
-
-class _LocationRow extends StatelessWidget {
-  const _LocationRow({required this.label, required this.onEdit});
-
-  final String label;
-  final VoidCallback onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          child: Row(
-            children: [
-              Icon(LucideIcons.mapPin, size: 18, color: scheme.onSurfaceVariant),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(label, style: TextStyle(fontSize: 15, color: scheme.onSurface)),
-              ),
-              OutlinedButton(
-                onPressed: onEdit,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(44, 44),
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                ),
-                child: Text(context.l10n.settingsShabbatEdit),
-              ),
-            ],
-          ),
-        ),
-        const _Hairline(),
-      ],
-    );
-  }
+/// Le nom de la ville d'un profil, sans son code postal (« Paris 75001 » ->
+/// « Paris ») ; null quand le profil n'en a pas.
+String? shabbatPlaceName(String? profileLocation) {
+  final name = profileLocation
+      ?.replaceFirst(RegExp(r'\s+\d{4,6}$'), '')
+      .trim();
+  return name == null || name.isEmpty ? null : name;
 }

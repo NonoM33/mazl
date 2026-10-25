@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/likes/like_allowance.dart';
+import '../../../../core/likes/like_allowance_api.dart';
 import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -22,10 +24,13 @@ import '../widgets/discover_card.dart';
 import '../widgets/match_sheet.dart';
 
 class DiscoverScreen extends StatefulWidget {
-  const DiscoverScreen({super.key, this.apiService});
+  const DiscoverScreen({super.key, this.apiService, this.likeAllowanceApi});
 
   /// Injected by tests; the app uses the real service.
   final ApiService? apiService;
+
+  /// Reads how many likes the server still lets the member send today.
+  final LikeAllowanceApi? likeAllowanceApi;
 
   @override
   State<DiscoverScreen> createState() => _DiscoverScreenState();
@@ -36,7 +41,16 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   final SwipeDeckController _deck = SwipeDeckController();
   final DataPrefetchService _prefetchService = DataPrefetchService();
   late final ApiService _apiService = widget.apiService ?? ApiService();
+  late final LikeAllowanceApi _allowanceApi =
+      widget.likeAllowanceApi ?? HttpLikeAllowanceApi.app();
   final CreditsService _credits = CreditsService();
+
+  /// The day's likes as the SERVER last said it; null until it has.
+  LikeAllowance? _allowance;
+
+  /// The card [SwipeDeck.undo] last brought back, to know when the refused
+  /// one is on top again.
+  int? _undoneIndex;
 
   List<Profile> _profiles = [];
   bool _isLoading = true;
@@ -58,12 +72,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void initState() {
     super.initState();
     _initializeData();
-    // Charge les compteurs quotidiens avant le premier like.
-    PremiumGate.ensureInitialized();
-    // Listen to super likes changes to update badge
-    PremiumGate.onSuperLikesChanged = () {
-      if (mounted) setState(() {});
-    };
+    unawaited(_refreshAllowance());
     // The Super Like badge shows the server's balance.
     _credits.addListener(_onCreditsChanged);
     if (!_credits.isLoaded) unawaited(_credits.refresh());
@@ -72,6 +81,21 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void _onCreditsChanged() {
     if (mounted) setState(() {});
   }
+
+  /// Asks the server how many likes are left today. An unreadable answer is
+  /// not « none »: nothing is refused here, the server refuses what it cannot
+  /// take.
+  Future<void> _refreshAllowance() async {
+    try {
+      final allowance = await _allowanceApi.getAllowance();
+      if (mounted) _allowance = allowance;
+    } on LikeAllowanceException catch (error) {
+      debugPrint('Like allowance unavailable: ${error.kind.name}');
+    }
+  }
+
+  bool get _likesKnownExhausted =>
+      _allowance?.isExhaustedAt(DateTime.now()) ?? false;
 
   Future<void> _initializeData() async {
     // Try to use prefetched data first
@@ -117,7 +141,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void dispose() {
     _deck.dispose();
     _credits.removeListener(_onCreditsChanged);
-    PremiumGate.onSuperLikesChanged = null;
     super.dispose();
   }
 
@@ -286,7 +309,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         onWillSwipe: _willSwipe,
         onRefused: _onRefused,
         onSwiped: _onSwiped,
-        onUndone: _onUndone,
+        onUndone: (index) => _undoneIndex = index,
         onEnd: _onDeckEnd,
         cardBuilder: (context, index, isTop) {
           final profile = _profiles[index];
@@ -319,20 +342,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       onPressed: () => _deck.swipe(SwipeDirection.up),
     );
     return [
-      // Undo (Premium)
-      DiscoverMiniAction(
-        icon: LucideIcons.rotateCcw,
-        tooltip: context.l10n.matchingDiscoverUndo,
-        locked: !PremiumGate.isPremium,
-        onPressed: () async {
-          if (await PremiumGate.showFeatureGate(
-            context,
-            PremiumFeature.rewind,
-          )) {
-            _deck.undo();
-          }
-        },
-      ),
       // Super Like
       if (followsSwipe)
         SwipeProgressScale(
@@ -415,9 +424,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   bool _willSwipe(int index, SwipeDirection direction) {
     switch (direction) {
       case SwipeDirection.right:
-        // Les likes gratuits du jour sont comptés ici. Un like venu de la fiche
-        // profil a déjà été contrôlé et décompté là-bas.
-        return _swipeFromDetail || PremiumGate.tryConsumeFreeLike();
+        // Le serveur compte les likes du jour. Ici on ne refuse que ce qu'il a
+        // déjà dit épuisé ; sinon il tranche au moment d'envoyer (402). Un like
+        // venu de la fiche profil a déjà été contrôlé là-bas.
+        return _swipeFromDetail || !_likesKnownExhausted;
       case SwipeDirection.up:
         // Check if user has super likes remaining
         return PremiumGate.remainingSuperLikes > 0;
@@ -430,7 +440,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void _onRefused(int index, SwipeDirection direction) {
     _swipeFromDetail = false;
     if (direction == SwipeDirection.right) {
-      unawaited(PremiumGate.showDailyLimitSheet(context));
+      unawaited(_offerPlusForLikes());
     } else if (direction == SwipeDirection.up) {
       unawaited(_offerSuperLikes());
     }
@@ -503,14 +513,70 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);
+      } else if (response.isLikesExhausted) {
+        unawaited(_onLikeRefusedByServer(index, profile, response));
       } else if (response.isCreditsExhausted) {
         unawaited(_offerSuperLikesAfterRefusal(profile));
+      }
+      if (response.success && action == 'like') {
+        // Le reste du jour a baissé : on le relit, on ne le calcule pas.
+        unawaited(_refreshAllowance());
       }
     });
   }
 
-  void _onUndone(int index) {
-    debugPrint('Undo on ${_profiles[index].displayName}');
+  /// The server took no like (HTTP 402 `likes_exhausted`): the card the member
+  /// threw is put back, then the mazl+ offer opens.
+  Future<void> _onLikeRefusedByServer(
+    int index,
+    Profile profile,
+    ApiResponse<Map<String, dynamic>> response,
+  ) async {
+    final told = response.exhaustedAllowance;
+    if (told != null) {
+      _allowance = told;
+    } else {
+      await _refreshAllowance();
+    }
+    await _bringBack(index, profile);
+    if (mounted) await _offerPlusForLikes();
+  }
+
+  /// Puts the card [index] back on top. The member may have thrown others
+  /// since (the answer was slow): they come back first, in order. A deck that
+  /// has already ended is built again from this one card.
+  Future<void> _bringBack(int index, Profile profile) async {
+    // One try per frame for about a second: the deck is busy while a card is
+    // being dragged or thrown.
+    const attempts = 60;
+    for (var attempt = 0; attempt < attempts && mounted; attempt++) {
+      _undoneIndex = null;
+      await _deck.undo();
+      final undone = _undoneIndex;
+      if (undone == index) return;
+      // Another card came back (go on at once), or the deck was busy (next frame).
+      if (undone == null) await WidgetsBinding.instance.endOfFrame;
+    }
+    if (mounted && _profiles.isEmpty) {
+      setState(() {
+        _profiles = [profile];
+        _deckGeneration++;
+      });
+    }
+  }
+
+  /// The day's likes are gone: the existing sheet, with the server's limit and
+  /// reset time. Back from it (the member may have subscribed), the server is
+  /// asked again.
+  Future<void> _offerPlusForLikes() async {
+    if (!mounted) return;
+    final allowance = _allowance;
+    await PremiumGate.showDailyLimitSheet(
+      context,
+      freeLikesPerDay: allowance?.dailyAllowance,
+      resetsAt: allowance?.resetsAt,
+    );
+    await _refreshAllowance();
   }
 
   /// Every profile has been seen: the empty state offers to look again.

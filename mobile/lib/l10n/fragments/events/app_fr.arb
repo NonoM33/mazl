@@ -3,10 +3,6 @@
   "@eventsTitle": {
     "description": "Titre de la liste des événements (soirées, cours, fêtes)."
   },
-  "eventsCalendarTooltip": "Calendrier",
-  "@eventsCalendarTooltip": {
-    "description": "Liste des événements : info-bulle du bouton calendrier de la barre du haut."
-  },
   "eventsFilterAll": "Tous",
   "@eventsFilterAll": {
     "description": "Liste des événements : puce de filtre qui montre tous les types."

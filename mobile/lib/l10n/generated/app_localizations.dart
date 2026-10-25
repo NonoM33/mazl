@@ -422,12 +422,6 @@ abstract class AppLocalizations {
   /// **'En ligne'**
   String get chatHeaderOnline;
 
-  /// Chat, en-tête : info-bulle du bouton qui lance un appel vidéo.
-  ///
-  /// In fr, this message translates to:
-  /// **'Appel vidéo'**
-  String get chatHeaderVideoCall;
-
   /// Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation.
   ///
   /// In fr, this message translates to:
@@ -1064,372 +1058,6 @@ abstract class AppLocalizations {
   /// **'Impossible d\'ouvrir {target} pour le moment.'**
   String linkOpenError(String target);
 
-  /// Info-bulle du bouton rond (engrenage) en haut à droite du tableau de bord du couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réglages'**
-  String get coupleFeedDashboardSettingsTooltip;
-
-  /// Nom affiché sous l'avatar du membre, dans l'en-tête du tableau de bord du couple. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Moi'**
-  String get coupleFeedDashboardMe;
-
-  /// Nom affiché sous l'avatar du partenaire quand son prénom est inconnu. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Partenaire'**
-  String get coupleFeedDashboardPartnerFallback;
-
-  /// Titre de l'en-tête du couple : le nombre de jours depuis le début de la relation. Une ligne, sous les deux avatars.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, =0{0 jours ensemble} one{{count} jour ensemble} other{{count} jours ensemble}}'**
-  String coupleFeedDashboardDaysTogether(int count);
-
-  /// Petit titre de la carte de la question du jour, à gauche de la catégorie de la question. Majuscules ajoutées par le design.
-  ///
-  /// In fr, this message translates to:
-  /// **'Question du jour'**
-  String get coupleFeedDashboardDailyQuestion;
-
-  /// Bouton plein de la carte de la question du jour : ouvre la feuille pour répondre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Répondre'**
-  String get coupleFeedDashboardAnswer;
-
-  /// Texte d'aide dans le champ où le membre écrit sa réponse à la question du jour.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre réponse…'**
-  String get coupleFeedDashboardAnswerHint;
-
-  /// Bouton qui envoie la réponse écrite à la question du jour.
-  ///
-  /// In fr, this message translates to:
-  /// **'Envoyer'**
-  String get coupleFeedDashboardSend;
-
-  /// Message vert affiché en bas de l'écran une fois la réponse à la question du jour envoyée. Une à deux lignes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réponse envoyée. Votre partenaire sera notifié(e).'**
-  String get coupleFeedDashboardAnswerSent;
-
-  /// Titre de section (petites majuscules) au-dessus de la bande d'idées d'activités à deux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Activités en couple'**
-  String get coupleFeedDashboardActivities;
-
-  /// Titre de section au-dessus des étapes du couple (première semaine, premier mois...).
-  ///
-  /// In fr, this message translates to:
-  /// **'Nos étapes'**
-  String get coupleFeedDashboardMilestones;
-
-  /// Bouton texte à droite du titre « Nos étapes ». Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir tout'**
-  String get coupleFeedDashboardSeeAll;
-
-  /// Titre de section au-dessus de la carte d'événement pour couples.
-  ///
-  /// In fr, this message translates to:
-  /// **'Événements en couple'**
-  String get coupleFeedDashboardEvents;
-
-  /// Titre de section au-dessus de la carte du calendrier juif (Shabbat de la semaine).
-  ///
-  /// In fr, this message translates to:
-  /// **'Calendrier juif'**
-  String get coupleFeedDashboardJewishCalendar;
-
-  /// Titre de l'écran des histoires de couples et titre de section du tableau de bord du couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Histoires de couples'**
-  String get coupleFeedStoriesTitle;
-
-  /// Bouton texte à droite du titre « Histoires de couples » : ouvre la liste des histoires. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir toutes'**
-  String get coupleFeedDashboardSeeAllStories;
-
-  /// Titre de l'événement d'exemple dans la carte « Événements en couple » du tableau de bord (contenu fixe, pas celui du serveur).
-  ///
-  /// In fr, this message translates to:
-  /// **'Cours de cuisine casher'**
-  String get coupleFeedDashboardEventSampleTitle;
-
-  /// Jour et heure de l'événement d'exemple de la carte « Événements en couple » (contenu fixe).
-  ///
-  /// In fr, this message translates to:
-  /// **'Dimanche 20 janvier - 15h00'**
-  String get coupleFeedDashboardEventSampleWhen;
-
-  /// Petite pastille à droite de l'événement d'exemple : il s'adresse aux couples. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Couples'**
-  String get coupleFeedDashboardEventSampleTag;
-
-  /// Bouton contour de la carte « Événements en couple » : ouvre tous les événements.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir tous les événements'**
-  String get coupleFeedDashboardAllEvents;
-
-  /// Nom du Shabbat de la semaine dans la carte du calendrier juif (contenu fixe). Nom propre de la section de la Torah.
-  ///
-  /// In fr, this message translates to:
-  /// **'Shabbat Beshalach'**
-  String get coupleFeedDashboardParasha;
-
-  /// Heures d'entrée et de sortie du Shabbat dans la carte du calendrier juif (contenu fixe). Une ligne.
-  ///
-  /// In fr, this message translates to:
-  /// **'Entrée : 17h23 - Sortie : 18h34'**
-  String get coupleFeedDashboardShabbatTimes;
-
-  /// Légende sous une icône ronde : idée de dîner de Shabbat. Un mot, 12 px de large environ par lettre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dîner'**
-  String get coupleFeedDashboardShabbatDinner;
-
-  /// Légende sous une icône ronde : idée de prière de Shabbat. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prière'**
-  String get coupleFeedDashboardShabbatPrayer;
-
-  /// Légende sous une icône ronde : idée de repos de Shabbat. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Repos'**
-  String get coupleFeedDashboardShabbatRest;
-
-  /// Titre de la carte du tableau de bord et de la feuille qui invitent le couple à partager son histoire.
-  ///
-  /// In fr, this message translates to:
-  /// **'Partagez votre histoire'**
-  String get coupleFeedStoryShareTitle;
-
-  /// Phrase sous le titre de la carte « Partagez votre histoire » du tableau de bord.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inspirez la communauté MAZL avec votre histoire'**
-  String get coupleFeedDashboardShareStoryLine;
-
-  /// Bouton contour de la carte « Partagez votre histoire » : ouvre la liste des histoires. Moitié de la largeur de l'écran.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir les histoires'**
-  String get coupleFeedDashboardSeeStories;
-
-  /// Étape du couple : première semaine (titre).
-  ///
-  /// In fr, this message translates to:
-  /// **'Première semaine'**
-  String get coupleFeedMilestoneFirstWeekTitle;
-
-  /// Étape du couple : première semaine (légende).
-  ///
-  /// In fr, this message translates to:
-  /// **'7 jours ensemble'**
-  String get coupleFeedMilestoneFirstWeekLine;
-
-  /// Étape du couple : premier mois (titre).
-  ///
-  /// In fr, this message translates to:
-  /// **'Premier mois'**
-  String get coupleFeedMilestoneFirstMonthTitle;
-
-  /// Étape du couple : premier mois (légende).
-  ///
-  /// In fr, this message translates to:
-  /// **'30 jours d\'amour'**
-  String get coupleFeedMilestoneFirstMonthLine;
-
-  /// Étape du couple : trois mois (titre).
-  ///
-  /// In fr, this message translates to:
-  /// **'Trimestre'**
-  String get coupleFeedMilestoneThreeMonthsTitle;
-
-  /// Étape du couple : trois mois (légende).
-  ///
-  /// In fr, this message translates to:
-  /// **'3 mois de bonheur'**
-  String get coupleFeedMilestoneThreeMonthsLine;
-
-  /// Étape du couple : six mois (titre).
-  ///
-  /// In fr, this message translates to:
-  /// **'Mi-année'**
-  String get coupleFeedMilestoneSixMonthsTitle;
-
-  /// Étape du couple : six mois (légende).
-  ///
-  /// In fr, this message translates to:
-  /// **'6 mois main dans la main'**
-  String get coupleFeedMilestoneSixMonthsLine;
-
-  /// Étape du couple : un an (titre).
-  ///
-  /// In fr, this message translates to:
-  /// **'Première année'**
-  String get coupleFeedMilestoneFirstYearTitle;
-
-  /// Étape du couple : un an (légende). « Mazl » est écrit ainsi dans le texte d'origine.
-  ///
-  /// In fr, this message translates to:
-  /// **'365 jours de Mazl'**
-  String get coupleFeedMilestoneFirstYearLine;
-
-  /// Question du jour n° 1, posée à un membre du couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quel est votre moment préféré de la semaine ensemble ?'**
-  String get coupleFeedQuestion1;
-
-  /// Catégorie de la question du jour n° 1, dans une pastille. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Connexion'**
-  String get coupleFeedQuestion1Category;
-
-  /// Question du jour n° 2.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si vous pouviez voyager n\'importe où, où iriez-vous ?'**
-  String get coupleFeedQuestion2;
-
-  /// Catégorie de la question du jour n° 2. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rêves'**
-  String get coupleFeedQuestion2Category;
-
-  /// Question du jour n° 3.
-  ///
-  /// In fr, this message translates to:
-  /// **'Qu\'est-ce qui vous a fait sourire aujourd\'hui ?'**
-  String get coupleFeedQuestion3;
-
-  /// Catégorie de la question du jour n° 3. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quotidien'**
-  String get coupleFeedQuestion3Category;
-
-  /// Question du jour n° 4, sur le Shabbat, avec quatre réponses au choix.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment aimeriez-vous célébrer votre prochain Shabbat ?'**
-  String get coupleFeedQuestion4;
-
-  /// Catégorie de la question du jour n° 4. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Judaïsme'**
-  String get coupleFeedQuestion4Category;
-
-  /// Réponse au choix n° 1 de la question sur le Shabbat, bouton pleine largeur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dîner romantique à la maison'**
-  String get coupleFeedQuestion4Option1;
-
-  /// Réponse au choix n° 2 de la question sur le Shabbat, bouton pleine largeur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Invitation chez des amis'**
-  String get coupleFeedQuestion4Option2;
-
-  /// Réponse au choix n° 3 de la question sur le Shabbat, bouton pleine largeur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Restaurant casher'**
-  String get coupleFeedQuestion4Option3;
-
-  /// Réponse au choix n° 4 de la question sur le Shabbat : un Shabbaton est un week-end communautaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'Shabbaton communautaire'**
-  String get coupleFeedQuestion4Option4;
-
-  /// Question du jour n° 5.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quel trait de caractère admirez-vous le plus chez votre partenaire ?'**
-  String get coupleFeedQuestion5;
-
-  /// Catégorie de la question du jour n° 5. Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Appréciation'**
-  String get coupleFeedQuestion5Category;
-
-  /// Idée d'activité à deux de la bande du tableau de bord : cuisiner pour Shabbat. Carte étroite (deux lignes).
-  ///
-  /// In fr, this message translates to:
-  /// **'Cuisine Shabbat'**
-  String get coupleFeedIdeaShabbatCookingTitle;
-
-  /// Étiquette de l'idée « Cuisine Shabbat ». Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Maison'**
-  String get coupleFeedIdeaShabbatCookingCategory;
-
-  /// Idée d'activité à deux : étudier la Torah ensemble. Carte étroite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Étude Torah'**
-  String get coupleFeedIdeaTorahTitle;
-
-  /// Idée d'activité à deux : une soirée en tête-à-tête. Carte étroite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Date night'**
-  String get coupleFeedIdeaDateNightTitle;
-
-  /// Étiquette de l'idée « Date night ». Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Romance'**
-  String get coupleFeedIdeaDateNightCategory;
-
-  /// Idée d'activité à deux : faire du sport ensemble. Carte étroite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sport ensemble'**
-  String get coupleFeedIdeaSportTitle;
-
-  /// Idée d'activité à deux : une action de bienfaisance (hesed) en couple. Carte étroite.
-  ///
-  /// In fr, this message translates to:
-  /// **'Hesed ensemble'**
-  String get coupleFeedIdeaChesedTitle;
-
-  /// Étiquette de l'idée « Hesed ensemble ». Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Communauté'**
-  String get coupleFeedIdeaChesedCategory;
-
-  /// Étiquette de l'idée « Voyage ». Un mot.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aventure'**
-  String get coupleFeedIdeaTravelCategory;
-
   /// Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte.
   ///
   /// In fr, this message translates to:
@@ -1982,102 +1610,6 @@ abstract class AppLocalizations {
   /// **'Chargement impossible'**
   String get coupleFeedLoadFailedTitle;
 
-  /// Titre de l'état vide des histoires de couples.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore d\'histoires de couples'**
-  String get coupleFeedStoriesEmptyTitle;
-
-  /// Phrase sous le titre de l'état vide des histoires.
-  ///
-  /// In fr, this message translates to:
-  /// **'Les premières histoires d\'amour MAZL seront bientôt partagées.'**
-  String get coupleFeedStoriesEmptyLine;
-
-  /// Texte envoyé par le partage d'une histoire de couple ; {name1} et {name2} sont les prénoms, {excerpt} le début de l'histoire.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name1} et {name2} se sont rencontrés sur MAZL. Leur histoire : {excerpt}...'**
-  String coupleFeedStoryShareText(String name1, String name2, String excerpt);
-
-  /// Sous les noms du couple : son statut et le mois où ils se sont rencontrés. {status} est un des trois statuts, {date} un mois et une année.
-  ///
-  /// In fr, this message translates to:
-  /// **'{status} · depuis {date}'**
-  String coupleFeedStoryStatusSince(String status, String date);
-
-  /// Statut d'un couple : ensemble, sans engagement particulier.
-  ///
-  /// In fr, this message translates to:
-  /// **'En couple'**
-  String get coupleFeedStatusDating;
-
-  /// Statut d'un couple : fiancés.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fiancés'**
-  String get coupleFeedStatusEngaged;
-
-  /// Statut d'un couple : mariés.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mariés'**
-  String get coupleFeedStatusMarried;
-
-  /// Phrase sous le titre de la feuille « Partagez votre histoire ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Inspirez la communauté MAZL en partageant votre histoire.'**
-  String get coupleFeedStoryShareLine;
-
-  /// Titre de section (petites majuscules) au-dessus des trois puces de statut.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre statut'**
-  String get coupleFeedStoryStatusLabel;
-
-  /// Titre de section au-dessus du champ de l'histoire ; le minimum de 100 caractères est imposé.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre histoire (min. 100 caractères)'**
-  String get coupleFeedStoryTextLabel;
-
-  /// Texte d'aide du champ de l'histoire : deux questions pour donner des idées au couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment vous êtes-vous rencontrés ? Qu\'est-ce qui vous a plu chez l\'autre ?…'**
-  String get coupleFeedStoryTextHint;
-
-  /// Titre de section au-dessus de la zone d'ajout de photos.
-  ///
-  /// In fr, this message translates to:
-  /// **'Photos (optionnel)'**
-  String get coupleFeedStoryPhotosLabel;
-
-  /// Texte de la zone d'ajout de photos de couple, sous une icône d'appareil photo.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ajoutez des photos de couple'**
-  String get coupleFeedStoryPhotosHint;
-
-  /// Bouton plein qui envoie l'histoire du couple pour validation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Soumettre notre histoire'**
-  String get coupleFeedStorySubmit;
-
-  /// Message en bas d'écran : l'histoire fait moins de 100 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre histoire doit faire au moins 100 caractères'**
-  String get coupleFeedStoryTooShort;
-
-  /// Message vert après l'envoi de l'histoire : elle sera relue avant d'être publiée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Merci. Votre histoire sera publiée après validation.'**
-  String get coupleFeedStoryThanks;
-
   /// Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône.
   ///
   /// In fr, this message translates to:
@@ -2612,66 +2144,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} an} other{{count} ans}}'**
   String coupleSpaceDurationYears(int count);
 
-  /// Pastille en haut de la carte d'anniversaire, le jour où le couple fête son anniversaire sur l'app. « MAZL » est le nom de l'app.
-  ///
-  /// In fr, this message translates to:
-  /// **'Joyeux anniversaire MAZL'**
-  String get coupleSpaceAnniversaryTag;
-
-  /// Sous le grand nombre de jours de la carte d'anniversaire : le nombre est affiché au-dessus, ce texte donne l'unité.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{jour ensemble} other{jours ensemble}}'**
-  String coupleSpaceAnniversaryDaysLabel(int count);
-
-  /// Carte d'anniversaire : avec qui le couple est ensemble, {name} est le partenaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'avec {name}'**
-  String coupleSpaceAnniversaryWith(String name);
-
-  /// Carte d'anniversaire : le prochain jalon ({milestone}, déjà nommé, ex. « 3 mois ») arrive dans {count} jours.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prochain : {milestone} dans {count, plural, one{{count} jour} other{{count} jours}}'**
-  String coupleSpaceAnniversaryNext(String milestone, int count);
-
-  /// Titre de la fenêtre de célébration d'un anniversaire de couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Joyeux anniversaire'**
-  String get coupleSpaceAnniversaryHappy;
-
-  /// Fenêtre de célébration : combien de jours le couple a passé ensemble, avec {name} le partenaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} jour} other{{count} jours}} avec {name}'**
-  String coupleSpaceAnniversaryDaysWith(int count, String name);
-
-  /// Bouton qui ferme la fenêtre de célébration d'un anniversaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'Merci'**
-  String get coupleSpaceAnniversaryThanks;
-
-  /// Texte partagé (WhatsApp, etc.) par le couple pour son anniversaire. {milestone} est le jalon atteint, déjà nommé, ou vide ; il termine la phrase. « MAZL » est le nom de l'app.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nous fêtons {count, plural, one{{count} jour} other{{count} jours}} ensemble sur MAZL. {milestone}'**
-  String coupleSpaceAnniversaryShare(int count, String milestone);
-
-  /// Titre de la liste des jalons du couple (7 jours, 1 mois, 1 an…). « milestones » est un anglicisme courant en français.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vos milestones'**
-  String get coupleSpaceMilestonesTitle;
-
-  /// Sous un jalon pas encore atteint : il arrive dans {count} jours.
-  ///
-  /// In fr, this message translates to:
-  /// **'dans {count, plural, one{{count} jour} other{{count} jours}}'**
-  String coupleSpaceMilestoneIn(int count);
-
   /// Grand titre de l'écran du calendrier juif.
   ///
   /// In fr, this message translates to:
@@ -2741,12 +2213,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Événements'**
   String get eventsTitle;
-
-  /// Liste des événements : info-bulle du bouton calendrier de la barre du haut.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calendrier'**
-  String get eventsCalendarTooltip;
 
   /// Liste des événements : puce de filtre qui montre tous les types.
   ///
@@ -4188,12 +3654,6 @@ abstract class AppLocalizations {
   /// **'Actualiser'**
   String get matchingDiscoverRefresh;
 
-  /// Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler'**
-  String get matchingDiscoverUndo;
-
   /// Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre.
   ///
   /// In fr, this message translates to:
@@ -4701,7 +4161,7 @@ abstract class AppLocalizations {
   /// Présentation, page 4 : texte.
   ///
   /// In fr, this message translates to:
-  /// **'Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.'**
+  /// **'Les horaires d\'allumage et de havdala de votre ville, et un écran de repos.'**
   String get onboardingPage4Body;
 
   /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
@@ -4847,18 +4307,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Soyez en tête de pile pendant 30 minutes.'**
   String get plusFeatureBoostDescription;
-
-  /// Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenir en arrière'**
-  String get plusFeatureRewindTitle;
-
-  /// Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rattrapez un « Passer » trop rapide.'**
-  String get plusFeatureRewindDescription;
 
   /// Titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture des messages.
   ///
@@ -7079,10 +6527,10 @@ abstract class AppLocalizations {
   /// **'Mode Shabbat'**
   String get settingsShabbatMode;
 
-  /// Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules).
+  /// Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre).
   ///
   /// In fr, this message translates to:
-  /// **'Pause automatique'**
+  /// **'Horaires de Shabbat'**
   String get settingsShabbatAutoPause;
 
   /// Réglages : interrupteur qui prévient avant les fêtes juives.
@@ -7457,70 +6905,28 @@ abstract class AppLocalizations {
   /// **'Activer'**
   String get settingsCoupleActivate;
 
-  /// Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu.
+  /// Écran Mode Shabbat : la ligne sous les heures qui nomme le lieu pour lequel elles sont calculées. {place} est le nom de la ville du membre, ou « Paris, France » faute de ville.
   ///
   /// In fr, this message translates to:
-  /// **'Basé sur Paris, France'**
-  String get settingsShabbatCity;
+  /// **'Basé sur {place}'**
+  String settingsShabbatBasedOn(String place);
 
-  /// Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales.
+  /// Écran Mode Shabbat : nom du lieu utilisé quand la ville du membre n'est pas connue (Paris). Se glisse dans « Basé sur … ».
   ///
   /// In fr, this message translates to:
-  /// **'Réglages'**
-  String get settingsShabbatSettingsHeader;
+  /// **'Paris, France'**
+  String get settingsShabbatDefaultPlace;
 
-  /// Écran Mode Shabbat : interrupteur principal.
+  /// Écran Mode Shabbat : remplace le paragraphe du bas quand la ville du membre n'est pas connue (profil sans ville, ou profil illisible) : les heures affichées sont celles de Paris.
   ///
   /// In fr, this message translates to:
-  /// **'Activer le mode Shabbat'**
-  String get settingsShabbatEnable;
+  /// **'Les horaires sont ceux de Paris, car votre ville n\'est pas connue. Ajoutez-la dans les réglages pour des horaires exacts.'**
+  String get settingsShabbatUnknownPlaceHint;
 
-  /// Écran Mode Shabbat : sous-titre de l'interrupteur principal.
+  /// Écran Mode Shabbat : paragraphe en bas de page qui dit comment les heures sont calculées (18 minutes avant le coucher du soleil, havdala à la tombée de la nuit) et où changer de lieu (la ville se règle dans les réglages). Ne promet aucune pause ni aucun statut.
   ///
   /// In fr, this message translates to:
-  /// **'Pause automatique des notifications pendant Shabbat'**
-  String get settingsShabbatEnableHint;
-
-  /// Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inclure les fêtes'**
-  String get settingsShabbatIncludeHolidays;
-
-  /// Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pause aussi pendant Yom Tov'**
-  String get settingsShabbatIncludeHolidaysHint;
-
-  /// Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marge avant l\'allumage'**
-  String get settingsShabbatBuffer;
-
-  /// Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.
-  ///
-  /// In fr, this message translates to:
-  /// **'{minutes} min'**
-  String settingsMinutesShort(int minutes);
-
-  /// Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).
-  ///
-  /// In fr, this message translates to:
-  /// **'{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}'**
-  String settingsMinutesSpoken(int minutes);
-
-  /// Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Modifier'**
-  String get settingsShabbatEdit;
-
-  /// Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages).
-  ///
-  /// In fr, this message translates to:
-  /// **'Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».'**
+  /// **'Allumage 18 minutes avant le coucher du soleil, havdala à la tombée de la nuit. Pour changer de lieu, modifiez votre ville dans les réglages.'**
   String get settingsShabbatExplanation;
 
   /// Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu.
@@ -7529,10 +6935,10 @@ abstract class AppLocalizations {
   /// **'Shabbat\nshalom.'**
   String get settingsShabbatHeroTitle;
 
-  /// Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire.
+  /// Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire. Ne promet aucune pause des notifications.
   ///
   /// In fr, this message translates to:
-  /// **'Mazl se repose avec vous. Vos messages vous attendront à la havdala.'**
+  /// **'Mazl se repose avec vous.'**
   String get settingsShabbatHeroSubtitle;
 
   /// Bandeau du mode Shabbat : petit libellé au-dessus de l'heure d'allumage des bougies. Affiché en majuscules, demi-largeur d'écran.
@@ -7618,156 +7024,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
-
-  /// Titre de la barre d'en-tête de l'écran des suggestions de l'IA. « Shadchan » signifie marieur, marieuse (entremetteur dans la tradition juive) ; garder le mot tel quel quand la langue l'utilise.
-  ///
-  /// In fr, this message translates to:
-  /// **'AI Shadchan'**
-  String get shadchanTitle;
-
-  /// Titre dans l'en-tête dégradé de l'écran des suggestions de l'IA. « Shadchan » = marieur, marieuse.
-  ///
-  /// In fr, this message translates to:
-  /// **'Votre Shadchan personnel'**
-  String get shadchanHeaderTitle;
-
-  /// Texte sous le titre de l'en-tête dégradé : ce que fait l'IA.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles'**
-  String get shadchanHeaderBody;
-
-  /// Titre de la section des suggestions du jour.
-  ///
-  /// In fr, this message translates to:
-  /// **'Suggestions du jour'**
-  String get shadchanTodayTitle;
-
-  /// Pastille à droite du titre de section (12 px) : combien de suggestions restent. {count} est un entier.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} nouvelle} other{{count} nouvelles}}'**
-  String shadchanNewCount(int count);
-
-  /// Titre de la carte affichée quand toutes les suggestions du jour ont été traitées.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous avez parcouru toutes vos suggestions.'**
-  String get shadchanEmptyTitle;
-
-  /// Texte sous le titre de la carte « toutes les suggestions vues ». « Shadchan » = marieur, marieuse.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenez demain pour de nouvelles propositions de votre Shadchan.'**
-  String get shadchanEmptyBody;
-
-  /// Bouton de la carte « toutes les suggestions vues » : ouvre Découvrir.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrir plus de profils'**
-  String get shadchanEmptyAction;
-
-  /// Message bref après avoir passé une suggestion. {name} est le prénom.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} ignorée'**
-  String shadchanPassed(String name);
-
-  /// Message bref (fond vert) après avoir aimé une suggestion. {name} est le prénom.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} ajoutée à vos likes'**
-  String shadchanLiked(String name);
-
-  /// Titre de la carte qui explique le fonctionnement de l'IA.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment ça marche ?'**
-  String get shadchanHowTitle;
-
-  /// Étape 1 du fonctionnement de l'IA (une ligne de 13 px, après un numéro).
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre IA analyse votre profil et vos préférences'**
-  String get shadchanHowStepAnalyze;
-
-  /// Étape 2 du fonctionnement de l'IA.
-  ///
-  /// In fr, this message translates to:
-  /// **'Elle compare avec les profils compatibles'**
-  String get shadchanHowStepCompare;
-
-  /// Étape 3 du fonctionnement de l'IA.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous recevez des suggestions personnalisées chaque jour'**
-  String get shadchanHowStepDaily;
-
-  /// Titre (12 px) du bloc vert qui liste les raisons d'une suggestion.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pourquoi cette suggestion ?'**
-  String get shadchanWhy;
-
-  /// Petit mot sous le pourcentage de compatibilité d'une suggestion (10 px). Mot d'usage des apps de rencontre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Match'**
-  String get shadchanMatchBadge;
-
-  /// Raison d'une suggestion : même niveau de pratique religieuse.
-  ///
-  /// In fr, this message translates to:
-  /// **'Même niveau de pratique'**
-  String get shadchanReasonSamePractice;
-
-  /// Raison d'une suggestion : centres d'intérêt communs (exemple : voyages et cuisine).
-  ///
-  /// In fr, this message translates to:
-  /// **'Intérêts communs : voyages, cuisine'**
-  String get shadchanReasonInterests;
-
-  /// Raison d'une suggestion : objectifs de vie proches.
-  ///
-  /// In fr, this message translates to:
-  /// **'Objectifs similaires'**
-  String get shadchanReasonGoals;
-
-  /// Raison d'une suggestion : valeurs familiales proches.
-  ///
-  /// In fr, this message translates to:
-  /// **'Valeurs familiales alignées'**
-  String get shadchanReasonFamily;
-
-  /// Raison d'une suggestion : même passion pour la musique.
-  ///
-  /// In fr, this message translates to:
-  /// **'Passion commune pour la musique'**
-  String get shadchanReasonMusic;
-
-  /// Raison d'une suggestion : lieux de vie proches.
-  ///
-  /// In fr, this message translates to:
-  /// **'Zones de vie compatibles'**
-  String get shadchanReasonLocation;
-
-  /// Raison d'une suggestion : pratique religieuse proche.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pratique religieuse similaire'**
-  String get shadchanReasonReligion;
-
-  /// Raison d'une suggestion : métiers dans le même secteur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Secteur professionnel proche'**
-  String get shadchanReasonProfession;
-
-  /// Raison d'une suggestion : même idée de la vie de couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Même vision du couple'**
-  String get shadchanReasonCouple;
 
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
@@ -8740,132 +7996,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Terminé.'**
   String get verificationNfcAlertDone;
-
-  /// Appel vidéo : texte sous le prénom pendant l'appel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Appel en cours...'**
-  String get videoCallInProgress;
-
-  /// Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône).
-  ///
-  /// In fr, this message translates to:
-  /// **'Flip'**
-  String get videoCallFlip;
-
-  /// Appel vidéo : bouton qui coupe ou remet la caméra.
-  ///
-  /// In fr, this message translates to:
-  /// **'Caméra'**
-  String get videoCallCamera;
-
-  /// Appel vidéo : bouton qui coupe ou remet le micro.
-  ///
-  /// In fr, this message translates to:
-  /// **'Micro'**
-  String get videoCallMic;
-
-  /// Appel vidéo : bouton rouge qui raccroche.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fin'**
-  String get videoCallEnd;
-
-  /// Titre de la barre d'en-tête de l'écran des visiteurs du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Qui a visité mon profil'**
-  String get visitorsTitle;
-
-  /// Grand chiffre de l'en-tête violet : le nombre total de visites. {count} est un entier.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} visite} other{{count} visites}}'**
-  String visitorsTotal(int count);
-
-  /// Sous le total des visites : combien datent des 7 derniers jours. {count} est un entier.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count} cette semaine'**
-  String visitorsThisWeek(int count);
-
-  /// Titre de la bannière qui propose mazl+ à un compte gratuit.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrez qui vous a visité'**
-  String get visitorsBannerTitle;
-
-  /// Sous le titre de la bannière mazl+ : une ligne courte (12 px). « mazl+ » est un nom de marque.
-  ///
-  /// In fr, this message translates to:
-  /// **'Passez à mazl+ pour voir les profils'**
-  String get visitorsBannerBody;
-
-  /// Titre de l'écran des visiteurs quand personne n'a encore visité le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de visiteurs'**
-  String get visitorsEmptyTitle;
-
-  /// Texte sous le titre de l'écran des visiteurs vide : conseil pour attirer des visiteurs. « Boost » est le nom d'une fonction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.'**
-  String get visitorsEmptyBody;
-
-  /// Bouton de l'écran des visiteurs vide : ouvre l'écran du Boost.
-  ///
-  /// In fr, this message translates to:
-  /// **'Activer un Boost'**
-  String get visitorsEmptyAction;
-
-  /// Titre de la feuille qui s'ouvre quand un compte gratuit touche une visite verrouillée. « mazl+ » est un nom de marque.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réservé à mazl+'**
-  String get visitorsLockedTitle;
-
-  /// Texte de la feuille « Réservé à mazl+ ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.'**
-  String get visitorsLockedBody;
-
-  /// Bouton principal de la feuille « Réservé à mazl+ » : ouvre l'abonnement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrir mazl+'**
-  String get visitorsLockedAction;
-
-  /// Pastille sur la photo d'une visite de moins de 24 heures. 10 px de haut, une seule ligne courte.
-  ///
-  /// In fr, this message translates to:
-  /// **'NEW'**
-  String get visitorsNew;
-
-  /// Il y a moins d'une heure, sous le prénom d'un visiteur. {count} est un entier de minutes (« min » abrégé).
-  ///
-  /// In fr, this message translates to:
-  /// **'Il y a {count} min'**
-  String visitorsAgoMinutes(int count);
-
-  /// Il y a moins d'un jour, sous le prénom d'un visiteur. {count} est un entier d'heures (« h » abrégé).
-  ///
-  /// In fr, this message translates to:
-  /// **'Il y a {count}h'**
-  String visitorsAgoHours(int count);
-
-  /// Il y a 2 à 6 jours, sous le prénom d'un visiteur. {count} est un entier de jours.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}'**
-  String visitorsAgoDays(int count);
-
-  /// Il y a une semaine ou plus, sous le prénom d'un visiteur. {count} est un entier de semaines (« sem. » abrégé).
-  ///
-  /// In fr, this message translates to:
-  /// **'Il y a {count} sem.'**
-  String visitorsAgoWeeks(int count);
 
   /// Titre de l'écran qui liste les ordinateurs connectés au compte (version web de MAZL), et libellé de la ligne qui l'ouvre dans les Paramètres.
   ///

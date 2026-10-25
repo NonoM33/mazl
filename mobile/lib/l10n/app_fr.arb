@@ -250,10 +250,6 @@
   "@chatHeaderOnline": {
     "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
   },
-  "chatHeaderVideoCall": "Appel vidéo",
-  "@chatHeaderVideoCall": {
-    "description": "Chat, en-tête : info-bulle du bouton qui lance un appel vidéo."
-  },
   "chatHeaderOptions": "Options",
   "@chatHeaderOptions": {
     "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."
@@ -702,256 +698,6 @@
         "type": "String"
       }
     }
-  },
-  "coupleFeedDashboardSettingsTooltip": "Réglages",
-  "@coupleFeedDashboardSettingsTooltip": {
-    "description": "Info-bulle du bouton rond (engrenage) en haut à droite du tableau de bord du couple."
-  },
-  "coupleFeedDashboardMe": "Moi",
-  "@coupleFeedDashboardMe": {
-    "description": "Nom affiché sous l'avatar du membre, dans l'en-tête du tableau de bord du couple. Très court."
-  },
-  "coupleFeedDashboardPartnerFallback": "Partenaire",
-  "@coupleFeedDashboardPartnerFallback": {
-    "description": "Nom affiché sous l'avatar du partenaire quand son prénom est inconnu. Très court."
-  },
-  "coupleFeedDashboardDaysTogether": "{count, plural, =0{0 jours ensemble} one{{count} jour ensemble} other{{count} jours ensemble}}",
-  "@coupleFeedDashboardDaysTogether": {
-    "description": "Titre de l'en-tête du couple : le nombre de jours depuis le début de la relation. Une ligne, sous les deux avatars.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "coupleFeedDashboardDailyQuestion": "Question du jour",
-  "@coupleFeedDashboardDailyQuestion": {
-    "description": "Petit titre de la carte de la question du jour, à gauche de la catégorie de la question. Majuscules ajoutées par le design."
-  },
-  "coupleFeedDashboardAnswer": "Répondre",
-  "@coupleFeedDashboardAnswer": {
-    "description": "Bouton plein de la carte de la question du jour : ouvre la feuille pour répondre."
-  },
-  "coupleFeedDashboardAnswerHint": "Votre réponse…",
-  "@coupleFeedDashboardAnswerHint": {
-    "description": "Texte d'aide dans le champ où le membre écrit sa réponse à la question du jour."
-  },
-  "coupleFeedDashboardSend": "Envoyer",
-  "@coupleFeedDashboardSend": {
-    "description": "Bouton qui envoie la réponse écrite à la question du jour."
-  },
-  "coupleFeedDashboardAnswerSent": "Réponse envoyée. Votre partenaire sera notifié(e).",
-  "@coupleFeedDashboardAnswerSent": {
-    "description": "Message vert affiché en bas de l'écran une fois la réponse à la question du jour envoyée. Une à deux lignes."
-  },
-  "coupleFeedDashboardActivities": "Activités en couple",
-  "@coupleFeedDashboardActivities": {
-    "description": "Titre de section (petites majuscules) au-dessus de la bande d'idées d'activités à deux."
-  },
-  "coupleFeedDashboardMilestones": "Nos étapes",
-  "@coupleFeedDashboardMilestones": {
-    "description": "Titre de section au-dessus des étapes du couple (première semaine, premier mois...)."
-  },
-  "coupleFeedDashboardSeeAll": "Voir tout",
-  "@coupleFeedDashboardSeeAll": {
-    "description": "Bouton texte à droite du titre « Nos étapes ». Court."
-  },
-  "coupleFeedDashboardEvents": "Événements en couple",
-  "@coupleFeedDashboardEvents": {
-    "description": "Titre de section au-dessus de la carte d'événement pour couples."
-  },
-  "coupleFeedDashboardJewishCalendar": "Calendrier juif",
-  "@coupleFeedDashboardJewishCalendar": {
-    "description": "Titre de section au-dessus de la carte du calendrier juif (Shabbat de la semaine)."
-  },
-  "coupleFeedStoriesTitle": "Histoires de couples",
-  "@coupleFeedStoriesTitle": {
-    "description": "Titre de l'écran des histoires de couples et titre de section du tableau de bord du couple."
-  },
-  "coupleFeedDashboardSeeAllStories": "Voir toutes",
-  "@coupleFeedDashboardSeeAllStories": {
-    "description": "Bouton texte à droite du titre « Histoires de couples » : ouvre la liste des histoires. Court."
-  },
-  "coupleFeedDashboardEventSampleTitle": "Cours de cuisine casher",
-  "@coupleFeedDashboardEventSampleTitle": {
-    "description": "Titre de l'événement d'exemple dans la carte « Événements en couple » du tableau de bord (contenu fixe, pas celui du serveur)."
-  },
-  "coupleFeedDashboardEventSampleWhen": "Dimanche 20 janvier - 15h00",
-  "@coupleFeedDashboardEventSampleWhen": {
-    "description": "Jour et heure de l'événement d'exemple de la carte « Événements en couple » (contenu fixe)."
-  },
-  "coupleFeedDashboardEventSampleTag": "Couples",
-  "@coupleFeedDashboardEventSampleTag": {
-    "description": "Petite pastille à droite de l'événement d'exemple : il s'adresse aux couples. Un mot."
-  },
-  "coupleFeedDashboardAllEvents": "Voir tous les événements",
-  "@coupleFeedDashboardAllEvents": {
-    "description": "Bouton contour de la carte « Événements en couple » : ouvre tous les événements."
-  },
-  "coupleFeedDashboardParasha": "Shabbat Beshalach",
-  "@coupleFeedDashboardParasha": {
-    "description": "Nom du Shabbat de la semaine dans la carte du calendrier juif (contenu fixe). Nom propre de la section de la Torah."
-  },
-  "coupleFeedDashboardShabbatTimes": "Entrée : 17h23 - Sortie : 18h34",
-  "@coupleFeedDashboardShabbatTimes": {
-    "description": "Heures d'entrée et de sortie du Shabbat dans la carte du calendrier juif (contenu fixe). Une ligne."
-  },
-  "coupleFeedDashboardShabbatDinner": "Dîner",
-  "@coupleFeedDashboardShabbatDinner": {
-    "description": "Légende sous une icône ronde : idée de dîner de Shabbat. Un mot, 12 px de large environ par lettre."
-  },
-  "coupleFeedDashboardShabbatPrayer": "Prière",
-  "@coupleFeedDashboardShabbatPrayer": {
-    "description": "Légende sous une icône ronde : idée de prière de Shabbat. Un mot."
-  },
-  "coupleFeedDashboardShabbatRest": "Repos",
-  "@coupleFeedDashboardShabbatRest": {
-    "description": "Légende sous une icône ronde : idée de repos de Shabbat. Un mot."
-  },
-  "coupleFeedStoryShareTitle": "Partagez votre histoire",
-  "@coupleFeedStoryShareTitle": {
-    "description": "Titre de la carte du tableau de bord et de la feuille qui invitent le couple à partager son histoire."
-  },
-  "coupleFeedDashboardShareStoryLine": "Inspirez la communauté MAZL avec votre histoire",
-  "@coupleFeedDashboardShareStoryLine": {
-    "description": "Phrase sous le titre de la carte « Partagez votre histoire » du tableau de bord."
-  },
-  "coupleFeedDashboardSeeStories": "Voir les histoires",
-  "@coupleFeedDashboardSeeStories": {
-    "description": "Bouton contour de la carte « Partagez votre histoire » : ouvre la liste des histoires. Moitié de la largeur de l'écran."
-  },
-  "coupleFeedMilestoneFirstWeekTitle": "Première semaine",
-  "@coupleFeedMilestoneFirstWeekTitle": {
-    "description": "Étape du couple : première semaine (titre)."
-  },
-  "coupleFeedMilestoneFirstWeekLine": "7 jours ensemble",
-  "@coupleFeedMilestoneFirstWeekLine": {
-    "description": "Étape du couple : première semaine (légende)."
-  },
-  "coupleFeedMilestoneFirstMonthTitle": "Premier mois",
-  "@coupleFeedMilestoneFirstMonthTitle": {
-    "description": "Étape du couple : premier mois (titre)."
-  },
-  "coupleFeedMilestoneFirstMonthLine": "30 jours d'amour",
-  "@coupleFeedMilestoneFirstMonthLine": {
-    "description": "Étape du couple : premier mois (légende)."
-  },
-  "coupleFeedMilestoneThreeMonthsTitle": "Trimestre",
-  "@coupleFeedMilestoneThreeMonthsTitle": {
-    "description": "Étape du couple : trois mois (titre)."
-  },
-  "coupleFeedMilestoneThreeMonthsLine": "3 mois de bonheur",
-  "@coupleFeedMilestoneThreeMonthsLine": {
-    "description": "Étape du couple : trois mois (légende)."
-  },
-  "coupleFeedMilestoneSixMonthsTitle": "Mi-année",
-  "@coupleFeedMilestoneSixMonthsTitle": {
-    "description": "Étape du couple : six mois (titre)."
-  },
-  "coupleFeedMilestoneSixMonthsLine": "6 mois main dans la main",
-  "@coupleFeedMilestoneSixMonthsLine": {
-    "description": "Étape du couple : six mois (légende)."
-  },
-  "coupleFeedMilestoneFirstYearTitle": "Première année",
-  "@coupleFeedMilestoneFirstYearTitle": {
-    "description": "Étape du couple : un an (titre)."
-  },
-  "coupleFeedMilestoneFirstYearLine": "365 jours de Mazl",
-  "@coupleFeedMilestoneFirstYearLine": {
-    "description": "Étape du couple : un an (légende). « Mazl » est écrit ainsi dans le texte d'origine."
-  },
-  "coupleFeedQuestion1": "Quel est votre moment préféré de la semaine ensemble ?",
-  "@coupleFeedQuestion1": {
-    "description": "Question du jour n° 1, posée à un membre du couple."
-  },
-  "coupleFeedQuestion1Category": "Connexion",
-  "@coupleFeedQuestion1Category": {
-    "description": "Catégorie de la question du jour n° 1, dans une pastille. Un mot."
-  },
-  "coupleFeedQuestion2": "Si vous pouviez voyager n'importe où, où iriez-vous ?",
-  "@coupleFeedQuestion2": {
-    "description": "Question du jour n° 2."
-  },
-  "coupleFeedQuestion2Category": "Rêves",
-  "@coupleFeedQuestion2Category": {
-    "description": "Catégorie de la question du jour n° 2. Un mot."
-  },
-  "coupleFeedQuestion3": "Qu'est-ce qui vous a fait sourire aujourd'hui ?",
-  "@coupleFeedQuestion3": {
-    "description": "Question du jour n° 3."
-  },
-  "coupleFeedQuestion3Category": "Quotidien",
-  "@coupleFeedQuestion3Category": {
-    "description": "Catégorie de la question du jour n° 3. Un mot."
-  },
-  "coupleFeedQuestion4": "Comment aimeriez-vous célébrer votre prochain Shabbat ?",
-  "@coupleFeedQuestion4": {
-    "description": "Question du jour n° 4, sur le Shabbat, avec quatre réponses au choix."
-  },
-  "coupleFeedQuestion4Category": "Judaïsme",
-  "@coupleFeedQuestion4Category": {
-    "description": "Catégorie de la question du jour n° 4. Un mot."
-  },
-  "coupleFeedQuestion4Option1": "Dîner romantique à la maison",
-  "@coupleFeedQuestion4Option1": {
-    "description": "Réponse au choix n° 1 de la question sur le Shabbat, bouton pleine largeur."
-  },
-  "coupleFeedQuestion4Option2": "Invitation chez des amis",
-  "@coupleFeedQuestion4Option2": {
-    "description": "Réponse au choix n° 2 de la question sur le Shabbat, bouton pleine largeur."
-  },
-  "coupleFeedQuestion4Option3": "Restaurant casher",
-  "@coupleFeedQuestion4Option3": {
-    "description": "Réponse au choix n° 3 de la question sur le Shabbat, bouton pleine largeur."
-  },
-  "coupleFeedQuestion4Option4": "Shabbaton communautaire",
-  "@coupleFeedQuestion4Option4": {
-    "description": "Réponse au choix n° 4 de la question sur le Shabbat : un Shabbaton est un week-end communautaire."
-  },
-  "coupleFeedQuestion5": "Quel trait de caractère admirez-vous le plus chez votre partenaire ?",
-  "@coupleFeedQuestion5": {
-    "description": "Question du jour n° 5."
-  },
-  "coupleFeedQuestion5Category": "Appréciation",
-  "@coupleFeedQuestion5Category": {
-    "description": "Catégorie de la question du jour n° 5. Un mot."
-  },
-  "coupleFeedIdeaShabbatCookingTitle": "Cuisine Shabbat",
-  "@coupleFeedIdeaShabbatCookingTitle": {
-    "description": "Idée d'activité à deux de la bande du tableau de bord : cuisiner pour Shabbat. Carte étroite (deux lignes)."
-  },
-  "coupleFeedIdeaShabbatCookingCategory": "Maison",
-  "@coupleFeedIdeaShabbatCookingCategory": {
-    "description": "Étiquette de l'idée « Cuisine Shabbat ». Un mot."
-  },
-  "coupleFeedIdeaTorahTitle": "Étude Torah",
-  "@coupleFeedIdeaTorahTitle": {
-    "description": "Idée d'activité à deux : étudier la Torah ensemble. Carte étroite."
-  },
-  "coupleFeedIdeaDateNightTitle": "Date night",
-  "@coupleFeedIdeaDateNightTitle": {
-    "description": "Idée d'activité à deux : une soirée en tête-à-tête. Carte étroite."
-  },
-  "coupleFeedIdeaDateNightCategory": "Romance",
-  "@coupleFeedIdeaDateNightCategory": {
-    "description": "Étiquette de l'idée « Date night ». Un mot."
-  },
-  "coupleFeedIdeaSportTitle": "Sport ensemble",
-  "@coupleFeedIdeaSportTitle": {
-    "description": "Idée d'activité à deux : faire du sport ensemble. Carte étroite."
-  },
-  "coupleFeedIdeaChesedTitle": "Hesed ensemble",
-  "@coupleFeedIdeaChesedTitle": {
-    "description": "Idée d'activité à deux : une action de bienfaisance (hesed) en couple. Carte étroite."
-  },
-  "coupleFeedIdeaChesedCategory": "Communauté",
-  "@coupleFeedIdeaChesedCategory": {
-    "description": "Étiquette de l'idée « Hesed ensemble ». Un mot."
-  },
-  "coupleFeedIdeaTravelCategory": "Aventure",
-  "@coupleFeedIdeaTravelCategory": {
-    "description": "Étiquette de l'idée « Voyage ». Un mot."
   },
   "coupleFeedCategoryWellness": "Bien-être",
   "@coupleFeedCategoryWellness": {
@@ -1431,89 +1177,6 @@
   "@coupleFeedLoadFailedTitle": {
     "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
   },
-  "coupleFeedStoriesEmptyTitle": "Pas encore d'histoires de couples",
-  "@coupleFeedStoriesEmptyTitle": {
-    "description": "Titre de l'état vide des histoires de couples."
-  },
-  "coupleFeedStoriesEmptyLine": "Les premières histoires d'amour MAZL seront bientôt partagées.",
-  "@coupleFeedStoriesEmptyLine": {
-    "description": "Phrase sous le titre de l'état vide des histoires."
-  },
-  "coupleFeedStoryShareText": "{name1} et {name2} se sont rencontrés sur MAZL. Leur histoire : {excerpt}...",
-  "@coupleFeedStoryShareText": {
-    "description": "Texte envoyé par le partage d'une histoire de couple ; {name1} et {name2} sont les prénoms, {excerpt} le début de l'histoire.",
-    "placeholders": {
-      "name1": {
-        "type": "String"
-      },
-      "name2": {
-        "type": "String"
-      },
-      "excerpt": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedStoryStatusSince": "{status} · depuis {date}",
-  "@coupleFeedStoryStatusSince": {
-    "description": "Sous les noms du couple : son statut et le mois où ils se sont rencontrés. {status} est un des trois statuts, {date} un mois et une année.",
-    "placeholders": {
-      "status": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedStatusDating": "En couple",
-  "@coupleFeedStatusDating": {
-    "description": "Statut d'un couple : ensemble, sans engagement particulier."
-  },
-  "coupleFeedStatusEngaged": "Fiancés",
-  "@coupleFeedStatusEngaged": {
-    "description": "Statut d'un couple : fiancés."
-  },
-  "coupleFeedStatusMarried": "Mariés",
-  "@coupleFeedStatusMarried": {
-    "description": "Statut d'un couple : mariés."
-  },
-  "coupleFeedStoryShareLine": "Inspirez la communauté MAZL en partageant votre histoire.",
-  "@coupleFeedStoryShareLine": {
-    "description": "Phrase sous le titre de la feuille « Partagez votre histoire »."
-  },
-  "coupleFeedStoryStatusLabel": "Votre statut",
-  "@coupleFeedStoryStatusLabel": {
-    "description": "Titre de section (petites majuscules) au-dessus des trois puces de statut."
-  },
-  "coupleFeedStoryTextLabel": "Votre histoire (min. 100 caractères)",
-  "@coupleFeedStoryTextLabel": {
-    "description": "Titre de section au-dessus du champ de l'histoire ; le minimum de 100 caractères est imposé."
-  },
-  "coupleFeedStoryTextHint": "Comment vous êtes-vous rencontrés ? Qu'est-ce qui vous a plu chez l'autre ?…",
-  "@coupleFeedStoryTextHint": {
-    "description": "Texte d'aide du champ de l'histoire : deux questions pour donner des idées au couple."
-  },
-  "coupleFeedStoryPhotosLabel": "Photos (optionnel)",
-  "@coupleFeedStoryPhotosLabel": {
-    "description": "Titre de section au-dessus de la zone d'ajout de photos."
-  },
-  "coupleFeedStoryPhotosHint": "Ajoutez des photos de couple",
-  "@coupleFeedStoryPhotosHint": {
-    "description": "Texte de la zone d'ajout de photos de couple, sous une icône d'appareil photo."
-  },
-  "coupleFeedStorySubmit": "Soumettre notre histoire",
-  "@coupleFeedStorySubmit": {
-    "description": "Bouton plein qui envoie l'histoire du couple pour validation."
-  },
-  "coupleFeedStoryTooShort": "Votre histoire doit faire au moins 100 caractères",
-  "@coupleFeedStoryTooShort": {
-    "description": "Message en bas d'écran : l'histoire fait moins de 100 caractères."
-  },
-  "coupleFeedStoryThanks": "Merci. Votre histoire sera publiée après validation.",
-  "@coupleFeedStoryThanks": {
-    "description": "Message vert après l'envoi de l'histoire : elle sera relue avant d'être publiée."
-  },
   "coupleSpaceTabActivities": "Activités",
   "@coupleSpaceTabActivities": {
     "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
@@ -1933,85 +1596,6 @@
       }
     }
   },
-  "coupleSpaceAnniversaryTag": "Joyeux anniversaire MAZL",
-  "@coupleSpaceAnniversaryTag": {
-    "description": "Pastille en haut de la carte d'anniversaire, le jour où le couple fête son anniversaire sur l'app. « MAZL » est le nom de l'app."
-  },
-  "coupleSpaceAnniversaryDaysLabel": "{count, plural, one{jour ensemble} other{jours ensemble}}",
-  "@coupleSpaceAnniversaryDaysLabel": {
-    "description": "Sous le grand nombre de jours de la carte d'anniversaire : le nombre est affiché au-dessus, ce texte donne l'unité.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceAnniversaryWith": "avec {name}",
-  "@coupleSpaceAnniversaryWith": {
-    "description": "Carte d'anniversaire : avec qui le couple est ensemble, {name} est le partenaire.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleSpaceAnniversaryNext": "Prochain : {milestone} dans {count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceAnniversaryNext": {
-    "description": "Carte d'anniversaire : le prochain jalon ({milestone}, déjà nommé, ex. « 3 mois ») arrive dans {count} jours.",
-    "placeholders": {
-      "milestone": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceAnniversaryHappy": "Joyeux anniversaire",
-  "@coupleSpaceAnniversaryHappy": {
-    "description": "Titre de la fenêtre de célébration d'un anniversaire de couple."
-  },
-  "coupleSpaceAnniversaryDaysWith": "{count, plural, one{{count} jour} other{{count} jours}} avec {name}",
-  "@coupleSpaceAnniversaryDaysWith": {
-    "description": "Fenêtre de célébration : combien de jours le couple a passé ensemble, avec {name} le partenaire.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleSpaceAnniversaryThanks": "Merci",
-  "@coupleSpaceAnniversaryThanks": {
-    "description": "Bouton qui ferme la fenêtre de célébration d'un anniversaire."
-  },
-  "coupleSpaceAnniversaryShare": "Nous fêtons {count, plural, one{{count} jour} other{{count} jours}} ensemble sur MAZL. {milestone}",
-  "@coupleSpaceAnniversaryShare": {
-    "description": "Texte partagé (WhatsApp, etc.) par le couple pour son anniversaire. {milestone} est le jalon atteint, déjà nommé, ou vide ; il termine la phrase. « MAZL » est le nom de l'app.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "milestone": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleSpaceMilestonesTitle": "Vos milestones",
-  "@coupleSpaceMilestonesTitle": {
-    "description": "Titre de la liste des jalons du couple (7 jours, 1 mois, 1 an…). « milestones » est un anglicisme courant en français."
-  },
-  "coupleSpaceMilestoneIn": "dans {count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceMilestoneIn": {
-    "description": "Sous un jalon pas encore atteint : il arrive dans {count} jours.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "coupleSpaceCalendarTitle": "Calendrier",
   "@coupleSpaceCalendarTitle": {
     "description": "Grand titre de l'écran du calendrier juif."
@@ -2079,10 +1663,6 @@
   "eventsTitle": "Événements",
   "@eventsTitle": {
     "description": "Titre de la liste des événements (soirées, cours, fêtes)."
-  },
-  "eventsCalendarTooltip": "Calendrier",
-  "@eventsCalendarTooltip": {
-    "description": "Liste des événements : info-bulle du bouton calendrier de la barre du haut."
   },
   "eventsFilterAll": "Tous",
   "@eventsFilterAll": {
@@ -3197,10 +2777,6 @@
   "@matchingDiscoverRefresh": {
     "description": "Bouton de Découvrir (état vide) qui recharge les profils."
   },
-  "matchingDiscoverUndo": "Annuler",
-  "@matchingDiscoverUndo": {
-    "description": "Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+)."
-  },
   "matchingDiscoverSuperLike": "Super like",
   "@matchingDiscoverSuperLike": {
     "description": "Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre."
@@ -3649,7 +3225,7 @@
   "@onboardingPage4Title": {
     "description": "Présentation, page 4 : titre (le mode Shabbat de l'app)."
   },
-  "onboardingPage4Body": "Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.",
+  "onboardingPage4Body": "Les horaires d'allumage et de havdala de votre ville, et un écran de repos.",
   "@onboardingPage4Body": {
     "description": "Présentation, page 4 : texte."
   },
@@ -3771,14 +3347,6 @@
   "plusFeatureBoostDescription": "Soyez en tête de pile pendant 30 minutes.",
   "@plusFeatureBoostDescription": {
     "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le Boost. « En tête de pile » = votre profil est montré en premier aux autres membres."
-  },
-  "plusFeatureRewindTitle": "Revenir en arrière",
-  "@plusFeatureRewindTitle": {
-    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre."
-  },
-  "plusFeatureRewindDescription": "Rattrapez un « Passer » trop rapide.",
-  "@plusFeatureRewindDescription": {
-    "description": "Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte."
   },
   "plusFeatureReadReceiptsTitle": "Confirmations de lecture",
   "@plusFeatureReadReceiptsTitle": {
@@ -5478,9 +5046,9 @@
   "@settingsShabbatMode": {
     "description": "Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom."
   },
-  "settingsShabbatAutoPause": "Pause automatique",
+  "settingsShabbatAutoPause": "Horaires de Shabbat",
   "@settingsShabbatAutoPause": {
-    "description": "Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules)."
+    "description": "Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre)."
   },
   "settingsHolidayAlerts": "Alertes fêtes",
   "@settingsHolidayAlerts": {
@@ -5762,69 +5330,34 @@
   "@settingsCoupleActivate": {
     "description": "Carte du mode couple : bouton qui commence l'activation du mode couple. Environ 10 caractères."
   },
-  "settingsShabbatCity": "Basé sur Paris, France",
-  "@settingsShabbatCity": {
-    "description": "Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu."
-  },
-  "settingsShabbatSettingsHeader": "Réglages",
-  "@settingsShabbatSettingsHeader": {
-    "description": "Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales."
-  },
-  "settingsShabbatEnable": "Activer le mode Shabbat",
-  "@settingsShabbatEnable": {
-    "description": "Écran Mode Shabbat : interrupteur principal."
-  },
-  "settingsShabbatEnableHint": "Pause automatique des notifications pendant Shabbat",
-  "@settingsShabbatEnableHint": {
-    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur principal."
-  },
-  "settingsShabbatIncludeHolidays": "Inclure les fêtes",
-  "@settingsShabbatIncludeHolidays": {
-    "description": "Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes."
-  },
-  "settingsShabbatIncludeHolidaysHint": "Pause aussi pendant Yom Tov",
-  "@settingsShabbatIncludeHolidaysHint": {
-    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête."
-  },
-  "settingsShabbatBuffer": "Marge avant l'allumage",
-  "@settingsShabbatBuffer": {
-    "description": "Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies."
-  },
-  "settingsMinutesShort": "{minutes} min",
-  "@settingsMinutesShort": {
-    "description": "Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.",
+  "settingsShabbatBasedOn": "Basé sur {place}",
+  "@settingsShabbatBasedOn": {
+    "description": "Écran Mode Shabbat : la ligne sous les heures qui nomme le lieu pour lequel elles sont calculées. {place} est le nom de la ville du membre, ou « Paris, France » faute de ville.",
     "placeholders": {
-      "minutes": {
-        "type": "int",
-        "example": "18"
+      "place": {
+        "type": "String"
       }
     }
   },
-  "settingsMinutesSpoken": "{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}",
-  "@settingsMinutesSpoken": {
-    "description": "Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).",
-    "placeholders": {
-      "minutes": {
-        "type": "int",
-        "example": "18"
-      }
-    }
+  "settingsShabbatDefaultPlace": "Paris, France",
+  "@settingsShabbatDefaultPlace": {
+    "description": "Écran Mode Shabbat : nom du lieu utilisé quand la ville du membre n'est pas connue (Paris). Se glisse dans « Basé sur … »."
   },
-  "settingsShabbatEdit": "Modifier",
-  "@settingsShabbatEdit": {
-    "description": "Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères."
+  "settingsShabbatUnknownPlaceHint": "Les horaires sont ceux de Paris, car votre ville n'est pas connue. Ajoutez-la dans les réglages pour des horaires exacts.",
+  "@settingsShabbatUnknownPlaceHint": {
+    "description": "Écran Mode Shabbat : remplace le paragraphe du bas quand la ville du membre n'est pas connue (profil sans ville, ou profil illisible) : les heures affichées sont celles de Paris."
   },
-  "settingsShabbatExplanation": "Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».",
+  "settingsShabbatExplanation": "Allumage 18 minutes avant le coucher du soleil, havdala à la tombée de la nuit. Pour changer de lieu, modifiez votre ville dans les réglages.",
   "@settingsShabbatExplanation": {
-    "description": "Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages)."
+    "description": "Écran Mode Shabbat : paragraphe en bas de page qui dit comment les heures sont calculées (18 minutes avant le coucher du soleil, havdala à la tombée de la nuit) et où changer de lieu (la ville se règle dans les réglages). Ne promet aucune pause ni aucun statut."
   },
   "settingsShabbatHeroTitle": "Shabbat\nshalom.",
   "@settingsShabbatHeroTitle": {
     "description": "Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu."
   },
-  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous. Vos messages vous attendront à la havdala.",
+  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous.",
   "@settingsShabbatHeroSubtitle": {
-    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire."
+    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire. Ne promet aucune pause des notifications."
   },
   "settingsShabbatCandleLighting": "Allumage",
   "@settingsShabbatCandleLighting": {
@@ -5900,121 +5433,6 @@
   "settingsRestoreNothing": "Aucun abonnement trouvé.",
   "@settingsRestoreNothing": {
     "description": "Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte."
-  },
-  "shadchanTitle": "AI Shadchan",
-  "@shadchanTitle": {
-    "description": "Titre de la barre d'en-tête de l'écran des suggestions de l'IA. « Shadchan » signifie marieur, marieuse (entremetteur dans la tradition juive) ; garder le mot tel quel quand la langue l'utilise."
-  },
-  "shadchanHeaderTitle": "Votre Shadchan personnel",
-  "@shadchanHeaderTitle": {
-    "description": "Titre dans l'en-tête dégradé de l'écran des suggestions de l'IA. « Shadchan » = marieur, marieuse."
-  },
-  "shadchanHeaderBody": "Notre IA analyse vos préférences pour vous proposer des profils ultra-compatibles",
-  "@shadchanHeaderBody": {
-    "description": "Texte sous le titre de l'en-tête dégradé : ce que fait l'IA."
-  },
-  "shadchanTodayTitle": "Suggestions du jour",
-  "@shadchanTodayTitle": {
-    "description": "Titre de la section des suggestions du jour."
-  },
-  "shadchanNewCount": "{count, plural, one{{count} nouvelle} other{{count} nouvelles}}",
-  "@shadchanNewCount": {
-    "description": "Pastille à droite du titre de section (12 px) : combien de suggestions restent. {count} est un entier.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "shadchanEmptyTitle": "Vous avez parcouru toutes vos suggestions.",
-  "@shadchanEmptyTitle": {
-    "description": "Titre de la carte affichée quand toutes les suggestions du jour ont été traitées."
-  },
-  "shadchanEmptyBody": "Revenez demain pour de nouvelles propositions de votre Shadchan.",
-  "@shadchanEmptyBody": {
-    "description": "Texte sous le titre de la carte « toutes les suggestions vues ». « Shadchan » = marieur, marieuse."
-  },
-  "shadchanEmptyAction": "Découvrir plus de profils",
-  "@shadchanEmptyAction": {
-    "description": "Bouton de la carte « toutes les suggestions vues » : ouvre Découvrir."
-  },
-  "shadchanPassed": "{name} ignorée",
-  "@shadchanPassed": {
-    "description": "Message bref après avoir passé une suggestion. {name} est le prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "shadchanLiked": "{name} ajoutée à vos likes",
-  "@shadchanLiked": {
-    "description": "Message bref (fond vert) après avoir aimé une suggestion. {name} est le prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "shadchanHowTitle": "Comment ça marche ?",
-  "@shadchanHowTitle": {
-    "description": "Titre de la carte qui explique le fonctionnement de l'IA."
-  },
-  "shadchanHowStepAnalyze": "Notre IA analyse votre profil et vos préférences",
-  "@shadchanHowStepAnalyze": {
-    "description": "Étape 1 du fonctionnement de l'IA (une ligne de 13 px, après un numéro)."
-  },
-  "shadchanHowStepCompare": "Elle compare avec les profils compatibles",
-  "@shadchanHowStepCompare": {
-    "description": "Étape 2 du fonctionnement de l'IA."
-  },
-  "shadchanHowStepDaily": "Vous recevez des suggestions personnalisées chaque jour",
-  "@shadchanHowStepDaily": {
-    "description": "Étape 3 du fonctionnement de l'IA."
-  },
-  "shadchanWhy": "Pourquoi cette suggestion ?",
-  "@shadchanWhy": {
-    "description": "Titre (12 px) du bloc vert qui liste les raisons d'une suggestion."
-  },
-  "shadchanMatchBadge": "Match",
-  "@shadchanMatchBadge": {
-    "description": "Petit mot sous le pourcentage de compatibilité d'une suggestion (10 px). Mot d'usage des apps de rencontre."
-  },
-  "shadchanReasonSamePractice": "Même niveau de pratique",
-  "@shadchanReasonSamePractice": {
-    "description": "Raison d'une suggestion : même niveau de pratique religieuse."
-  },
-  "shadchanReasonInterests": "Intérêts communs : voyages, cuisine",
-  "@shadchanReasonInterests": {
-    "description": "Raison d'une suggestion : centres d'intérêt communs (exemple : voyages et cuisine)."
-  },
-  "shadchanReasonGoals": "Objectifs similaires",
-  "@shadchanReasonGoals": {
-    "description": "Raison d'une suggestion : objectifs de vie proches."
-  },
-  "shadchanReasonFamily": "Valeurs familiales alignées",
-  "@shadchanReasonFamily": {
-    "description": "Raison d'une suggestion : valeurs familiales proches."
-  },
-  "shadchanReasonMusic": "Passion commune pour la musique",
-  "@shadchanReasonMusic": {
-    "description": "Raison d'une suggestion : même passion pour la musique."
-  },
-  "shadchanReasonLocation": "Zones de vie compatibles",
-  "@shadchanReasonLocation": {
-    "description": "Raison d'une suggestion : lieux de vie proches."
-  },
-  "shadchanReasonReligion": "Pratique religieuse similaire",
-  "@shadchanReasonReligion": {
-    "description": "Raison d'une suggestion : pratique religieuse proche."
-  },
-  "shadchanReasonProfession": "Secteur professionnel proche",
-  "@shadchanReasonProfession": {
-    "description": "Raison d'une suggestion : métiers dans le même secteur."
-  },
-  "shadchanReasonCouple": "Même vision du couple",
-  "@shadchanReasonCouple": {
-    "description": "Raison d'une suggestion : même idée de la vie de couple."
   },
   "verificationProfileEyebrow": "Votre profil",
   "@verificationProfileEyebrow": {
@@ -6733,120 +6151,6 @@
   "verificationNfcAlertDone": "Terminé.",
   "@verificationNfcAlertDone": {
     "description": "Feuille système NFC d'iPhone : message de fin quand la lecture a réussi."
-  },
-  "videoCallInProgress": "Appel en cours...",
-  "@videoCallInProgress": {
-    "description": "Appel vidéo : texte sous le prénom pendant l'appel."
-  },
-  "videoCallFlip": "Flip",
-  "@videoCallFlip": {
-    "description": "Appel vidéo : bouton qui bascule entre caméra avant et arrière (12 px sous l'icône)."
-  },
-  "videoCallCamera": "Caméra",
-  "@videoCallCamera": {
-    "description": "Appel vidéo : bouton qui coupe ou remet la caméra."
-  },
-  "videoCallMic": "Micro",
-  "@videoCallMic": {
-    "description": "Appel vidéo : bouton qui coupe ou remet le micro."
-  },
-  "videoCallEnd": "Fin",
-  "@videoCallEnd": {
-    "description": "Appel vidéo : bouton rouge qui raccroche."
-  },
-  "visitorsTitle": "Qui a visité mon profil",
-  "@visitorsTitle": {
-    "description": "Titre de la barre d'en-tête de l'écran des visiteurs du profil."
-  },
-  "visitorsTotal": "{count, plural, one{{count} visite} other{{count} visites}}",
-  "@visitorsTotal": {
-    "description": "Grand chiffre de l'en-tête violet : le nombre total de visites. {count} est un entier.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "visitorsThisWeek": "{count} cette semaine",
-  "@visitorsThisWeek": {
-    "description": "Sous le total des visites : combien datent des 7 derniers jours. {count} est un entier.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "visitorsBannerTitle": "Découvrez qui vous a visité",
-  "@visitorsBannerTitle": {
-    "description": "Titre de la bannière qui propose mazl+ à un compte gratuit."
-  },
-  "visitorsBannerBody": "Passez à mazl+ pour voir les profils",
-  "@visitorsBannerBody": {
-    "description": "Sous le titre de la bannière mazl+ : une ligne courte (12 px). « mazl+ » est un nom de marque."
-  },
-  "visitorsEmptyTitle": "Pas encore de visiteurs",
-  "@visitorsEmptyTitle": {
-    "description": "Titre de l'écran des visiteurs quand personne n'a encore visité le profil."
-  },
-  "visitorsEmptyBody": "Complétez votre profil et utilisez un Boost pour attirer plus de visiteurs.",
-  "@visitorsEmptyBody": {
-    "description": "Texte sous le titre de l'écran des visiteurs vide : conseil pour attirer des visiteurs. « Boost » est le nom d'une fonction."
-  },
-  "visitorsEmptyAction": "Activer un Boost",
-  "@visitorsEmptyAction": {
-    "description": "Bouton de l'écran des visiteurs vide : ouvre l'écran du Boost."
-  },
-  "visitorsLockedTitle": "Réservé à mazl+",
-  "@visitorsLockedTitle": {
-    "description": "Titre de la feuille qui s'ouvre quand un compte gratuit touche une visite verrouillée. « mazl+ » est un nom de marque."
-  },
-  "visitorsLockedBody": "Passez à mazl+ pour découvrir qui a visité votre profil et les contacter directement.",
-  "@visitorsLockedBody": {
-    "description": "Texte de la feuille « Réservé à mazl+ »."
-  },
-  "visitorsLockedAction": "Découvrir mazl+",
-  "@visitorsLockedAction": {
-    "description": "Bouton principal de la feuille « Réservé à mazl+ » : ouvre l'abonnement."
-  },
-  "visitorsNew": "NEW",
-  "@visitorsNew": {
-    "description": "Pastille sur la photo d'une visite de moins de 24 heures. 10 px de haut, une seule ligne courte."
-  },
-  "visitorsAgoMinutes": "Il y a {count} min",
-  "@visitorsAgoMinutes": {
-    "description": "Il y a moins d'une heure, sous le prénom d'un visiteur. {count} est un entier de minutes (« min » abrégé).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "visitorsAgoHours": "Il y a {count}h",
-  "@visitorsAgoHours": {
-    "description": "Il y a moins d'un jour, sous le prénom d'un visiteur. {count} est un entier d'heures (« h » abrégé).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "visitorsAgoDays": "{count, plural, one{Il y a {count} jour} other{Il y a {count} jours}}",
-  "@visitorsAgoDays": {
-    "description": "Il y a 2 à 6 jours, sous le prénom d'un visiteur. {count} est un entier de jours.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "visitorsAgoWeeks": "Il y a {count} sem.",
-  "@visitorsAgoWeeks": {
-    "description": "Il y a une semaine ou plus, sous le prénom d'un visiteur. {count} est un entier de semaines (« sem. » abrégé).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "webSessionsTitle": "Ordinateurs connectés",
   "@webSessionsTitle": {

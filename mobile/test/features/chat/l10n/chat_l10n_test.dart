@@ -38,7 +38,7 @@ void main() {
       expect(find.text('Online'), findsOneWidget);
       expect(find.text('Seen at 10:06'), findsOneWidget);
       expect(find.byTooltip('Attach photos'), findsOneWidget);
-      expect(find.bySemanticsLabel('Video call'), findsOneWidget);
+      expect(find.bySemanticsLabel('Video call'), findsNothing);
       expect(find.byTooltip('Options'), findsOneWidget);
       expect(
         find.bySemanticsLabel('Hold to record a voice message'),
