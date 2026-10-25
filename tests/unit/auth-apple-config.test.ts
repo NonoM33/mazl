@@ -71,6 +71,14 @@ describe("APPLE_API_BASE (a fake Apple for tests)", () => {
     expect(() => readAppleSignInConfig({ ...complete, APPLE_API_BASE: "http://127.0.0.1:1", NODE_ENV: "production" })).toThrow(AppleSignInConfigError);
   });
 
+  // The key that verifies Apple identity tokens comes from this host: anything
+  // but development or test (staging, a forgotten NODE_ENV) is a real server.
+  test("is refused on any real deployment, NODE_ENV unset or staging included", () => {
+    for (const NODE_ENV of [undefined, "", "staging", "prod"]) {
+      expect(() => appleApiBase({ APPLE_API_BASE: "http://127.0.0.1:12113", NODE_ENV })).toThrow(AppleSignInConfigError);
+    }
+  });
+
   test("must be a URL", () => {
     expect(() => appleApiBase({ APPLE_API_BASE: "not a url", NODE_ENV: "test" })).toThrow(AppleSignInConfigError);
   });

@@ -116,7 +116,8 @@ export function appleEnv(key: TestSigningKey, apiBase?: string): Record<string, 
     APPLE_TEAM_ID: "TEAM123456",
     APPLE_SIGNIN_KEY_ID: "KEY1234567",
     APPLE_SIGNIN_PRIVATE_KEY: key.pem,
-    ...(apiBase === undefined ? {} : { APPLE_API_BASE: apiBase }),
+    // A fake Apple host is only accepted in development and test.
+    ...(apiBase === undefined ? {} : { APPLE_API_BASE: apiBase, NODE_ENV: "test" }),
   };
 }
 

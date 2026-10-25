@@ -1,4 +1,5 @@
 import { createPrivateKey, type KeyObject } from "node:crypto";
+import { isDevelopmentEnvironment } from "../../../shared/runtime/development-environment";
 
 // Sign in with Apple, server side: what the server needs to talk to Apple's
 // token endpoints (docs/launch/V1-CONTRAT.md §4). The three variables come from
@@ -32,11 +33,12 @@ export type AppleSignInConfig =
   | { readonly available: true; readonly credentials: AppleSignInCredentials; readonly apiBase: string };
 
 // The base of Apple's API (tokens, revocation, public keys). A fake Apple for
-// tests can replace it; never accepted in production.
+// tests can replace it, in development or test only: identity tokens are checked
+// against the keys this host serves.
 export function appleApiBase(env: Env): string {
   const raw = env.APPLE_API_BASE?.trim();
   if (raw === undefined || raw === "") return APPLE_HOST;
-  if (env.NODE_ENV === "production") throw new AppleSignInConfigError("APPLE_API_BASE is refused in production");
+  if (!isDevelopmentEnvironment(env)) throw new AppleSignInConfigError("APPLE_API_BASE is refused outside development and test");
   try {
     return new URL(raw).toString().replace(/\/+$/, "");
   } catch {
