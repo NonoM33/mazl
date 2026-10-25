@@ -2769,90 +2769,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get matchingFiltersDenomination => 'זרם דתי';
 
   @override
-  String get matchingFiltersDenominationAll => 'הכל';
+  String get matchingFiltersKashrut => 'כשרות';
 
   @override
-  String get matchingFiltersDenominationOrthodox => 'אורתודוקסי';
+  String get matchingFiltersShabbatSection => 'שבת';
 
   @override
-  String get matchingFiltersDenominationMasorti => 'מסורטי';
-
-  @override
-  String get matchingFiltersDenominationLiberal => 'ליברלי';
-
-  @override
-  String get matchingFiltersDenominationTraditional => 'מסורתי';
-
-  @override
-  String get matchingFiltersDenominationChabad => 'חב״ד';
-
-  @override
-  String get matchingFiltersDenominationSephardi => 'ספרדי';
-
-  @override
-  String get matchingFiltersDenominationAshkenazi => 'אשכנזי';
-
-  @override
-  String get matchingFiltersObservances => 'מנהגים דתיים';
-
-  @override
-  String get matchingFiltersShabbat => 'שמירת שבת';
-
-  @override
-  String get matchingFiltersKosher => 'כשרות';
-
-  @override
-  String get matchingFiltersKosherStrict => 'כשרות מהודרת';
-
-  @override
-  String get matchingFiltersDailyPrayer => 'תפילה יומית';
-
-  @override
-  String get matchingFiltersMikveh => 'מקווה';
-
-  @override
-  String get matchingFiltersTzniut => 'צניעות';
-
-  @override
-  String get matchingFiltersEducation => 'רמת השכלה';
-
-  @override
-  String get matchingFiltersEducationAll => 'הכל';
-
-  @override
-  String get matchingFiltersEducationHighSchool => 'תיכון';
-
-  @override
-  String get matchingFiltersEducationBaccalaureate => 'בגרות';
-
-  @override
-  String get matchingFiltersEducationBachelor => 'תואר ראשון';
-
-  @override
-  String get matchingFiltersEducationMaster => 'תואר שני';
-
-  @override
-  String get matchingFiltersEducationDoctorate => 'דוקטורט';
-
-  @override
-  String get matchingFiltersEducationYeshiva => 'ישיבה / סמינר';
-
-  @override
-  String get matchingFiltersHeight => 'גובה';
-
-  @override
-  String get matchingFiltersHeightMin => 'מינ׳';
-
-  @override
-  String get matchingFiltersHeightMax => 'מקס׳';
-
-  @override
-  String matchingFiltersCm(int count) {
-    return '$count ס״מ';
-  }
-
-  @override
-  String get matchingFiltersHeightClear => 'ניקוי סינון הגובה';
+  String get matchingFiltersChoiceHint =>
+      'אפשר לבחור כמה אפשרויות. פרופילים שלא ענו על השאלה הזו לא יוצגו.';
 
   @override
   String get matchingFiltersOptions => 'אפשרויות';
@@ -2870,12 +2794,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get matchingFiltersPhotoHint => 'להסתיר פרופילים ללא תמונה';
 
   @override
-  String get matchingFiltersOnlineTitle => 'מחוברים עכשיו';
-
-  @override
-  String get matchingFiltersOnlineHint => 'להציג משתמשים פעילים';
-
-  @override
   String get matchingFiltersUpsellTitle => 'פתיחת כל המסננים';
 
   @override
@@ -2889,6 +2807,17 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get matchingFiltersSaveFailed => 'אירעה שגיאה בשמירה';
+
+  @override
+  String get matchingFiltersAdvanced => 'מסננים מתקדמים';
+
+  @override
+  String get matchingFiltersLoadFailed =>
+      'לא ניתן היה לטעון את המסננים המתקדמים.';
+
+  @override
+  String get matchingFiltersConsentNeeded =>
+      'קריטריונים אלה מחייבים הסכמה לעיבוד אורח החיים הדתי. הם לא נשמרו.';
 
   @override
   String get navigationDiscover => 'גילוי';

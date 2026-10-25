@@ -21,6 +21,7 @@ const sections: ExportSections = {
   couple: null,
   eventRsvps: [],
   consents: [{ purpose: "religious_data", granted: true }],
+  discoverFilters: { denominations: ["Massorti"], kashrut_levels: null, shabbat_observances: null, only_verified: true, only_with_photo: false, updated_at: "2026-10-25", internal_note: "interne" },
   consentHistory: [{ purpose: "religious_data", granted: true }],
   webSessions: [{ id: "s1", browser_label: "Firefox", method: "password", created_at: "2026-01-05", last_seen_at: "2026-01-06", token_hash: "deadbeef" }],
   withdrawalWaivers: [{ id: 1, accepted_at: "2026-01-07", signature_hash: "cafe" }],
@@ -62,7 +63,7 @@ describe("member data export", () => {
     expect(document.generated_at).toBe("2026-10-24T09:30:00.000Z");
     for (const key of [
       "account", "profile", "photos", "prompts", "preferences", "swipes_given", "matches", "messages_sent", "blocks",
-      "reports_made", "subscription", "credits", "couple", "event_rsvps", "consents", "web_sessions", "withdrawal_waivers",
+      "reports_made", "subscription", "credits", "couple", "event_rsvps", "consents", "discover_filters", "web_sessions", "withdrawal_waivers",
       "moderation", "verification", "waitlist_application",
     ]) {
       expect(key in document).toBe(true);
@@ -82,6 +83,15 @@ describe("member data export", () => {
     expect(document.web_sessions).toEqual([
       { id: "s1", browser_label: "Firefox", method: "password", created_at: "2026-01-05", last_seen_at: "2026-01-06" },
     ]);
+  });
+
+  test("the Discover filters are exported with their allowed fields only, null when the member has none", async () => {
+    const { document } = await new ExportService(reader, fixedNow).export(7);
+    expect(document.discover_filters).toEqual({
+      denominations: ["Massorti"], kashrut_levels: null, shabbat_observances: null, only_verified: true, only_with_photo: false, updated_at: "2026-10-25",
+    });
+    const without = await new ExportService({ read: () => Promise.resolve({ ...sections, discoverFilters: null }) }, fixedNow).export(7);
+    expect(without.document.discover_filters).toBeNull();
   });
 
   test("profile and account are cut to their allow-list", async () => {

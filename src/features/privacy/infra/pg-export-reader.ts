@@ -7,6 +7,7 @@ type Rows = Promise<JsonRecord[]>;
 // Tables owned by other branches: read only when they exist (and have the owner column).
 const WEB_SESSIONS_TABLE = "web_sessions";
 const WITHDRAWAL_WAIVERS_TABLE = "billing_withdrawal_waivers";
+const DISCOVER_FILTERS_TABLE = "discover_filters";
 
 export class PgExportReader implements ExportReader {
   constructor(private readonly sql: Sql) {}
@@ -19,9 +20,10 @@ export class PgExportReader implements ExportReader {
       this.photos(userId), this.prompts(userId), this.swipesGiven(userId), this.matches(userId),
       this.messagesSent(userId), this.blocks(userId), this.reportsMade(userId),
     ]);
-    const [credits, eventRsvps, consents, consentHistory, webSessions, withdrawalWaivers] = await Promise.all([
+    const [credits, eventRsvps, consents, consentHistory, webSessions, withdrawalWaivers, discoverFilters] = await Promise.all([
       this.credits(userId), this.eventRsvps(userId), this.consents(userId), this.consentHistory(userId),
       this.optionalTable(WEB_SESSIONS_TABLE, userId), this.optionalTable(WITHDRAWAL_WAIVERS_TABLE, userId),
+      this.optionalTable(DISCOVER_FILTERS_TABLE, userId),
     ]);
     const [bans, sanctions, faceSessions, identity, faceReference, verificationAttempts] = await Promise.all([
       this.optionalTable("user_bans", userId), this.optionalTable("member_sanctions", userId),
@@ -31,7 +33,7 @@ export class PgExportReader implements ExportReader {
     const [moderationActions, application] = await Promise.all([this.moderationActions(userId), this.waitlistOf(account)]);
     return {
       account, profile, photos, prompts, swipesGiven, matches, messagesSent, blocks, reportsMade,
-      subscription, credits, couple, eventRsvps, consents, consentHistory, webSessions, withdrawalWaivers,
+      subscription, credits, couple, eventRsvps, consents, discoverFilters: discoverFilters[0] ?? null, consentHistory, webSessions, withdrawalWaivers,
       bans, sanctions, moderationActions, faceSessions, identity, faceReference, verificationAttempts,
       waitlist: application.waitlist, documents: application.documents,
     };

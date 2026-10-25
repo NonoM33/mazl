@@ -48,8 +48,26 @@ export async function ensureMatchingSchema(sql: Sql): Promise<void> {
       )
     `;
     await tx`CREATE INDEX IF NOT EXISTS idx_matching_activations_version ON matching_activations (version_id, activated_at DESC)`;
+    await createDiscoverFiltersTable(tx);
     await seedInitialVersion(tx);
   });
+}
+
+// The advanced filters a member chose in Discover (mazl+). They are not part of
+// the profile: they say who the member wants to see. One row per member, gone
+// with the account; the export of the member's data lists it.
+async function createDiscoverFiltersTable(tx: Sql): Promise<void> {
+  await tx`
+    CREATE TABLE IF NOT EXISTS discover_filters (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      denominations TEXT[],
+      kashrut_levels TEXT[],
+      shabbat_observances TEXT[],
+      only_verified BOOLEAN NOT NULL DEFAULT false,
+      only_with_photo BOOLEAN NOT NULL DEFAULT false,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
 }
 
 async function seedInitialVersion(tx: Sql): Promise<void> {

@@ -52,7 +52,7 @@ export function createFeed(deps: FeedDeps): Feed {
     if (set === null) return { userIds: [], versionId: version.id };
     const now = clock();
     const seed = seedFrom(userId, parisDay(now), version.id);
-    const ctx = { now: now.toISOString(), excluded: set.excluded };
+    const ctx = { now: now.toISOString(), excluded: set.excluded, filters: set.filters };
     const result = rankCandidates(set.viewer, set.candidates, ctx, version.params, seed, RANKING_WINDOW);
     const userIds = result.ranked.slice(page.offset, page.offset + page.limit).map((c) => c.userId);
     return { userIds, versionId: version.id };

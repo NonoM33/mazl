@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/core/matching/discover_filters_providers.dart';
 import 'package:mazl/core/services/api_service.dart';
-import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/presentation/features/matching/screens/filters_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
+import '../discover_filters_fakes.dart';
 import 'l10n_harness.dart';
 
-class _FakeFiltersApi implements ApiService {
-  _FakeFiltersApi({this.saveFails = false});
-
-  final bool saveFails;
-  final saved = <Map<String, dynamic>>[];
-
+class _FakeProfileApi implements ApiService {
   @override
   Future<ApiResponse<UserProfile>> getCurrentUser() async =>
       ApiResponse.failure('offline');
@@ -21,21 +17,18 @@ class _FakeFiltersApi implements ApiService {
   Future<ApiResponse<Profile>> updateProfile(
     Map<String, dynamic> profileData,
   ) async {
-    saved.add(profileData);
-    return saveFails
-        ? ApiResponse.failure('Failed to update profile')
-        : ApiResponse.success(Profile(id: 1, userId: 1));
+    return ApiResponse.success(Profile(id: 1, userId: 1));
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('_FakeFiltersApi: ${invocation.memberName}');
+      throw UnimplementedError('_FakeProfileApi: ${invocation.memberName}');
 }
 
 class _Host extends StatelessWidget {
-  const _Host(this.api);
+  const _Host(this.profile);
 
-  final ApiService api;
+  final ApiService profile;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -43,7 +36,7 @@ class _Host extends StatelessWidget {
       child: TextButton(
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute<bool>(
-            builder: (_) => FiltersScreen(apiService: api),
+            builder: (_) => FiltersScreen(apiService: profile),
           ),
         ),
         child: const Text('open'),
@@ -52,13 +45,19 @@ class _Host extends StatelessWidget {
   );
 }
 
-Future<void> _open(WidgetTester tester, ApiService api, L10nCase c) async {
+Future<void> _open(
+  WidgetTester tester,
+  FakeDiscoverFiltersApi filters,
+  L10nCase c, {
+  ApiService? profile,
+}) async {
   await pumpLocalized(
     tester,
-    _Host(api),
+    _Host(profile ?? _FakeProfileApi()),
     locale: c.locale,
     brightness: c.brightness,
-    size: const Size(360, 3000),
+    size: const Size(360, 3200),
+    overrides: [discoverFiltersApiProvider.overrideWithValue(filters)],
   );
   await tester.tap(find.text('open'));
   await tester.pumpAndSettle();
@@ -68,40 +67,32 @@ const _frenchTexts = [
   "Tranche d'âge",
   'Distance maximale',
   'Courant religieux',
-  'Pratiques religieuses',
-  "Niveau d'études",
   'Réinitialiser',
-  'Toutes',
-  'Orthodoxe',
   'Massorti',
-  'Libéral',
   'Traditionaliste',
-  'Loubavitch',
-  'Séfarade',
-  'Ashkénaze',
-  'Casher strict',
-  'Prière quotidienne',
-  'Mikvé',
-  'Lycée',
-  'Doctorat',
-  'Yeshiva/Sem',
+  'Orthodoxe moderne',
+  'À la maison',
+  'Partiellement',
+  'Très observant',
   'Profils vérifiés uniquement',
   'Voir seulement les profils vérifiés',
   'Avec photo uniquement',
-  'En ligne maintenant',
   'Débloquer tous les filtres',
   'Passez à mazl+ pour des recherches précises',
+  "Plusieurs choix possibles. Les profils qui n'ont pas répondu ne sont pas proposés.",
 ];
 
 void main() {
-  tearDown(() => PremiumGate.debugPremiumOverride = null);
-
   testWidgets('French stays word for word', (tester) async {
-    PremiumGate.debugPremiumOverride = false;
     await pumpLocalized(
       tester,
-      _Host(_FakeFiltersApi()),
-      size: const Size(360, 3000),
+      _Host(_FakeProfileApi()),
+      size: const Size(360, 3200),
+      overrides: [
+        discoverFiltersApiProvider.overrideWithValue(
+          FakeDiscoverFiltersApi(plus: false),
+        ),
+      ],
     );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -110,27 +101,28 @@ void main() {
     expect(find.text('18 ans'), findsOneWidget);
     expect(find.text('45 ans'), findsOneWidget);
     expect(find.text('50 km'), findsOneWidget);
-    expect(find.text('Séfarade'), findsOneWidget);
-    expect(find.text('Effacer le filtre taille'), findsNothing);
+    expect(find.text('Courant religieux'), findsOneWidget);
+    expect(find.text('Kashrout'), findsOneWidget);
+    expect(find.text('Shabbat'), findsOneWidget);
+    expect(find.text('Habad'), findsOneWidget);
+    expect(find.text('Strict'), findsOneWidget);
+    expect(find.text('Débloquer tous les filtres'), findsOneWidget);
   });
 
-  testWidgets('English free member', (tester) async {
-    PremiumGate.debugPremiumOverride = false;
-    await _open(tester, _FakeFiltersApi(), l10nCases.first);
+  testWidgets('English without mazl+', (tester) async {
+    await _open(tester, FakeDiscoverFiltersApi(plus: false), l10nCases.first);
     expect(find.text('Filters'), findsOneWidget);
     expect(find.text('18 years'), findsOneWidget);
     expect(find.text('50 km'), findsOneWidget);
     expect(find.text('Religious movement'), findsOneWidget);
-    expect(find.text('Sephardic'), findsOneWidget);
+    expect(find.text('Secular'), findsOneWidget);
     expect(find.text('Unlock every filter'), findsOneWidget);
-    expect(find.text('Min'), findsOneWidget);
   });
 
   testWidgets('Russian ages follow the plural rules', (tester) async {
-    PremiumGate.debugPremiumOverride = false;
     await _open(
       tester,
-      _FakeFiltersApi(),
+      FakeDiscoverFiltersApi(),
       const L10nCase(Locale('ru'), Brightness.light),
     );
     expect(find.text('18 лет'), findsOneWidget);
@@ -138,45 +130,44 @@ void main() {
   });
 
   testWidgets(
-    'the server still receives the same values whatever the language',
+    'the server receives the same stored answers whatever the language',
     (tester) async {
-      PremiumGate.debugPremiumOverride = true;
-      final api = _FakeFiltersApi();
+      final api = FakeDiscoverFiltersApi();
       await _open(tester, api, const L10nCase(Locale('he'), Brightness.light));
-      await tester.tap(find.text('אורתודוקסי'));
-      await tester.tap(find.text('שמירת שבת'));
-      await tester.tap(find.text('כשרות מהודרת'));
-      await tester.tap(find.text('תואר ראשון'));
+      await tester.tap(find.text('אורתודוקסי (חרדי)'));
+      await tester.tap(find.text('גלאט'));
+      await tester.tap(find.text('שמירה קפדנית'));
       await tester.pump();
       await tester.tap(find.text('החלת המסננים'));
       await tester.pumpAndSettle();
       expect(api.saved, hasLength(1));
-      expect(api.saved.single['denomination'], 'Orthodoxe');
-      expect(api.saved.single['observances'], [
-        'Shomer Shabbat',
-        'Casher strict',
+      expect(api.saved.single.denominations, ['Orthodox', 'Orthodoxe']);
+      expect(api.saved.single.kashrutLevels, ['Glatt']);
+      expect(api.saved.single.shabbatObservances, [
+        'Tres observant',
+        'Très observant',
+        'tres_observant',
       ]);
-      expect(api.saved.single['education'], 'Licence');
     },
   );
 
   testWidgets('a refused save shows our sentence, not the diagnostic', (
     tester,
   ) async {
-    PremiumGate.debugPremiumOverride = true;
-    await _open(tester, _FakeFiltersApi(saveFails: true), l10nCases.first);
+    final api = FakeDiscoverFiltersApi()
+      ..refusals.add(ApiResponse.failure('boom', ApiErrorKind.server));
+    await _open(tester, api, l10nCases.first);
     await tester.tap(find.text('Orthodox'));
     await tester.pump();
     await tester.tap(find.text('Apply filters'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Failed to update profile'), findsNothing);
+    expect(find.text('boom'), findsNothing);
     expect(find.text('Something went wrong while saving'), findsOneWidget);
   });
 
   testWidgets('English saved confirmation', (tester) async {
-    PremiumGate.debugPremiumOverride = true;
-    await _open(tester, _FakeFiltersApi(), l10nCases.first);
+    await _open(tester, FakeDiscoverFiltersApi(), l10nCases.first);
     await tester.tap(find.text('Orthodox'));
     await tester.pump();
     await tester.tap(find.text('Apply filters'));
@@ -186,19 +177,27 @@ void main() {
   });
 
   for (final c in l10nCases) {
-    testWidgets('free member in ${c.name}', (tester) async {
-      PremiumGate.debugPremiumOverride = false;
-      await _open(tester, _FakeFiltersApi(), c);
+    testWidgets('member without mazl+ in ${c.name}', (tester) async {
+      await _open(tester, FakeDiscoverFiltersApi(plus: false), c);
       expectNoFrench(_frenchTexts);
       expectDirection(tester, find.byType(AppBar), c);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('premium member in ${c.name}', (tester) async {
-      PremiumGate.debugPremiumOverride = true;
-      await _open(tester, _FakeFiltersApi(), c);
+    testWidgets('mazl+ member in ${c.name}', (tester) async {
+      await _open(tester, FakeDiscoverFiltersApi(), c);
       expectNoFrench(_frenchTexts);
       expect(find.text('Débloquer tous les filtres'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('failed load in ${c.name}', (tester) async {
+      await _open(tester, FakeDiscoverFiltersApi()..failLoad = true, c);
+      expectNoFrench([
+        "Vos filtres avancés n'ont pas pu être chargés.",
+        'Filtres avancés',
+        'Réessayer',
+      ]);
       expect(tester.takeException(), isNull);
     });
   }

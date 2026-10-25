@@ -4722,181 +4722,31 @@ abstract class AppLocalizations {
   /// **'{count} km'**
   String matchingFiltersKm(int count);
 
-  /// Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+).
+  /// Titre de la section « courant religieux » de l'écran des filtres (fonction mazl+, plusieurs choix possibles).
   ///
   /// In fr, this message translates to:
   /// **'Courant religieux'**
   String get matchingFiltersDenomination;
 
-  /// Choix du filtre « courant religieux » : aucun filtre.
+  /// Titre de la section « kashrout » (mazl+) de l'écran des filtres : le niveau de pratique des repas casher des autres membres.
   ///
   /// In fr, this message translates to:
-  /// **'Toutes'**
-  String get matchingFiltersDenominationAll;
+  /// **'Kashrout'**
+  String get matchingFiltersKashrut;
 
-  /// Choix du filtre « courant religieux » : judaïsme orthodoxe.
+  /// Titre de la section « Shabbat » (mazl+) de l'écran des filtres : l'observance du Shabbat des autres membres.
   ///
   /// In fr, this message translates to:
-  /// **'Orthodoxe'**
-  String get matchingFiltersDenominationOrthodox;
+  /// **'Shabbat'**
+  String get matchingFiltersShabbatSection;
 
-  /// Choix du filtre « courant religieux » : mouvement massorti (conservative).
+  /// Petite note sous les trois listes de choix de pratique religieuse. Deux phrases : on peut cocher plusieurs réponses ; un profil sans réponse à cette question est écarté dès qu'un choix est coché.
   ///
   /// In fr, this message translates to:
-  /// **'Massorti'**
-  String get matchingFiltersDenominationMasorti;
+  /// **'Plusieurs choix possibles. Les profils qui n\'ont pas répondu ne sont pas proposés.'**
+  String get matchingFiltersChoiceHint;
 
-  /// Choix du filtre « courant religieux » : judaïsme libéral ou réformé.
-  ///
-  /// In fr, this message translates to:
-  /// **'Libéral'**
-  String get matchingFiltersDenominationLiberal;
-
-  /// Choix du filtre « courant religieux » : traditionaliste, attaché aux traditions sans suivre un mouvement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Traditionaliste'**
-  String get matchingFiltersDenominationTraditional;
-
-  /// Choix du filtre « courant religieux » : mouvement loubavitch (Habad).
-  ///
-  /// In fr, this message translates to:
-  /// **'Loubavitch'**
-  String get matchingFiltersDenominationChabad;
-
-  /// Choix du filtre « courant religieux » : tradition séfarade.
-  ///
-  /// In fr, this message translates to:
-  /// **'Séfarade'**
-  String get matchingFiltersDenominationSephardi;
-
-  /// Choix du filtre « courant religieux » : tradition ashkénaze.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ashkénaze'**
-  String get matchingFiltersDenominationAshkenazi;
-
-  /// Titre de la section « pratiques religieuses » de l'écran des filtres (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'Pratiques religieuses'**
-  String get matchingFiltersObservances;
-
-  /// Choix du filtre « pratiques » : observer le chabbat (shomer shabbat).
-  ///
-  /// In fr, this message translates to:
-  /// **'Shomer Shabbat'**
-  String get matchingFiltersShabbat;
-
-  /// Choix du filtre « pratiques » : manger casher.
-  ///
-  /// In fr, this message translates to:
-  /// **'Casher'**
-  String get matchingFiltersKosher;
-
-  /// Choix du filtre « pratiques » : casher strict.
-  ///
-  /// In fr, this message translates to:
-  /// **'Casher strict'**
-  String get matchingFiltersKosherStrict;
-
-  /// Choix du filtre « pratiques » : prière quotidienne.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prière quotidienne'**
-  String get matchingFiltersDailyPrayer;
-
-  /// Choix du filtre « pratiques » : pratique du mikvé (bain rituel).
-  ///
-  /// In fr, this message translates to:
-  /// **'Mikvé'**
-  String get matchingFiltersMikveh;
-
-  /// Choix du filtre « pratiques » : tsniout (pudeur dans l'habillement et le comportement).
-  ///
-  /// In fr, this message translates to:
-  /// **'Tsniout'**
-  String get matchingFiltersTzniut;
-
-  /// Titre de la section « niveau d'études » de l'écran des filtres (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'Niveau d\'études'**
-  String get matchingFiltersEducation;
-
-  /// Choix du filtre « niveau d'études » : aucun filtre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tous'**
-  String get matchingFiltersEducationAll;
-
-  /// Choix du filtre « niveau d'études » : lycée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Lycée'**
-  String get matchingFiltersEducationHighSchool;
-
-  /// Choix du filtre « niveau d'études » : baccalauréat.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bac'**
-  String get matchingFiltersEducationBaccalaureate;
-
-  /// Choix du filtre « niveau d'études » : licence (bac+3).
-  ///
-  /// In fr, this message translates to:
-  /// **'Licence'**
-  String get matchingFiltersEducationBachelor;
-
-  /// Choix du filtre « niveau d'études » : master (bac+5).
-  ///
-  /// In fr, this message translates to:
-  /// **'Master'**
-  String get matchingFiltersEducationMaster;
-
-  /// Choix du filtre « niveau d'études » : doctorat.
-  ///
-  /// In fr, this message translates to:
-  /// **'Doctorat'**
-  String get matchingFiltersEducationDoctorate;
-
-  /// Choix du filtre « niveau d'études » : yeshiva (hommes) ou séminaire (femmes), études religieuses.
-  ///
-  /// In fr, this message translates to:
-  /// **'Yeshiva/Sem'**
-  String get matchingFiltersEducationYeshiva;
-
-  /// Titre de la section « taille » de l'écran des filtres (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'Taille'**
-  String get matchingFiltersHeight;
-
-  /// Valeur minimale de taille quand aucun filtre n'est posé, à gauche du curseur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Min'**
-  String get matchingFiltersHeightMin;
-
-  /// Valeur maximale de taille quand aucun filtre n'est posé, à droite du curseur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Max'**
-  String get matchingFiltersHeightMax;
-
-  /// Taille minimale ou maximale choisie. {count} est un entier de centimètres.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count} cm'**
-  String matchingFiltersCm(int count);
-
-  /// Bouton qui retire le filtre de taille.
-  ///
-  /// In fr, this message translates to:
-  /// **'Effacer le filtre taille'**
-  String get matchingFiltersHeightClear;
-
-  /// Titre de la section des options à bascule (profils vérifiés, avec photo, en ligne).
+  /// Titre de la section des options à bascule (profils vérifiés, avec photo).
   ///
   /// In fr, this message translates to:
   /// **'Options'**
@@ -4925,18 +4775,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Exclure les profils sans photo'**
   String get matchingFiltersPhotoHint;
-
-  /// Interrupteur : ne montrer que les membres connectés en ce moment (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'En ligne maintenant'**
-  String get matchingFiltersOnlineTitle;
-
-  /// Explication sous l'interrupteur « en ligne maintenant ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir les utilisateurs actifs'**
-  String get matchingFiltersOnlineHint;
 
   /// Titre de l'encart dégradé qui propose mazl+ aux comptes gratuits, en bas de l'écran des filtres.
   ///
@@ -4967,6 +4805,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur lors de la sauvegarde'**
   String get matchingFiltersSaveFailed;
+
+  /// Titre de la section qui remplace les filtres avancés (mazl+) quand le serveur ne les a pas rendus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres avancés'**
+  String get matchingFiltersAdvanced;
+
+  /// Message affiché à la place des filtres avancés quand leur chargement a échoué ; un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos filtres avancés n\'ont pas pu être chargés.'**
+  String get matchingFiltersLoadFailed;
+
+  /// Message bref (fond rouge) quand le membre a refusé le consentement de l'article 9 au moment d'enregistrer un critère de pratique religieuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces critères demandent votre accord pour traiter votre pratique religieuse. Ils n\'ont pas été enregistrés.'**
+  String get matchingFiltersConsentNeeded;
 
   /// Barre d'onglets : onglet des profils à découvrir. Lu par le lecteur d'écran, l'onglet n'affiche qu'une icône.
   ///
