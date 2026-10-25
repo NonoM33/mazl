@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 import '../models/chat_message.dart';
+import '../services/session_guard.dart';
 
 // Typed HTTP client for the chat. CONTRACT: docs/chat/CONTRAT.md §1 and §2.
 // Failures are typed here ([ChatApiErrorKind]) and the screens write the
@@ -229,7 +230,7 @@ class HttpChatApi implements ChatApi {
     required Duration timeout,
     bool upload = false,
   }) async {
-    final client = _clientFactory();
+    final client = SessionGuardClient(_clientFactory());
     try {
       final streamed = await client.send(request).timeout(timeout);
       final response = await http.Response.fromStream(streamed).timeout(timeout);

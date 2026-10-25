@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../config/env.dart';
 import 'auth_service.dart';
 import 'profile_completeness_service.dart';
+import 'session_guard.dart';
 import 'store/credits_service.dart';
 
 // Data-model classes extracted out of this file into `lib/core/models/`.
@@ -246,36 +247,47 @@ class ApiService implements CoupleApi {
     };
   }
 
+  /// Runs one request through a client that watches the session: a 401 (or a
+  /// 403 `account_disabled`) signs the member out, whichever screen asked.
+  Future<T> _watched<T>(Future<T> Function(http.Client client) request) async {
+    final client = SessionGuardClient();
+    try {
+      return await request(client).timeout(ApiConfig.requestTimeout);
+    } finally {
+      client.close();
+    }
+  }
+
   /// GET request
   Future<http.Response> _get(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API GET: $url');
-    return http.get(url, headers: _headers).timeout(ApiConfig.requestTimeout);
+    return _watched((client) => client.get(url, headers: _headers));
   }
 
   /// POST request
   Future<http.Response> _post(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API POST: $url');
-    return http
-        .post(url, headers: _headers, body: jsonEncode(body))
-        .timeout(ApiConfig.requestTimeout);
+    return _watched(
+      (client) => client.post(url, headers: _headers, body: jsonEncode(body)),
+    );
   }
 
   /// PUT request
   Future<http.Response> _put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API PUT: $url');
-    return http
-        .put(url, headers: _headers, body: jsonEncode(body))
-        .timeout(ApiConfig.requestTimeout);
+    return _watched(
+      (client) => client.put(url, headers: _headers, body: jsonEncode(body)),
+    );
   }
 
   /// DELETE request
   Future<http.Response> _delete(String endpoint) async {
     final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
     debugPrint('API DELETE: $url');
-    return http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
+    return _watched((client) => client.delete(url, headers: _headers));
   }
 
   /// Public POST request (returns parsed JSON)
@@ -517,8 +529,9 @@ class ApiService implements CoupleApi {
       request.files.add(await http.MultipartFile.fromPath('photo', filePath));
       request.fields['is_primary'] = isPrimary.toString();
 
-      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await _watched(
+        (client) async => http.Response.fromStream(await client.send(request)),
+      );
 
       if (response.statusCode != 200) {
         return ApiResponse.httpFailure(response, 'Failed to upload photo');
@@ -724,8 +737,9 @@ class ApiService implements CoupleApi {
         imageFile.path,
       ));
 
-      final streamedResponse = await request.send().timeout(ApiConfig.requestTimeout);
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await _watched(
+        (client) async => http.Response.fromStream(await client.send(request)),
+      );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         return ApiResponse.httpFailure(response, 'Failed to send image');
@@ -838,8 +852,7 @@ class ApiService implements CoupleApi {
   Future<ApiResponse<void>> cancelRsvp(int eventId) async {
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/api/events/$eventId/rsvp');
-      final response =
-          await http.delete(url, headers: _headers).timeout(ApiConfig.requestTimeout);
+      final response = await _watched((client) => client.delete(url, headers: _headers));
 
       if (response.statusCode != 200) {
         return ApiResponse.httpFailure(response, 'Failed to cancel RSVP');
@@ -1119,7 +1132,7 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final blockedList = (data['blocked_users'] as List<dynamic>?)
+      final blockedList = (data['blocked'] as List<dynamic>?)
           ?.map((json) => BlockedUser.fromJson(json))
           .toList() ?? [];
 

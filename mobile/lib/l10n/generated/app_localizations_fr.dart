@@ -22,9 +22,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authLoginGoogle => 'Continuer avec Google';
 
   @override
-  String get authLoginEmail => 'Utiliser mon e-mail';
-
-  @override
   String get authLoginDev => 'Connexion fictive (dev)';
 
   @override
@@ -42,142 +39,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authErrorGeneric => 'Une erreur est survenue. Veuillez réessayer.';
 
   @override
-  String get authErrorInvalidCredentials => 'Email ou mot de passe incorrect';
-
-  @override
   String get authErrorCancelled => 'Connexion annulée.';
-
-  @override
-  String get authErrorEmailTaken => 'Cette adresse e-mail est déjà utilisée.';
 
   @override
   String get authErrorUnsupported =>
       'Cette méthode de connexion n\'est pas disponible sur cet appareil.';
 
   @override
-  String get authErrorLoginFailed => 'Erreur de connexion';
-
-  @override
-  String get authErrorRegisterFailed => 'Erreur d\'inscription';
-
-  @override
-  String get authErrorTermsRequired =>
-      'Veuillez accepter les conditions d\'utilisation';
-
-  @override
-  String get authEmailTitleLogin => 'Connexion';
-
-  @override
-  String get authEmailTitleRegister => 'Inscription';
-
-  @override
-  String get authEmailSubtitleLogin => 'Ravi de vous revoir';
-
-  @override
-  String get authEmailSubtitleRegister => 'Créez votre compte MAZL';
-
-  @override
-  String get authFieldName => 'Prénom';
-
-  @override
-  String get authFieldEmail => 'Email';
-
-  @override
-  String get authFieldPassword => 'Mot de passe';
-
-  @override
-  String get authFieldPasswordConfirm => 'Confirmer le mot de passe';
-
-  @override
-  String get authStrengthWeak => 'Faible';
-
-  @override
-  String get authStrengthFair => 'Moyen';
-
-  @override
-  String get authStrengthGood => 'Bon';
-
-  @override
-  String get authStrengthExcellent => 'Excellent';
-
-  @override
-  String get authTermsCheckbox =>
-      'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité';
-
-  @override
-  String get authForgotLink => 'Mot de passe oublié ?';
-
-  @override
-  String get authSubmitLogin => 'Se connecter';
-
-  @override
-  String get authSubmitRegister => 'Créer mon compte';
-
-  @override
-  String get authToggleNoAccount => 'Pas encore de compte ?';
-
-  @override
-  String get authToggleHaveAccount => 'Déjà un compte ?';
-
-  @override
-  String get authToggleCreate => 'Créer un compte';
-
-  @override
-  String get authToggleSignIn => 'Se connecter';
-
-  @override
-  String get authValidationEmailRequired => 'Email requis';
-
-  @override
-  String get authValidationEmailInvalid => 'Email invalide';
-
-  @override
-  String get authValidationPasswordRequired => 'Mot de passe requis';
-
-  @override
-  String get authValidationPasswordMin => 'Minimum 8 caractères';
-
-  @override
-  String get authValidationPasswordUpper => 'Au moins une majuscule';
-
-  @override
-  String get authValidationPasswordDigit => 'Au moins un chiffre';
-
-  @override
-  String get authValidationPasswordMismatch =>
-      'Les mots de passe ne correspondent pas';
-
-  @override
-  String get authValidationNameRequired => 'Prénom requis';
-
-  @override
-  String get authValidationNameMin => 'Minimum 2 caractères';
-
-  @override
-  String get authVerifyTitle => 'Vérifiez votre email';
-
-  @override
-  String get authVerifySent => 'Un email de vérification a été envoyé à :';
-
-  @override
-  String get authVerifyInstruction =>
-      'Cliquez sur le lien dans l\'email pour activer votre compte.';
-
-  @override
-  String get authVerifyOk => 'OK, je vais vérifier';
-
-  @override
-  String get authForgotTitle => 'Mot de passe oublié';
-
-  @override
-  String get authForgotInstruction =>
-      'Entrez votre email pour recevoir un lien de réinitialisation.';
-
-  @override
-  String get authForgotSent => 'Email de réinitialisation envoyé';
-
-  @override
-  String get authForgotSend => 'Envoyer';
+  String authErrorAccountDisabled(String contact) {
+    return 'Votre compte est désactivé. Écrivez-nous à $contact.';
+  }
 
   @override
   String get authRouteErrorTitle => 'Page introuvable';
@@ -675,6 +546,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonLoadError => 'Erreur de chargement';
+
+  @override
+  String linkOpenError(String target) {
+    return 'Impossible d\'ouvrir $target pour le moment.';
+  }
 
   @override
   String get coupleFeedDashboardSettingsTooltip => 'Réglages';
@@ -4424,6 +4300,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsTerms => 'Conditions d\'utilisation';
+
+  @override
+  String get settingsSales => 'Conditions de vente';
 
   @override
   String get settingsPrivacyPolicy => 'Politique de confidentialité';

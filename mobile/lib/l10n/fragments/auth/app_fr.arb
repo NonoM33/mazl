@@ -15,10 +15,6 @@
   "@authLoginGoogle": {
     "description": "Connexion : bouton de connexion avec le compte Google."
   },
-  "authLoginEmail": "Utiliser mon e-mail",
-  "@authLoginEmail": {
-    "description": "Connexion : bouton texte qui ouvre l'écran de connexion par e-mail."
-  },
   "authLoginDev": "Connexion fictive (dev)",
   "@authLoginDev": {
     "description": "Connexion : bouton réservé au développement (versions de test uniquement), jamais montré aux membres."
@@ -47,181 +43,22 @@
   "@authErrorGeneric": {
     "description": "Connexion et inscription : erreur sans cause connue."
   },
-  "authErrorInvalidCredentials": "Email ou mot de passe incorrect",
-  "@authErrorInvalidCredentials": {
-    "description": "Connexion par e-mail : l'adresse ou le mot de passe est faux."
-  },
   "authErrorCancelled": "Connexion annulée.",
   "@authErrorCancelled": {
     "description": "Connexion avec Apple ou Google : le membre a fermé la fenêtre de connexion."
-  },
-  "authErrorEmailTaken": "Cette adresse e-mail est déjà utilisée.",
-  "@authErrorEmailTaken": {
-    "description": "Inscription : un compte existe déjà avec cette adresse e-mail."
   },
   "authErrorUnsupported": "Cette méthode de connexion n'est pas disponible sur cet appareil.",
   "@authErrorUnsupported": {
     "description": "Connexion avec Apple : proposée sur iPhone et Mac seulement."
   },
-  "authErrorLoginFailed": "Erreur de connexion",
-  "@authErrorLoginFailed": {
-    "description": "Connexion par e-mail : échec dont la cause n'est pas connue."
-  },
-  "authErrorRegisterFailed": "Erreur d'inscription",
-  "@authErrorRegisterFailed": {
-    "description": "Inscription par e-mail : échec dont la cause n'est pas connue."
-  },
-  "authErrorTermsRequired": "Veuillez accepter les conditions d'utilisation",
-  "@authErrorTermsRequired": {
-    "description": "Inscription : le membre n'a pas coché la case des conditions d'utilisation."
-  },
-  "authEmailTitleLogin": "Connexion",
-  "@authEmailTitleLogin": {
-    "description": "Connexion par e-mail : grand titre en mode connexion."
-  },
-  "authEmailTitleRegister": "Inscription",
-  "@authEmailTitleRegister": {
-    "description": "Connexion par e-mail : grand titre en mode inscription."
-  },
-  "authEmailSubtitleLogin": "Ravi de vous revoir",
-  "@authEmailSubtitleLogin": {
-    "description": "Connexion par e-mail : phrase sous le titre en mode connexion."
-  },
-  "authEmailSubtitleRegister": "Créez votre compte MAZL",
-  "@authEmailSubtitleRegister": {
-    "description": "Connexion par e-mail : phrase sous le titre en mode inscription."
-  },
-  "authFieldName": "Prénom",
-  "@authFieldName": {
-    "description": "Inscription : titre du champ du prénom."
-  },
-  "authFieldEmail": "Email",
-  "@authFieldEmail": {
-    "description": "Connexion : titre du champ de l'adresse e-mail."
-  },
-  "authFieldPassword": "Mot de passe",
-  "@authFieldPassword": {
-    "description": "Connexion : titre du champ du mot de passe."
-  },
-  "authFieldPasswordConfirm": "Confirmer le mot de passe",
-  "@authFieldPasswordConfirm": {
-    "description": "Inscription : titre du champ qui redemande le mot de passe."
-  },
-  "authStrengthWeak": "Faible",
-  "@authStrengthWeak": {
-    "description": "Inscription : force du mot de passe, niveau le plus bas (à côté de la barre)."
-  },
-  "authStrengthFair": "Moyen",
-  "@authStrengthFair": {
-    "description": "Inscription : force du mot de passe, deuxième niveau."
-  },
-  "authStrengthGood": "Bon",
-  "@authStrengthGood": {
-    "description": "Inscription : force du mot de passe, troisième niveau."
-  },
-  "authStrengthExcellent": "Excellent",
-  "@authStrengthExcellent": {
-    "description": "Inscription : force du mot de passe, niveau le plus haut."
-  },
-  "authTermsCheckbox": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
-  "@authTermsCheckbox": {
-    "description": "Inscription : phrase à côté de la case à cocher des conditions (12 px, sur deux lignes au plus)."
-  },
-  "authForgotLink": "Mot de passe oublié ?",
-  "@authForgotLink": {
-    "description": "Connexion par e-mail : lien qui ouvre la réinitialisation du mot de passe."
-  },
-  "authSubmitLogin": "Se connecter",
-  "@authSubmitLogin": {
-    "description": "Connexion par e-mail : bouton principal en mode connexion."
-  },
-  "authSubmitRegister": "Créer mon compte",
-  "@authSubmitRegister": {
-    "description": "Connexion par e-mail : bouton principal en mode inscription."
-  },
-  "authToggleNoAccount": "Pas encore de compte ?",
-  "@authToggleNoAccount": {
-    "description": "Connexion par e-mail : question en bas du formulaire en mode connexion."
-  },
-  "authToggleHaveAccount": "Déjà un compte ?",
-  "@authToggleHaveAccount": {
-    "description": "Connexion par e-mail : question en bas du formulaire en mode inscription."
-  },
-  "authToggleCreate": "Créer un compte",
-  "@authToggleCreate": {
-    "description": "Connexion par e-mail : bouton texte qui passe en mode inscription."
-  },
-  "authToggleSignIn": "Se connecter",
-  "@authToggleSignIn": {
-    "description": "Connexion par e-mail : bouton texte qui repasse en mode connexion."
-  },
-  "authValidationEmailRequired": "Email requis",
-  "@authValidationEmailRequired": {
-    "description": "Formulaire e-mail : champ vide."
-  },
-  "authValidationEmailInvalid": "Email invalide",
-  "@authValidationEmailInvalid": {
-    "description": "Formulaire e-mail : adresse mal formée."
-  },
-  "authValidationPasswordRequired": "Mot de passe requis",
-  "@authValidationPasswordRequired": {
-    "description": "Formulaire e-mail : mot de passe vide."
-  },
-  "authValidationPasswordMin": "Minimum 8 caractères",
-  "@authValidationPasswordMin": {
-    "description": "Formulaire e-mail : mot de passe trop court (8 caractères)."
-  },
-  "authValidationPasswordUpper": "Au moins une majuscule",
-  "@authValidationPasswordUpper": {
-    "description": "Inscription : le mot de passe n'a pas de majuscule."
-  },
-  "authValidationPasswordDigit": "Au moins un chiffre",
-  "@authValidationPasswordDigit": {
-    "description": "Inscription : le mot de passe n'a pas de chiffre."
-  },
-  "authValidationPasswordMismatch": "Les mots de passe ne correspondent pas",
-  "@authValidationPasswordMismatch": {
-    "description": "Inscription : les deux mots de passe saisis diffèrent."
-  },
-  "authValidationNameRequired": "Prénom requis",
-  "@authValidationNameRequired": {
-    "description": "Inscription : prénom vide."
-  },
-  "authValidationNameMin": "Minimum 2 caractères",
-  "@authValidationNameMin": {
-    "description": "Inscription : prénom trop court (2 caractères)."
-  },
-  "authVerifyTitle": "Vérifiez votre email",
-  "@authVerifyTitle": {
-    "description": "Inscription : titre de la boîte de dialogue après la création du compte."
-  },
-  "authVerifySent": "Un email de vérification a été envoyé à :",
-  "@authVerifySent": {
-    "description": "Inscription : première ligne de la boîte de dialogue ; l'adresse du membre est affichée juste en dessous."
-  },
-  "authVerifyInstruction": "Cliquez sur le lien dans l'email pour activer votre compte.",
-  "@authVerifyInstruction": {
-    "description": "Inscription : consigne de la boîte de dialogue."
-  },
-  "authVerifyOk": "OK, je vais vérifier",
-  "@authVerifyOk": {
-    "description": "Inscription : bouton qui ferme la boîte de dialogue."
-  },
-  "authForgotTitle": "Mot de passe oublié",
-  "@authForgotTitle": {
-    "description": "Mot de passe oublié : titre de la boîte de dialogue."
-  },
-  "authForgotInstruction": "Entrez votre email pour recevoir un lien de réinitialisation.",
-  "@authForgotInstruction": {
-    "description": "Mot de passe oublié : consigne au-dessus du champ e-mail."
-  },
-  "authForgotSent": "Email de réinitialisation envoyé",
-  "@authForgotSent": {
-    "description": "Mot de passe oublié : confirmation après l'envoi du lien."
-  },
-  "authForgotSend": "Envoyer",
-  "@authForgotSend": {
-    "description": "Mot de passe oublié : bouton qui envoie le lien."
+  "authErrorAccountDisabled": "Votre compte est désactivé. Écrivez-nous à {contact}.",
+  "@authErrorAccountDisabled": {
+    "description": "Connexion : bandeau affiché quand l'app a mis fin à la session parce que le compte a été désactivé. {contact} est l'adresse à laquelle écrire, insérée telle quelle.",
+    "placeholders": {
+      "contact": {
+        "type": "String"
+      }
+    }
   },
   "authRouteErrorTitle": "Page introuvable",
   "@authRouteErrorTitle": {

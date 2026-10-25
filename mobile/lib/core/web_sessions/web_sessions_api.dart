@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/session_guard.dart';
 import 'web_session_models.dart';
 
 /// Error codes carried by a failed [ApiResponse] of [WebSessionsApi].
@@ -49,7 +50,7 @@ class HttpWebSessionsApi implements WebSessionsApi {
     String? baseUrl,
     String? Function()? tokenProvider,
     Duration? requestTimeout,
-  }) : _client = client ?? http.Client(),
+  }) : _client = SessionGuardClient(client),
        _baseUrl = baseUrl ?? ApiConfig.baseUrl,
        _token = tokenProvider ?? (() => AuthService().currentUser?.jwtToken),
        _timeout = requestTimeout ?? ApiConfig.requestTimeout;

@@ -27,5 +27,6 @@
   "commonToday": "היום",
   "commonYesterday": "אתמול",
   "commonNotSpecified": "לא צוין",
-  "commonLoadError": "שגיאה בטעינה"
+  "commonLoadError": "שגיאה בטעינה",
+  "linkOpenError": "לא ניתן לפתוח את {target} כרגע."
 }

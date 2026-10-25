@@ -16,6 +16,8 @@ import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'profile_completeness_service.dart';
 import 'push_notification_service.dart';
+import 'session_end.dart';
+import 'session_guard.dart';
 import 'store/store_session.dart';
 
 /// User authentication data
@@ -85,14 +87,11 @@ enum AuthProvider {
   unknown,
 }
 
-/// Why a sign-in, sign-up or account call did not succeed. The screen writes
+/// Why a sign-in or account call did not succeed. The screen writes
 /// the sentence in the member's language; the server's own text is never
 /// shown.
 enum AuthFailure {
   cancelled,
-  invalidCredentials,
-  emailTaken,
-  invalidInput,
   rateLimited,
   network,
   server,
@@ -101,26 +100,10 @@ enum AuthFailure {
   unknown,
 }
 
-/// Which call a refused status belongs to.
-enum AuthCall { socialSignIn, emailSignIn, register, passwordReset, deleteAccount }
-
 /// The failure behind an HTTP [status] refused by the auth endpoints.
-AuthFailure authFailureForStatus(int status, AuthCall call) {
+AuthFailure authFailureForStatus(int status) {
   if (status == 429) return AuthFailure.rateLimited;
   if (status >= 500) return AuthFailure.server;
-  switch (call) {
-    case AuthCall.emailSignIn:
-      if (status == 400 || status == 401 || status == 403 || status == 404) {
-        return AuthFailure.invalidCredentials;
-      }
-    case AuthCall.register:
-      if (status == 409) return AuthFailure.emailTaken;
-      if (status == 400 || status == 422) return AuthFailure.invalidInput;
-    case AuthCall.passwordReset:
-      if (status == 400 || status == 422) return AuthFailure.invalidInput;
-    case AuthCall.socialSignIn || AuthCall.deleteAccount:
-      break;
-  }
   return AuthFailure.unknown;
 }
 
@@ -155,15 +138,26 @@ class AuthResult {
       AuthResult(success: false, failure: failure);
 }
 
-/// Authentication Service handling Google and Apple Sign-In
+/// Authentication Service handling Google and Apple Sign-In (v1: no e-mail
+/// sign-in, the server has no such route)
 class AuthService extends ChangeNotifier {
-  static final AuthService _instance = AuthService._internal();
+  static AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
-  AuthService._internal();
+  AuthService._internal() : _pushService = PushNotificationService();
+
+  /// An instance with its own push service, for tests that must observe the
+  /// sign-out without OneSignal.
+  @visibleForTesting
+  AuthService.forTesting({required PushNotificationService push})
+    : _pushService = push;
+
+  /// Replaces the singleton; the next `AuthService()` returns [service].
+  @visibleForTesting
+  static set instanceForTesting(AuthService service) => _instance = service;
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final StoreSession _store = StoreSession();
-  final PushNotificationService _pushService = PushNotificationService();
+  final PushNotificationService _pushService;
   final ProfileCompletenessService _profileCompleteness = ProfileCompletenessService();
 
   static const String _userKey = 'current_user';
@@ -171,6 +165,8 @@ class AuthService extends ChangeNotifier {
 
   AuthUser? _currentUser;
   bool _isInitialized = false;
+  SessionEndReason? _sessionEndReason;
+  bool _endingSession = false;
 
   // Google Sign-In instance
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -183,6 +179,11 @@ class AuthService extends ChangeNotifier {
 
   /// Check if user is authenticated
   bool get isAuthenticated => _currentUser != null;
+
+  /// Why the app signed the member out by itself (expired token, disabled
+  /// account), until the next sign-in. `null` while signed in, and after a
+  /// sign-out the member chose.
+  SessionEndReason? get sessionEndReason => _sessionEndReason;
 
   /// Initialize auth service and restore session
   Future<void> initialize() async {
@@ -225,6 +226,7 @@ class AuthService extends ChangeNotifier {
       provider: AuthProvider.email,
     );
     DevSession.start();
+    _sessionEndReason = null;
     _profileCompleteness.reset();
     // A demo session always starts empty: drop the couple cached by a previous
     // run, or the first sync would announce « Le mode couple a pris fin ».
@@ -269,7 +271,7 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       final data = jsonDecode(response.body);
@@ -327,6 +329,27 @@ class AuthService extends ChangeNotifier {
         nonce: hashedNonce,
       );
 
+      return await signInWithAppleCredential(credential);
+    } catch (e) {
+      if (e is SignInWithAppleAuthorizationException) {
+        if (e.code == AuthorizationErrorCode.canceled) {
+          return AuthResult.failure(AuthFailure.cancelled);
+        }
+      }
+      debugPrint('AuthService: Apple sign-in error - $e');
+      return AuthResult.failure(authFailureOf(e));
+    }
+  }
+
+  /// Sends what Apple gave to the backend and opens the session. The
+  /// authorization code goes along with the identity token: the server
+  /// exchanges it for a refresh token, which it must revoke when the account
+  /// is deleted (App Store rule 5.1.1(v)).
+  @visibleForTesting
+  Future<AuthResult> signInWithAppleCredential(
+    AuthorizationCredentialAppleID credential,
+  ) async {
+    try {
       if (credential.identityToken == null) {
         return AuthResult.failure(AuthFailure.unknown);
       }
@@ -348,6 +371,7 @@ class AuthService extends ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'identityToken': credential.identityToken,
+          'authorizationCode': credential.authorizationCode,
           'fullName': displayName,
           'email': credential.email,
         }),
@@ -355,7 +379,7 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       final data = jsonDecode(response.body);
@@ -387,145 +411,7 @@ class AuthService extends ChangeNotifier {
       await _loadProfileCompleteness();
       return AuthResult.success(user);
     } catch (e) {
-      if (e is SignInWithAppleAuthorizationException) {
-        if (e.code == AuthorizationErrorCode.canceled) {
-          return AuthResult.failure(AuthFailure.cancelled);
-        }
-      }
       debugPrint('AuthService: Apple sign-in error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Sign in with email and password
-  Future<AuthResult> signInWithEmail(String email, String password) async {
-    try {
-      debugPrint('AuthService: Signing in with email - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200) {
-        debugPrint('AuthService: Login error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.emailSignIn));
-      }
-
-      if (data['success'] != true) {
-        return AuthResult.failure(AuthFailure.unknown);
-      }
-
-      // Create auth user from backend response
-      final backendUser = data['user'];
-      final user = AuthUser(
-        id: backendUser['id'].toString(),
-        email: backendUser['email'] ?? email,
-        displayName: backendUser['name'],
-        photoUrl: backendUser['picture'],
-        provider: AuthProvider.email,
-        jwtToken: data['token'],
-      );
-
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Email login successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
-      return AuthResult.success(user);
-    } catch (e) {
-      debugPrint('AuthService: Email sign-in error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Register with email and password
-  Future<AuthResult> registerWithEmail(
-    String email,
-    String password,
-    String displayName,
-  ) async {
-    try {
-      debugPrint('AuthService: Registering with email - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': displayName,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        debugPrint('AuthService: Registration error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.register));
-      }
-
-      if (data['success'] != true) {
-        return AuthResult.failure(AuthFailure.unknown);
-      }
-
-      // Create auth user from backend response
-      final backendUser = data['user'];
-      final user = AuthUser(
-        id: backendUser['id'].toString(),
-        email: backendUser['email'] ?? email,
-        displayName: backendUser['name'] ?? displayName,
-        photoUrl: backendUser['picture'],
-        provider: AuthProvider.email,
-        jwtToken: data['token'],
-      );
-
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
-      return AuthResult.success(user);
-    } catch (e) {
-      debugPrint('AuthService: Email registration error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Send password reset email
-  Future<AuthResult> sendPasswordResetEmail(String email) async {
-    try {
-      debugPrint('AuthService: Sending password reset email to - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/forgot-password'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email}),
-      );
-
-      if (response.statusCode != 200) {
-        debugPrint('AuthService: Password reset error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.passwordReset));
-      }
-
-      debugPrint('AuthService: Password reset email sent');
-
-      // Return success without user (no login happens)
-      return AuthResult(success: true);
-    } catch (e) {
-      debugPrint('AuthService: Password reset error - $e');
       return AuthResult.failure(authFailureOf(e));
     }
   }
@@ -568,6 +454,34 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Ends the session because the server (HTTP 401, 403 `account_disabled`) or
+  /// the socket (close 4001, 4003) says it is over: the same sign-out as the
+  /// settings', and the router brings back the login screen.
+  ///
+  /// Safe to call from every request that fails at once: only the first call
+  /// signs out. [requestToken] is the token the failed request carried; an
+  /// answer to a previous session leaves the current one alone.
+  Future<void> endSession(
+    SessionEndReason reason, {
+    String? requestToken,
+  }) async {
+    final user = _currentUser;
+    if (user == null || _endingSession || DevSession.isActive) return;
+    if (requestToken != null && requestToken != user.jwtToken) return;
+    _endingSession = true;
+    _sessionEndReason = reason;
+    try {
+      await signOut();
+    } catch (e) {
+      // The session is over whatever the cleanup said: do not stay in it.
+      debugPrint('AuthService: sign-out after the session ended failed - $e');
+      _currentUser = null;
+      notifyListeners();
+    } finally {
+      _endingSession = false;
+    }
+  }
+
   /// Delete user account (RGPD compliant)
   Future<AuthResult> deleteAccount({String? reason}) async {
     try {
@@ -578,21 +492,27 @@ class AuthService extends ChangeNotifier {
       debugPrint('AuthService: Deleting account for user ${_currentUser!.id}');
 
       // Call backend to delete user data
-      final response = await http.delete(
-        Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (_currentUser!.jwtToken != null)
-            'Authorization': 'Bearer ${_currentUser!.jwtToken}',
-        },
-        body: jsonEncode({
-          'reason': reason ?? 'Non spécifié',
-        }),
-      );
+      final client = SessionGuardClient();
+      final http.Response response;
+      try {
+        response = await client.delete(
+          Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (_currentUser!.jwtToken != null)
+              'Authorization': 'Bearer ${_currentUser!.jwtToken}',
+          },
+          body: jsonEncode({
+            'reason': reason ?? 'Non spécifié',
+          }),
+        );
+      } finally {
+        client.close();
+      }
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         debugPrint('AuthService: Delete account error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.deleteAccount));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       debugPrint('AuthService: Account deleted on backend');
@@ -613,10 +533,15 @@ class AuthService extends ChangeNotifier {
   /// unknown; Discover then answers 409 and the router reacts.
   Future<void> _loadProfileCompleteness() => _profileCompleteness.refresh();
 
+  /// Opens a session without the network, for tests.
+  @visibleForTesting
+  Future<void> debugSignIn(AuthUser user) => _saveUser(user);
+
   /// Save user to secure storage
   Future<void> _saveUser(AuthUser user) async {
     // A new account must not inherit the previous one's answer.
     _profileCompleteness.reset();
+    _sessionEndReason = null;
     _currentUser = user;
     await _secureStorage.write(
       key: _userKey,

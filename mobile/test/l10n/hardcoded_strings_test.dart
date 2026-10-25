@@ -161,6 +161,10 @@ const _notUserFacing = <String, (String, List<String>)>{
       'Non spécifié',
     ],
   ),
+  'lib/core/services/session_guard.dart': (
+    'en-tête HTTP',
+    ['Bearer '],
+  ),
   'lib/core/privacy/privacy_consent_api.dart': (
     'en-tête HTTP et message de FormatException, journal',
     [r'Bearer $token', 'unexpected response body'],
@@ -272,10 +276,6 @@ const _notUserFacing = <String, (String, List<String>)>{
       'Traditionaliste',
       'Tres observant',
     ],
-  ),
-  'lib/presentation/features/profile/screens/profile_setup_screen.dart': (
-    'valeurs envoyées à l\'API ; les libellés affichés sont traduits',
-    ['Je ne sais pas', 'Mariage', 'Relation serieuse'],
   ),
   'lib/presentation/features/settings/screens/settings_screen.dart': (
     'menu « Debug (Dev Only) », visible seulement en kDebugMode',

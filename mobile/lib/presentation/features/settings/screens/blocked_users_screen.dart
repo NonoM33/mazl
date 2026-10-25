@@ -83,7 +83,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
       final l10n = context.l10n;
       if (result.success) {
         setState(() {
-          _blockedUsers.removeWhere((u) => u.id == user.id);
+          _blockedUsers.removeWhere((u) => u.userId == user.userId);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

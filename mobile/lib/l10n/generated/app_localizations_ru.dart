@@ -22,9 +22,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authLoginGoogle => 'Продолжить через Google';
 
   @override
-  String get authLoginEmail => 'Использовать e-mail';
-
-  @override
   String get authLoginDev => 'Тестовый вход (dev)';
 
   @override
@@ -42,140 +39,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authErrorGeneric => 'Произошла ошибка. Повторите попытку.';
 
   @override
-  String get authErrorInvalidCredentials => 'Неверный e-mail или пароль';
-
-  @override
   String get authErrorCancelled => 'Вход отменён.';
-
-  @override
-  String get authErrorEmailTaken => 'Этот e-mail уже используется.';
 
   @override
   String get authErrorUnsupported =>
       'Этот способ входа недоступен на этом устройстве.';
 
   @override
-  String get authErrorLoginFailed => 'Ошибка входа';
-
-  @override
-  String get authErrorRegisterFailed => 'Ошибка регистрации';
-
-  @override
-  String get authErrorTermsRequired => 'Примите условия использования';
-
-  @override
-  String get authEmailTitleLogin => 'Вход';
-
-  @override
-  String get authEmailTitleRegister => 'Регистрация';
-
-  @override
-  String get authEmailSubtitleLogin => 'Рады видеть Вас снова';
-
-  @override
-  String get authEmailSubtitleRegister => 'Создайте аккаунт MAZL';
-
-  @override
-  String get authFieldName => 'Имя';
-
-  @override
-  String get authFieldEmail => 'E-mail';
-
-  @override
-  String get authFieldPassword => 'Пароль';
-
-  @override
-  String get authFieldPasswordConfirm => 'Подтвердите пароль';
-
-  @override
-  String get authStrengthWeak => 'Слабый';
-
-  @override
-  String get authStrengthFair => 'Средний';
-
-  @override
-  String get authStrengthGood => 'Хороший';
-
-  @override
-  String get authStrengthExcellent => 'Отличный';
-
-  @override
-  String get authTermsCheckbox =>
-      'Я принимаю Условия использования и Политику конфиденциальности';
-
-  @override
-  String get authForgotLink => 'Забыли пароль?';
-
-  @override
-  String get authSubmitLogin => 'Войти';
-
-  @override
-  String get authSubmitRegister => 'Создать аккаунт';
-
-  @override
-  String get authToggleNoAccount => 'Ещё нет аккаунта?';
-
-  @override
-  String get authToggleHaveAccount => 'Уже есть аккаунт?';
-
-  @override
-  String get authToggleCreate => 'Создать аккаунт';
-
-  @override
-  String get authToggleSignIn => 'Войти';
-
-  @override
-  String get authValidationEmailRequired => 'Укажите e-mail';
-
-  @override
-  String get authValidationEmailInvalid => 'Некорректный e-mail';
-
-  @override
-  String get authValidationPasswordRequired => 'Введите пароль';
-
-  @override
-  String get authValidationPasswordMin => 'Минимум 8 символов';
-
-  @override
-  String get authValidationPasswordUpper => 'Хотя бы одна заглавная буква';
-
-  @override
-  String get authValidationPasswordDigit => 'Хотя бы одна цифра';
-
-  @override
-  String get authValidationPasswordMismatch => 'Пароли не совпадают';
-
-  @override
-  String get authValidationNameRequired => 'Укажите имя';
-
-  @override
-  String get authValidationNameMin => 'Минимум 2 символа';
-
-  @override
-  String get authVerifyTitle => 'Проверьте почту';
-
-  @override
-  String get authVerifySent => 'Письмо для подтверждения отправлено на адрес:';
-
-  @override
-  String get authVerifyInstruction =>
-      'Нажмите на ссылку в письме, чтобы активировать аккаунт.';
-
-  @override
-  String get authVerifyOk => 'Хорошо, проверю';
-
-  @override
-  String get authForgotTitle => 'Забыли пароль';
-
-  @override
-  String get authForgotInstruction =>
-      'Введите e-mail, чтобы получить ссылку для сброса пароля.';
-
-  @override
-  String get authForgotSent => 'Письмо для сброса отправлено';
-
-  @override
-  String get authForgotSend => 'Отправить';
+  String authErrorAccountDisabled(String contact) {
+    return 'Ваш аккаунт отключён. Напишите нам: $contact.';
+  }
 
   @override
   String get authRouteErrorTitle => 'Страница не найдена';
@@ -671,6 +544,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonLoadError => 'Ошибка загрузки';
+
+  @override
+  String linkOpenError(String target) {
+    return 'Сейчас не удаётся открыть $target.';
+  }
 
   @override
   String get coupleFeedDashboardSettingsTooltip => 'Настройки';
@@ -4438,6 +4316,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsTerms => 'Условия использования';
+
+  @override
+  String get settingsSales => 'Условия продажи';
 
   @override
   String get settingsPrivacyPolicy => 'Политика конфиденциальности';

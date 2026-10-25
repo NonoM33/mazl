@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual, createPublicKey, verify as cryptoVerify } from "node:crypto";
 import { createGoogleVerifier, type GoogleIdentity } from "./features/auth/google-token";
+import { appleApiBase } from "./features/auth/apple/apple-config";
 
 // Google OAuth Configuration (set in environment variables)
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
@@ -40,6 +41,9 @@ export function verifyGoogleIdToken(idToken: string): Promise<GoogleIdentity | n
 
 // The iOS app's bundle id. The web client signs in with its own Services ID.
 const APPLE_APP_AUDIENCE = "com.mazl.app";
+
+// Apple's API host; a fake Apple replaces it in tests only (refused in production).
+const APPLE_API_BASE = appleApiBase(process.env);
 
 interface AppleKey {
   kid: string;
@@ -85,7 +89,7 @@ export async function verifyAppleIdToken(identityToken: string, audience: string
     }
 
     // Fetch Apple's public keys and locate the matching one.
-    const keysResponse = await fetch("https://appleid.apple.com/auth/keys");
+    const keysResponse = await fetch(`${APPLE_API_BASE}/auth/keys`);
     if (!keysResponse.ok) {
       console.error("Apple keys unavailable:", keysResponse.status);
       return null;

@@ -27,5 +27,6 @@
   "commonToday": "Сегодня",
   "commonYesterday": "Вчера",
   "commonNotSpecified": "Не указано",
-  "commonLoadError": "Ошибка загрузки"
+  "commonLoadError": "Ошибка загрузки",
+  "linkOpenError": "Сейчас не удаётся открыть {target}."
 }

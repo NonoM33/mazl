@@ -192,6 +192,10 @@
   "@settingsTerms": {
     "description": "Réglages : ligne des conditions d'utilisation."
   },
+  "settingsSales": "Conditions de vente",
+  "@settingsSales": {
+    "description": "Réglages : ligne des conditions générales de vente (mazl+, Boosts)."
+  },
   "settingsPrivacyPolicy": "Politique de confidentialité",
   "@settingsPrivacyPolicy": {
     "description": "Réglages : ligne de la politique de confidentialité."

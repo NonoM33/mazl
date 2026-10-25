@@ -98,6 +98,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) => appRedirect(
       location: state.matchedLocation,
       isAuthenticated: ref.read(isAuthenticatedProvider),
+      sessionEnded: authService.sessionEndReason != null,
       profileIncomplete: profileCompleteness.needsSetup,
       inCouple: coupleService.isCoupleModeEnabled,
     ),

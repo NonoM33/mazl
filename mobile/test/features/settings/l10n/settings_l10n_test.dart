@@ -39,7 +39,7 @@ Future<void> _pumpSettings(
   Locale locale = kTestLocale,
   Brightness brightness = Brightness.light,
 }) async {
-  tester.view.physicalSize = const Size(360, 2800);
+  tester.view.physicalSize = const Size(360, 3200);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await service.initialize();
@@ -125,6 +125,7 @@ void main() {
           'À PROPOS',
           'Aide et support',
           "Conditions d'utilisation",
+          'Conditions de vente',
           'Politique de confidentialité',
           'Se déconnecter',
           'Supprimer mon compte',

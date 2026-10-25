@@ -8,15 +8,17 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/services/session_end.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/open_public_link.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/auth_failure_text.dart';
 import '../l10n/linked_text.dart';
-import 'email_auth_screen.dart';
 
-/// Les trois façons de se connecter, pour savoir quel bouton affiche
+/// Les deux façons de se connecter, pour savoir quel bouton affiche
 /// l'indicateur de chargement.
 enum _SignInMethod { apple, google }
 
@@ -31,8 +33,8 @@ class LoginScreen extends ConsumerStatefulWidget {
   /// Connexion avec Apple : proposée sur iOS uniquement quand non précisé.
   final bool? showApple;
 
-  /// Ouvre les Conditions / la Confidentialité. Aucune page n'existe encore
-  /// dans l'application : tant que rien n'est branché, le lien ne fait rien.
+  /// Ouvre les Conditions / la Confidentialité. Sans valeur, les liens
+  /// ouvrent les pages publiques de mazl.app hors de l'application.
   final VoidCallback? onOpenTerms;
   final VoidCallback? onOpenPrivacy;
 
@@ -45,10 +47,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   _SignInMethod? _activeMethod;
   String Function(AppLocalizations l10n)? _error;
 
+  /// Set when the app ended the last session by itself: the screen says why.
+  late final SessionEndReason? _endedBecause;
+
   late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
-    ..onTap = () => widget.onOpenTerms?.call();
+    ..onTap = () => (widget.onOpenTerms ?? _openTerms)();
   late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
-    ..onTap = () => widget.onOpenPrivacy?.call();
+    ..onTap = () => (widget.onOpenPrivacy ?? _openPrivacy)();
+
+  void _openTerms() => openPublicLink(context, ref, PublicLinks.terms);
+  void _openPrivacy() => openPublicLink(context, ref, PublicLinks.privacy);
+
+  @override
+  void initState() {
+    super.initState();
+    _endedBecause = ref.read(sessionEndReasonReaderProvider)();
+  }
+
+  String? _sessionNotice(AppLocalizations l10n) => switch (_endedBecause) {
+    SessionEndReason.expired => l10n.errorSessionExpired,
+    SessionEndReason.accountDisabled => l10n.authErrorAccountDisabled(PublicLinks.help.path),
+    null => null,
+  };
 
   bool get _showApple => widget.showApple ?? Platform.isIOS;
 
@@ -151,15 +171,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     context.go(RoutePaths.discover);
   }
 
-  void _navigateToEmailAuth({required bool isLogin}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EmailAuthScreen(isLogin: isLogin),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,7 +190,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (_error != null)
-                          _ErrorBanner(message: _error!(context.l10n)),
+                          _ErrorBanner(message: _error!(context.l10n))
+                        else if (_sessionNotice(context.l10n) case final notice?)
+                          _ErrorBanner(message: notice),
                         _buildActions(),
                         const SizedBox(height: 20),
                         _buildLegal(context),
@@ -215,14 +228,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ? const _ButtonSpinner()
               : Text(context.l10n.authLoginGoogle),
         ),
-        const SizedBox(height: 4),
-        TextButton(
-          onPressed: _isLoading
-              ? null
-              : () => _navigateToEmailAuth(isLogin: true),
-          child: Text(context.l10n.authLoginEmail),
-        ),
-        if (kDevLoginAvailable)
+        if (kDevLoginAvailable) ...[
+          const SizedBox(height: 4),
           TextButton.icon(
             onPressed: _isLoading ? null : _handleDemoSignIn,
             style: TextButton.styleFrom(
@@ -231,6 +238,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             icon: const Icon(LucideIcons.flaskConical, size: 16),
             label: Text(context.l10n.authLoginDev),
           ),
+        ],
       ],
     );
   }

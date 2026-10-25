@@ -9,6 +9,7 @@ import '../chat/chat_realtime.dart';
 import '../config/env.dart';
 import '../models/_json_parsing.dart';
 import 'auth_service.dart';
+import 'session_end.dart';
 
 /// Events emitted by the WebSocket service
 abstract class ChatEvent {}
@@ -96,6 +97,10 @@ class WebSocketService {
   WebSocketService._internal();
 
   WebSocketChannel? _channel;
+
+  /// The token the open connection was made with: a close that says « the
+  /// session is over » only concerns that session.
+  String? _connectedToken;
   final _eventController = StreamController<ChatEvent>.broadcast();
   Timer? _reconnectTimer;
   Timer? _pingTimer;
@@ -105,6 +110,11 @@ class WebSocketService {
   final Random _random = Random();
 
   static const String _wsUrl = Env.wsUrl;
+
+  /// Opens the channel to [uri]; tests point it at a local socket.
+  @visibleForTesting
+  static WebSocketChannel Function(Uri uri) channelFactory =
+      WebSocketChannel.connect;
   static const Duration _pingInterval = Duration(seconds: 30);
 
   /// Base delay for the exponential backoff (doubles each consecutive failure).
@@ -119,6 +129,10 @@ class WebSocketService {
   Stream<ChatEvent> get events => _eventController.stream;
 
   bool get isConnected => _channel != null;
+
+  /// Whether a reconnection is scheduled.
+  @visibleForTesting
+  bool get hasPendingReconnect => _reconnectTimer?.isActive ?? false;
 
   Future<void> connect() async {
     if (_isConnecting || _channel != null) return;
@@ -136,7 +150,8 @@ class WebSocketService {
       }
 
       final uri = Uri.parse('$_wsUrl?token=$token');
-      _channel = WebSocketChannel.connect(uri);
+      _connectedToken = token;
+      _channel = channelFactory(uri);
 
       await _channel!.ready;
 
@@ -294,10 +309,21 @@ class WebSocketService {
   }
 
   void _handleDone() {
-    debugPrint('WebSocket: Connection closed');
+    final closeCode = _channel?.closeCode;
+    debugPrint('WebSocket: Connection closed ($closeCode)');
     _channel = null;
     _pingTimer?.cancel();
     _eventController.add(ConnectionStatusEvent(isConnected: false));
+
+    // 4001 (token expired) and 4003 (account disabled): the server will refuse
+    // every reconnection. End the session instead of retrying forever.
+    final reason = sessionEndForSocketClose(closeCode);
+    if (reason != null) {
+      _shouldReconnect = false;
+      _reconnectTimer?.cancel();
+      unawaited(AuthService().endSession(reason, requestToken: _connectedToken));
+      return;
+    }
     _scheduleReconnect();
   }
 

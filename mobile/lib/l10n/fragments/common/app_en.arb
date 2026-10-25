@@ -27,5 +27,6 @@
   "commonToday": "Today",
   "commonYesterday": "Yesterday",
   "commonNotSpecified": "Not specified",
-  "commonLoadError": "Couldn’t load"
+  "commonLoadError": "Couldn’t load",
+  "linkOpenError": "Couldn't open {target} right now."
 }
