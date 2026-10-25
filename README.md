@@ -55,4 +55,10 @@ The integration run is self-contained and leaves nothing behind. It needs Docker
   `STRIPE_PRICE_*` and `FAKE_STRIPE_URL`), so the billing suites never reach api.stripe.com;
 - no `RESEND_API_KEY` and no `ONESIGNAL_REST_API_KEY`: no e-mail and no push is ever sent.
 
-Logs are written to `.integ/` (`server.log`, `stripe.log`, `integ.log`, ignored by git).
+Logs are written to `.integ/` (`server.log`, `stripe.log`, `integ.log`, ignored by git). Suites that must start
+from an empty database or may destroy data (`seed-data-gate`, `purge-seed-data`) create a database of their own
+inside the throwaway Postgres (`tests/support/scratch-database.ts`).
+
+Sample data (20 fake members with provider `seed`, a fictitious couple catalogue) exists only when `NODE_ENV` is
+`development` or `test`. Databases started by older releases are cleaned with
+`DATABASE_URL=... bun scripts/purge-seed-data.ts` (dry-run by default, `--apply` to delete, in one transaction).

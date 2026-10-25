@@ -3412,6 +3412,31 @@ async function eraseWaitlistEntries(tx: typeof sql, userId: number): Promise<voi
   }
 }
 
+// Every row of a member, inside the caller's transaction (the chat files on disk
+// are the caller's concern). Used by the account erasure and by the purge of
+// sample data.
+export async function eraseUserRows(tx: typeof sql, userId: number): Promise<void> {
+  // The user's conversations first (their messages, reactions and media rows
+  // cascade): conversations.user*_id and messages.sender_id have no cascade,
+  // so a conversation that no match owns would otherwise block the deletion.
+  await tx`DELETE FROM conversations WHERE user1_id = ${userId} OR user2_id = ${userId}`;
+  // Events they organised stay (others registered for them), without an organiser.
+  await tx`UPDATE events SET organizer_id = NULL WHERE organizer_id = ${userId}`;
+  // Couple memories they wrote reference users without ON DELETE.
+  await tx`DELETE FROM couple_memories WHERE created_by = ${userId}`;
+  // Then the rest, in order (respecting foreign keys)
+  await tx`DELETE FROM admin_notes WHERE user_id = ${userId}`;
+  await tx`DELETE FROM user_bans WHERE user_id = ${userId}`;
+  await tx`DELETE FROM profile_photos WHERE user_id = ${userId}`;
+  await tx`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
+  await tx`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
+  await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
+  await eraseCredits(tx, userId);
+  await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
+  await eraseWaitlistEntries(tx, userId);
+  await tx`DELETE FROM users WHERE id = ${userId}`;
+}
+
 // Delete user completely
 export async function deleteUserCompletely(userId: number, adminEmail: string) {
   // Log before deletion
@@ -3425,26 +3450,7 @@ export async function deleteUserCompletely(userId: number, adminEmail: string) {
   // One transaction: the chat files are removed from disk only once it has
   // committed (see the erasure guard around this call in the admin routes).
   await sql.begin(async (transaction) => {
-    const tx = transaction as unknown as typeof sql;
-    // The user's conversations first (their messages, reactions and media rows
-    // cascade): conversations.user*_id and messages.sender_id have no cascade,
-    // so a conversation that no match owns would otherwise block the deletion.
-    await tx`DELETE FROM conversations WHERE user1_id = ${userId} OR user2_id = ${userId}`;
-    // Events they organised stay (others registered for them), without an organiser.
-    await tx`UPDATE events SET organizer_id = NULL WHERE organizer_id = ${userId}`;
-    // Couple memories they wrote reference users without ON DELETE.
-    await tx`DELETE FROM couple_memories WHERE created_by = ${userId}`;
-    // Then the rest, in order (respecting foreign keys)
-    await tx`DELETE FROM admin_notes WHERE user_id = ${userId}`;
-    await tx`DELETE FROM user_bans WHERE user_id = ${userId}`;
-    await tx`DELETE FROM profile_photos WHERE user_id = ${userId}`;
-    await tx`DELETE FROM swipes WHERE user_id = ${userId} OR target_user_id = ${userId}`;
-    await tx`DELETE FROM event_rsvps WHERE user_id = ${userId}`;
-    await tx`DELETE FROM subscriptions WHERE user_id = ${userId}`;
-    await eraseCredits(tx, userId);
-    await tx`DELETE FROM profiles WHERE user_id = ${userId}`;
-    await eraseWaitlistEntries(tx, userId);
-    await tx`DELETE FROM users WHERE id = ${userId}`;
+    await eraseUserRows(transaction as unknown as typeof sql, userId);
   });
 
   return { deleted: true };
