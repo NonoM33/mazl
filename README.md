@@ -37,6 +37,19 @@ Tests: `cd tests/unit && bun test ./storage-*.test.ts`; the one against a real s
 when `S3_TEST_ENDPOINT` is set (with `S3_TEST_BUCKET`, `S3_TEST_ACCESS_KEY_ID`,
 `S3_TEST_SECRET_ACCESS_KEY`).
 
+## Push notifications (OneSignal)
+
+| variable | meaning |
+|---|---|
+| `ONESIGNAL_REST_API_KEY` | REST API key. Absent: nothing is sent and no query is made for a push. |
+| `ONESIGNAL_APP_ID` | OneSignal app (default: the production app). |
+| `ONESIGNAL_API_BASE` | Stand-in server for tests only (refused when `NODE_ENV=production`). |
+
+A member is addressed as `user_<id>`, the identifier the app gives `OneSignal.login`. Pushes: a new match (both
+members), a message (only to a recipient with no open WebSocket, grouped by conversation), a couple request and
+its acceptance. The contract (`data` fields, wording rules) is in `docs/launch/V1-CONTRAT.md` section 1; the code is
+in `src/features/push/`. A blocked, banned, restricted or inactive member triggers nothing.
+
 ## Tests
 
 | command | what it runs |
