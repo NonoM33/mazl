@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mazl/core/dev/demo_http_client.dart';
 import 'package:mazl/core/dev/dev_session.dart';
+import 'package:mazl/core/likes/like_allowance_api.dart';
 import 'package:mazl/core/dev/demo_fixtures.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/services/http_verification_api.dart';
@@ -37,6 +38,18 @@ void _success(ApiResponse<void> response) =>
 void main() {
   setUp(DevSession.start);
   tearDown(DevSession.stop);
+
+  test('likes allowance : la démo n\'arrête personne', () async {
+    final allowance = await http.runWithClient(
+      () => HttpLikeAllowanceApi.app().getAllowance(),
+      () => DemoHttpClient(
+        MockClient((request) async => fail('Le vrai réseau : ${request.url}')),
+        latency: Duration.zero,
+      ),
+    );
+
+    expect(allowance.isUnlimited, isTrue);
+  });
 
   test('getCurrentUser', () async {
     final me = _ok(await _demo((a) => a.getCurrentUser()));

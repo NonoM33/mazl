@@ -43,6 +43,7 @@ Future<FakeDiscoverApi> _pumpDiscover(
   int superLikes = 1,
   int boosts = 0,
   bool boostActive = false,
+  FakeLikeAllowanceApi? allowance,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1;
@@ -73,7 +74,10 @@ Future<FakeDiscoverApi> _pumpDiscover(
       theme: AppTheme.lightTheme,
       // As in the app: the iPhone's Reduce Motion reaches the screen here.
       builder: (context, child) => ReduceMotionScope(child: child!),
-      home: DiscoverScreen(apiService: api),
+      home: DiscoverScreen(
+        apiService: api,
+        likeAllowanceApi: allowance ?? FakeLikeAllowanceApi.free(),
+      ),
     ),
   );
   await tester.pump();
@@ -197,10 +201,11 @@ void main() {
 
   testWidgets('a refused like springs back from where it is, stays mounted, '
       'and asks for the gate only once it is back', (tester) async {
-    for (var i = 0; i < PremiumGate.freeLikesPerDay; i++) {
-      PremiumGate.tryConsumeFreeLike();
-    }
-    final api = await _pumpDiscover(tester);
+    // The server says none is left today.
+    final api = await _pumpDiscover(
+      tester,
+      allowance: FakeLikeAllowanceApi.free(remaining: 0),
+    );
 
     await _releaseRefusedAndWatch(
       tester,
@@ -405,21 +410,6 @@ void main() {
     expect(api.swipes, ['101:like']);
     expect(_card(101), findsNothing);
     expect(_card(102), findsOneWidget);
-  });
-
-  testWidgets('a like uses one of the free likes, a pass uses none', (
-    tester,
-  ) async {
-    await _pumpDiscover(tester);
-    final before = PremiumGate.remainingFreeLikes;
-
-    await dragSlowly(tester, _card(101), const Offset(-170, 0));
-    await settle(tester);
-    expect(PremiumGate.remainingFreeLikes, before);
-
-    await dragSlowly(tester, _card(102), const Offset(170, 0));
-    await settle(tester);
-    expect(PremiumGate.remainingFreeLikes, before - 1);
   });
 
   testWidgets(

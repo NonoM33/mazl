@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
@@ -376,13 +377,21 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   Future<void> _handleSwipe(String action) async {
     final other = _otherProfile;
     if (other == null) return;
-    if (action == 'like' && !PremiumGate.guardLike(context)) return;
-
     final response = await _apiService.sendSwipe(
       targetUserId: other.userId,
       action: action,
     );
     if (!mounted) return;
+    if (response.isLikesExhausted) {
+      // The server counts the day's likes: it took none, the page stays.
+      final allowance = response.exhaustedAllowance;
+      await PremiumGate.showDailyLimitSheet(
+        context,
+        freeLikesPerDay: allowance?.dailyAllowance,
+        resetsAt: allowance?.resetsAt,
+      );
+      return;
+    }
     if (!response.success) {
       _showMessage(context.l10n.profileChoiceNotSent, isError: true);
       return;

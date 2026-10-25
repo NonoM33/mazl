@@ -152,9 +152,12 @@ TextStyle plusSheetTitleStyle(BuildContext context) =>
       height: 1.08,
     );
 
-/// Compte à rebours jusqu'à minuit, chiffres à chasse fixe.
+/// Compte à rebours jusqu'à la remise à zéro du jour, chiffres à chasse fixe.
 class DailyCountdown extends StatefulWidget {
-  const DailyCountdown({super.key, this.now = DateTime.now});
+  const DailyCountdown({super.key, this.resetsAt, this.now = DateTime.now});
+
+  /// L'instant où le serveur remet les likes à zéro ; à défaut, minuit.
+  final DateTime? resetsAt;
 
   /// Horloge injectable pour les tests.
   final DateTime Function() now;
@@ -182,8 +185,12 @@ class _DailyCountdownState extends State<DailyCountdown> {
 
   @override
   Widget build(BuildContext context) {
+    final now = widget.now();
+    final resetsAt = widget.resetsAt;
     return Text(
-      formatCountdown(timeUntilMidnight(widget.now())),
+      formatCountdown(
+        resetsAt == null ? timeUntilMidnight(now) : resetsAt.difference(now),
+      ),
       style: TextStyle(
         fontFamily: AppTypography.monoFamily,
         fontSize: 17,
@@ -197,14 +204,19 @@ class _DailyCountdownState extends State<DailyCountdown> {
 
 /// Fenêtre affichée quand les likes gratuits du jour sont épuisés.
 /// Se ferme avec `true` pour ouvrir l'offre, `false` ou null pour attendre.
+///
+/// La limite et la remise à zéro viennent du serveur ; sans limite connue, la
+/// pastille n'affiche aucun chiffre.
 class DailyLimitSheet extends StatelessWidget {
   const DailyLimitSheet({
     super.key,
     required this.freeLikesPerDay,
+    this.resetsAt,
     this.now = DateTime.now,
   });
 
-  final int freeLikesPerDay;
+  final int? freeLikesPerDay;
+  final DateTime? resetsAt;
   final DateTime Function() now;
 
   @override
@@ -213,8 +225,10 @@ class DailyLimitSheet extends StatelessWidget {
     final l10n = context.l10n;
     return PlusSheetFrame(
       children: [
-        SectionLabel(l10n.plusDailyLimitLabel(freeLikesPerDay)),
-        const SizedBox(height: 10),
+        if (freeLikesPerDay != null) ...[
+          SectionLabel(l10n.plusDailyLimitLabel(freeLikesPerDay!)),
+          const SizedBox(height: 10),
+        ],
         Text(l10n.plusDailyLimitTitle, style: plusSheetTitleStyle(context)),
         const SizedBox(height: 12),
         Text(
@@ -246,7 +260,7 @@ class DailyLimitSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              DailyCountdown(now: now),
+              DailyCountdown(resetsAt: resetsAt, now: now),
             ],
           ),
         ),

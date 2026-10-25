@@ -136,6 +136,10 @@ const _notUserFacing = <String, (String, List<String>)>{
     'journal et en-tête HTTP',
     [r'Bearer $jwt', r'ChatApiException($status)'],
   ),
+  'lib/core/likes/like_allowance_api.dart': (
+    'en-tête HTTP',
+    [r'Bearer $jwt'],
+  ),
   'lib/core/chat/chat_providers.dart': (
     'journal',
     ['current user unavailable'],

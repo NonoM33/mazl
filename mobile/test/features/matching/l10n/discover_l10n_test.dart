@@ -51,7 +51,10 @@ Future<void> _pumpDiscover(
 ) async {
   await pumpLocalized(
     tester,
-    DiscoverScreen(apiService: api),
+    DiscoverScreen(
+      apiService: api,
+      likeAllowanceApi: FakeLikeAllowanceApi.free(),
+    ),
     locale: c.locale,
     brightness: c.brightness,
   );

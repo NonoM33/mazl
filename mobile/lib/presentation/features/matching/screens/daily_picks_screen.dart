@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/router/route_names.dart';
@@ -86,12 +87,22 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   }
 
   Future<void> _handleLike(Profile profile) async {
-    if (!PremiumGate.guardLike(context)) return;
-
     final response = await _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: 'like',
     );
+
+    if (response.isLikesExhausted) {
+      // The server counts the day's likes: it took none, the pick stays.
+      if (!mounted) return;
+      final allowance = response.exhaustedAllowance;
+      await PremiumGate.showDailyLimitSheet(
+        context,
+        freeLikesPerDay: allowance?.dailyAllowance,
+        resetsAt: allowance?.resetsAt,
+      );
+      return;
+    }
 
     if (response.success && swipeMatched(response.data) && mounted) {
       _showMatchDialog(profile);
