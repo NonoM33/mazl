@@ -28,12 +28,12 @@ bool _hasLinearGradient(WidgetTester tester) {
 
 void main() {
   group('écran de connexion Encre & Tekhelet', () {
-    testWidgets('propose Apple, Google et e-mail', (tester) async {
+    testWidgets('propose Apple et Google, pas d\'e-mail (v1)', (tester) async {
       await tester.pumpWidget(_app(const LoginScreen(showApple: true)));
 
       expect(find.widgetWithText(ElevatedButton, 'Continuer avec Apple'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Continuer avec Google'), findsOneWidget);
-      expect(find.widgetWithText(TextButton, 'Utiliser mon e-mail'), findsOneWidget);
+      expect(find.textContaining('e-mail'), findsNothing);
     });
 
     testWidgets("n'affiche pas Apple quand la plateforme ne le propose pas", (tester) async {

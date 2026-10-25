@@ -21,9 +21,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get authLoginGoogle => 'המשך עם Google';
 
   @override
-  String get authLoginEmail => 'שימוש בדוא״ל שלי';
-
-  @override
   String get authLoginDev => 'התחברות מדומה (פיתוח)';
 
   @override
@@ -41,137 +38,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get authErrorGeneric => 'אירעה שגיאה. יש לנסות שוב.';
 
   @override
-  String get authErrorInvalidCredentials => 'דוא״ל או סיסמה שגויים';
-
-  @override
   String get authErrorCancelled => 'ההתחברות בוטלה.';
 
   @override
-  String get authErrorEmailTaken => 'כתובת הדוא״ל הזו כבר בשימוש.';
-
-  @override
   String get authErrorUnsupported => 'שיטת ההתחברות הזו אינה זמינה במכשיר הזה.';
-
-  @override
-  String get authErrorLoginFailed => 'שגיאת התחברות';
-
-  @override
-  String get authErrorRegisterFailed => 'שגיאת הרשמה';
-
-  @override
-  String get authErrorTermsRequired => 'יש לאשר את תנאי השימוש';
-
-  @override
-  String get authEmailTitleLogin => 'התחברות';
-
-  @override
-  String get authEmailTitleRegister => 'הרשמה';
-
-  @override
-  String get authEmailSubtitleLogin => 'טוב לראות אותך שוב';
-
-  @override
-  String get authEmailSubtitleRegister => 'יצירת חשבון MAZL';
-
-  @override
-  String get authFieldName => 'שם פרטי';
-
-  @override
-  String get authFieldEmail => 'דוא״ל';
-
-  @override
-  String get authFieldPassword => 'סיסמה';
-
-  @override
-  String get authFieldPasswordConfirm => 'אימות סיסמה';
-
-  @override
-  String get authStrengthWeak => 'חלשה';
-
-  @override
-  String get authStrengthFair => 'בינונית';
-
-  @override
-  String get authStrengthGood => 'טובה';
-
-  @override
-  String get authStrengthExcellent => 'מצוינת';
-
-  @override
-  String get authTermsCheckbox => 'תנאי השימוש ומדיניות הפרטיות מקובלים עליי';
-
-  @override
-  String get authForgotLink => 'שכחת סיסמה?';
-
-  @override
-  String get authSubmitLogin => 'התחברות';
-
-  @override
-  String get authSubmitRegister => 'יצירת החשבון שלי';
-
-  @override
-  String get authToggleNoAccount => 'עדיין אין חשבון?';
-
-  @override
-  String get authToggleHaveAccount => 'כבר יש חשבון?';
-
-  @override
-  String get authToggleCreate => 'יצירת חשבון';
-
-  @override
-  String get authToggleSignIn => 'התחברות';
-
-  @override
-  String get authValidationEmailRequired => 'יש להזין דוא״ל';
-
-  @override
-  String get authValidationEmailInvalid => 'כתובת דוא״ל לא תקינה';
-
-  @override
-  String get authValidationPasswordRequired => 'יש להזין סיסמה';
-
-  @override
-  String get authValidationPasswordMin => 'לפחות 8 תווים';
-
-  @override
-  String get authValidationPasswordUpper => 'לפחות אות לטינית גדולה אחת';
-
-  @override
-  String get authValidationPasswordDigit => 'לפחות ספרה אחת';
-
-  @override
-  String get authValidationPasswordMismatch => 'הסיסמאות אינן תואמות';
-
-  @override
-  String get authValidationNameRequired => 'יש להזין שם פרטי';
-
-  @override
-  String get authValidationNameMin => 'לפחות 2 תווים';
-
-  @override
-  String get authVerifyTitle => 'יש לבדוק את תיבת הדוא״ל';
-
-  @override
-  String get authVerifySent => 'נשלח דוא״ל אימות אל:';
-
-  @override
-  String get authVerifyInstruction =>
-      'יש ללחוץ על הקישור בדוא״ל כדי להפעיל את החשבון.';
-
-  @override
-  String get authVerifyOk => 'אבדוק, תודה';
-
-  @override
-  String get authForgotTitle => 'שכחתי סיסמה';
-
-  @override
-  String get authForgotInstruction => 'יש להזין דוא״ל כדי לקבל קישור לאיפוס.';
-
-  @override
-  String get authForgotSent => 'דוא״ל האיפוס נשלח';
-
-  @override
-  String get authForgotSend => 'שליחה';
 
   @override
   String get authRouteErrorTitle => 'העמוד לא נמצא';

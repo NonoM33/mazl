@@ -85,14 +85,11 @@ enum AuthProvider {
   unknown,
 }
 
-/// Why a sign-in, sign-up or account call did not succeed. The screen writes
+/// Why a sign-in or account call did not succeed. The screen writes
 /// the sentence in the member's language; the server's own text is never
 /// shown.
 enum AuthFailure {
   cancelled,
-  invalidCredentials,
-  emailTaken,
-  invalidInput,
   rateLimited,
   network,
   server,
@@ -101,26 +98,10 @@ enum AuthFailure {
   unknown,
 }
 
-/// Which call a refused status belongs to.
-enum AuthCall { socialSignIn, emailSignIn, register, passwordReset, deleteAccount }
-
 /// The failure behind an HTTP [status] refused by the auth endpoints.
-AuthFailure authFailureForStatus(int status, AuthCall call) {
+AuthFailure authFailureForStatus(int status) {
   if (status == 429) return AuthFailure.rateLimited;
   if (status >= 500) return AuthFailure.server;
-  switch (call) {
-    case AuthCall.emailSignIn:
-      if (status == 400 || status == 401 || status == 403 || status == 404) {
-        return AuthFailure.invalidCredentials;
-      }
-    case AuthCall.register:
-      if (status == 409) return AuthFailure.emailTaken;
-      if (status == 400 || status == 422) return AuthFailure.invalidInput;
-    case AuthCall.passwordReset:
-      if (status == 400 || status == 422) return AuthFailure.invalidInput;
-    case AuthCall.socialSignIn || AuthCall.deleteAccount:
-      break;
-  }
   return AuthFailure.unknown;
 }
 
@@ -155,7 +136,8 @@ class AuthResult {
       AuthResult(success: false, failure: failure);
 }
 
-/// Authentication Service handling Google and Apple Sign-In
+/// Authentication Service handling Google and Apple Sign-In (v1: no e-mail
+/// sign-in, the server has no such route)
 class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
@@ -269,7 +251,7 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       final data = jsonDecode(response.body);
@@ -355,7 +337,7 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200) {
         debugPrint('AuthService: Backend error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.socialSignIn));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       final data = jsonDecode(response.body);
@@ -393,139 +375,6 @@ class AuthService extends ChangeNotifier {
         }
       }
       debugPrint('AuthService: Apple sign-in error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Sign in with email and password
-  Future<AuthResult> signInWithEmail(String email, String password) async {
-    try {
-      debugPrint('AuthService: Signing in with email - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200) {
-        debugPrint('AuthService: Login error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.emailSignIn));
-      }
-
-      if (data['success'] != true) {
-        return AuthResult.failure(AuthFailure.unknown);
-      }
-
-      // Create auth user from backend response
-      final backendUser = data['user'];
-      final user = AuthUser(
-        id: backendUser['id'].toString(),
-        email: backendUser['email'] ?? email,
-        displayName: backendUser['name'],
-        photoUrl: backendUser['picture'],
-        provider: AuthProvider.email,
-        jwtToken: data['token'],
-      );
-
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Email login successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
-      return AuthResult.success(user);
-    } catch (e) {
-      debugPrint('AuthService: Email sign-in error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Register with email and password
-  Future<AuthResult> registerWithEmail(
-    String email,
-    String password,
-    String displayName,
-  ) async {
-    try {
-      debugPrint('AuthService: Registering with email - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': displayName,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        debugPrint('AuthService: Registration error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.register));
-      }
-
-      if (data['success'] != true) {
-        return AuthResult.failure(AuthFailure.unknown);
-      }
-
-      // Create auth user from backend response
-      final backendUser = data['user'];
-      final user = AuthUser(
-        id: backendUser['id'].toString(),
-        email: backendUser['email'] ?? email,
-        displayName: backendUser['name'] ?? displayName,
-        photoUrl: backendUser['picture'],
-        provider: AuthProvider.email,
-        jwtToken: data['token'],
-      );
-
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Email registration successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
-      return AuthResult.success(user);
-    } catch (e) {
-      debugPrint('AuthService: Email registration error - $e');
-      return AuthResult.failure(authFailureOf(e));
-    }
-  }
-
-  /// Send password reset email
-  Future<AuthResult> sendPasswordResetEmail(String email) async {
-    try {
-      debugPrint('AuthService: Sending password reset email to - $email');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/auth/forgot-password'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email}),
-      );
-
-      if (response.statusCode != 200) {
-        debugPrint('AuthService: Password reset error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.passwordReset));
-      }
-
-      debugPrint('AuthService: Password reset email sent');
-
-      // Return success without user (no login happens)
-      return AuthResult(success: true);
-    } catch (e) {
-      debugPrint('AuthService: Password reset error - $e');
       return AuthResult.failure(authFailureOf(e));
     }
   }
@@ -592,7 +441,7 @@ class AuthService extends ChangeNotifier {
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         debugPrint('AuthService: Delete account error - ${response.body}');
-        return AuthResult.failure(authFailureForStatus(response.statusCode, AuthCall.deleteAccount));
+        return AuthResult.failure(authFailureForStatus(response.statusCode));
       }
 
       debugPrint('AuthService: Account deleted on backend');

@@ -14,9 +14,8 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/auth_failure_text.dart';
 import '../l10n/linked_text.dart';
-import 'email_auth_screen.dart';
 
-/// Les trois façons de se connecter, pour savoir quel bouton affiche
+/// Les deux façons de se connecter, pour savoir quel bouton affiche
 /// l'indicateur de chargement.
 enum _SignInMethod { apple, google }
 
@@ -151,15 +150,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     context.go(RoutePaths.discover);
   }
 
-  void _navigateToEmailAuth({required bool isLogin}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EmailAuthScreen(isLogin: isLogin),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,14 +205,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ? const _ButtonSpinner()
               : Text(context.l10n.authLoginGoogle),
         ),
-        const SizedBox(height: 4),
-        TextButton(
-          onPressed: _isLoading
-              ? null
-              : () => _navigateToEmailAuth(isLogin: true),
-          child: Text(context.l10n.authLoginEmail),
-        ),
-        if (kDevLoginAvailable)
+        if (kDevLoginAvailable) ...[
+          const SizedBox(height: 4),
           TextButton.icon(
             onPressed: _isLoading ? null : _handleDemoSignIn,
             style: TextButton.styleFrom(
@@ -231,6 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             icon: const Icon(LucideIcons.flaskConical, size: 16),
             label: Text(context.l10n.authLoginDev),
           ),
+        ],
       ],
     );
   }

@@ -7,47 +7,14 @@ import 'package:mazl/core/services/auth_service.dart';
 
 void main() {
   group('a refused call becomes a type, never a sentence', () {
-    test('wrong e-mail or password', () {
-      for (final status in [400, 401, 403, 404]) {
-        expect(
-          authFailureForStatus(status, AuthCall.emailSignIn),
-          AuthFailure.invalidCredentials,
-          reason: '$status',
-        );
-      }
-    });
-
-    test('sign-up: address already used, invalid data', () {
-      expect(
-        authFailureForStatus(409, AuthCall.register),
-        AuthFailure.emailTaken,
-      );
-      expect(
-        authFailureForStatus(422, AuthCall.register),
-        AuthFailure.invalidInput,
-      );
-      expect(
-        authFailureForStatus(400, AuthCall.register),
-        AuthFailure.invalidInput,
-      );
-    });
-
-    test('too many attempts and server outages, whatever the call', () {
-      for (final call in AuthCall.values) {
-        expect(authFailureForStatus(429, call), AuthFailure.rateLimited);
-        expect(authFailureForStatus(503, call), AuthFailure.server);
-      }
+    test('too many attempts and server outages', () {
+      expect(authFailureForStatus(429), AuthFailure.rateLimited);
+      expect(authFailureForStatus(503), AuthFailure.server);
     });
 
     test('an unexpected status stays unknown', () {
-      expect(
-        authFailureForStatus(418, AuthCall.socialSignIn),
-        AuthFailure.unknown,
-      );
-      expect(
-        authFailureForStatus(401, AuthCall.deleteAccount),
-        AuthFailure.unknown,
-      );
+      expect(authFailureForStatus(418), AuthFailure.unknown);
+      expect(authFailureForStatus(401), AuthFailure.unknown);
     });
 
     test('a dropped connection is « network », anything else « unknown »', () {

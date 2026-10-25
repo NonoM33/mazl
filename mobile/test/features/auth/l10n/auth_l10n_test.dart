@@ -6,7 +6,6 @@ import 'package:mazl/core/di/providers/service_providers.dart';
 import 'package:mazl/core/services/auth_service.dart';
 import 'package:mazl/presentation/features/auth/l10n/auth_failure_text.dart';
 import 'package:mazl/presentation/features/auth/l10n/linked_text.dart';
-import 'package:mazl/presentation/features/auth/screens/email_auth_screen.dart';
 import 'package:mazl/presentation/features/auth/screens/login_screen.dart';
 import 'package:mazl/presentation/features/auth/screens/route_error_screen.dart';
 import 'package:mazl/presentation/features/onboarding/screens/onboarding_screen.dart';
@@ -30,20 +29,6 @@ class _FakeAuthService extends ChangeNotifier implements AuthService {
 
   @override
   Future<AuthResult> signInWithApple() async => result!;
-
-  @override
-  Future<AuthResult> signInWithEmail(String email, String password) async =>
-      result!;
-
-  @override
-  Future<AuthResult> registerWithEmail(
-    String email,
-    String password,
-    String name,
-  ) async => result!;
-
-  @override
-  Future<AuthResult> sendPasswordResetEmail(String email) async => result!;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -74,7 +59,6 @@ void main() {
         find.widgetWithText(OutlinedButton, 'Continue with Google'),
         findsOneWidget,
       );
-      expect(find.widgetWithText(TextButton, 'Use my email'), findsOneWidget);
       expect(find.text('DATING · JEWISH COMMUNITY'), findsOneWidget);
       expect(
         find.text('Serious dating between people who share your values.'),
@@ -160,158 +144,6 @@ void main() {
       await tester.tap(find.text('Continue with Google'));
       await tester.pumpAndSettle();
       expect(find.text('Sign-in cancelled.'), findsOneWidget);
-    });
-  });
-
-  group('the e-mail screen', () {
-    testWidgets('in English: login mode, then validation and sign-up mode', (
-      tester,
-    ) async {
-      await pumpLocalized(tester, const EmailAuthScreen(), locale: _en);
-      await tester.pumpAndSettle();
-      expect(find.text('Sign in'), findsNWidgets(2));
-      expect(find.text('Good to see you again'), findsOneWidget);
-      expect(find.text('Forgot password?'), findsOneWidget);
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
-      await tester.pump();
-      expect(find.text('Email required'), findsOneWidget);
-      expect(find.text('Password required'), findsOneWidget);
-
-      await tester.tap(find.text('Create an account'));
-      await tester.pumpAndSettle();
-      expect(find.text('Sign up'), findsOneWidget);
-      expect(find.text('Create your MAZL account'), findsOneWidget);
-      expect(find.text('First name'), findsOneWidget);
-      expect(find.text('Confirm password'), findsOneWidget);
-      expect(
-        find.text('I accept the Terms of Use and the Privacy Policy'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('a wrong password is told in the language of the member', (
-      tester,
-    ) async {
-      await pumpLocalized(
-        tester,
-        const EmailAuthScreen(),
-        locale: _en,
-        overrides: _auth(AuthResult.failure(AuthFailure.invalidCredentials)),
-      );
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        'jeanne@example.com',
-      );
-      await tester.enterText(find.byType(TextFormField).last, 'Password1');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
-      await tester.pumpAndSettle();
-      expect(find.text('Incorrect email or password'), findsOneWidget);
-    });
-
-    testWidgets('sign-up refused because the address is taken', (tester) async {
-      await pumpLocalized(
-        tester,
-        const EmailAuthScreen(isLogin: false),
-        locale: _en,
-        overrides: _auth(AuthResult.failure(AuthFailure.emailTaken)),
-        size: const Size(360, 1100),
-      );
-      final fields = find.byType(TextFormField);
-      await tester.enterText(fields.at(0), 'Jeanne');
-      await tester.enterText(fields.at(1), 'jeanne@example.com');
-      await tester.enterText(fields.at(2), 'Password1');
-      await tester.enterText(fields.at(3), 'Password1');
-      await tester.tap(find.byType(Checkbox));
-      await tester.pump();
-      await tester.tap(
-        find.widgetWithText(ElevatedButton, 'Create my account'),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.text('This email address is already in use.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('sign-up without the terms box asks for them', (tester) async {
-      await pumpLocalized(
-        tester,
-        const EmailAuthScreen(isLogin: false),
-        locale: _en,
-        size: const Size(360, 1100),
-      );
-      final fields = find.byType(TextFormField);
-      await tester.enterText(fields.at(0), 'Jeanne');
-      await tester.enterText(fields.at(1), 'jeanne@example.com');
-      await tester.enterText(fields.at(2), 'Password1');
-      await tester.enterText(fields.at(3), 'Password1');
-      await tester.tap(
-        find.widgetWithText(ElevatedButton, 'Create my account'),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Please accept the terms of use'), findsOneWidget);
-    });
-
-    testWidgets('the password strength reads in the language of the member', (
-      tester,
-    ) async {
-      await pumpLocalized(
-        tester,
-        const EmailAuthScreen(isLogin: false),
-        locale: _en,
-        size: const Size(360, 1100),
-      );
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextFormField).at(2), 'abc');
-      await tester.pump();
-      expect(find.text('Weak'), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField).at(2), 'Abcdefghijk1!');
-      await tester.pump();
-      expect(find.text('Excellent'), findsOneWidget);
-    });
-
-    testWidgets('the forgot-password dialog, in English', (tester) async {
-      await pumpLocalized(
-        tester,
-        const EmailAuthScreen(),
-        locale: _en,
-        overrides: _auth(AuthResult(success: true)),
-      );
-      await tester.tap(find.text('Forgot password?'));
-      await tester.pumpAndSettle();
-      expect(find.text('Forgot password'), findsOneWidget);
-      expect(
-        find.text('Enter your email to receive a reset link.'),
-        findsOneWidget,
-      );
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(AlertDialog),
-          matching: find.byType(TextField),
-        ),
-        'jeanne@example.com',
-      );
-      await tester.tap(find.text('Send'));
-      await tester.pumpAndSettle();
-      expect(find.text('Reset email sent'), findsOneWidget);
-      expect(find.text('Close'), findsOneWidget);
-    });
-
-    testWidgets('Hebrew: right to left, the back arrow is on the START side', (
-      tester,
-    ) async {
-      await pumpLocalized(tester, const EmailAuthScreen(), locale: _he);
-      await tester.pumpAndSettle();
-      expect(
-        textDirectionAt(tester, find.text('התחברות').first),
-        TextDirection.rtl,
-      );
-      final back = tester.getCenter(find.byTooltip('חזרה'));
-      expect(
-        back.dx,
-        greaterThan(180),
-        reason: 'the back button sits at the right in Hebrew',
-      );
     });
   });
 
@@ -432,22 +264,6 @@ void main() {
             locale: locale,
             brightness: brightness,
           );
-          expect(tester.takeException(), isNull);
-        });
-        testWidgets('e-mail, sign-up $label', (tester) async {
-          await pumpLocalized(
-            tester,
-            const EmailAuthScreen(isLogin: false),
-            locale: locale,
-            brightness: brightness,
-          );
-          await tester.enterText(
-            find.byType(TextFormField).at(2),
-            'Abcdefghijk1!',
-          );
-          await tester.pump();
-          await tester.tap(find.byType(ElevatedButton).first);
-          await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
         });
         testWidgets('onboarding, every page $label', (tester) async {
