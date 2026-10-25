@@ -3229,11 +3229,11 @@
   "@onboardingPage4Body": {
     "description": "Présentation, page 4 : texte."
   },
-  "onboardingPage5Title": "AI Shadchan",
+  "onboardingPage5Title": "Suggestions du jour",
   "@onboardingPage5Title": {
-    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+    "description": "Présentation, page 5 : titre (les suggestions du jour, écran atteint depuis Découvrir)."
   },
-  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "onboardingPage5Body": "Chaque jour, une courte sélection de profils vous attend dans Découvrir.",
   "@onboardingPage5Body": {
     "description": "Présentation, page 5 : texte."
   },
@@ -4800,9 +4800,9 @@
   "@profileGoal": {
     "description": "Inscription, étape 4 : titre du choix de l'objectif (mariage, relation sérieuse…)."
   },
-  "profileShadchanNote": "Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.",
-  "@profileShadchanNote": {
-    "description": "Inscription, étape 4 : encadré en bas, petit corps. « AI Shadchan » est le nom de la fonction, à ne pas traduire."
+  "profileSetupPreferencesNote": "Ces préférences composent votre fil Découvrir. Vous pourrez les modifier à tout moment.",
+  "@profileSetupPreferencesNote": {
+    "description": "Inscription, étape 4 : encadré en bas, petit corps. Dit à quoi servent les préférences : composer le fil Découvrir."
   },
   "profileReportThisProfile": "Signaler ce profil",
   "@profileReportThisProfile": {

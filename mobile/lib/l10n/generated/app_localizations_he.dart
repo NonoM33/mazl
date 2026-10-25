@@ -2432,11 +2432,11 @@ class AppLocalizationsHe extends AppLocalizations {
       'זמני הדלקת נרות והבדלה לעיר שלכם, ומסך מנוחה.';
 
   @override
-  String get onboardingPage5Title => 'שדכן AI';
+  String get onboardingPage5Title => 'הצעות היום';
 
   @override
   String get onboardingPage5Body =>
-      'הבינה המלאכותית שלנו עוזרת למצוא את האדם המתאים.';
+      'בכל יום מחכה לכם ב״גילוי״ מבחר קצר של פרופילים.';
 
   @override
   String get packsSuperLikesLabel => 'סופר לייקים';
@@ -3602,8 +3602,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileGoal => 'מטרה';
 
   @override
-  String get profileShadchanNote =>
-      'AI Shadchan ישתמש בהעדפות אלה כדי להציע פרופילים מתאימים.';
+  String get profileSetupPreferencesNote =>
+      'ההעדפות האלה מעצבות את הפרופילים שמופיעים ב״גילוי״. אפשר לשנות אותן בכל עת.';
 
   @override
   String get profileReportThisProfile => 'לדווח על הפרופיל';

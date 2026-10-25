@@ -211,7 +211,7 @@
   "profileMaxDistance": "מרחק מרבי",
   "profileDistanceSliderLabel": "{km} ק״מ",
   "profileGoal": "מטרה",
-  "profileShadchanNote": "AI Shadchan ישתמש בהעדפות אלה כדי להציע פרופילים מתאימים.",
+  "profileSetupPreferencesNote": "ההעדפות האלה מעצבות את הפרופילים שמופיעים ב״גילוי״. אפשר לשנות אותן בכל עת.",
   "profileReportThisProfile": "לדווח על הפרופיל",
   "profileChoiceNotSent": "הבחירה לא נשלחה. יש לנסות שוב."
 }

@@ -4164,16 +4164,16 @@ abstract class AppLocalizations {
   /// **'Les horaires d\'allumage et de havdala de votre ville, et un écran de repos.'**
   String get onboardingPage4Body;
 
-  /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
+  /// Présentation, page 5 : titre (les suggestions du jour, écran atteint depuis Découvrir).
   ///
   /// In fr, this message translates to:
-  /// **'AI Shadchan'**
+  /// **'Suggestions du jour'**
   String get onboardingPage5Title;
 
   /// Présentation, page 5 : texte.
   ///
   /// In fr, this message translates to:
-  /// **'Notre intelligence artificielle vous aide à trouver la bonne personne.'**
+  /// **'Chaque jour, une courte sélection de profils vous attend dans Découvrir.'**
   String get onboardingPage5Body;
 
   /// Petit libellé au-dessus du titre de la feuille d’achat de Super Likes (ouverte quand il n’en reste plus). Nom de la fonction, même terme que sur le bouton étoile de Découvrir.
@@ -6209,11 +6209,11 @@ abstract class AppLocalizations {
   /// **'Objectif'**
   String get profileGoal;
 
-  /// Inscription, étape 4 : encadré en bas, petit corps. « AI Shadchan » est le nom de la fonction, à ne pas traduire.
+  /// Inscription, étape 4 : encadré en bas, petit corps. Dit à quoi servent les préférences : composer le fil Découvrir.
   ///
   /// In fr, this message translates to:
-  /// **'Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.'**
-  String get profileShadchanNote;
+  /// **'Ces préférences composent votre fil Découvrir. Vous pourrez les modifier à tout moment.'**
+  String get profileSetupPreferencesNote;
 
   /// Bouton texte en bas du profil d'un autre membre : ouvre la fenêtre de blocage et de signalement.
   ///

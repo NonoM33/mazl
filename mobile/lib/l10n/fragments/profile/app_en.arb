@@ -211,7 +211,7 @@
   "profileMaxDistance": "Maximum distance",
   "profileDistanceSliderLabel": "{km} km",
   "profileGoal": "Goal",
-  "profileShadchanNote": "Our AI Shadchan will use these preferences to suggest compatible profiles.",
+  "profileSetupPreferencesNote": "These preferences shape your Discover feed. You can change them at any time.",
   "profileReportThisProfile": "Report this profile",
   "profileChoiceNotSent": "Your choice wasn't sent. Please try again."
 }

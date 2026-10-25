@@ -2470,11 +2470,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los horarios de encendido de velas y de Havdalá de tu ciudad, y una pantalla de descanso.';
 
   @override
-  String get onboardingPage5Title => 'AI Shadchan';
+  String get onboardingPage5Title => 'Sugerencias del día';
 
   @override
   String get onboardingPage5Body =>
-      'Nuestra inteligencia artificial te ayuda a encontrar a la persona adecuada.';
+      'Cada día te espera en Descubrir una breve selección de perfiles.';
 
   @override
   String get packsSuperLikesLabel => 'Super likes';
@@ -3656,8 +3656,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profileGoal => 'Objetivo';
 
   @override
-  String get profileShadchanNote =>
-      'Nuestro AI Shadchan usará estas preferencias para proponerte perfiles compatibles.';
+  String get profileSetupPreferencesNote =>
+      'Estas preferencias componen tu pantalla Descubrir. Puedes cambiarlas cuando quieras.';
 
   @override
   String get profileReportThisProfile => 'Denunciar este perfil';

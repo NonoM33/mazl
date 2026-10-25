@@ -2453,11 +2453,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Candle-lighting and Havdalah times for your city, and a rest screen.';
 
   @override
-  String get onboardingPage5Title => 'AI Shadchan';
+  String get onboardingPage5Title => 'Daily picks';
 
   @override
   String get onboardingPage5Body =>
-      'Our artificial intelligence helps you find the right person.';
+      'Every day, a short selection of profiles is waiting for you in Discover.';
 
   @override
   String get packsSuperLikesLabel => 'Super Likes';
@@ -3632,8 +3632,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileGoal => 'Goal';
 
   @override
-  String get profileShadchanNote =>
-      'Our AI Shadchan will use these preferences to suggest compatible profiles.';
+  String get profileSetupPreferencesNote =>
+      'These preferences shape your Discover feed. You can change them at any time.';
 
   @override
   String get profileReportThisProfile => 'Report this profile';

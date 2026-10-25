@@ -211,7 +211,7 @@
   "profileMaxDistance": "Distancia máxima",
   "profileDistanceSliderLabel": "{km} km",
   "profileGoal": "Objetivo",
-  "profileShadchanNote": "Nuestro AI Shadchan usará estas preferencias para proponerte perfiles compatibles.",
+  "profileSetupPreferencesNote": "Estas preferencias componen tu pantalla Descubrir. Puedes cambiarlas cuando quieras.",
   "profileReportThisProfile": "Denunciar este perfil",
   "profileChoiceNotSent": "Tu elección no se ha enviado. Inténtalo de nuevo."
 }

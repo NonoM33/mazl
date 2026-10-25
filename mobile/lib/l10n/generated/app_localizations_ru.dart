@@ -2496,11 +2496,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Время зажигания свечей и Авдалы для Вашего города и экран отдыха.';
 
   @override
-  String get onboardingPage5Title => 'AI Shadchan';
+  String get onboardingPage5Title => 'Подборка дня';
 
   @override
   String get onboardingPage5Body =>
-      'Наш искусственный интеллект поможет Вам найти подходящего человека.';
+      'Каждый день в разделе «Поиск» Вас ждёт небольшая подборка анкет.';
 
   @override
   String get packsSuperLikesLabel => 'Суперлайки';
@@ -3686,8 +3686,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileGoal => 'Цель';
 
   @override
-  String get profileShadchanNote =>
-      'Наш AI Shadchan будет использовать эти предпочтения, чтобы предлагать Вам подходящие профили.';
+  String get profileSetupPreferencesNote =>
+      'Эти предпочтения определяют, какие анкеты Вы увидите в разделе «Поиск». Их можно изменить в любой момент.';
 
   @override
   String get profileReportThisProfile => 'Пожаловаться на профиль';

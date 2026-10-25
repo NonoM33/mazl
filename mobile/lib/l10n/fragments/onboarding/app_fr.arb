@@ -75,11 +75,11 @@
   "@onboardingPage4Body": {
     "description": "Présentation, page 4 : texte."
   },
-  "onboardingPage5Title": "AI Shadchan",
+  "onboardingPage5Title": "Suggestions du jour",
   "@onboardingPage5Title": {
-    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+    "description": "Présentation, page 5 : titre (les suggestions du jour, écran atteint depuis Découvrir)."
   },
-  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "onboardingPage5Body": "Chaque jour, une courte sélection de profils vous attend dans Découvrir.",
   "@onboardingPage5Body": {
     "description": "Présentation, page 5 : texte."
   }
