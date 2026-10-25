@@ -51,11 +51,11 @@
   "@onboardingPage3Body": {
     "description": "Présentation, page 3 : texte."
   },
-  "onboardingPage3Feature1": "Questions quotidiennes",
+  "onboardingPage3Feature1": "Souvenirs et dates importantes",
   "@onboardingPage3Feature1": {
     "description": "Présentation, page 3 : première ligne de la liste du mode Couple."
   },
-  "onboardingPage3Feature2": "Milestones de couple",
+  "onboardingPage3Feature2": "Bucket list à deux",
   "@onboardingPage3Feature2": {
     "description": "Présentation, page 3 : deuxième ligne de la liste."
   },

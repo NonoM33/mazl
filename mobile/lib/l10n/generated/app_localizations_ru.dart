@@ -2200,10 +2200,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Когда любовь найдена, MAZL остаётся рядом: найдите любовь и сохраните её.';
 
   @override
-  String get onboardingPage3Feature1 => 'Ежедневные вопросы';
+  String get onboardingPage3Feature1 => 'Воспоминания и важные даты';
 
   @override
-  String get onboardingPage3Feature2 => 'Важные события пары';
+  String get onboardingPage3Feature2 => 'Список желаний на двоих';
 
   @override
   String get onboardingPage3Feature3 => 'Общий еврейский календарь';

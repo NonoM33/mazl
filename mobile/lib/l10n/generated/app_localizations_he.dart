@@ -2159,10 +2159,10 @@ class AppLocalizationsHe extends AppLocalizations {
       'אחרי שמוצאים אהבה, MAZL ממשיכה ללוות: למצוא אהבה ולשמור עליה.';
 
   @override
-  String get onboardingPage3Feature1 => 'שאלות יומיות';
+  String get onboardingPage3Feature1 => 'זיכרונות ותאריכים חשובים';
 
   @override
-  String get onboardingPage3Feature2 => 'אבני דרך של הזוג';
+  String get onboardingPage3Feature2 => 'רשימת משאלות לשניים';
 
   @override
   String get onboardingPage3Feature3 => 'לוח שנה יהודי משותף';

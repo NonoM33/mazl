@@ -2169,10 +2169,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Once you\'ve found love, MAZL stays with you: find love, and keep it.';
 
   @override
-  String get onboardingPage3Feature1 => 'Daily questions';
+  String get onboardingPage3Feature1 => 'Memories and important dates';
 
   @override
-  String get onboardingPage3Feature2 => 'Couple milestones';
+  String get onboardingPage3Feature2 => 'A bucket list for two';
 
   @override
   String get onboardingPage3Feature3 => 'Shared Jewish calendar';

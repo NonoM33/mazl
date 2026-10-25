@@ -2186,10 +2186,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Cuando encuentras el amor, MAZL te acompaña: encuentra el amor y consérvalo.';
 
   @override
-  String get onboardingPage3Feature1 => 'Preguntas diarias';
+  String get onboardingPage3Feature1 => 'Recuerdos y fechas importantes';
 
   @override
-  String get onboardingPage3Feature2 => 'Hitos de pareja';
+  String get onboardingPage3Feature2 => 'Lista de deseos para dos';
 
   @override
   String get onboardingPage3Feature3 => 'Calendario judío compartido';

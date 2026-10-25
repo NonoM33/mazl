@@ -2202,10 +2202,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Une fois l\'amour trouvé, MAZL vous accompagne : trouvez l\'amour, et gardez-le.';
 
   @override
-  String get onboardingPage3Feature1 => 'Questions quotidiennes';
+  String get onboardingPage3Feature1 => 'Souvenirs et dates importantes';
 
   @override
-  String get onboardingPage3Feature2 => 'Milestones de couple';
+  String get onboardingPage3Feature2 => 'Bucket list à deux';
 
   @override
   String get onboardingPage3Feature3 => 'Calendrier juif partagé';

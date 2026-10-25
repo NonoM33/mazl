@@ -3747,13 +3747,13 @@ abstract class AppLocalizations {
   /// Présentation, page 3 : première ligne de la liste du mode Couple.
   ///
   /// In fr, this message translates to:
-  /// **'Questions quotidiennes'**
+  /// **'Souvenirs et dates importantes'**
   String get onboardingPage3Feature1;
 
   /// Présentation, page 3 : deuxième ligne de la liste.
   ///
   /// In fr, this message translates to:
-  /// **'Milestones de couple'**
+  /// **'Bucket list à deux'**
   String get onboardingPage3Feature2;
 
   /// Présentation, page 3 : troisième ligne de la liste.
