@@ -4,6 +4,7 @@ import { upsertUser, getUserProfile, findUserById } from "../../db";
 import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { createIpRateLimiter } from "../../shared/http/rate-limit";
+import type { AppleSignInPort } from "./apple/apple-sign-in";
 
 // Sign-in is public: limit it per client address so that a stolen or guessed
 // token cannot be tried in bulk.
@@ -16,7 +17,7 @@ const NAME_MAX = 100;
 // Presentation layer for the AUTH feature. These routes are moved verbatim from
 // the monolith (src/index.ts) and mounted under `/api/auth`. Behaviour, payloads
 // and status codes are identical to the original inline handlers.
-export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void {
+export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, appleSignIn: AppleSignInPort): void {
   const auth = new Hono<{ Variables: AppVariables }>();
 
   // Google OAuth - Verify ID token from mobile app
@@ -86,6 +87,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
       // Apple sends the name to the app on the first sign-in only; it is a
       // display value, bounded. The email is NEVER taken from the body.
       const fullName = isString(fields.fullName) ? fields.fullName.trim().slice(0, NAME_MAX) || undefined : undefined;
+      // The one-time code the app received from Apple, exchanged below for the
+      // refresh token that account deletion must revoke (App Store 5.1.1(v)).
+      const authorizationCode = isString(fields.authorizationCode) ? fields.authorizationCode : undefined;
 
       if (!isString(identityToken)) {
         return c.json({ success: false, error: "Identity token required" }, 400);
@@ -109,6 +113,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>): void
         providerId: appleUser.sub,
       });
       if (user.is_active === false) return c.json(accountDisabled, 403);
+
+      // A failure at Apple is logged there and never fails the sign-in.
+      if (authorizationCode !== undefined) await appleSignIn.rememberAuthorization(user.id, authorizationCode);
 
       // Generate JWT token
       const token = generateJWT({

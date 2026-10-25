@@ -86,6 +86,9 @@ import {
   ACCOUNT_DISABLED_CLOSE,
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
+import { createAppleSignIn } from "./features/auth/apple/apple-sign-in";
+import { ensureAppleSignInSchema, PgAppleTokenStore } from "./features/auth/apple/apple-token-store";
+import { withAppleRevocation } from "./features/account/apple-revocation";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
@@ -326,8 +329,11 @@ const userErasure = {
 // Web payments: a member's Stripe subscription is cancelled before their erasure.
 const billingWeb = createBillingWeb({ sql, authenticate: requireAuth });
 const erasureWithBilling = withStripeCancellation(userErasure, billingWeb);
-registerAdminRoutes(app, documents, erasureWithBilling);
-registerAccountRoutes(app, sql, erasureWithBilling);
+// Sign in with Apple: a deleted member's Apple authorization is revoked (App Store 5.1.1(v)).
+const appleSignIn = createAppleSignIn({ env: process.env, store: new PgAppleTokenStore(sql) });
+const memberErasure = withAppleRevocation(erasureWithBilling, appleSignIn);
+registerAdminRoutes(app, documents, memberErasure);
+registerAccountRoutes(app, sql, memberErasure);
 registerBillingWeb(app, billingWeb);
 
 // Art. 9 consent and personal-data export (docs/web/adr/W06).
@@ -347,7 +353,7 @@ backoffice.register(app);
 // ============ AUTH ENDPOINTS ============
 
 // Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
-registerAuthRoutes(app);
+registerAuthRoutes(app, appleSignIn);
 
 // Web sign-in (QR, Google, Apple), revocable web sessions and the cookie bridge.
 const webSession = createWebSessionModule({ sql });
@@ -769,6 +775,7 @@ startPurgeScheduler(() => documents.purger.sweep());
 await ensureMediaSchema();
 await ensureChatSchema();
 await ensureAccountSchema(sql);
+await ensureAppleSignInSchema(sql);
 await ensureBillingWebSchema(sql);
 await ensurePrivacySchema(sql);
 await ensureLikeAllowanceSchema(sql);
