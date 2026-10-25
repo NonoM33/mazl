@@ -142,7 +142,7 @@ describe("GET/PUT /api/discover/filters", () => {
       [{ denominations: "Massorti" }, "denominations"],
       [{ denominations: [3] }, "denominations"],
       [{ kashrutLevels: ["x".repeat(51)] }, "kashrutLevels"],
-      [{ shabbatObservances: Array.from({ length: 13 }, (_, i) => `a${i}`) }, "shabbatObservances"],
+      [{ shabbatObservances: Array.from({ length: 41 }, (_, i) => `a${i}`) }, "shabbatObservances"],
       [{ onlyVerified: "yes" }, "onlyVerified"],
     ] as const) {
       const res = await putFilters(plus.token, body);

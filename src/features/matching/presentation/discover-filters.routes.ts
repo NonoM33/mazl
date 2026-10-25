@@ -15,7 +15,7 @@ export interface DiscoverFiltersRouteDeps {
 // Answers are the stored free texts of the profile (profiles.denomination is a
 // VARCHAR(50)); a handful of choices per criterion is all the app offers.
 const MAX_ANSWER_LENGTH = 50;
-const MAX_ANSWERS = 12;
+const MAX_ANSWERS = 40;
 const answers = z.array(z.string().max(MAX_ANSWER_LENGTH)).max(MAX_ANSWERS).nullable().optional();
 
 // PUT /api/discover/filters. Unknown fields are refused: the old « études »,
