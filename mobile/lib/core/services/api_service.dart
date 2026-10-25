@@ -1119,7 +1119,7 @@ class ApiService implements CoupleApi {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
       }
 
-      final blockedList = (data['blocked_users'] as List<dynamic>?)
+      final blockedList = (data['blocked'] as List<dynamic>?)
           ?.map((json) => BlockedUser.fromJson(json))
           .toList() ?? [];
 

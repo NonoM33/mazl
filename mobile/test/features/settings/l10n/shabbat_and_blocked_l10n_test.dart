@@ -210,10 +210,14 @@ void main() {
   });
 
   group('utilisateurs bloqués', () {
+    // The row GET /api/users/blocked really sends: no `id`, the blocked
+    // member is identified by `user_id`.
     Map<String, Object?> blocked(int id, String? name) => {
-      'id': id,
       'user_id': 100 + id,
       'display_name': name,
+      'age': 31,
+      'location': 'Paris',
+      'is_verified': false,
       'picture': null,
       'blocked_at': '2026-10-05T10:00:00.000Z',
     };
@@ -232,7 +236,7 @@ void main() {
           );
         }
         return http.Response(
-          jsonEncode({'success': true, 'blocked_users': users}),
+          jsonEncode({'success': true, 'blocked': users}),
           200,
         );
       }),
@@ -248,6 +252,39 @@ void main() {
         expect(find.text('Bloqué le 05/10/2026'), findsOneWidget);
         expect(find.text('Débloquer'), findsOneWidget);
       });
+    });
+
+    testWidgets('débloquer une personne laisse les autres en place', (
+      tester,
+    ) async {
+      final unblocked = <String>[];
+      await http.runWithClient(() async {
+        await pumpLocalized(tester, const BlockedUsersScreen());
+        await _settle(tester);
+        expect(find.text('Myriam'), findsOneWidget);
+        expect(find.text('Sarah'), findsOneWidget);
+
+        await tester.tap(find.text('Débloquer').first);
+        await _settle(tester);
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Débloquer'));
+        await _settle(tester);
+
+        expect(unblocked, ['/api/users/101/block']);
+        expect(find.text('Myriam'), findsNothing);
+        expect(find.text('Sarah'), findsOneWidget);
+      }, () => MockClient((request) async {
+        if (request.method == 'DELETE') {
+          unblocked.add(request.url.path);
+          return http.Response(jsonEncode({'success': true}), 200);
+        }
+        return http.Response(
+          jsonEncode({
+            'success': true,
+            'blocked': [blocked(1, 'Myriam'), blocked(2, 'Sarah')],
+          }),
+          200,
+        );
+      }));
     });
 
     testWidgets('en anglais : la date suit la langue, la confirmation aussi', (

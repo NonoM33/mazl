@@ -313,7 +313,7 @@ abstract final class DemoRoutes {
     DemoRoute(
       'GET',
       '/api/users/blocked',
-      (r, m) => _json({'success': true, 'blocked_users': <Object>[]}),
+      (r, m) => _json({'success': true, 'blocked': <Object>[]}),
     ),
     DemoRoute('POST', '/api/users/(\\d+)/block', (r, m) => _ok),
     DemoRoute('DELETE', '/api/users/(\\d+)/block', (r, m) => _ok),
