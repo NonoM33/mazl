@@ -39,6 +39,13 @@ describe("GET /api/likes/received", () => {
     expect(body.likes[0]).toEqual(like);
   });
 
+  test("is_premium sits at the root of the answer, whatever the likes", async () => {
+    const free = (await (await appWith(false).request("/api/likes/received")).json()) as Record<string, unknown>;
+    const plus = (await (await appWith(true).request("/api/likes/received")).json()) as Record<string, unknown>;
+    expect([free.is_premium, plus.is_premium]).toEqual([false, true]);
+    expect(Object.keys(free).sort()).toEqual(["count", "is_premium", "likes", "success"]);
+  });
+
   test("the count route and errors are left alone", async () => {
     expect(await (await appWith(false).request("/api/likes/received/count")).json()).toEqual({ success: true, count: 1 });
     const failing = new Hono<{ Variables: AppVariables }>();

@@ -49,3 +49,6 @@ key.properties
 
 # Claude Code local state and worktrees
 .claude/
+
+# integration test logs
+.integ/

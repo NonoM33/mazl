@@ -1,5 +1,5 @@
 import type {
-  FileStorage, InsertOutcome, MessageRepository, NewMedia, NewMessage, RealtimeEvents, ReadOutcome,
+  FileStorage, InsertOutcome, MessageNotifier, MessageRepository, NewMedia, NewMessage, RealtimeEvents, ReadOutcome,
 } from "../../src/features/chat/application/ports";
 import type {
   ConversationMembers, MediaRecord, MessageRecord, ReactionRecord, StoredLinkPreview,
@@ -153,6 +153,15 @@ export class FakeStorage implements FileStorage {
   async remove(key: string) {
     if (this.failRemoveFor.has(key)) throw new Error("disk error");
     this.files.delete(key);
+  }
+}
+
+export class RecordingNotifier implements MessageNotifier {
+  readonly created: Array<{ conversationId: number; senderId: number; recipientId: number }> = [];
+  failWith: Error | null = null;
+  messageCreated(event: { conversationId: number; senderId: number; recipientId: number }): void {
+    if (this.failWith !== null) throw this.failWith;
+    this.created.push({ ...event });
   }
 }
 

@@ -49,9 +49,11 @@ par l'acceptation (§2) et dans l'événement `couple:accepted` (§3).
 | `couple:rejected` | émetteur | `{ request_id }` |
 | `couple:ended` | l'autre membre | `{ couple_id }` |
 
-Notification push (OneSignal, si configuré) pour `couple:request` et
-`couple:accepted`, sans nom dans le titre (« Nouvelle demande de couple »),
-le prénom seulement dans le corps.
+Notification push (OneSignal, si configuré) à l'arrivée d'une demande et à son
+acceptation, adressée à `user_<id>` (l'identifiant de `OneSignal.login`), sans
+nom dans le titre (« Nouvelle demande de couple »), le prénom seulement dans le
+corps. Le champ `data` ne porte que `type` : `couple_request` ou
+`couple_accepted` (V1-CONTRAT §1 ; `couple_question` pour la question du jour).
 
 Côté app, le temps réel n'est qu'un accélérateur : tant qu'une demande est en
 attente et que l'app est au premier plan, elle relit `GET /api/couple/requests`

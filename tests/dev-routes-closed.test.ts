@@ -39,6 +39,8 @@ const DEV_ROUTES: Array<[string, string, unknown]> = [
   ["POST", "/api/dev/couple/enable", { userId: 1, partnerId: 2 }],
   ["GET", "/api/dev/couple/status/1", undefined],
   ["GET", "/api/dev/reset-swipes/anyone@example.com", undefined],
+  // Re-creates the twenty fake members: sample data is for development and tests only.
+  ["POST", "/api/admin/seed-profiles", {}],
 ];
 
 for (const nodeEnv of ["staging", undefined]) {

@@ -58,6 +58,11 @@ export function addConnection(userId: number, ws: WebSocket): void {
   }
 }
 
+// Whether at least one socket of this user is open right now.
+export function hasOpenConnection(userId: number): boolean {
+  return (wsConnections.get(userId)?.size ?? 0) > 0;
+}
+
 // Close and forget every socket of a user (ban, deletion, password change).
 // Returns how many sockets were registered.
 export function closeUserConnections(userId: number, code: number, reason: string): number {
@@ -89,6 +94,35 @@ export function sendToUser(userId: number, data: OutboundMessage): void {
       } catch (err) {
         console.error("WebSocket send error:", err instanceof Error ? err.name : "unknown");
       }
+    }
+  }
+}
+
+export interface NewMatchEvent {
+  readonly matchId: number;
+  readonly userAId: number;
+  readonly userBId: number;
+  // Null when the match has no conversation (yet).
+  readonly conversationId: number | null;
+}
+
+type NewMatchListener = (event: NewMatchEvent) => void;
+const newMatchListeners: NewMatchListener[] = [];
+
+// Registers something that must follow every new match besides the WebSocket
+// event (the push notifications). The swipe route awaits emitNewMatch, so a
+// listener is called synchronously, must not throw, and does its work in the
+// background; one that does throw is logged and does not fail the swipe.
+export function onNewMatch(listener: NewMatchListener): void {
+  newMatchListeners.push(listener);
+}
+
+function notifyNewMatchListeners(event: NewMatchEvent): void {
+  for (const listener of newMatchListeners) {
+    try {
+      listener(event);
+    } catch (err) {
+      console.error("New match listener error:", err instanceof Error ? err.name : "unknown");
     }
   }
 }
@@ -130,7 +164,9 @@ export async function emitNewMatch(userAId: number, userBId: number): Promise<vo
         user_b_name: string | null;
       }
     | undefined;
-  if (!row || row.conversation_id === null) return;
+  if (!row) return;
+  notifyNewMatchListeners({ matchId: row.match_id, userAId, userBId, conversationId: row.conversation_id });
+  if (row.conversation_id === null) return;
 
   const pictures = await publicPicturesFor(sql, [userAId, userBId]);
   const matchId = row.match_id;

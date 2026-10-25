@@ -105,7 +105,9 @@ import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStrip
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
+import { createPushModule } from "./features/push/push.module";
 import { assertKeysConfigured } from "./shared/crypto/keys";
+import { isDevelopmentEnvironment } from "./shared/runtime/development-environment";
 import { createObjectStore, readStorageConfig } from "./shared/storage";
 import {
   createDocumentsModule,
@@ -156,7 +158,7 @@ const verification = createVerificationModule({ sql, store: objectStore });
 // only when NODE_ENV says development or test. Any other value, unset
 // included, closes them: a staging server without NODE_ENV must not hand out
 // tokens for any e-mail.
-const DEV_ROUTES_ENABLED = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+const DEV_ROUTES_ENABLED = isDevelopmentEnvironment();
 if (DEV_ROUTES_ENABLED) console.warn(`Development routes are ENABLED (NODE_ENV=${process.env.NODE_ENV})`);
 
 // CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)
@@ -302,7 +304,11 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
-const chat = createChatModule({ store: objectStore });
+// Push notifications (OneSignal) for new matches and for messages that reach a
+// member with no open socket.
+const push = createPushModule({ sql });
+push.followMatches();
+const chat = createChatModule({ store: objectStore, notifier: push.messageNotifier });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 

@@ -1,5 +1,5 @@
 import { sendToUser } from "../../../shared/realtime/connections";
-import { sendPushNotification } from "../../../onesignal";
+import { isPushConfigured, NotificationTypes, sendPushToUsers } from "../../../onesignal";
 import type { CoupleRequestView } from "../../../db";
 import type { CoupleView } from "../infra/couple-queries";
 
@@ -29,9 +29,10 @@ function firstName(displayName: string | null): string {
 }
 
 // No-op when OneSignal is not configured. The title never carries a name.
+// The member is addressed as user_<id> (sendPushToUsers), like the app logs in.
 function pushToUser(userId: number, title: string, message: string, type: string): void {
-  if (!process.env.ONESIGNAL_REST_API_KEY) return;
-  sendPushNotification({ userIds: [String(userId)], title, message, data: { type } })
+  if (!isPushConfigured()) return;
+  sendPushToUsers([userId], title, message, { type })
     .then((result) => {
       if (!result.success) console.error(`Couple push (${type}) not sent: ${result.error ?? "unknown"}`);
     })
@@ -44,7 +45,7 @@ export function pushCoupleRequest(request: CoupleRequestView): void {
     request.target_id,
     "Nouvelle demande de couple",
     name ? `${name} souhaite activer le mode couple avec vous` : "Quelqu'un souhaite activer le mode couple avec vous",
-    "couple:request",
+    NotificationTypes.COUPLE_REQUEST,
   );
 }
 
@@ -54,6 +55,6 @@ export function pushCoupleAccepted(requesterId: number, accepterDisplayName: str
     requesterId,
     "Demande de couple acceptée",
     name ? `${name} a accepté votre demande de couple` : "Votre demande de couple a été acceptée",
-    "couple:accepted",
+    NotificationTypes.COUPLE_ACCEPTED,
   );
 }

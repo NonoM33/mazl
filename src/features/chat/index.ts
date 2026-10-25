@@ -1,6 +1,7 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import type { ObjectStore } from "../../shared/storage/object-store";
+import type { MessageNotifier } from "./application/ports";
 import { createChatLimits, type ChatLimits } from "./application/chat-limits";
 import { limitImageProcessing } from "./application/limited-images";
 import { createSemaphore } from "./application/semaphore";
@@ -38,7 +39,7 @@ export interface ChatModule {
 const IMAGE_CONCURRENCY = 3;
 const IMAGE_QUEUE = 24;
 
-export function createChatModule(options: { store: ObjectStore }): ChatModule {
+export function createChatModule(options: { store: ObjectStore; notifier: MessageNotifier }): ChatModule {
   const storage = createChatStorage(options.store);
   const now = (): Date => new Date();
   const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
@@ -60,7 +61,7 @@ export function createChatModule(options: { store: ObjectStore }): ChatModule {
   });
 
   const chat = createChatService({
-    repository: postgresMessageRepository, presenter, events: websocketEvents, storage, previews, now,
+    repository: postgresMessageRepository, presenter, events: websocketEvents, storage, previews, notifier: options.notifier, now,
   });
   const media = createChatMediaService({
     messages: postgresMessageRepository, media: postgresMediaRepository, storage, images, now,
