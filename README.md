@@ -36,3 +36,23 @@ While files remain on the old disk, a file missing from the bucket is read from
 Tests: `cd tests/unit && bun test ./storage-*.test.ts`; the one against a real server runs
 when `S3_TEST_ENDPOINT` is set (with `S3_TEST_BUCKET`, `S3_TEST_ACCESS_KEY_ID`,
 `S3_TEST_SECRET_ACCESS_KEY`).
+
+## Tests
+
+| command | what it runs |
+|---|---|
+| `bun run test:unit` | `tests/unit`: no server, no database |
+| `bun run typecheck` | `tsc` on the API, the console and the landing |
+| `bun run test:integration` (`bun scripts/test-integration.ts`) | `tests/*.test.ts` against a real server |
+| `bun scripts/test-integration.ts tests/chat-security.test.ts [...]` | the same, only those files |
+
+The integration run is self-contained and leaves nothing behind. It needs Docker and nothing else:
+
+- a throwaway Postgres 16 (docker, a free local port, removed at the end);
+- the API server in `NODE_ENV=test` (that is what enables the sample members, the couple catalogue and
+  the `/api/dev/*` routes the suites use), with every secret drawn at random;
+- the fake Stripe of `tests/support/` (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_API_BASE`, the
+  `STRIPE_PRICE_*` and `FAKE_STRIPE_URL`), so the billing suites never reach api.stripe.com;
+- no `RESEND_API_KEY` and no `ONESIGNAL_REST_API_KEY`: no e-mail and no push is ever sent.
+
+Logs are written to `.integ/` (`server.log`, `stripe.log`, `integ.log`, ignored by git).
