@@ -2615,9 +2615,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchingDiscoverRefresh => 'Обновить';
 
   @override
-  String get matchingDiscoverUndo => 'Отменить';
-
-  @override
   String get matchingDiscoverSuperLike => 'Суперлайк';
 
   @override
@@ -3139,13 +3136,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get plusFeatureBoostDescription => 'Будьте в начале очереди 30 минут.';
-
-  @override
-  String get plusFeatureRewindTitle => 'Вернуться назад';
-
-  @override
-  String get plusFeatureRewindDescription =>
-      'Исправьте слишком быстрое «Пропустить».';
 
   @override
   String get plusFeatureReadReceiptsTitle => 'Подтверждения прочтения';

@@ -68,7 +68,7 @@ void main() {
     expect(find.bySemanticsLabel('Pass'), findsOneWidget);
     expect(find.bySemanticsLabel('Like'), findsOneWidget);
     expect(find.bySemanticsLabel('Super like'), findsOneWidget);
-    expect(find.bySemanticsLabel('Undo'), findsOneWidget);
+    expect(find.bySemanticsLabel('Undo'), findsNothing);
     expect(find.bySemanticsLabel('Boost'), findsOneWidget);
     expect(find.bySemanticsLabel('Daily picks'), findsOneWidget);
     expect(find.bySemanticsLabel('Filters'), findsOneWidget);

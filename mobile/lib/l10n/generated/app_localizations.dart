@@ -4434,12 +4434,6 @@ abstract class AppLocalizations {
   /// **'Actualiser'**
   String get matchingDiscoverRefresh;
 
-  /// Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+).
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler'**
-  String get matchingDiscoverUndo;
-
   /// Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre.
   ///
   /// In fr, this message translates to:
@@ -5237,18 +5231,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Soyez en tête de pile pendant 30 minutes.'**
   String get plusFeatureBoostDescription;
-
-  /// Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Revenir en arrière'**
-  String get plusFeatureRewindTitle;
-
-  /// Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rattrapez un « Passer » trop rapide.'**
-  String get plusFeatureRewindDescription;
 
   /// Titre de la fenêtre « Réservé à mazl+ » pour les confirmations de lecture des messages.
   ///

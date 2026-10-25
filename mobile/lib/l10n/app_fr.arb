@@ -3351,10 +3351,6 @@
   "@matchingDiscoverRefresh": {
     "description": "Bouton de Découvrir (état vide) qui recharge les profils."
   },
-  "matchingDiscoverUndo": "Annuler",
-  "@matchingDiscoverUndo": {
-    "description": "Info-bulle du petit bouton rond de la carte qui annule le dernier balayage (fonction mazl+)."
-  },
   "matchingDiscoverSuperLike": "Super like",
   "@matchingDiscoverSuperLike": {
     "description": "Info-bulle du petit bouton rond de la carte qui envoie un super like. Nom de la fonction, gardé tel quel dans les apps de rencontre."
@@ -4026,14 +4022,6 @@
   "plusFeatureBoostDescription": "Soyez en tête de pile pendant 30 minutes.",
   "@plusFeatureBoostDescription": {
     "description": "Phrase sous le titre de la fenêtre « Réservé à mazl+ » pour le Boost. « En tête de pile » = votre profil est montré en premier aux autres membres."
-  },
-  "plusFeatureRewindTitle": "Revenir en arrière",
-  "@plusFeatureRewindTitle": {
-    "description": "Titre de la fenêtre « Réservé à mazl+ » pour la fonction qui annule le dernier « Passer », et titre d'un avantage de l'offre."
-  },
-  "plusFeatureRewindDescription": "Rattrapez un « Passer » trop rapide.",
-  "@plusFeatureRewindDescription": {
-    "description": "Phrase sous le titre « Revenir en arrière » (fenêtre « Réservé à mazl+ » et ligne d'avantage de l'offre). « Passer » est le nom du geste qui écarte un profil dans Découvrir : même terme que sur la carte."
   },
   "plusFeatureReadReceiptsTitle": "Confirmations de lecture",
   "@plusFeatureReadReceiptsTitle": {

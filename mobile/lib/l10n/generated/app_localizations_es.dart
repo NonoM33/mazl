@@ -2590,9 +2590,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get matchingDiscoverRefresh => 'Actualizar';
 
   @override
-  String get matchingDiscoverUndo => 'Deshacer';
-
-  @override
   String get matchingDiscoverSuperLike => 'Super like';
 
   @override
@@ -3102,13 +3099,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get plusFeatureBoostDescription =>
       'Ponte a la cabeza durante 30 minutos.';
-
-  @override
-  String get plusFeatureRewindTitle => 'Retroceder';
-
-  @override
-  String get plusFeatureRewindDescription =>
-      'Recupera un «Pasar» demasiado rápido.';
 
   @override
   String get plusFeatureReadReceiptsTitle => 'Confirmaciones de lectura';

@@ -288,7 +288,6 @@ List<_Perk> _perks(AppLocalizations l10n) => [
   _Perk(l10n.plusFeatureSeeWhoLikesYouTitle, l10n.plusPerkSeeWhoDetail),
   _Perk(l10n.plusPerkSuperLikesTitle, l10n.plusPerkSuperLikesDetail),
   _Perk(l10n.plusPerkBoostTitle, l10n.plusPerkBoostDetail),
-  _Perk(l10n.plusFeatureRewindTitle, l10n.plusFeatureRewindDescription),
   _Perk(l10n.plusFeatureAdvancedFiltersTitle, l10n.plusPerkFiltersDetail),
 ];
 

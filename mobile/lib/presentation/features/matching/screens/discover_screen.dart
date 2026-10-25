@@ -286,7 +286,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         onWillSwipe: _willSwipe,
         onRefused: _onRefused,
         onSwiped: _onSwiped,
-        onUndone: _onUndone,
         onEnd: _onDeckEnd,
         cardBuilder: (context, index, isTop) {
           final profile = _profiles[index];
@@ -319,20 +318,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       onPressed: () => _deck.swipe(SwipeDirection.up),
     );
     return [
-      // Undo (Premium)
-      DiscoverMiniAction(
-        icon: LucideIcons.rotateCcw,
-        tooltip: context.l10n.matchingDiscoverUndo,
-        locked: !PremiumGate.isPremium,
-        onPressed: () async {
-          if (await PremiumGate.showFeatureGate(
-            context,
-            PremiumFeature.rewind,
-          )) {
-            _deck.undo();
-          }
-        },
-      ),
       // Super Like
       if (followsSwipe)
         SwipeProgressScale(
@@ -507,10 +492,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         unawaited(_offerSuperLikesAfterRefusal(profile));
       }
     });
-  }
-
-  void _onUndone(int index) {
-    debugPrint('Undo on ${_profiles[index].displayName}');
   }
 
   /// Every profile has been seen: the empty state offers to look again.

@@ -2573,9 +2573,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchingDiscoverRefresh => 'Refresh';
 
   @override
-  String get matchingDiscoverUndo => 'Undo';
-
-  @override
   String get matchingDiscoverSuperLike => 'Super like';
 
   @override
@@ -3085,13 +3082,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get plusFeatureBoostDescription =>
       'Be at the top of the stack for 30 minutes.';
-
-  @override
-  String get plusFeatureRewindTitle => 'Rewind';
-
-  @override
-  String get plusFeatureRewindDescription =>
-      'Take back a “Pass” that was too quick.';
 
   @override
   String get plusFeatureReadReceiptsTitle => 'Read receipts';

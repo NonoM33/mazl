@@ -2543,9 +2543,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get matchingDiscoverRefresh => 'רענון';
 
   @override
-  String get matchingDiscoverUndo => 'ביטול';
-
-  @override
   String get matchingDiscoverSuperLike => 'סופר לייק';
 
   @override
@@ -3060,12 +3057,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get plusFeatureBoostDescription =>
       'אפשר להיות בראש הערימה למשך 30 דקות.';
-
-  @override
-  String get plusFeatureRewindTitle => 'חזרה אחורה';
-
-  @override
-  String get plusFeatureRewindDescription => 'אפשר לתקן “דילוג” מהיר מדי.';
 
   @override
   String get plusFeatureReadReceiptsTitle => 'אישורי קריאה';

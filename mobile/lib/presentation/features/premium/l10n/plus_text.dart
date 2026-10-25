@@ -12,7 +12,6 @@ extension PremiumFeatureText on PremiumFeature {
     PremiumFeature.seeWhoLikesYou => l10n.plusFeatureSeeWhoLikesYouTitle,
     PremiumFeature.superLikes => l10n.plusFeatureSuperLikesTitle,
     PremiumFeature.boost => l10n.plusFeatureBoostTitle,
-    PremiumFeature.rewind => l10n.plusFeatureRewindTitle,
     PremiumFeature.readReceipts => l10n.plusFeatureReadReceiptsTitle,
     PremiumFeature.advancedFilters => l10n.plusFeatureAdvancedFiltersTitle,
     PremiumFeature.prioritySupport => l10n.plusFeaturePrioritySupportTitle,
@@ -23,7 +22,6 @@ extension PremiumFeatureText on PremiumFeature {
     PremiumFeature.seeWhoLikesYou => l10n.plusFeatureSeeWhoLikesYouDescription,
     PremiumFeature.superLikes => l10n.plusFeatureSuperLikesDescription,
     PremiumFeature.boost => l10n.plusFeatureBoostDescription,
-    PremiumFeature.rewind => l10n.plusFeatureRewindDescription,
     PremiumFeature.readReceipts => l10n.plusFeatureReadReceiptsDescription,
     PremiumFeature.advancedFilters =>
       l10n.plusFeatureAdvancedFiltersDescription,

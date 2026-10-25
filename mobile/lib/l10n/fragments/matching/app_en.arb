@@ -5,7 +5,6 @@
   "matchingDiscoverEmptyBody": "Come back later or widen your filters to see new profiles.",
   "matchingDiscoverOpenFilters": "Open filters",
   "matchingDiscoverRefresh": "Refresh",
-  "matchingDiscoverUndo": "Undo",
   "matchingDiscoverSuperLike": "Super like",
   "matchingDiscoverBoost": "Boost",
   "matchingDiscoverBoostOn": "Boost is on. You're at the top of the stack for {minutes, plural, one{{minutes} minute} other{{minutes} minutes}}.",

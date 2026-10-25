@@ -93,7 +93,7 @@ void main() {
 
   group('offre mazl+ (P2)', () {
     testWidgets(
-      'affiche le titre, la promesse, les six avantages et les trois formules',
+      'affiche le titre, la promesse, les cinq avantages et les trois formules',
       (tester) async {
         await _pumpOffer(tester);
 
@@ -104,7 +104,6 @@ void main() {
           'Voir qui vous a aimé',
           '5 Super Likes par jour',
           'Un Boost par jour',
-          'Revenir en arrière',
           'Filtres avancés',
         ]) {
           expect(find.text(perk), findsOneWidget, reason: perk);
@@ -310,12 +309,12 @@ void main() {
       await _pump(
         tester,
         const Scaffold(
-          body: PremiumFeatureSheet(feature: PremiumFeature.rewind),
+          body: PremiumFeatureSheet(feature: PremiumFeature.seeWhoLikesYou),
         ),
       );
 
       expect(find.text('RÉSERVÉ À MAZL+'), findsOneWidget);
-      expect(find.text('Revenir en arrière'), findsOneWidget);
+      expect(find.text('Voir qui vous a aimé'), findsOneWidget);
       expect(find.text('Découvrir mazl+'), findsOneWidget);
       expect(find.text('Pas maintenant'), findsOneWidget);
       _expectNoGradientNorShadow(tester);

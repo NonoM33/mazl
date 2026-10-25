@@ -21,7 +21,6 @@ enum PremiumFeature {
   seeWhoLikesYou,
   superLikes,
   boost,
-  rewind,
   readReceipts,
   advancedFilters,
   prioritySupport,

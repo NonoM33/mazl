@@ -5,7 +5,6 @@
   "matchingDiscoverEmptyBody": "כדאי לחזור מאוחר יותר או להרחיב את המסננים כדי לראות פרופילים חדשים.",
   "matchingDiscoverOpenFilters": "פתיחת המסננים",
   "matchingDiscoverRefresh": "רענון",
-  "matchingDiscoverUndo": "ביטול",
   "matchingDiscoverSuperLike": "סופר לייק",
   "matchingDiscoverBoost": "בוסט",
   "matchingDiscoverBoostOn": "הבוסט הופעל. הפרופיל שלך בראש הערימה למשך {minutes, plural, one{דקה אחת} two{שתי דקות} other{{minutes} דקות}}.",

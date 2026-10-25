@@ -5,7 +5,6 @@
   "matchingDiscoverEmptyBody": "Загляните позже или расширьте фильтры, чтобы увидеть новые профили.",
   "matchingDiscoverOpenFilters": "Открыть фильтры",
   "matchingDiscoverRefresh": "Обновить",
-  "matchingDiscoverUndo": "Отменить",
   "matchingDiscoverSuperLike": "Суперлайк",
   "matchingDiscoverBoost": "Буст",
   "matchingDiscoverBoostOn": "Буст включён. Вы в начале очереди в течение {minutes, plural, one{{minutes} минуты} few{{minutes} минут} many{{minutes} минут} other{{minutes} минуты}}.",

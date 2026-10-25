@@ -24,7 +24,6 @@ const _frenchOffer = [
   'Likes illimités',
   'Voir qui vous a aimé',
   'Un Boost par jour',
-  'Revenir en arrière',
   'Filtres avancés',
   'Restaurer',
   'Conditions',

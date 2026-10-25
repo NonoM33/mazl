@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/services/store/credits_service.dart';
@@ -485,23 +486,15 @@ void main() {
     expect(_card(101), findsNothing);
   });
 
-  testWidgets('undo brings the last card back, from the side it left', (
-    tester,
-  ) async {
+  testWidgets('there is no undo button, even for a subscriber', (tester) async {
     PremiumGate.debugPremiumOverride = true;
-    final api = await _pumpDiscover(tester);
-    await dragSlowly(tester, _card(101), const Offset(-170, 0));
-    await settle(tester);
-    expect(_card(101), findsNothing);
+    final semantics = tester.ensureSemantics();
+    await _pumpDiscover(tester);
 
-    await tester.tap(find.bySemanticsLabel('Annuler'));
-    await tester.pump(); // the animation starts on this frame
-    await tester.pump(const Duration(milliseconds: 60));
-    expect(tester.getCenter(_card(101)).dx, lessThan(_restX(tester) - 40));
-    await settle(tester);
-
-    _expectAtRest(tester, _card(101));
-    expect(api.swipes, ['101:pass']);
+    // Nothing is cancelled server side, so the offer does not promise it.
+    expect(find.bySemanticsLabel('Annuler'), findsNothing);
+    expect(find.byIcon(LucideIcons.rotateCcw), findsNothing);
+    semantics.dispose();
   });
 
   group('photo indicator', () {
