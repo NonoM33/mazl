@@ -2,9 +2,13 @@ import type { Hono } from "hono";
 import type { Sql } from "postgres";
 import type { AuditLog } from "../audit/application/ports";
 import type { RequirePermission, StaffVariables } from "../staff/application/ports";
+import { PgPlusStatus } from "../credits/infra/pg-plus-status";
+import { createPrivacyModule } from "../privacy/privacy.module";
 import { createFeed, type Feed } from "./application/discover";
+import { DiscoverFiltersService } from "./application/discover-filters-service";
 import { MatchingTuning } from "./application/tuning";
 import { PgCandidateSource } from "./infra/pg-candidate-source";
+import { PgDiscoverFiltersStore } from "./infra/pg-discover-filters-store";
 import { PgFeedHydrator } from "./infra/pg-feed-hydrator";
 import { PgParamsRepository } from "./infra/pg-params-repository";
 import { ensureMatchingSchema } from "./infra/schema";
@@ -24,9 +28,24 @@ export interface MatchingModule {
   registerAdminRoutes(app: Hono<{ Variables: StaffVariables }>): void;
 }
 
+// The advanced filters (mazl+) with the real subscription and consent lookups.
+export function createDiscoverFiltersService(sql: Sql): DiscoverFiltersService {
+  const plus = new PgPlusStatus(sql);
+  const consents = createPrivacyModule(sql).consents;
+  return new DiscoverFiltersService(new PgDiscoverFiltersStore(sql), {
+    isPlus: (userId) => plus.isPlus(userId),
+    allowsReligiousData: (userId) => consents.allowsReligiousData(userId),
+  });
+}
+
 export function createMatchingModule(options: MatchingModuleOptions): MatchingModule {
   const params = new PgParamsRepository(options.sql);
-  const feed = createFeed({ params, candidates: new PgCandidateSource(options.sql), hydrator: new PgFeedHydrator(options.sql) });
+  const filters = createDiscoverFiltersService(options.sql);
+  const feed = createFeed({
+    params,
+    candidates: new PgCandidateSource(options.sql, filters),
+    hydrator: new PgFeedHydrator(options.sql),
+  });
   const tuning = new MatchingTuning({ params, audit: options.audit });
   return {
     ensureSchema: () => ensureMatchingSchema(options.sql),

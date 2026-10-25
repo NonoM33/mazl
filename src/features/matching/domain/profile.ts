@@ -3,6 +3,8 @@
 // reaches for anything else. Free-text answers stay raw here: the engine
 // normalises them through the scales of the active parameters.
 
+import type { DiscoverFilters } from "./discover-filters";
+
 export type Gender = "male" | "female";
 export type LookingFor = Gender | "all";
 export type VerificationLevel = "none" | "selfie" | "identity";
@@ -47,4 +49,7 @@ export interface MatchProfile {
 export interface ViewerContext {
   readonly now: string;
   readonly excluded: ReadonlySet<number>;
+  // The advanced filters ACTUALLY applied to this viewer (mazl+ and consent
+  // already checked); absent = none.
+  readonly filters?: DiscoverFilters;
 }

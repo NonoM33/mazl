@@ -52,7 +52,8 @@ export type ExclusionReason =
   | "excluded" // blocked, already swiped, the viewer, closed account
   | "gender"
   | "age"
-  | "distance";
+  | "distance"
+  | "filters"; // the viewer's advanced filters (mazl+)
 
 export interface Exclusion {
   readonly userId: number;

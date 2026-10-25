@@ -1,3 +1,4 @@
+import { candidateMatchesFilters } from "./discover-filters";
 import { distanceKm } from "./geo";
 import type { MatchingParams } from "./params";
 import type { LookingFor, MatchProfile, ViewerContext } from "./profile";
@@ -34,5 +35,6 @@ export function exclusionReason(
   if (!wants(viewer.lookingFor, candidate.gender) || !wants(candidate.lookingFor, viewer.gender)) return "gender";
   if (!ageAllowed(viewer, candidate, params)) return "age";
   if (!distanceAllowed(viewer, candidate, params)) return "distance";
+  if (ctx.filters !== undefined && !candidateMatchesFilters(candidate, ctx.filters)) return "filters";
   return null;
 }

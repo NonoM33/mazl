@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  sql,
   getDiscoverProfiles,
   getSwipeAction,
   getProfilePreferences,
@@ -14,8 +15,11 @@ import { emitNewMatch } from "../../shared/realtime/connections";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import type { CreditsGateway } from "../credits/application/ports";
 import type { Feed } from "./application/discover";
+import type { DiscoverFiltersService } from "./application/discover-filters-service";
+import { createDiscoverFiltersService } from "./matching.module";
 import { registerSwipeRoute } from "./swipe.routes";
 import { registerDiscoverRoutes } from "./presentation/discover.routes";
+import { registerDiscoverFiltersRoutes } from "./presentation/discover-filters.routes";
 
 // Presentation layer for the MATCHING feature (core swipe / match / discover /
 // received likes). These routes are moved verbatim from the monolith
@@ -32,6 +36,9 @@ export interface MatchingRouteDeps {
   // TEMPORARY: while src/index.ts does not pass it, the legacy SQL ordering of
   // getDiscoverProfiles serves the feed. Make it required once wired.
   readonly feed?: Pick<Feed, "discover" | "dailyPicks">;
+  // The advanced filters (GET/PUT /api/discover/filters); built on the shared
+  // database when absent.
+  readonly filters?: Pick<DiscoverFiltersService, "read" | "update">;
 }
 
 const legacyFeed: Pick<Feed, "discover" | "dailyPicks"> = {
@@ -62,6 +69,9 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
       loadDailyPicks: (userId) => feed.dailyPicks(userId),
     },
   });
+
+  // Advanced filters of the member (mazl+): who they want to see, apart from the profile.
+  registerDiscoverFiltersRoutes(app, { authenticate: requireAuth, filters: deps.filters ?? createDiscoverFiltersService(sql) });
 
   // Record swipe action. A super like is debited from the credits first.
   registerSwipeRoute(app, {

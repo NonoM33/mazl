@@ -1,6 +1,10 @@
 import type { PendingQuery, Row, Sql } from "postgres";
-import type { CandidateSet, CandidateSource } from "../application/ports";
+import type { ApplicableFilters, CandidateSet, CandidateSource } from "../application/ports";
+import { answerKey, NO_FILTERS, type DiscoverFilters } from "../domain/discover-filters";
+import { TEXT_OID } from "./pg-types";
 import type { Gender, LookingFor, MatchProfile, VerificationLevel } from "../domain/profile";
+
+type Fragment = PendingQuery<Row[]>;
 
 // Hard ceiling of the SQL prefilter: the engine ranks at most this many people.
 export const CANDIDATE_CEILING = 1000;
@@ -69,22 +73,32 @@ function toMatchProfile(row: ProfileRow): MatchProfile {
 }
 
 export class PgCandidateSource implements CandidateSource {
-  constructor(private readonly sql: Sql) {}
+  // `filters` decides which advanced filters apply to the viewer (mazl+,
+  // consent); without it none do.
+  constructor(
+    private readonly sql: Sql,
+    private readonly filters?: ApplicableFilters,
+  ) {}
 
   async load(userId: number): Promise<CandidateSet | null> {
-    const viewerRows = await this.selectProfiles(this.sql`WHERE p.user_id = ${userId}`, 1);
+    const [viewerRows, filters] = await Promise.all([
+      this.selectProfiles(this.sql`WHERE p.user_id = ${userId}`, 1),
+      this.filters?.applicableFor(userId) ?? Promise.resolve(NO_FILTERS),
+    ]);
     const viewerRow = viewerRows[0];
     if (viewerRow === undefined) return null;
     const viewer = toMatchProfile(viewerRow);
     const [candidateRows, excluded] = await Promise.all([
-      this.selectProfiles(this.prefilter(viewer), CANDIDATE_CEILING),
+      this.selectProfiles(this.prefilter(viewer, filters), CANDIDATE_CEILING),
       this.excludedIds(userId),
     ]);
-    return { viewer, candidates: candidateRows.map(toMatchProfile), excluded };
+    return { viewer, candidates: candidateRows.map(toMatchProfile), excluded, filters };
   }
 
   // Only narrows the population, never widens it: the engine filters again.
-  private prefilter(viewer: MatchProfile) {
+  // The advanced filters are applied here too, before the ceiling, so that a
+  // narrow filter is not starved by the 1000 most recent members.
+  private prefilter(viewer: MatchProfile, filters: DiscoverFilters) {
     const sql = this.sql;
     return sql`
       WHERE p.user_id <> ${viewer.userId}
@@ -106,6 +120,22 @@ export class PgCandidateSource implements CandidateSource {
              OR ${genderOf(sql)} IS NULL OR ${genderOf(sql)} = ${viewer.lookingFor}::text)
         AND (${lookingForOf(sql)} IS NULL OR ${lookingForOf(sql)} = 'all'
              OR ${viewer.gender}::text IS NULL OR ${lookingForOf(sql)} = ${viewer.gender}::text)
+        ${this.advancedFilters(filters)}
+    `;
+  }
+
+  // Same rules as domain/discover-filters.ts (candidateMatchesFilters): an
+  // answer is compared trimmed and lower-cased, a missing answer never passes.
+  private advancedFilters(filters: DiscoverFilters) {
+    const sql = this.sql;
+    const answerIn = (column: Fragment, accepted: readonly string[] | null) =>
+      accepted === null ? sql`` : sql`AND lower(btrim(${column})) = ANY(${sql.array(accepted.map(answerKey), TEXT_OID)})`;
+    return sql`
+      ${answerIn(sql`p.denomination`, filters.denominations)}
+      ${answerIn(sql`p.kashrut_level`, filters.kashrutLevels)}
+      ${answerIn(sql`p.shabbat_observance`, filters.shabbatObservances)}
+      ${filters.onlyVerified ? sql`AND p.verification_level IN ('photo', 'selfie', 'identity')` : sql``}
+      ${filters.onlyWithPhoto ? sql`AND EXISTS (SELECT 1 FROM profile_photos ph WHERE ph.user_id = p.user_id AND ph.url NOT ILIKE 'http%')` : sql``}
     `;
   }
 

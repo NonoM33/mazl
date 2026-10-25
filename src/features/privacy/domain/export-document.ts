@@ -30,6 +30,9 @@ export const PROFILE_KEYS = [
   "is_complete", "is_verified", "verification_level", "photo_verified_at", "identity_verified_at",
   "created_at", "updated_at",
 ] as const;
+export const DISCOVER_FILTER_KEYS = [
+  "denominations", "kashrut_levels", "shabbat_observances", "only_verified", "only_with_photo", "updated_at",
+] as const;
 export const WEB_SESSION_KEYS = ["id", "browser_label", "method", "created_at", "last_seen_at"] as const;
 // Moderation and verification (security review B7): what was decided about the
 // member and what was checked, never who decided, internal notes, biometric
@@ -65,6 +68,7 @@ export interface ExportSections {
   readonly couple: JsonRecord | null;
   readonly eventRsvps: readonly JsonRecord[];
   readonly consents: readonly JsonRecord[];
+  readonly discoverFilters: JsonRecord | null;
   readonly consentHistory: readonly JsonRecord[];
   readonly webSessions: readonly JsonRecord[];
   readonly withdrawalWaivers: readonly JsonRecord[];
@@ -108,6 +112,7 @@ export function buildExportDocument(sections: ExportSections, generatedAt: Date)
     couple: sections.couple,
     event_rsvps: sections.eventRsvps,
     consents: { current: sections.consents, history: sections.consentHistory },
+    discover_filters: pick(sections.discoverFilters, DISCOVER_FILTER_KEYS),
     web_sessions: sections.webSessions.map((row) => pick(row, WEB_SESSION_KEYS)),
     withdrawal_waivers: sections.withdrawalWaivers,
     moderation: {

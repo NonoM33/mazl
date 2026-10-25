@@ -28,6 +28,11 @@ async function hasIntentionColumn(tx: Sql): Promise<boolean> {
 
 async function eraseReligiousColumns(tx: Sql, userId: number): Promise<void> {
   await tx`UPDATE profiles SET denomination = NULL, kashrut_level = NULL, shabbat_observance = NULL WHERE user_id = ${userId}`;
+  // The religious criteria of the Discover filters (matching/infra/schema.ts) are practice data too.
+  await tx`
+    UPDATE discover_filters SET denominations = NULL, kashrut_levels = NULL, shabbat_observances = NULL, updated_at = NOW()
+    WHERE user_id = ${userId}
+  `;
   if (await hasIntentionColumn(tx)) {
     await tx`UPDATE profiles SET relationship_intention = NULL WHERE user_id = ${userId}`;
   }
