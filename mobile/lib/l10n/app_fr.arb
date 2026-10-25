@@ -685,6 +685,15 @@
   "@commonLoadError": {
     "description": "Titre d'un écran ou d'un bloc dont le chargement a échoué."
   },
+  "linkOpenError": "Impossible d'ouvrir {target} pour le moment.",
+  "@linkOpenError": {
+    "description": "Message court quand un lien (page web ou adresse e-mail) ne peut pas s'ouvrir sur le téléphone. {target} est l'adresse ou l'e-mail visé, affiché tel quel.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "coupleFeedDashboardSettingsTooltip": "Réglages",
   "@coupleFeedDashboardSettingsTooltip": {
     "description": "Info-bulle du bouton rond (engrenage) en haut à droite du tableau de bord du couple."
@@ -5666,6 +5675,10 @@
   "settingsTerms": "Conditions d'utilisation",
   "@settingsTerms": {
     "description": "Réglages : ligne des conditions d'utilisation."
+  },
+  "settingsSales": "Conditions de vente",
+  "@settingsSales": {
+    "description": "Réglages : ligne des conditions générales de vente (mazl+, Boosts)."
   },
   "settingsPrivacyPolicy": "Politique de confidentialité",
   "@settingsPrivacyPolicy": {

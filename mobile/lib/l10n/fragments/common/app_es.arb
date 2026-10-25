@@ -27,5 +27,6 @@
   "commonToday": "Hoy",
   "commonYesterday": "Ayer",
   "commonNotSpecified": "Sin especificar",
-  "commonLoadError": "Error al cargar"
+  "commonLoadError": "Error al cargar",
+  "linkOpenError": "No se puede abrir {target} ahora mismo."
 }

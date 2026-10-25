@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/places_service.dart';
@@ -17,6 +18,7 @@ import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../premium/widgets/plus_settings_card.dart';
 import 'blocked_users_screen.dart';
+import '../../../common/l10n/open_public_link.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import '../../../../core/l10n/app_language_controller.dart';
 import '../../../../l10n/l10n.dart';
@@ -1215,17 +1217,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SettingTile(
                 icon: LucideIcons.helpCircle,
                 title: l10n.settingsHelp,
-                onTap: () {},
+                onTap: () => openPublicLink(context, ref, PublicLinks.help),
               ),
               _SettingTile(
                 icon: LucideIcons.fileText,
                 title: l10n.settingsTerms,
-                onTap: () {},
+                onTap: () => openPublicLink(context, ref, PublicLinks.terms),
+              ),
+              _SettingTile(
+                icon: LucideIcons.receipt,
+                title: l10n.settingsSales,
+                onTap: () => openPublicLink(context, ref, PublicLinks.sales),
               ),
               _SettingTile(
                 icon: LucideIcons.shield,
                 title: l10n.settingsPrivacyPolicy,
-                onTap: () {},
+                onTap: () => openPublicLink(context, ref, PublicLinks.privacy),
               ),
               _SettingTile(
                 icon: LucideIcons.info,

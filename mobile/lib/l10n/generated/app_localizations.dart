@@ -1052,6 +1052,12 @@ abstract class AppLocalizations {
   /// **'Erreur de chargement'**
   String get commonLoadError;
 
+  /// Message court quand un lien (page web ou adresse e-mail) ne peut pas s'ouvrir sur le téléphone. {target} est l'adresse ou l'e-mail visé, affiché tel quel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir {target} pour le moment.'**
+  String linkOpenError(String target);
+
   /// Info-bulle du bouton rond (engrenage) en haut à droite du tableau de bord du couple.
   ///
   /// In fr, this message translates to:
@@ -7348,6 +7354,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Conditions d\'utilisation'**
   String get settingsTerms;
+
+  /// Réglages : ligne des conditions générales de vente (mazl+, Boosts).
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions de vente'**
+  String get settingsSales;
 
   /// Réglages : ligne de la politique de confidentialité.
   ///

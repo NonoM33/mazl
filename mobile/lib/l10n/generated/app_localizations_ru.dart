@@ -541,6 +541,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonLoadError => 'Ошибка загрузки';
 
   @override
+  String linkOpenError(String target) {
+    return 'Сейчас не удаётся открыть $target.';
+  }
+
+  @override
   String get coupleFeedDashboardSettingsTooltip => 'Настройки';
 
   @override
@@ -4377,6 +4382,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsTerms => 'Условия использования';
+
+  @override
+  String get settingsSales => 'Условия продажи';
 
   @override
   String get settingsPrivacyPolicy => 'Политика конфиденциальности';

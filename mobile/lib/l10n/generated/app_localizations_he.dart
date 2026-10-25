@@ -532,6 +532,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonLoadError => 'שגיאה בטעינה';
 
   @override
+  String linkOpenError(String target) {
+    return 'לא ניתן לפתוח את $target כרגע.';
+  }
+
+  @override
   String get coupleFeedDashboardSettingsTooltip => 'הגדרות';
 
   @override
@@ -4271,6 +4276,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsTerms => 'תנאי שימוש';
+
+  @override
+  String get settingsSales => 'תנאי מכירה';
 
   @override
   String get settingsPrivacyPolicy => 'מדיניות פרטיות';

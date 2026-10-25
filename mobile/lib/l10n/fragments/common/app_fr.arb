@@ -114,5 +114,14 @@
   "commonLoadError": "Erreur de chargement",
   "@commonLoadError": {
     "description": "Titre d'un écran ou d'un bloc dont le chargement a échoué."
+  },
+  "linkOpenError": "Impossible d'ouvrir {target} pour le moment.",
+  "@linkOpenError": {
+    "description": "Message court quand un lien (page web ou adresse e-mail) ne peut pas s'ouvrir sur le téléphone. {target} est l'adresse ou l'e-mail visé, affiché tel quel.",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
   }
 }

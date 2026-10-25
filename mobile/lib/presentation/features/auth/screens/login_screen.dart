@@ -8,9 +8,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../common/l10n/open_public_link.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/auth_failure_text.dart';
 import '../l10n/linked_text.dart';
@@ -30,8 +32,8 @@ class LoginScreen extends ConsumerStatefulWidget {
   /// Connexion avec Apple : proposée sur iOS uniquement quand non précisé.
   final bool? showApple;
 
-  /// Ouvre les Conditions / la Confidentialité. Aucune page n'existe encore
-  /// dans l'application : tant que rien n'est branché, le lien ne fait rien.
+  /// Ouvre les Conditions / la Confidentialité. Sans valeur, les liens
+  /// ouvrent les pages publiques de mazl.app hors de l'application.
   final VoidCallback? onOpenTerms;
   final VoidCallback? onOpenPrivacy;
 
@@ -45,9 +47,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String Function(AppLocalizations l10n)? _error;
 
   late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
-    ..onTap = () => widget.onOpenTerms?.call();
+    ..onTap = () => (widget.onOpenTerms ?? _openTerms)();
   late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
-    ..onTap = () => widget.onOpenPrivacy?.call();
+    ..onTap = () => (widget.onOpenPrivacy ?? _openPrivacy)();
+
+  void _openTerms() => openPublicLink(context, ref, PublicLinks.terms);
+  void _openPrivacy() => openPublicLink(context, ref, PublicLinks.privacy);
 
   bool get _showApple => widget.showApple ?? Platform.isIOS;
 

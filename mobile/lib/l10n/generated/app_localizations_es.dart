@@ -545,6 +545,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get commonLoadError => 'Error al cargar';
 
   @override
+  String linkOpenError(String target) {
+    return 'No se puede abrir $target ahora mismo.';
+  }
+
+  @override
   String get coupleFeedDashboardSettingsTooltip => 'Ajustes';
 
   @override
@@ -4336,6 +4341,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsTerms => 'Condiciones de uso';
+
+  @override
+  String get settingsSales => 'Condiciones de venta';
 
   @override
   String get settingsPrivacyPolicy => 'Política de privacidad';
