@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, makeUser, readyToDiscover, type TestUser } from "./media-helpers";
 
 // Integration tests of CONTRAT.md §2.3 (anti-scraping). Needs a running server.
 // Each test uses fresh users: the limiter is per user and lives in memory.
@@ -20,8 +20,9 @@ describe("profile views: 120 per hour", () => {
   let target: TestUser;
   beforeAll(async () => { 
     viewer = await makeUser("rlview");
-    target = await makeUser("rltarget");
-    await db`UPDATE profiles SET is_complete = true WHERE user_id = ${target.id}`;
+    // A real, visible member (gender included): a profile flagged complete by hand
+    // with no gender would turn up in other suites' feeds as a "male" candidate.
+    target = await readyToDiscover(await makeUser("rltarget"), { gender: "female", lookingFor: "male" });
   });
 
   test("the 121st view is a 429, another user is unaffected", async () => {
@@ -46,7 +47,7 @@ describe("profile views: 120 per hour", () => {
 
 describe("discover and daily picks: 300 per hour", () => {
   test("the 301st feed request is a 429; daily picks share the budget", async () => {
-    const user = await makeUser("rlfeed");
+    const user = await readyToDiscover(await makeUser("rlfeed"));
     for (let i = 0; i < 300; i++) {
       const res = await fetch(`${BASE_URL}/api/discover`, { headers: auth(user.token) });
       expect(res.status).toBe(200);

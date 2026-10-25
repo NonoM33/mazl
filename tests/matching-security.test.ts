@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { BASE_URL, auth, db, grantPlus, json, makeUser, type TestUser } from "./media-helpers";
+import { BASE_URL, auth, db, grantPlus, json, makeUser, readyToDiscover, type TestUser } from "./media-helpers";
 import { connect, expectNone } from "./chat-helpers";
 
 // Attack scenarios against discover, swipes, likes, reports and blocks. Needs a
@@ -36,7 +36,7 @@ describe("GET /api/discover bounds limit and offset", () => {
   let viewer: TestUser;
 
   beforeAll(async () => {
-    viewer = await makeUser("dis-viewer");
+    viewer = await readyToDiscover(await makeUser("dis-viewer"));
     await db`
       INSERT INTO users (email, name, provider, provider_id)
       SELECT 'bulk-' || g || '-${db.unsafe(tag)}@example.test', 'Bulk ' || g, 'test', 'bulk-' || g || '-${db.unsafe(tag)}'
@@ -87,7 +87,7 @@ describe("GET /api/discover bounds limit and offset", () => {
 
 describe("feeds never show a deactivated or blocked member", () => {
   test("discover and daily picks drop an account the moment it is deactivated", async () => {
-    const viewer = await makeUser("feed-viewer");
+    const viewer = await readyToDiscover(await makeUser("feed-viewer"));
     const target = await discoverable(await makeUser("feed-target"));
     const feed = await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles");
     expect(feed).toContain(target.id);
@@ -101,9 +101,13 @@ describe("feeds never show a deactivated or blocked member", () => {
   });
 
   test("a member blocked by the viewer, or who blocked the viewer, is not in discover or daily picks", async () => {
-    const viewer = await makeUser("feed-block-viewer");
+    const viewer = await readyToDiscover(await makeUser("feed-block-viewer"));
     const blockedByMe = await discoverable(await makeUser("feed-blocked"));
     const blocker = await discoverable(await makeUser("feed-blocker"));
+    // Both are eligible in every other respect: before the blocks they are in the feed,
+    // so their absence afterwards is the blocks' doing and not an empty feed.
+    const before = await idsOf(await get(viewer, "/api/discover?limit=50"), "profiles");
+    expect([before.includes(blockedByMe.id), before.includes(blocker.id)]).toEqual([true, true]);
     await block(viewer, blockedByMe.id);
     await block(blocker, viewer.id);
     for (const [path, key] of [["/api/discover?limit=50", "profiles"], ["/api/daily-picks", "picks"]] as const) {

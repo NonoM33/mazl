@@ -36,6 +36,21 @@ export async function grantReligiousConsent(token: string): Promise<void> {
   if (!res.ok) throw new Error(`consent refused: ${res.status}`);
 }
 
+// A member who has said who they are and who they seek, through the real route:
+// without it GET /api/discover and /api/daily-picks answer 409 profile_incomplete.
+export async function readyToDiscover(
+  user: TestUser,
+  profile: { gender: "male" | "female"; lookingFor: "male" | "female" } = { gender: "male", lookingFor: "female" },
+): Promise<TestUser> {
+  const res = await fetch(`${BASE_URL}/api/profile`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${user.token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ displayName: `Membre ${user.id}`, birthdate: "1990-01-01", ...profile }),
+  });
+  if (res.status !== 200) throw new Error(`readyToDiscover(${user.id}) refused: ${res.status}`);
+  return user;
+}
+
 export const auth = (token: string): Record<string, string> => ({ Authorization: `Bearer ${token}` });
 export const json = (token: string): Record<string, string> => ({ ...auth(token), "Content-Type": "application/json" });
 
