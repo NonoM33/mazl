@@ -6,7 +6,6 @@ import type { ProfileResponse } from "../../shared/api/types";
 import { useResource } from "../../shared/hooks/use-resource";
 import { Dialog } from "../../shared/ui/dialog";
 import { Skeleton } from "../../shared/ui/empty-state";
-import { MobileOnly } from "../../shared/ui/mobile-only";
 import { ProfilePanel } from "../../shared/ui/profile-panel";
 import { useToast } from "../../shared/ui/toast";
 import { displayName } from "../../shared/lib/format";
@@ -71,7 +70,6 @@ export function ProfileColumn({ userId, fallbackName, onBlocked }: { readonly us
       {profile.state.data && <ProfilePanel profile={profile.state.data.profile} onExpired={() => void profile.reload()} />}
       <div className="stack gap-8 profile-actions">
         <button type="button" className="btn btn-outline btn-sm btn-block" disabled={busy} onClick={() => void proposeCouple()}><Heart size={18} aria-hidden="true" />Proposer le mode couple</button>
-        <MobileOnly compact title="Appel vidéo">Les appels vidéo se passent depuis l'application MAZL.</MobileOnly>
         <button type="button" className="btn btn-outline btn-sm btn-block" onClick={() => setDialog("report")}><Flag size={18} aria-hidden="true" />Signaler</button>
         <button type="button" className="btn btn-outline btn-sm btn-block danger-text" onClick={() => setDialog("block")}><Ban size={18} aria-hidden="true" />Bloquer</button>
       </div>

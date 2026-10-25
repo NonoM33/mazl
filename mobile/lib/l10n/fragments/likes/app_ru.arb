@@ -3,7 +3,6 @@
   "likesSection": "Вы понравились · {count}",
   "likesWaiting": "{count, plural, one{{label} человек ждёт Вашего ответа.} few{{label} человека ждут Вашего ответа.} many{{label} человек ждут Вашего ответа.} other{{label} человека ждут Вашего ответа.}}",
   "likesSeeWhoWithPlus": "Узнать, кто Вас лайкнул, с mazl+",
-  "likesMatchWith": "Мэтч с {name}",
   "likesYouLiked": "Вы лайкнули {name}",
   "likesEmptyTitle": "Пока нет лайков",
   "likesEmptyBody": "Продолжайте знакомиться и заполните свой профиль, чтобы получать больше лайков.",

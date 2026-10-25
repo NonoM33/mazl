@@ -156,8 +156,6 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
           _buildBucketListSection(),
           const SizedBox(height: 32),
           _buildDatesSection(),
-          const SizedBox(height: 32),
-          _buildAchievementsSection(),
         ],
       ),
     );
@@ -390,37 +388,6 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
     );
   }
 
-  Widget _buildAchievementsSection() {
-    final achievements = _snapshot.achievements;
-    final l10n = context.l10n;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionLabel(l10n.coupleSpaceBadgesTitle),
-        const SizedBox(height: 12),
-        if (achievements.isEmpty)
-          _EmptyCard(
-            icon: LucideIcons.award,
-            title: l10n.coupleSpaceBadgesEmptyTitle,
-            hint: l10n.coupleSpaceBadgesEmptyHint,
-          )
-        else
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final a in achievements)
-                _AchievementBadge(
-                  icon: _getAchievementIcon(a.type),
-                  name: a.name,
-                ),
-            ],
-          ),
-      ],
-    );
-  }
-
   Future<void> _showAddSheet(Widget Function(BuildContext) builder) async {
     final added = await showMazlSheet<bool>(
       context,
@@ -461,19 +428,6 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     return DateFormat.yMMMd(context.l10n.localeName).format(date);
-  }
-
-  IconData _getAchievementIcon(String? type) {
-    switch (type) {
-      case 'first_activity':
-        return LucideIcons.star;
-      case 'ten_activities':
-        return LucideIcons.trophy;
-      case 'first_event':
-        return LucideIcons.partyPopper;
-      default:
-        return LucideIcons.award;
-    }
   }
 }
 
@@ -833,36 +787,6 @@ class _DateItem extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _AchievementBadge extends StatelessWidget {
-  const _AchievementBadge({required this.icon, required this.name});
-
-  final IconData icon;
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: scheme.primary, size: 26),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          name,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-        ),
-      ],
     );
   }
 }

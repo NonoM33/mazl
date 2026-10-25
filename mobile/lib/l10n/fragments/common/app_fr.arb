@@ -91,10 +91,6 @@
   "@commonReport": {
     "description": "Bouton qui signale un membre ou un contenu à la modération."
   },
-  "commonOk": "OK",
-  "@commonOk": {
-    "description": "Bouton qui referme une boîte de dialogue d'information."
-  },
   "commonLater": "Plus tard",
   "@commonLater": {
     "description": "Bouton qui remet une action à plus tard."

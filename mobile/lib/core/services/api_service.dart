@@ -22,10 +22,7 @@ import '../models/blocked_user.dart';
 import '../models/likes.dart';
 import '../models/profile_prompt.dart';
 import '../models/boost_status.dart';
-import '../models/visitors.dart';
-import '../models/couple_anniversary.dart';
 import 'couple_api.dart';
-import '../models/success_story.dart';
 
 export '../models/profile.dart';
 export '../models/conversation.dart';
@@ -38,9 +35,6 @@ export '../models/profile_prompt.dart';
 export '../models/relationship_intention.dart';
 export '../models/compatibility_score.dart';
 export '../models/boost_status.dart';
-export '../models/visitors.dart';
-export '../models/couple_anniversary.dart';
-export '../models/success_story.dart';
 
 /// API Configuration
 ///
@@ -570,31 +564,6 @@ class ApiService implements CoupleApi {
     }
   }
 
-  /// Reorder profile photos
-  Future<ApiResponse<List<ProfilePhoto>>> reorderProfilePhotos(List<int> photoIds) async {
-    try {
-      final response = await _put('/api/profile/photos/reorder', {'photoIds': photoIds});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to reorder photos');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['success'] != true) {
-        return ApiResponse.failure(data['error'] ?? 'Unknown error');
-      }
-
-      final photos = (data['photos'] as List)
-          .map((p) => ProfilePhoto.fromJson(p))
-          .toList();
-
-      return ApiResponse.success(photos);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
   /// Set photo as primary
   Future<ApiResponse<List<ProfilePhoto>>> setPhotoPrimary(int photoId) async {
     try {
@@ -713,60 +682,6 @@ class ApiService implements CoupleApi {
       }
 
       return ApiResponse.success(Message.fromJson(data['message']));
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Send an image message
-  Future<ApiResponse<Message>> sendImageMessage(int conversationId, File imageFile) async {
-    try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/api/conversations/$conversationId/messages/image');
-      final request = http.MultipartRequest('POST', uri);
-
-      // Add auth header
-      final token = _authService.currentUser?.jwtToken;
-      if (token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
-
-      // Add image file
-      request.files.add(await http.MultipartFile.fromPath(
-        'image',
-        imageFile.path,
-      ));
-
-      final response = await _watched(
-        (client) async => http.Response.fromStream(await client.send(request)),
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.httpFailure(response, 'Failed to send image');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['success'] != true) {
-        return ApiResponse.failure(data['error'] ?? 'Unknown error');
-      }
-
-      return ApiResponse.success(Message.fromJson(data['message']));
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Mark messages as read
-  Future<ApiResponse<void>> markMessagesAsRead(int conversationId) async {
-    try {
-      final response = await _put('/api/conversations/$conversationId/read', {});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to mark as read');
-      }
-
-      return ApiResponse.success(null);
     } catch (e) {
       debugPrint('API Error: $e');
       return _networkFailure(e);
@@ -1055,23 +970,6 @@ class ApiService implements CoupleApi {
     }
   }
 
-  /// Check if a user is already in couple mode
-  Future<ApiResponse<bool>> isUserInCoupleMode(int userId) async {
-    try {
-      final response = await _get('/api/couple/check/$userId');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to check couple mode');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data['in_couple_mode'] == true);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
   // ============ BLOCKING ============
 
   /// Block a user
@@ -1332,29 +1230,6 @@ class ApiService implements CoupleApi {
     }
   }
 
-  /// Like a profile via prompt
-  Future<ApiResponse<Map<String, dynamic>>> likeViaPrompt({
-    required int targetUserId,
-    required int promptId,
-  }) async {
-    try {
-      final response = await _post('/api/swipes/like-prompt', {
-        'target_user_id': targetUserId,
-        'prompt_id': promptId,
-      });
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.httpFailure(response, 'Failed to like via prompt');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
   // ============ BOOST ============
 
   /// Get boost status
@@ -1397,195 +1272,4 @@ class ApiService implements CoupleApi {
       return _networkFailure(e);
     }
   }
-
-  // ============ PROFILE VISITORS ============
-
-  /// Get profile visitors
-  Future<ApiResponse<VisitorsData>> getProfileVisitors() async {
-    try {
-      final response = await _get('/api/profile/visitors');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get visitors');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(VisitorsData.fromJson(data));
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Get visitors count (for badge)
-  Future<ApiResponse<int>> getVisitorsCount() async {
-    try {
-      final response = await _get('/api/profile/visitors/count');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get visitors count');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(_parseIntSafe(data['count']) ?? 0);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  // ============ COUPLE ANNIVERSARY ============
-
-  /// Get couple anniversary data
-  Future<ApiResponse<CoupleAnniversaryData>> getCoupleAnniversary() async {
-    try {
-      final response = await _get('/api/couple/anniversary');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get anniversary data');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(CoupleAnniversaryData.fromJson(data));
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Get upcoming milestones
-  Future<ApiResponse<List<CoupleMilestone>>> getUpcomingMilestones() async {
-    try {
-      final response = await _get('/api/couple/milestones');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get milestones');
-      }
-
-      final data = jsonDecode(response.body);
-      final milestones = (data['milestones'] as List<dynamic>?)
-              ?.map((m) => CoupleMilestone.fromJson(m))
-              .toList() ??
-          [];
-
-      return ApiResponse.success(milestones);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Generate shareable anniversary card
-  Future<ApiResponse<String>> generateAnniversaryCard() async {
-    try {
-      final response = await _post('/api/couple/anniversary/card', {});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to generate card');
-      }
-
-      final data = jsonDecode(response.body);
-      return ApiResponse.success(data['card_url'] as String? ?? '');
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  // ============ SUCCESS STORIES ============
-
-  /// Get success stories
-  Future<ApiResponse<List<SuccessStory>>> getSuccessStories({int page = 1}) async {
-    try {
-      final response = await _get('/api/success-stories?page=$page');
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get success stories');
-      }
-
-      final data = jsonDecode(response.body);
-      final stories = (data['stories'] as List<dynamic>?)
-              ?.map((s) => SuccessStory.fromJson(s))
-              .toList() ??
-          [];
-
-      return ApiResponse.success(stories);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Submit a success story
-  Future<ApiResponse<void>> submitSuccessStory({
-    required String story,
-    required List<String> photoUrls,
-    String? status, // 'dating', 'engaged', 'married'
-    DateTime? statusDate,
-  }) async {
-    try {
-      final response = await _post('/api/success-stories', {
-        'story': story,
-        'photos': photoUrls,
-        if (status != null) 'status': status,
-        if (statusDate != null) 'status_date': statusDate.toIso8601String(),
-      });
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        return ApiResponse.httpFailure(response, 'Failed to submit success story');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['success'] != true) {
-        return ApiResponse.failure(data['error'] ?? 'Unknown error');
-      }
-
-      return ApiResponse.success(null);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Like a success story
-  Future<ApiResponse<void>> likeSuccessStory(int storyId) async {
-    try {
-      final response = await _post('/api/success-stories/$storyId/like', {});
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to like story');
-      }
-
-      return ApiResponse.success(null);
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
-
-  /// Get own success story
-  Future<ApiResponse<SuccessStory?>> getMySuccessStory() async {
-    try {
-      final response = await _get('/api/couple/success-story');
-
-      if (response.statusCode == 404) {
-        return ApiResponse.success(null);
-      }
-
-      if (response.statusCode != 200) {
-        return ApiResponse.httpFailure(response, 'Failed to get success story');
-      }
-
-      final data = jsonDecode(response.body);
-      if (data['story'] == null) {
-        return ApiResponse.success(null);
-      }
-
-      return ApiResponse.success(SuccessStory.fromJson(data['story']));
-    } catch (e) {
-      debugPrint('API Error: $e');
-      return _networkFailure(e);
-    }
-  }
 }
-

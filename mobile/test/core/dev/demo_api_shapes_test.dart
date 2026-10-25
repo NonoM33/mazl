@@ -158,16 +158,11 @@ void main() {
     );
   });
 
-  test('photos, vérification, boost, visiteurs, bloqués, histoires', () async {
+  test('photos, vérification, boost, bloqués', () async {
     expect(_ok(await _demo((a) => a.getProfilePhotos())), isEmpty);
     expect(_ok(await _demo((a) => a.getBoostStatus())).isActive, isFalse);
     expect(_ok(await _demo((a) => a.activateBoost())).isActive, isTrue);
-    expect(
-      _ok(await _demo((a) => a.getProfileVisitors())).visitors,
-      isNotEmpty,
-    );
     expect(_ok(await _demo((a) => a.getBlockedUsers())), isEmpty);
-    expect(_ok(await _demo((a) => a.getSuccessStories())), isNotEmpty);
   });
 
   test(
@@ -178,7 +173,6 @@ void main() {
       final requests = _ok(await _demo((a) => a.getCoupleRequests()));
       expect(requests['sent'], isEmpty);
       expect(requests['received'], isEmpty);
-      expect(_ok(await _demo((a) => a.isUserInCoupleMode(301))), isFalse);
     },
   );
 

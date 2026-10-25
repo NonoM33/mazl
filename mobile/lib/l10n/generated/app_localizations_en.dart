@@ -190,9 +190,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatHeaderTyping => 'typing…';
 
   @override
-  String get chatHeaderOnline => 'Online';
-
-  @override
   String get chatHeaderOptions => 'Options';
 
   @override
@@ -515,9 +512,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonReport => 'Report';
-
-  @override
-  String get commonOk => 'OK';
 
   @override
   String get commonLater => 'Later';
@@ -990,16 +984,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add your anniversaries, holidays and more.';
 
   @override
-  String get coupleSpaceBadgesTitle => 'Our badges';
-
-  @override
-  String get coupleSpaceBadgesEmptyTitle => 'No badges yet';
-
-  @override
-  String get coupleSpaceBadgesEmptyHint =>
-      'Do activities together to unlock badges.';
-
-  @override
   String get coupleSpaceGoalDone => 'Goal achieved';
 
   @override
@@ -1169,65 +1153,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get coupleSpaceFailUnexpected =>
       'Unexpected response from the server.';
-
-  @override
-  String get coupleSpaceStatusSingle => 'Single';
-
-  @override
-  String get coupleSpaceStatusDating => 'Dating';
-
-  @override
-  String get coupleSpaceStatusInRelationship => 'In a relationship';
-
-  @override
-  String get coupleSpaceStatusEngaged => 'Engaged';
-
-  @override
-  String get coupleSpaceStatusMarried => 'Married';
-
-  @override
-  String coupleSpaceDurationDays(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count days',
-      one: '$count day',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationWeeks(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count weeks',
-      one: '$count week',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationMonths(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count months',
-      one: '$count month',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationYears(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count years',
-      one: '$count year',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get coupleSpaceCalendarTitle => 'Calendar';
@@ -1419,201 +1344,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genreLookingForRequired => 'Select who you are looking for';
-
-  @override
-  String get icebreakerWidgetTitle => 'Need inspiration?';
-
-  @override
-  String get icebreakerWidgetSubtitle =>
-      'Here are a few ideas to break the ice';
-
-  @override
-  String get icebreakerTopicFallback => 'that';
-
-  @override
-  String icebreakerPromptLoved(String promptText, String followUp) {
-    return 'I loved your answer to \"$promptText\". $followUp';
-  }
-
-  @override
-  String icebreakerPromptSmiled(String promptText) {
-    return 'Your answer about \"$promptText\" made me smile. Can you tell me more?';
-  }
-
-  @override
-  String icebreakerPromptCurious(String answer, String topic) {
-    return 'I\'m curious why you answered \"$answer\" to the question about $topic';
-  }
-
-  @override
-  String get icebreakerFollowUpIntrigued => 'I\'m intrigued.';
-
-  @override
-  String get icebreakerFollowUpKnowMore => 'I\'d love to know more.';
-
-  @override
-  String get icebreakerFollowUpTellMe => 'Will you tell me about it?';
-
-  @override
-  String get icebreakerFollowUpInteresting => 'That sounds interesting.';
-
-  @override
-  String get icebreakerBioTravelRecent =>
-      'Where have you travelled recently? I\'d love to hear your stories.';
-
-  @override
-  String get icebreakerBioTravelDream => 'What\'s your next dream destination?';
-
-  @override
-  String get icebreakerBioMusicGenre =>
-      'What kind of music are you listening to lately?';
-
-  @override
-  String get icebreakerBioMusicConcert => 'Been to a good concert lately?';
-
-  @override
-  String get icebreakerBioCookingNow => 'What are you cooking these days?';
-
-  @override
-  String get icebreakerBioCookingSignature => 'What\'s your signature dish?';
-
-  @override
-  String get icebreakerBioSportWhich => 'Which sport do you play?';
-
-  @override
-  String get icebreakerBioSportWatchOrPlay =>
-      'Do you prefer watching or playing?';
-
-  @override
-  String get icebreakerBioReadingNow => 'What are you reading right now?';
-
-  @override
-  String get icebreakerBioReadingLastBook =>
-      'What\'s the last book that really stuck with you?';
-
-  @override
-  String get icebreakerBioCinemaRecent => 'Seen any good movies lately?';
-
-  @override
-  String get icebreakerBioCinemaOrSeries => 'Do you prefer movies or series?';
-
-  @override
-  String get icebreakerBioHikingTrails =>
-      'Do you know any nice trails around here?';
-
-  @override
-  String get icebreakerBioHikingBest => 'What\'s your best hike ever?';
-
-  @override
-  String get icebreakerBioPhotoSubjects => 'What do you mostly take photos of?';
-
-  @override
-  String get icebreakerBioPhotoCamera => 'What camera do you use?';
-
-  @override
-  String get icebreakerOrthodoxSynagogue =>
-      'Do you have a favourite synagogue nearby?';
-
-  @override
-  String get icebreakerOrthodoxShabbat => 'How do you usually spend Shabbat?';
-
-  @override
-  String get icebreakerOrthodoxKosherRestaurant =>
-      'Do you have a favourite kosher restaurant?';
-
-  @override
-  String get icebreakerTraditionalTraditions =>
-      'Which Jewish traditions matter most to you?';
-
-  @override
-  String get icebreakerTraditionalShabbat =>
-      'How do you usually celebrate Shabbat?';
-
-  @override
-  String get icebreakerTraditionalHoliday =>
-      'Do you have a favourite Jewish holiday?';
-
-  @override
-  String get icebreakerSecularCulture =>
-      'What\'s your relationship with Jewish culture?';
-
-  @override
-  String get icebreakerSecularFamilyTraditions =>
-      'Are there family traditions you keep?';
-
-  @override
-  String get icebreakerSecularHolidays => 'Which holidays do you celebrate?';
-
-  @override
-  String get icebreakerDefaultHoliday =>
-      'What\'s your favourite Jewish holiday?';
-
-  @override
-  String get icebreakerDefaultFamilyTraditions =>
-      'Do you have any special family traditions?';
-
-  @override
-  String get icebreakerDefaultPracticingFamily =>
-      'Did you grow up in a practising family?';
-
-  @override
-  String icebreakerLocationKnowWell(String location) {
-    return 'Do you know $location well? What would you recommend?';
-  }
-
-  @override
-  String icebreakerLocationFavoriteSpot(String location) {
-    return 'What\'s your favourite spot in $location?';
-  }
-
-  @override
-  String icebreakerLocationOriginallyFrom(String location) {
-    return 'Are you originally from $location or did you move there?';
-  }
-
-  @override
-  String icebreakerLocationRestaurant(String location) {
-    return 'Is there a good restaurant you would recommend in $location?';
-  }
-
-  @override
-  String get icebreakerGenericDinnerGuest =>
-      'If you could have dinner with anyone, living or dead, who would it be?';
-
-  @override
-  String get icebreakerGenericPerfectDay =>
-      'What\'s your idea of a perfect day?';
-
-  @override
-  String get icebreakerGenericHiddenTalent =>
-      'Do you have a hidden talent few people know about?';
-
-  @override
-  String get icebreakerGenericSpontaneous =>
-      'What\'s the most spontaneous thing you\'ve ever done?';
-
-  @override
-  String get icebreakerGenericSeaOrMountain =>
-      'Do you prefer holidays by the sea or in the mountains?';
-
-  @override
-  String get icebreakerGenericLottery =>
-      'If you won the lottery tomorrow, what would you do first?';
-
-  @override
-  String get icebreakerGenericGuiltyPleasure => 'What\'s your guilty pleasure?';
-
-  @override
-  String get icebreakerGenericDream =>
-      'Is there a dream you haven\'t fulfilled yet?';
-
-  @override
-  String get icebreakerGenericBestAdvice =>
-      'What\'s the best advice you\'ve ever been given?';
-
-  @override
-  String get icebreakerGenericBreakfastOrDinner =>
-      'Do you prefer breakfast or dinner out?';
 
   @override
   String get jewishCalendarShabbatTitle => 'This Shabbat';
@@ -2041,11 +1771,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get likesSeeWhoWithPlus => 'See who liked you with mazl+';
 
   @override
-  String likesMatchWith(String name) {
-    return 'It\'s a match with $name';
-  }
-
-  @override
   String likesYouLiked(String name) {
     return 'You liked $name';
   }
@@ -2434,10 +2159,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Once you\'ve found love, MAZL stays with you: find love, and keep it.';
 
   @override
-  String get onboardingPage3Feature1 => 'Daily questions';
+  String get onboardingPage3Feature1 => 'Memories and important dates';
 
   @override
-  String get onboardingPage3Feature2 => 'Couple milestones';
+  String get onboardingPage3Feature2 => 'A bucket list for two';
 
   @override
   String get onboardingPage3Feature3 => 'Shared Jewish calendar';
@@ -2453,11 +2178,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Candle-lighting and Havdalah times for your city, and a rest screen.';
 
   @override
-  String get onboardingPage5Title => 'AI Shadchan';
+  String get onboardingPage5Title => 'Daily picks';
 
   @override
   String get onboardingPage5Body =>
-      'Our artificial intelligence helps you find the right person.';
+      'Every day, a short selection of profiles is waiting for you in Discover.';
 
   @override
   String get packsSuperLikesLabel => 'Super Likes';
@@ -3219,39 +2944,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileVerdictFar => 'Fairly far';
 
   @override
-  String profileCompatibilityCriteria(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count criteria analyzed',
-      one: '1 criterion analyzed',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get profileCompatibilityScoreTitle => 'Compatibility score';
-
-  @override
-  String profileCompatibilityWith(String name) {
-    return 'With $name';
-  }
-
-  @override
-  String get profileCompatibilityDetails => 'Details';
-
-  @override
-  String get profileCompatibilityIncomplete =>
-      'Complete your profiles to see more details';
-
-  @override
-  String get profileCompatibilityNote =>
-      'The score is based on your preferences and what you have in common';
-
-  @override
-  String get profileCompatibilityGotIt => 'Got it';
-
-  @override
   String get profilePromptsMine => 'My prompts';
 
   @override
@@ -3286,9 +2978,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profilePromptDeleted => 'Prompt deleted';
-
-  @override
-  String get profilePromptsGetToKnowMe => 'Get to know me';
 
   @override
   String get profilePromptCategoryPersonality => 'Personality';
@@ -3632,8 +3321,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileGoal => 'Goal';
 
   @override
-  String get profileShadchanNote =>
-      'Our AI Shadchan will use these preferences to suggest compatible profiles.';
+  String get profileSetupPreferencesNote =>
+      'These preferences shape your Discover feed. You can change them at any time.';
 
   @override
   String get profileReportThisProfile => 'Report this profile';
@@ -3824,24 +3513,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsShabbatAutoPause => 'Shabbat times';
-
-  @override
-  String get settingsHolidayAlerts => 'Holiday alerts';
-
-  @override
-  String get settingsHolidayAlertsHint => 'Notifications ahead of holidays';
-
-  @override
-  String get settingsSectionNotifications => 'Notifications';
-
-  @override
-  String get settingsNotifMatches => 'New matches';
-
-  @override
-  String get settingsNotifMessages => 'Messages';
-
-  @override
-  String get settingsNotifSuperLikes => 'Super Likes';
 
   @override
   String get settingsSectionCouple => 'Couple mode';

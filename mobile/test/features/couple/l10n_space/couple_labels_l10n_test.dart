@@ -2,42 +2,18 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosher_dart/kosher_dart.dart';
-import 'package:mazl/core/models/couple_anniversary.dart';
-import 'package:mazl/core/models/couple_models.dart' hide CoupleMilestone;
 import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/services/couple_messages.dart';
 import 'package:mazl/core/services/jewish_calendar_service.dart';
 import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/couple/l10n/couple_failure_label.dart';
 import 'package:mazl/presentation/features/couple/l10n/jewish_calendar_labels.dart';
-import 'package:mazl/presentation/features/couple/l10n/milestone_label.dart';
-import 'package:mazl/presentation/features/couple/l10n/relationship_status_label.dart';
 
 AppLocalizations _in(String code) => lookupAppLocalizations(Locale(code));
 
 const _codes = ['fr', 'en', 'he', 'es', 'ru'];
 
 void main() {
-  group('statuts de relation', () {
-    test('le français garde ses mots', () {
-      final fr = _in('fr');
-      expect(RelationshipStatus.single.label(fr), 'Célibataire');
-      expect(RelationshipStatus.dating.label(fr), 'En train de dater');
-      expect(RelationshipStatus.inRelationship.label(fr), 'En couple');
-      expect(RelationshipStatus.engaged.label(fr), 'Fiancé(e)');
-      expect(RelationshipStatus.married.label(fr), 'Marié(e)');
-    });
-
-    test('l\'anglais et l\'hébreu', () {
-      expect(
-        RelationshipStatus.inRelationship.label(_in('en')),
-        'In a relationship',
-      );
-      expect(RelationshipStatus.married.label(_in('en')), 'Married');
-      expect(RelationshipStatus.inRelationship.label(_in('he')), 'בזוגיות');
-    });
-  });
-
   group('échecs du mode couple', () {
     test('le français garde les phrases d\'avant', () {
       final fr = _in('fr');
@@ -112,35 +88,6 @@ void main() {
         const CoupleFailure(CoupleFailureKind.malformed, 'x').label(fr),
         'Réponse inattendue du serveur.',
       );
-    });
-  });
-
-  group('jalons du couple', () {
-    CoupleMilestone after(int days) =>
-        CoupleMilestone(days: days, icon: 'heart');
-
-    test('le français garde ses mots', () {
-      final fr = _in('fr');
-      expect(after(7).name(fr), '1 semaine');
-      expect(after(30).name(fr), '1 mois');
-      expect(after(90).name(fr), '3 mois');
-      expect(after(180).name(fr), '6 mois');
-      expect(after(365).name(fr), '1 an');
-      expect(after(730).name(fr), '2 ans');
-    });
-
-    test('pluriels de l\'anglais, du russe et de l\'hébreu', () {
-      expect(after(7).name(_in('en')), '1 week');
-      expect(after(90).name(_in('en')), '3 months');
-      expect(after(365).name(_in('ru')), '1 год');
-      expect(after(730).name(_in('ru')), '2 года');
-      expect(after(1825).name(_in('ru')), '5 лет');
-      expect(after(730).name(_in('he')), 'שנתיים');
-      expect(after(7).name(_in('he')), 'שבוע אחד');
-    });
-
-    test('une durée sans nom rond retombe sur les jours', () {
-      expect(after(10).name(_in('en')), '10 days');
     });
   });
 

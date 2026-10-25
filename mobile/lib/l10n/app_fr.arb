@@ -246,10 +246,6 @@
   "@chatHeaderTyping": {
     "description": "Chat, en-tête : statut sous le prénom quand l'autre membre est en train d'écrire (couleur d'accent, une ligne)."
   },
-  "chatHeaderOnline": "En ligne",
-  "@chatHeaderOnline": {
-    "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
-  },
   "chatHeaderOptions": "Options",
   "@chatHeaderOptions": {
     "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."
@@ -665,10 +661,6 @@
   "commonReport": "Signaler",
   "@commonReport": {
     "description": "Bouton qui signale un membre ou un contenu à la modération."
-  },
-  "commonOk": "OK",
-  "@commonOk": {
-    "description": "Bouton qui referme une boîte de dialogue d'information."
   },
   "commonLater": "Plus tard",
   "@commonLater": {
@@ -1302,18 +1294,6 @@
   "@coupleSpaceDatesEmptyHint": {
     "description": "État vide de la section des dates importantes : invitation à en ajouter."
   },
-  "coupleSpaceBadgesTitle": "Nos badges",
-  "@coupleSpaceBadgesTitle": {
-    "description": "Titre de la section des badges débloqués par le couple."
-  },
-  "coupleSpaceBadgesEmptyTitle": "Aucun badge pour l'instant",
-  "@coupleSpaceBadgesEmptyTitle": {
-    "description": "État vide de la section des badges : titre."
-  },
-  "coupleSpaceBadgesEmptyHint": "Faites des activités ensemble pour débloquer des badges.",
-  "@coupleSpaceBadgesEmptyHint": {
-    "description": "État vide de la section des badges : comment en débloquer."
-  },
   "coupleSpaceGoalDone": "Objectif accompli",
   "@coupleSpaceGoalDone": {
     "description": "Message bref (snackbar) quand un objectif de la bucket list est marqué comme accompli."
@@ -1539,62 +1519,6 @@
   "coupleSpaceFailUnexpected": "Réponse inattendue du serveur.",
   "@coupleSpaceFailUnexpected": {
     "description": "Erreur : la réponse du serveur n'a pas la forme attendue."
-  },
-  "coupleSpaceStatusSingle": "Célibataire",
-  "@coupleSpaceStatusSingle": {
-    "description": "Statut de relation du membre : sans partenaire."
-  },
-  "coupleSpaceStatusDating": "En train de dater",
-  "@coupleSpaceStatusDating": {
-    "description": "Statut de relation du membre : en train de faire connaissance."
-  },
-  "coupleSpaceStatusInRelationship": "En couple",
-  "@coupleSpaceStatusInRelationship": {
-    "description": "Statut de relation du membre : en couple."
-  },
-  "coupleSpaceStatusEngaged": "Fiancé(e)",
-  "@coupleSpaceStatusEngaged": {
-    "description": "Statut de relation du membre : fiancé ou fiancée."
-  },
-  "coupleSpaceStatusMarried": "Marié(e)",
-  "@coupleSpaceStatusMarried": {
-    "description": "Statut de relation du membre : marié ou mariée."
-  },
-  "coupleSpaceDurationDays": "{count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceDurationDays": {
-    "description": "Durée en jours (repli quand un jalon n'est ni une semaine, ni un mois, ni une année pleine).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationWeeks": "{count, plural, one{{count} semaine} other{{count} semaines}}",
-  "@coupleSpaceDurationWeeks": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier de semaines (ex. « 1 semaine »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationMonths": "{count, plural, one{{count} mois} other{{count} mois}}",
-  "@coupleSpaceDurationMonths": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier de mois (ex. « 3 mois »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationYears": "{count, plural, one{{count} an} other{{count} ans}}",
-  "@coupleSpaceDurationYears": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier d'années (ex. « 1 an »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "coupleSpaceCalendarTitle": "Calendrier",
   "@coupleSpaceCalendarTitle": {
@@ -1871,255 +1795,6 @@
   "genreLookingForRequired": "Indiquez ce que vous recherchez",
   "@genreLookingForRequired": {
     "description": "Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit."
-  },
-  "icebreakerWidgetTitle": "Besoin d'inspiration ?",
-  "@icebreakerWidgetTitle": {
-    "description": "Suggestions de premier message : titre de la carte."
-  },
-  "icebreakerWidgetSubtitle": "Voici quelques idées pour briser la glace",
-  "@icebreakerWidgetSubtitle": {
-    "description": "Suggestions de premier message : sous-titre de la carte."
-  },
-  "icebreakerTopicFallback": "ça",
-  "@icebreakerTopicFallback": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Mot qui remplace le sujet de la question quand on n'en trouve pas (« …à la question sur ça »)."
-  },
-  "icebreakerPromptLoved": "J'ai adoré ta réponse à \"{promptText}\". {followUp}",
-  "@icebreakerPromptLoved": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil ; {followUp} est une phrase courte qui conclut.",
-    "placeholders": {
-      "promptText": {
-        "type": "String"
-      },
-      "followUp": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerPromptSmiled": "Ta réponse sur \"{promptText}\" m'a fait sourire. Tu peux m'en dire plus ?",
-  "@icebreakerPromptSmiled": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil.",
-    "placeholders": {
-      "promptText": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerPromptCurious": "Je suis curieux(se) de savoir pourquoi tu as répondu \"{answer}\" à la question sur {topic}",
-  "@icebreakerPromptCurious": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Curiosité sur une réponse du profil. {answer} est la réponse (raccourcie), {topic} deux mots de la question (ou « ça »).",
-    "placeholders": {
-      "answer": {
-        "type": "String"
-      },
-      "topic": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerFollowUpIntrigued": "Ça m'intrigue.",
-  "@icebreakerFollowUpIntrigued": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
-  },
-  "icebreakerFollowUpKnowMore": "J'aimerais en savoir plus.",
-  "@icebreakerFollowUpKnowMore": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
-  },
-  "icebreakerFollowUpTellMe": "Tu me racontes ?",
-  "@icebreakerFollowUpTellMe": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
-  },
-  "icebreakerFollowUpInteresting": "Ça a l'air intéressant.",
-  "@icebreakerFollowUpInteresting": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil."
-  },
-  "icebreakerBioTravelRecent": "Tu as voyagé où récemment ? J'adorerais entendre tes histoires.",
-  "@icebreakerBioTravelRecent": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage (la bio en parle)."
-  },
-  "icebreakerBioTravelDream": "Quelle est ta prochaine destination de rêve ?",
-  "@icebreakerBioTravelDream": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage."
-  },
-  "icebreakerBioMusicGenre": "Quel genre de musique tu écoutes en ce moment ?",
-  "@icebreakerBioMusicGenre": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
-  },
-  "icebreakerBioMusicConcert": "Tu as été à un bon concert récemment ?",
-  "@icebreakerBioMusicConcert": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique."
-  },
-  "icebreakerBioCookingNow": "Tu cuisines quoi de bon en ce moment ?",
-  "@icebreakerBioCookingNow": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
-  },
-  "icebreakerBioCookingSignature": "C'est quoi ton plat signature ?",
-  "@icebreakerBioCookingSignature": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine."
-  },
-  "icebreakerBioSportWhich": "Tu pratiques quel sport ?",
-  "@icebreakerBioSportWhich": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
-  },
-  "icebreakerBioSportWatchOrPlay": "Tu préfères regarder ou pratiquer ?",
-  "@icebreakerBioSportWatchOrPlay": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport."
-  },
-  "icebreakerBioReadingNow": "Tu lis quoi en ce moment ?",
-  "@icebreakerBioReadingNow": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
-  },
-  "icebreakerBioReadingLastBook": "C'est quoi le dernier livre qui t'a marqué ?",
-  "@icebreakerBioReadingLastBook": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture."
-  },
-  "icebreakerBioCinemaRecent": "Tu as vu un bon film récemment ?",
-  "@icebreakerBioCinemaRecent": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
-  },
-  "icebreakerBioCinemaOrSeries": "Tu préfères cinéma ou séries ?",
-  "@icebreakerBioCinemaOrSeries": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma."
-  },
-  "icebreakerBioHikingTrails": "Tu connais de beaux sentiers dans le coin ?",
-  "@icebreakerBioHikingTrails": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
-  },
-  "icebreakerBioHikingBest": "C'est quoi ta plus belle rando ?",
-  "@icebreakerBioHikingBest": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée."
-  },
-  "icebreakerBioPhotoSubjects": "Tu prends des photos de quoi principalement ?",
-  "@icebreakerBioPhotoSubjects": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
-  },
-  "icebreakerBioPhotoCamera": "Tu utilises quoi comme appareil ?",
-  "@icebreakerBioPhotoCamera": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie."
-  },
-  "icebreakerOrthodoxSynagogue": "Tu as une synagogue préférée dans le coin ?",
-  "@icebreakerOrthodoxSynagogue": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
-  },
-  "icebreakerOrthodoxShabbat": "Comment tu passes généralement Shabbat ?",
-  "@icebreakerOrthodoxShabbat": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
-  },
-  "icebreakerOrthodoxKosherRestaurant": "Tu as un restaurant casher préféré ?",
-  "@icebreakerOrthodoxKosherRestaurant": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe."
-  },
-  "icebreakerTraditionalTraditions": "Quelles traditions juives sont les plus importantes pour toi ?",
-  "@icebreakerTraditionalTraditions": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
-  },
-  "icebreakerTraditionalShabbat": "Tu célèbres Shabbat comment généralement ?",
-  "@icebreakerTraditionalShabbat": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
-  },
-  "icebreakerTraditionalHoliday": "Tu as une fête juive préférée ?",
-  "@icebreakerTraditionalHoliday": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti)."
-  },
-  "icebreakerSecularCulture": "C'est quoi ton rapport à la culture juive ?",
-  "@icebreakerSecularCulture": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
-  },
-  "icebreakerSecularFamilyTraditions": "Tu as des traditions familiales que tu gardes ?",
-  "@icebreakerSecularFamilyTraditions": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
-  },
-  "icebreakerSecularHolidays": "Tu célèbres quelles fêtes ?",
-  "@icebreakerSecularHolidays": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque."
-  },
-  "icebreakerDefaultHoliday": "C'est quoi ta fête juive préférée ?",
-  "@icebreakerDefaultHoliday": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
-  },
-  "icebreakerDefaultFamilyTraditions": "Tu as des traditions familiales spéciales ?",
-  "@icebreakerDefaultFamilyTraditions": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
-  },
-  "icebreakerDefaultPracticingFamily": "Tu as grandi dans une famille pratiquante ?",
-  "@icebreakerDefaultPracticingFamily": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée."
-  },
-  "icebreakerLocationKnowWell": "Tu connais bien {location} ? Tu me conseilles quoi ?",
-  "@icebreakerLocationKnowWell": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
-    "placeholders": {
-      "location": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerLocationFavoriteSpot": "C'est quoi ton coin préféré à {location} ?",
-  "@icebreakerLocationFavoriteSpot": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
-    "placeholders": {
-      "location": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerLocationOriginallyFrom": "Tu es originaire de {location} ou tu t'y es installé(e) ?",
-  "@icebreakerLocationOriginallyFrom": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
-    "placeholders": {
-      "location": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerLocationRestaurant": "Il y a un bon restaurant que tu recommandes à {location} ?",
-  "@icebreakerLocationRestaurant": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.",
-    "placeholders": {
-      "location": {
-        "type": "String"
-      }
-    }
-  },
-  "icebreakerGenericDinnerGuest": "Si tu pouvais dîner avec n'importe qui, vivant ou mort, ce serait qui ?",
-  "@icebreakerGenericDinnerGuest": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericPerfectDay": "C'est quoi ta définition d'une journée parfaite ?",
-  "@icebreakerGenericPerfectDay": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericHiddenTalent": "Tu as un talent caché que peu de gens connaissent ?",
-  "@icebreakerGenericHiddenTalent": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericSpontaneous": "C'est quoi le truc le plus spontané que tu aies fait ?",
-  "@icebreakerGenericSpontaneous": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericSeaOrMountain": "Tu préfères vacances à la mer ou à la montagne ?",
-  "@icebreakerGenericSeaOrMountain": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericLottery": "Si tu gagnais au loto demain, tu ferais quoi en premier ?",
-  "@icebreakerGenericLottery": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericGuiltyPleasure": "C'est quoi ton guilty pleasure ?",
-  "@icebreakerGenericGuiltyPleasure": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericDream": "Tu as un rêve que tu n'as pas encore réalisé ?",
-  "@icebreakerGenericDream": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericBestAdvice": "C'est quoi le meilleur conseil qu'on t'ait donné ?",
-  "@icebreakerGenericBestAdvice": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
-  },
-  "icebreakerGenericBreakfastOrDinner": "Tu préfères petit-déjeuner ou dîner dehors ?",
-  "@icebreakerGenericBreakfastOrDinner": {
-    "description": "Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil."
   },
   "jewishCalendarShabbatTitle": "Ce Shabbat",
   "@jewishCalendarShabbatTitle": {
@@ -2671,15 +2346,6 @@
   "@likesSeeWhoWithPlus": {
     "description": "Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase."
   },
-  "likesMatchWith": "Match avec {name}",
-  "@likesMatchWith": {
-    "description": "Message bref quand aimer un profil crée un match. {name} est le prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "likesYouLiked": "Vous avez liké {name}",
   "@likesYouLiked": {
     "description": "Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.",
@@ -3205,11 +2871,11 @@
   "@onboardingPage3Body": {
     "description": "Présentation, page 3 : texte."
   },
-  "onboardingPage3Feature1": "Questions quotidiennes",
+  "onboardingPage3Feature1": "Souvenirs et dates importantes",
   "@onboardingPage3Feature1": {
     "description": "Présentation, page 3 : première ligne de la liste du mode Couple."
   },
-  "onboardingPage3Feature2": "Milestones de couple",
+  "onboardingPage3Feature2": "Bucket list à deux",
   "@onboardingPage3Feature2": {
     "description": "Présentation, page 3 : deuxième ligne de la liste."
   },
@@ -3229,11 +2895,11 @@
   "@onboardingPage4Body": {
     "description": "Présentation, page 4 : texte."
   },
-  "onboardingPage5Title": "AI Shadchan",
+  "onboardingPage5Title": "Suggestions du jour",
   "@onboardingPage5Title": {
-    "description": "Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle."
+    "description": "Présentation, page 5 : titre (les suggestions du jour, écran atteint depuis Découvrir)."
   },
-  "onboardingPage5Body": "Notre intelligence artificielle vous aide à trouver la bonne personne.",
+  "onboardingPage5Body": "Chaque jour, une courte sélection de profils vous attend dans Découvrir.",
   "@onboardingPage5Body": {
     "description": "Présentation, page 5 : texte."
   },
@@ -4256,44 +3922,6 @@
   "@profileVerdictFar": {
     "description": "Constat d'un critère de compatibilité : à plus de 50 km."
   },
-  "profileCompatibilityCriteria": "{count, plural, =1{1 critère analysé} other{{count} critères analysés}}",
-  "@profileCompatibilityCriteria": {
-    "description": "Carte de score : nombre de critères pris en compte. Une ligne, petit corps.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "profileCompatibilityScoreTitle": "Score de compatibilité",
-  "@profileCompatibilityScoreTitle": {
-    "description": "Titre de la feuille de détail du score quand le palier n'est pas « très compatible »."
-  },
-  "profileCompatibilityWith": "Avec {name}",
-  "@profileCompatibilityWith": {
-    "description": "Feuille de détail du score : sous le titre, avec qui. {name} est le prénom de la personne.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "profileCompatibilityDetails": "Détails",
-  "@profileCompatibilityDetails": {
-    "description": "Feuille de détail du score : titre de la liste des critères."
-  },
-  "profileCompatibilityIncomplete": "Complétez vos profils pour voir plus de détails",
-  "@profileCompatibilityIncomplete": {
-    "description": "Feuille de détail du score : message quand aucun critère n'est disponible."
-  },
-  "profileCompatibilityNote": "Le score est basé sur vos préférences et points communs",
-  "@profileCompatibilityNote": {
-    "description": "Feuille de détail du score : note explicative en petit corps."
-  },
-  "profileCompatibilityGotIt": "Compris",
-  "@profileCompatibilityGotIt": {
-    "description": "Feuille de détail du score : bouton qui la ferme."
-  },
   "profilePromptsMine": "Mes Prompts",
   "@profilePromptsMine": {
     "description": "Modification du profil : titre de la section des questions de profil."
@@ -4342,10 +3970,6 @@
   "profilePromptDeleted": "Prompt supprimé",
   "@profilePromptDeleted": {
     "description": "Message bref (snackbar) après la suppression d'une question de profil."
-  },
-  "profilePromptsGetToKnowMe": "Apprenez à me connaître",
-  "@profilePromptsGetToKnowMe": {
-    "description": "Titre au-dessus des questions et réponses d'un membre sur son profil."
   },
   "profilePromptCategoryPersonality": "Personnalité",
   "@profilePromptCategoryPersonality": {
@@ -4800,9 +4424,9 @@
   "@profileGoal": {
     "description": "Inscription, étape 4 : titre du choix de l'objectif (mariage, relation sérieuse…)."
   },
-  "profileShadchanNote": "Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.",
-  "@profileShadchanNote": {
-    "description": "Inscription, étape 4 : encadré en bas, petit corps. « AI Shadchan » est le nom de la fonction, à ne pas traduire."
+  "profileSetupPreferencesNote": "Ces préférences composent votre fil Découvrir. Vous pourrez les modifier à tout moment.",
+  "@profileSetupPreferencesNote": {
+    "description": "Inscription, étape 4 : encadré en bas, petit corps. Dit à quoi servent les préférences : composer le fil Découvrir."
   },
   "profileReportThisProfile": "Signaler ce profil",
   "@profileReportThisProfile": {
@@ -5049,30 +4673,6 @@
   "settingsShabbatAutoPause": "Horaires de Shabbat",
   "@settingsShabbatAutoPause": {
     "description": "Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre)."
-  },
-  "settingsHolidayAlerts": "Alertes fêtes",
-  "@settingsHolidayAlerts": {
-    "description": "Réglages : interrupteur qui prévient avant les fêtes juives."
-  },
-  "settingsHolidayAlertsHint": "Notifications avant les fêtes",
-  "@settingsHolidayAlertsHint": {
-    "description": "Réglages : sous-titre de l'interrupteur Alertes fêtes."
-  },
-  "settingsSectionNotifications": "Notifications",
-  "@settingsSectionNotifications": {
-    "description": "Réglages : titre de la section des notifications. Affiché en petites capitales."
-  },
-  "settingsNotifMatches": "Nouveaux matchs",
-  "@settingsNotifMatches": {
-    "description": "Réglages : interrupteur des notifications de nouveaux matchs."
-  },
-  "settingsNotifMessages": "Messages",
-  "@settingsNotifMessages": {
-    "description": "Réglages : interrupteur des notifications de messages."
-  },
-  "settingsNotifSuperLikes": "Super Likes",
-  "@settingsNotifSuperLikes": {
-    "description": "Réglages : interrupteur des notifications de Super Likes."
   },
   "settingsSectionCouple": "Mode Couple",
   "@settingsSectionCouple": {

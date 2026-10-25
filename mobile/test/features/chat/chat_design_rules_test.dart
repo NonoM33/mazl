@@ -8,8 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 final _files = [
   ...Directory('lib/presentation/features/chat/widgets')
       .listSync()
-      .whereType<File>()
-      .where((f) => !f.path.endsWith('icebreakers_widget.dart')),
+      .whereType<File>(),
   ...Directory(
     'lib/presentation/features/chat/logic',
   ).listSync().whereType<File>(),
@@ -93,9 +92,9 @@ void main() {
   });
 
   test('BackdropFilter only lives in the long-press overlay', () {
-    // CHAT.md §5 and §14: the one blur of the app. The legacy glass widgets of
-    // the not-yet-redesigned screens are listed so the list can only shrink.
-    const legacy = {'lib/presentation/common/widgets/glass_container.dart'};
+    // CHAT.md §5 and §14: the one blur of the app. The last legacy glass
+    // widget (glass_container.dart, referenced by nothing) is gone.
+    const legacy = <String>{};
     const overlay =
         'lib/presentation/features/chat/widgets/message_actions_overlay.dart';
     final users = {

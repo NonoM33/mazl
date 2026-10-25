@@ -19,8 +19,6 @@ const _discoveryLabels = [
   'Localisation',
   'Distance maximale',
   "Tranche d'âge",
-  'Nouveaux matchs',
-  'Super Likes',
 ];
 
 Future<void> _pumpFor(WidgetTester tester, Duration duration) async {
@@ -143,7 +141,7 @@ void main() {
   });
 
   group('réglages en mode couple', () {
-    testWidgets('actif : la découverte et deux notifications disparaissent', (
+    testWidgets('actif : la découverte disparaît', (
       tester,
     ) async {
       api.couple = contractCouple();
@@ -153,7 +151,6 @@ void main() {
         expect(find.text(label), findsNothing, reason: label);
       }
       expect(find.text('Découverte'.toUpperCase()), findsNothing);
-      expect(find.text('Messages'), findsOneWidget);
       expect(find.text('Vérification du profil'), findsOneWidget);
       expect(find.text('Mode couple actif'), findsOneWidget);
       expect(find.text('Quitter le mode couple'), findsOneWidget);
@@ -165,7 +162,6 @@ void main() {
       for (final label in _discoveryLabels) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
-      expect(find.text('Messages'), findsOneWidget);
       expect(find.text('Vérification du profil'), findsOneWidget);
       expect(find.text('Activer'), findsOneWidget);
       expect(find.text('Quitter le mode couple'), findsNothing);

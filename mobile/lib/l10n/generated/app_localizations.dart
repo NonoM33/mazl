@@ -416,12 +416,6 @@ abstract class AppLocalizations {
   /// **'écrit…'**
   String get chatHeaderTyping;
 
-  /// Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas.
-  ///
-  /// In fr, this message translates to:
-  /// **'En ligne'**
-  String get chatHeaderOnline;
-
   /// Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation.
   ///
   /// In fr, this message translates to:
@@ -1015,12 +1009,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Signaler'**
   String get commonReport;
-
-  /// Bouton qui referme une boîte de dialogue d'information.
-  ///
-  /// In fr, this message translates to:
-  /// **'OK'**
-  String get commonOk;
 
   /// Bouton qui remet une action à plus tard.
   ///
@@ -1778,24 +1766,6 @@ abstract class AppLocalizations {
   /// **'Ajoutez vos anniversaires, fêtes, etc.'**
   String get coupleSpaceDatesEmptyHint;
 
-  /// Titre de la section des badges débloqués par le couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nos badges'**
-  String get coupleSpaceBadgesTitle;
-
-  /// État vide de la section des badges : titre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucun badge pour l\'instant'**
-  String get coupleSpaceBadgesEmptyTitle;
-
-  /// État vide de la section des badges : comment en débloquer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Faites des activités ensemble pour débloquer des badges.'**
-  String get coupleSpaceBadgesEmptyHint;
-
   /// Message bref (snackbar) quand un objectif de la bucket list est marqué comme accompli.
   ///
   /// In fr, this message translates to:
@@ -2089,60 +2059,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Réponse inattendue du serveur.'**
   String get coupleSpaceFailUnexpected;
-
-  /// Statut de relation du membre : sans partenaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'Célibataire'**
-  String get coupleSpaceStatusSingle;
-
-  /// Statut de relation du membre : en train de faire connaissance.
-  ///
-  /// In fr, this message translates to:
-  /// **'En train de dater'**
-  String get coupleSpaceStatusDating;
-
-  /// Statut de relation du membre : en couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'En couple'**
-  String get coupleSpaceStatusInRelationship;
-
-  /// Statut de relation du membre : fiancé ou fiancée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fiancé(e)'**
-  String get coupleSpaceStatusEngaged;
-
-  /// Statut de relation du membre : marié ou mariée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marié(e)'**
-  String get coupleSpaceStatusMarried;
-
-  /// Durée en jours (repli quand un jalon n'est ni une semaine, ni un mois, ni une année pleine).
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} jour} other{{count} jours}}'**
-  String coupleSpaceDurationDays(int count);
-
-  /// Nom d'un jalon du couple qui vaut un nombre entier de semaines (ex. « 1 semaine »).
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} semaine} other{{count} semaines}}'**
-  String coupleSpaceDurationWeeks(int count);
-
-  /// Nom d'un jalon du couple qui vaut un nombre entier de mois (ex. « 3 mois »).
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} mois} other{{count} mois}}'**
-  String coupleSpaceDurationMonths(int count);
-
-  /// Nom d'un jalon du couple qui vaut un nombre entier d'années (ex. « 1 an »).
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} an} other{{count} ans}}'**
-  String coupleSpaceDurationYears(int count);
 
   /// Grand titre de l'écran du calendrier juif.
   ///
@@ -2441,318 +2357,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Indiquez ce que vous recherchez'**
   String get genreLookingForRequired;
-
-  /// Suggestions de premier message : titre de la carte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Besoin d\'inspiration ?'**
-  String get icebreakerWidgetTitle;
-
-  /// Suggestions de premier message : sous-titre de la carte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voici quelques idées pour briser la glace'**
-  String get icebreakerWidgetSubtitle;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Mot qui remplace le sujet de la question quand on n'en trouve pas (« …à la question sur ça »).
-  ///
-  /// In fr, this message translates to:
-  /// **'ça'**
-  String get icebreakerTopicFallback;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil ; {followUp} est une phrase courte qui conclut.
-  ///
-  /// In fr, this message translates to:
-  /// **'J\'ai adoré ta réponse à \"{promptText}\". {followUp}'**
-  String icebreakerPromptLoved(String promptText, String followUp);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Réagit à une réponse du profil. {promptText} est la question du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ta réponse sur \"{promptText}\" m\'a fait sourire. Tu peux m\'en dire plus ?'**
-  String icebreakerPromptSmiled(String promptText);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Curiosité sur une réponse du profil. {answer} est la réponse (raccourcie), {topic} deux mots de la question (ou « ça »).
-  ///
-  /// In fr, this message translates to:
-  /// **'Je suis curieux(se) de savoir pourquoi tu as répondu \"{answer}\" à la question sur {topic}'**
-  String icebreakerPromptCurious(String answer, String topic);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ça m\'intrigue.'**
-  String get icebreakerFollowUpIntrigued;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'J\'aimerais en savoir plus.'**
-  String get icebreakerFollowUpKnowMore;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu me racontes ?'**
-  String get icebreakerFollowUpTellMe;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Phrase courte qui conclut la réaction à une réponse du profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ça a l\'air intéressant.'**
-  String get icebreakerFollowUpInteresting;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage (la bio en parle).
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as voyagé où récemment ? J\'adorerais entendre tes histoires.'**
-  String get icebreakerBioTravelRecent;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : voyage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quelle est ta prochaine destination de rêve ?'**
-  String get icebreakerBioTravelDream;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quel genre de musique tu écoutes en ce moment ?'**
-  String get icebreakerBioMusicGenre;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : musique.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as été à un bon concert récemment ?'**
-  String get icebreakerBioMusicConcert;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu cuisines quoi de bon en ce moment ?'**
-  String get icebreakerBioCookingNow;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cuisine.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ton plat signature ?'**
-  String get icebreakerBioCookingSignature;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu pratiques quel sport ?'**
-  String get icebreakerBioSportWhich;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : sport.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu préfères regarder ou pratiquer ?'**
-  String get icebreakerBioSportWatchOrPlay;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu lis quoi en ce moment ?'**
-  String get icebreakerBioReadingNow;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : lecture.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi le dernier livre qui t\'a marqué ?'**
-  String get icebreakerBioReadingLastBook;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as vu un bon film récemment ?'**
-  String get icebreakerBioCinemaRecent;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : cinéma.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu préfères cinéma ou séries ?'**
-  String get icebreakerBioCinemaOrSeries;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu connais de beaux sentiers dans le coin ?'**
-  String get icebreakerBioHikingTrails;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : randonnée.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ta plus belle rando ?'**
-  String get icebreakerBioHikingBest;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu prends des photos de quoi principalement ?'**
-  String get icebreakerBioPhotoSubjects;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : photographie.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu utilises quoi comme appareil ?'**
-  String get icebreakerBioPhotoCamera;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as une synagogue préférée dans le coin ?'**
-  String get icebreakerOrthodoxSynagogue;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
-  ///
-  /// In fr, this message translates to:
-  /// **'Comment tu passes généralement Shabbat ?'**
-  String get icebreakerOrthodoxShabbat;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : orthodoxe.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as un restaurant casher préféré ?'**
-  String get icebreakerOrthodoxKosherRestaurant;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
-  ///
-  /// In fr, this message translates to:
-  /// **'Quelles traditions juives sont les plus importantes pour toi ?'**
-  String get icebreakerTraditionalTraditions;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu célèbres Shabbat comment généralement ?'**
-  String get icebreakerTraditionalShabbat;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : traditionaliste (massorti).
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as une fête juive préférée ?'**
-  String get icebreakerTraditionalHoliday;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ton rapport à la culture juive ?'**
-  String get icebreakerSecularCulture;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as des traditions familiales que tu gardes ?'**
-  String get icebreakerSecularFamilyTraditions;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : laïque.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu célèbres quelles fêtes ?'**
-  String get icebreakerSecularHolidays;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ta fête juive préférée ?'**
-  String get icebreakerDefaultHoliday;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as des traditions familiales spéciales ?'**
-  String get icebreakerDefaultFamilyTraditions;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Pratique : non précisée.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as grandi dans une famille pratiquante ?'**
-  String get icebreakerDefaultPracticingFamily;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu connais bien {location} ? Tu me conseilles quoi ?'**
-  String icebreakerLocationKnowWell(String location);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ton coin préféré à {location} ?'**
-  String icebreakerLocationFavoriteSpot(String location);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu es originaire de {location} ou tu t\'y es installé(e) ?'**
-  String icebreakerLocationOriginallyFrom(String location);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : la ville de l'autre membre. {location} est cette ville.
-  ///
-  /// In fr, this message translates to:
-  /// **'Il y a un bon restaurant que tu recommandes à {location} ?'**
-  String icebreakerLocationRestaurant(String location);
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu pouvais dîner avec n\'importe qui, vivant ou mort, ce serait qui ?'**
-  String get icebreakerGenericDinnerGuest;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ta définition d\'une journée parfaite ?'**
-  String get icebreakerGenericPerfectDay;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as un talent caché que peu de gens connaissent ?'**
-  String get icebreakerGenericHiddenTalent;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi le truc le plus spontané que tu aies fait ?'**
-  String get icebreakerGenericSpontaneous;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu préfères vacances à la mer ou à la montagne ?'**
-  String get icebreakerGenericSeaOrMountain;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu gagnais au loto demain, tu ferais quoi en premier ?'**
-  String get icebreakerGenericLottery;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi ton guilty pleasure ?'**
-  String get icebreakerGenericGuiltyPleasure;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as un rêve que tu n\'as pas encore réalisé ?'**
-  String get icebreakerGenericDream;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est quoi le meilleur conseil qu\'on t\'ait donné ?'**
-  String get icebreakerGenericBestAdvice;
-
-  /// Brouillon de premier message que le membre envoie à un autre membre (on se tutoie entre membres). Sujet : question générale, sans lien avec le profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu préfères petit-déjeuner ou dîner dehors ?'**
-  String get icebreakerGenericBreakfastOrDinner;
 
   /// Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif.
   ///
@@ -3540,12 +3144,6 @@ abstract class AppLocalizations {
   /// **'Voir qui vous a aimé avec mazl+'**
   String get likesSeeWhoWithPlus;
 
-  /// Message bref quand aimer un profil crée un match. {name} est le prénom.
-  ///
-  /// In fr, this message translates to:
-  /// **'Match avec {name}'**
-  String likesMatchWith(String name);
-
   /// Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.
   ///
   /// In fr, this message translates to:
@@ -4131,13 +3729,13 @@ abstract class AppLocalizations {
   /// Présentation, page 3 : première ligne de la liste du mode Couple.
   ///
   /// In fr, this message translates to:
-  /// **'Questions quotidiennes'**
+  /// **'Souvenirs et dates importantes'**
   String get onboardingPage3Feature1;
 
   /// Présentation, page 3 : deuxième ligne de la liste.
   ///
   /// In fr, this message translates to:
-  /// **'Milestones de couple'**
+  /// **'Bucket list à deux'**
   String get onboardingPage3Feature2;
 
   /// Présentation, page 3 : troisième ligne de la liste.
@@ -4164,16 +3762,16 @@ abstract class AppLocalizations {
   /// **'Les horaires d\'allumage et de havdala de votre ville, et un écran de repos.'**
   String get onboardingPage4Body;
 
-  /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
+  /// Présentation, page 5 : titre (les suggestions du jour, écran atteint depuis Découvrir).
   ///
   /// In fr, this message translates to:
-  /// **'AI Shadchan'**
+  /// **'Suggestions du jour'**
   String get onboardingPage5Title;
 
   /// Présentation, page 5 : texte.
   ///
   /// In fr, this message translates to:
-  /// **'Notre intelligence artificielle vous aide à trouver la bonne personne.'**
+  /// **'Chaque jour, une courte sélection de profils vous attend dans Découvrir.'**
   String get onboardingPage5Body;
 
   /// Petit libellé au-dessus du titre de la feuille d’achat de Super Likes (ouverte quand il n’en reste plus). Nom de la fonction, même terme que sur le bouton étoile de Découvrir.
@@ -5435,48 +5033,6 @@ abstract class AppLocalizations {
   /// **'Assez loin'**
   String get profileVerdictFar;
 
-  /// Carte de score : nombre de critères pris en compte. Une ligne, petit corps.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, =1{1 critère analysé} other{{count} critères analysés}}'**
-  String profileCompatibilityCriteria(int count);
-
-  /// Titre de la feuille de détail du score quand le palier n'est pas « très compatible ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Score de compatibilité'**
-  String get profileCompatibilityScoreTitle;
-
-  /// Feuille de détail du score : sous le titre, avec qui. {name} est le prénom de la personne.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avec {name}'**
-  String profileCompatibilityWith(String name);
-
-  /// Feuille de détail du score : titre de la liste des critères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Détails'**
-  String get profileCompatibilityDetails;
-
-  /// Feuille de détail du score : message quand aucun critère n'est disponible.
-  ///
-  /// In fr, this message translates to:
-  /// **'Complétez vos profils pour voir plus de détails'**
-  String get profileCompatibilityIncomplete;
-
-  /// Feuille de détail du score : note explicative en petit corps.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le score est basé sur vos préférences et points communs'**
-  String get profileCompatibilityNote;
-
-  /// Feuille de détail du score : bouton qui la ferme.
-  ///
-  /// In fr, this message translates to:
-  /// **'Compris'**
-  String get profileCompatibilityGotIt;
-
   /// Modification du profil : titre de la section des questions de profil.
   ///
   /// In fr, this message translates to:
@@ -5542,12 +5098,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Prompt supprimé'**
   String get profilePromptDeleted;
-
-  /// Titre au-dessus des questions et réponses d'un membre sur son profil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Apprenez à me connaître'**
-  String get profilePromptsGetToKnowMe;
 
   /// Famille de questions de profil, titre de groupe dans la liste.
   ///
@@ -6209,11 +5759,11 @@ abstract class AppLocalizations {
   /// **'Objectif'**
   String get profileGoal;
 
-  /// Inscription, étape 4 : encadré en bas, petit corps. « AI Shadchan » est le nom de la fonction, à ne pas traduire.
+  /// Inscription, étape 4 : encadré en bas, petit corps. Dit à quoi servent les préférences : composer le fil Découvrir.
   ///
   /// In fr, this message translates to:
-  /// **'Notre AI Shadchan utilisera ces préférences pour vous proposer des profils compatibles.'**
-  String get profileShadchanNote;
+  /// **'Ces préférences composent votre fil Découvrir. Vous pourrez les modifier à tout moment.'**
+  String get profileSetupPreferencesNote;
 
   /// Bouton texte en bas du profil d'un autre membre : ouvre la fenêtre de blocage et de signalement.
   ///
@@ -6532,42 +6082,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Horaires de Shabbat'**
   String get settingsShabbatAutoPause;
-
-  /// Réglages : interrupteur qui prévient avant les fêtes juives.
-  ///
-  /// In fr, this message translates to:
-  /// **'Alertes fêtes'**
-  String get settingsHolidayAlerts;
-
-  /// Réglages : sous-titre de l'interrupteur Alertes fêtes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notifications avant les fêtes'**
-  String get settingsHolidayAlertsHint;
-
-  /// Réglages : titre de la section des notifications. Affiché en petites capitales.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notifications'**
-  String get settingsSectionNotifications;
-
-  /// Réglages : interrupteur des notifications de nouveaux matchs.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nouveaux matchs'**
-  String get settingsNotifMatches;
-
-  /// Réglages : interrupteur des notifications de messages.
-  ///
-  /// In fr, this message translates to:
-  /// **'Messages'**
-  String get settingsNotifMessages;
-
-  /// Réglages : interrupteur des notifications de Super Likes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Super Likes'**
-  String get settingsNotifSuperLikes;
 
   /// Réglages : titre de la section qui contient la carte du mode couple. Affiché en petites capitales.
   ///

@@ -3,7 +3,6 @@
   "likesSection": "אהבו אותך · {count}",
   "likesWaiting": "{count, plural, one{אדם אחד ממתין לתשובה שלך.} two{שני אנשים ממתינים לתשובה שלך.} other{{label} אנשים ממתינים לתשובה שלך.}}",
   "likesSeeWhoWithPlus": "לראות מי אהב אותך עם mazl+‎",
-  "likesMatchWith": "יש מאץ' עם {name}",
   "likesYouLiked": "נשלח לייק ל-{name}",
   "likesEmptyTitle": "עדיין אין לייקים",
   "likesEmptyBody": "כדאי להמשיך לגלות פרופילים ולהשלים את הפרופיל כדי לקבל יותר לייקים.",

@@ -208,7 +208,7 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
       expect(find.text('Couple mode'), findsOneWidget);
-      expect(find.text('Daily questions'), findsOneWidget);
+      expect(find.text('Memories and important dates'), findsOneWidget);
       expect(find.text('Shared Jewish calendar'), findsOneWidget);
     });
 
@@ -218,7 +218,7 @@ void main() {
         await tester.tap(find.text('Continue'));
         await tester.pumpAndSettle();
       }
-      expect(find.text('AI Shadchan'), findsOneWidget);
+      expect(find.text('Daily picks'), findsOneWidget);
       expect(find.text('Get started'), findsOneWidget);
     });
 

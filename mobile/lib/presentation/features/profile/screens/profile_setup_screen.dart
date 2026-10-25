@@ -567,11 +567,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ),
           child: Row(
             children: [
-              const Icon(LucideIcons.sparkles, color: Colors.white),
+              const Icon(LucideIcons.compass, color: Colors.white),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  l10n.profileShadchanNote,
+                  l10n.profileSetupPreferencesNote,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
                 ),
               ),

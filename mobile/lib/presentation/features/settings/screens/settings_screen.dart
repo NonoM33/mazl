@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -49,10 +50,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _distanceMax = 50;
   int _ageMin = 18;
   int _ageMax = 99;
-  bool _notifMatches = true;
-  bool _notifMessages = true;
-  bool _notifSuperLikes = true;
-  bool _notifHolidays = true;
+
+  /// « 1.0.0 (12) » : the version and the build of the installed app.
+  String? _appVersion;
 
   // Places service for city autocomplete
   final PlacesService _placesService = PlacesService();
@@ -62,6 +62,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
     _coupleService.addListener(_onCoupleChanged);
     _loadUserProfile();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() => _appVersion = '${info.version} (${info.buildNumber})');
   }
 
   @override
@@ -1065,7 +1072,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: l10n.settingsEmail,
                 subtitle: userEmail,
                 showChevron: false,
-                onTap: () {},
               ),
               _SettingTile(
                 icon: LucideIcons.languages,
@@ -1107,52 +1113,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 subtitle: l10n.settingsShabbatAutoPause,
                 onTap: () => context.push(RoutePaths.shabbatMode),
               ),
-              _SettingTile(
-                icon: LucideIcons.calendarHeart,
-                title: l10n.settingsHolidayAlerts,
-                subtitle: l10n.settingsHolidayAlertsHint,
-                trailing: Switch(
-                  value: _notifHolidays,
-                  onChanged: (value) => setState(() => _notifHolidays = value),
-                  activeThumbColor: AppColors.primary,
-                ),
-                onTap: () => setState(() => _notifHolidays = !_notifHolidays),
-              ),
-
-              // Notifications
-              _SectionHeader(title: l10n.settingsSectionNotifications),
-              if (!inCouple)
-                _SettingTile(
-                  icon: LucideIcons.heartHandshake,
-                  title: l10n.settingsNotifMatches,
-                  trailing: Switch(
-                    value: _notifMatches,
-                    onChanged: (value) => setState(() => _notifMatches = value),
-                    activeThumbColor: AppColors.primary,
-                  ),
-                  onTap: () => setState(() => _notifMatches = !_notifMatches),
-                ),
-              _SettingTile(
-                icon: LucideIcons.messageCircle,
-                title: l10n.settingsNotifMessages,
-                trailing: Switch(
-                  value: _notifMessages,
-                  onChanged: (value) => setState(() => _notifMessages = value),
-                  activeThumbColor: AppColors.primary,
-                ),
-                onTap: () => setState(() => _notifMessages = !_notifMessages),
-              ),
-              if (!inCouple)
-                _SettingTile(
-                  icon: LucideIcons.star,
-                  title: l10n.settingsNotifSuperLikes,
-                  trailing: Switch(
-                    value: _notifSuperLikes,
-                    onChanged: (value) => setState(() => _notifSuperLikes = value),
-                    activeThumbColor: AppColors.primary,
-                  ),
-                  onTap: () => setState(() => _notifSuperLikes = !_notifSuperLikes),
-                ),
 
               // Couple Mode Section
               _SectionHeader(title: l10n.settingsSectionCouple),
@@ -1237,9 +1197,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SettingTile(
                 icon: LucideIcons.info,
                 title: l10n.settingsVersion,
-                subtitle: '1.0.0',
+                subtitle: _appVersion,
                 showChevron: false,
-                onTap: () {},
               ),
 
               // Debug section (only in debug mode)
@@ -1356,19 +1315,18 @@ class _SettingTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
-    this.trailing,
     this.iconColor,
     this.showChevron = true,
-    required this.onTap,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Widget? trailing;
   final Color? iconColor;
   final bool showChevron;
-  final VoidCallback onTap;
+  /// Null for a row that only informs: it is then not tappable.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1376,7 +1334,7 @@ class _SettingTile extends StatelessWidget {
       leading: Icon(icon, color: iconColor ?? AppColors.primary),
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ?? (showChevron ? const DirectionalIcon(LucideIcons.chevronRight) : null),
+      trailing: showChevron ? const DirectionalIcon(LucideIcons.chevronRight) : null,
       onTap: onTap,
     );
   }

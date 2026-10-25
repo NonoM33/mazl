@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/couple_models.dart';
-import 'api_service.dart' hide CoupleMilestone;
+import 'api_service.dart';
 import 'couple_api.dart';
 import 'couple_messages.dart';
 

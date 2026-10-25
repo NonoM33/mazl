@@ -180,9 +180,9 @@ void main() {
             final latin = RegExp(
               r'[A-Za-zÀ-ÿ]+',
             ).allMatches(visible).map((m) => m.group(0)!);
-            // Les noms de marque et de fonction restent tels quels, comme les
+            // Le nom de marque reste tels quels, comme les
             // lettres d'un format de date (JJ/MM/AAAA se note DD.MM.YYYY en hébreu).
-            final allowed = {'mazl', 'AI', 'Shadchan', 'DD', 'MM', 'YYYY'};
+            final allowed = {'mazl', 'DD', 'MM', 'YYYY'};
             if (latin.any((w) => !allowed.contains(w))) {
               strays.add('${entry.key} : ${entry.value}');
             }

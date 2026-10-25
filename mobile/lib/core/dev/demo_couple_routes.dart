@@ -89,14 +89,6 @@ abstract final class DemoCoupleRoutes {
         _ => _fail(404, 'Couple request not found'),
       };
 
-  static DemoReply _check(DemoRequest r, RegExpMatch m, DateTime now) {
-    final other = _id(m);
-    final status = _state.couple?['partner_id'] == other
-        ? 'coupled'
-        : (_state.hasPendingWith(other) ? 'pending_sent' : 'none');
-    return _ok({'status': status, 'in_couple_mode': status == 'coupled'});
-  }
-
   static DemoReply _end(DemoRequest r, RegExpMatch m, DateTime now) =>
       _state.end(_id(m)) ? _ok({}) : _fail(403, 'Forbidden');
 
@@ -169,22 +161,11 @@ abstract final class DemoCoupleRoutes {
     }),
     DemoRoute('PUT', '/api/couple/request/(\\d+)', _open(_respond)),
     DemoRoute('DELETE', '/api/couple/request/(\\d+)', _open(_cancel)),
-    DemoRoute('GET', '/api/couple/check/(\\d+)', _open(_check)),
     DemoRoute('POST', '/api/couple/archive-conversations', (r, m) {
       _tick();
       return _ok({});
     }),
     DemoRoute('DELETE', '/api/couple/(\\d+)', _open(_end)),
-    DemoRoute(
-      'GET',
-      '/api/couple/milestones',
-      (r, m) => _ok({'milestones': <Object>[]}),
-    ),
-    DemoRoute(
-      'GET',
-      '/api/couple/success-story',
-      (r, m) => _ok({'story': null}),
-    ),
 
     DemoRoute(
       'GET',

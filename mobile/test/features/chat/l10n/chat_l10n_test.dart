@@ -3,11 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/chat/chat_realtime.dart';
-import 'package:mazl/core/services/icebreaker_service.dart';
 import 'package:mazl/presentation/features/chat/conversation_time.dart';
 import 'package:mazl/presentation/features/chat/l10n/chat_failure_text.dart';
 import 'package:mazl/presentation/features/chat/l10n/chat_preview_text.dart';
-import 'package:mazl/presentation/features/chat/l10n/icebreaker_text.dart';
 import 'package:mazl/presentation/features/chat/logic/chat_dates.dart';
 import 'package:mazl/presentation/features/chat/state/chat_controller.dart';
 
@@ -35,7 +33,7 @@ void main() {
       );
       await harness.pump(tester, locale: _en);
 
-      expect(find.text('Online'), findsOneWidget);
+      expect(find.text('Online'), findsNothing);
       expect(find.text('Seen at 10:06'), findsOneWidget);
       expect(find.byTooltip('Attach photos'), findsOneWidget);
       expect(find.bySemanticsLabel('Video call'), findsNothing);
@@ -354,56 +352,6 @@ void main() {
         'This conversation is no longer available.',
       );
     });
-
-    test('every icebreaker, with its words filled in', () {
-      for (final code in ['fr', 'en', 'he', 'es', 'ru']) {
-        for (final phrase in IcebreakerPhrase.values) {
-          final text = icebreakerText(
-            _l10n(code),
-            Icebreaker(
-              phrase: phrase,
-              type: IcebreakerType.generic,
-              location: 'Lyon',
-              promptText: 'Ma passion',
-              answer: 'La randonnée',
-              topic: 'passion',
-              followUp: IcebreakerPhrase.followUpTellMe,
-            ),
-          );
-          expect(text.trim(), isNotEmpty, reason: '$code ${phrase.name}');
-          expect(text, isNot(contains('{')), reason: '$code ${phrase.name}');
-        }
-      }
-    });
-
-    test(
-      'icebreaker: French stays as written (tutoiement), English reads naturally',
-      () {
-        final prompt = Icebreaker(
-          phrase: IcebreakerPhrase.promptLoved,
-          type: IcebreakerType.prompt,
-          promptText: 'My favourite trip',
-          followUp: IcebreakerPhrase.followUpKnowMore,
-        );
-        expect(
-          icebreakerText(_l10n('fr'), prompt),
-          'J\'ai adoré ta réponse à "My favourite trip". J\'aimerais en savoir plus.',
-        );
-        expect(
-          icebreakerText(_l10n('en'), prompt),
-          'I loved your answer to "My favourite trip". I\'d love to know more.',
-        );
-        final noTopic = Icebreaker(
-          phrase: IcebreakerPhrase.promptCurious,
-          type: IcebreakerType.prompt,
-          answer: 'Oui',
-        );
-        expect(
-          icebreakerText(_l10n('fr'), noTopic),
-          'Je suis curieux(se) de savoir pourquoi tu as répondu "Oui" à la question sur ça',
-        );
-      },
-    );
 
     test(
       'the server words for a photo, a voice note and a retraction are translated',
