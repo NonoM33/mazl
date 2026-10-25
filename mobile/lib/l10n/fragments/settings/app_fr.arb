@@ -86,9 +86,9 @@
   "@settingsShabbatMode": {
     "description": "Réglages : ligne qui ouvre l'écran du mode Shabbat. Le statut du membre affiche aussi ce nom."
   },
-  "settingsShabbatAutoPause": "Pause automatique",
+  "settingsShabbatAutoPause": "Horaires de Shabbat",
   "@settingsShabbatAutoPause": {
-    "description": "Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules)."
+    "description": "Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre)."
   },
   "settingsHolidayAlerts": "Alertes fêtes",
   "@settingsHolidayAlerts": {
@@ -366,69 +366,34 @@
   "@settingsCoupleActivate": {
     "description": "Carte du mode couple : bouton qui commence l'activation du mode couple. Environ 10 caractères."
   },
-  "settingsShabbatCity": "Basé sur Paris, France",
-  "@settingsShabbatCity": {
-    "description": "Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu."
-  },
-  "settingsShabbatSettingsHeader": "Réglages",
-  "@settingsShabbatSettingsHeader": {
-    "description": "Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales."
-  },
-  "settingsShabbatEnable": "Activer le mode Shabbat",
-  "@settingsShabbatEnable": {
-    "description": "Écran Mode Shabbat : interrupteur principal."
-  },
-  "settingsShabbatEnableHint": "Pause automatique des notifications pendant Shabbat",
-  "@settingsShabbatEnableHint": {
-    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur principal."
-  },
-  "settingsShabbatIncludeHolidays": "Inclure les fêtes",
-  "@settingsShabbatIncludeHolidays": {
-    "description": "Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes."
-  },
-  "settingsShabbatIncludeHolidaysHint": "Pause aussi pendant Yom Tov",
-  "@settingsShabbatIncludeHolidaysHint": {
-    "description": "Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête."
-  },
-  "settingsShabbatBuffer": "Marge avant l'allumage",
-  "@settingsShabbatBuffer": {
-    "description": "Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies."
-  },
-  "settingsMinutesShort": "{minutes} min",
-  "@settingsMinutesShort": {
-    "description": "Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.",
+  "settingsShabbatBasedOn": "Basé sur {place}",
+  "@settingsShabbatBasedOn": {
+    "description": "Écran Mode Shabbat : la ligne sous les heures qui nomme le lieu pour lequel elles sont calculées. {place} est le nom de la ville du membre, ou « Paris, France » faute de ville.",
     "placeholders": {
-      "minutes": {
-        "type": "int",
-        "example": "18"
+      "place": {
+        "type": "String"
       }
     }
   },
-  "settingsMinutesSpoken": "{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}",
-  "@settingsMinutesSpoken": {
-    "description": "Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).",
-    "placeholders": {
-      "minutes": {
-        "type": "int",
-        "example": "18"
-      }
-    }
+  "settingsShabbatDefaultPlace": "Paris, France",
+  "@settingsShabbatDefaultPlace": {
+    "description": "Écran Mode Shabbat : nom du lieu utilisé quand la ville du membre n'est pas connue (Paris). Se glisse dans « Basé sur … »."
   },
-  "settingsShabbatEdit": "Modifier",
-  "@settingsShabbatEdit": {
-    "description": "Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères."
+  "settingsShabbatUnknownPlaceHint": "Les horaires sont ceux de Paris, car votre ville n'est pas connue. Ajoutez-la dans les réglages pour des horaires exacts.",
+  "@settingsShabbatUnknownPlaceHint": {
+    "description": "Écran Mode Shabbat : remplace le paragraphe du bas quand la ville du membre n'est pas connue (profil sans ville, ou profil illisible) : les heures affichées sont celles de Paris."
   },
-  "settingsShabbatExplanation": "Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».",
+  "settingsShabbatExplanation": "Allumage 18 minutes avant le coucher du soleil, havdala à la tombée de la nuit. Pour changer de lieu, modifiez votre ville dans les réglages.",
   "@settingsShabbatExplanation": {
-    "description": "Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages)."
+    "description": "Écran Mode Shabbat : paragraphe en bas de page qui dit comment les heures sont calculées (18 minutes avant le coucher du soleil, havdala à la tombée de la nuit) et où changer de lieu (la ville se règle dans les réglages). Ne promet aucune pause ni aucun statut."
   },
   "settingsShabbatHeroTitle": "Shabbat\nshalom.",
   "@settingsShabbatHeroTitle": {
     "description": "Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu."
   },
-  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous. Vos messages vous attendront à la havdala.",
+  "settingsShabbatHeroSubtitle": "Mazl se repose avec vous.",
   "@settingsShabbatHeroSubtitle": {
-    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire."
+    "description": "Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire. Ne promet aucune pause des notifications."
   },
   "settingsShabbatCandleLighting": "Allumage",
   "@settingsShabbatCandleLighting": {

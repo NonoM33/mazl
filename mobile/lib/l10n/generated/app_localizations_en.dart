@@ -2981,7 +2981,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPage4Body =>
-      'An automatic pause during Shabbat and holidays, with nothing to set up.';
+      'Candle-lighting and Havdalah times for your city, and a rest screen.';
 
   @override
   String get onboardingPage5Title => 'AI Shadchan';
@@ -4354,7 +4354,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShabbatMode => 'Shabbat mode';
 
   @override
-  String get settingsShabbatAutoPause => 'Automatic pause';
+  String get settingsShabbatAutoPause => 'Shabbat times';
 
   @override
   String get settingsHolidayAlerts => 'Holiday alerts';
@@ -4568,56 +4568,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCoupleActivate => 'Turn on';
 
   @override
-  String get settingsShabbatCity => 'Based on Paris, France';
-
-  @override
-  String get settingsShabbatSettingsHeader => 'Settings';
-
-  @override
-  String get settingsShabbatEnable => 'Turn on Shabbat mode';
-
-  @override
-  String get settingsShabbatEnableHint =>
-      'Notifications pause automatically during Shabbat';
-
-  @override
-  String get settingsShabbatIncludeHolidays => 'Include holidays';
-
-  @override
-  String get settingsShabbatIncludeHolidaysHint => 'Also pause during Yom Tov';
-
-  @override
-  String get settingsShabbatBuffer => 'Margin before candle lighting';
-
-  @override
-  String settingsMinutesShort(int minutes) {
-    return '$minutes min';
+  String settingsShabbatBasedOn(String place) {
+    return 'Based on $place';
   }
 
   @override
-  String settingsMinutesSpoken(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes minutes',
-      one: '1 minute',
-    );
-    return '$_temp0';
-  }
+  String get settingsShabbatDefaultPlace => 'Paris, France';
 
   @override
-  String get settingsShabbatEdit => 'Edit';
+  String get settingsShabbatUnknownPlaceHint =>
+      'The times are Paris\'s, because your city is not known. Add it in the settings for exact times.';
 
   @override
   String get settingsShabbatExplanation =>
-      'Notifications are paused and messages wait for you. You\'ll get everything after Shabbat ends, and your status will show “Shabbat mode”.';
+      'Candle lighting is 18 minutes before sunset, Havdalah at nightfall. To change the place, update your city in the settings.';
 
   @override
   String get settingsShabbatHeroTitle => 'Shabbat\nshalom.';
 
   @override
-  String get settingsShabbatHeroSubtitle =>
-      'Mazl is resting with you. Your messages will wait for you at Havdalah.';
+  String get settingsShabbatHeroSubtitle => 'Mazl is resting with you.';
 
   @override
   String get settingsShabbatCandleLighting => 'Candle lighting';

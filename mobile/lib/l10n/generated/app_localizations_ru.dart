@@ -3036,7 +3036,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get onboardingPage4Body =>
-      'Автоматическая пауза во время Шаббата и праздников — ничего настраивать не нужно.';
+      'Время зажигания свечей и Авдалы для Вашего города и экран отдыха.';
 
   @override
   String get onboardingPage5Title => 'AI Shadchan';
@@ -4421,7 +4421,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsShabbatMode => 'Режим Шаббата';
 
   @override
-  String get settingsShabbatAutoPause => 'Автопауза';
+  String get settingsShabbatAutoPause => 'Время Шаббата';
 
   @override
   String get settingsHolidayAlerts => 'Уведомления о праздниках';
@@ -4638,58 +4638,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsCoupleActivate => 'Включить';
 
   @override
-  String get settingsShabbatCity => 'По Парижу, Франция';
-
-  @override
-  String get settingsShabbatSettingsHeader => 'Настройки';
-
-  @override
-  String get settingsShabbatEnable => 'Включить режим Шаббата';
-
-  @override
-  String get settingsShabbatEnableHint =>
-      'Уведомления автоматически приостанавливаются на время Шаббата';
-
-  @override
-  String get settingsShabbatIncludeHolidays => 'Включать праздники';
-
-  @override
-  String get settingsShabbatIncludeHolidaysHint => 'Пауза также в Йом-Тов';
-
-  @override
-  String get settingsShabbatBuffer => 'Запас времени до зажигания свечей';
-
-  @override
-  String settingsMinutesShort(int minutes) {
-    return '$minutes мин';
+  String settingsShabbatBasedOn(String place) {
+    return 'Для места: $place';
   }
 
   @override
-  String settingsMinutesSpoken(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes минуты',
-      many: '$minutes минут',
-      few: '$minutes минуты',
-      one: '$minutes минута',
-    );
-    return '$_temp0';
-  }
+  String get settingsShabbatDefaultPlace => 'Париж, Франция';
 
   @override
-  String get settingsShabbatEdit => 'Изменить';
+  String get settingsShabbatUnknownPlaceHint =>
+      'Это время для Парижа, потому что Ваш город неизвестен. Укажите его в настройках, чтобы получить точное время.';
 
   @override
   String get settingsShabbatExplanation =>
-      'Уведомления приостановлены, а сообщения ждут. Вы получите всё после окончания Шаббата, а Ваш статус будет показывать «Режим Шаббата».';
+      'Зажигание свечей — за 18 минут до заката, Авдала — с наступлением ночи. Чтобы сменить место, измените город в настройках.';
 
   @override
   String get settingsShabbatHeroTitle => 'Шаббат\nшалом.';
 
   @override
-  String get settingsShabbatHeroSubtitle =>
-      'Mazl отдыхает вместе с Вами. Сообщения дождутся Авдалы.';
+  String get settingsShabbatHeroSubtitle => 'Mazl отдыхает вместе с Вами.';
 
   @override
   String get settingsShabbatCandleLighting => 'Зажигание свечей';

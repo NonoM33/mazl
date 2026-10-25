@@ -2998,7 +2998,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get onboardingPage4Body =>
-      'Una pausa automática durante Shabat y las fiestas, sin configurar nada.';
+      'Los horarios de encendido de velas y de Havdalá de tu ciudad, y una pantalla de descanso.';
 
   @override
   String get onboardingPage5Title => 'AI Shadchan';
@@ -4380,7 +4380,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsShabbatMode => 'Modo Shabat';
 
   @override
-  String get settingsShabbatAutoPause => 'Pausa automática';
+  String get settingsShabbatAutoPause => 'Horarios de Shabat';
 
   @override
   String get settingsHolidayAlerts => 'Alertas de fiestas';
@@ -4594,57 +4594,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsCoupleActivate => 'Activar';
 
   @override
-  String get settingsShabbatCity => 'Basado en París, Francia';
-
-  @override
-  String get settingsShabbatSettingsHeader => 'Ajustes';
-
-  @override
-  String get settingsShabbatEnable => 'Activar el modo Shabat';
-
-  @override
-  String get settingsShabbatEnableHint =>
-      'Las notificaciones se pausan automáticamente durante Shabat';
-
-  @override
-  String get settingsShabbatIncludeHolidays => 'Incluir las fiestas';
-
-  @override
-  String get settingsShabbatIncludeHolidaysHint =>
-      'Pausa también durante Yom Tov';
-
-  @override
-  String get settingsShabbatBuffer => 'Margen antes de encender las velas';
-
-  @override
-  String settingsMinutesShort(int minutes) {
-    return '$minutes min';
+  String settingsShabbatBasedOn(String place) {
+    return 'Basado en $place';
   }
 
   @override
-  String settingsMinutesSpoken(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes minutos',
-      one: '1 minuto',
-    );
-    return '$_temp0';
-  }
+  String get settingsShabbatDefaultPlace => 'París, Francia';
 
   @override
-  String get settingsShabbatEdit => 'Editar';
+  String get settingsShabbatUnknownPlaceHint =>
+      'Los horarios son los de París, porque no se conoce tu ciudad. Añádela en los ajustes para obtener horarios exactos.';
 
   @override
   String get settingsShabbatExplanation =>
-      'Las notificaciones se pausan y los mensajes esperan. Lo recibirás todo al terminar Shabat, y tu estado mostrará «Modo Shabat».';
+      'El encendido de velas es 18 minutos antes de la puesta de sol, y la Havdalá al caer la noche. Para cambiar de lugar, actualiza tu ciudad en los ajustes.';
 
   @override
   String get settingsShabbatHeroTitle => 'Shabat\nshalom.';
 
   @override
-  String get settingsShabbatHeroSubtitle =>
-      'Mazl descansa contigo. Tus mensajes te esperarán hasta la Havdalá.';
+  String get settingsShabbatHeroSubtitle => 'Mazl descansa contigo.';
 
   @override
   String get settingsShabbatCandleLighting => 'Encendido de velas';

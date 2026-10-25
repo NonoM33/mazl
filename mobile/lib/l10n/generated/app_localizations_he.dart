@@ -2956,7 +2956,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get onboardingPage4Body =>
-      'הפסקה אוטומטית בשבת ובחגים, בלי להגדיר דבר.';
+      'זמני הדלקת נרות והבדלה לעיר שלכם, ומסך מנוחה.';
 
   @override
   String get onboardingPage5Title => 'שדכן AI';
@@ -4315,7 +4315,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsShabbatMode => 'מצב שבת';
 
   @override
-  String get settingsShabbatAutoPause => 'השהיה אוטומטית';
+  String get settingsShabbatAutoPause => 'זמני שבת';
 
   @override
   String get settingsHolidayAlerts => 'התראות חגים';
@@ -4528,56 +4528,26 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsCoupleActivate => 'הפעלה';
 
   @override
-  String get settingsShabbatCity => 'מבוסס על פריז, צרפת';
-
-  @override
-  String get settingsShabbatSettingsHeader => 'הגדרות';
-
-  @override
-  String get settingsShabbatEnable => 'הפעלת מצב שבת';
-
-  @override
-  String get settingsShabbatEnableHint => 'ההתראות מושהות אוטומטית בשבת';
-
-  @override
-  String get settingsShabbatIncludeHolidays => 'לכלול חגים';
-
-  @override
-  String get settingsShabbatIncludeHolidaysHint => 'השהיה גם ביום טוב';
-
-  @override
-  String get settingsShabbatBuffer => 'מרווח לפני הדלקת נרות';
-
-  @override
-  String settingsMinutesShort(int minutes) {
-    return '$minutes דק׳';
+  String settingsShabbatBasedOn(String place) {
+    return 'מבוסס על $place';
   }
 
   @override
-  String settingsMinutesSpoken(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes דקות',
-      two: 'שתי דקות',
-      one: 'דקה אחת',
-    );
-    return '$_temp0';
-  }
+  String get settingsShabbatDefaultPlace => 'פריז, צרפת';
 
   @override
-  String get settingsShabbatEdit => 'עריכה';
+  String get settingsShabbatUnknownPlaceHint =>
+      'השעות הן של פריז, כי העיר שלכם אינה ידועה. הוסיפו אותה בהגדרות לשעות מדויקות.';
 
   @override
   String get settingsShabbatExplanation =>
-      'ההתראות מושהות וההודעות ממתינות. הכול יגיע בתום השבת, והסטטוס יציג “מצב שבת”.';
+      'הדלקת נרות 18 דקות לפני השקיעה, והבדלה עם צאת הכוכבים. כדי לשנות מקום, עדכנו את העיר בהגדרות.';
 
   @override
   String get settingsShabbatHeroTitle => 'שבת\nשלום.';
 
   @override
-  String get settingsShabbatHeroSubtitle =>
-      'Mazl נח איתכם. ההודעות ימתינו להבדלה.';
+  String get settingsShabbatHeroSubtitle => 'Mazl נח איתכם.';
 
   @override
   String get settingsShabbatCandleLighting => 'הדלקת נרות';

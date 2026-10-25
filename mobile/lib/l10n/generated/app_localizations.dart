@@ -5085,7 +5085,7 @@ abstract class AppLocalizations {
   /// Présentation, page 4 : texte.
   ///
   /// In fr, this message translates to:
-  /// **'Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.'**
+  /// **'Les horaires d\'allumage et de havdala de votre ville, et un écran de repos.'**
   String get onboardingPage4Body;
 
   /// Présentation, page 5 : titre. Nom de la fonction d'entremetteuse par intelligence artificielle.
@@ -7451,10 +7451,10 @@ abstract class AppLocalizations {
   /// **'Mode Shabbat'**
   String get settingsShabbatMode;
 
-  /// Réglages : sous-titre de la ligne Mode Shabbat (les notifications se mettent en pause toutes seules).
+  /// Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre).
   ///
   /// In fr, this message translates to:
-  /// **'Pause automatique'**
+  /// **'Horaires de Shabbat'**
   String get settingsShabbatAutoPause;
 
   /// Réglages : interrupteur qui prévient avant les fêtes juives.
@@ -7823,70 +7823,28 @@ abstract class AppLocalizations {
   /// **'Activer'**
   String get settingsCoupleActivate;
 
-  /// Écran Mode Shabbat : la ville sur laquelle se basent les horaires, affichée sous les heures et dans la ligne de lieu.
+  /// Écran Mode Shabbat : la ligne sous les heures qui nomme le lieu pour lequel elles sont calculées. {place} est le nom de la ville du membre, ou « Paris, France » faute de ville.
   ///
   /// In fr, this message translates to:
-  /// **'Basé sur Paris, France'**
-  String get settingsShabbatCity;
+  /// **'Basé sur {place}'**
+  String settingsShabbatBasedOn(String place);
 
-  /// Écran Mode Shabbat : titre de la liste des réglages sous le bandeau sombre. Affiché en petites capitales.
+  /// Écran Mode Shabbat : nom du lieu utilisé quand la ville du membre n'est pas connue (Paris). Se glisse dans « Basé sur … ».
   ///
   /// In fr, this message translates to:
-  /// **'Réglages'**
-  String get settingsShabbatSettingsHeader;
+  /// **'Paris, France'**
+  String get settingsShabbatDefaultPlace;
 
-  /// Écran Mode Shabbat : interrupteur principal.
+  /// Écran Mode Shabbat : remplace le paragraphe du bas quand la ville du membre n'est pas connue (profil sans ville, ou profil illisible) : les heures affichées sont celles de Paris.
   ///
   /// In fr, this message translates to:
-  /// **'Activer le mode Shabbat'**
-  String get settingsShabbatEnable;
+  /// **'Les horaires sont ceux de Paris, car votre ville n\'est pas connue. Ajoutez-la dans les réglages pour des horaires exacts.'**
+  String get settingsShabbatUnknownPlaceHint;
 
-  /// Écran Mode Shabbat : sous-titre de l'interrupteur principal.
+  /// Écran Mode Shabbat : paragraphe en bas de page qui dit comment les heures sont calculées (18 minutes avant le coucher du soleil, havdala à la tombée de la nuit) et où changer de lieu (la ville se règle dans les réglages). Ne promet aucune pause ni aucun statut.
   ///
   /// In fr, this message translates to:
-  /// **'Pause automatique des notifications pendant Shabbat'**
-  String get settingsShabbatEnableHint;
-
-  /// Écran Mode Shabbat : interrupteur qui étend la pause aux fêtes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inclure les fêtes'**
-  String get settingsShabbatIncludeHolidays;
-
-  /// Écran Mode Shabbat : sous-titre de l'interrupteur des fêtes. Yom Tov désigne un jour de fête.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pause aussi pendant Yom Tov'**
-  String get settingsShabbatIncludeHolidaysHint;
-
-  /// Écran Mode Shabbat : curseur du délai de pause avant l'heure d'allumage des bougies.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marge avant l\'allumage'**
-  String get settingsShabbatBuffer;
-
-  /// Une durée courte en minutes, par exemple « 18 min ». Valeur du curseur de marge.
-  ///
-  /// In fr, this message translates to:
-  /// **'{minutes} min'**
-  String settingsMinutesShort(int minutes);
-
-  /// Lue par le lecteur d'écran pour le curseur de marge (phrase entière, pas d'abréviation).
-  ///
-  /// In fr, this message translates to:
-  /// **'{minutes, plural, =0{0 minutes} one{{minutes} minute} other{{minutes} minutes}}'**
-  String settingsMinutesSpoken(int minutes);
-
-  /// Écran Mode Shabbat : bouton qui changera la ville. Environ 10 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Modifier'**
-  String get settingsShabbatEdit;
-
-  /// Écran Mode Shabbat : paragraphe en bas de page qui explique ce que fait la pause. Le nom entre guillemets est celui du statut (comme « Mode Shabbat » des réglages).
-  ///
-  /// In fr, this message translates to:
-  /// **'Les notifications sont mises en pause et les messages attendent. Vous recevrez tout après la fin de Shabbat, et votre statut affichera « Mode Shabbat ».'**
+  /// **'Allumage 18 minutes avant le coucher du soleil, havdala à la tombée de la nuit. Pour changer de lieu, modifiez votre ville dans les réglages.'**
   String get settingsShabbatExplanation;
 
   /// Bandeau sombre du mode Shabbat : le grand titre sur deux lignes (« Shabbat shalom. »). Le retour à la ligne est voulu.
@@ -7895,10 +7853,10 @@ abstract class AppLocalizations {
   /// **'Shabbat\nshalom.'**
   String get settingsShabbatHeroTitle;
 
-  /// Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire.
+  /// Bandeau sombre du mode Shabbat : phrase sous le titre. Mazl est le nom de l'app écrit ainsi, ne pas le traduire. Ne promet aucune pause des notifications.
   ///
   /// In fr, this message translates to:
-  /// **'Mazl se repose avec vous. Vos messages vous attendront à la havdala.'**
+  /// **'Mazl se repose avec vous.'**
   String get settingsShabbatHeroSubtitle;
 
   /// Bandeau du mode Shabbat : petit libellé au-dessus de l'heure d'allumage des bougies. Affiché en majuscules, demi-largeur d'écran.

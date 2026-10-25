@@ -71,7 +71,7 @@
   "@onboardingPage4Title": {
     "description": "Présentation, page 4 : titre (le mode Shabbat de l'app)."
   },
-  "onboardingPage4Body": "Une pause automatique pendant Shabbat et les fêtes, sans rien à régler.",
+  "onboardingPage4Body": "Les horaires d'allumage et de havdala de votre ville, et un écran de repos.",
   "@onboardingPage4Body": {
     "description": "Présentation, page 4 : texte."
   },
