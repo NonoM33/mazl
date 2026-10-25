@@ -3,5 +3,5 @@
 "NSCameraUsageDescription" = "המצלמה משמשת את MAZL לצילום תמונות הפרופיל ולווידוא שהתמונות הן שלך.";
 "NSPhotoLibraryUsageDescription" = "הגישה לתמונות נדרשת על ידי MAZL כדי שאפשר יהיה לבחור את תמונות הפרופיל.";
 "NSLocationWhenInUseUsageDescription" = "המיקום המשוער שלך משמש את MAZL כדי להציע פרופילים בקרבת מקום. המיקום המדויק לעולם אינו משותף.";
-"NSMicrophoneUsageDescription" = "המיקרופון משמש את MAZL להודעות קוליות ולשיחות וידאו.";
+"NSMicrophoneUsageDescription" = "המיקרופון משמש את MAZL להקלטת הודעות קוליות בשיחה.";
 "NFCReaderUsageDescription" = "השבב שבדרכון או בתעודת הזהות נקרא על ידי MAZL כדי לאמת את הזהות שלך. שום דבר לא נשמר.";

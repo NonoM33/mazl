@@ -6,8 +6,13 @@
 #     ~/.appstoreconnect/private_keys/AuthKey_<ASC_KEY_ID>.p8 (ou ASC_KEY_PATH)
 #   SIGNING_DIR      : dossier prive du mot de passe du trousseau (defaut ~/.neo-signing)
 #   SIGNING_KEYCHAIN : trousseau dedie (defaut ~/Library/Keychains/neo-signing.keychain-db)
+#   SENTRY_DSN       : (facultatif) DSN Sentry. Present, il est passe au build par
+#     --dart-define et le signalement des plantages s'active ; absent, l'app
+#     n'envoie rien. Il ne s'ecrit jamais dans le depot.
 # Usage, depuis mobile/ios : fastlane beta
 # Le numero de build est l'horodatage (AAAAMMJJHHMM) : toujours croissant.
+require "shellwords"
+
 default_platform(:ios)
 
 BUNDLE_ID = "com.mazl.app"
@@ -34,7 +39,10 @@ platform :ios do
     profil = lane_context[SharedValues::SIGH_NAME]
 
     build = Time.now.strftime("%Y%m%d%H%M")
-    sh("cd ../.. && flutter build ios --release --config-only --build-number=#{build}")
+    dsn = ENV.fetch("SENTRY_DSN", "").strip
+    dart_defines = dsn.empty? ? "" : " --dart-define=SENTRY_DSN=#{Shellwords.escape(dsn)}"
+    # Le DSN est une cle d'envoi : on n'ecrit pas la commande dans le journal quand il y en a un.
+    sh("cd ../.. && flutter build ios --release --config-only --build-number=#{build}#{dart_defines}", log: dsn.empty?)
     begin
       update_code_signing_settings(path: "Runner.xcodeproj", targets: ["Runner"],
                                    use_automatic_signing: false, team_id: TEAM_ID,

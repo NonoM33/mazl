@@ -50,13 +50,15 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MAZL utilise ta position approximative pour te proposer des profils proches. Ta position exacte n'est jamais partagee.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>MAZL utilise le micro pour les messages vocaux et les appels vidéo.</string>
+	<string>MAZL utilise le micro pour enregistrer les messages vocaux envoyés dans une conversation.</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>MAZL lit la puce de ton passeport ou de ta carte d'identite pour verifier ton identite. Rien n'est conserve.</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A0000002471001</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -94,15 +96,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>

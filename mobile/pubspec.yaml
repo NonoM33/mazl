@@ -49,13 +49,8 @@ dependencies:
   image_picker: ^1.1.2
   photo_view: ^0.15.0
 
-  # Video Calls
-  agora_rtc_engine: ^6.5.3
+  # Permissions
   permission_handler: ^11.3.1
-
-  # Location Services
-  geolocator: ^12.0.0
-  geocoding: ^3.0.0
 
   # Local Storage
   shared_preferences: ^2.2.3
@@ -95,6 +90,7 @@ dependencies:
   path_provider: ^2.1.5
   clock: ^1.1.1
   mobile_scanner: ^7.4.2
+  sentry_flutter: ^10.2.0
 
 dev_dependencies:
   flutter_test:

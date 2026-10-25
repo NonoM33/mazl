@@ -1,24 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "agorainfra_ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/AgoraIO/AgoraInfra_iOS.git",
-      "state" : {
-        "revision" : "4dfb30919815b1d4f2abb9e2cfbff345cfe5e493",
-        "version" : "1.3.16"
-      }
-    },
-    {
-      "identity" : "agorartcengine_ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/AgoraIO/AgoraRtcEngine_iOS.git",
-      "state" : {
-        "revision" : "4f6fea0f026e92c8134791fde1e94bb429689084",
-        "version" : "4.7.0"
-      }
-    },
-    {
       "identity" : "app-check",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/app-check.git",
@@ -88,6 +70,15 @@
       "state" : {
         "revision" : "f4a19a3c313dc2616c70bb49d29a799fb16be837",
         "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "sentry-cocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/getsentry/sentry-cocoa",
+      "state" : {
+        "revision" : "2f64c77f77514acd01780d1aac86ae75b7fccd04",
+        "version" : "9.31.0"
       }
     }
   ],

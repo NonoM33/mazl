@@ -3,5 +3,5 @@
 "NSCameraUsageDescription" = "MAZL uses the camera to take your profile photos and to check that it's really you.";
 "NSPhotoLibraryUsageDescription" = "MAZL accesses your photos so you can choose the ones for your profile.";
 "NSLocationWhenInUseUsageDescription" = "MAZL uses your approximate location to suggest profiles near you. Your exact location is never shared.";
-"NSMicrophoneUsageDescription" = "MAZL uses the microphone for voice messages and video calls.";
+"NSMicrophoneUsageDescription" = "MAZL uses the microphone to record voice messages sent in a conversation.";
 "NFCReaderUsageDescription" = "MAZL reads the chip in your passport or ID card to verify your identity. Nothing is kept.";
