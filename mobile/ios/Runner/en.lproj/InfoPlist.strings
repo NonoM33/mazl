@@ -1,0 +1,7 @@
+/* iOS permission prompts, in English (fallback language).
+   Translated from fr.lproj. Rules: docs/i18n.md, « Textes du système ». */
+"NSCameraUsageDescription" = "MAZL uses the camera to take your profile photos and to check that it's really you.";
+"NSPhotoLibraryUsageDescription" = "MAZL accesses your photos so you can choose the ones for your profile.";
+"NSLocationWhenInUseUsageDescription" = "MAZL uses your approximate location to suggest profiles near you. Your exact location is never shared.";
+"NSMicrophoneUsageDescription" = "MAZL uses the microphone for voice messages and video calls.";
+"NFCReaderUsageDescription" = "MAZL reads the chip in your passport or ID card to verify your identity. Nothing is kept.";

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand name, identical in every language (docs/i18n.md). Android writes
+         the permission prompts itself: the app has no text of its own to translate. -->
+    <string name="app_name" translatable="false">mazl</string>
+</resources>

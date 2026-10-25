@@ -1,0 +1,7 @@
+/* Textes des demandes d'autorisation iOS, en français (référence).
+   Mot pour mot ceux de Info.plist. Règles : docs/i18n.md, « Textes du système ». */
+"NSCameraUsageDescription" = "MAZL utilise la camera pour prendre tes photos de profil et verifier que c'est bien toi.";
+"NSPhotoLibraryUsageDescription" = "MAZL accede a tes photos pour que tu choisisses celles de ton profil.";
+"NSLocationWhenInUseUsageDescription" = "MAZL utilise ta position approximative pour te proposer des profils proches. Ta position exacte n'est jamais partagee.";
+"NSMicrophoneUsageDescription" = "MAZL utilise le micro pour les messages vocaux et les appels vidéo.";
+"NFCReaderUsageDescription" = "MAZL lit la puce de ton passeport ou de ta carte d'identite pour verifier ton identite. Rien n'est conserve.";
