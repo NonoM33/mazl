@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../config/env.dart';
+import '../session_guard.dart';
 
 /// Réponse HTTP du backend : le code compte (409 et 422 n'ont pas le même
 /// sens), le corps est du JSON ou absent.
@@ -49,22 +50,32 @@ class HttpSubscriptionApi implements SubscriptionApi {
 
   @override
   Future<ApiReply> get(String path) async {
-    final response = await http
-        .get(Uri.parse('$_baseUrl$path'), headers: _headers)
-        .timeout(_timeout);
-    return _reply(response);
+    final client = SessionGuardClient();
+    try {
+      final response = await client
+          .get(Uri.parse('$_baseUrl$path'), headers: _headers)
+          .timeout(_timeout);
+      return _reply(response);
+    } finally {
+      client.close();
+    }
   }
 
   @override
   Future<ApiReply> post(String path, Map<String, Object?> body) async {
-    final response = await http
-        .post(
-          Uri.parse('$_baseUrl$path'),
-          headers: _headers,
-          body: jsonEncode(body),
-        )
-        .timeout(_timeout);
-    return _reply(response);
+    final client = SessionGuardClient();
+    try {
+      final response = await client
+          .post(
+            Uri.parse('$_baseUrl$path'),
+            headers: _headers,
+            body: jsonEncode(body),
+          )
+          .timeout(_timeout);
+      return _reply(response);
+    } finally {
+      client.close();
+    }
   }
 
   ApiReply _reply(http.Response response) {

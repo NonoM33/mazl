@@ -51,6 +51,15 @@
   "@authErrorUnsupported": {
     "description": "Connexion avec Apple : proposée sur iPhone et Mac seulement."
   },
+  "authErrorAccountDisabled": "Votre compte est désactivé. Écrivez-nous à {contact}.",
+  "@authErrorAccountDisabled": {
+    "description": "Connexion : bandeau affiché quand l'app a mis fin à la session parce que le compte a été désactivé. {contact} est l'adresse à laquelle écrire, insérée telle quelle.",
+    "placeholders": {
+      "contact": {
+        "type": "String"
+      }
+    }
+  },
   "authRouteErrorTitle": "Page introuvable",
   "@authRouteErrorTitle": {
     "description": "Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas."

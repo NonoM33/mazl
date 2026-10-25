@@ -46,6 +46,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette méthode de connexion n\'est pas disponible sur cet appareil.';
 
   @override
+  String authErrorAccountDisabled(String contact) {
+    return 'Votre compte est désactivé. Écrivez-nous à $contact.';
+  }
+
+  @override
   String get authRouteErrorTitle => 'Page introuvable';
 
   @override

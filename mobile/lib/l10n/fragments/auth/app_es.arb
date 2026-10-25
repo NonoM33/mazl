@@ -10,6 +10,7 @@
   "authErrorGeneric": "Ha ocurrido un error. Inténtalo de nuevo.",
   "authErrorCancelled": "Inicio de sesión cancelado.",
   "authErrorUnsupported": "Este método de inicio de sesión no está disponible en este dispositivo.",
+  "authErrorAccountDisabled": "Tu cuenta está desactivada. Escríbenos a {contact}.",
   "authRouteErrorTitle": "Página no encontrada",
   "authRouteErrorBody": "Ha ocurrido un error",
   "authRouteErrorHome": "Volver al inicio"

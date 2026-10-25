@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'Cette méthode de connexion n\'est pas disponible sur cet appareil.'**
   String get authErrorUnsupported;
 
+  /// Connexion : bandeau affiché quand l'app a mis fin à la session parce que le compte a été désactivé. {contact} est l'adresse à laquelle écrire, insérée telle quelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte est désactivé. Écrivez-nous à {contact}.'**
+  String authErrorAccountDisabled(String contact);
+
   /// Page d'erreur de l'app : titre quand l'adresse demandée n'existe pas.
   ///
   /// In fr, this message translates to:

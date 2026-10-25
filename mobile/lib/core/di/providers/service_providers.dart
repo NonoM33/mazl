@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/auth_service.dart';
 import '../../services/couple_service.dart';
 import '../../services/profile_completeness_service.dart';
+import '../../services/session_end.dart';
 import '../../services/store/subscription_service.dart';
 
 /// Subscription Service Provider
@@ -23,6 +24,14 @@ final subscriptionServiceProvider = ChangeNotifierProvider<SubscriptionService>(
 final authServiceProvider = ChangeNotifierProvider<AuthService>((ref) {
   return AuthService();
 });
+
+/// Why the app last ended the member's session by itself (expired token,
+/// disabled account), read when the login screen opens. A function, not a
+/// value: it must answer for the session that just ended, whenever it is asked.
+final sessionEndReasonReaderProvider = Provider<SessionEndReason? Function()>(
+  (ref) =>
+      () => AuthService().sessionEndReason,
+);
 
 /// Profile completeness (gender / looking-for given or not)
 ///

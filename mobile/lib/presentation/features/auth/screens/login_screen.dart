@@ -10,6 +10,7 @@ import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/services/session_end.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/open_public_link.dart';
@@ -46,6 +47,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   _SignInMethod? _activeMethod;
   String Function(AppLocalizations l10n)? _error;
 
+  /// Set when the app ended the last session by itself: the screen says why.
+  late final SessionEndReason? _endedBecause;
+
   late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
     ..onTap = () => (widget.onOpenTerms ?? _openTerms)();
   late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
@@ -53,6 +57,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _openTerms() => openPublicLink(context, ref, PublicLinks.terms);
   void _openPrivacy() => openPublicLink(context, ref, PublicLinks.privacy);
+
+  @override
+  void initState() {
+    super.initState();
+    _endedBecause = ref.read(sessionEndReasonReaderProvider)();
+  }
+
+  String? _sessionNotice(AppLocalizations l10n) => switch (_endedBecause) {
+    SessionEndReason.expired => l10n.errorSessionExpired,
+    SessionEndReason.accountDisabled => l10n.authErrorAccountDisabled(PublicLinks.help.path),
+    null => null,
+  };
 
   bool get _showApple => widget.showApple ?? Platform.isIOS;
 
@@ -174,7 +190,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (_error != null)
-                          _ErrorBanner(message: _error!(context.l10n)),
+                          _ErrorBanner(message: _error!(context.l10n))
+                        else if (_sessionNotice(context.l10n) case final notice?)
+                          _ErrorBanner(message: notice),
                         _buildActions(),
                         const SizedBox(height: 20),
                         _buildLegal(context),

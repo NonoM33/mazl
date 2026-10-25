@@ -161,6 +161,10 @@ const _notUserFacing = <String, (String, List<String>)>{
       'Non spécifié',
     ],
   ),
+  'lib/core/services/session_guard.dart': (
+    'en-tête HTTP',
+    ['Bearer '],
+  ),
   'lib/core/privacy/privacy_consent_api.dart': (
     'en-tête HTTP et message de FormatException, journal',
     [r'Bearer $token', 'unexpected response body'],

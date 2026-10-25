@@ -10,6 +10,7 @@
   "authErrorGeneric": "Произошла ошибка. Повторите попытку.",
   "authErrorCancelled": "Вход отменён.",
   "authErrorUnsupported": "Этот способ входа недоступен на этом устройстве.",
+  "authErrorAccountDisabled": "Ваш аккаунт отключён. Напишите нам: {contact}.",
   "authRouteErrorTitle": "Страница не найдена",
   "authRouteErrorBody": "Произошла ошибка",
   "authRouteErrorHome": "На главную"

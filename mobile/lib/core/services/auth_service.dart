@@ -16,6 +16,8 @@ import '../dev/dev_session.dart';
 import 'api_service.dart';
 import 'profile_completeness_service.dart';
 import 'push_notification_service.dart';
+import 'session_end.dart';
+import 'session_guard.dart';
 import 'store/store_session.dart';
 
 /// User authentication data
@@ -139,13 +141,23 @@ class AuthResult {
 /// Authentication Service handling Google and Apple Sign-In (v1: no e-mail
 /// sign-in, the server has no such route)
 class AuthService extends ChangeNotifier {
-  static final AuthService _instance = AuthService._internal();
+  static AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
-  AuthService._internal();
+  AuthService._internal() : _pushService = PushNotificationService();
+
+  /// An instance with its own push service, for tests that must observe the
+  /// sign-out without OneSignal.
+  @visibleForTesting
+  AuthService.forTesting({required PushNotificationService push})
+    : _pushService = push;
+
+  /// Replaces the singleton; the next `AuthService()` returns [service].
+  @visibleForTesting
+  static set instanceForTesting(AuthService service) => _instance = service;
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final StoreSession _store = StoreSession();
-  final PushNotificationService _pushService = PushNotificationService();
+  final PushNotificationService _pushService;
   final ProfileCompletenessService _profileCompleteness = ProfileCompletenessService();
 
   static const String _userKey = 'current_user';
@@ -153,6 +165,8 @@ class AuthService extends ChangeNotifier {
 
   AuthUser? _currentUser;
   bool _isInitialized = false;
+  SessionEndReason? _sessionEndReason;
+  bool _endingSession = false;
 
   // Google Sign-In instance
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -165,6 +179,11 @@ class AuthService extends ChangeNotifier {
 
   /// Check if user is authenticated
   bool get isAuthenticated => _currentUser != null;
+
+  /// Why the app signed the member out by itself (expired token, disabled
+  /// account), until the next sign-in. `null` while signed in, and after a
+  /// sign-out the member chose.
+  SessionEndReason? get sessionEndReason => _sessionEndReason;
 
   /// Initialize auth service and restore session
   Future<void> initialize() async {
@@ -207,6 +226,7 @@ class AuthService extends ChangeNotifier {
       provider: AuthProvider.email,
     );
     DevSession.start();
+    _sessionEndReason = null;
     _profileCompleteness.reset();
     // A demo session always starts empty: drop the couple cached by a previous
     // run, or the first sync would announce « Le mode couple a pris fin ».
@@ -417,6 +437,34 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Ends the session because the server (HTTP 401, 403 `account_disabled`) or
+  /// the socket (close 4001, 4003) says it is over: the same sign-out as the
+  /// settings', and the router brings back the login screen.
+  ///
+  /// Safe to call from every request that fails at once: only the first call
+  /// signs out. [requestToken] is the token the failed request carried; an
+  /// answer to a previous session leaves the current one alone.
+  Future<void> endSession(
+    SessionEndReason reason, {
+    String? requestToken,
+  }) async {
+    final user = _currentUser;
+    if (user == null || _endingSession || DevSession.isActive) return;
+    if (requestToken != null && requestToken != user.jwtToken) return;
+    _endingSession = true;
+    _sessionEndReason = reason;
+    try {
+      await signOut();
+    } catch (e) {
+      // The session is over whatever the cleanup said: do not stay in it.
+      debugPrint('AuthService: sign-out after the session ended failed - $e');
+      _currentUser = null;
+      notifyListeners();
+    } finally {
+      _endingSession = false;
+    }
+  }
+
   /// Delete user account (RGPD compliant)
   Future<AuthResult> deleteAccount({String? reason}) async {
     try {
@@ -427,17 +475,23 @@ class AuthService extends ChangeNotifier {
       debugPrint('AuthService: Deleting account for user ${_currentUser!.id}');
 
       // Call backend to delete user data
-      final response = await http.delete(
-        Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (_currentUser!.jwtToken != null)
-            'Authorization': 'Bearer ${_currentUser!.jwtToken}',
-        },
-        body: jsonEncode({
-          'reason': reason ?? 'Non spécifié',
-        }),
-      );
+      final client = SessionGuardClient();
+      final http.Response response;
+      try {
+        response = await client.delete(
+          Uri.parse('${ApiConfig.baseUrl}/api/users/me'),
+          headers: {
+            'Content-Type': 'application/json',
+            if (_currentUser!.jwtToken != null)
+              'Authorization': 'Bearer ${_currentUser!.jwtToken}',
+          },
+          body: jsonEncode({
+            'reason': reason ?? 'Non spécifié',
+          }),
+        );
+      } finally {
+        client.close();
+      }
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         debugPrint('AuthService: Delete account error - ${response.body}');
@@ -462,10 +516,15 @@ class AuthService extends ChangeNotifier {
   /// unknown; Discover then answers 409 and the router reacts.
   Future<void> _loadProfileCompleteness() => _profileCompleteness.refresh();
 
+  /// Opens a session without the network, for tests.
+  @visibleForTesting
+  Future<void> debugSignIn(AuthUser user) => _saveUser(user);
+
   /// Save user to secure storage
   Future<void> _saveUser(AuthUser user) async {
     // A new account must not inherit the previous one's answer.
     _profileCompleteness.reset();
+    _sessionEndReason = null;
     _currentUser = user;
     await _secureStorage.write(
       key: _userKey,

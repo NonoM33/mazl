@@ -44,6 +44,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get authErrorUnsupported => 'שיטת ההתחברות הזו אינה זמינה במכשיר הזה.';
 
   @override
+  String authErrorAccountDisabled(String contact) {
+    return 'החשבון שלך הושבת. כתבו לנו אל $contact.';
+  }
+
+  @override
   String get authRouteErrorTitle => 'העמוד לא נמצא';
 
   @override

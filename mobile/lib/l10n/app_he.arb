@@ -11,6 +11,7 @@
   "authErrorGeneric": "אירעה שגיאה. יש לנסות שוב.",
   "authErrorCancelled": "ההתחברות בוטלה.",
   "authErrorUnsupported": "שיטת ההתחברות הזו אינה זמינה במכשיר הזה.",
+  "authErrorAccountDisabled": "החשבון שלך הושבת. כתבו לנו אל {contact}.",
   "authRouteErrorTitle": "העמוד לא נמצא",
   "authRouteErrorBody": "אירעה שגיאה",
   "authRouteErrorHome": "חזרה לדף הבית",

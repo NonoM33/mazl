@@ -11,6 +11,7 @@
   "authErrorGeneric": "Something went wrong. Please try again.",
   "authErrorCancelled": "Sign-in cancelled.",
   "authErrorUnsupported": "This sign-in method isn't available on this device.",
+  "authErrorAccountDisabled": "Your account is disabled. Write to us at {contact}.",
   "authRouteErrorTitle": "Page not found",
   "authRouteErrorBody": "Something went wrong",
   "authRouteErrorHome": "Back to home",

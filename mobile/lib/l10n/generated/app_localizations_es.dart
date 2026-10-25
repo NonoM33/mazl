@@ -46,6 +46,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este método de inicio de sesión no está disponible en este dispositivo.';
 
   @override
+  String authErrorAccountDisabled(String contact) {
+    return 'Tu cuenta está desactivada. Escríbenos a $contact.';
+  }
+
+  @override
   String get authRouteErrorTitle => 'Página no encontrada';
 
   @override

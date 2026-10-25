@@ -46,6 +46,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот способ входа недоступен на этом устройстве.';
 
   @override
+  String authErrorAccountDisabled(String contact) {
+    return 'Ваш аккаунт отключён. Напишите нам: $contact.';
+  }
+
+  @override
   String get authRouteErrorTitle => 'Страница не найдена';
 
   @override

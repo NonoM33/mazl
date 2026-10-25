@@ -12,7 +12,9 @@ const _publicRoutes = [
 /// The router's single redirect, free of any screen so it can be tested.
 ///
 /// 1. the splash routes by itself;
-/// 2. a visitor who is not signed in only gets the public routes;
+/// 2. a visitor who is not signed in only gets the public routes, and lands on
+///    the onboarding; a member whose session the app just ended
+///    ([sessionEnded]) lands on the login instead;
 /// 3. a signed-in member whose profile lacks gender / looking-for goes to the
 ///    profile setup, from any protected route;
 /// 4. one navigation at a time: dating or couple, never both.
@@ -21,10 +23,14 @@ String? appRedirect({
   required bool isAuthenticated,
   required bool profileIncomplete,
   required bool inCouple,
+  bool sessionEnded = false,
 }) {
   if (location == RoutePaths.splash) return null;
 
   if (!isAuthenticated) {
+    if (sessionEnded) {
+      return location == RoutePaths.login ? null : RoutePaths.login;
+    }
     return _publicRoutes.contains(location) ? null : RoutePaths.onboarding;
   }
 

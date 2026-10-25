@@ -46,6 +46,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'This sign-in method isn\'t available on this device.';
 
   @override
+  String authErrorAccountDisabled(String contact) {
+    return 'Your account is disabled. Write to us at $contact.';
+  }
+
+  @override
   String get authRouteErrorTitle => 'Page not found';
 
   @override

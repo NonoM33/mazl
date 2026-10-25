@@ -8,6 +8,7 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 
 import 'api_service.dart';
 import 'auth_service.dart';
+import 'session_guard.dart';
 import 'verification_api.dart';
 
 /// Real [VerificationApi]. CONTRACT: docs/verification/CONTRAT.md §3 and §4.
@@ -21,7 +22,7 @@ class HttpVerificationApi implements VerificationApi {
     String? Function()? tokenProvider,
     Duration? requestTimeout,
     Duration? uploadTimeout,
-  })  : _client = client ?? http.Client(),
+  })  : _client = SessionGuardClient(client),
         _baseUrl = baseUrl ?? ApiConfig.baseUrl,
         _token = tokenProvider ?? (() => AuthService().currentUser?.jwtToken),
         _requestTimeout = requestTimeout ?? ApiConfig.requestTimeout,
