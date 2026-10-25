@@ -106,6 +106,7 @@ import { registerMediaRoutes } from "./features/media/presentation/media.routes"
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
 import { assertKeysConfigured } from "./shared/crypto/keys";
+import { isDevelopmentEnvironment } from "./shared/runtime/development-environment";
 import { createObjectStore, readStorageConfig } from "./shared/storage";
 import {
   createDocumentsModule,
@@ -156,7 +157,7 @@ const verification = createVerificationModule({ sql, store: objectStore });
 // only when NODE_ENV says development or test. Any other value, unset
 // included, closes them: a staging server without NODE_ENV must not hand out
 // tokens for any e-mail.
-const DEV_ROUTES_ENABLED = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+const DEV_ROUTES_ENABLED = isDevelopmentEnvironment();
 if (DEV_ROUTES_ENABLED) console.warn(`Development routes are ENABLED (NODE_ENV=${process.env.NODE_ENV})`);
 
 // CORS: explicit allowlist of origins (comma-separated CORS_ORIGINS env or defaults)

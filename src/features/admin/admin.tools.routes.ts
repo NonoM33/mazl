@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import { sql, seedFakeProfiles, resetUserSwipes, resetAllSwipes } from "../../db";
 import { sendToUser } from "../../shared/realtime/connections";
+import { isDevelopmentEnvironment } from "../../shared/runtime/development-environment";
 import { assertAdmin } from "./admin.auth";
 
 // Admin developer/testing tools, moved verbatim from the monolith (src/index.ts).
@@ -76,6 +77,8 @@ export function registerAdminTestingRoutes(app: Hono<{ Variables: AppVariables }
 
   // Seed fake profiles (admin)
   app.post("/api/admin/seed-profiles", async (c) => {
+    // Fake members in a real community: closed outside development and test, whoever asks.
+    if (!isDevelopmentEnvironment()) return c.json({ success: false, error: "Not found" }, 404);
     const auth = assertAdmin(c);
     if (!auth.ok) return c.json({ success: false, error: auth.error }, 401);
 
