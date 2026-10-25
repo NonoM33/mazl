@@ -23,7 +23,7 @@ final class FoldPosturePlugin: NSObject, FlutterStreamHandler {
 
   func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
     sink = events
-    guard #available(iOS 27.1, *), let view = registrar?.viewController?.view else {
+    guard #available(iOS 27.1, *), let view = flutterView else {
       events(["hinge": "unknown", "divisions": []])
       return nil
     }
@@ -31,8 +31,21 @@ final class FoldPosturePlugin: NSObject, FlutterStreamHandler {
       self?.sink?(message)
     }
     view.addSubview(observer)
+    observer.setNeedsLayout()
     self.observer = observer
     return nil
+  }
+
+  /// The view Flutter draws in: the registrar's, else the root view of the
+  /// app's window (the implicit engine may not hand its view controller to
+  /// the registrar).
+  private var flutterView: UIView? {
+    if let view = registrar?.viewController?.view { return view }
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+      .first(where: \.isKeyWindow)
+    return window?.rootViewController?.view
   }
 
   func onCancel(withArguments arguments: Any?) -> FlutterError? {
@@ -67,6 +80,11 @@ private final class FoldObserverView: UIView {
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) is not supported")
+  }
+
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    report()
   }
 
   override func layoutSubviews() {
