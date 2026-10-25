@@ -19,6 +19,12 @@ import '../l10n/profile_answer_labels.dart';
 import 'edit_profile_screen.dart'
     show DenominationStoredValue, KashrutStoredValue, ShabbatStoredValue;
 
+/// What `PUT /api/profile` accepts (src/shared/http/validation.ts): longer
+/// values are refused with a 400. The fields stop the typing there, without
+/// showing a counter.
+const int _kDisplayNameMaxLength = 50;
+const int _kLocationMaxLength = 100;
+
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
 
@@ -363,6 +369,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         TextFormField(
           controller: _nameController,
           textCapitalization: TextCapitalization.words,
+          maxLength: _kDisplayNameMaxLength,
+          buildCounter: _noCounter,
           decoration: InputDecoration(
             labelText: l10n.profileFirstName,
             hintText: l10n.profileFirstNameHint,
@@ -415,6 +423,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         TextFormField(
           controller: _cityController,
           textCapitalization: TextCapitalization.words,
+          maxLength: _kLocationMaxLength,
+          buildCounter: _noCounter,
           decoration: InputDecoration(
             labelText: l10n.profileCity,
             hintText: l10n.profileCityHint,
@@ -657,6 +667,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 }
+
+/// The limit is enforced while typing; the design shows no counter.
+Widget? _noCounter(
+  BuildContext context, {
+  required int currentLength,
+  required int? maxLength,
+  required bool isFocused,
+}) => null;
 
 class _StepHeader extends StatelessWidget {
   const _StepHeader({

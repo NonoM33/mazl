@@ -12,9 +12,11 @@ import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/router/app_router.dart';
 import 'package:mazl/core/router/route_names.dart';
 import 'package:mazl/core/theme/app_theme.dart';
+import 'package:mazl/presentation/features/profile/screens/profile_setup_screen.dart';
 
 import '../../helpers/duo_poses.dart';
 import '../../helpers/l10n_helpers.dart';
+import '../../helpers/test_helpers.dart';
 import '../../presentation/privacy/privacy_fakes.dart';
 
 // The sign-up on the foldable iPhone (iPhone Duo): the four steps must fit
@@ -85,6 +87,24 @@ Future<DuoPoseController> _openSetup(
   await tester.pumpAndSettle();
   await settleFold(tester);
   return controller;
+}
+
+/// The screen alone, on a tall phone, with a stub router behind it.
+Future<void> _openPlain(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(390, 2400);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    createTestableWidget(
+      const ProfileSetupScreen(),
+      overrides: [
+        privacyConsentApiProvider.overrideWithValue(
+          FakePrivacyConsentApi(granted: true, version: '2026-10-24'),
+        ),
+      ],
+    ),
+  );
+  await tester.pumpAndSettle();
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -291,6 +311,54 @@ void main() {
         }
         expect(find.text(_stepTitles[0]), findsOneWidget);
         expect(find.text('Jeanne'), findsOneWidget);
+      });
+    });
+  });
+
+  group('server limits', () {
+    testWidgets(
+      'a 60 letter name and a 120 letter city are cut to 50 and 100',
+      (tester) async {
+        final server = _Server();
+        await _withServer(server, () async {
+          await _openPlain(tester);
+          await tester.enterText(
+            find.widgetWithText(TextFormField, 'Prénom'),
+            'A' * 60,
+          );
+          await tester.enterText(
+            find.widgetWithText(TextFormField, 'Ville'),
+            'B' * 120,
+          );
+          await tester.tap(find.byIcon(LucideIcons.calendar));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('OK'));
+          await tester.pumpAndSettle();
+          await _tap(tester, find.text('Une femme'));
+          for (var i = 0; i < 3; i++) {
+            await _next(tester);
+          }
+          await _tap(tester, find.text('Un homme'));
+          await _tap(tester, find.text('Terminer'));
+        });
+        expect(server.profileBodies, hasLength(1));
+        final body = server.profileBodies.single;
+        expect((body['displayName'] as String).length, lessThanOrEqualTo(50));
+        expect((body['location'] as String).length, lessThanOrEqualTo(100));
+      },
+    );
+
+    testWidgets('the limit shows no counter', (tester) async {
+      await _withServer(_Server(), () async {
+        await _openPlain(tester);
+        expect(find.text('0/50'), findsNothing);
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'Prénom'),
+          'Jeanne',
+        );
+        await tester.pump();
+        expect(find.text('6/50'), findsNothing);
+        expect(find.byType(ProfileSetupScreen), findsOneWidget);
       });
     });
   });
