@@ -47,7 +47,10 @@ void main() {
     });
 
     test('a group never crosses midnight', () {
-      final yesterday = today(23, 59).subtract(const Duration(days: 1));
+      // Calendar arithmetic, not 24 hours: on a daylight saving day,
+      // today 23:59 minus 24 h is still today.
+      final now = today(23, 59);
+      final yesterday = DateTime(now.year, now.month, now.day - 1, 23, 59);
       final items = _messages(
         buildChatItems(
           chatState([
