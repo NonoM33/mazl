@@ -1766,24 +1766,6 @@ abstract class AppLocalizations {
   /// **'Ajoutez vos anniversaires, fêtes, etc.'**
   String get coupleSpaceDatesEmptyHint;
 
-  /// Titre de la section des badges débloqués par le couple.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nos badges'**
-  String get coupleSpaceBadgesTitle;
-
-  /// État vide de la section des badges : titre.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucun badge pour l\'instant'**
-  String get coupleSpaceBadgesEmptyTitle;
-
-  /// État vide de la section des badges : comment en débloquer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Faites des activités ensemble pour débloquer des badges.'**
-  String get coupleSpaceBadgesEmptyHint;
-
   /// Message bref (snackbar) quand un objectif de la bucket list est marqué comme accompli.
   ///
   /// In fr, this message translates to:

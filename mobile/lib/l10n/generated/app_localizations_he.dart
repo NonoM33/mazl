@@ -985,15 +985,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coupleSpaceDatesEmptyHint => 'אפשר להוסיף ימי שנה, חגים ועוד.';
 
   @override
-  String get coupleSpaceBadgesTitle => 'התגים שלנו';
-
-  @override
-  String get coupleSpaceBadgesEmptyTitle => 'עדיין אין תגים';
-
-  @override
-  String get coupleSpaceBadgesEmptyHint => 'פעילויות משותפות פותחות תגים.';
-
-  @override
   String get coupleSpaceGoalDone => 'היעד הושג';
 
   @override

@@ -1003,16 +1003,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Добавьте годовщины, праздники и другие даты.';
 
   @override
-  String get coupleSpaceBadgesTitle => 'Наши значки';
-
-  @override
-  String get coupleSpaceBadgesEmptyTitle => 'Пока нет значков';
-
-  @override
-  String get coupleSpaceBadgesEmptyHint =>
-      'Занимайтесь вместе, чтобы открывать значки.';
-
-  @override
   String get coupleSpaceGoalDone => 'Цель достигнута';
 
   @override

@@ -214,7 +214,7 @@ void main() {
       await _pumpSpace(tester, size: _phones['390x844']!);
       await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
       await tester.pump();
-      final last = tester.getRect(find.text('Première activité'));
+      final last = tester.getRect(find.text('Notre anniversaire'));
       expect(last.bottom, lessThanOrEqualTo(844 - 34 - 16 + 0.5));
     });
 

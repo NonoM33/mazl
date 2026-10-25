@@ -103,7 +103,9 @@ void main() {
       expect(find.text('No memories yet'), findsOneWidget);
       expect(find.text('Your bucket list is empty'), findsOneWidget);
       expect(find.text('No important dates'), findsOneWidget);
-      expect(find.text('No badges yet'), findsOneWidget);
+      // No badge section: the server has no code that ever unlocks a badge.
+      expect(find.text('No badges yet'), findsNothing);
+      expect(find.text('OUR BADGES'), findsNothing);
     });
 
     testWidgets('une panne réseau se dit dans la langue, sans texte serveur', (

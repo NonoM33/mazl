@@ -1000,16 +1000,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Añade vuestros aniversarios, fiestas, etc.';
 
   @override
-  String get coupleSpaceBadgesTitle => 'Nuestras insignias';
-
-  @override
-  String get coupleSpaceBadgesEmptyTitle => 'Aún no hay insignias';
-
-  @override
-  String get coupleSpaceBadgesEmptyHint =>
-      'Haced actividades juntos para desbloquear insignias.';
-
-  @override
   String get coupleSpaceGoalDone => 'Objetivo cumplido';
 
   @override

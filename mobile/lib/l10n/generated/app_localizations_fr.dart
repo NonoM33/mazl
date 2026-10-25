@@ -997,16 +997,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajoutez vos anniversaires, fêtes, etc.';
 
   @override
-  String get coupleSpaceBadgesTitle => 'Nos badges';
-
-  @override
-  String get coupleSpaceBadgesEmptyTitle => 'Aucun badge pour l\'instant';
-
-  @override
-  String get coupleSpaceBadgesEmptyHint =>
-      'Faites des activités ensemble pour débloquer des badges.';
-
-  @override
   String get coupleSpaceGoalDone => 'Objectif accompli';
 
   @override

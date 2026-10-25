@@ -189,7 +189,8 @@ void main() {
       expect(find.text('3'), findsOneWidget);
       expect(find.text('1'), findsWidgets);
       expect(find.text('5'), findsOneWidget);
-      expect(find.text('Première activité'), findsOneWidget);
+      // Badges are not shown: nothing on the server ever unlocks one.
+      expect(find.text('Première activité'), findsNothing);
     });
 
     testWidgets('a failing load shows an error with a retry', (tester) async {

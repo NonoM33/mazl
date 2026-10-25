@@ -124,18 +124,6 @@
   "@coupleSpaceDatesEmptyHint": {
     "description": "État vide de la section des dates importantes : invitation à en ajouter."
   },
-  "coupleSpaceBadgesTitle": "Nos badges",
-  "@coupleSpaceBadgesTitle": {
-    "description": "Titre de la section des badges débloqués par le couple."
-  },
-  "coupleSpaceBadgesEmptyTitle": "Aucun badge pour l'instant",
-  "@coupleSpaceBadgesEmptyTitle": {
-    "description": "État vide de la section des badges : titre."
-  },
-  "coupleSpaceBadgesEmptyHint": "Faites des activités ensemble pour débloquer des badges.",
-  "@coupleSpaceBadgesEmptyHint": {
-    "description": "État vide de la section des badges : comment en débloquer."
-  },
   "coupleSpaceGoalDone": "Objectif accompli",
   "@coupleSpaceGoalDone": {
     "description": "Message bref (snackbar) quand un objectif de la bucket list est marqué comme accompli."
