@@ -109,3 +109,10 @@ bun --hot ./index.ts
 ```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+
+## iPhone Duo (pliable)
+
+Toute interface mobile doit etre parfaite ecran ferme, ouvert et a moitie plie :
+regles et preuves exigees dans le fichier importe ci-dessous.
+
+@/Users/nono/.claude/regles/iphone-duo.md

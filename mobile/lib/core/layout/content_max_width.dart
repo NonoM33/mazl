@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'fold_state.dart';
+
 /// Widest a single-column page grows: lines stay readable and the canon's
 /// margins keep their meaning. Only reached on a regular-width window; a
 /// compact one is narrower than this and is left untouched.
@@ -31,7 +33,7 @@ class ContentMaxWidth extends StatelessWidget {
         builder: (context, constraints) => Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            width: constraints.maxWidth < maxWidth ? constraints.maxWidth : maxWidth,
+            width: constraints.maxWidth < _maxWidthFor(context) ? constraints.maxWidth : _maxWidthFor(context),
             height: constraints.hasBoundedHeight ? constraints.maxHeight : null,
             child: child,
           ),
@@ -39,4 +41,12 @@ class ContentMaxWidth extends StatelessWidget {
       ),
     ),
   );
+
+  /// Held like a book and half open, the fold runs down the middle of the
+  /// window: the page takes the whole width so that each side of the fold
+  /// keeps a usable half (see [FoldAwareSplit]).
+  double _maxWidthFor(BuildContext context) {
+    final fold = FoldScope.of(context).activeDivision;
+    return fold != null && fold.height > fold.width ? double.infinity : maxWidth;
+  }
 }

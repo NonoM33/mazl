@@ -9,9 +9,15 @@ import 'core/motion/reduce_motion_scope.dart';
 import 'core/router/app_router.dart';
 import 'core/services/websocket_service.dart';
 import 'presentation/features/couple/widgets/couple_flow_host.dart';
+import 'core/layout/fold_channel.dart';
+import 'core/layout/fold_state.dart';
+import 'core/layout/side_safe_area.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
 import 'l10n/l10n.dart';
+
+/// One subscription to the fold of the device for the life of the app.
+final Stream<FoldState> _foldStates = platformFoldStates();
 
 class MazlApp extends ConsumerWidget {
   const MazlApp({super.key});
@@ -47,23 +53,30 @@ class MazlApp extends ConsumerWidget {
       // iOS « Réduire les animations » only reaches Flutter as
       // AccessibilityFeatures.reduceMotion: fold it into disableAnimations
       // for every screen, sheet and overlay. A tap outside a text field
-      // closes the keyboard, everywhere.
+      // closes the keyboard, everywhere. On the foldable iPhone, nothing is
+      // drawn under the side column of the status bar, and every screen can
+      // read the fold.
       builder: (context, child) {
         // DateFormat and NumberFormat without an explicit locale follow the
         // interface language.
         Intl.defaultLocale = Localizations.localeOf(context).toLanguageTag();
-        return ReduceMotionScope(
-          child: DismissKeyboardOnTap(
-            child: CoupleFlowHost(
-              service: couple,
-              router: router,
-              navigatorKey: rootNavigatorKey,
-              realtime: socket.events,
-              auth: auth,
-              isAuthenticated: () => auth.isAuthenticated,
-              onSignedIn: socket.connect,
-              onSignedOut: socket.disconnect,
-              child: child ?? const SizedBox.shrink(),
+        return FoldStateHost(
+          states: _foldStates,
+          child: SideSafeArea(
+            child: ReduceMotionScope(
+              child: DismissKeyboardOnTap(
+                child: CoupleFlowHost(
+                  service: couple,
+                  router: router,
+                  navigatorKey: rootNavigatorKey,
+                  realtime: socket.events,
+                  auth: auth,
+                  isAuthenticated: () => auth.isAuthenticated,
+                  onSignedIn: socket.connect,
+                  onSignedOut: socket.disconnect,
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
             ),
           ),
         );

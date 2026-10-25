@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -15,6 +16,11 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
+
+  /// The pages sit in the lead part of the screen while a half-open fold
+  /// splits it and in the page column otherwise: the key moves them from one
+  /// to the other without losing the page the member reached.
+  final GlobalKey _pagesKey = GlobalKey(debugLabel: 'onboarding-pages');
   int _currentPage = 0;
 
   static const _pageCount = 5;
@@ -68,58 +74,78 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  Widget _pageView(List<OnboardingPage> pages) => PageView.builder(
+    key: _pagesKey,
+    controller: _pageController,
+    itemCount: pages.length,
+    onPageChanged: (index) => setState(() => _currentPage = index),
+    itemBuilder: (context, index) => _OnboardingPageView(
+      page: pages[index],
+      index: index,
+      total: pages.length,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final pages = _pages(l10n);
+    final pages = _pages(context.l10n);
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Align(
-              alignment: AlignmentDirectional.topEnd,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 12, 0),
-                child: TextButton(
-                  onPressed: () => context.go(RoutePaths.login),
-                  child: Text(
-                    l10n.commonSkip,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: pages.length,
-                onPageChanged: (index) => setState(() => _currentPage = index),
-                itemBuilder: (context, index) => _OnboardingPageView(
-                  page: pages[index],
-                  index: index,
-                  total: pages.length,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: FoldAwareSplit(
+          lead: _pageView(pages),
+          action: Builder(
+            builder: (context) {
+              final split = FoldAwareSplit.axisOf(context) != null;
+              return Column(
                 children: [
-                  _ProgressBars(current: _currentPage, total: pages.length),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _next,
-                    child: Text(_isLastPage ? l10n.onboardingStart : l10n.commonContinue),
+                  _skipButton(context),
+                  Expanded(
+                    child: split ? const SizedBox.shrink() : _pageView(pages),
                   ),
+                  _controls(context, pages.length),
                 ],
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
+
+  Widget _skipButton(BuildContext context) => Align(
+    alignment: AlignmentDirectional.topEnd,
+    child: Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 12, 0),
+      child: TextButton(
+        onPressed: () => context.go(RoutePaths.login),
+        child: Text(
+          context.l10n.commonSkip,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _controls(BuildContext context, int total) => Padding(
+    padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ProgressBars(current: _currentPage, total: total),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: _next,
+          child: Text(
+            _isLastPage
+                ? context.l10n.onboardingStart
+                : context.l10n.commonContinue,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _OnboardingPageView extends StatelessWidget {
@@ -191,11 +217,17 @@ class _FeatureLine extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        border: last ? null : Border(bottom: BorderSide(color: scheme.outlineVariant)),
+        border: last
+            ? null
+            : Border(bottom: BorderSide(color: scheme.outlineVariant)),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: scheme.onSurface),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: scheme.onSurface,
+        ),
       ),
     );
   }

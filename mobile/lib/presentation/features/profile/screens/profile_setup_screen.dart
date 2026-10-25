@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -17,6 +18,12 @@ import '../../privacy/widgets/religious_data_gate.dart';
 import '../l10n/profile_answer_labels.dart';
 import 'edit_profile_screen.dart'
     show DenominationStoredValue, KashrutStoredValue, ShabbatStoredValue;
+
+/// What `PUT /api/profile` accepts (src/shared/http/validation.ts): longer
+/// values are refused with a 400. The fields stop the typing there, without
+/// showing a counter.
+const int _kDisplayNameMaxLength = 50;
+const int _kLocationMaxLength = 100;
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -72,7 +79,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.profileSetupStep(_currentStep + 1, _totalSteps)),
+        title: Text(
+          context.l10n.profileSetupStep(_currentStep + 1, _totalSteps),
+        ),
         leading: _currentStep > 0
             ? IconButton(
                 icon: const DirectionalIcon(LucideIcons.arrowLeft),
@@ -80,59 +89,126 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               )
             : null,
       ),
-      body: Column(
+      // Folded half open, the fold cuts the page: progress and title on one
+      // side of it, fields and button on the other. Otherwise the title
+      // scrolls with the fields of each step, as on any phone.
+      body: FoldAwareSplit(
+        lead: _buildLead(),
+        action: Builder(builder: _buildAction),
+      ),
+    );
+  }
+
+  Widget _buildLead() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Progress bar
-          LinearProgressIndicator(
-            value: (_currentStep + 1) / _totalSteps,
-            backgroundColor: AppColors.dividerLight,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-          ),
-
-          // Content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: (index) {
-                setState(() => _currentStep = index);
-              },
-              children: [
-                _buildBasicInfoStep(),
-                _buildPhotosStep(),
-                _buildJewishInfoStep(),
-                _buildPreferencesStep(),
-              ],
-            ),
-          ),
-
-          // Next button
+          _buildProgress(),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: SafeArea(
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _nextStep,
-                child: _isSaving
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        _currentStep < _totalSteps - 1
-                            ? context.l10n.profileSetupNext
-                            : context.l10n.profileSetupFinish,
-                      ),
-              ),
-            ),
+            padding: const EdgeInsets.all(24),
+            child: _headerFor(_currentStep),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildProgress() {
+    return LinearProgressIndicator(
+      value: (_currentStep + 1) / _totalSteps,
+      backgroundColor: AppColors.dividerLight,
+      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+    );
+  }
+
+  Widget _buildAction(BuildContext context) {
+    // The page is split: the title lives in the lead pane, not in the steps.
+    final inlineHeader = FoldAwareSplit.axisOf(context) == null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (inlineHeader) _buildProgress(),
+
+        // Content
+        Expanded(
+          child: PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            onPageChanged: (index) {
+              setState(() => _currentStep = index);
+            },
+            children: [
+              _buildBasicInfoStep(inlineHeader),
+              _buildPhotosStep(inlineHeader),
+              _buildJewishInfoStep(inlineHeader),
+              _buildPreferencesStep(inlineHeader),
+            ],
+          ),
+        ),
+
+        // Next button: the width of the fields, above the home bar
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+            child: ElevatedButton(
+              onPressed: _isSaving ? null : _nextStep,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      _currentStep < _totalSteps - 1
+                          ? context.l10n.profileSetupNext
+                          : context.l10n.profileSetupFinish,
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Title, explanation and indicator of [step].
+  Widget _headerFor(int step) {
+    final l10n = context.l10n;
+    return switch (step) {
+      0 => _StepHeader(
+        title: l10n.profileSetupAboutYouTitle,
+        subtitle: l10n.profileSetupAboutYouSubtitle,
+      ),
+      1 => _StepHeader(
+        title: l10n.profileSetupPhotosTitle,
+        subtitle: l10n.profileSetupPhotosSubtitle,
+        trailing: _isUploadingPhoto
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : null,
+      ),
+      2 => _StepHeader(
+        title: l10n.profileSetupPracticeTitle,
+        subtitle: l10n.profileSetupPracticeSubtitle,
+      ),
+      _ => _StepHeader(
+        title: l10n.profileSetupLookingTitle,
+        subtitle: l10n.profileSetupLookingSubtitle,
+      ),
+    };
+  }
+
+  /// The header at the top of a step's list, unless the lead pane shows it.
+  List<Widget> _inlineHeader(int step, bool inline) => [
+    if (inline) ...[_headerFor(step), const SizedBox(height: 32)],
+  ];
 
   // ============ NAVIGATION ============
 
@@ -283,20 +359,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   // ============ STEPS ============
 
-  Widget _buildBasicInfoStep() {
+  Widget _buildBasicInfoStep(bool inlineHeader) {
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _StepHeader(
-          title: l10n.profileSetupAboutYouTitle,
-          subtitle: l10n.profileSetupAboutYouSubtitle,
-        ),
-        const SizedBox(height: 32),
+        ..._inlineHeader(0, inlineHeader),
 
         TextFormField(
           controller: _nameController,
           textCapitalization: TextCapitalization.words,
+          maxLength: _kDisplayNameMaxLength,
+          buildCounter: _noCounter,
           decoration: InputDecoration(
             labelText: l10n.profileFirstName,
             hintText: l10n.profileFirstNameHint,
@@ -320,7 +394,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         const SizedBox(height: 16),
 
-        Text(l10n.profileIAm, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileIAm,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -346,6 +423,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         TextFormField(
           controller: _cityController,
           textCapitalization: TextCapitalization.words,
+          maxLength: _kLocationMaxLength,
+          buildCounter: _noCounter,
           decoration: InputDecoration(
             labelText: l10n.profileCity,
             hintText: l10n.profileCityHint,
@@ -356,23 +435,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _buildPhotosStep() {
+  Widget _buildPhotosStep(bool inlineHeader) {
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _StepHeader(
-          title: l10n.profileSetupPhotosTitle,
-          subtitle: l10n.profileSetupPhotosSubtitle,
-          trailing: _isUploadingPhoto
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : null,
-        ),
-        const SizedBox(height: 32),
+        ..._inlineHeader(1, inlineHeader),
 
         GridView.count(
           shrinkWrap: true,
@@ -414,62 +482,71 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _buildJewishInfoStep() {
+  Widget _buildJewishInfoStep(bool inlineHeader) {
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _StepHeader(
-          title: l10n.profileSetupPracticeTitle,
-          subtitle: l10n.profileSetupPracticeSubtitle,
-        ),
-        const SizedBox(height: 32),
+        ..._inlineHeader(2, inlineHeader),
 
         ReligiousDataGate(
           onValidityChanged: (valid) {
-            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+            if (valid != _religiousConsent) {
+              setState(() => _religiousConsent = valid);
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-        Text(l10n.profileDenomination, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _ChoiceChips<Denomination>(
-          options: Denomination.choices,
-          labelOf: (kind) => kind.label(l10n),
-          selected: _denomination,
-          onSelected: (v) => setState(() => _denomination = v),
-        ),
+              Text(
+                l10n.profileDenomination,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              _ChoiceChips<Denomination>(
+                options: Denomination.choices,
+                labelOf: (kind) => kind.label(l10n),
+                selected: _denomination,
+                onSelected: (v) => setState(() => _denomination = v),
+              ),
 
-        const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-        Text(l10n.profileFieldKashrut, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _ChoiceChips<Kashrut>(
-          options: Kashrut.choices,
-          labelOf: (kind) => kind.optionLabel(l10n),
-          selected: _kashrut,
-          onSelected: (v) => setState(() => _kashrut = v),
-        ),
+              Text(
+                l10n.profileFieldKashrut,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              _ChoiceChips<Kashrut>(
+                options: Kashrut.choices,
+                labelOf: (kind) => kind.optionLabel(l10n),
+                selected: _kashrut,
+                onSelected: (v) => setState(() => _kashrut = v),
+              ),
 
-        const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-        Text(l10n.profileShabbat, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _ChoiceChips<ShabbatObservance>(
-          options: ShabbatObservance.choices,
-          labelOf: (kind) => kind.optionLabel(l10n),
-          selected: _shabbat,
-          onSelected: (v) => setState(() => _shabbat = v),
-        ),
-
+              Text(
+                l10n.profileShabbat,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              _ChoiceChips<ShabbatObservance>(
+                options: ShabbatObservance.choices,
+                labelOf: (kind) => kind.optionLabel(l10n),
+                selected: _shabbat,
+                onSelected: (v) => setState(() => _shabbat = v),
+              ),
             ],
           ),
         ),
 
         const SizedBox(height: 24),
 
-        Text(l10n.profileSynagogue, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileSynagogue,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         _ChoiceChips<SynagogueVisits>(
           options: SynagogueVisits.values,
@@ -481,18 +558,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _buildPreferencesStep() {
+  Widget _buildPreferencesStep(bool inlineHeader) {
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        _StepHeader(
-          title: l10n.profileSetupLookingTitle,
-          subtitle: l10n.profileSetupLookingSubtitle,
-        ),
-        const SizedBox(height: 32),
+        ..._inlineHeader(3, inlineHeader),
 
-        Text(l10n.profileILookFor, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileILookFor,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -516,7 +592,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        Text(l10n.profileAgeRange, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileAgeRange,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         RangeSlider(
           values: _ageRange,
@@ -532,7 +611,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        Text(l10n.profileMaxDistance, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileMaxDistance,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         Slider(
           value: _maxDistance,
@@ -545,7 +627,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
         const SizedBox(height: 24),
 
-        Text(l10n.profileGoal, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          l10n.profileGoal,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         ReligiousDataLocked(
           locked: !_religiousConsent,
@@ -583,6 +668,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 }
 
+/// The limit is enforced while typing; the design shows no counter.
+Widget? _noCounter(
+  BuildContext context, {
+  required int currentLength,
+  required int? maxLength,
+  required bool isFocused,
+}) => null;
+
 class _StepHeader extends StatelessWidget {
   const _StepHeader({
     required this.title,
@@ -617,7 +710,9 @@ class _StepHeader extends StatelessWidget {
         Text(
           subtitle,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -645,9 +740,7 @@ class _GenderChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? AppColors.primary : Colors.grey,
-          ),
+          border: Border.all(color: selected ? AppColors.primary : Colors.grey),
         ),
         child: Center(
           child: Text(
@@ -695,11 +788,7 @@ class _ChoiceChips<T> extends StatelessWidget {
 }
 
 class _PhotoSlot extends StatelessWidget {
-  const _PhotoSlot({
-    this.photoUrl,
-    this.isPrimary = false,
-    this.onTap,
-  });
+  const _PhotoSlot({this.photoUrl, this.isPrimary = false, this.onTap});
 
   final String? photoUrl;
   final bool isPrimary;
@@ -725,11 +814,14 @@ class _PhotoSlot extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: photoUrl!,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  placeholder: (context, url) =>
+                      const Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => const Center(
-                    child: Icon(LucideIcons.user, color: Colors.white54, size: 32),
+                    child: Icon(
+                      LucideIcons.user,
+                      color: Colors.white54,
+                      size: 32,
+                    ),
                   ),
                 ),
               )
@@ -745,7 +837,10 @@ class _PhotoSlot extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       context.l10n.profilePrimaryPhoto,
-                      style: const TextStyle(fontSize: 10, color: AppColors.primary),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ],
                 ],

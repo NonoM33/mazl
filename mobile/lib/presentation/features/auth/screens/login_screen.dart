@@ -8,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/dev/dev_login.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/session_end.dart';
@@ -66,7 +67,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String? _sessionNotice(AppLocalizations l10n) => switch (_endedBecause) {
     SessionEndReason.expired => l10n.errorSessionExpired,
-    SessionEndReason.accountDisabled => l10n.authErrorAccountDisabled(PublicLinks.help.path),
+    SessionEndReason.accountDisabled => l10n.authErrorAccountDisabled(
+      PublicLinks.help.path,
+    ),
     null => null,
   };
 
@@ -98,11 +101,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } else {
         final failure = result.failure;
         setState(() {
-          _error = (l10n) => authFailureText(
-            l10n,
-            failure,
-            unknown: l10n.authErrorGeneric,
-          );
+          _error = (l10n) =>
+              authFailureText(l10n, failure, unknown: l10n.authErrorGeneric);
         });
       }
     } catch (e) {
@@ -140,11 +140,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } else {
         final failure = result.failure;
         setState(() {
-          _error = (l10n) => authFailureText(
-            l10n,
-            failure,
-            unknown: l10n.authErrorGeneric,
-          );
+          _error = (l10n) =>
+              authFailureText(l10n, failure, unknown: l10n.authErrorGeneric);
         });
       }
     } catch (e) {
@@ -175,38 +172,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 48, 24, 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _Hero(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (_error != null)
-                          _ErrorBanner(message: _error!(context.l10n))
-                        else if (_sessionNotice(context.l10n) case final notice?)
-                          _ErrorBanner(message: notice),
-                        _buildActions(),
-                        const SizedBox(height: 20),
-                        _buildLegal(context),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        child: FoldAwareSplit(
+          // Half open, the brand is read on one side of the fold...
+          lead: const SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(24, 48, 24, 24),
+            child: _Hero(),
+          ),
+          // ...and what is touched on the other.
+          action: Builder(
+            builder: (context) => FoldAwareSplit.axisOf(context) == null
+                ? _buildFlatPage()
+                : _buildTouchPane(),
           ),
         ),
       ),
     );
   }
+
+  /// The whole screen when nothing folds it: brand on top, buttons below.
+  Widget _buildFlatPage() => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 48, 24, 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [const _Hero(), _buildBottom(context)],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  /// Buttons and legal links, alone: the half of the screen the member touches.
+  Widget _buildTouchPane() => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [_buildBottom(context)],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildBottom(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      if (_error != null)
+        _ErrorBanner(message: _error!(context.l10n))
+      else if (_sessionNotice(context.l10n) case final notice?)
+        _ErrorBanner(message: notice),
+      _buildActions(),
+      const SizedBox(height: 20),
+      _buildLegal(context),
+    ],
+  );
 
   Widget _buildActions() {
     return Column(

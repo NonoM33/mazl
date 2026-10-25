@@ -90,7 +90,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
-    refreshListenable: Listenable.merge([authService, coupleService, profileCompleteness]),
+    refreshListenable: Listenable.merge([
+      authService,
+      coupleService,
+      profileCompleteness,
+    ]),
     redirect: (context, state) => appRedirect(
       location: state.matchedLocation,
       isAuthenticated: ref.read(isAuthenticatedProvider),
@@ -133,7 +137,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.profileSetup,
         name: RouteNames.profileSetup,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ProfileSetupScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ProfileSetupScreen(),
+          transitionsBuilder: fadeTransition,
+        ),
       ),
 
       // Premium Screen
@@ -291,7 +299,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       final activityId = state.pathParameters['activityId']!;
                       return CustomTransitionPage(
                         key: state.pageKey,
-                        child: CoupleActivityDetailScreen(activityId: activityId),
+                        child: CoupleActivityDetailScreen(
+                          activityId: activityId,
+                        ),
                         transitionsBuilder: slideUpTransition,
                       );
                     },
