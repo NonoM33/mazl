@@ -42,7 +42,9 @@ platform :ios do
     dsn = ENV.fetch("SENTRY_DSN", "").strip
     dart_defines = dsn.empty? ? "" : " --dart-define=SENTRY_DSN=#{Shellwords.escape(dsn)}"
     # Le DSN est une cle d'envoi : on n'ecrit pas la commande dans le journal quand il y en a un.
-    sh("cd ../.. && flutter build ios --release --config-only --build-number=#{build}#{dart_defines}", log: dsn.empty?)
+    # fastlane (Homebrew) exporte son GEM_HOME/GEM_PATH : herites, ils cassent le pod de
+    # Homebrew que Flutter appelle (« CocoaPods is installed but broken »). Flutter part sans eux.
+    sh("cd ../.. && env -u GEM_HOME -u GEM_PATH flutter build ios --release --config-only --build-number=#{build}#{dart_defines}", log: dsn.empty?)
     begin
       update_code_signing_settings(path: "Runner.xcodeproj", targets: ["Runner"],
                                    use_automatic_signing: false, team_id: TEAM_ID,
