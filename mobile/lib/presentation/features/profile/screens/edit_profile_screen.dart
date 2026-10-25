@@ -80,7 +80,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _denomination = profile?.denomination;
         _kashrut = profile?.kashrut;
         _shabbatObservance = profile?.shabbatObservance;
-        _relationshipIntention = profile?.relationshipIntention;
+        // Only what the selector offers: a stored word the server would
+        // refuse (« Je ne sais pas ») is not sent back.
+        _relationshipIntention =
+            RelationshipIntention.fromId(profile?.relationshipIntention)?.id;
         _bioController.text = _bio ?? '';
         _isLoading = false;
       });

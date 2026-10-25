@@ -251,10 +251,6 @@ const _notUserFacing = <String, (String, List<String>)>{
       'Tres observant',
     ],
   ),
-  'lib/presentation/features/profile/screens/profile_setup_screen.dart': (
-    'valeurs envoyées à l\'API ; les libellés affichés sont traduits',
-    ['Je ne sais pas', 'Mariage', 'Relation serieuse'],
-  ),
   'lib/presentation/features/settings/screens/settings_screen.dart': (
     'menu « Debug (Dev Only) », visible seulement en kDebugMode',
     [

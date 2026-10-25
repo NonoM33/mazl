@@ -1,4 +1,5 @@
 import '_json_parsing.dart';
+import 'relationship_intention.dart';
 
 /// Profile model
 class Profile {
@@ -66,7 +67,7 @@ class Profile {
       denomination: json['denomination'] as String?,
       kashrut: json['kashrut_level'] as String?,
       shabbatObservance: json['shabbat_observance'] as String?,
-      relationshipIntention: json['relationship_intention'] as String?,
+      relationshipIntention: _intentionOf(json['relationship_intention']),
       photos: (json['photos'] as List<dynamic>?)?.cast<String>() ?? [],
       isVerified: json['is_verified'] == true,
       photoVerified: json['photo_verified'] == true,
@@ -79,6 +80,15 @@ class Profile {
       lookingFor: json['looking_for'] as String?,
     );
   }
+}
+
+/// The intention as the server words it. A profile stored before the v1 holds
+/// the French word the sign-up wrote (« Mariage »): it is read as the server
+/// value, so the profile can be edited and saved back without a 400. A value
+/// with no server word (« Je ne sais pas ») stays as it was stored.
+String? _intentionOf(Object? stored) {
+  if (stored is! String) return null;
+  return RelationshipIntention.fromStored(stored)?.apiValue ?? stored;
 }
 
 /// Current user profile with more details

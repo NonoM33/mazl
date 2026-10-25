@@ -257,8 +257,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'ageMin': _ageRange.start.round(),
       'ageMax': _ageRange.end.round(),
       'distanceMax': _maxDistance.round(),
-      if (_religiousConsent && _goal != null)
-        'relationshipIntention': _storedGoal(_goal!),
+      if (_religiousConsent && _goal?.apiValue != null)
+        'relationshipIntention': _goal!.apiValue,
     };
 
     final response = await _apiService.updateProfile(payload);
@@ -274,15 +274,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       _fail(apiErrorText(context.l10n, response.errorKind));
     }
   }
-
-  /// What the API stores for the goal (the sign-up has always written these
-  /// words, and the display side reads them back).
-  String? _storedGoal(RelationshipIntention goal) => switch (goal) {
-    RelationshipIntention.marriage => 'Mariage',
-    RelationshipIntention.serious => 'Relation serieuse',
-    RelationshipIntention.undecided => 'Je ne sais pas',
-    RelationshipIntention.open || RelationshipIntention.friendsFirst => null,
-  };
 
   String _formatBirthdate(DateTime d) {
     final mm = d.month.toString().padLeft(2, '0');
