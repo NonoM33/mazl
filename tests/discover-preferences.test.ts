@@ -99,11 +99,32 @@ describe("A member becomes visible by completing the profile through PUT /api/pr
     expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).not.toContain(half.id);
   });
 
-  test("a minor is never complete", async () => {
+  // The server refuses a minor at the door (400 on PUT /api/profile, MIN_MEMBER_AGE
+  // in the validation) instead of storing the profile as incomplete: a minor
+  // never has a profile that could ever become visible.
+  test("a minor is refused, stays incomplete and never reaches a feed", async () => {
     const minor = await makeMember("minor");
     const year = new Date().getUTCFullYear() - 16;
-    expect(await put(minor, { displayName: "Minor", birthdate: `${year}-01-01`, gender: "male", lookingFor: "female" })).toBe(200);
+    expect(await put(minor, { displayName: "Minor", birthdate: `${year}-01-01`, gender: "male", lookingFor: "female" })).toBe(400);
     expect(await isComplete(minor)).toBe(false);
+    expect((await discover(womanSeekingMen)).body.profiles?.map((p) => p.user_id)).not.toContain(minor.id);
+  });
+
+  test("the day before the 18th birthday is refused, the 18th birthday itself is accepted", async () => {
+    const today = new Date();
+    const [year, month, day] = [today.getUTCFullYear() - 18, today.getUTCMonth(), today.getUTCDate()];
+    const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+    const tomorrow18YearsAgo = iso(Date.UTC(year, month, day + 1));
+    // 29 February has no 18th anniversary in a common year: the day before stands for it.
+    const turns18Today = new Date(Date.UTC(year, month, day)).getUTCMonth() === month ? iso(Date.UTC(year, month, day)) : iso(Date.UTC(year, month, day - 1));
+
+    const almost = await makeMember("almost18");
+    expect(await put(almost, { displayName: "Almost", birthdate: tomorrow18YearsAgo, gender: "male", lookingFor: "female" })).toBe(400);
+    expect(await isComplete(almost)).toBe(false);
+
+    const adult = await makeMember("just18");
+    expect(await put(adult, { displayName: "Adult", birthdate: turns18Today, gender: "male", lookingFor: "female" })).toBe(200);
+    expect(await isComplete(adult)).toBe(true);
   });
 
   test("the client cannot send is_complete", async () => {
