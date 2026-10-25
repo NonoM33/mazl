@@ -14,7 +14,29 @@ abstract final class DemoStore {
   static int _boostsLeft = _boostsBought;
   static bool _photoVerified = false;
   static bool _identityVerified = false;
+  static Map<String, dynamic> _discoverFilters = _noDiscoverFilters();
   static int _nextId = 9000;
+
+  static Map<String, dynamic> _noDiscoverFilters() => {
+    'denominations': null,
+    'kashrutLevels': null,
+    'shabbatObservances': null,
+    'onlyVerified': false,
+    'onlyWithPhoto': false,
+  };
+
+  /// Filtres avancés de Découvrir (le membre fictif est mazl+).
+  static Map<String, dynamic> get discoverFilters => Map.of(_discoverFilters);
+
+  /// Applique un PUT partiel : une clé absente ne change rien, `null` efface.
+  static Map<String, dynamic> patchDiscoverFilters(Map<String, dynamic> patch) {
+    for (final key in _discoverFilters.keys.toList()) {
+      if (patch.containsKey(key)) {
+        _discoverFilters[key] = patch[key] ?? _noDiscoverFilters()[key];
+      }
+    }
+    return discoverFilters;
+  }
 
   /// Horloge de la démo : les tests l'avancent au lieu d'attendre.
   static DateTime Function() clock = DateTime.now;
@@ -46,6 +68,7 @@ abstract final class DemoStore {
     _boostsLeft = _boostsBought;
     _photoVerified = false;
     _identityVerified = false;
+    _discoverFilters = _noDiscoverFilters();
     _nextId = 9000;
     _matched.clear();
     couple = DemoCoupleState();
@@ -97,7 +120,9 @@ abstract final class DemoStore {
     'is_verified': _photoVerified || _identityVerified,
     'photo_verified': _photoVerified,
     'identity_verified': _identityVerified,
-    'verification_level': _identityVerified ? 'identity' : (_photoVerified ? 'photo' : 'none'),
+    'verification_level': _identityVerified
+        ? 'identity'
+        : (_photoVerified ? 'photo' : 'none'),
   };
 
   static void patchProfile(Map<String, dynamic> body) {
@@ -117,15 +142,16 @@ abstract final class DemoStore {
 
   /// La conversation telle que les données de départ la décrivent (sans les
   /// messages de la session).
-  static Map<String, dynamic>? conversationHeader(int id) =>
-      [..._matched, ...DemoFixtures.conversations()]
-          .where((c) => c['id'] == id)
-          .firstOrNull;
+  static Map<String, dynamic>? conversationHeader(int id) => [
+    ..._matched,
+    ...DemoFixtures.conversations(),
+  ].where((c) => c['id'] == id).firstOrNull;
 
   static bool hasConversation(int id) => conversationHeader(id) != null;
 
   static Iterable<int> conversationIds() => [
-    for (final c in [..._matched, ...DemoFixtures.conversations()]) c['id'] as int,
+    for (final c in [..._matched, ...DemoFixtures.conversations()])
+      c['id'] as int,
   ];
 
   static List<Map<String, dynamic>> conversations() {
@@ -138,7 +164,10 @@ abstract final class DemoStore {
   }
 
   /// Dernier message et non-lus tels que la messagerie les voit.
-  static Map<String, dynamic> _withMessages(Map<String, dynamic> c, DateTime now) {
+  static Map<String, dynamic> _withMessages(
+    Map<String, dynamic> c,
+    DateTime now,
+  ) {
     final id = c['id'] as int;
     final last = chat.latest(id, now);
     return {

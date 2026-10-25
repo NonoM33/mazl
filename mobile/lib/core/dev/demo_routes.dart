@@ -47,7 +47,8 @@ class DemoUpload {
   final Uint8List bytes;
 }
 
-typedef DemoHandler = DemoReply Function(DemoRequest request, RegExpMatch match);
+typedef DemoHandler =
+    DemoReply Function(DemoRequest request, RegExpMatch match);
 
 /// Une route du routeur fictif. La méthode `*` répond à toutes les méthodes.
 class DemoRoute {
@@ -87,14 +88,23 @@ abstract final class DemoRoutes {
     final now = DateTime.now().toUtc().toIso8601String();
     return {
       'success': true,
-      'photo': {'verified': photo, 'verified_at': photo ? now : null, 'attempts_today': 0},
-      'identity': {'verified': identity, 'verified_at': identity ? now : null, 'attempts_today': 0},
+      'photo': {
+        'verified': photo,
+        'verified_at': photo ? now : null,
+        'attempts_today': 0,
+      },
+      'identity': {
+        'verified': identity,
+        'verified_at': identity ? now : null,
+        'attempts_today': 0,
+      },
       'level': identity ? 'identity' : (photo ? 'photo' : 'none'),
       'is_verified': photo || identity,
       'attempts_today': 0,
       'next_attempt_time': null,
     };
   }
+
   static DemoReply _json(Map<String, dynamic> body) => DemoReply(body);
   static int _id(RegExpMatch m) => int.parse(m.group(1)!);
 
@@ -133,7 +143,9 @@ abstract final class DemoRoutes {
         r.body['target_user_id'] == DemoFixtures.matchOnLikeUserId &&
         r.body['action'] != 'pass';
     if (matched) {
-      DemoStore.openMatchConversation(DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!);
+      DemoStore.openMatchConversation(
+        DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!,
+      );
     }
     // Même réponse que le serveur (SwipeResult) : la clé est `match`.
     return _json({
@@ -226,7 +238,11 @@ abstract final class DemoRoutes {
     DemoRoute('DELETE', '/api/users/me', (r, m) => _ok),
     // Vérification : mêmes formes que le serveur (docs/verification/CONTRAT.md).
     // Le mode démo n'analyse rien : toute capture est acceptée.
-    DemoRoute('GET', '/api/verification/status', (r, m) => _json(_verificationStatus())),
+    DemoRoute(
+      'GET',
+      '/api/verification/status',
+      (r, m) => _json(_verificationStatus()),
+    ),
     DemoRoute(
       'POST',
       '/api/verification/face/session',
@@ -234,12 +250,19 @@ abstract final class DemoRoutes {
         'success': true,
         'session_id': 'demo-${DemoStore.nextId()}',
         'challenges': const ['front', 'left', 'right'],
-        'expires_at': DateTime.now().toUtc().add(const Duration(minutes: 2)).toIso8601String(),
+        'expires_at': DateTime.now()
+            .toUtc()
+            .add(const Duration(minutes: 2))
+            .toIso8601String(),
       }),
     ),
     DemoRoute('POST', '/api/verification/face/submit', (r, m) {
       DemoStore.setPhotoVerified(true);
-      return _json({'success': true, 'verified': true, 'photo_matches': const []});
+      return _json({
+        'success': true,
+        'verified': true,
+        'photo_matches': const [],
+      });
     }),
     DemoRoute('POST', '/api/verification/identity', (r, m) {
       DemoStore.markIdentityVerified();
@@ -274,6 +297,23 @@ abstract final class DemoRoutes {
               .add(const Duration(days: 1))
               .toIso8601String(),
         },
+      }),
+    ),
+    DemoRoute(
+      'GET',
+      '/api/discover/filters',
+      (r, m) => _json({
+        'success': true,
+        'filters': DemoStore.discoverFilters,
+        'plus': true,
+      }),
+    ),
+    DemoRoute(
+      'PUT',
+      '/api/discover/filters',
+      (r, m) => _json({
+        'success': true,
+        'filters': DemoStore.patchDiscoverFilters(r.body),
       }),
     ),
     DemoRoute('POST', '/api/swipes', _swipe),
@@ -313,7 +353,11 @@ abstract final class DemoRoutes {
       DemoStore.activateBoost();
       return DemoReply(_boost(), status: 201);
     }),
-    DemoRoute('GET', '/api/credits', (r, m) => _json({'success': true, 'credits': _credits()})),
+    DemoRoute(
+      'GET',
+      '/api/credits',
+      (r, m) => _json({'success': true, 'credits': _credits()}),
+    ),
     DemoRoute(
       'GET',
       '/api/users/blocked',
