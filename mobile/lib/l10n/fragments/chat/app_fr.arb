@@ -85,10 +85,6 @@
   "@chatHeaderOnline": {
     "description": "Chat, en-tête : statut sous le prénom quand l'autre membre n'écrit pas."
   },
-  "chatHeaderVideoCall": "Appel vidéo",
-  "@chatHeaderVideoCall": {
-    "description": "Chat, en-tête : info-bulle du bouton qui lance un appel vidéo."
-  },
   "chatHeaderOptions": "Options",
   "@chatHeaderOptions": {
     "description": "Chat, en-tête : info-bulle du bouton « ⋯ » qui ouvre les options de la conversation."

@@ -9,7 +9,6 @@ void main() {
     '/matches/profile/12',
     '/chat',
     '/chat/3',
-    '/chat/3/video-call',
     '/events',
     '/events/8',
     '/profile',
@@ -17,7 +16,6 @@ void main() {
     '/profile/settings',
     '/likes',
     '/boost',
-    '/visitors',
     '/filters',
     '/daily-picks',
   ];

@@ -193,10 +193,6 @@ const _notUserFacing = <String, (String, List<String>)>{
     'lieu passé au calcul des heures, jamais affiché',
     ['Paris'],
   ),
-  'lib/presentation/features/ai_shadchan/screens/ai_suggestions_screen.dart': (
-    'prénoms et villes des suggestions fictives de l\'écran maquette',
-    ['Leah', 'Lyon', 'Miriam', 'Paris', 'Rachel'],
-  ),
   'lib/presentation/features/chat/widgets/report_sheet.dart': (
     'motif envoyé tel quel à POST …/report (table reports) ; le libellé '
         'affiché est traduit',
@@ -284,10 +280,6 @@ const _notUserFacing = <String, (String, List<String>)>{
       r'User ID: $userId',
       r']} (partner: ${c[',
     ],
-  ),
-  'lib/presentation/features/video_call/screens/video_call_screen.dart': (
-    'prénom fictif de l\'écran maquette',
-    ['Sarah'],
   ),
   'lib/core/services/api_service.dart': (
     'diagnostic de journal ; l\'écran affiche apiErrorText',

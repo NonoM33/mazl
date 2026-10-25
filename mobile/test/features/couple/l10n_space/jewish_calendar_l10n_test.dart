@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:mazl/core/models/couple_anniversary.dart';
 import 'package:mazl/core/services/jewish_calendar_service.dart';
 import 'package:mazl/presentation/features/couple/screens/jewish_calendar_screen.dart';
-import 'package:mazl/presentation/features/couple/widgets/anniversary_widget.dart';
 import 'package:mazl/presentation/features/navigation/screens/couple_navigation_screen.dart';
 
 import '../../../helpers/l10n_helpers.dart';
@@ -183,101 +181,6 @@ void main() {
         );
       }
     }
-  });
-
-  group('anniversaire et jalons', () {
-    final milestones = [
-      CoupleMilestone(days: 30, icon: 'heart'),
-      CoupleMilestone(days: 90, icon: 'star', daysUntil: 12),
-      CoupleMilestone(
-        days: 365,
-        icon: 'crown',
-        isSpecial: true,
-        daysUntil: 280,
-      ),
-    ];
-    final data = CoupleAnniversaryData(
-      matchDate: DateTime(2026, 6, 1),
-      daysTogether: 114,
-      partnerName: 'Noémie',
-      currentMilestone: milestones[1],
-      nextMilestone: milestones[2],
-      isAnniversaryToday: true,
-    );
-
-    Future<void> pumpCards(
-      WidgetTester tester, {
-      Locale locale = const Locale('en'),
-      Brightness brightness = Brightness.light,
-    }) => pumpLocalized(
-      tester,
-      Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              AnniversaryWidget(anniversaryData: data, onShare: () {}),
-              MilestonesTimeline(milestones: milestones, daysTogether: 114),
-            ],
-          ),
-        ),
-      ),
-      locale: locale,
-      brightness: brightness,
-      size: const Size(360, 1600),
-    );
-
-    testWidgets('en anglais', (tester) async {
-      await pumpCards(tester);
-      expect(find.text('Happy MAZL anniversary'), findsOneWidget);
-      expect(find.text('days together'), findsOneWidget);
-      expect(find.text('with Noémie'), findsOneWidget);
-      expect(find.text('3 months'), findsWidgets);
-      expect(find.text('Next: 1 year in 280 days'), findsOneWidget);
-      expect(find.text('Share'), findsOneWidget);
-      expect(find.text('YOUR MILESTONES'), findsOneWidget);
-      expect(find.text('in 280 days'), findsOneWidget);
-    });
-
-    testWidgets('en russe : pluriel de la langue', (tester) async {
-      await pumpCards(tester, locale: const Locale('ru'));
-      expect(find.text('дней вместе'), findsOneWidget);
-      expect(find.text('Далее: 1 год через 280 дней'), findsOneWidget);
-    });
-
-    testWidgets('en français, les mots d\'avant', (tester) async {
-      await pumpCards(tester, locale: const Locale('fr'));
-      expect(find.text('Joyeux anniversaire MAZL'), findsOneWidget);
-      expect(find.text('jours ensemble'), findsOneWidget);
-      expect(find.text('avec Noémie'), findsOneWidget);
-      expect(find.text('Prochain : 1 an dans 280 jours'), findsOneWidget);
-      expect(find.text('dans 280 jours'), findsOneWidget);
-    });
-
-    for (final locale in _languages) {
-      for (final brightness in Brightness.values) {
-        testWidgets(
-          '${locale.languageCode} ${brightness.name} : sans débordement',
-          (tester) async {
-            await pumpCards(tester, locale: locale, brightness: brightness);
-            expect(tester.takeException(), isNull);
-            expect(wordsTooWide(tester), isEmpty);
-          },
-        );
-      }
-    }
-
-    testWidgets('la fenêtre de célébration en anglais', (tester) async {
-      await pumpLocalized(
-        tester,
-        Scaffold(body: AnniversaryCelebrationDialog(anniversaryData: data)),
-        locale: const Locale('en'),
-      );
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Happy anniversary'), findsOneWidget);
-      expect(find.text('114 days with Noémie'), findsOneWidget);
-      expect(find.text('Thanks'), findsOneWidget);
-      expect(find.text('Share'), findsOneWidget);
-    });
   });
 
   group('barre du bas du mode couple', () {

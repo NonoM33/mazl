@@ -4,7 +4,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/models/couple_event.dart';
-import '../../../../core/models/success_story.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../l10n/l10n.dart';
 import '../widgets/couple_message_view.dart';
@@ -111,25 +110,6 @@ extension CoupleEventLabels on CoupleEvent {
     final time = timeLabel(l10n);
     return [dateLabel(l10n), if (time.isNotEmpty) time].join(' · ');
   }
-}
-
-/// The words of a success story's status (dating, engaged, married).
-String successStatusLabel(AppLocalizations l10n, String status) =>
-    switch (status) {
-      'engaged' => l10n.coupleFeedStatusEngaged,
-      'married' => l10n.coupleFeedStatusMarried,
-      _ => l10n.coupleFeedStatusDating,
-    };
-
-extension SuccessStoryLabels on SuccessStory {
-  String statusName(AppLocalizations l10n) => successStatusLabel(l10n, status);
-
-  /// « Mariés · depuis mars 2026 ».
-  String statusSinceLabel(AppLocalizations l10n) =>
-      l10n.coupleFeedStoryStatusSince(
-        statusName(l10n),
-        DateFormat.yMMMM(l10n.localeName).format(matchDate),
-      );
 }
 
 /// The error state of a couple content screen, in the member's language:

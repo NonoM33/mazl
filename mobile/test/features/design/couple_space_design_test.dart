@@ -4,13 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mazl/core/models/couple_anniversary.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_dashboard_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
-import 'package:mazl/presentation/features/couple/screens/success_stories_screen.dart';
-import 'package:mazl/presentation/features/couple/widgets/anniversary_widget.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
@@ -232,134 +228,5 @@ void main() {
       expect(_handles(tester), 1);
       expect(_gradients, findsNothing);
     });
-  });
-
-  group('autres écrans du lot', () {
-    for (final phone in _phones.entries) {
-      for (final dark in [false, true]) {
-        final label = '${phone.key} ${dark ? 'sombre' : 'clair'}';
-
-        testWidgets('anniversaire et jalons : $label', (tester) async {
-          _viewport(tester, phone.value);
-          final milestones = [
-            CoupleMilestone(days: 30, label: '30 jours', icon: 'seedling'),
-            CoupleMilestone(
-              days: 100,
-              label: '100 jours',
-              icon: 'heart',
-              daysUntil: 12,
-            ),
-            CoupleMilestone(
-              days: 365,
-              label: 'Un an',
-              icon: 'star',
-              isSpecial: true,
-              daysUntil: 280,
-            ),
-          ];
-          final data = CoupleAnniversaryData(
-            matchDate: DateTime(2026, 6, 1),
-            daysTogether: 114,
-            partnerName: 'Noémie',
-            currentMilestone: milestones[1],
-            nextMilestone: milestones[2],
-            isAnniversaryToday: true,
-          );
-          await tester.pumpWidget(
-            MaterialApp(
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: kTestLocale,
-              theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
-              home: Scaffold(
-                body: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      AnniversaryWidget(anniversaryData: data, onShare: () {}),
-                      MilestonesTimeline(
-                        milestones: milestones,
-                        daysTogether: 114,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-          await tester.pump();
-          expect(tester.takeException(), isNull);
-          expect(_gradients, findsNothing);
-          expect(_allTexts(tester).where(_emoji.hasMatch), isEmpty);
-          expect(find.text('114'), findsOneWidget);
-        });
-
-        testWidgets('tableau de bord du couple : $label', (tester) async {
-          _viewport(tester, phone.value);
-          await tester.pumpWidget(
-            MaterialApp(
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: kTestLocale,
-              theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
-              home: const CoupleDashboardScreen(),
-            ),
-          );
-          await tester.pump();
-          await tester.drag(
-            find.byType(ListView).first,
-            const Offset(0, -4000),
-          );
-          await tester.pump();
-          expect(tester.takeException(), isNull);
-          expect(_gradients, findsNothing);
-          expect(_allTexts(tester).where(_emoji.hasMatch), isEmpty);
-        });
-
-        testWidgets('histoires de couples : $label', (tester) async {
-          _viewport(tester, phone.value);
-          await tester.pumpWidget(
-            MaterialApp(
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              locale: kTestLocale,
-              theme: dark ? AppTheme.darkTheme : AppTheme.lightTheme,
-              home: const SuccessStoriesScreen(),
-            ),
-          );
-          await tester.pump();
-          await tester.pump();
-          expect(tester.takeException(), isNull);
-          expect(_gradients, findsNothing);
-          expect(_allTexts(tester).where(_emoji.hasMatch), isEmpty);
-        });
-      }
-    }
-
-    testWidgets(
-      '« Partagez votre histoire » : une seule poignée, pas d\'émoji',
-      (tester) async {
-        _viewport(tester, _phones['390x844']!);
-        await tester.pumpWidget(
-          MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: kTestLocale,
-            theme: AppTheme.lightTheme,
-            home: Builder(
-              builder: (context) => TextButton(
-                onPressed: () => SubmitSuccessStoryDialog.show(context),
-                child: const Text('ouvrir'),
-              ),
-            ),
-          ),
-        );
-        await tester.tap(find.text('ouvrir'));
-        await tester.pumpAndSettle();
-        expect(find.text('Partagez votre histoire'), findsOneWidget);
-        expect(_handles(tester), 1);
-        expect(_allTexts(tester).where(_emoji.hasMatch), isEmpty);
-        expect(tester.takeException(), isNull);
-      },
-    );
   });
 }

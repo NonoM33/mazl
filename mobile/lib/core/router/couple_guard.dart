@@ -10,7 +10,6 @@ const _datingRoots = <String>[
   RoutePaths.profile,
   RoutePaths.likes,
   RoutePaths.boost,
-  RoutePaths.visitors,
   RoutePaths.filters,
   RoutePaths.dailyPicks,
 ];

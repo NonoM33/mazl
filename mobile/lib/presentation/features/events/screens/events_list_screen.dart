@@ -143,13 +143,6 @@ class _EventsListScreenState extends State<EventsListScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.eventsTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.calendarDays),
-            onPressed: () {},
-            tooltip: context.l10n.eventsCalendarTooltip,
-          ),
-        ],
       ),
       body: Column(
         children: [

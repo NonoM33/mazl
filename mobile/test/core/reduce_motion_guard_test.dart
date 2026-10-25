@@ -83,7 +83,6 @@ void main() {
       animating,
       containsAll(<String>[
         'lib/presentation/features/auth/screens/email_auth_screen.dart',
-        'lib/presentation/features/couple/widgets/anniversary_widget.dart',
         'lib/presentation/features/profile/widgets/profile_view/profile_photo_gallery.dart',
       ]),
     );
