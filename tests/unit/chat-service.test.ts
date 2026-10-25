@@ -3,7 +3,7 @@ import { createChatService, type ChatService } from "../../src/features/chat/app
 import { createMessagePresenter } from "../../src/features/chat/application/message-presenter";
 import { ChatError } from "../../src/features/chat/domain/errors";
 import type { MessageRecord } from "../../src/features/chat/domain/types";
-import { FakeMessageRepository, FakeStorage, RecordingEvents, T0 } from "./chat-fakes";
+import { FakeMessageRepository, FakeStorage, RecordingEvents, RecordingNotifier, T0 } from "./chat-fakes";
 
 // Expectations are CONTRAT.md §0-§3, written from the contract.
 
@@ -15,6 +15,7 @@ const CONV = 10;
 let repo: FakeMessageRepository;
 let storage: FakeStorage;
 let events: RecordingEvents;
+let notifier: RecordingNotifier;
 let scheduled: MessageRecord[];
 let clock: Date;
 let service: ChatService;
@@ -24,12 +25,13 @@ beforeEach(() => {
   repo.addConversation(CONV, ALICE, BOB);
   storage = new FakeStorage();
   events = new RecordingEvents();
+  notifier = new RecordingNotifier();
   scheduled = [];
   clock = new Date(T0.getTime() + 60_000);
   const presenter = createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}` });
   service = createChatService({
     repository: repo, presenter, events, storage, now: () => clock,
-    previews: { schedule: (m) => { scheduled.push(m); } },
+    previews: { schedule: (m) => { scheduled.push(m); } }, notifier,
   });
 });
 
@@ -41,6 +43,38 @@ async function kind(promise: Promise<unknown>): Promise<string> {
     return error instanceof ChatError ? error.kind : `other: ${String(error)}`;
   }
 }
+
+// The push for a message (V1-CONTRAT section 1) is decided outside the chat: the
+// service only says who wrote to whom, and never hands over the content.
+describe("telling the notifier about a new message", () => {
+  test("a created message names the conversation, the sender and the OTHER member, and nothing else", async () => {
+    await service.send(ALICE, CONV, { clientId: "c-1", content: "Un secret" });
+    expect(notifier.created).toEqual([{ conversationId: CONV, senderId: ALICE, recipientId: BOB }]);
+    expect(JSON.stringify(notifier.created)).not.toContain("secret");
+  });
+
+  test("the other member's message goes the other way", async () => {
+    await service.send(BOB, CONV, { content: "Salut" });
+    expect(notifier.created).toEqual([{ conversationId: CONV, senderId: BOB, recipientId: ALICE }]);
+  });
+
+  test("a resent message (same client_id) and a refused one tell nobody", async () => {
+    await service.send(ALICE, CONV, { clientId: "c-1", content: "Salut" });
+    await service.send(ALICE, CONV, { clientId: "c-1", content: "Salut" });
+    expect(notifier.created).toHaveLength(1);
+    repo.blocked.add(`${BOB}:${ALICE}`);
+    await service.send(ALICE, CONV, { content: "encore" }).catch(() => undefined);
+    expect(notifier.created).toHaveLength(1);
+  });
+
+  test("a notifier that throws never fails the send", async () => {
+    notifier.failWith = new Error("push is down");
+    const { message, created } = await service.send(ALICE, CONV, { content: "Salut" });
+    expect(created).toBe(true);
+    expect(message.content).toBe("Salut");
+    expect(events.ofType("chat:message")).toHaveLength(1);
+  });
+});
 
 describe("sending", () => {
   test("a text message reaches both members as chat:message with the §1 shape", async () => {

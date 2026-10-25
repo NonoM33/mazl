@@ -3,7 +3,7 @@ import { createChatService, type ChatService } from "../../src/features/chat/app
 import { createLinkPreviewService } from "../../src/features/chat/application/link-preview-service";
 import { createMessagePresenter } from "../../src/features/chat/application/message-presenter";
 import type { MessageRecord } from "../../src/features/chat/domain/types";
-import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage } from "./chat-fakes";
+import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage, RecordingNotifier } from "./chat-fakes";
 
 // Security: a block cuts every signal between the two people. Typing and read
 // receipts say "I am here, I saw your message": they must not cross a block,
@@ -25,7 +25,7 @@ beforeEach(() => {
   clock = new Date(T0.getTime() + 60_000);
   const presenter = createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}` });
   service = createChatService({
-    repository: repo, presenter, events, storage: new FakeStorage(), now: () => clock, previews: { schedule: () => undefined },
+    repository: repo, presenter, events, storage: new FakeStorage(), now: () => clock, previews: { schedule: () => undefined }, notifier: new RecordingNotifier(),
   });
 });
 

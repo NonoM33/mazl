@@ -133,6 +133,13 @@ export interface ChatImageProcessor {
   toPreviewJpeg(bytes: Uint8Array): Promise<ProcessedImage>;
 }
 
+// Told about every message that was stored, to decide on a push notification.
+// It receives who wrote to whom, never the content. It must not throw nor wait
+// for the provider: the sender's request does not depend on it.
+export interface MessageNotifier {
+  messageCreated(event: { readonly conversationId: number; readonly senderId: number; readonly recipientId: number }): void;
+}
+
 export interface RealtimeEvents {
   emit(userIds: readonly number[], event: { type: string; payload: unknown }): void;
 }

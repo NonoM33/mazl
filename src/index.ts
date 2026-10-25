@@ -105,6 +105,7 @@ import { createBillingWeb, ensureBillingWebSchema, registerBillingWeb, withStrip
 import { registerMediaRoutes } from "./features/media/presentation/media.routes";
 import { registerEngagementRoutes } from "./features/engagement/engagement.routes";
 import { createChatModule, ensureChatSchema, registerChat, startChatMaintenance } from "./features/chat";
+import { createPushModule } from "./features/push/push.module";
 import { assertKeysConfigured } from "./shared/crypto/keys";
 import { isDevelopmentEnvironment } from "./shared/runtime/development-environment";
 import { createObjectStore, readStorageConfig } from "./shared/storage";
@@ -303,7 +304,11 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
-const chat = createChatModule({ store: objectStore });
+// Push notifications (OneSignal) for new matches and for messages that reach a
+// member with no open socket.
+const push = createPushModule({ sql });
+push.followMatches();
+const chat = createChatModule({ store: objectStore, notifier: push.messageNotifier });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 

@@ -3,7 +3,7 @@ import { canToggleReaction, canUnsend, isAllowedReaction, isRetiredReaction, typ
 import { firstHttpUrl } from "../domain/url-extract";
 import type { ConversationMembers, MessageRecord, MessageView, ReactionView } from "../domain/types";
 import { messageEvent, readEvent, typingEvent, updatedEvent } from "./chat-events";
-import type { FileStorage, MessageRepository, NewMessage, RealtimeEvents } from "./ports";
+import type { FileStorage, MessageNotifier, MessageRepository, NewMessage, RealtimeEvents } from "./ports";
 import type { MessagePresenter } from "./message-presenter";
 
 export const DEFAULT_PAGE_SIZE = 30;
@@ -30,6 +30,7 @@ export interface ChatServiceDeps {
   readonly events: RealtimeEvents;
   readonly storage: FileStorage;
   readonly previews: PreviewScheduler;
+  readonly notifier: MessageNotifier;
   readonly now: () => Date;
 }
 
@@ -81,7 +82,7 @@ function toNewMessage(userId: number, conversationId: number, input: SendInput):
 }
 
 export function createChatService(deps: ChatServiceDeps): ChatService {
-  const { repository, presenter, events, storage, previews, now } = deps;
+  const { repository, presenter, events, storage, previews, notifier, now } = deps;
 
   async function memberOf(conversationId: number, userId: number): Promise<ConversationMembers> {
     const conversation = await repository.findConversationOf(conversationId, userId);
@@ -114,6 +115,16 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
     return { messages: await presenter.present(rows.slice(0, limit)), hasMore: rows.length > limit };
   }
 
+  // The message is stored and delivered: whatever goes wrong with the push is
+  // logged without any personal data and never reaches the sender.
+  function notifyRecipient(event: { conversationId: number; senderId: number; recipientId: number }): void {
+    try {
+      notifier.messageCreated(event);
+    } catch (error: unknown) {
+      console.error("Message notification failed:", error instanceof Error ? error.name : "unknown");
+    }
+  }
+
   async function send(userId: number, conversationId: number, input: SendInput): Promise<SentMessage> {
     const conversation = await memberOf(conversationId, userId);
     const other = otherMember(conversation, userId);
@@ -127,6 +138,7 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
     if (outcome.kind === "existing") return { message, created: false };
 
     events.emit([userId, other], messageEvent(message));
+    notifyRecipient({ conversationId, senderId: userId, recipientId: other });
     if (outcome.message.type === "text" && firstHttpUrl(outcome.message.content) !== null) {
       previews.schedule(outcome.message);
     }

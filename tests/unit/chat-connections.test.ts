@@ -158,3 +158,22 @@ describe("closeUserConnections", () => {
     expect(fresh?.sent).toEqual([JSON.stringify(ping)]);
   });
 });
+
+// The message push is sent only to a member who has no socket open.
+describe("hasOpenConnection", () => {
+  test("true while a socket is registered, false before and after the last one leaves", () => {
+    expect(connections.hasOpenConnection(user)).toBe(false);
+    const [first, second] = open(user, 2);
+    expect(connections.hasOpenConnection(user)).toBe(true);
+    connections.removeConnection(user, asWebSocket(first as FakeSocket));
+    expect(connections.hasOpenConnection(user)).toBe(true);
+    connections.removeConnection(user, asWebSocket(second as FakeSocket));
+    expect(connections.hasOpenConnection(user)).toBe(false);
+  });
+
+  test("false once the account's sockets were closed by a ban or a deletion", () => {
+    open(user, 1);
+    connections.closeUserConnections(user, connections.ACCOUNT_DISABLED_CLOSE, "disabled");
+    expect(connections.hasOpenConnection(user)).toBe(false);
+  });
+});
