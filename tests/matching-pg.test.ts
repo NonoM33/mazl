@@ -9,10 +9,15 @@ import { PgCandidateSource } from "../src/features/matching/infra/pg-candidate-s
 import { PgFeedHydrator } from "../src/features/matching/infra/pg-feed-hydrator";
 import { PgParamsRepository, STATE_CACHE_TTL_MS } from "../src/features/matching/infra/pg-params-repository";
 import { ensureMatchingSchema } from "../src/features/matching/infra/schema";
+import { bootServerSchema, createScratchDatabase } from "./support/scratch-database";
 
-// Needs a throwaway database whose base schema was created by the real server
-// (see the task notes): TEST_DATABASE_URL. Skipped otherwise.
-const url = process.env.TEST_DATABASE_URL;
+// Runs on a database of its own (created inside the throwaway Postgres of the
+// integration run, its schema made by the real server): it deletes members and
+// sanctions wholesale, which the other suites must never see. Skipped without
+// TEST_DATABASE_URL.
+const scratch = process.env.TEST_DATABASE_URL === undefined ? null : await createScratchDatabase();
+if (scratch !== null) await bootServerSchema(scratch.url, "test");
+const url = scratch?.url;
 
 describe.skipIf(url === undefined)("matching on Postgres", () => {
   const sql = postgres(url ?? "postgres://unused", { onnotice: () => undefined });
@@ -34,12 +39,20 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
     return id;
   }
 
+  // A sanction as the trust & safety module stores it (the table has required columns).
+  let sanctions = 0;
+  async function sanction(userId: number, kind: string, endsAt: "none" | "in a day" = "none"): Promise<void> {
+    sanctions += 1;
+    await sql`
+      INSERT INTO member_sanctions (user_id, kind, ground, starts_at, ends_at, decided_by, statement, appeal_code_hash)
+      VALUES (${userId}, ${kind}, 'test', now(), ${endsAt === "none" ? null : sql`now() + interval '1 day'`}, 'test',
+              ${sql.json({ reference: `mpg-${sanctions}` })}, 'x')`;
+  }
+
   const feedFor = (params = new PgParamsRepository(sql)) =>
     createFeed({ params, candidates: new PgCandidateSource(sql), hydrator: new PgFeedHydrator(sql) });
 
   beforeAll(async () => {
-    await sql`CREATE TABLE IF NOT EXISTS member_sanctions (
-      id SERIAL PRIMARY KEY, user_id INT, kind TEXT, starts_at TIMESTAMPTZ DEFAULT now(), ends_at TIMESTAMPTZ, revoked_at TIMESTAMPTZ)`;
     await sql`DELETE FROM member_sanctions`;
     await sql`DELETE FROM users WHERE email LIKE ${`${PREFIX}%@example.test`}`;
     await sql`TRUNCATE matching_activations, matching_state, matching_param_versions RESTART IDENTITY CASCADE`.catch(() => undefined);
@@ -58,13 +71,14 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
     await sql`INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (${viewer}, ${ids.blocked!})`;
     await sql`INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (${ids.blocker!}, ${viewer})`;
     await sql`INSERT INTO swipes (user_id, target_user_id, action) VALUES (${viewer}, ${ids.swiped!}, 'pass')`;
-    await sql`INSERT INTO member_sanctions (user_id, kind) VALUES (${ids.sanctioned!}, 'restriction')`;
+    await sanction(ids.sanctioned!, "restriction");
   });
 
   afterAll(async () => {
     await sql`DELETE FROM member_sanctions`;
     await sql`DELETE FROM users WHERE email LIKE ${`${PREFIX}%@example.test`}`;
     await sql.end();
+    await scratch?.drop();
   });
 
   const mine = (list: readonly number[]) => list.filter((id) => Object.values(ids).includes(id));
@@ -88,8 +102,8 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
 
     test("an ended-in-the-future suspension and a ban exclude; a 'warning' does not", async () => {
       await sql`DELETE FROM member_sanctions`;
-      await sql`INSERT INTO member_sanctions (user_id, kind, ends_at) VALUES (${ids.ok1!}, 'suspension', now() + interval '1 day')`;
-      await sql`INSERT INTO member_sanctions (user_id, kind) VALUES (${ids.ok2!}, 'warning')`;
+      await sanction(ids.ok1!, "suspension", "in a day");
+      await sanction(ids.ok2!, "warning");
       const got = mine((await feedFor().rank(ids.viewer!, { limit: 50, offset: 0 })).userIds).map(name);
       expect(got).toContain("ok2");
       expect(got).not.toContain("ok1");

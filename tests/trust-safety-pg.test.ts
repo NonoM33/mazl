@@ -6,11 +6,16 @@ import type { AuditEntryInput } from "../src/features/audit/application/ports";
 import type { AccountEnforcement } from "../src/features/trust-safety/application/ports";
 import { activeRestrictionSql } from "../src/features/trust-safety/infra/schema";
 import { createTrustSafetyModule, type TrustSafetyModule } from "../src/features/trust-safety/trust-safety.module";
+import { bootServerSchema, createScratchDatabase } from "./support/scratch-database";
 import { as, fakeRequirePermission } from "./unit/trust-safety-fakes";
 
-// Integration against a throwaway Postgres whose base schema was created by the
-// real server (see the task notes). Skipped when TEST_DATABASE_URL is absent.
-const url = process.env.TEST_DATABASE_URL;
+// Integration on a database of its own (created inside the throwaway Postgres of
+// the integration run, its schema made by the real server): the suite empties
+// users, messages and conversations, which the other suites must never see.
+// Skipped when TEST_DATABASE_URL is absent.
+const scratch = process.env.TEST_DATABASE_URL === undefined ? null : await createScratchDatabase();
+if (scratch !== null) await bootServerSchema(scratch.url, "test");
+const url = scratch?.url;
 const BASE = "http://test/api/backoffice";
 const HOUR = 3_600_000;
 
@@ -69,6 +74,7 @@ describe.skipIf(!url)("trust & safety on Postgres", () => {
 
   afterAll(async () => {
     if (sql) await sql.end();
+    await scratch?.drop();
   });
 
   async function user(label: string, options: { name?: string; ageDays?: number } = {}): Promise<number> {
