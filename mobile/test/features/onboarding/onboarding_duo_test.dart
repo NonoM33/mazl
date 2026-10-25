@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/theme/app_theme.dart';
-import 'package:mazl/l10n/l10n.dart';
 import 'package:mazl/presentation/features/onboarding/screens/onboarding_screen.dart';
 
 import '../../helpers/duo_poses.dart';
