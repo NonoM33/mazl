@@ -329,6 +329,27 @@ class AuthService extends ChangeNotifier {
         nonce: hashedNonce,
       );
 
+      return await signInWithAppleCredential(credential);
+    } catch (e) {
+      if (e is SignInWithAppleAuthorizationException) {
+        if (e.code == AuthorizationErrorCode.canceled) {
+          return AuthResult.failure(AuthFailure.cancelled);
+        }
+      }
+      debugPrint('AuthService: Apple sign-in error - $e');
+      return AuthResult.failure(authFailureOf(e));
+    }
+  }
+
+  /// Sends what Apple gave to the backend and opens the session. The
+  /// authorization code goes along with the identity token: the server
+  /// exchanges it for a refresh token, which it must revoke when the account
+  /// is deleted (App Store rule 5.1.1(v)).
+  @visibleForTesting
+  Future<AuthResult> signInWithAppleCredential(
+    AuthorizationCredentialAppleID credential,
+  ) async {
+    try {
       if (credential.identityToken == null) {
         return AuthResult.failure(AuthFailure.unknown);
       }
@@ -350,6 +371,7 @@ class AuthService extends ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'identityToken': credential.identityToken,
+          'authorizationCode': credential.authorizationCode,
           'fullName': displayName,
           'email': credential.email,
         }),
@@ -389,11 +411,6 @@ class AuthService extends ChangeNotifier {
       await _loadProfileCompleteness();
       return AuthResult.success(user);
     } catch (e) {
-      if (e is SignInWithAppleAuthorizationException) {
-        if (e.code == AuthorizationErrorCode.canceled) {
-          return AuthResult.failure(AuthFailure.cancelled);
-        }
-      }
       debugPrint('AuthService: Apple sign-in error - $e');
       return AuthResult.failure(authFailureOf(e));
     }
