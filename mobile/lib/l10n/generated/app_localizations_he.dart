@@ -513,9 +513,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonReport => 'דיווח';
 
   @override
-  String get commonOk => 'אישור';
-
-  @override
   String get commonLater => 'אחר כך';
 
   @override
@@ -1160,69 +1157,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coupleSpaceFailUnexpected => 'התקבלה תשובה לא צפויה מהשרת.';
 
   @override
-  String get coupleSpaceStatusSingle => 'לא בזוגיות';
-
-  @override
-  String get coupleSpaceStatusDating => 'בתקופת היכרות';
-
-  @override
-  String get coupleSpaceStatusInRelationship => 'בזוגיות';
-
-  @override
-  String get coupleSpaceStatusEngaged => 'בתקופת אירוסין';
-
-  @override
-  String get coupleSpaceStatusMarried => 'בנישואין';
-
-  @override
-  String coupleSpaceDurationDays(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count ימים',
-      two: 'יומיים',
-      one: 'יום אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationWeeks(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count שבועות',
-      two: 'שבועיים',
-      one: 'שבוע אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationMonths(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count חודשים',
-      two: 'חודשיים',
-      one: 'חודש אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String coupleSpaceDurationYears(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count שנים',
-      two: 'שנתיים',
-      one: 'שנה אחת',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get coupleSpaceCalendarTitle => 'לוח שנה';
 
   @override
@@ -1414,186 +1348,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
-
-  @override
-  String get icebreakerWidgetTitle => 'קצת השראה?';
-
-  @override
-  String get icebreakerWidgetSubtitle => 'כמה רעיונות לשבירת הקרח';
-
-  @override
-  String get icebreakerTopicFallback => 'זה';
-
-  @override
-  String icebreakerPromptLoved(String promptText, String followUp) {
-    return 'אהבתי את התשובה ל־\"$promptText\". $followUp';
-  }
-
-  @override
-  String icebreakerPromptSmiled(String promptText) {
-    return 'התשובה על \"$promptText\" הנעימה לי. אפשר לשמוע עוד?';
-  }
-
-  @override
-  String icebreakerPromptCurious(String answer, String topic) {
-    return 'מעניין אותי למה ענית \"$answer\" בשאלה על $topic';
-  }
-
-  @override
-  String get icebreakerFollowUpIntrigued => 'זה מסקרן אותי.';
-
-  @override
-  String get icebreakerFollowUpKnowMore => 'אשמח לשמוע עוד.';
-
-  @override
-  String get icebreakerFollowUpTellMe => 'מה הסיפור?';
-
-  @override
-  String get icebreakerFollowUpInteresting => 'זה נשמע מעניין.';
-
-  @override
-  String get icebreakerBioTravelRecent =>
-      'לאן טיילת לאחרונה? אשמח לשמוע סיפורים.';
-
-  @override
-  String get icebreakerBioTravelDream => 'מהו היעד החלומי הבא שלך?';
-
-  @override
-  String get icebreakerBioMusicGenre => 'איזו מוזיקה מתנגנת אצלך בזמן האחרון?';
-
-  @override
-  String get icebreakerBioMusicConcert => 'היית לאחרונה בהופעה טובה?';
-
-  @override
-  String get icebreakerBioCookingNow => 'מה מבשלים אצלך לאחרונה?';
-
-  @override
-  String get icebreakerBioCookingSignature => 'מהי המנה המיוחדת שלך?';
-
-  @override
-  String get icebreakerBioSportWhich => 'איזה ספורט קרוב ללבך?';
-
-  @override
-  String get icebreakerBioSportWatchOrPlay => 'מה עדיף: לצפות או לשחק?';
-
-  @override
-  String get icebreakerBioReadingNow => 'מה בקריאה אצלך כרגע?';
-
-  @override
-  String get icebreakerBioReadingLastBook =>
-      'מהו הספר האחרון שהשאיר עליך רושם?';
-
-  @override
-  String get icebreakerBioCinemaRecent => 'ראית לאחרונה סרט טוב?';
-
-  @override
-  String get icebreakerBioCinemaOrSeries => 'מה עדיף: קולנוע או סדרות?';
-
-  @override
-  String get icebreakerBioHikingTrails => 'יש שבילי הליכה יפים באזור?';
-
-  @override
-  String get icebreakerBioHikingBest => 'מהו הטיול הרגלי היפה ביותר שלך?';
-
-  @override
-  String get icebreakerBioPhotoSubjects => 'מה הנושא האהוב עליך בצילום?';
-
-  @override
-  String get icebreakerBioPhotoCamera => 'באיזה מכשיר צילום משתמשים אצלך?';
-
-  @override
-  String get icebreakerOrthodoxSynagogue => 'יש בית כנסת מועדף באזור?';
-
-  @override
-  String get icebreakerOrthodoxShabbat => 'איך בדרך כלל עוברת עליך שבת?';
-
-  @override
-  String get icebreakerOrthodoxKosherRestaurant => 'יש מסעדה כשרה מועדפת?';
-
-  @override
-  String get icebreakerTraditionalTraditions =>
-      'אילו מסורות יהודיות הכי חשובות לך?';
-
-  @override
-  String get icebreakerTraditionalShabbat =>
-      'איך מציינים אצלך את השבת בדרך כלל?';
-
-  @override
-  String get icebreakerTraditionalHoliday => 'יש חג יהודי אהוב?';
-
-  @override
-  String get icebreakerSecularCulture => 'מה הקשר שלך לתרבות היהודית?';
-
-  @override
-  String get icebreakerSecularFamilyTraditions =>
-      'יש מסורות משפחתיות ששומרים עליהן?';
-
-  @override
-  String get icebreakerSecularHolidays => 'אילו חגים חוגגים אצלך?';
-
-  @override
-  String get icebreakerDefaultHoliday => 'מהו החג היהודי האהוב עליך?';
-
-  @override
-  String get icebreakerDefaultFamilyTraditions => 'יש מסורות משפחתיות מיוחדות?';
-
-  @override
-  String get icebreakerDefaultPracticingFamily => 'גדלת במשפחה שומרת מסורת?';
-
-  @override
-  String icebreakerLocationKnowWell(String location) {
-    return 'יש לך המלצות על $location?';
-  }
-
-  @override
-  String icebreakerLocationFavoriteSpot(String location) {
-    return 'מהו המקום האהוב עליך ב־$location?';
-  }
-
-  @override
-  String icebreakerLocationOriginallyFrom(String location) {
-    return '$location זה המקום שבו נולדת, או שעברת לשם?';
-  }
-
-  @override
-  String icebreakerLocationRestaurant(String location) {
-    return 'יש מסעדה טובה שכדאי לנסות ב־$location?';
-  }
-
-  @override
-  String get icebreakerGenericDinnerGuest =>
-      'אם אפשר היה לארח לארוחת ערב כל אדם, חי או מת, מי זה היה?';
-
-  @override
-  String get icebreakerGenericPerfectDay => 'איך נראה היום המושלם בעיניך?';
-
-  @override
-  String get icebreakerGenericHiddenTalent =>
-      'יש לך כישרון נסתר שמעטים מכירים?';
-
-  @override
-  String get icebreakerGenericSpontaneous =>
-      'מה הדבר הכי ספונטני שעשית אי פעם?';
-
-  @override
-  String get icebreakerGenericSeaOrMountain => 'מה עדיף בחופשה: ים או הרים?';
-
-  @override
-  String get icebreakerGenericLottery =>
-      'אם מחר היית זוכה בלוטו, מה היית עושה קודם?';
-
-  @override
-  String get icebreakerGenericGuiltyPleasure => 'מהו ה־guilty pleasure שלך?';
-
-  @override
-  String get icebreakerGenericDream => 'יש חלום שעוד לא התגשם?';
-
-  @override
-  String get icebreakerGenericBestAdvice => 'מהי העצה הטובה ביותר שקיבלת?';
-
-  @override
-  String get icebreakerGenericBreakfastOrDinner =>
-      'מה עדיף: ארוחת בוקר בחוץ או ארוחת ערב בחוץ?';
 
   @override
   String get jewishCalendarShabbatTitle => 'השבת הזו';
@@ -2010,11 +1764,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get likesSeeWhoWithPlus => 'לראות מי אהב אותך עם mazl+‎';
-
-  @override
-  String likesMatchWith(String name) {
-    return 'יש מאץ\' עם $name';
-  }
 
   @override
   String likesYouLiked(String name) {
@@ -3188,40 +2937,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileVerdictFar => 'די רחוק';
 
   @override
-  String profileCompatibilityCriteria(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count קריטריונים נבדקו',
-      two: 'שני קריטריונים נבדקו',
-      one: 'קריטריון אחד נבדק',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get profileCompatibilityScoreTitle => 'ציון התאמה';
-
-  @override
-  String profileCompatibilityWith(String name) {
-    return 'עם $name';
-  }
-
-  @override
-  String get profileCompatibilityDetails => 'פרטים';
-
-  @override
-  String get profileCompatibilityIncomplete =>
-      'כדאי להשלים את הפרופילים כדי לראות עוד פרטים';
-
-  @override
-  String get profileCompatibilityNote =>
-      'הציון מבוסס על ההעדפות והדברים המשותפים';
-
-  @override
-  String get profileCompatibilityGotIt => 'הבנתי';
-
-  @override
   String get profilePromptsMine => 'השאלות שלי';
 
   @override
@@ -3256,9 +2971,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get profilePromptDeleted => 'השאלה נמחקה';
-
-  @override
-  String get profilePromptsGetToKnowMe => 'להכיר אותי';
 
   @override
   String get profilePromptCategoryPersonality => 'אישיות';

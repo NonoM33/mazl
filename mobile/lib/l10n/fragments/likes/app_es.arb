@@ -3,7 +3,6 @@
   "likesSection": "Les gustas · {count}",
   "likesWaiting": "{count, plural, one{{label} persona espera tu respuesta.} other{{label} personas esperan tu respuesta.}}",
   "likesSeeWhoWithPlus": "Ver quién te ha dado like con mazl+",
-  "likesMatchWith": "Match con {name}",
   "likesYouLiked": "Le has dado like a {name}",
   "likesEmptyTitle": "Aún no hay likes",
   "likesEmptyBody": "Sigue descubriendo perfiles y completa el tuyo para recibir más likes.",

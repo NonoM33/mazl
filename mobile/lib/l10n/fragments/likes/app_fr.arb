@@ -28,15 +28,6 @@
   "@likesSeeWhoWithPlus": {
     "description": "Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase."
   },
-  "likesMatchWith": "Match avec {name}",
-  "@likesMatchWith": {
-    "description": "Message bref quand aimer un profil crée un match. {name} est le prénom.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "likesYouLiked": "Vous avez liké {name}",
   "@likesYouLiked": {
     "description": "Message bref après avoir aimé un profil depuis la liste. {name} est le prénom.",

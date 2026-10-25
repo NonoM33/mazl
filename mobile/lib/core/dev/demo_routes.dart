@@ -214,16 +214,6 @@ abstract final class DemoRoutes {
       (r, m) =>
           _json({'success': true, 'prompts': DemoFixtures.promptTemplates()}),
     ),
-    DemoRoute(
-      'GET',
-      '/api/profile/visitors',
-      (r, m) => _json({'success': true, ...DemoFixtures.visitors()}),
-    ),
-    DemoRoute(
-      'GET',
-      '/api/profile/visitors/count',
-      (r, m) => _json({'success': true, 'count': 2}),
-    ),
     DemoRoute('GET', '/api/profile/(\\d+)', (r, m) {
       final profile = DemoFixtures.profileById(_id(m));
       return profile == null
@@ -287,7 +277,6 @@ abstract final class DemoRoutes {
       }),
     ),
     DemoRoute('POST', '/api/swipes', _swipe),
-    DemoRoute('POST', '/api/swipes/like-prompt', _swipe),
     DemoRoute(
       'GET',
       '/api/matches',
@@ -362,16 +351,6 @@ abstract final class DemoRoutes {
       DemoStore.setRsvp(_id(m), null);
       return _ok;
     }),
-
-    // --- Histoires de couples ---
-    DemoRoute(
-      'GET',
-      '/api/success-stories',
-      (r, m) =>
-          _json({'success': true, 'stories': DemoFixtures.successStories()}),
-    ),
-    DemoRoute('POST', '/api/success-stories', (r, m) => _ok),
-    DemoRoute('POST', '/api/success-stories/(\\d+)/like', (r, m) => _ok),
 
     // --- Mode couple (demo_couple_routes.dart) ---
     ...DemoCoupleRoutes.routes,

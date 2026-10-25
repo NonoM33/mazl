@@ -32,16 +32,7 @@ final _stringLiteral = RegExp(r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")""");
 final _interpolation = RegExp(r'\$\{[^}]*\}|\$[A-Za-z_]\w*');
 
 /// Fichiers dont le tutoiement est LEGITIME, avec la raison.
-const _allowedFiles = <String, String>{
-  // Ces phrases ne sont pas la voix de l'application : ce sont des brouillons
-  // de premier message que le membre envoie à un autre membre (« Tu as voyagé
-  // où récemment ? »). Entre deux membres d'une application de rencontres,
-  // le tutoiement est le registre naturel ; le vouvoiement ferait fausse note
-  // dans la bouche de l'utilisateur. L'application, elle, vouvoie le membre
-  // partout ailleurs.
-  'lib/core/services/icebreaker_service.dart':
-      'messages d\'accroche écrits au nom du membre pour un autre membre',
-};
+const _allowedFiles = <String, String>{};
 
 /// Littéraux précis tolérés pour l'instant.
 const _allowedLiterals = <String, String>{};
@@ -193,9 +184,6 @@ void main() {
         final arb = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
         for (final entry in arb.entries) {
           if (entry.key.startsWith('@')) continue;
-          // Same exception as icebreaker_service.dart: drafts written in the
-          // member's name for another member.
-          if (entry.key.startsWith('icebreaker')) continue;
           final fragments = tutoiementsDans('${entry.value}');
           if (fragments.isNotEmpty) {
             violations.add('${file.path} ${entry.key} ${fragments.join(', ')}');

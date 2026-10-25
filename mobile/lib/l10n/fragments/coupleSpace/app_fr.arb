@@ -362,62 +362,6 @@
   "@coupleSpaceFailUnexpected": {
     "description": "Erreur : la réponse du serveur n'a pas la forme attendue."
   },
-  "coupleSpaceStatusSingle": "Célibataire",
-  "@coupleSpaceStatusSingle": {
-    "description": "Statut de relation du membre : sans partenaire."
-  },
-  "coupleSpaceStatusDating": "En train de dater",
-  "@coupleSpaceStatusDating": {
-    "description": "Statut de relation du membre : en train de faire connaissance."
-  },
-  "coupleSpaceStatusInRelationship": "En couple",
-  "@coupleSpaceStatusInRelationship": {
-    "description": "Statut de relation du membre : en couple."
-  },
-  "coupleSpaceStatusEngaged": "Fiancé(e)",
-  "@coupleSpaceStatusEngaged": {
-    "description": "Statut de relation du membre : fiancé ou fiancée."
-  },
-  "coupleSpaceStatusMarried": "Marié(e)",
-  "@coupleSpaceStatusMarried": {
-    "description": "Statut de relation du membre : marié ou mariée."
-  },
-  "coupleSpaceDurationDays": "{count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceDurationDays": {
-    "description": "Durée en jours (repli quand un jalon n'est ni une semaine, ni un mois, ni une année pleine).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationWeeks": "{count, plural, one{{count} semaine} other{{count} semaines}}",
-  "@coupleSpaceDurationWeeks": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier de semaines (ex. « 1 semaine »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationMonths": "{count, plural, one{{count} mois} other{{count} mois}}",
-  "@coupleSpaceDurationMonths": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier de mois (ex. « 3 mois »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceDurationYears": "{count, plural, one{{count} an} other{{count} ans}}",
-  "@coupleSpaceDurationYears": {
-    "description": "Nom d'un jalon du couple qui vaut un nombre entier d'années (ex. « 1 an »).",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "coupleSpaceCalendarTitle": "Calendrier",
   "@coupleSpaceCalendarTitle": {
     "description": "Grand titre de l'écran du calendrier juif."

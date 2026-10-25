@@ -397,44 +397,6 @@
   "@profileVerdictFar": {
     "description": "Constat d'un critère de compatibilité : à plus de 50 km."
   },
-  "profileCompatibilityCriteria": "{count, plural, =1{1 critère analysé} other{{count} critères analysés}}",
-  "@profileCompatibilityCriteria": {
-    "description": "Carte de score : nombre de critères pris en compte. Une ligne, petit corps.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "profileCompatibilityScoreTitle": "Score de compatibilité",
-  "@profileCompatibilityScoreTitle": {
-    "description": "Titre de la feuille de détail du score quand le palier n'est pas « très compatible »."
-  },
-  "profileCompatibilityWith": "Avec {name}",
-  "@profileCompatibilityWith": {
-    "description": "Feuille de détail du score : sous le titre, avec qui. {name} est le prénom de la personne.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "profileCompatibilityDetails": "Détails",
-  "@profileCompatibilityDetails": {
-    "description": "Feuille de détail du score : titre de la liste des critères."
-  },
-  "profileCompatibilityIncomplete": "Complétez vos profils pour voir plus de détails",
-  "@profileCompatibilityIncomplete": {
-    "description": "Feuille de détail du score : message quand aucun critère n'est disponible."
-  },
-  "profileCompatibilityNote": "Le score est basé sur vos préférences et points communs",
-  "@profileCompatibilityNote": {
-    "description": "Feuille de détail du score : note explicative en petit corps."
-  },
-  "profileCompatibilityGotIt": "Compris",
-  "@profileCompatibilityGotIt": {
-    "description": "Feuille de détail du score : bouton qui la ferme."
-  },
   "profilePromptsMine": "Mes Prompts",
   "@profilePromptsMine": {
     "description": "Modification du profil : titre de la section des questions de profil."
@@ -483,10 +445,6 @@
   "profilePromptDeleted": "Prompt supprimé",
   "@profilePromptDeleted": {
     "description": "Message bref (snackbar) après la suppression d'une question de profil."
-  },
-  "profilePromptsGetToKnowMe": "Apprenez à me connaître",
-  "@profilePromptsGetToKnowMe": {
-    "description": "Titre au-dessus des questions et réponses d'un membre sur son profil."
   },
   "profilePromptCategoryPersonality": "Personnalité",
   "@profilePromptCategoryPersonality": {

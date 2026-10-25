@@ -131,8 +131,6 @@ void main() {
           final after = (await api.getCoupleRequests()).data!;
           expect(after['sent'], isEmpty);
           expect(after['received'], isEmpty);
-          expect((await api.isUserInCoupleMode(301)).data, isTrue);
-          expect((await api.isUserInCoupleMode(302)).data, isFalse);
         });
       },
     );
@@ -457,10 +455,6 @@ void main() {
       ('DELETE', '/api/couple'),
       ('GET', '/api/couple/requests'),
       ('POST', '/api/couple/archive-conversations'),
-      ('GET', '/api/couple/check/301'),
-      ('GET', '/api/couple/milestones'),
-      ('GET', '/api/couple/success-story'),
-      ('GET', '/api/couple/anniversary'),
       ('GET', '/api/couple/bookings'),
       ('GET', '/api/couple/inconnu/42'),
       ('PATCH', '/api/couple/1/status'),

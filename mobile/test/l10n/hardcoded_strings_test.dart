@@ -189,10 +189,6 @@ const _notUserFacing = <String, (String, List<String>)>{
     'en-tête HTTP et journal',
     [r'Bearer $token', 'unexpected response body'],
   ),
-  'lib/core/services/icebreaker_service.dart': (
-    'valeur de profil comparée, jamais affichée',
-    ['modern orthodox'],
-  ),
   'lib/core/services/jewish_calendar_service.dart': (
     'lieu passé au calcul des heures, jamais affiché',
     ['Paris'],
