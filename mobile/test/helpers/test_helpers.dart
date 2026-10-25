@@ -10,6 +10,7 @@ Widget createTestableWidget(
   Widget child, {
   List<Override>? overrides,
   GoRouter? router,
+  TransitionBuilder? builder,
 }) {
   final testRouter = router ??
       GoRouter(
@@ -54,6 +55,7 @@ Widget createTestableWidget(
       supportedLocales: AppLocalizations.supportedLocales,
       locale: kTestLocale,
       routerConfig: testRouter,
+      builder: builder,
       theme: _testTheme,
       debugShowCheckedModeBanner: false,
     ),
