@@ -5050,30 +5050,6 @@
   "@settingsShabbatAutoPause": {
     "description": "Réglages : sous-titre de la ligne Mode Shabbat (l'écran donne les horaires d'allumage des bougies et de havdala du lieu du membre)."
   },
-  "settingsHolidayAlerts": "Alertes fêtes",
-  "@settingsHolidayAlerts": {
-    "description": "Réglages : interrupteur qui prévient avant les fêtes juives."
-  },
-  "settingsHolidayAlertsHint": "Notifications avant les fêtes",
-  "@settingsHolidayAlertsHint": {
-    "description": "Réglages : sous-titre de l'interrupteur Alertes fêtes."
-  },
-  "settingsSectionNotifications": "Notifications",
-  "@settingsSectionNotifications": {
-    "description": "Réglages : titre de la section des notifications. Affiché en petites capitales."
-  },
-  "settingsNotifMatches": "Nouveaux matchs",
-  "@settingsNotifMatches": {
-    "description": "Réglages : interrupteur des notifications de nouveaux matchs."
-  },
-  "settingsNotifMessages": "Messages",
-  "@settingsNotifMessages": {
-    "description": "Réglages : interrupteur des notifications de messages."
-  },
-  "settingsNotifSuperLikes": "Super Likes",
-  "@settingsNotifSuperLikes": {
-    "description": "Réglages : interrupteur des notifications de Super Likes."
-  },
   "settingsSectionCouple": "Mode Couple",
   "@settingsSectionCouple": {
     "description": "Réglages : titre de la section qui contient la carte du mode couple. Affiché en petites capitales."

@@ -91,6 +91,7 @@ dependencies:
   clock: ^1.1.1
   mobile_scanner: ^7.4.2
   sentry_flutter: ^10.2.0
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:

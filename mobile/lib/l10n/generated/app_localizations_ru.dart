@@ -3881,24 +3881,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsShabbatAutoPause => 'Время Шаббата';
 
   @override
-  String get settingsHolidayAlerts => 'Уведомления о праздниках';
-
-  @override
-  String get settingsHolidayAlertsHint => 'Напоминания перед праздниками';
-
-  @override
-  String get settingsSectionNotifications => 'Уведомления';
-
-  @override
-  String get settingsNotifMatches => 'Новые совпадения';
-
-  @override
-  String get settingsNotifMessages => 'Сообщения';
-
-  @override
-  String get settingsNotifSuperLikes => 'Суперлайки';
-
-  @override
   String get settingsSectionCouple => 'Режим пары';
 
   @override

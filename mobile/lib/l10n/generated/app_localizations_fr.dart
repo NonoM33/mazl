@@ -3874,24 +3874,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsShabbatAutoPause => 'Horaires de Shabbat';
 
   @override
-  String get settingsHolidayAlerts => 'Alertes fêtes';
-
-  @override
-  String get settingsHolidayAlertsHint => 'Notifications avant les fêtes';
-
-  @override
-  String get settingsSectionNotifications => 'Notifications';
-
-  @override
-  String get settingsNotifMatches => 'Nouveaux matchs';
-
-  @override
-  String get settingsNotifMessages => 'Messages';
-
-  @override
-  String get settingsNotifSuperLikes => 'Super Likes';
-
-  @override
   String get settingsSectionCouple => 'Mode Couple';
 
   @override

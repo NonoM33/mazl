@@ -3791,24 +3791,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsShabbatAutoPause => 'זמני שבת';
 
   @override
-  String get settingsHolidayAlerts => 'התראות חגים';
-
-  @override
-  String get settingsHolidayAlertsHint => 'התראות לפני החגים';
-
-  @override
-  String get settingsSectionNotifications => 'התראות';
-
-  @override
-  String get settingsNotifMatches => 'התאמות חדשות';
-
-  @override
-  String get settingsNotifMessages => 'הודעות';
-
-  @override
-  String get settingsNotifSuperLikes => 'סופר לייקים';
-
-  @override
   String get settingsSectionCouple => 'מצב זוגי';
 
   @override

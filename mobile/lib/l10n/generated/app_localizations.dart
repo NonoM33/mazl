@@ -6533,42 +6533,6 @@ abstract class AppLocalizations {
   /// **'Horaires de Shabbat'**
   String get settingsShabbatAutoPause;
 
-  /// Réglages : interrupteur qui prévient avant les fêtes juives.
-  ///
-  /// In fr, this message translates to:
-  /// **'Alertes fêtes'**
-  String get settingsHolidayAlerts;
-
-  /// Réglages : sous-titre de l'interrupteur Alertes fêtes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notifications avant les fêtes'**
-  String get settingsHolidayAlertsHint;
-
-  /// Réglages : titre de la section des notifications. Affiché en petites capitales.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notifications'**
-  String get settingsSectionNotifications;
-
-  /// Réglages : interrupteur des notifications de nouveaux matchs.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nouveaux matchs'**
-  String get settingsNotifMatches;
-
-  /// Réglages : interrupteur des notifications de messages.
-  ///
-  /// In fr, this message translates to:
-  /// **'Messages'**
-  String get settingsNotifMessages;
-
-  /// Réglages : interrupteur des notifications de Super Likes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Super Likes'**
-  String get settingsNotifSuperLikes;
-
   /// Réglages : titre de la section qui contient la carte du mode couple. Affiché en petites capitales.
   ///
   /// In fr, this message translates to:
