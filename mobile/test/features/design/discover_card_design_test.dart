@@ -64,6 +64,22 @@ bool _hasGradient(Widget w) {
 }
 
 void main() {
+  // Seen on 2026-10-26: the full profile opened only by touching the name,
+  // which nothing showed. A visible « Voir le profil » button opens it.
+  testWidgets('a visible « Voir le profil » button opens the profile', (
+    tester,
+  ) async {
+    var opened = 0;
+    await _pump(tester, _profile(), onTapProfile: () => opened++);
+    final button = find.byKey(const ValueKey('discover-view-profile'));
+    expect(button, findsOneWidget);
+    expect(find.text('Voir le profil'), findsOneWidget);
+    expect(tester.getSize(button).height, greaterThanOrEqualTo(44));
+    await tester.tap(button);
+    expect(opened, 1);
+  });
+
+
   testWidgets('affiche nom, âge, ville, distance et puces', (tester) async {
     await _pump(tester, _profile());
 

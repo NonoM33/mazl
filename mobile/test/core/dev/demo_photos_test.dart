@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/dev/demo_fixtures.dart';
+import 'package:mazl/core/dev/demo_photos.dart';
 
 List<Map<String, dynamic>> _allProfiles() {
   final ids = <int>{
@@ -80,6 +81,17 @@ void main() {
       expect(
         face(u['picture'] as String),
         face(_photos(byId[u['user_id']]!).first),
+      );
+    }
+  });
+
+  // Seen on 2026-10-26: a test member's second photo showed somebody else.
+  test('every demo member shows one person: a single photo', () {
+    for (final id in [301, 302, 303, 201, 203, 205]) {
+      expect(
+        DemoPhotos.of(id).length,
+        lessThanOrEqualTo(1),
+        reason: 'user $id',
       );
     }
   });

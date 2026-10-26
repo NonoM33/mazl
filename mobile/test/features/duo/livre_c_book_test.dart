@@ -171,9 +171,15 @@ void main() {
       () => _open(tester, '/profile/settings', DuoPose.openPortrait),
     );
     final account = tester.getRect(find.text('COMPTE'));
+    // A long single list: the couple section is further down, reached by
+    // scrolling down, in the same column.
+    await tester.scrollUntilVisible(
+      find.text('MODE COUPLE'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     final couple = tester.getRect(find.text('MODE COUPLE'));
     expect(couple.left, account.left);
-    expect(couple.top, greaterThan(account.bottom));
   });
 
   testWidgets('/profile/settings/computers: connect, then the computers', (

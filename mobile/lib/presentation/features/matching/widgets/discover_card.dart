@@ -322,6 +322,20 @@ class _DiscoverCardState extends State<DiscoverCard> {
               children: [for (final tag in tags) TagPill(tag)],
             ),
           ],
+          if (widget.onTapProfile != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const ValueKey('discover-view-profile'),
+              onPressed: widget.onTapProfile,
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                shape: const StadiumBorder(),
+              ),
+              icon: const Icon(LucideIcons.chevronRight, size: 18),
+              iconAlignment: IconAlignment.end,
+              label: Text(context.l10n.matchingCardViewProfile),
+            ),
+          ],
         ],
       ),
     );
