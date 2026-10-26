@@ -15,7 +15,11 @@ const double kContentMaxWidth = 560;
 /// grows or shrinks, e.g. when the device is unfolded. [child] still gets
 /// tight constraints, exactly as when it filled the window.
 class ContentMaxWidth extends StatelessWidget {
-  const ContentMaxWidth({super.key, required this.child, this.maxWidth = kContentMaxWidth});
+  const ContentMaxWidth({
+    super.key,
+    required this.child,
+    this.maxWidth = kContentMaxWidth,
+  });
 
   final Widget child;
   final double maxWidth;
@@ -33,7 +37,9 @@ class ContentMaxWidth extends StatelessWidget {
         builder: (context, constraints) => Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            width: constraints.maxWidth < _maxWidthFor(context) ? constraints.maxWidth : _maxWidthFor(context),
+            width: constraints.maxWidth < _maxWidthFor(context)
+                ? constraints.maxWidth
+                : _maxWidthFor(context),
             height: constraints.hasBoundedHeight ? constraints.maxHeight : null,
             child: child,
           ),
@@ -47,6 +53,8 @@ class ContentMaxWidth extends StatelessWidget {
   /// keeps a usable half (see [FoldAwareSplit]).
   double _maxWidthFor(BuildContext context) {
     final fold = FoldScope.of(context).activeDivision;
-    return fold != null && fold.height > fold.width ? double.infinity : maxWidth;
+    return fold != null && fold.height > fold.width
+        ? double.infinity
+        : maxWidth;
   }
 }

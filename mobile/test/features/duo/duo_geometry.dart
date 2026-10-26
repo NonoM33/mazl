@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../helpers/duo_poses.dart';
 
@@ -92,6 +93,9 @@ class _Placement {
   late Rect shown = whole;
   bool scrolls = false;
 
+  /// The directions its lists can move it in.
+  final Set<Axis> axes = {};
+
   /// Sides that a list may move the element past: the member scrolls it away,
   /// so it is not held against the element. A list is at its start or at its
   /// end when it cannot scroll further that way; there the side counts.
@@ -108,6 +112,12 @@ _Placement _placement(Element element) {
     final widget = ancestor.widget;
     if (widget is Scrollable && ancestor is StatefulElement) {
       placement.scrolls = true;
+      placement.axes.add(
+        widget.axisDirection == AxisDirection.left ||
+                widget.axisDirection == AxisDirection.right
+            ? Axis.horizontal
+            : Axis.vertical,
+      );
       final viewport = ancestor.findRenderObject();
       if (viewport is RenderBox) {
         placement.shown = placement.shown.intersect(
@@ -181,6 +191,67 @@ List<String> tappableProblems(WidgetTester tester, DuoPose pose) {
     }
   }
   return [for (final e in byBox.entries) '${e.value} at ${e.key}'];
+}
+
+/// One line per text, image or tappable element that the fold of [pose]
+/// crosses. Apple moves text and images away from the curve and keeps
+/// interactive elements out of it: held like a book, a page reads on one side
+/// of the fold, never across it. Unlike [tappableProblems], a list does not
+/// excuse an element unless it scrolls ACROSS the fold (a carousel under a
+/// fold that runs down the page): a list that scrolls along the fold keeps
+/// the element in the curve, row after row.
+List<String> foldCrossingProblems(WidgetTester tester, DuoPose pose) {
+  final fold = pose.fold;
+  if (fold == null) return const [];
+  final across = fold.height > fold.width ? Axis.horizontal : Axis.vertical;
+  final candidates = find
+      .byWidgetPredicate(
+        (widget) =>
+            (widget is RichText &&
+                widget.text.toPlainText().trim().isNotEmpty) ||
+            widget is RawImage ||
+            (widget is GestureDetector && widget.onTap != null) ||
+            (widget is InkWell && widget.onTap != null) ||
+            widget is EditableText,
+      )
+      .hitTestable()
+      .evaluate();
+  final byBox = <String, String>{};
+  for (final element in candidates) {
+    final placement = _placement(element);
+    final ink = _inkOf(element);
+    final shown = ink == null
+        ? placement.shown
+        : placement.shown.intersect(ink);
+    if (shown.isEmpty || placement.axes.contains(across)) continue;
+    if (!shown.deflate(0.5).overlaps(fold)) continue;
+    final key = _rect(shown);
+    final name = describeElement(element);
+    final known = byBox[key];
+    if (known == null || (!known.contains("'") && name.contains("'"))) {
+      byBox[key] = name;
+    }
+  }
+  return [
+    for (final e in byBox.entries) '${e.value} at ${e.key}: crosses the fold',
+  ];
+}
+
+/// Where the glyphs of a text are drawn, in window coordinates: a line of
+/// text often gets the whole width of its column and draws a word at its
+/// start. `null` for anything but a paragraph.
+Rect? _inkOf(Element element) {
+  final paragraph = element.renderObject;
+  if (paragraph is! RenderParagraph || !paragraph.hasSize) return null;
+  final length = paragraph.text.toPlainText().length;
+  final boxes = paragraph.getBoxesForSelection(
+    TextSelection(baseOffset: 0, extentOffset: length),
+  );
+  if (boxes.isEmpty) return null;
+  final local = boxes
+      .map((box) => box.toRect())
+      .reduce((a, b) => a.expandToInclude(b));
+  return local.shift(paragraph.localToGlobal(Offset.zero));
 }
 
 /// Scrolls every long vertical list of the screen to its end, so that what

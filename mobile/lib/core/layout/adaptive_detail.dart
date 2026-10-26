@@ -16,10 +16,15 @@ sealed class DetailTarget {
   /// `/chat/:conversationId` and `/matches/profile/:userId`.
   static DetailTarget? fromUri(Uri uri) {
     final segments = uri.pathSegments;
-    if (segments.length == 2 && segments[0] == 'chat' && segments[1].isNotEmpty) {
+    if (segments.length == 2 &&
+        segments[0] == 'chat' &&
+        segments[1].isNotEmpty) {
       return ChatDetail(segments[1]);
     }
-    if (segments.length == 3 && segments[0] == 'matches' && segments[1] == 'profile' && segments[2].isNotEmpty) {
+    if (segments.length == 3 &&
+        segments[0] == 'matches' &&
+        segments[1] == 'profile' &&
+        segments[2].isNotEmpty) {
       return MatchProfileDetail(segments[2]);
     }
     return null;
@@ -32,7 +37,8 @@ final class ChatDetail extends DetailTarget {
   final String conversationId;
 
   @override
-  bool operator ==(Object other) => other is ChatDetail && other.conversationId == conversationId;
+  bool operator ==(Object other) =>
+      other is ChatDetail && other.conversationId == conversationId;
 
   @override
   int get hashCode => Object.hash(ChatDetail, conversationId);
@@ -44,7 +50,8 @@ final class MatchProfileDetail extends DetailTarget {
   final String userId;
 
   @override
-  bool operator ==(Object other) => other is MatchProfileDetail && other.userId == userId;
+  bool operator ==(Object other) =>
+      other is MatchProfileDetail && other.userId == userId;
 
   @override
   int get hashCode => Object.hash(MatchProfileDetail, userId);
@@ -58,12 +65,14 @@ abstract final class DetailKeys {
   static final Map<DetailTarget, GlobalKey> _keys = {};
   static final Set<DetailTarget> _claimed = {};
 
-  static GlobalKey keyFor(DetailTarget target) => _keys.putIfAbsent(target, () => GlobalKey(debugLabel: '$target'));
+  static GlobalKey keyFor(DetailTarget target) =>
+      _keys.putIfAbsent(target, () => GlobalKey(debugLabel: '$target'));
 
   /// Called by a page route while it lives. A second page for the same target
   /// (it should not happen) gets `null` and simply builds without the key,
   /// so two widgets never share a [GlobalKey].
-  static GlobalKey? claim(DetailTarget target) => _claimed.add(target) ? keyFor(target) : null;
+  static GlobalKey? claim(DetailTarget target) =>
+      _claimed.add(target) ? keyFor(target) : null;
 
   static void release(DetailTarget target) {
     _claimed.remove(target);
@@ -125,12 +134,18 @@ class _AdaptiveDetailRoute<T> extends PageRoute<T> {
   @override
   Widget buildModalBarrier() {
     final barrier = super.buildModalBarrier();
-    return Builder(builder: (context) => isRegularWidth(context) ? const SizedBox.shrink() : barrier);
+    return Builder(
+      builder: (context) =>
+          isRegularWidth(context) ? const SizedBox.shrink() : barrier,
+    );
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
-      _DetailPageBody(target: _page.target, child: _page.child);
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => _DetailPageBody(target: _page.target, child: _page.child);
 
   @override
   Widget buildTransitions(
@@ -172,6 +187,10 @@ class _DetailPageBodyState extends State<_DetailPageBody> {
     if (isRegularWidth(context)) return const VerticalBarPassThrough();
     // Full screen: the sides belong to the safe area, which is not symmetric
     // on every display.
-    return SafeArea(top: false, bottom: false, child: KeyedSubtree(key: _key, child: widget.child));
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: KeyedSubtree(key: _key, child: widget.child),
+    );
   }
 }

@@ -191,6 +191,7 @@ Future<List<String>> _measure(
     }
 
     problems.addAll(tappableProblems(tester, pose));
+    problems.addAll(foldCrossingProblems(tester, pose));
     final primary = screen.primary?.call();
     if (primary != null) {
       if (primary.evaluate().isNotEmpty) {
@@ -221,7 +222,10 @@ Future<List<String>> _measure(
           RegExp(r' at (\d+,\d+ \d+x\d+)').firstMatch(line)?[1] ?? line;
       final seen = problems.map(boxOf).toSet();
       problems.addAll([
-        for (final line in tappableProblems(tester, pose))
+        for (final line in [
+          ...tappableProblems(tester, pose),
+          ...foldCrossingProblems(tester, pose),
+        ])
           if (!seen.contains(boxOf(line))) '$line [at the end of the list]',
       ]);
     }

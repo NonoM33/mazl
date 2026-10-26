@@ -19,7 +19,9 @@ enum WindowSizeClass { compact, regular }
 const double kRegularMinWidth = 600;
 
 WindowSizeClass windowSizeClassForWidth(double width) =>
-    width >= kRegularMinWidth ? WindowSizeClass.regular : WindowSizeClass.compact;
+    width >= kRegularMinWidth
+    ? WindowSizeClass.regular
+    : WindowSizeClass.compact;
 
 WindowSizeClass windowSizeClassOf(BuildContext context) =>
     windowSizeClassForWidth(MediaQuery.sizeOf(context).width);

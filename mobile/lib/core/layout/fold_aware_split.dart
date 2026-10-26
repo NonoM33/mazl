@@ -1,18 +1,8 @@
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
-import 'fold_state.dart';
+import 'fold_cut.dart';
 
-/// How a page is cut by the fold of a half-open foldable iPhone.
-enum FoldSplitAxis {
-  /// The fold runs across the page (device held like a laptop): [FoldAwareSplit.lead]
-  /// above it, [FoldAwareSplit.action] below it, within reach and stable on a table.
-  horizontal,
-
-  /// The fold runs down the page (device held like a book): [FoldAwareSplit.lead]
-  /// on the reading-start side, [FoldAwareSplit.action] on the other.
-  vertical,
-}
+export 'fold_cut.dart' show FoldSplitAxis;
 
 /// A page in two parts that the fold of a half-open display separates, as
 /// Apple's guidance for the foldable iPhone asks: text and images move away
@@ -52,101 +42,35 @@ class FoldAwareSplit extends StatefulWidget {
 class _FoldAwareSplitState extends State<FoldAwareSplit> {
   final GlobalKey _actionKey = GlobalKey(debugLabel: 'fold-action');
 
-  /// Where this page sits in the window, measured after each frame: the fold
-  /// is reported in window coordinates.
-  Offset? _origin;
-
-  void _measureOrigin(Duration _) {
-    if (!mounted) return;
-    final box = context.findRenderObject();
-    if (box is! RenderBox || !box.hasSize) return;
-    final origin = box.localToGlobal(Offset.zero);
-    if (origin != _origin) setState(() => _origin = origin);
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final fold = FoldScope.of(context).activeDivision;
-    final direction = Directionality.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Re-measured whenever the fold or the room of the page changes.
-        if (fold != null) {
-          SchedulerBinding.instance.addPostFrameCallback(_measureOrigin);
-        }
-        final size = constraints.biggest;
-        final cut = (fold == null || _origin == null || !size.isFinite)
-            ? null
-            : _FoldCut.of(
-                fold.shift(-_origin!),
-                size,
-                widget.minPaneExtent,
-                direction,
-              );
-        final action = KeyedSubtree(key: _actionKey, child: widget.action);
-        return _FoldSplitScope(
-          axis: cut?.axis,
-          child: switch (cut) {
-            null => action,
-            _FoldCut(axis: FoldSplitAxis.horizontal) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: cut.leadExtent, child: widget.lead),
-                SizedBox(height: cut.gap),
-                Expanded(child: action),
-              ],
-            ),
-            _FoldCut(axis: FoldSplitAxis.vertical) => Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(width: cut.leadExtent, child: widget.lead),
-                SizedBox(width: cut.gap),
-                Expanded(child: action),
-              ],
-            ),
-          },
-        );
-      },
-    );
-  }
-}
-
-/// Where the fold cuts a page of [size], in the page's own coordinates.
-class _FoldCut {
-  const _FoldCut(this.axis, this.leadExtent, this.gap);
-
-  final FoldSplitAxis axis;
-
-  /// Extent of the lead pane, from the page's start edge to the fold.
-  final double leadExtent;
-
-  /// Extent of the fold region itself.
-  final double gap;
-
-  static _FoldCut? of(
-    Rect fold,
-    Size size,
-    double minPane,
-    TextDirection direction,
-  ) {
-    final page = Offset.zero & size;
-    if (!fold.overlaps(page)) return null;
-    final runsAcross = fold.width >= fold.height;
-    if (runsAcross) {
-      final top = fold.top.clamp(0.0, size.height);
-      final bottom = fold.bottom.clamp(0.0, size.height);
-      if (top < minPane || size.height - bottom < minPane) return null;
-      return _FoldCut(FoldSplitAxis.horizontal, top, bottom - top);
-    }
-    final left = fold.left.clamp(0.0, size.width);
-    final right = fold.right.clamp(0.0, size.width);
-    if (left < minPane || size.width - right < minPane) return null;
-    // The lead pane is on the reading-start side: the right one in Hebrew.
-    final leadExtent = direction == TextDirection.rtl
-        ? size.width - right
-        : left;
-    return _FoldCut(FoldSplitAxis.vertical, leadExtent, right - left);
-  }
+  Widget build(BuildContext context) => FoldCutBuilder(
+    minPaneExtent: widget.minPaneExtent,
+    builder: (context, cut) {
+      final action = KeyedSubtree(key: _actionKey, child: widget.action);
+      return _FoldSplitScope(
+        axis: cut?.axis,
+        child: switch (cut?.axis) {
+          null => action,
+          FoldSplitAxis.horizontal => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: cut!.leadExtent, child: widget.lead),
+              SizedBox(height: cut.gap),
+              Expanded(child: action),
+            ],
+          ),
+          FoldSplitAxis.vertical => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(width: cut!.leadExtent, child: widget.lead),
+              SizedBox(width: cut.gap),
+              Expanded(child: action),
+            ],
+          ),
+        },
+      );
+    },
+  );
 }
 
 class _FoldSplitScope extends InheritedWidget {
