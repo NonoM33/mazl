@@ -2466,6 +2466,42 @@ abstract class AppLocalizations {
   /// **'Rejoignez-moi à \"{title}\" sur MAZL'**
   String eventsShareMessage(String title);
 
+  /// Événement pas encore ouvert aux inscriptions : bouton désactivé à la place de l'inscription, et pastille d'une carte de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible'**
+  String get eventsComingSoon;
+
+  /// Bouton d'un événement « bientôt disponible » : demander une notification quand les inscriptions ouvriront.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me prévenir'**
+  String get eventsNotifyMe;
+
+  /// Le même bouton une fois la demande faite (toucher la retire). Vouvoiement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous serez prévenu'**
+  String get eventsNotifyRequested;
+
+  /// Message bref après avoir touché « Me prévenir ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous vous préviendrons à l\'ouverture des inscriptions.'**
+  String get eventsNotifyRequestedDone;
+
+  /// Message bref après avoir retiré la demande de notification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte retirée'**
+  String get eventsNotifyCancelled;
+
+  /// Message bref quand la demande de notification n'a pas pu être enregistrée ou retirée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer votre demande. Réessayez.'**
+  String get eventsNotifyError;
+
   /// Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit.
   ///
   /// In fr, this message translates to:

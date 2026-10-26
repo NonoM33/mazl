@@ -2,14 +2,14 @@ import { CalendarDays, MapPin, Users } from "lucide-react";
 import type { EventRow } from "../../shared/api/types";
 import { Link } from "../../shared/router";
 import { Photo } from "../../shared/ui/photo";
-import { eventTypeLabel, priceLabel, spotsLabel, whenLabel } from "./event-format";
+import { cardStatusLabel, eventTypeLabel, priceLabel, whenLabel } from "./event-format";
 
 export function EventCover({ event }: { readonly event: EventRow }) {
   return <Photo src={event.image_url} alt="" seed={event.id} radius={0} style={{ position: "absolute", inset: 0 }} />;
 }
 
 export function EventCard({ event }: { readonly event: EventRow }) {
-  const spots = spotsLabel(event);
+  const spots = cardStatusLabel(event);
   return (
     <Link to={`/evenements/${event.id}`} className="card event-card" aria-label={`${event.title}, ${whenLabel(event)}`}>
       <div className="event-cover">

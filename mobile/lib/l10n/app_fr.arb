@@ -1878,6 +1878,30 @@
       }
     }
   },
+  "eventsComingSoon": "Bientôt disponible",
+  "@eventsComingSoon": {
+    "description": "Événement pas encore ouvert aux inscriptions : bouton désactivé à la place de l'inscription, et pastille d'une carte de la liste."
+  },
+  "eventsNotifyMe": "Me prévenir",
+  "@eventsNotifyMe": {
+    "description": "Bouton d'un événement « bientôt disponible » : demander une notification quand les inscriptions ouvriront."
+  },
+  "eventsNotifyRequested": "Vous serez prévenu",
+  "@eventsNotifyRequested": {
+    "description": "Le même bouton une fois la demande faite (toucher la retire). Vouvoiement."
+  },
+  "eventsNotifyRequestedDone": "Nous vous préviendrons à l'ouverture des inscriptions.",
+  "@eventsNotifyRequestedDone": {
+    "description": "Message bref après avoir touché « Me prévenir »."
+  },
+  "eventsNotifyCancelled": "Alerte retirée",
+  "@eventsNotifyCancelled": {
+    "description": "Message bref après avoir retiré la demande de notification."
+  },
+  "eventsNotifyError": "Impossible d'enregistrer votre demande. Réessayez.",
+  "@eventsNotifyError": {
+    "description": "Message bref quand la demande de notification n'a pas pu être enregistrée ou retirée."
+  },
   "genreLookingForRequired": "Indiquez ce que vous recherchez",
   "@genreLookingForRequired": {
     "description": "Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit."

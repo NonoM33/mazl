@@ -60,6 +60,13 @@ async function buildWorld(): Promise<World> {
   const other = await one(sql<{ id: number }[]>`SELECT id FROM couple_activities WHERE title = 'Massage aux Pierres Chaudes'`);
   await sql`INSERT INTO couple_saved_activities (couple_id, activity_id) VALUES (${seedCouple.id}, ${other.id})`;
 
+  // A "coming soon" test event that a real member asked to be told about: it goes, with the alert.
+  const testEvent = await one(sql<{ id: number }[]>`
+    INSERT INTO events (fixture_key, title, date, is_published, availability) VALUES ('test-event-purge', 'Dîner de Shabbat des tests', CURRENT_DATE + 7, true, 'coming_soon') RETURNING id`);
+  await sql`INSERT INTO event_open_alerts (event_id, user_id) VALUES (${testEvent.id}, ${realA})`;
+  // A real event stays.
+  await sql`INSERT INTO events (title, date, is_published) VALUES ('Soirée du partenaire', CURRENT_DATE + 7, true)`;
+
   // Content that is not sample data at all.
   await sql`INSERT INTO couple_activities (title, description, category, city, location) VALUES ('Atelier du quartier', 'Propose par un partenaire', 'diy', 'Lyon', 'Maison des associations')`;
   return { realA, realB, realC, seedWithRealMatch, savedByRealCouple: saved.title, registeredByRealCouple: registered.title };
@@ -71,6 +78,9 @@ const counters = async () => ({
   activities: await count(sql`SELECT COUNT(*)::text AS n FROM couple_activities`),
   events: await count(sql`SELECT COUNT(*)::text AS n FROM couple_events`),
   messages: await count(sql`SELECT COUNT(*)::text AS n FROM messages`),
+  testEvents: await count(sql`SELECT COUNT(*)::text AS n FROM events WHERE fixture_key IS NOT NULL`),
+  realEvents: await count(sql`SELECT COUNT(*)::text AS n FROM events WHERE fixture_key IS NULL`),
+  eventAlerts: await count(sql`SELECT COUNT(*)::text AS n FROM event_open_alerts`),
 });
 
 let world: World;
@@ -108,6 +118,7 @@ describe("scripts/purge-seed-data.ts", () => {
       // The catalogue rows a real couple uses are reported as kept, with the reason.
       expect(run.out).toContain(world.savedByRealCouple);
       expect(run.out).toContain(world.registeredByRealCouple);
+      expect(run.out).toContain("test-event-purge (Dîner de Shabbat des tests)");
       expect(await counters()).toEqual(before);
     }
   }, 30_000);
@@ -138,6 +149,9 @@ describe("scripts/purge-seed-data.ts", () => {
       activities: 2,
       events: 1,
       messages: 0,
+      testEvents: 0,
+      realEvents: 1,
+      eventAlerts: 0,
     });
     // Of the whole sample catalogue only what a real couple uses stays, next to the partner's own entry.
     expect((await sql<{ title: string }[]>`SELECT title FROM couple_activities ORDER BY title`).map((row) => row.title)).toEqual([world.savedByRealCouple, "Atelier du quartier"].sort());

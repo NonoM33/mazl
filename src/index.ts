@@ -91,6 +91,8 @@ import { createAppleSignIn } from "./features/auth/apple/apple-sign-in";
 import { ensureAppleSignInSchema, PgAppleTokenStore } from "./features/auth/apple/apple-token-store";
 import { withAppleRevocation } from "./features/account/apple-revocation";
 import { registerEventsRoutes } from "./features/events/events.routes";
+import { createEventAlertsModule } from "./features/events/event-alerts.module";
+import { oneSignalTransport } from "./features/push/infra/onesignal-transport";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
@@ -442,8 +444,10 @@ registerChat(app, chat);
 // ============ EVENTS ENDPOINTS ============
 
 // Classic events feature routes (GET /api/events, GET /api/events/:id,
-// POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp).
-registerEventsRoutes(app);
+// POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp), « Me prévenir » on a
+// coming soon event (POST/DELETE /api/events/:id/notify) and its opening
+// (POST /api/admin/events/:id/open), which pushes the members who asked.
+registerEventsRoutes(app, createEventAlertsModule({ sql, transport: oneSignalTransport }));
 
 
 

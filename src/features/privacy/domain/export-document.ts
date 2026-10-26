@@ -67,6 +67,8 @@ export interface ExportSections {
   readonly credits: ExportCredits;
   readonly couple: JsonRecord | null;
   readonly eventRsvps: readonly JsonRecord[];
+  // « Me prévenir » on coming soon events.
+  readonly eventAlerts: readonly JsonRecord[];
   readonly consents: readonly JsonRecord[];
   readonly discoverFilters: JsonRecord | null;
   readonly consentHistory: readonly JsonRecord[];
@@ -111,6 +113,7 @@ export function buildExportDocument(sections: ExportSections, generatedAt: Date)
     credits: sections.credits,
     couple: sections.couple,
     event_rsvps: sections.eventRsvps,
+    event_alerts: sections.eventAlerts,
     consents: { current: sections.consents, history: sections.consentHistory },
     discover_filters: pick(sections.discoverFilters, DISCOVER_FILTER_KEYS),
     web_sessions: sections.webSessions.map((row) => pick(row, WEB_SESSION_KEYS)),

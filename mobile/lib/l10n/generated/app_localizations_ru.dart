@@ -1426,6 +1426,26 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Скоро';
+
+  @override
+  String get eventsNotifyMe => 'Сообщить мне';
+
+  @override
+  String get eventsNotifyRequested => 'Мы вам сообщим';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Мы сообщим вам, когда откроется регистрация.';
+
+  @override
+  String get eventsNotifyCancelled => 'Уведомление отключено';
+
+  @override
+  String get eventsNotifyError =>
+      'Не удалось сохранить запрос. Попробуйте ещё раз.';
+
+  @override
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override
