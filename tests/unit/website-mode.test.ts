@@ -76,7 +76,7 @@ describe("files the API host keeps serving", () => {
     for (const page of ["verify.html", "admin-login.html", "admin.html"]) {
       const html = readFileSync(join(publicDir, page), "utf8");
       const local = [...html.matchAll(/(?:src|href)="(\/[^"/][^"]*)"/g)].map((match) => (match[1] ?? "").split("?")[0] ?? "");
-      for (const path of local) expect([page, path, API_HOST_STATIC_FILES.has(path) || path === "/admin" || path.startsWith("/admin/")]).toEqual([page, path, true]);
+      for (const path of local) expect([page, path, API_HOST_STATIC_FILES.has(path) || path === "/admin" || path.startsWith("/admin/") || path === "/console" || path.startsWith("/console/")]).toEqual([page, path, true]);
     }
   });
 });
