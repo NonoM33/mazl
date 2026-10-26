@@ -31,6 +31,12 @@
     hinge: 0x2b2b33,
     tints: [0xe7e4df, 0xe1e5ea, 0xe8e2e5, 0xe1e8e4, 0xe3e1ea],
     bust: 0xcdd2da,
+    // Mode Shabbat du design system : fond encre fixe, textes chauds, flamme ambrée.
+    shabbatGround: 0x0b0b0f,
+    shabbatText: 0xf4f1ea,
+    shabbatMuted: 0xb9b6ae,
+    candle: 0xf2b544,
+    wick: 0x3a3a42,
   };
 
   // --- Dimensions (1 unité = 100 points d'écran) ----------------------------
@@ -274,19 +280,27 @@
   }
 
   /** Écran extérieur, en tente : la colonne à gauche, un affichage de Chabbat minimal. */
-  function buildCoverTent(layer, w, h, hl) {
-    const colX = -w / 2 + COLUMN / 2;
-    drawStatus(layer, colX, h / 2 - 0.4);
-    drawCapsule(layer, colX, h / 2 - 1.0, 3.2, hl.tabs);
-    const cx = (COLUMN) / 2 + 0.1;
-    layer.bar(cx - 0.8, 1.45, 1.6, 0.2, C.ink, 1);
-    layer.bar(cx - 0.5, 1.08, 1.0, 0.085, C.muted, 0.5);
-    for (const dx of [-0.55, 0.55]) {
-      layer.circle(cx + dx, 0.45, 0.4, C.tek, 0.09);
-      layer.rect(cx + dx, -0.4, 0.26, 1.15, C.ink, 1, 0.1);
-      layer.add(new T.CircleGeometry(1, 28), cx + dx, 0.45, C.tek, 1);
-      layer.last.scale.set(0.095, 0.17, 1);
+  /**
+   * Écran extérieur, en tente : l'affichage de Shabbat tel que l'app le montre,
+   * un écran de nuit sans aucune commande (ni capsule d'onglets ni bouton) :
+   * deux bougies à la flamme ambrée à gauche, la grande heure et les horaires à droite.
+   */
+  function buildCoverTent(layer, w, h) {
+    layer.rect(0, 0, w, h, C.shabbatGround, 1, 0.42);
+    const left = -w / 2 + COLUMN + 0.35;
+    for (const dx of [0, 0.62]) {
+      layer.rect(left + dx, -0.35, 0.16, 1.5, C.wick, 1, 0.06);
+      layer.add(new T.CircleGeometry(1, 28), left + dx, 0.62, C.candle, 1);
+      layer.last.scale.set(0.085, 0.16, 1);
+      layer.circle(left + dx, 0.62, 0.32, C.candle, 0.12);
     }
+    const right = left + 1.45;
+    layer.bar(right, 1.0, 2.1, 0.42, C.shabbatText, 1);
+    layer.bar(right, 0.42, 1.5, 0.11, C.shabbatMuted, 0.85);
+    layer.bar(right, -0.18, 0.9, 0.09, C.shabbatMuted, 0.6);
+    layer.bar(right + 1.15, -0.18, 0.9, 0.09, C.shabbatMuted, 0.6);
+    layer.bar(right, -0.42, 0.7, 0.15, C.shabbatText, 0.95);
+    layer.bar(right + 1.15, -0.42, 0.7, 0.15, C.shabbatText, 0.95);
   }
 
   // --- L'appareil --------------------------------------------------------------
