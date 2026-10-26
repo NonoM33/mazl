@@ -36,7 +36,9 @@ class MlKitFacePoseDetector implements FacePoseDetector {
         ? InputImageFormat.nv21
         : InputImageFormat.bgra8888;
     if (format != expected) return const [];
-    final search = _rotations ??= RotationSearch(camera.sensorOrientation);
+    final search = _rotations ??= RotationSearch(
+      firstRotation(image.width, image.height, camera.sensorOrientation),
+    );
 
     final plane = image.planes.first;
     for (final degrees in search.candidates()) {

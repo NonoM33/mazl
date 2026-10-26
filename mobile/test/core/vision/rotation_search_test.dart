@@ -30,4 +30,14 @@ void main() {
       ..record(null);
     expect(search.candidates(), [0]);
   });
+
+  test('a frame already standing in portrait is tried upright first', () {
+    expect(firstRotation(720, 1280, 90), 0);
+    expect(RotationSearch(firstRotation(720, 1280, 90)).candidates().first, 0);
+  });
+
+  test('a landscape frame starts from the sensor orientation', () {
+    expect(firstRotation(1280, 720, 90), 90);
+    expect(firstRotation(1920, 1080, 270), 270);
+  });
 }
