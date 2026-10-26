@@ -9,7 +9,49 @@ import 'package:mazl/core/services/push_destination.dart';
 //   couple_request   -> /couple/space
 //   couple_question  -> /couple/space
 //   couple_accepted  -> /couple/space (complément du coordinateur, sans autre champ)
+//   new_like         -> /likes
+//   super_like       -> /likes
+//   boost_ended      -> /boost
+//   event_available  -> /events/<event_id>, sinon /events
+//   event_opened     -> idem (type des faux événements « Bientôt disponible »)
+//   admin_test       -> rien
 void main() {
+  group('likes et Boost', () {
+    test('un like ou un super like ouvre les likes reçus', () {
+      expect(pushDestination({'type': 'new_like'}), '/likes');
+      expect(pushDestination({'type': 'super_like'}), '/likes');
+    });
+
+    test('la fin d\'un Boost ouvre le Boost', () {
+      expect(pushDestination({'type': 'boost_ended'}), '/boost');
+    });
+  });
+
+  group('événement disponible', () {
+    test('ouvre l\'événement, pour les deux types', () {
+      for (final type in ['event_available', 'event_opened']) {
+        expect(pushDestination({'type': type, 'event_id': 12}), '/events/12');
+        expect(pushDestination({'type': type, 'event_id': '12'}), '/events/12');
+      }
+    });
+
+    test('sans identifiant exploitable : la liste des événements', () {
+      expect(pushDestination({'type': 'event_available'}), '/events');
+      expect(
+        pushDestination({'type': 'event_opened', 'event_id': '12/../premium'}),
+        '/events',
+      );
+      expect(
+        pushDestination({'type': 'event_available', 'event_id': 0}),
+        '/events',
+      );
+    });
+
+    test('la push de test d\'un administrateur n\'ouvre rien', () {
+      expect(pushDestination({'type': 'admin_test'}), isNull);
+    });
+  });
+
   group('new_match', () {
     test('avec la conversation : ouvre la conversation', () {
       expect(
@@ -104,9 +146,12 @@ void main() {
       expect(pushDestination({'type': 'couple_question'}), '/couple/space');
     });
 
-    test('une demande acceptée ouvre l\'espace couple (ajout au contrat §1)', () {
-      expect(pushDestination({'type': 'couple_accepted'}), '/couple/space');
-    });
+    test(
+      'une demande acceptée ouvre l\'espace couple (ajout au contrat §1)',
+      () {
+        expect(pushDestination({'type': 'couple_accepted'}), '/couple/space');
+      },
+    );
   });
 
   group('anciens et inconnus : aucune navigation, aucun plantage', () {

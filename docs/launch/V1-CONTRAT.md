@@ -9,7 +9,9 @@ une ligne s'arrête et le signale : il ne la change pas seul.
 
 ## 1. Notifications push (OneSignal)
 
-Cible : `include_external_user_ids: ["user_<id>"]`, le même identifiant que
+Cible : `include_aliases: { external_id: ["user_<id>"] }` avec
+`target_channel: "push"` (API actuelle `https://api.onesignal.com/notifications`,
+en-tête `Authorization: Key <clé>`), le même identifiant que
 `OneSignal.login('user_<id>')` côté app. Aucun autre format.
 
 Champ `data` de chaque notification, et rien d'autre :
@@ -20,6 +22,12 @@ Champ `data` de chaque notification, et rien d'autre :
 | `new_message` | `conversation_id` (nombre) | un message arrive et le destinataire n'a AUCUNE socket ouverte | `/chat/<conversation_id>` |
 | `couple_request` | — | demande de couple reçue | `/couple/space` |
 | `couple_question` | — | question du jour | `/couple/space` |
+| `couple_accepted` | — | demande de couple acceptée | `/couple/space` |
+| `new_like` | — | un like reçu qui ne forme pas de match ; au plus une fois toutes les 6 h par membre, jamais le nom de qui a aimé | `/likes` |
+| `super_like` | — | un super like reçu qui ne forme pas de match ; une fois par expéditeur, sans son nom | `/likes` |
+| `boost_ended` | — | un Boost se termine (balayage chaque minute ; pas pour un Boost fini depuis plus d'une heure) | `/boost` |
+| `event_available` / `event_opened` | `event_id` (nombre) | un administrateur annonce un événement publié à une liste de membres (`POST /api/admin/push/event-available`) | `/events/<event_id>`, sinon `/events` |
+| `admin_test` | — | push de test d'un administrateur (`POST /api/admin/push/test`) | rien (l'app s'ouvre) |
 
 Le titre et le texte ne contiennent jamais le contenu du message (seulement le
 prénom affiché de l'expéditeur), vouvoiement, sans emoji.

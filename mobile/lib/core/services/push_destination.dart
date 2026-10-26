@@ -10,8 +10,13 @@ import '../router/route_names.dart';
 /// | `couple_request`  | `/couple/space`                                    |
 /// | `couple_question` | `/couple/space`                                    |
 /// | `couple_accepted` | `/couple/space`                                    |
+/// | `new_like`        | `/likes`                                           |
+/// | `super_like`      | `/likes`                                           |
+/// | `boost_ended`     | `/boost`                                           |
+/// | `event_available` | `/events/<event_id>`, else `/events`               |
+/// | `event_opened`    | `/events/<event_id>`, else `/events`               |
 ///
-/// Older or unknown types (`event_reminder`…) lead nowhere. An identifier is
+/// Older or unknown types (`event_reminder`, `admin_test`…) lead nowhere. An identifier is
 /// only ever read as a positive whole number and rebuilt into the path, never
 /// copied from the payload as it came.
 String? pushDestination(Map<String, dynamic> data) {
@@ -29,6 +34,13 @@ String? pushDestination(Map<String, dynamic> data) {
           : _conversationPath(conversation);
     case 'couple_request' || 'couple_question' || 'couple_accepted':
       return RoutePaths.coupleSpace;
+    case 'new_like' || 'super_like':
+      return RoutePaths.likes;
+    case 'boost_ended':
+      return RoutePaths.boost;
+    case 'event_available' || 'event_opened':
+      final event = _positiveInt(data['event_id']);
+      return event == null ? RoutePaths.events : '${RoutePaths.events}/$event';
     default:
       return null;
   }
