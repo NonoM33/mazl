@@ -8,8 +8,9 @@ import 'dev_session.dart';
 /// Client HTTP du mode démo.
 ///
 /// Session fictive inactive : transmet chaque requête, intacte, au client
-/// interne. Session active : ne transmet JAMAIS rien, répond depuis les
-/// données fictives (méthode + chemin, hôte ignoré) après [latency].
+/// interne. Session active : répond depuis les données fictives (méthode +
+/// chemin, hôte ignoré) après [latency] ; seule la lecture des photos de
+/// démo, en https sur images.unsplash.com, part sur le réseau.
 class DemoHttpClient extends http.BaseClient {
   DemoHttpClient(
     this._inner, {
@@ -21,7 +22,9 @@ class DemoHttpClient extends http.BaseClient {
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    if (!DevSession.isActive) return _inner.send(request);
+    if (!DevSession.isActive || _isDemoPhoto(request)) {
+      return _inner.send(request);
+    }
 
     await Future<void>.delayed(latency);
     final files = await _files(request);
@@ -42,15 +45,17 @@ class DemoHttpClient extends http.BaseClient {
     );
   }
 
+  /// Une photo de démo (lib/core/dev/demo_photos.dart) : rien d'autre ne sort.
+  static bool _isDemoPhoto(http.BaseRequest request) =>
+      request.method == 'GET' &&
+      request.url.scheme == 'https' &&
+      request.url.host == 'images.unsplash.com';
+
   /// Octets des fichiers d'un envoi multipart (rien n'est transmis plus loin).
   Future<List<DemoUpload>> _files(http.BaseRequest request) async => [
     if (request is http.MultipartRequest)
       for (final file in request.files)
-        DemoUpload(
-          file.field,
-          file.filename,
-          await file.finalize().toBytes(),
-        ),
+        DemoUpload(file.field, file.filename, await file.finalize().toBytes()),
   ];
 
   Map<String, dynamic> _jsonBody(http.BaseRequest request) {

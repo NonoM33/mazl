@@ -27,6 +27,28 @@ void main() {
       expect(jsonDecode(response.body)['from'], 'inner');
     });
 
+    test('session active : les photos de démo (Unsplash, en lecture) partent '
+        'sur le réseau, rien d\'autre', () async {
+      final seen = <Uri>[];
+      final inner = MockClient((request) async {
+        seen.add(request.url);
+        return http.Response('jpeg', 200);
+      });
+      final client = DemoHttpClient(inner, latency: Duration.zero);
+      DevSession.start();
+
+      final photo = Uri.parse(
+        'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800',
+      );
+      final response = await client.get(photo);
+      await client.post(photo, body: '{}');
+      await client.get(Uri.parse('http://images.unsplash.com/photo-1'));
+      await client.get(Uri.parse('https://evil.example.com/photo-1'));
+
+      expect(seen, [photo]);
+      expect(response.body, 'jpeg');
+    });
+
     test('session active : le client interne n\'est JAMAIS appelé', () async {
       var calls = 0;
       final inner = MockClient((request) async {
