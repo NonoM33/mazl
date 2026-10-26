@@ -1,5 +1,5 @@
 import type { Sql } from "postgres";
-import { isAdminEmail } from "../../admin/admin.emails";
+import { isAdminTestAccount } from "../../admin/admin.emails";
 import type { QuotaWaiver } from "../application/ports";
 import { isQuotaWaived } from "../domain/quota-waiver";
 
@@ -13,7 +13,7 @@ export class PgQuotaWaiver implements QuotaWaiver {
 
   async waived(userId: number): Promise<boolean> {
     if (this.end === null) return false;
-    const [user] = await this.sql<{ email: string }[]>`SELECT email FROM users WHERE id = ${userId}`;
-    return isQuotaWaived(user !== undefined && isAdminEmail(user.email), this.now(), this.end);
+    const [user] = await this.sql<{ id: number; email: string }[]>`SELECT id, email FROM users WHERE id = ${userId}`;
+    return isQuotaWaived(user !== undefined && isAdminTestAccount(user), this.now(), this.end);
   }
 }

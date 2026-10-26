@@ -1,5 +1,5 @@
 import type { Sql } from "postgres";
-import { isAdminEmail } from "../admin/admin.emails";
+import { isAdminTestAccount } from "../admin/admin.emails";
 import {
   CONVERSATIONS_PER_ADMIN,
   CONVERSATION_SCRIPTS,
@@ -78,7 +78,7 @@ async function adminAccounts(db: Db): Promise<AdminAccount[]> {
     FROM users u LEFT JOIN profiles p ON p.user_id = u.id
     WHERE u.provider <> 'seed' AND u.is_active IS NOT FALSE
     ORDER BY u.id`;
-  return rows.filter((row) => isAdminEmail(row.email)).map((row) => ({ id: row.id, lookingFor: row.looking_for }));
+  return rows.filter((row) => isAdminTestAccount(row)).map((row) => ({ id: row.id, lookingFor: row.looking_for }));
 }
 
 async function partnerships(db: Db, admin: AdminAccount): Promise<Partnership[]> {
