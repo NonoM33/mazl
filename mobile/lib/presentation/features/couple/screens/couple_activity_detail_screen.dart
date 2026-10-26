@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../l10n/l10n.dart';
@@ -143,9 +144,9 @@ class _CoupleActivityDetailScreenState
 
   void _copyDiscountCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.coupleFeedCodeCopied(code))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.coupleFeedCodeCopied(code))),
+    );
   }
 
   @override
@@ -296,13 +297,21 @@ class _CoupleActivityDetailScreenState
                           icon: LucideIcons.badgePercent,
                         ),
                       if (activity.isKosher) TagPill(l10n.coupleFeedKosher),
-                      TagPill(activity.priceLabel(l10n), icon: LucideIcons.euro),
+                      TagPill(
+                        activity.priceLabel(l10n),
+                        icon: LucideIcons.euro,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   if (activity.isPartner && activity.discountCode != null) ...[
                     Container(
-                      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 16),
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        20,
+                        16,
+                        12,
+                        16,
+                      ),
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(24),
@@ -431,29 +440,37 @@ class _CoupleActivityDetailScreenState
         ),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
         child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.coupleFeedFromPrice, style: textTheme.bodySmall),
-                    Text(activity.priceLabel(l10n), style: textTheme.titleLarge),
-                  ],
+          child: FoldSafeActions(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.coupleFeedFromPrice,
+                        style: textTheme.bodySmall,
+                      ),
+                      Text(
+                        activity.priceLabel(l10n),
+                        style: textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: activity.bookingUrl != null
-                      ? () => _openUrl(activity.bookingUrl!)
-                      : null,
-                  icon: const Icon(LucideIcons.externalLink, size: 18),
-                  label: Text(l10n.coupleFeedBook),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: activity.bookingUrl != null
+                        ? () => _openUrl(activity.bookingUrl!)
+                        : null,
+                    icon: const Icon(LucideIcons.externalLink, size: 18),
+                    label: Text(l10n.coupleFeedBook),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

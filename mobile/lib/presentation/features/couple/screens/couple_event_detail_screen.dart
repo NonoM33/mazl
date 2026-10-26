@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -185,19 +186,21 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
     final canTap = !_isUpdatingRegistration && (_isRegistered || !event.isFull);
     final bottom = MediaQuery.paddingOf(context).bottom;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24, 12, 24, bottom + 12),
-      child: SizedBox(
-        width: double.infinity,
-        child: _isRegistered
-            ? OutlinedButton(
-                onPressed: canTap ? _toggleRegistration : null,
-                child: Text(label),
-              )
-            : ElevatedButton(
-                onPressed: canTap ? _toggleRegistration : null,
-                child: Text(label),
-              ),
+    return FoldSafeActions(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, bottom + 12),
+        child: SizedBox(
+          width: double.infinity,
+          child: _isRegistered
+              ? OutlinedButton(
+                  onPressed: canTap ? _toggleRegistration : null,
+                  child: Text(label),
+                )
+              : ElevatedButton(
+                  onPressed: canTap ? _toggleRegistration : null,
+                  child: Text(label),
+                ),
+        ),
       ),
     );
   }
@@ -243,7 +246,10 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 _buildSection(l10n.coupleFeedDescription, event.description),
                 if (event.whatIncluded != null) ...[
                   const SizedBox(height: 24),
-                  _buildSection(l10n.coupleFeedEventIncluded, event.whatIncluded!),
+                  _buildSection(
+                    l10n.coupleFeedEventIncluded,
+                    event.whatIncluded!,
+                  ),
                 ],
               ],
             ),

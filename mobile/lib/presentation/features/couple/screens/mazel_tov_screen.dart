@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
@@ -193,7 +194,10 @@ class _MazelTovContentState extends State<_MazelTovContent>
 
   Widget _buildCoupleVisual() {
     // The two avatars start slightly apart and settle next to the heart.
-    final approach = CurvedAnimation(parent: _entrance, curve: Curves.easeOutCubic);
+    final approach = CurvedAnimation(
+      parent: _entrance,
+      curve: Curves.easeOutCubic,
+    );
     return PairedAvatars(
       progress: approach,
       startOffset: 24,
@@ -235,13 +239,18 @@ class _MazelTovContentState extends State<_MazelTovContent>
             ? CachedNetworkImage(
                 imageUrl: picture,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => const ColoredBox(color: AppColors.cardDark),
+                placeholder: (_, __) =>
+                    const ColoredBox(color: AppColors.cardDark),
               )
             : ColoredBox(
                 color: AppColors.cardDark,
                 child: Center(
                   child: fallbackIcon != null
-                      ? Icon(fallbackIcon, color: AppColors.textSecondaryDark, size: 36)
+                      ? Icon(
+                          fallbackIcon,
+                          color: AppColors.textSecondaryDark,
+                          size: 36,
+                        )
                       : Text(
                           fallbackText?.isNotEmpty == true
                               ? fallbackText!.characters.first.toUpperCase()
@@ -287,29 +296,31 @@ class _MazelTovContentState extends State<_MazelTovContent>
   }
 
   Widget _buildContinueButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        onPressed: widget.onContinue,
-        style: FilledButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: AppColors.ink,
-          minimumSize: const Size.fromHeight(56),
-          shape: const StadiumBorder(),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: Text(
-                context.l10n.coupleSpaceMazelTovStart,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+    return FoldSafeActions(
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: widget.onContinue,
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.ink,
+            minimumSize: const Size.fromHeight(56),
+            shape: const StadiumBorder(),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  context.l10n.coupleSpaceMazelTovStart,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            const DirectionalIcon(LucideIcons.arrowRight, size: 20),
-          ],
+              const SizedBox(width: 8),
+              const DirectionalIcon(LucideIcons.arrowRight, size: 20),
+            ],
+          ),
         ),
       ),
     );
