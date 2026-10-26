@@ -29,4 +29,18 @@ export class PgPushDirectory implements PushDirectory {
     const active = row.recipient_active !== false && row.actor_active !== false;
     return { deliverable: active && !row.blocked && !row.sanctioned, actorName: row.display_name };
   }
+
+  async reachable(recipientIds: readonly number[]): Promise<number[]> {
+    if (recipientIds.length === 0) return [];
+    const rows = await this.sql<{ id: number }[]>`
+      SELECT u.id FROM users u
+      WHERE u.id IN ${this.sql([...recipientIds])} AND u.is_active IS NOT FALSE
+        AND NOT EXISTS (
+          SELECT 1 FROM member_sanctions s
+          WHERE s.user_id = u.id AND s.revoked_at IS NULL AND s.starts_at <= now()
+            AND (s.ends_at IS NULL OR s.ends_at > now())
+            AND s.kind IN ('restriction', 'suspension', 'ban')
+        )`;
+    return rows.map((row) => row.id);
+  }
 }

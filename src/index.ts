@@ -317,10 +317,12 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
-// Push notifications (OneSignal) for new matches and for messages that reach a
-// member with no open socket.
+// Push notifications (OneSignal): new matches, messages that reach a member with
+// no open socket, likes, the end of a Boost, events announced by the administrators.
 const push = createPushModule({ sql });
 push.followMatches();
+push.followBoostEndings();
+push.registerAdminRoutes(app);
 const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
@@ -419,7 +421,7 @@ registerCredits(app, credits, requireAuth);
 registerLikeAllowance(app, createLikeAllowanceService(sql));
 // Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
 registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
-registerMatchingRoutes(app, { credits, feed: backoffice.feed });
+registerMatchingRoutes(app, { credits, feed: backoffice.feed, likes: push.likeListener });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
 // Engagement feature routes (selfie verification /api/verification/*, boost

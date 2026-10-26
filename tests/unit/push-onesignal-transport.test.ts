@@ -28,7 +28,7 @@ afterEach(() => {
 test("the member is user_<id>; data and collapse_id travel as given", async () => {
   const result = await oneSignalTransport.send({ recipientId: 9, title: "T", message: "M", data: { type: "new_message", conversation_id: 3 }, collapseId: "conv-3" });
   expect(result).toEqual({ ok: true });
-  expect(bodies[0]).toMatchObject({ include_external_user_ids: ["user_9"], data: { type: "new_message", conversation_id: 3 }, collapse_id: "conv-3" });
+  expect(bodies[0]).toMatchObject({ include_aliases: { external_id: ["user_9"] }, target_channel: "push", data: { type: "new_message", conversation_id: 3 }, collapse_id: "conv-3" });
 });
 
 test("without a collapse id the field is not sent", async () => {

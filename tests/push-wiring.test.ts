@@ -11,7 +11,7 @@ import { db, json, makeUser, type TestUser } from "./media-helpers";
 interface Received {
   readonly authorization: string | null;
   readonly body: {
-    include_external_user_ids?: string[];
+    include_aliases?: { external_id?: string[] };
     data?: Record<string, unknown>;
     collapse_id?: string;
     headings?: { fr?: string };
@@ -51,6 +51,7 @@ beforeAll(async () => {
       PORT: String(port),
       ONESIGNAL_REST_API_KEY: "fake-onesignal-key",
       ONESIGNAL_API_BASE: `http://127.0.0.1:${oneSignal.port}/api/v1`,
+      BOOST_END_SWEEP_MS: "300",
     },
     stdout: "ignore",
     stderr: "ignore",
@@ -105,7 +106,7 @@ async function matched(label: string): Promise<{ a: TestUser; b: TestUser; conve
 const message = (user: TestUser, conversationId: number, content: string) =>
   fetch(`${API}/api/conversations/${conversationId}/messages`, { method: "POST", headers: json(user.token), body: JSON.stringify({ content }) });
 
-const pushesTo = (user: TestUser): Received[] => received.filter((push) => push.body.include_external_user_ids?.includes(`user_${user.id}`));
+const pushesTo = (user: TestUser): Received[] => received.filter((push) => push.body.include_aliases?.external_id?.includes(`user_${user.id}`));
 
 // Pushes leave in the background: wait for the expected count, then a little
 // longer so that an unexpected extra one would show.
@@ -126,19 +127,22 @@ function openSocket(user: TestUser): Promise<WebSocket> {
 }
 
 describe("new match", () => {
-  test("both members are pushed, each with the other's id and the conversation; the first like pushes nobody", async () => {
+  test("both members are pushed, each with the other's id and the conversation; the first like is told as a like only", async () => {
     const a = await named("matcha", "Sarah Cohen");
     const b = await named("matchb", "Daniel Lévy");
     await swipe(a, b.id);
-    await settle();
-    expect([pushesTo(a).length, pushesTo(b).length]).toEqual([0, 0]);
+    await waitForPushes(b, 1);
+    expect(pushesTo(a)).toHaveLength(0);
+    expect(pushesTo(b).map((push) => push.body.data)).toEqual([{ type: "new_like" }]);
+    expect(JSON.stringify(pushesTo(b)[0]?.body)).not.toContain("Sarah");
 
     await swipe(b, a.id);
     const conversationId = await conversationOf(a);
-    const [toA, toB] = [await waitForPushes(a, 1), await waitForPushes(b, 1)];
+    const ofMatch = (pushes: Received[]) => pushes.filter((push) => push.body.data?.type === "new_match");
+    const [toA, toB] = [ofMatch(await waitForPushes(a, 1)), ofMatch(await waitForPushes(b, 2))];
     expect(toA).toHaveLength(1);
     expect(toB).toHaveLength(1);
-    expect(toA[0]?.authorization).toBe("Basic fake-onesignal-key");
+    expect(toA[0]?.authorization).toBe("Key fake-onesignal-key");
     expect(toA[0]?.body.data).toEqual({ type: "new_match", match_user_id: b.id, conversation_id: conversationId });
     expect(toB[0]?.body.data).toEqual({ type: "new_match", match_user_id: a.id, conversation_id: conversationId });
     expect(toA[0]?.body.contents?.fr).toContain("Daniel");
@@ -221,4 +225,94 @@ describe("new message", () => {
       providerDelayMs = 0;
     }
   }, 30_000);
+});
+
+describe("likes", () => {
+  test("a second like within six hours does not push the same member again", async () => {
+    const target = await named("liked", "Rachel Azoulay");
+    await swipe(await named("liker1", "Sarah Cohen"), target.id);
+    await swipe(await named("liker2", "Léa Benhamou"), target.id);
+    expect((await waitForPushes(target, 2)).map((push) => push.body.data)).toEqual([{ type: "new_like" }]);
+  }, 20_000);
+
+  test("a like from a member the target blocked pushes nothing", async () => {
+    const target = await named("blocker", "Rachel Azoulay");
+    const liker = await named("blocked", "Sarah Cohen");
+    await db`INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (${target.id}, ${liker.id})`;
+    await swipe(liker, target.id);
+    expect(await waitForPushes(target, 1)).toHaveLength(0);
+  }, 20_000);
+});
+
+describe("the end of a Boost", () => {
+  test("the member is pushed once when it ends; one that ended long ago is not", async () => {
+    const member = await named("boosted", "Sarah Cohen");
+    const old = await named("oldboost", "Daniel Lévy");
+    await db`INSERT INTO boosts (user_id, activated_at, expires_at) VALUES (${member.id}, NOW() - INTERVAL '31 minutes', NOW() - INTERVAL '1 minute')`;
+    await db`INSERT INTO boosts (user_id, activated_at, expires_at) VALUES (${old.id}, NOW() - INTERVAL '3 hours', NOW() - INTERVAL '2 hours')`;
+    const pushes = await waitForPushes(member, 1);
+    await Bun.sleep(700);
+    expect(pushesTo(member).map((push) => push.body.data)).toEqual([{ type: "boost_ended" }]);
+    expect(pushes[0]?.body.headings?.fr).toBe("Votre Boost est terminé");
+    expect(pushesTo(old)).toHaveLength(0);
+  }, 20_000);
+
+  test("a Boost still running pushes nothing", async () => {
+    const member = await named("running", "Sarah Cohen");
+    await db`INSERT INTO boosts (user_id, activated_at, expires_at) VALUES (${member.id}, NOW(), NOW() + INTERVAL '30 minutes')`;
+    expect(await waitForPushes(member, 1)).toHaveLength(0);
+  }, 20_000);
+});
+
+describe("the administrators' pushes", () => {
+  let adminToken = "";
+  const admin = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${adminToken}` });
+
+  beforeAll(async () => {
+    const res = await fetch(`${API}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: process.env.ADMIN_EMAIL ?? "admin@example.com", password: process.env.ADMIN_PASSWORD ?? "" }),
+    });
+    adminToken = ((await res.json()) as { token?: string }).token ?? "";
+    if (adminToken === "") throw new Error("admin login failed: check ADMIN_EMAIL / ADMIN_PASSWORD");
+  });
+
+  test("a published event is announced to the reachable members of the list, with the event to open", async () => {
+    const [a, b, off] = [await named("eva", "Sarah Cohen"), await named("evb", "Daniel Lévy"), await named("evoff", "Léa Benhamou")];
+    await db`UPDATE users SET is_active = false WHERE id = ${off.id}`;
+    const [event] = await db<{ id: number }[]>`
+      INSERT INTO events (title, date, is_published, organizer_id) VALUES ('Shabbat à Paris', CURRENT_DATE + 7, true, ${a.id}) RETURNING id`;
+    const res = await fetch(`${API}/api/admin/push/event-available`, {
+      method: "POST",
+      headers: admin(),
+      body: JSON.stringify({ event_id: event?.id, user_ids: [a.id, b.id, off.id] }),
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ success: true, requested: 3, sent: 2, skipped: 1, failed: 0 });
+    for (const member of [a, b]) {
+      const push = (await waitForPushes(member, 1)).find((p) => p.body.data?.type === "event_available");
+      expect(push?.body.data).toEqual({ type: "event_available", event_id: event?.id });
+      expect(push?.body.contents?.fr).toContain("Shabbat à Paris");
+    }
+    expect(pushesTo(off)).toHaveLength(0);
+  }, 20_000);
+
+  test("a draft event is not announced, and a member cannot announce one", async () => {
+    const a = await named("evdraft", "Sarah Cohen");
+    const [draft] = await db<{ id: number }[]>`
+      INSERT INTO events (title, date, is_published, organizer_id) VALUES ('Brouillon', CURRENT_DATE + 7, false, ${a.id}) RETURNING id`;
+    const body = JSON.stringify({ event_id: draft?.id, user_ids: [a.id] });
+    expect((await fetch(`${API}/api/admin/push/event-available`, { method: "POST", headers: admin(), body })).status).toBe(404);
+    expect((await fetch(`${API}/api/admin/push/event-available`, { method: "POST", headers: json(a.token), body })).status).toBe(401);
+    expect(await waitForPushes(a, 1)).toHaveLength(0);
+  }, 20_000);
+
+  test("a test push reaches the member, and the status says pushes are configured", async () => {
+    const a = await named("evtest", "Sarah Cohen");
+    const res = await fetch(`${API}/api/admin/push/test`, { method: "POST", headers: admin(), body: JSON.stringify({ user_id: a.id }) });
+    expect(await res.json()).toEqual({ success: true, sent: true });
+    expect((await waitForPushes(a, 1)).map((push) => push.body.data)).toEqual([{ type: "admin_test" }]);
+    expect(await (await fetch(`${API}/api/admin/push/status`, { headers: admin() })).json()).toEqual({ success: true, configured: true });
+  }, 20_000);
 });

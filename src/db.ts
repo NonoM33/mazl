@@ -178,6 +178,8 @@ export async function initDb() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `;
+  // When the member was pushed that this Boost ended (features/push).
+  await sql`ALTER TABLE boosts ADD COLUMN IF NOT EXISTS end_notified_at TIMESTAMP`;
 
   // Add new columns if they don't exist
   await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`;

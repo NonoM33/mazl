@@ -20,10 +20,17 @@ export interface SwipeStore {
   onMatch(userId: number, targetUserId: number): Promise<void>;
 }
 
+// Told of every like or super like that formed no match (the push to the
+// member liked). Answers at once: the work is done in the background.
+export interface LikeListener {
+  likeReceived(like: { readonly likerId: number; readonly recipientId: number; readonly superLike: boolean }): void;
+}
+
 export interface SwipeRouteDeps {
   readonly authenticate: MiddlewareHandler<{ Variables: AppVariables }>;
   readonly credits: CreditsGateway;
   readonly swipes: SwipeStore;
+  readonly likes?: LikeListener;
 }
 
 // What the debit step decided: record the swipe, or stop with nothing to spend.
@@ -80,6 +87,7 @@ export function registerSwipeRoute(app: Hono<{ Variables: AppVariables }>, deps:
       if (action !== "super_like") {
         const result = await deps.swipes.record(userId, targetUserId, action);
         if (result.match) await deps.swipes.onMatch(userId, targetUserId);
+        else if (action === "like") deps.likes?.likeReceived({ likerId: userId, recipientId: targetUserId, superLike: false });
         return c.json({ success: true, ...result });
       }
 
@@ -89,6 +97,7 @@ export function registerSwipeRoute(app: Hono<{ Variables: AppVariables }>, deps:
       }
       // On a reciprocal match, notify both users over WebSocket if connected.
       if (outcome.result.match) await deps.swipes.onMatch(userId, targetUserId);
+      else deps.likes?.likeReceived({ likerId: userId, recipientId: targetUserId, superLike: true });
       return c.json({ success: true, ...outcome.result, credits: await deps.credits.credits(userId) });
     } catch (error: unknown) {
       console.error("Swipe error:", error);

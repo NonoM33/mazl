@@ -3,9 +3,11 @@
 // Members are targeted by external id, "user_<id>": the identifier the app gives
 // OneSignal.login() (V1-CONTRAT section 1). The key and the endpoint are read at
 // every call, so a server started without ONESIGNAL_REST_API_KEY sends nothing.
+// Current API (https://documentation.onesignal.com/reference/push-notification):
+// an App API key sent as "Key <key>", the member as the external_id alias.
 
 const DEFAULT_ONESIGNAL_APP_ID = "0bad7c7f-4a93-4a6d-84e7-ed77a48532cf";
-const DEFAULT_ONESIGNAL_API_URL = "https://onesignal.com/api/v1";
+const DEFAULT_ONESIGNAL_API_URL = "https://api.onesignal.com";
 // A push is never worth holding a request, a socket handler or a shutdown.
 const ONESIGNAL_TIMEOUT_MS = 8_000;
 
@@ -43,6 +45,11 @@ interface PushNotificationParams {
   imageUrl?: string;
 }
 
+// OneSignal answers errors as a list of sentences, or as an object of details.
+function firstError(errors: unknown): string | undefined {
+  return Array.isArray(errors) && typeof errors[0] === "string" ? errors[0] : undefined;
+}
+
 export async function sendPushNotification(params: PushNotificationParams): Promise<{
   success: boolean;
   id?: string;
@@ -68,8 +75,8 @@ export async function sendPushNotification(params: PushNotificationParams): Prom
     } else if (params.segmentName) {
       payload.included_segments = [params.segmentName];
     } else if (params.userIds && params.userIds.length > 0) {
-      // Use external_id (our user IDs) - requires OneSignal to have these mapped
-      payload.include_external_user_ids = params.userIds;
+      payload.include_aliases = { external_id: params.userIds };
+      payload.target_channel = "push";
     } else {
       return { success: false, error: "No target specified" };
     }
@@ -96,29 +103,36 @@ export async function sendPushNotification(params: PushNotificationParams): Prom
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Basic ${apiKey}`,
+        "Authorization": `Key ${apiKey}`,
       },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(ONESIGNAL_TIMEOUT_MS),
     });
 
-    const result = (await response.json()) as {
+    const result = (await response.json().catch(() => ({}))) as {
       id?: string;
       recipients?: number;
-      errors?: string[];
+      errors?: unknown;
     };
 
     if (!response.ok) {
-      console.error("OneSignal error:", result);
-      return { success: false, error: result.errors?.[0] || "Failed to send notification" };
+      const reason = firstError(result.errors) ?? `HTTP ${response.status}`;
+      console.error(`OneSignal refused the push: ${reason}`);
+      return { success: false, error: reason };
+    }
+    // An empty id: accepted, sent to nobody (no subscribed device for the target).
+    if (result.id === undefined || result.id === "") {
+      const reason = firstError(result.errors) ?? "Not sent";
+      console.error(`OneSignal sent nothing: ${reason}`);
+      return { success: false, error: reason };
     }
 
-    console.log(`Push notification sent: ${result.id}, recipients: ${result.recipients}`);
+    console.log(`Push notification sent: ${result.id}, recipients: ${result.recipients ?? "?"}`);
 
     return {
       success: true,
       id: result.id,
-      recipients: result.recipients,
+      ...(result.recipients === undefined ? {} : { recipients: result.recipients }),
     };
   } catch (error: unknown) {
     console.error("OneSignal error:", error instanceof Error ? error.name : "unknown");

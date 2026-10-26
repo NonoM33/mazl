@@ -31,6 +31,9 @@ export interface PushAudience {
 
 export interface PushDirectory {
   audience(recipientId: number, actorId: number): Promise<PushAudience>;
+  // The members of the list who may be told something that comes from nobody
+  // (an event, the end of their Boost): active, without any active sanction.
+  reachable(recipientIds: readonly number[]): Promise<number[]>;
 }
 
 export interface ConnectionRegistry {

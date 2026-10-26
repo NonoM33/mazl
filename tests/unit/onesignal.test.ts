@@ -41,9 +41,13 @@ describe("the target", () => {
     const result = await sendPushToUsers([42], "Titre", "Texte", { type: "new_message", conversation_id: 9 });
     expect(result.success).toBe(true);
     expect(sent).toHaveLength(1);
-    expect(sent[0]?.url).toBe("https://onesignal.com/api/v1/notifications");
-    expect(sent[0]?.authorization).toBe("Basic test-key");
-    expect(sent[0]?.body.include_external_user_ids).toEqual(["user_42"]);
+    // The current API (https://documentation.onesignal.com/reference/push-notification):
+    // an App API key with the "Key " prefix, members addressed by their external_id alias.
+    expect(sent[0]?.url).toBe("https://api.onesignal.com/notifications");
+    expect(sent[0]?.authorization).toBe("Key test-key");
+    expect(sent[0]?.body.include_aliases).toEqual({ external_id: ["user_42"] });
+    expect(sent[0]?.body.target_channel).toBe("push");
+    expect(sent[0]?.body).not.toHaveProperty("include_external_user_ids");
     expect(sent[0]?.body.data).toEqual({ type: "new_message", conversation_id: 9 });
     expect(sent[0]?.body).not.toHaveProperty("collapse_id");
   });
@@ -74,6 +78,23 @@ describe("the target", () => {
       if (production === undefined) delete process.env.NODE_ENV;
       else process.env.NODE_ENV = production;
     }
+  });
+});
+
+describe("the answer of OneSignal", () => {
+  test("an empty id is a push sent to nobody: no device of the member is subscribed", async () => {
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ id: "", errors: ["All included players are not subscribed"] }), { status: 200 })) as unknown as typeof fetch;
+    const result = await sendPushToUsers([42], "Titre", "Texte");
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("All included players are not subscribed");
+  });
+
+  test("a refused key is reported, whatever the shape of the errors", async () => {
+    globalThis.fetch = (async () => new Response(JSON.stringify({ errors: { invalid_api_key: true } }), { status: 403 })) as unknown as typeof fetch;
+    const result = await sendPushToUsers([42], "Titre", "Texte");
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("HTTP 403");
   });
 });
 

@@ -56,8 +56,10 @@ let repository: InMemoryCredits;
 let plus: FakePlusStatus;
 let swipes: FakeSwipes;
 let app: Hono<{ Variables: AppVariables }>;
+let liked: Array<{ likerId: number; recipientId: number; superLike: boolean }>;
 
 beforeEach(() => {
+  liked = [];
   repository = new InMemoryCredits();
   plus = new FakePlusStatus();
   swipes = new FakeSwipes();
@@ -70,7 +72,7 @@ beforeEach(() => {
     await next();
   });
   app = new Hono<{ Variables: AppVariables }>();
-  registerSwipeRoute(app, { authenticate, credits, swipes });
+  registerSwipeRoute(app, { authenticate, credits, swipes, likes: { likeReceived: (like) => void liked.push(like) } });
 });
 
 async function swipe(target: number, action: string, user: number | null = USER): Promise<{ status: number; body: SwipeBody }> {
@@ -214,5 +216,32 @@ describe("super like", () => {
     const { body } = await swipe(20, "super_like");
     expect(body).toMatchObject({ success: true, match: true, targetUserId: 20 });
     expect(swipes.matches).toEqual([[USER, 20]]);
+  });
+});
+
+describe("the member liked is told (features/push)", () => {
+  test("a like and a super like that form no match tell the target; a pass tells nobody", async () => {
+    await swipe(20, "like");
+    await swipe(21, "pass");
+    await swipe(22, "super_like");
+    expect(liked).toEqual([
+      { likerId: USER, recipientId: 20, superLike: false },
+      { likerId: USER, recipientId: 22, superLike: true },
+    ]);
+  });
+
+  test("a like that forms a match is told as the match, not as a like", async () => {
+    swipes.reciprocal = true;
+    await swipe(20, "like");
+    await swipe(21, "super_like");
+    expect(liked).toEqual([]);
+    expect(swipes.matches).toHaveLength(2);
+  });
+
+  test("a super like refused for lack of credits tells nobody", async () => {
+    await swipe(20, "super_like");
+    liked = [];
+    expect((await swipe(21, "super_like")).status).toBe(402);
+    expect(liked).toEqual([]);
   });
 });
