@@ -2433,8 +2433,13 @@ export async function getAdminStats() {
       COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days') as new_this_week,
       COUNT(*) FILTER (WHERE last_login_at > NOW() - INTERVAL '24 hours') as active_today
     FROM users WHERE provider != 'seed'`,
-    sql`SELECT COUNT(*) as total FROM matches`,
-    sql`SELECT COUNT(*) as total FROM messages`,
+    // Test members (provider 'seed') and their matches and messages are not activity.
+    sql`SELECT COUNT(*) as total FROM matches m
+      WHERE NOT EXISTS (SELECT 1 FROM users s WHERE s.id IN (m.user1_id, m.user2_id) AND s.provider = 'seed')`,
+    sql`SELECT COUNT(*) as total FROM messages x
+      WHERE NOT EXISTS (
+        SELECT 1 FROM conversations c JOIN users s ON s.id IN (c.user1_id, c.user2_id)
+        WHERE c.id = x.conversation_id AND s.provider = 'seed')`,
     sql`SELECT
       COUNT(*) as total,
       COUNT(*) FILTER (WHERE is_published = true) as published,

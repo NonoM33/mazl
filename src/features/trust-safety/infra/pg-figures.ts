@@ -32,11 +32,12 @@ export class PgFiguresRepository implements FiguresRepository {
                COUNT(*) FILTER (WHERE decided_at >= ${now}::timestamptz - interval '30 days' AND status = 'overturned')::int AS overturned
         FROM sanction_appeals`,
       this.sql`
-        SELECT (SELECT COUNT(*)::int FROM users) AS total,
-               (SELECT COUNT(*)::int FROM users WHERE created_at >= ${now}::timestamptz - interval '7 days') AS new7d,
-               (SELECT COUNT(*)::int FROM users WHERE last_login_at >= ${now}::timestamptz - interval '7 days') AS active7d,
-               (SELECT COUNT(*)::int FROM matches WHERE created_at >= ${now}::timestamptz - interval '7 days') AS matches7d,
-               (SELECT COUNT(*)::int FROM profiles WHERE is_verified = true) AS verified`,
+        SELECT (SELECT COUNT(*)::int FROM users WHERE provider <> 'seed') AS total,
+               (SELECT COUNT(*)::int FROM users WHERE provider <> 'seed' AND created_at >= ${now}::timestamptz - interval '7 days') AS new7d,
+               (SELECT COUNT(*)::int FROM users WHERE provider <> 'seed' AND last_login_at >= ${now}::timestamptz - interval '7 days') AS active7d,
+               (SELECT COUNT(*)::int FROM matches m WHERE m.created_at >= ${now}::timestamptz - interval '7 days'
+                  AND NOT EXISTS (SELECT 1 FROM users s WHERE s.id IN (m.user1_id, m.user2_id) AND s.provider = 'seed')) AS matches7d,
+               (SELECT COUNT(*)::int FROM profiles p JOIN users u ON u.id = p.user_id WHERE p.is_verified = true AND u.provider <> 'seed') AS verified`,
       this.sql`SELECT COUNT(*)::int AS open FROM authority_requests WHERE status IN ('received', 'in_progress')`,
       countVerificationQueue(this.sql),
     ]);
