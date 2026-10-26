@@ -186,6 +186,28 @@ describe("scripts/seed-test-profiles.ts", () => {
     expect(await tables()).toEqual(before);
   }, 60_000);
 
+  test("the administrator's earlier swipes on test members are forgotten, matches kept", async () => {
+    const matched = new Set(
+      (await sql<{ other: number }[]>`
+        SELECT CASE WHEN user1_id = ${admin} THEN user2_id ELSE user1_id END AS other FROM matches WHERE ${admin} IN (user1_id, user2_id)`).map((row) => row.other),
+    );
+    const passed = (await seedRows()).find((row) => row.is_active && !matched.has(row.id));
+    if (passed === undefined) throw new Error("no unmatched test member");
+    await sql`INSERT INTO swipes (user_id, target_user_id, action) VALUES (${admin}, ${passed.id}, 'pass') ON CONFLICT DO NOTHING`;
+    const again = await run(SEED, "--apply");
+    expect(again.code).toBe(0);
+    expect(await count(sql`SELECT COUNT(*)::text AS n FROM swipes WHERE user_id = ${admin} AND target_user_id = ${passed.id}`)).toBe(0);
+    expect(await count(sql`SELECT COUNT(*)::text AS n FROM swipes WHERE user_id = ${admin}`)).toBe(matched.size);
+  }, 60_000);
+
+  test("test members accept every age and every distance", async () => {
+    const rows = await sql<{ age_min: number; age_max: number; distance_max: number | null }[]>`
+      SELECT p.age_min, p.age_max, p.distance_max FROM profiles p JOIN users u ON u.id = p.user_id
+      WHERE u.provider = 'seed' AND u.is_active = true`;
+    expect(rows).toHaveLength(16);
+    for (const row of rows) expect([row.age_min, row.age_max, row.distance_max]).toEqual([18, 99, null]);
+  });
+
   test("a real member sees the test members in Discover, with their photos", async () => {
     const made = await fetch(`${server.baseUrl}/api/dev/test-user`, {
       method: "POST",

@@ -116,6 +116,24 @@ export async function planTestProfiles(db: Db): Promise<TestProfilesPlan> {
   };
 }
 
+// A test member accepts every age and every distance: Discover filters both ways
+// (mutual age and distance), and a tester of any age, anywhere, must see them.
+const OPEN_AGE_MIN = 18;
+const OPEN_AGE_MAX = 99;
+
+// The administrator's earlier passes and likes on test members, matches apart, are
+// forgotten: the members taken over from the old development seed were often swiped
+// already, and would never show in the administrator's Discover again.
+async function forgetAdminSwipes(db: Db, adminId: number): Promise<void> {
+  await db`
+    DELETE FROM swipes s USING users u
+    WHERE s.user_id = ${adminId} AND s.target_user_id = u.id AND u.provider = 'seed'
+      AND NOT EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.user1_id = s.user_id AND m.user2_id = s.target_user_id)
+           OR (m.user2_id = s.user_id AND m.user1_id = s.target_user_id))`;
+}
+
 async function upsertMember(db: Db, member: TestMember, index: number, today: Date): Promise<number> {
   const [user] = await db<{ id: number }[]>`
     INSERT INTO users (email, name, picture, provider, provider_id, is_active, last_login_at)
@@ -126,17 +144,19 @@ async function upsertMember(db: Db, member: TestMember, index: number, today: Da
   if (user === undefined) throw new Error(`no row for ${member.providerId}`);
   await db`
     INSERT INTO profiles (user_id, display_name, birthdate, gender, bio, location, denomination, kashrut_level, shabbat_observance,
-                          relationship_intention, looking_for, is_complete, is_verified, verification_level, photo_verified_at)
+                          relationship_intention, looking_for, is_complete, is_verified, verification_level, photo_verified_at,
+                          age_min, age_max, distance_max)
     VALUES (${user.id}, ${member.displayName}, ${birthdateOf(member, index, today)}, ${member.gender}, ${member.bio}, ${member.city},
             ${member.denomination}, ${member.kashrut}, ${member.shabbat}, ${member.intention},
             ${member.gender === "female" ? "male" : "female"}, true, ${member.photoVerified}, ${member.photoVerified ? "photo" : "none"},
-            ${member.photoVerified ? db`NOW()` : null})
+            ${member.photoVerified ? db`NOW()` : null}, ${OPEN_AGE_MIN}, ${OPEN_AGE_MAX}, NULL)
     ON CONFLICT (user_id) DO UPDATE SET
       display_name = EXCLUDED.display_name, birthdate = EXCLUDED.birthdate, gender = EXCLUDED.gender, bio = EXCLUDED.bio,
       location = EXCLUDED.location, denomination = EXCLUDED.denomination, kashrut_level = EXCLUDED.kashrut_level,
       shabbat_observance = EXCLUDED.shabbat_observance, relationship_intention = EXCLUDED.relationship_intention,
       looking_for = EXCLUDED.looking_for, is_complete = true, is_verified = EXCLUDED.is_verified,
       verification_level = EXCLUDED.verification_level,
+      age_min = EXCLUDED.age_min, age_max = EXCLUDED.age_max, distance_max = NULL,
       photo_verified_at = CASE WHEN EXCLUDED.is_verified THEN COALESCE(profiles.photo_verified_at, NOW()) ELSE NULL END,
       updated_at = NOW()`;
   await syncPhotos(db, user.id, member);
@@ -227,7 +247,10 @@ export async function applyTestProfiles(db: Db): Promise<TestProfilesPlan> {
     for (const [index, member] of TEST_MEMBERS.entries()) await upsertMember(tx, member, index, today);
     if (plan.retired.length > 0) await tx`UPDATE users SET is_active = false WHERE provider = 'seed' AND provider_id IN ${tx(plan.retired)}`;
     const ids = await memberIdsByKey(tx);
-    for (const admin of await adminAccounts(tx)) await seedAdmin(tx, admin, ids);
+    for (const admin of await adminAccounts(tx)) {
+      await seedAdmin(tx, admin, ids);
+      await forgetAdminSwipes(tx, admin.id);
+    }
     return plan;
   })) as TestProfilesPlan;
 }
