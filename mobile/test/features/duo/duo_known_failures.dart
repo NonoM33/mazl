@@ -123,66 +123,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     "action principale 'S'inscrire - 25 €' dans le pli",
   ),
   DuoKnownFailure(
-    '/profile/verification',
-    DuoPose.halfOpenBook,
-    "action principale 'Vérifier ma photo' dans le pli",
-  ),
-  DuoKnownFailure(
-    '/verification/identity',
-    DuoPose.halfOpenBook,
-    "action principale 'Fermer' dans le pli",
-  ),
-  DuoKnownFailure(
-    '/profile/settings/computers',
-    DuoPose.halfOpenBook,
-    "action principale 'Connecter un ordinateur' dans le pli",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.closed,
-    "action principale 'Continuer · 44,99 €' hors écran, 308 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.tent,
-    "action principale 'Continuer · 44,99 €' hors écran, 520 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.openPortrait,
-    "action principale 'Continuer · 44,99 €' hors écran, 117 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.openLandscape,
-    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.halfOpenBook,
-    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.halfOpenLaptop,
-    "action principale 'Continuer · 44,99 €' hors écran, 117 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.splitView,
-    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
-  ),
-  DuoKnownFailure(
-    '/premium/welcome',
-    DuoPose.halfOpenBook,
-    "élément tapable 'Plus tard' dans le pli",
-  ),
-  DuoKnownFailure(
-    '/subscription',
-    DuoPose.halfOpenBook,
-    "élément tapable 'Restaurer mes achats' dans le pli ; action principale 'Découvrir mazl+' dans le pli",
-  ),
-  DuoKnownFailure(
     '/couple/setup',
     DuoPose.closed,
     "action principale 'Envoyer la demande' sous la barre d'accueil (10 pt)",
