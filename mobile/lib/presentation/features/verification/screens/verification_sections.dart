@@ -6,6 +6,7 @@ import '../../../../core/models/verification.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../identity/identity_parts.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 /// Un niveau de vérification : étiquette, titre, état, texte, action. Les
 /// niveaux sont séparés par un filet, sans carte.
@@ -185,19 +186,19 @@ class VerificationRetry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    // The words on the page where reading starts, the button on the other
+    // when the fold cuts the screen.
+    return FoldPages(
+      crossAxisAlignment: CrossAxisAlignment.start,
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const IconDisc(icon: LucideIcons.circleAlert),
-          const SizedBox(height: 22),
-          IdentityParagraph(message),
-          const SizedBox(height: 24),
-          IdentityOutlineButton(context.l10n.commonRetry, onPressed: onRetry),
-        ],
-      ),
+      lead: [
+        const IconDisc(icon: LucideIcons.circleAlert),
+        const SizedBox(height: 22),
+        IdentityParagraph(message),
+      ],
+      rest: [
+        IdentityOutlineButton(context.l10n.commonRetry, onPressed: onRetry),
+      ],
     );
   }
 }

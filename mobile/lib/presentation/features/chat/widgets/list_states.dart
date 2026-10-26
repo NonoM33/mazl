@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 /// Grey bubbles while the first page loads. Still under reduced motion.
 class ListSkeleton extends StatefulWidget {
@@ -89,22 +91,10 @@ class ListError extends StatelessWidget {
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 16),
-          OutlinedButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => FoldMessageView(
+    title: message,
+    actionLabel: context.l10n.commonRetry,
+    onAction: onRetry,
   );
 }
 
@@ -115,30 +105,30 @@ class EmptyConversation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Padding(
+    // Set down like a laptop, the greeting stays above the fold.
+    return FoldPages(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      gap: 0,
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionLabel(context.l10n.chatNewMatch),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.chatEmptyTitle,
-            style: const TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -2,
-              height: 1.05,
-            ),
+      lead: [
+        SectionLabel(context.l10n.chatNewMatch),
+        const SizedBox(height: 12),
+        Text(
+          context.l10n.chatEmptyTitle,
+          style: const TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -2,
+            height: 1.05,
           ),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.chatEmptyBody,
-            style: TextStyle(fontSize: 16, height: 1.45, color: muted),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          context.l10n.chatEmptyBody,
+          style: TextStyle(fontSize: 16, height: 1.45, color: muted),
+        ),
+      ],
+      rest: const [],
     );
   }
 }

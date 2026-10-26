@@ -15,6 +15,7 @@ import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
 import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class CoupleActivityDetailScreen extends StatefulWidget {
   const CoupleActivityDetailScreen({
@@ -156,7 +157,7 @@ class _CoupleActivityDetailScreenState
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const FoldSpinner(),
       );
     }
 

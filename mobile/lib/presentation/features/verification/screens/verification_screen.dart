@@ -13,6 +13,7 @@ import '../identity/identity_parts.dart';
 import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
 import 'verification_sections.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 enum _Stage { loading, ready, working }
 
@@ -167,7 +168,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
   }
 
   Widget _body(BuildContext context) {
-    if (_stage == _Stage.loading) return const Center(child: CircularProgressIndicator());
+    if (_stage == _Stage.loading) return const FoldSpinner();
     final l10n = context.l10n;
     final status = _status;
     if (status == null) {

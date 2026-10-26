@@ -17,6 +17,7 @@ import '../../../common/widgets/mazl_sheet.dart';
 import '../l10n/couple_failure_label.dart';
 import '../widgets/couple_message_view.dart';
 import 'couple_space_sheets.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class CoupleSpaceScreen extends StatefulWidget {
   const CoupleSpaceScreen({super.key, this.apiService});
@@ -135,7 +136,7 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) return const FoldSpinner();
     if (_failure != null) {
       return CoupleMessageView.failure(_failure!, onRetry: _loadData);
     }

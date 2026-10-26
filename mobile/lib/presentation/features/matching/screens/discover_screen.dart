@@ -22,6 +22,8 @@ import '../../../widgets/skeletons.dart';
 import '../../chat/conversation_lookup.dart';
 import '../widgets/discover_card.dart';
 import '../widgets/match_sheet.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key, this.apiService, this.likeAllowanceApi});
@@ -121,6 +123,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
 
     final response = await _apiService.getDiscoverProfiles();
+    if (!mounted) return;
 
     if (response.success && response.data != null) {
       setState(() {
@@ -204,77 +207,52 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     return _buildSwiper();
   }
 
-  Widget _buildError() {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.circleAlert,
-              size: 40,
-              color: scheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              apiErrorText(context.l10n, _errorKind),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadProfiles,
-              child: Text(context.l10n.commonRetry),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildError() => FoldMessageView(
+    icon: LucideIcons.circleAlert,
+    title: apiErrorText(context.l10n, _errorKind),
+    actionLabel: context.l10n.commonRetry,
+    onAction: _loadProfiles,
+  );
 
   Widget _buildEmpty() {
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.matchingDiscoverEmptyTitle,
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.matchingDiscoverEmptyBody,
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.45,
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 28),
-            OutlinedButton(
-              onPressed: _openFilters,
-              child: Text(context.l10n.matchingDiscoverOpenFilters),
-            ),
-            const SizedBox(height: 4),
-            // No inner padding: its text sits on the same edge as the title.
-            TextButton(
-              onPressed: _loadProfiles,
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(0, 48),
-                alignment: AlignmentDirectional.centerStart,
-              ),
-              child: Text(context.l10n.matchingDiscoverRefresh),
-            ),
-          ],
+    // The words on the page where reading starts, the actions on the other
+    // when the fold cuts the screen.
+    return FoldPages(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      gap: 28,
+      lead: [
+        Text(
+          context.l10n.matchingDiscoverEmptyTitle,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
-      ),
+        const SizedBox(height: 12),
+        Text(
+          context.l10n.matchingDiscoverEmptyBody,
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.45,
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+      rest: [
+        OutlinedButton(
+          onPressed: _openFilters,
+          child: Text(context.l10n.matchingDiscoverOpenFilters),
+        ),
+        const SizedBox(height: 4),
+        // No inner padding: its text sits on the same edge as the title.
+        TextButton(
+          onPressed: _loadProfiles,
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(0, 48),
+            alignment: AlignmentDirectional.centerStart,
+          ),
+          child: Text(context.l10n.matchingDiscoverRefresh),
+        ),
+      ],
     );
   }
 

@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../widgets/skeletons.dart';
 import '../l10n/event_texts.dart';
+import '../../../../core/layout/fold_message_view.dart';
 
 class EventsListScreen extends StatefulWidget {
   const EventsListScreen({super.key});
@@ -300,63 +301,20 @@ class _EventsListScreenState extends State<EventsListScreen>
     }
 
     if (_hasError && _events.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.wifiOff,
-              size: 48,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(context.l10n.eventsLoadError),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadEvents,
-              child: Text(context.l10n.commonRetry),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        icon: LucideIcons.wifiOff,
+        title: context.l10n.eventsLoadError,
+        actionLabel: context.l10n.commonRetry,
+        onAction: _loadEvents,
       );
     }
 
     if (_events.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                LucideIcons.calendar,
-                size: 48,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.l10n.eventsEmptyTitle,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.l10n.eventsEmptyHint,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        icon: LucideIcons.calendar,
+        iconColor: AppColors.primary,
+        title: context.l10n.eventsEmptyTitle,
+        line: context.l10n.eventsEmptyHint,
       );
     }
 

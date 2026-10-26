@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../common/widgets/fold_pages.dart';
+
 
 /// Base shimmer wrapper
 class ShimmerWrapper extends StatelessWidget {
@@ -70,6 +72,10 @@ class ProfileCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FoldFirstPage(child: _card());
+  }
+
+  Widget _card() {
     return ShimmerWrapper(
       child: Container(
         margin: const EdgeInsets.all(16),
@@ -278,6 +284,10 @@ class ProfileViewSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FoldFirstPage(child: _page(context));
+  }
+
+  Widget _page(BuildContext context) {
     return ShimmerWrapper(
       child: SingleChildScrollView(
         child: Column(

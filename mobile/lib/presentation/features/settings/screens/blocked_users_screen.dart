@@ -5,6 +5,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends StatefulWidget {
@@ -118,53 +120,23 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const FoldSpinner();
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              context.l10n.commonLoadError,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _loadBlockedUsers,
-              child: Text(context.l10n.commonRetry),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        icon: LucideIcons.alertCircle,
+        title: context.l10n.commonLoadError,
+        actionLabel: context.l10n.commonRetry,
+        onAction: _loadBlockedUsers,
       );
     }
 
     if (_blockedUsers.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.userCheck, size: 64, color: Colors.grey[300]),
-            const SizedBox(height: 16),
-            Text(
-              context.l10n.settingsBlockedEmptyTitle,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.l10n.settingsBlockedEmptyHint,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500]),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        icon: LucideIcons.userCheck,
+        title: context.l10n.settingsBlockedEmptyTitle,
+        line: context.l10n.settingsBlockedEmptyHint,
       );
     }
 

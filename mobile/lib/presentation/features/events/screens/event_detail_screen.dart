@@ -12,6 +12,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../l10n/event_texts.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class EventDetailScreen extends StatefulWidget {
   const EventDetailScreen({super.key, required this.eventId});
@@ -181,33 +183,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const FoldSpinner(),
       );
     }
 
     if (_hasError || _event == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                LucideIcons.alertTriangle,
-                size: 48,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(context.l10n.eventsNotFound),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => context.pop(),
-                child: Text(context.l10n.commonBack),
-              ),
-            ],
-          ),
+        body: FoldMessageView(
+          icon: LucideIcons.alertTriangle,
+          title: context.l10n.eventsNotFound,
+          actionLabel: context.l10n.commonBack,
+          onAction: () => context.pop(),
         ),
       );
     }

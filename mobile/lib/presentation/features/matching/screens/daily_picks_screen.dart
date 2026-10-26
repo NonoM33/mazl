@@ -19,6 +19,8 @@ import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../chat/conversation_lookup.dart';
 import '../widgets/match_sheet.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 /// Daily Picks Screen - Curated profiles for the user each day
 class DailyPicksScreen extends StatefulWidget {
@@ -184,71 +186,29 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const FoldSpinner();
     }
 
     if (_loadFailed) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.alertCircle, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              apiErrorText(context.l10n, _errorKind),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadDailyPicks,
-              child: Text(context.l10n.commonRetry),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        icon: LucideIcons.alertCircle,
+        title: apiErrorText(context.l10n, _errorKind),
+        actionLabel: context.l10n.commonRetry,
+        onAction: _loadDailyPicks,
       );
     }
 
     if (_dailyPicks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                LucideIcons.sparkles,
-                size: 48,
-                color: AppColors.secondary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.l10n.matchingPicksSeenAll,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.l10n.matchingPicksNextIn(
-                _timeUntilRefresh().hours,
-                _timeUntilRefresh().minutes,
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => context.go(RoutePaths.discover),
-              icon: const Icon(LucideIcons.compass),
-              label: Text(context.l10n.matchingPicksDiscoverMore),
-            ),
-          ],
+      return FoldMessageView(
+        icon: LucideIcons.sparkles,
+        iconColor: AppColors.secondary,
+        title: context.l10n.matchingPicksSeenAll,
+        line: context.l10n.matchingPicksNextIn(
+          _timeUntilRefresh().hours,
+          _timeUntilRefresh().minutes,
         ),
+        actionLabel: context.l10n.matchingPicksDiscoverMore,
+        onAction: () => context.go(RoutePaths.discover),
       );
     }
 
