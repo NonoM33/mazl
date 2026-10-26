@@ -29,6 +29,32 @@ export type {
   SanctionKind,
   StatementOfReasons,
 } from "../../../../src/features/trust-safety/domain/types";
+export type {
+  MatchingStateDto,
+  ParamsVersionDto,
+  PreviewRequest,
+  PreviewResponse,
+  VersionPageDto,
+} from "../../../../src/features/matching/presentation/dto";
+export type {
+  Criterion,
+  MatchingParams,
+  NumericParamSpec,
+  OrdinalScale,
+  ParamGroup,
+  ReciprocityMode,
+  ScaleName,
+} from "../../../../src/features/matching/domain/params";
+export type { MatchProfile } from "../../../../src/features/matching/domain/profile";
+export type {
+  CriterionScore,
+  DirectionalScore,
+  ExclusionReason,
+  Multiplier,
+  MultiplierKey,
+  RankedCandidate,
+  RankingResult,
+} from "../../../../src/features/matching/domain/ranking";
 export type { Permission, StaffRole } from "../../../../src/features/staff/domain/roles";
 
 // Réponse d'une décision ou d'une sanction : le code de contestation n'est rendu qu'une fois.

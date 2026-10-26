@@ -3,6 +3,8 @@ import { LoginScreen } from "../auth/LoginScreen";
 import { MfaCodeStep } from "../auth/MfaCodeStep";
 import { MfaEnrollScreen } from "../auth/MfaEnrollScreen";
 import { DashboardScreen } from "../dashboard/DashboardScreen";
+import { AlgorithmScreen } from "../matching/AlgorithmScreen";
+import { tabFromParam } from "../matching/tabs";
 import { MemberFileScreen } from "../members/MemberFileScreen";
 import { MembersScreen } from "../members/MembersScreen";
 import { ReportsScreen } from "../reports/ReportsScreen";
@@ -48,6 +50,8 @@ function Screen({ route }: { readonly route: Route }): ReactElement {
       return <ReportsScreen selectedId={route.id} />;
     case "membres":
       return route.id === null ? <MembersScreen initialQuery={route.params["q"] ?? ""} /> : <MemberFileScreen key={route.id} memberId={route.id} />;
+    case "algorithme":
+      return <AlgorithmScreen tab={tabFromParam(route.params["onglet"])} />;
     default:
       return <ComingSoon section={section} />;
   }
