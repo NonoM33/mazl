@@ -86,6 +86,8 @@ import {
   ACCOUNT_DISABLED_CLOSE,
 } from "./shared/realtime/connections";
 import { registerAuthRoutes } from "./features/auth/auth.routes";
+import { ensureReviewAccount } from "./features/auth/review/review-account";
+import { readReviewLoginConfig, verifyWithBun } from "./features/auth/review/review-login";
 import { createAppleSignIn } from "./features/auth/apple/apple-sign-in";
 import { ensureAppleSignInSchema, PgAppleTokenStore } from "./features/auth/apple/apple-token-store";
 import { withAppleRevocation } from "./features/account/apple-revocation";
@@ -371,8 +373,12 @@ backoffice.register(app);
 
 // ============ AUTH ENDPOINTS ============
 
-// Auth feature routes (POST /api/auth/google, POST /api/auth/apple, GET /api/auth/me)
-registerAuthRoutes(app, appleSignIn);
+// Auth feature routes (POST /api/auth/google, POST /api/auth/apple, POST /api/auth/review, GET /api/auth/me)
+registerAuthRoutes(app, appleSignIn, {
+  config: readReviewLoginConfig(process.env),
+  verify: verifyWithBun,
+  ensureAccount: (username) => ensureReviewAccount(sql, username),
+});
 
 // Web sign-in (QR, Google, Apple), revocable web sessions and the cookie bridge.
 const webSession = createWebSessionModule({ sql });

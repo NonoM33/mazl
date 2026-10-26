@@ -1,5 +1,7 @@
 import postgres from "postgres";
 import { applyTestProfiles } from "./features/fixtures/test-profiles";
+import { ensureReviewAccount } from "./features/auth/review/review-account";
+import { readReviewLoginConfig } from "./features/auth/review/review-login";
 import { applyTestEvents } from "./features/fixtures/test-events";
 import { createCreditTables, eraseCredits } from "./features/credits/infra/schema";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
@@ -1500,6 +1502,8 @@ export async function getDiscoverProfiles(userId: number, limit = 20, offset = 0
     WHERE p.user_id != ${userId}
       AND u.is_active = true
       AND p.is_complete = true
+      -- the App Store review account is never offered to anybody
+      AND u.provider <> 'review'
       AND p.user_id NOT IN (
         SELECT target_user_id FROM swipes WHERE user_id = ${userId}
       )
@@ -1907,6 +1911,9 @@ export async function deleteProfilePrompt(userId: number, promptId: number): Pro
 // restart is harmless; scripts/purge-seed-data.ts removes all of it.
 export async function seedTestProfilesIfRequested(flag = process.env.SEED_TEST_PROFILES): Promise<void> {
   if (flag !== "true") return;
+  // The review account exists before the seed, which gives it its conversations.
+  const review = readReviewLoginConfig(process.env);
+  if (review !== null) await ensureReviewAccount(sql, review.username);
   const plan = await applyTestProfiles(sql);
   console.log(`Test profiles ready: ${plan.members.length} member(s), ${plan.admins.length} administrator account(s)`);
   const events = await applyTestEvents(sql);
@@ -2483,7 +2490,7 @@ export async function getAdminStats() {
       COUNT(*) as total,
       COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days') as new_this_week,
       COUNT(*) FILTER (WHERE last_login_at > NOW() - INTERVAL '24 hours') as active_today
-    FROM users WHERE provider != 'seed'`,
+    FROM users WHERE provider NOT IN ('seed', 'review')`,
     // Test members (provider 'seed') and their matches and messages are not activity.
     sql`SELECT COUNT(*) as total FROM matches m
       WHERE NOT EXISTS (SELECT 1 FROM users s WHERE s.id IN (m.user1_id, m.user2_id) AND s.provider = 'seed')`,
@@ -3956,7 +3963,7 @@ export async function getCampaignRecipients(segmentId?: number | null): Promise<
     SELECT u.id, u.email
     FROM users u
     WHERE u.is_active = true
-      AND u.provider != 'seed'
+      AND u.provider NOT IN ('seed', 'review')
       AND u.email NOT IN (SELECT email FROM email_unsubscribes)
     ORDER BY u.created_at DESC
   `;

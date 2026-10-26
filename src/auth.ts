@@ -24,7 +24,8 @@ interface AuthUser {
   email: string;
   name?: string;
   picture?: string;
-  provider: "google" | "apple";
+  // "review": the App Store review account (features/auth/review).
+  provider: "google" | "apple" | "review";
   providerId: string;
 }
 
