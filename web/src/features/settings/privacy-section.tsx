@@ -4,6 +4,7 @@ import { describeError } from "../../shared/api/errors";
 import type { BlockedResponse } from "../../shared/api/types";
 import { useResource } from "../../shared/hooks/use-resource";
 import { displayName } from "../../shared/lib/format";
+import { AnalyticsConsentRow } from "./analytics-consent-row";
 import { ConsentCard } from "./consent-card";
 import { downloadExport } from "./export-download";
 import { exportMessage } from "./export-outcome";
@@ -53,6 +54,7 @@ export function PrivacySection() {
   return (
     <Section id="confidentialite" title="Confidentialité">
       <ConsentCard />
+      <AnalyticsConsentRow />
       <ExportRow />
       <BlockedRows />
       <div className="inline gap-16 settings-note">

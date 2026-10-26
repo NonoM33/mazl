@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnalyticsBridge } from "../features/analytics/analytics-bridge";
 import { ConsentGate } from "../features/consent/consent-gate";
 import { CoupleRequestBanner } from "../features/couple";
 import { DiscreetProvider } from "../features/discreet/discreet-mode";
@@ -35,6 +36,7 @@ function Routed() {
       <CoupleRequestBanner />
       {"node" in resolved ? resolved.node : null}
       {help && <ShortcutsHelp onClose={() => setHelp(false)} />}
+      <AnalyticsBridge />
     </Shell>
   );
 }

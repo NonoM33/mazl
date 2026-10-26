@@ -202,4 +202,4 @@ export interface BillingStatus extends Envelope {
 export interface RedirectResponse extends Envelope { readonly url: string }
 
 export interface ConsentState { readonly granted: boolean | null; readonly version: string | null; readonly decided_at: string | null; readonly current_version: string; readonly text: string }
-export interface ConsentsResponse extends Envelope { readonly consents: { readonly religious_data: ConsentState } }
+export interface ConsentsResponse extends Envelope { readonly consents: { readonly religious_data: ConsentState; readonly analytics?: ConsentState } }
