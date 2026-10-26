@@ -68,7 +68,10 @@ class _ShellState extends State<_Shell> {
                     ),
                 child: const Text('page'),
               ),
-              const SizedBox(height: 200, child: SizedBox.expand(key: Key('list'))),
+              const SizedBox(
+                height: 200,
+                child: SizedBox.expand(key: Key('list')),
+              ),
             ],
           ),
         ),
@@ -191,8 +194,9 @@ void main() {
         capsule.bottom,
         lessThanOrEqualTo(pose.size.height - pose.padding.bottom),
       );
-      if (pose.fold != null)
+      if (pose.fold != null) {
         expect(capsule.top, greaterThanOrEqualTo(pose.fold!.bottom));
+      }
       expectFitsDuoPose(tester, pose, 'shell');
     });
   }

@@ -87,13 +87,14 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
     final body = KeyedSubtree(key: _bodyKey, child: widget.body);
     final verticalBar = VerticalBarScope.geometryOf(context);
     final regular = isRegularWidth(context);
-    if (verticalBar != null)
+    if (verticalBar != null) {
       return _buildWithVerticalBar(
         context,
         body,
         verticalBar,
         regular: regular,
       );
+    }
     if (!regular) return _buildCompact(body);
     return Theme.of(context).platform == TargetPlatform.iOS
         ? _buildRegularWithBottomBar(context, body)
@@ -198,8 +199,9 @@ class _AdaptiveShellState extends State<AdaptiveShell> {
     final start = bar.side == VerticalBarSide.left ? bar.strip.width : 0.0;
     final list = division.left - start;
     if (list < kListPaneMinWidth ||
-        region - list - division.width < kListPaneMinWidth)
+        region - list - division.width < kListPaneMinWidth) {
       return null;
+    }
     return (list: list, gap: division.width);
   }
 
