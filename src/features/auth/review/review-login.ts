@@ -22,9 +22,15 @@ export interface ReviewCredentials {
 export type PasswordVerifier = (password: string, hash: string) => Promise<boolean>;
 
 /** The configuration, or null when the review sign-in is switched off. */
+// A raw argon2id hash is full of "$", which a hosting may take for variables:
+// it can be given as base64:<hash in base64> instead.
+const BASE64_PREFIX = "base64:";
+const decodeHash = (value: string | undefined): string | undefined =>
+  value?.startsWith(BASE64_PREFIX) ? Buffer.from(value.slice(BASE64_PREFIX.length), "base64").toString("utf8").trim() : value;
+
 export function readReviewLoginConfig(env: Readonly<Record<string, string | undefined>>): ReviewLoginConfig | null {
   const username = env.REVIEW_LOGIN_USERNAME?.trim();
-  const passwordHash = env.REVIEW_LOGIN_PASSWORD_HASH?.trim();
+  const passwordHash = decodeHash(env.REVIEW_LOGIN_PASSWORD_HASH?.trim());
   if (!username || !passwordHash) return null;
   return { username, passwordHash };
 }

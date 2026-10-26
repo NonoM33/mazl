@@ -20,7 +20,8 @@ Corps : `{ "username": "<identifiant>", "password": "<mot de passe>" }` (chaîne
 | 429 | trop de tentatives |
 
 Configuration (Coolify, jamais dans le dépôt) : `REVIEW_LOGIN_USERNAME`, et
-`REVIEW_LOGIN_PASSWORD_HASH` = `Bun.password.hash(motDePasse)` (argon2id). L'un des deux
+`REVIEW_LOGIN_PASSWORD_HASH` = `Bun.password.hash(motDePasse)` (argon2id), de préférence sous la forme
+`base64:<empreinte en base64>` (Coolify peut interpoler les `$` d'une empreinte brute). L'un des deux
 absent : la route répond 404.
 
 Le compte : `users.provider = 'review'`, `provider_id = <identifiant>`, profil complet

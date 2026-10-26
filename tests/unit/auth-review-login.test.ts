@@ -17,6 +17,13 @@ describe("review sign-in configuration", () => {
     expect(readReviewLoginConfig({ REVIEW_LOGIN_USERNAME: "  ", REVIEW_LOGIN_PASSWORD_HASH: "$argon2id$x" })).toBeNull();
   });
 
+  test("decodes a hash given as base64: (a hosting may interpolate the $ of a raw argon2id hash)", () => {
+    const hash = "$argon2id$v=19$m=65536,t=2,p=1$abc$def";
+    const encoded = `base64:${Buffer.from(hash).toString("base64")}`;
+    expect(readReviewLoginConfig({ REVIEW_LOGIN_USERNAME: "relecteur", REVIEW_LOGIN_PASSWORD_HASH: encoded })?.passwordHash).toBe(hash);
+    expect(readReviewLoginConfig({ REVIEW_LOGIN_USERNAME: "relecteur", REVIEW_LOGIN_PASSWORD_HASH: "base64:" })).toBeNull();
+  });
+
   test("reads both values, trimmed", () => {
     expect(readReviewLoginConfig({ REVIEW_LOGIN_USERNAME: " relecteur ", REVIEW_LOGIN_PASSWORD_HASH: " $argon2id$x " })).toEqual({
       username: "relecteur",
