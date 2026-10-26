@@ -63,11 +63,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
   ),
   DuoKnownFailure(
-    '/events/:eventId',
-    DuoPose.halfOpenBook,
-    "action principale 'S'inscrire - 25 €' dans le pli",
-  ),
-  DuoKnownFailure(
     '/profile/verification',
     DuoPose.halfOpenBook,
     "action principale 'Vérifier ma photo' dans le pli",
