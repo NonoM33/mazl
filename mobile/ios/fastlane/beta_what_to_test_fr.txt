@@ -1,0 +1,8 @@
+Bienvenue dans la bêta de MAZL, merci de nous aider !
+Pendant cette phase de test, les profils proposés dans Découvrir sont des profils d'exemple : ils servent à essayer l'application en attendant les premiers membres.
+À essayer en priorité :
+• l'inscription et la création de votre profil ;
+• Découvrir : liker, passer, ouvrir une fiche ;
+• la vérification de votre photo par selfie (Profil › Réglages › Vérification) ;
+• sur iPhone pliable : plier et déplier l'appareil sur chaque écran.
+Un bug, une idée ? Faites une capture d'écran dans TestFlight pour nous l'envoyer, ou écrivez-nous.

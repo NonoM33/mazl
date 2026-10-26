@@ -1,0 +1,8 @@
+Welcome to the MAZL beta, thank you for helping us!
+During this test phase, the profiles in Discover are sample profiles: they let you try the app until the first members join.
+Please try first:
+• signing up and creating your profile;
+• Discover: like, pass, open a profile;
+• the selfie photo check (Profile › Settings › Verification);
+• on a foldable iPhone: fold and unfold the device on every screen.
+A bug, an idea? Take a screenshot in TestFlight to send it to us, or write to us.

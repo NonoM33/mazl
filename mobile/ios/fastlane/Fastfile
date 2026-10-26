@@ -61,4 +61,49 @@ platform :ios do
     upload_to_testflight(skip_waiting_for_build_processing: true)
     UI.success("Build #{build} (MAZL) envoye sur TestFlight")
   end
+  desc "Ouvre une build deja envoyee aux testeurs externes : groupe, revue beta, lien public"
+  # Usage, depuis mobile/ios :
+  #   BUILD=202610261849 REVIEW_PHONE=<telephone> fastlane external_beta
+  # REVIEW_PHONE n'est lu que dans l'environnement : jamais versionne.
+  lane :external_beta do
+    key_id = ENV.fetch("ASC_KEY_ID")
+    app_store_connect_api_key(
+      key_id: key_id, issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_PATH", "~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8"))
+    )
+    groupe_nom = ENV.fetch("BETA_GROUP", "Testeurs MAZL")
+    app = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
+    UI.user_error!("app #{BUNDLE_ID} introuvable") if app.nil?
+    groupe = app.get_beta_groups(filter: { name: groupe_nom }).first
+    groupe ||= app.create_beta_group(group_name: groupe_nom, public_link_enabled: true,
+                                     public_link_limit: 100, public_link_limit_enabled: true)
+    groupe.update(attributes: { public_link_enabled: true, public_link_limit: 100, public_link_limit_enabled: true }) unless groupe.public_link_enabled
+
+    upload_to_testflight(
+      distribute_only: true,
+      app_identifier: BUNDLE_ID,
+      app_platform: "ios",
+      build_number: ENV.fetch("BUILD"),
+      distribute_external: true,
+      groups: [groupe_nom],
+      notify_external_testers: true,
+      submit_beta_review: true,
+      beta_app_feedback_email: ENV.fetch("REVIEW_EMAIL", "renaudlemagicien@gmail.com"),
+      beta_app_description: "MAZL, l'application de rencontres pensée pour la communauté juive.",
+      beta_app_review_info: {
+        contact_email: ENV.fetch("REVIEW_EMAIL", "renaudlemagicien@gmail.com"),
+        contact_first_name: "Renaud",
+        contact_last_name: "Cosson",
+        contact_phone: ENV.fetch("REVIEW_PHONE"),
+        demo_account_required: false,
+        notes: File.read(File.expand_path("beta_review_notes.txt", __dir__)).strip
+      },
+      localized_build_info: {
+        "fr-FR" => { whats_new: File.read(File.expand_path("beta_what_to_test_fr.txt", __dir__)).strip },
+        "en-US" => { whats_new: File.read(File.expand_path("beta_what_to_test_en.txt", __dir__)).strip }
+      }
+    )
+    groupe = app.get_beta_groups(filter: { name: groupe_nom }).first
+    UI.success("Lien public : #{groupe.public_link}")
+  end
 end
