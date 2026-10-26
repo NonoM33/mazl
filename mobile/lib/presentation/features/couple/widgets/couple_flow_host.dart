@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/couple_service.dart';
+import '../../../../core/services/quiet_display.dart';
 import '../../../../core/services/websocket_service.dart';
 import '../../../../core/l10n/app_language.dart';
 import '../../../../l10n/l10n.dart';
@@ -25,6 +26,7 @@ class CoupleFlowHost extends StatefulWidget {
     required this.isAuthenticated,
     this.onSignedIn,
     this.onSignedOut,
+    this.quiet,
     required this.child,
   });
 
@@ -42,17 +44,27 @@ class CoupleFlowHost extends StatefulWidget {
   /// Side effects tied to the session (connect / disconnect the socket).
   final VoidCallback? onSignedIn;
   final VoidCallback? onSignedOut;
+
+  /// While it is on (the Shabbat display), no dialog, snack bar or redirect:
+  /// the events wait. The app's own by default.
+  final QuietDisplay? quiet;
   final Widget child;
 
   @override
   State<CoupleFlowHost> createState() => _CoupleFlowHostState();
 }
 
-class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObserver {
+class _CoupleFlowHostState extends State<CoupleFlowHost>
+    with WidgetsBindingObserver {
   StreamSubscription<CoupleFlowEvent>? _flowSubscription;
   StreamSubscription<ChatEvent>? _realtimeSubscription;
   bool _wasAuthenticated = false;
   int? _dialogRequestId;
+
+  /// Events that came while the Shabbat display was on, in order.
+  final List<CoupleFlowEvent> _held = [];
+
+  QuietDisplay get _quiet => widget.quiet ?? QuietDisplay.instance;
 
   @override
   void initState() {
@@ -62,7 +74,15 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
     _flowSubscription = widget.service.events.listen(_onFlowEvent);
     _realtimeSubscription = widget.realtime.listen(_onRealtime);
     widget.auth.addListener(_onAuthChanged);
+    _quiet.listenable.addListener(_onQuietChanged);
     _onAuthChanged();
+  }
+
+  void _onQuietChanged() {
+    if (_quiet.isOn) return;
+    final held = List.of(_held);
+    _held.clear();
+    held.forEach(_onFlowEvent);
   }
 
   /// The sentence sent to the other conversations when the couple forms, in
@@ -82,6 +102,7 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
     }
     WidgetsBinding.instance.removeObserver(this);
     widget.auth.removeListener(_onAuthChanged);
+    _quiet.listenable.removeListener(_onQuietChanged);
     _flowSubscription?.cancel();
     _realtimeSubscription?.cancel();
     super.dispose();
@@ -117,6 +138,10 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
   }
 
   void _onFlowEvent(CoupleFlowEvent event) {
+    if (_quiet.isOn) {
+      _held.add(event);
+      return;
+    }
     switch (event) {
       case CoupleRequestReceived(:final request):
         _showRequestDialog(request);
@@ -142,9 +167,9 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
   void _snack(String Function(AppLocalizations l10n) message) {
     final context = widget.navigatorKey.currentContext;
     if (context == null) return;
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-      SnackBar(content: Text(message(context.l10n))),
-    );
+    ScaffoldMessenger.maybeOf(
+      context,
+    )?.showSnackBar(SnackBar(content: Text(message(context.l10n))));
   }
 
   void _showRequestDialog(CoupleRequest request) {
@@ -161,8 +186,11 @@ class _CoupleFlowHostState extends State<CoupleFlowHost> with WidgetsBindingObse
     }
     _dialogRequestId = request.id;
     unawaited(
-      CoupleRequestDialog.show(context, request: request, service: widget.service)
-          .whenComplete(() => _dialogRequestId = null),
+      CoupleRequestDialog.show(
+        context,
+        request: request,
+        service: widget.service,
+      ).whenComplete(() => _dialogRequestId = null),
     );
   }
 
