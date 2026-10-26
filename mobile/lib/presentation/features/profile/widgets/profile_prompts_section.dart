@@ -301,7 +301,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
             Text(
               '${_myPrompts.length}/$maxPrompts',
               style: TextStyle(
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -312,7 +312,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
           context.l10n.profilePromptsSubtitle,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 12),
@@ -330,7 +330,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
               children: [
                 Text(
                   apiErrorText(context.l10n, _errorKind),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 TextButton(
                   onPressed: _loadData,
@@ -375,9 +375,9 @@ class _PromptCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -550,7 +550,7 @@ class _PromptSelectionSheet extends StatelessWidget {
                         entry.key.isEmpty ? null : entry.key,
                       ),
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
@@ -590,21 +590,26 @@ class _PromptOption extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 promptQuestionText(context.l10n, prompt.id, prompt.text),
-                style: const TextStyle(fontSize: 15),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
             DirectionalIcon(
               LucideIcons.chevronRight,
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
           ],
