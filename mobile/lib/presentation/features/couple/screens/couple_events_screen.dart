@@ -14,6 +14,7 @@ import '../l10n/couple_failure_label.dart';
 import '../l10n/couple_feed_labels.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class CoupleEventsScreen extends StatefulWidget {
   const CoupleEventsScreen({super.key, this.apiService});
@@ -166,7 +167,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
     required bool showRegisterButton,
   }) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const FoldSpinner();
     }
 
     final failure = _failure;

@@ -15,6 +15,7 @@ import '../conversation_lookup.dart';
 import '../conversation_time.dart';
 import '../../../common/l10n/content_direction.dart';
 import '../l10n/chat_preview_text.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -305,32 +306,33 @@ class _CenteredMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return Padding(
+    // Held like a book or set down like a laptop, the words are on one page
+    // of the fold and the action on the other.
+    return FoldPages(
+      crossAxisAlignment: CrossAxisAlignment.start,
       padding: EdgeInsets.fromLTRB(24, 0, 24, bottom + 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -1.6,
-              height: 1.05,
-            ),
+      gap: action == null ? 0 : 28,
+      lead: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -1.6,
+            height: 1.05,
           ),
-          const SizedBox(height: 12),
-          Text(
-            subtitle,
-            style: TextStyle(fontSize: 16, height: 1.45, color: scheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.45,
+            color: scheme.onSurfaceVariant,
           ),
-          if (action != null) ...[
-            const SizedBox(height: 28),
-            action!,
-          ],
-        ],
-      ),
+        ),
+      ],
+      rest: [?action],
     );
   }
 }

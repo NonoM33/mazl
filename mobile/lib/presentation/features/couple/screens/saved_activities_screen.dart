@@ -12,6 +12,7 @@ import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
 import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
   const SavedActivitiesScreen({super.key, this.apiService});
@@ -124,7 +125,7 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) return const FoldSpinner();
 
     final failure = _failure;
     if (failure != null) {

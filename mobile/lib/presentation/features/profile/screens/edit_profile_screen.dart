@@ -16,6 +16,8 @@ import '../l10n/profile_answer_labels.dart';
 import '../widgets/profile_prompts_section.dart';
 import '../widgets/relationship_intention_selector.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import '../../../../core/layout/fold_message_view.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -529,22 +531,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const FoldSpinner();
     }
 
     if (_hasLoadError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(apiErrorText(context.l10n, _errorKind)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadProfile,
-              child: Text(context.l10n.commonRetry),
-            ),
-          ],
-        ),
+      return FoldMessageView(
+        title: apiErrorText(context.l10n, _errorKind),
+        actionLabel: context.l10n.commonRetry,
+        onAction: _loadProfile,
       );
     }
 

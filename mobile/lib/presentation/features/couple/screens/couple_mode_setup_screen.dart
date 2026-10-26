@@ -13,6 +13,8 @@ import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
 import '../l10n/couple_failure_label.dart';
 import '../widgets/book_pages.dart';
+import '../../../common/widgets/fold_pages.dart';
+import '../../../../core/layout/fold_message_view.dart';
 
 /// Loads the member's matches (the real API in production).
 typedef MatchesLoader =
@@ -233,17 +235,12 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
 
   Widget _buildChooser(BuildContext context) {
     final l10n = context.l10n;
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) return const FoldSpinner();
     if (_loadFailed) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.coupleSpaceSetupMatchesError),
-            const SizedBox(height: 12),
-            TextButton(onPressed: _loadMatches, child: Text(l10n.commonRetry)),
-          ],
-        ),
+      return FoldMessageView(
+        title: l10n.coupleSpaceSetupMatchesError,
+        actionLabel: l10n.commonRetry,
+        onAction: _loadMatches,
       );
     }
 
@@ -254,7 +251,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           match['profile'] as Map<String, dynamic>,
     ];
     if (profiles.isEmpty) {
-      return Center(child: Text(l10n.coupleSpaceSetupNoMatches));
+      return FoldMessageView(title: l10n.coupleSpaceSetupNoMatches);
     }
 
     final footer = SafeArea(

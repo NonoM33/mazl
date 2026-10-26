@@ -14,6 +14,8 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../common/widgets/directional_icon.dart';
+import '../../../common/widgets/fold_pages.dart';
+import '../../../../core/layout/fold_message_view.dart';
 
 /// Screen to manage and activate profile boost
 class BoostScreen extends StatefulWidget {
@@ -161,7 +163,7 @@ class _BoostScreenState extends State<BoostScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const FoldSpinner()
           : _loadFailed
           ? _buildError()
           : _buildContent(),
@@ -169,24 +171,11 @@ class _BoostScreenState extends State<BoostScreen> {
   }
 
   Widget _buildError() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(LucideIcons.alertCircle, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            apiErrorText(context.l10n, _errorKind),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _loadBoostStatus,
-            child: Text(context.l10n.commonRetry),
-          ),
-        ],
-      ),
+    return FoldMessageView(
+      icon: LucideIcons.alertCircle,
+      title: apiErrorText(context.l10n, _errorKind),
+      actionLabel: context.l10n.commonRetry,
+      onAction: _loadBoostStatus,
     );
   }
 

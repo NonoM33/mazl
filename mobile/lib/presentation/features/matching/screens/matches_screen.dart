@@ -97,6 +97,7 @@ class _MatchesScreenState extends State<MatchesScreen>
 
     try {
       final response = await _apiService.getMatches();
+      if (!mounted) return;
       if (response.success && response.data != null) {
         setState(() {
           _matches = response.data!;
@@ -111,6 +112,7 @@ class _MatchesScreenState extends State<MatchesScreen>
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         if (_matches.isEmpty) {
           _loadFailed = true;

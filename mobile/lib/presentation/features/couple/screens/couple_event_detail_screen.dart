@@ -15,6 +15,7 @@ import '../l10n/couple_feed_labels.dart';
 import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
+import '../../../common/widgets/fold_pages.dart';
 
 class CoupleEventDetailScreen extends StatefulWidget {
   const CoupleEventDetailScreen({
@@ -146,7 +147,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
       return const Scaffold(
         body: Stack(
           children: [
-            Center(child: CircularProgressIndicator()),
+            FoldSpinner(),
             _BackButton(),
           ],
         ),
