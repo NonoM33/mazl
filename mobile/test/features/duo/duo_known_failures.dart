@@ -140,37 +140,37 @@ const List<DuoKnownFailure> duoKnownFailures = [
   DuoKnownFailure(
     '/premium',
     DuoPose.closed,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (342 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 308 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.tent,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (554 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 520 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.openPortrait,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (151 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 117 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.openLandscape,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (351 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.halfOpenBook,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (351 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.halfOpenLaptop,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (151 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 117 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium',
     DuoPose.splitView,
-    "action principale 'Continuer · 44,99 €' sous la barre d'accueil (351 pt)",
+    "action principale 'Continuer · 44,99 €' hors écran, 317 pt sous le bas de l'écran : il faut défiler",
   ),
   DuoKnownFailure(
     '/premium/welcome',

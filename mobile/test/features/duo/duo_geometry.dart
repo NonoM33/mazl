@@ -221,6 +221,11 @@ String? primaryProblem(WidgetTester tester, DuoPose pose, Finder finder) {
       area.inflate(0.5).contains(rect.topLeft) &&
       area.inflate(0.5).contains(rect.bottomRight);
   final bar = pose.verticalBar?.controls;
+  final window = Offset.zero & pose.size;
+  if (!window.inflate(0.5).contains(rect.bottomRight)) {
+    return 'main action $what at ${_rect(rect)} off the screen '
+        '(${_beyond(rect, window)}): it needs a scroll';
+  }
   if (!(inside(pose.safeRect) || (bar != null && inside(bar)))) {
     return 'main action $what at ${_rect(rect)} outside the safe area '
         '(${_beyond(rect, pose.safeRect)})';
