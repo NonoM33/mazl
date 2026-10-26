@@ -141,7 +141,7 @@ void main() {
   });
 
   group("barre d'actions", () {
-    testWidgets("« J'aime <Prénom> » déclenche l'action, la croix passe", (tester) async {
+    testWidgets("« J'aime <Prénom> » déclenche l'action, « Refuser » passe", (tester) async {
       var liked = 0;
       var passed = 0;
       await _pump(
@@ -154,15 +154,17 @@ void main() {
       expect(liked, 1);
       expect(passed, 0);
 
-      await tester.tap(find.byIcon(LucideIcons.x));
+      // Décision de Renaud du 2026-10-26 : un mot plutôt qu'une croix.
+      expect(find.byIcon(LucideIcons.x), findsNothing);
+      await tester.tap(find.text('Refuser'));
       expect(passed, 1);
     });
 
-    testWidgets('64 de haut, bouton de passage rond de 64', (tester) async {
+    testWidgets('64 de haut, « Refuser » et « J\'aime » à la même hauteur', (tester) async {
       await _pump(tester, ProfileActionBar(firstName: 'Sarah', onPass: () {}, onLike: () {}));
-      final pill = find.descendant(of: find.byType(Expanded), matching: find.byType(Material)).first;
+      final pill = find.descendant(of: find.byType(Expanded), matching: find.byType(Material)).last;
       expect(tester.getSize(pill).height, 64);
-      expect(tester.getSize(find.byType(RoundIconButton)), const Size(64, 64));
+      expect(tester.getSize(find.byKey(const ValueKey('profile-decline'))).height, 64);
       _expectNoGradient(tester);
     });
 

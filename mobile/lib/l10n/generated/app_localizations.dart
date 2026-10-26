@@ -4805,11 +4805,11 @@ abstract class AppLocalizations {
   /// **'Plus d\'options'**
   String get profileMoreOptions;
 
-  /// Info-bulle de la croix ronde du profil d'un autre membre : passer cette personne sans l'aimer.
+  /// Button of a profile page, next to « J'aime <prénom> »: turns the profile down.
   ///
   /// In fr, this message translates to:
-  /// **'Passer'**
-  String get profilePass;
+  /// **'Refuser'**
+  String get profileDecline;
 
   /// Bouton principal en bas du profil d'un autre membre : aimer cette personne. {name} est son prénom. Une seule ligne, environ 20 caractères.
   ///

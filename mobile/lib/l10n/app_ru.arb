@@ -782,7 +782,7 @@
   "profileEdit": "Изменить",
   "profileSettings": "Настройки",
   "profileMoreOptions": "Дополнительно",
-  "profilePass": "Пропустить",
+  "profileDecline": "Отклонить",
   "profileLikeName": "Нравится {name}",
   "profileThisPerson": "этот человек",
   "profileFallbackName": "Пользователь",

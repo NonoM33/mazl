@@ -2810,7 +2810,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileMoreOptions => 'More options';
 
   @override
-  String get profilePass => 'Pass';
+  String get profileDecline => 'Decline';
 
   @override
   String profileLikeName(String name) {

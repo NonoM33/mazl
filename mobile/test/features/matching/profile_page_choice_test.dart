@@ -118,7 +118,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(ProfileViewScreen),
-          matching: find.bySemanticsLabel('Passer'),
+          matching: find.text('Refuser'),
         ),
       );
       await tester.pumpAndSettle();

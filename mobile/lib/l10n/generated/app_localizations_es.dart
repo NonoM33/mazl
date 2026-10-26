@@ -2830,7 +2830,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profileMoreOptions => 'Más opciones';
 
   @override
-  String get profilePass => 'Pasar';
+  String get profileDecline => 'Rechazar';
 
   @override
   String profileLikeName(String name) {

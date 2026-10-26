@@ -2845,7 +2845,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileMoreOptions => 'Дополнительно';
 
   @override
-  String get profilePass => 'Пропустить';
+  String get profileDecline => 'Отклонить';
 
   @override
   String profileLikeName(String name) {

@@ -15,9 +15,9 @@
   "@profileMoreOptions": {
     "description": "Info-bulle de l'icône « … » du profil d'un autre membre (bloquer, signaler)."
   },
-  "profilePass": "Passer",
-  "@profilePass": {
-    "description": "Info-bulle de la croix ronde du profil d'un autre membre : passer cette personne sans l'aimer."
+  "profileDecline": "Refuser",
+  "@profileDecline": {
+    "description": "Button of a profile page, next to « J'aime <prénom> »: turns the profile down."
   },
   "profileLikeName": "J'aime {name}",
   "@profileLikeName": {

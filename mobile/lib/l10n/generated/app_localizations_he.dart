@@ -2794,7 +2794,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileMoreOptions => 'אפשרויות נוספות';
 
   @override
-  String get profilePass => 'לדלג';
+  String get profileDecline => 'לדחות';
 
   @override
   String profileLikeName(String name) {

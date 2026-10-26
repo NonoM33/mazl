@@ -2849,7 +2849,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileMoreOptions => 'Plus d\'options';
 
   @override
-  String get profilePass => 'Passer';
+  String get profileDecline => 'Refuser';
 
   @override
   String profileLikeName(String name) {
