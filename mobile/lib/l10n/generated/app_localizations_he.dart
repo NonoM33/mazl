@@ -58,6 +58,30 @@ class AppLocalizationsHe extends AppLocalizations {
   String get authRouteErrorHome => 'חזרה לדף הבית';
 
   @override
+  String get authLoginReviewLink => 'התחברות עם שם משתמש';
+
+  @override
+  String get authReviewTitle => 'התחברות עם שם משתמש';
+
+  @override
+  String get authReviewIntro => 'יש להזין את שם המשתמש והסיסמה שנמסרו.';
+
+  @override
+  String get authReviewUsernameLabel => 'שם משתמש';
+
+  @override
+  String get authReviewPasswordLabel => 'סיסמה';
+
+  @override
+  String get authReviewShowPassword => 'הצגת הסיסמה';
+
+  @override
+  String get authReviewHidePassword => 'הסתרת הסיסמה';
+
+  @override
+  String get authReviewSubmit => 'התחברות';
+
+  @override
   String get authErrorInvalidCredentials => 'שם המשתמש או הסיסמה שגויים.';
 
   @override

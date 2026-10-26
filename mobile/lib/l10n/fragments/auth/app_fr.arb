@@ -72,6 +72,38 @@
   "@authRouteErrorHome": {
     "description": "Page d'erreur de l'app : bouton qui ramène à l'accueil."
   },
+  "authLoginReviewLink": "Connexion par identifiant",
+  "@authLoginReviewLink": {
+    "description": "Connexion : lien texte discret sous les boutons Apple et Google, visible de tous, qui ouvre la connexion par identifiant et mot de passe (compte de démonstration remis à la revue de l'App Store)."
+  },
+  "authReviewTitle": "Connexion par identifiant",
+  "@authReviewTitle": {
+    "description": "Connexion par identifiant : titre de l'écran."
+  },
+  "authReviewIntro": "Saisissez l'identifiant et le mot de passe qui vous ont été remis.",
+  "@authReviewIntro": {
+    "description": "Connexion par identifiant : phrase sous le titre."
+  },
+  "authReviewUsernameLabel": "Identifiant",
+  "@authReviewUsernameLabel": {
+    "description": "Connexion par identifiant : intitulé du champ identifiant."
+  },
+  "authReviewPasswordLabel": "Mot de passe",
+  "@authReviewPasswordLabel": {
+    "description": "Connexion par identifiant : intitulé du champ mot de passe."
+  },
+  "authReviewShowPassword": "Afficher le mot de passe",
+  "@authReviewShowPassword": {
+    "description": "Connexion par identifiant : info-bulle et description vocale du bouton qui montre le mot de passe saisi."
+  },
+  "authReviewHidePassword": "Masquer le mot de passe",
+  "@authReviewHidePassword": {
+    "description": "Connexion par identifiant : info-bulle et description vocale du bouton qui masque le mot de passe saisi."
+  },
+  "authReviewSubmit": "Se connecter",
+  "@authReviewSubmit": {
+    "description": "Connexion par identifiant : bouton qui envoie l'identifiant et le mot de passe."
+  },
   "authErrorInvalidCredentials": "Identifiant ou mot de passe incorrect.",
   "@authErrorInvalidCredentials": {
     "description": "Connexion par identifiant : erreur quand l'identifiant ou le mot de passe est refusé (on ne dit jamais lequel des deux)."

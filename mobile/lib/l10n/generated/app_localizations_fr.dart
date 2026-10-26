@@ -60,6 +60,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authRouteErrorHome => 'Retour à l\'accueil';
 
   @override
+  String get authLoginReviewLink => 'Connexion par identifiant';
+
+  @override
+  String get authReviewTitle => 'Connexion par identifiant';
+
+  @override
+  String get authReviewIntro =>
+      'Saisissez l\'identifiant et le mot de passe qui vous ont été remis.';
+
+  @override
+  String get authReviewUsernameLabel => 'Identifiant';
+
+  @override
+  String get authReviewPasswordLabel => 'Mot de passe';
+
+  @override
+  String get authReviewShowPassword => 'Afficher le mot de passe';
+
+  @override
+  String get authReviewHidePassword => 'Masquer le mot de passe';
+
+  @override
+  String get authReviewSubmit => 'Se connecter';
+
+  @override
   String get authErrorInvalidCredentials =>
       'Identifiant ou mot de passe incorrect.';
 

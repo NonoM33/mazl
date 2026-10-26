@@ -60,6 +60,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authRouteErrorHome => 'На главную';
 
   @override
+  String get authLoginReviewLink => 'Вход по логину';
+
+  @override
+  String get authReviewTitle => 'Вход по логину';
+
+  @override
+  String get authReviewIntro => 'Введите логин и пароль, которые Вам выдали.';
+
+  @override
+  String get authReviewUsernameLabel => 'Логин';
+
+  @override
+  String get authReviewPasswordLabel => 'Пароль';
+
+  @override
+  String get authReviewShowPassword => 'Показать пароль';
+
+  @override
+  String get authReviewHidePassword => 'Скрыть пароль';
+
+  @override
+  String get authReviewSubmit => 'Войти';
+
+  @override
   String get authErrorInvalidCredentials => 'Неверный логин или пароль.';
 
   @override
