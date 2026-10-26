@@ -8,6 +8,7 @@ import { formatHms, remainingMs } from "../discover/clock";
 import { chooseShadchan } from "../discover/shadchan";
 import { useDeck } from "../discover/use-deck";
 import { useNow } from "../discover/use-now";
+import { IncompleteProfile } from "../discover/deck-states";
 import { PickDialog } from "./pick-dialog";
 import { PickTile, PicksDone, PicksSkeleton } from "./picks-grid";
 import { ShadchanCard } from "./shadchan-card";
@@ -52,7 +53,8 @@ export function HomeScreen() {
               {countdown && deck.visible.length > 0 && <p className="label-m tabular">Mis à jour dans {countdown}</p>}
             </div>
             {deck.status === "loading" && <PicksSkeleton />}
-            {deck.status === "error" && deck.visible.length === 0 && <p className="banner banner-error" role="alert">{deck.error}</p>}
+            {deck.incomplete !== null && deck.visible.length === 0 && <IncompleteProfile missing={deck.incomplete} />}
+            {deck.status === "error" && deck.incomplete === null && deck.visible.length === 0 && <p className="banner banner-error" role="alert">{deck.error}</p>}
             {deck.status === "ready" && deck.visible.length === 0 && <PicksDone countdown={countdown} />}
             {deck.visible.length > 0 && (
               <div className="picks-grid">
