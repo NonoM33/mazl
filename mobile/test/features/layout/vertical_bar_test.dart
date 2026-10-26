@@ -283,4 +283,36 @@ void main() {
     expect(find.byKey(_rail), findsOneWidget);
     expect(find.byKey(_bottom), findsNothing);
   });
+
+  testWidgets(
+    'every tab of the vertical bar is tappable across the whole capsule',
+    (tester) async {
+      await _pump(tester, DuoPose.closed);
+      final capsule = tester.getRect(find.byKey(_strip));
+      final buttons = find.descendant(
+        of: find.byKey(_strip),
+        matching: find.byType(InkResponse),
+      );
+      expect(buttons, findsNWidgets(_items.length));
+      for (final button
+          in tester.widgetList(buttons).map((w) => find.byWidget(w))) {
+        final rect = tester.getRect(button);
+        // Apple: 44 x 44 pt at least; here the whole width of the capsule.
+        expect(rect.width, closeTo(capsule.width, 0.5));
+        expect(rect.height, greaterThanOrEqualTo(44));
+      }
+      // A tap near the edge of the capsule, not on the icon, still changes tab.
+      final messages = tester.getRect(
+        find
+            .descendant(
+              of: find.byKey(_strip),
+              matching: find.byType(InkResponse),
+            )
+            .at(2),
+      );
+      await tester.tapAt(Offset(capsule.left + 6, messages.center.dy));
+      await tester.pumpAndSettle();
+      expect(find.text('tab 2'), findsOneWidget);
+    },
+  );
 }

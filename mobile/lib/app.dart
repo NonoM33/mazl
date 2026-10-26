@@ -11,6 +11,7 @@ import 'core/services/websocket_service.dart';
 import 'presentation/features/couple/widgets/couple_flow_host.dart';
 import 'core/layout/fold_channel.dart';
 import 'core/layout/fold_state.dart';
+import 'core/layout/orientation_policy.dart';
 import 'core/layout/side_safe_area.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
@@ -62,19 +63,21 @@ class MazlApp extends ConsumerWidget {
         Intl.defaultLocale = Localizations.localeOf(context).toLanguageTag();
         return FoldStateHost(
           states: _foldStates,
-          child: SideSafeArea(
-            child: ReduceMotionScope(
-              child: DismissKeyboardOnTap(
-                child: CoupleFlowHost(
-                  service: couple,
-                  router: router,
-                  navigatorKey: rootNavigatorKey,
-                  realtime: socket.events,
-                  auth: auth,
-                  isAuthenticated: () => auth.isAuthenticated,
-                  onSignedIn: socket.connect,
-                  onSignedOut: socket.disconnect,
-                  child: child ?? const SizedBox.shrink(),
+          child: OrientationPolicy(
+            child: SideSafeArea(
+              child: ReduceMotionScope(
+                child: DismissKeyboardOnTap(
+                  child: CoupleFlowHost(
+                    service: couple,
+                    router: router,
+                    navigatorKey: rootNavigatorKey,
+                    realtime: socket.events,
+                    auth: auth,
+                    isAuthenticated: () => auth.isAuthenticated,
+                    onSignedIn: socket.connect,
+                    onSignedOut: socket.disconnect,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),

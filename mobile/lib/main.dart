@@ -8,6 +8,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app.dart';
+import 'core/layout/fold_state.dart';
+import 'core/layout/orientation_policy.dart';
 import 'core/dev/demo_http_client.dart';
 import 'core/dev/dev_login.dart';
 import 'core/l10n/app_language.dart';
@@ -73,12 +75,11 @@ Future<void> _start() async {
           SharedPreferencesLanguageStore(),
         );
       }),
+      // Upright until the hinge is known; OrientationPolicy then lets the
+      // foldable iPhone turn sideways (tent pose).
       StartupStep(
         'orientation',
-        () => SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]),
+        () => SystemChrome.setPreferredOrientations(orientationsFor(FoldState.unknown)),
       ),
       // Écoute les achats natifs dès le lancement : StoreKit rejoue ici les
       // transactions non terminées de la session précédente.

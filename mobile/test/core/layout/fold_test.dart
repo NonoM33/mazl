@@ -299,4 +299,42 @@ void main() {
       expect(tester.getSize(find.byKey(_lead)).width, width, reason: pose.name);
     }
   });
+
+  for (final pose in [DuoPose.halfOpenBook, DuoPose.halfOpenLaptop]) {
+    testWidgets('${pose.name}: a dialog keeps out of the fold by itself', (
+      tester,
+    ) async {
+      setDuoPose(tester, pose);
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: duoAppBuilder(DuoPoseController(pose)),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: const Text('Hello'),
+                      actions: [
+                        TextButton(onPressed: () {}, child: const Text('OK')),
+                      ],
+                    ),
+                  ),
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byType(AlertDialog)).overlaps(pose.fold!),
+        isFalse,
+      );
+      expect(tester.getRect(find.text('OK')).overlaps(pose.fold!), isFalse);
+    });
+  }
 }

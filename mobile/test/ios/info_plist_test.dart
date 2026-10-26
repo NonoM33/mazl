@@ -21,11 +21,19 @@ void main() {
     },
   );
 
-  test('l\'iPhone reste en portrait, comme le code de main.dart', () {
-    expect(plist['UISupportedInterfaceOrientations'], [
-      'UIInterfaceOrientationPortrait',
-    ]);
-  });
+  // 2026-10-26 (Renaud : « 100 % sur le Duo », pose tente comprise) : le
+  // plist autorise le paysage pour l'iPhone pliable ; à l'exécution, un iPhone
+  // sans charnière reste en portrait (OrientationPolicy, testé à part).
+  test(
+    'le plist ouvre le paysage pour l\'iPhone pliable, et rien d\'autre',
+    () {
+      expect(plist['UISupportedInterfaceOrientations'], [
+        'UIInterfaceOrientationPortrait',
+        'UIInterfaceOrientationLandscapeLeft',
+        'UIInterfaceOrientationLandscapeRight',
+      ]);
+    },
+  );
 
   test('plus aucune orientation iPad : l\'app est réservée à l\'iPhone', () {
     expect(
@@ -34,9 +42,9 @@ void main() {
     );
   });
 
-  test('main.dart n\'autorise que le portrait', () {
+  test('main.dart démarre en portrait, tant que la charnière est inconnue', () {
     final main = File('lib/main.dart').readAsStringSync();
-    expect(main, contains('DeviceOrientation.portraitUp'));
+    expect(main, contains('orientationsFor(FoldState.unknown)'));
     expect(main, isNot(contains('landscape')));
   });
 

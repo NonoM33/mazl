@@ -6,7 +6,8 @@ import 'package:mazl/core/layout/side_safe_area.dart';
 import 'package:mazl/core/layout/vertical_bar.dart';
 
 /// The poses of the foldable iPhone (iPhone Duo): window size in logical
-/// points and safe-area padding, as measured on the iOS 27.1 simulator.
+/// points and safe-area padding, as measured on the iOS 27.1 simulator with
+/// Device Hub (Closed, Partially Open, Open, Rotate).
 /// Closed is the outer display; the others are the inner one.
 ///
 /// The status bar and the camera sit in an 84 pt column along ONE side when
@@ -14,6 +15,10 @@ import 'package:mazl/core/layout/vertical_bar.dart';
 /// the top when it is open and upright.
 enum DuoPose {
   closed(Size(466, 678), EdgeInsets.only(right: 84, bottom: 34)),
+
+  /// Closed and turned sideways, standing on a table like a tent (outer
+  /// display facing the room): the camera column is on the left.
+  tent(Size(678, 466), EdgeInsets.only(left: 84, bottom: 34)),
   openPortrait(Size(669, 951), EdgeInsets.only(top: 82, bottom: 34)),
   openLandscape(Size(951, 669), EdgeInsets.only(right: 84, bottom: 34)),
 
@@ -21,14 +26,14 @@ enum DuoPose {
   halfOpenBook(
     Size(951, 669),
     EdgeInsets.only(right: 84, bottom: 34),
-    fold: Rect.fromLTWH(451, 0, 49, 669),
+    fold: Rect.fromLTWH(455.5, 0, 40, 669),
   ),
 
   /// Set on a table like a laptop, half open: the fold runs across the middle.
   halfOpenLaptop(
     Size(669, 951),
     EdgeInsets.only(top: 82, bottom: 34),
-    fold: Rect.fromLTWH(0, 451, 669, 49),
+    fold: Rect.fromLTWH(0, 455.5, 669, 40),
   ),
 
   /// Half of the inner display, beside another app.
@@ -43,32 +48,39 @@ enum DuoPose {
   /// coordinates. Only in the two half-open poses.
   final Rect? fold;
 
-  /// What the native side reports in this pose (measured on the iOS 27.1
-  /// simulator for the outer display: vertical bar on the right, status
-  /// cluster 84 x 174 and camera; inner display held sideways: status cluster
-  /// 84 x 108, first app control at y 120).
+  /// What the native side reports in this pose, as measured on the iOS 27.1
+  /// simulator (Device Hub, 2026-10-26): the hinge, the fold (40 pt), the
+  /// preferred edge of the vertical bar (reported even when the bars are
+  /// horizontal) and the system's occlusions.
   FoldState get foldState {
     final hinge = fold != null
         ? HingeStatus.partiallyOpen
-        : this == closed
+        : (this == closed || this == tent)
         ? HingeStatus.closed
         : HingeStatus.fullyOpen;
-    final bar = padding.right > 0 && padding.top == 0
-        ? VerticalBarSide.right
-        : null;
     final occlusions = switch (this) {
       closed => const [
-        Rect.fromLTWH(382, 0, 84, 174),
         Rect.fromLTWH(399.7, 29.3, 37, 37),
+        Rect.fromLTWH(382, 0, 84, 174),
       ],
-      openLandscape || halfOpenBook => const [Rect.fromLTWH(867, 0, 84, 108)],
-      _ => const <Rect>[],
+      tent => const [
+        Rect.fromLTWH(29.3, 29.3, 37, 37),
+        Rect.fromLTWH(0, 0, 84, 82),
+      ],
+      openLandscape || halfOpenBook => const [Rect.fromLTWH(867, 0, 84, 124)],
+      openPortrait || halfOpenLaptop => const [Rect.fromLTWH(0, 0, 124, 84)],
+      splitView => const <Rect>[],
     };
     return FoldState(
       hinge: hinge,
       divisions: fold == null ? const [] : [fold!],
-      verticalBar: bar,
+      verticalBar: this == splitView
+          ? null
+          : this == tent
+          ? VerticalBarSide.left
+          : VerticalBarSide.right,
       occlusions: occlusions,
+      angle: hinge == HingeStatus.closed ? 0 : (fold == null ? 3.14159 : 1.9),
     );
   }
 
