@@ -1214,6 +1214,71 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get duoTutorialWelcomeTitle => 'MAZL создан для Duo';
+
+  @override
+  String get duoTutorialWelcomeBody =>
+      'В сложенном виде вкладки выстраиваются в колонке, прямо под большим пальцем. Повторяйте жесты на своём телефоне вместе с нами.';
+
+  @override
+  String get duoTutorialOpenTitle => 'Раскройте его';
+
+  @override
+  String get duoTutorialOpenBody =>
+      'Разверните iPhone полностью. Беседы появятся рядом со списком.';
+
+  @override
+  String get duoTutorialBookTitle => 'Согните его как книгу';
+
+  @override
+  String get duoTutorialBookBody =>
+      'Раскройте его наполовину. Сгиб станет линией между двумя колонками: список с одной стороны, подробности с другой.';
+
+  @override
+  String get duoTutorialTableTitle => 'Поставьте на стол';
+
+  @override
+  String get duoTutorialTableBody =>
+      'Держите его как ноутбук. Фото остаётся сверху, кнопки внизу, под большим пальцем.';
+
+  @override
+  String get duoTutorialTentTitle => 'Поставьте домиком';
+
+  @override
+  String get duoTutorialTentBody =>
+      'Сложите его и поверните набок. Сдержанный экран Шаббата будет светиться на столе.';
+
+  @override
+  String get duoTutorialReadyTitle => 'Поехали';
+
+  @override
+  String get duoTutorialReadyBody =>
+      'Вы знаете все положения. Это руководство всегда можно найти в настройках.';
+
+  @override
+  String get duoTutorialSkip => 'Пропустить';
+
+  @override
+  String get duoTutorialNext => 'Далее';
+
+  @override
+  String get duoTutorialStart => 'Начать';
+
+  @override
+  String get duoTutorialDone => 'Готово';
+
+  @override
+  String duoTutorialProgress(int current, int total) {
+    return 'Шаг $current из $total';
+  }
+
+  @override
+  String get duoTutorialSettingsTitle => 'MAZL на iPhone Duo';
+
+  @override
+  String get duoTutorialSettingsSubtitle => 'Пересмотреть руководство';
+
+  @override
   String get eventsTitle => 'Мероприятия';
 
   @override

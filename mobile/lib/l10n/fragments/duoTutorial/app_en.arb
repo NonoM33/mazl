@@ -1,0 +1,21 @@
+{
+  "duoTutorialWelcomeTitle": "MAZL, made for Duo",
+  "duoTutorialWelcomeBody": "Closed, your tabs line up in the column, right under your thumb. Follow along with your phone as we go.",
+  "duoTutorialOpenTitle": "Open it",
+  "duoTutorialOpenBody": "Unfold your iPhone flat. Conversations appear right next to the list.",
+  "duoTutorialBookTitle": "Fold it like a book",
+  "duoTutorialBookBody": "Open it halfway. The fold becomes the line between two columns: the list on one side, the detail on the other.",
+  "duoTutorialTableTitle": "Set it on the table",
+  "duoTutorialTableBody": "Hold it like a laptop. The photo stays on top, the buttons below, under your thumb.",
+  "duoTutorialTentTitle": "Stand it like a tent",
+  "duoTutorialTentBody": "Close it and turn it on its side. A calm Shabbat display keeps watch on the table.",
+  "duoTutorialReadyTitle": "Let's go",
+  "duoTutorialReadyBody": "You know every pose. Find this tutorial again any time in Settings.",
+  "duoTutorialSkip": "Skip",
+  "duoTutorialNext": "Next",
+  "duoTutorialStart": "Get started",
+  "duoTutorialDone": "Done",
+  "duoTutorialProgress": "Step {current} of {total}",
+  "duoTutorialSettingsTitle": "MAZL on iPhone Duo",
+  "duoTutorialSettingsSubtitle": "Watch the tutorial again"
+}

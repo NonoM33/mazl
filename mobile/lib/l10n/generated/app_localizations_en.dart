@@ -1195,6 +1195,71 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get duoTutorialWelcomeTitle => 'MAZL, made for Duo';
+
+  @override
+  String get duoTutorialWelcomeBody =>
+      'Closed, your tabs line up in the column, right under your thumb. Follow along with your phone as we go.';
+
+  @override
+  String get duoTutorialOpenTitle => 'Open it';
+
+  @override
+  String get duoTutorialOpenBody =>
+      'Unfold your iPhone flat. Conversations appear right next to the list.';
+
+  @override
+  String get duoTutorialBookTitle => 'Fold it like a book';
+
+  @override
+  String get duoTutorialBookBody =>
+      'Open it halfway. The fold becomes the line between two columns: the list on one side, the detail on the other.';
+
+  @override
+  String get duoTutorialTableTitle => 'Set it on the table';
+
+  @override
+  String get duoTutorialTableBody =>
+      'Hold it like a laptop. The photo stays on top, the buttons below, under your thumb.';
+
+  @override
+  String get duoTutorialTentTitle => 'Stand it like a tent';
+
+  @override
+  String get duoTutorialTentBody =>
+      'Close it and turn it on its side. A calm Shabbat display keeps watch on the table.';
+
+  @override
+  String get duoTutorialReadyTitle => 'Let\'s go';
+
+  @override
+  String get duoTutorialReadyBody =>
+      'You know every pose. Find this tutorial again any time in Settings.';
+
+  @override
+  String get duoTutorialSkip => 'Skip';
+
+  @override
+  String get duoTutorialNext => 'Next';
+
+  @override
+  String get duoTutorialStart => 'Get started';
+
+  @override
+  String get duoTutorialDone => 'Done';
+
+  @override
+  String duoTutorialProgress(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get duoTutorialSettingsTitle => 'MAZL on iPhone Duo';
+
+  @override
+  String get duoTutorialSettingsSubtitle => 'Watch the tutorial again';
+
+  @override
   String get eventsTitle => 'Events';
 
   @override

@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
+import '../../../../core/duo_tutorial/duo_tutorial_policy.dart';
+import '../../../../core/layout/fold_state.dart';
 import '../../../../core/links/public_links.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -1174,6 +1176,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // About
               _SectionHeader(title: l10n.settingsSectionAbout),
+              if (showDuoTutorialInSettings(FoldScope.of(context)))
+                _SettingTile(
+                  icon: LucideIcons.smartphone,
+                  title: l10n.duoTutorialSettingsTitle,
+                  subtitle: l10n.duoTutorialSettingsSubtitle,
+                  onTap: () => context.push(duoTutorialLocation()),
+                ),
               _SettingTile(
                 icon: LucideIcons.helpCircle,
                 title: l10n.settingsHelp,

@@ -1,0 +1,21 @@
+{
+  "duoTutorialWelcomeTitle": "MAZL, pensado para el Duo",
+  "duoTutorialWelcomeBody": "Cerrado, tus pestañas se alinean en la columna, justo bajo el pulgar. Sigue los gestos con tu teléfono, al mismo tiempo que nosotros.",
+  "duoTutorialOpenTitle": "Ábrelo",
+  "duoTutorialOpenBody": "Despliega tu iPhone del todo. Las conversaciones aparecen junto a la lista.",
+  "duoTutorialBookTitle": "Pliégalo como un libro",
+  "duoTutorialBookBody": "Ábrelo a medias. El pliegue se convierte en la línea entre dos columnas: la lista a un lado, el detalle al otro.",
+  "duoTutorialTableTitle": "Ponlo sobre la mesa",
+  "duoTutorialTableBody": "Sujétalo como un portátil. La foto queda arriba y los botones abajo, bajo tu pulgar.",
+  "duoTutorialTentTitle": "De pie, como una tienda",
+  "duoTutorialTentBody": "Ciérralo y gíralo de lado. Una pantalla de Shabat sobria vela sobre la mesa.",
+  "duoTutorialReadyTitle": "¡Vamos!",
+  "duoTutorialReadyBody": "Ya conoces todas las posturas. Vuelve a ver este tutorial cuando quieras en Ajustes.",
+  "duoTutorialSkip": "Omitir",
+  "duoTutorialNext": "Siguiente",
+  "duoTutorialStart": "Empezar",
+  "duoTutorialDone": "Hecho",
+  "duoTutorialProgress": "Paso {current} de {total}",
+  "duoTutorialSettingsTitle": "MAZL en iPhone Duo",
+  "duoTutorialSettingsSubtitle": "Ver el tutorial de nuevo"
+}

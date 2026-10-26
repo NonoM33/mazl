@@ -1188,6 +1188,71 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get duoTutorialWelcomeTitle => 'MAZL בנוי בשביל ה־Duo';
+
+  @override
+  String get duoTutorialWelcomeBody =>
+      'כשהמכשיר סגור, הלשוניות מסתדרות בעמודה, ממש מתחת לאגודל. אפשר לבצע את המחוות בטלפון, במקביל אלינו.';
+
+  @override
+  String get duoTutorialOpenTitle => 'לפתוח אותו';
+
+  @override
+  String get duoTutorialOpenBody =>
+      'לפרוש את האייפון עד הסוף. השיחות מופיעות לצד הרשימה.';
+
+  @override
+  String get duoTutorialBookTitle => 'לקפל אותו כמו ספר';
+
+  @override
+  String get duoTutorialBookBody =>
+      'לפתוח אותו עד החצי. הקפל הופך לקו בין שתי עמודות: הרשימה בצד אחד, הפרטים בצד השני.';
+
+  @override
+  String get duoTutorialTableTitle => 'להניח אותו על השולחן';
+
+  @override
+  String get duoTutorialTableBody =>
+      'להחזיק אותו כמו מחשב נייד. התמונה נשארת למעלה והכפתורים למטה, מתחת לאגודל.';
+
+  @override
+  String get duoTutorialTentTitle => 'להעמיד אותו כמו אוהל';
+
+  @override
+  String get duoTutorialTentBody =>
+      'לסגור אותו ולהפוך אותו על הצד. תצוגת שבת מינימליסטית נשארת על השולחן.';
+
+  @override
+  String get duoTutorialReadyTitle => 'יוצאים לדרך';
+
+  @override
+  String get duoTutorialReadyBody =>
+      'כל התנוחות מוכרות. את המדריך אפשר לראות שוב בכל עת בהגדרות.';
+
+  @override
+  String get duoTutorialSkip => 'דילוג';
+
+  @override
+  String get duoTutorialNext => 'הבא';
+
+  @override
+  String get duoTutorialStart => 'להתחיל';
+
+  @override
+  String get duoTutorialDone => 'בוצע';
+
+  @override
+  String duoTutorialProgress(int current, int total) {
+    return 'שלב $current מתוך $total';
+  }
+
+  @override
+  String get duoTutorialSettingsTitle => 'MAZL ב־iPhone Duo';
+
+  @override
+  String get duoTutorialSettingsSubtitle => 'לצפות שוב במדריך';
+
+  @override
   String get eventsTitle => 'אירועים';
 
   @override
