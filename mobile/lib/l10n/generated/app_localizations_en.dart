@@ -1408,6 +1408,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Coming soon';
+
+  @override
+  String get eventsNotifyMe => 'Notify me';
+
+  @override
+  String get eventsNotifyRequested => 'We\'ll let you know';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'We\'ll let you know when registration opens.';
+
+  @override
+  String get eventsNotifyCancelled => 'Alert removed';
+
+  @override
+  String get eventsNotifyError =>
+      'Couldn\'t save your request. Please try again.';
+
+  @override
   String get genreLookingForRequired => 'Select who you are looking for';
 
   @override
@@ -2723,6 +2743,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacySettingsLoadFailed =>
       'We couldn\'t load your consent. Check your connection.';
+
+  @override
+  String get analyticsSheetLabel => 'Usage measurement';
+
+  @override
+  String get analyticsSheetTitle => 'Help improve MAZL';
+
+  @override
+  String get analyticsSheetBody =>
+      'MAZL counts the screens you visit and the key steps (sign-up, purchase) to get better. Never the content of your messages, your photos or your religious practice. Your identifier is pseudonymised and nothing is shared with third parties. You can decline: MAZL works the same.';
+
+  @override
+  String get analyticsSheetAccept => 'Accept';
+
+  @override
+  String get analyticsSheetDecline => 'Decline';
+
+  @override
+  String get analyticsSheetErrorOutdated =>
+      'The text has been updated. Close this window and open it again.';
+
+  @override
+  String get analyticsSheetErrorSave =>
+      'Your choice couldn\'t be saved. Please try again.';
+
+  @override
+  String get analyticsSettingsTitle => 'Usage measurement';
+
+  @override
+  String get analyticsSettingsGrantedShort => 'On';
+
+  @override
+  String get analyticsSettingsDeniedShort => 'Off';
+
+  @override
+  String get analyticsSettingsGrantedTitle => 'Usage measurement is on';
+
+  @override
+  String get analyticsSettingsNotGrantedTitle => 'Usage measurement is off';
+
+  @override
+  String get analyticsSettingsAccept => 'Accept usage measurement';
+
+  @override
+  String get analyticsSettingsWithdraw => 'Withdraw my consent';
+
+  @override
+  String get analyticsSettingsLoadFailed =>
+      'We couldn\'t read your choice. Check your connection.';
+
+  @override
+  String get analyticsSettingsSaveFailed =>
+      'Your choice couldn\'t be saved. Please try again.';
 
   @override
   String get profileMyProfile => 'My profile';

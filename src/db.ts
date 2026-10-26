@@ -1,5 +1,6 @@
 import postgres from "postgres";
 import { applyTestProfiles } from "./features/fixtures/test-profiles";
+import { applyTestEvents } from "./features/fixtures/test-events";
 import { createCreditTables, eraseCredits } from "./features/credits/infra/schema";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
@@ -243,6 +244,23 @@ export async function initDb() {
       paid BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(event_id, user_id)
+    )
+  `;
+
+  // "Coming soon" events (features/events): shown, but every registration is
+  // refused until an administrator opens them. fixture_key marks the fake
+  // events of the TestFlight phase (features/fixtures/test-events).
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS availability VARCHAR(20) NOT NULL DEFAULT 'open' CHECK (availability IN ('open', 'coming_soon'))`;
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS fixture_key VARCHAR(64)`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS events_fixture_key_key ON events (fixture_key)`;
+  // « Me prévenir »: the members to tell when a coming soon event opens.
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_open_alerts (
+      event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      notified_at TIMESTAMP,
+      PRIMARY KEY (event_id, user_id)
     )
   `;
 
@@ -1879,7 +1897,8 @@ export async function deleteProfilePrompt(userId: number, promptId: number): Pro
 // ============ TEST PROFILES (TestFlight phase) ============
 
 // The test profiles and the administrators' sample conversations
-// (features/fixtures/test-profiles), written at start-up when
+// (features/fixtures/test-profiles), and the "coming soon" fake events
+// (features/fixtures/test-events), written at start-up when
 // SEED_TEST_PROFILES=true (src/index.ts, once every schema is in place: they
 // touch the media and verification columns): the hosting has no shell to run
 // scripts/seed-test-profiles.ts against its database. Idempotent, so every
@@ -1888,6 +1907,8 @@ export async function seedTestProfilesIfRequested(flag = process.env.SEED_TEST_P
   if (flag !== "true") return;
   const plan = await applyTestProfiles(sql);
   console.log(`Test profiles ready: ${plan.members.length} member(s), ${plan.admins.length} administrator account(s)`);
+  const events = await applyTestEvents(sql);
+  console.log(`Test events ready: ${events.length} coming soon event(s)`);
 }
 
 // ============ SEED FAKE PROFILES ============
@@ -2326,23 +2347,25 @@ export async function getPublishedEventById(eventId: number) {
 export type RsvpOutcome =
   | { readonly kind: "registered"; readonly rsvp: Record<string, unknown> }
   | { readonly kind: "not_found" }
+  | { readonly kind: "coming_soon" }
   | { readonly kind: "over" }
   | { readonly kind: "full" };
 
-// Registers a member for a published, not yet past event. The event row is
+// Registers a member for a published, open (not "coming soon"), not yet past event. The event row is
 // locked for the duration of the transaction, so the seat count and the
 // insertion cannot be raced by other registrations of the same event.
 export async function rsvpToEvent(eventId: number, userId: number, status: string): Promise<RsvpOutcome> {
   return sql.begin(async (transaction) => {
     const tx = transaction as unknown as typeof sql;
     const events = await tx`
-      SELECT max_attendees, date >= CURRENT_DATE AS is_open
+      SELECT max_attendees, date >= CURRENT_DATE AS is_open, availability
       FROM events
       WHERE id = ${eventId} AND is_published = true
       FOR UPDATE
     `;
-    const event = events[0] as { max_attendees: number | null; is_open: boolean } | undefined;
+    const event = events[0] as { max_attendees: number | null; is_open: boolean; availability: string } | undefined;
     if (!event) return { kind: "not_found" } as const;
+    if (event.availability === "coming_soon") return { kind: "coming_soon" } as const;
     if (!event.is_open) return { kind: "over" } as const;
 
     if (status === "going" && event.max_attendees !== null) {

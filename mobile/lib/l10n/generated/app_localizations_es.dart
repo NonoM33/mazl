@@ -1426,6 +1426,26 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Próximamente';
+
+  @override
+  String get eventsNotifyMe => 'Avisarme';
+
+  @override
+  String get eventsNotifyRequested => 'Te avisaremos';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Te avisaremos cuando se abran las inscripciones.';
+
+  @override
+  String get eventsNotifyCancelled => 'Aviso cancelado';
+
+  @override
+  String get eventsNotifyError =>
+      'No se pudo guardar tu solicitud. Inténtalo de nuevo.';
+
+  @override
   String get genreLookingForRequired => 'Indica a quién buscas';
 
   @override
@@ -2743,6 +2763,59 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get privacySettingsLoadFailed =>
       'No hemos podido cargar tu consentimiento. Revisa tu conexión.';
+
+  @override
+  String get analyticsSheetLabel => 'Medición de uso';
+
+  @override
+  String get analyticsSheetTitle => 'Ayuda a mejorar MAZL';
+
+  @override
+  String get analyticsSheetBody =>
+      'MAZL cuenta las pantallas que visitas y los pasos importantes (registro, compra) para mejorar. Nunca el contenido de tus mensajes, tus fotos ni tu práctica religiosa. Tu identificador está seudonimizado y no se comparte nada con terceros. Puedes rechazar: MAZL funciona igual.';
+
+  @override
+  String get analyticsSheetAccept => 'Aceptar';
+
+  @override
+  String get analyticsSheetDecline => 'Rechazar';
+
+  @override
+  String get analyticsSheetErrorOutdated =>
+      'El texto se ha actualizado. Cierra esta ventana y ábrela de nuevo.';
+
+  @override
+  String get analyticsSheetErrorSave =>
+      'No se pudo guardar tu elección. Inténtalo de nuevo.';
+
+  @override
+  String get analyticsSettingsTitle => 'Medición de uso';
+
+  @override
+  String get analyticsSettingsGrantedShort => 'Activada';
+
+  @override
+  String get analyticsSettingsDeniedShort => 'Desactivada';
+
+  @override
+  String get analyticsSettingsGrantedTitle => 'Medición de uso activada';
+
+  @override
+  String get analyticsSettingsNotGrantedTitle => 'Medición de uso desactivada';
+
+  @override
+  String get analyticsSettingsAccept => 'Aceptar la medición de uso';
+
+  @override
+  String get analyticsSettingsWithdraw => 'Retirar mi consentimiento';
+
+  @override
+  String get analyticsSettingsLoadFailed =>
+      'No pudimos leer tu elección. Revisa tu conexión.';
+
+  @override
+  String get analyticsSettingsSaveFailed =>
+      'No se pudo guardar tu elección. Inténtalo de nuevo.';
 
   @override
   String get profileMyProfile => 'Mi perfil';

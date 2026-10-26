@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/analytics/analytics_event.dart';
+import '../../../../core/analytics/track_event.dart';
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
@@ -42,6 +44,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   @override
   void initState() {
     super.initState();
+    trackEvent(context, AnalyticsEvent.paywallViewed('premium'));
     _loadPlans();
   }
 
@@ -108,6 +111,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     final storePlan = selectedPlan.storePlan;
     if (storePlan != null) {
       setState(() => _isPurchasing = true);
+      trackEvent(context, AnalyticsEvent.purchaseStarted(storePlan.productId));
       try {
         final result = await _subscriptions.purchase(storePlan);
         if (!mounted) return;
@@ -117,7 +121,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
             context.pushReplacement(RoutePaths.plusWelcome);
           case PurchaseCancelled():
             // Une annulation par l'utilisateur n'est ni un succès ni une erreur.
-            break;
+            trackEvent(
+              context,
+              AnalyticsEvent.purchaseCancelled(storePlan.productId),
+            );
           case PurchasePending():
             _showMessage(l10n.plusPendingApproval);
           case PurchaseFailed(:final problem):

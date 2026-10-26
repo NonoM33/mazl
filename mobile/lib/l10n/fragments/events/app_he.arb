@@ -37,5 +37,11 @@
   "eventsRsvpJoinFree": "הרשמה בחינם",
   "eventsRsvpCancelled": "ההרשמה בוטלה",
   "eventsRsvpDone": "ההרשמה אושרה",
-  "eventsShareMessage": "הצטרפו אליי ל\"{title}\" ב-MAZL"
+  "eventsShareMessage": "הצטרפו אליי ל\"{title}\" ב-MAZL",
+  "eventsComingSoon": "בקרוב",
+  "eventsNotifyMe": "עדכנו אותי",
+  "eventsNotifyRequested": "נעדכן אותך",
+  "eventsNotifyRequestedDone": "נעדכן אותך כשההרשמה תיפתח.",
+  "eventsNotifyCancelled": "ההתראה בוטלה",
+  "eventsNotifyError": "לא הצלחנו לשמור את הבקשה. נסו שוב."
 }

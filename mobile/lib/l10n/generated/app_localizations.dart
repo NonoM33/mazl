@@ -2466,6 +2466,42 @@ abstract class AppLocalizations {
   /// **'Rejoignez-moi à \"{title}\" sur MAZL'**
   String eventsShareMessage(String title);
 
+  /// Événement pas encore ouvert aux inscriptions : bouton désactivé à la place de l'inscription, et pastille d'une carte de la liste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible'**
+  String get eventsComingSoon;
+
+  /// Bouton d'un événement « bientôt disponible » : demander une notification quand les inscriptions ouvriront.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me prévenir'**
+  String get eventsNotifyMe;
+
+  /// Le même bouton une fois la demande faite (toucher la retire). Vouvoiement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous serez prévenu'**
+  String get eventsNotifyRequested;
+
+  /// Message bref après avoir touché « Me prévenir ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous vous préviendrons à l\'ouverture des inscriptions.'**
+  String get eventsNotifyRequestedDone;
+
+  /// Message bref après avoir retiré la demande de notification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte retirée'**
+  String get eventsNotifyCancelled;
+
+  /// Message bref quand la demande de notification n'a pas pu être enregistrée ou retirée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer votre demande. Réessayez.'**
+  String get eventsNotifyError;
+
   /// Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit.
   ///
   /// In fr, this message translates to:
@@ -4648,6 +4684,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de charger votre accord. Vérifiez votre connexion.'**
   String get privacySettingsLoadFailed;
+
+  /// Étiquette au-dessus du titre de la feuille qui demande l'accord pour la mesure d'audience (comprendre : mesure de l'usage de l'app).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience'**
+  String get analyticsSheetLabel;
+
+  /// Titre de la feuille posée une fois après la connexion pour demander l'accord de mesurer l'usage de l'app.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aider à améliorer MAZL'**
+  String get analyticsSheetTitle;
+
+  /// Explication de la mesure d'usage : ce qui est compté, ce qui ne l'est jamais, le refus possible sans conséquence. Texte sobre, ton rassurant.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL compte les écrans visités et les grandes étapes (inscription, achat) pour s\'améliorer. Jamais le contenu de vos messages, vos photos ni votre pratique religieuse. Votre identifiant est pseudonymisé et rien n\'est partagé avec des tiers. Vous pouvez refuser : MAZL fonctionne pareil.'**
+  String get analyticsSheetBody;
+
+  /// Bouton qui donne l'accord pour la mesure d'audience. Même poids visuel que le bouton de refus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get analyticsSheetAccept;
+
+  /// Bouton qui refuse la mesure d'audience. Même poids visuel que le bouton d'accord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get analyticsSheetDecline;
+
+  /// Erreur quand le texte du consentement a changé pendant que la feuille était ouverte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le texte a été mis à jour. Fermez cette fenêtre puis rouvrez-la.'**
+  String get analyticsSheetErrorOutdated;
+
+  /// Erreur quand le choix du membre n'a pas pu être enregistré sur le serveur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'a pas pu être enregistré. Réessayez.'**
+  String get analyticsSheetErrorSave;
+
+  /// Titre de l'écran et de la ligne des réglages pour la mesure d'audience.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience'**
+  String get analyticsSettingsTitle;
+
+  /// Sous-titre de la ligne des réglages quand la mesure d'audience est acceptée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activée'**
+  String get analyticsSettingsGrantedShort;
+
+  /// Sous-titre de la ligne des réglages quand la mesure d'audience est refusée ou pas encore acceptée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivée'**
+  String get analyticsSettingsDeniedShort;
+
+  /// Titre de l'écran quand la mesure d'audience est activée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience activée'**
+  String get analyticsSettingsGrantedTitle;
+
+  /// Titre de l'écran quand la mesure d'audience est désactivée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience désactivée'**
+  String get analyticsSettingsNotGrantedTitle;
+
+  /// Bouton de l'écran des réglages qui accepte la mesure d'audience.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter la mesure d\'audience'**
+  String get analyticsSettingsAccept;
+
+  /// Bouton de l'écran des réglages qui retire l'accord : la mesure s'arrête aussitôt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer mon accord'**
+  String get analyticsSettingsWithdraw;
+
+  /// Texte de l'écran quand l'état de l'accord n'a pas pu être lu. Un bouton « Réessayer » suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire votre choix. Vérifiez votre connexion.'**
+  String get analyticsSettingsLoadFailed;
+
+  /// Message bref quand le choix n'a pas pu être enregistré depuis les réglages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'a pas pu être enregistré. Réessayez.'**
+  String get analyticsSettingsSaveFailed;
 
   /// Profil du membre : étiquette en capitales tout en haut de son propre profil.
   ///

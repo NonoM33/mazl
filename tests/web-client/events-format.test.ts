@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { EventRow } from "../../web/src/shared/api/types";
-import { attendeesLabel, clock, priceLabel, rsvpErrorMessage, shortDay, spotsLabel, spotsLeft, whenLabel } from "../../web/src/features/events/event-format";
+import { attendeesLabel, cardStatusLabel, clock, isComingSoon, priceLabel, rsvpErrorMessage, shortDay, spotsLabel, spotsLeft, whenLabel } from "../../web/src/features/events/event-format";
 
 const base: EventRow = {
   id: 1, title: "Dîner", description: null, event_type: "shabbat_dinner", location: "Paris 16e", address: null,
@@ -62,5 +62,21 @@ describe("erreurs d'inscription", () => {
     expect(rsvpErrorMessage("Event is full")).toBe("Complet");
     expect(rsvpErrorMessage("Event is over")).toBe("Événement passé");
     expect(rsvpErrorMessage("Event not found")).toBe("Événement introuvable");
+  });
+});
+
+describe("bientôt disponible", () => {
+  test("un événement annoncé n'est pas ouvert, et sa carte le dit à la place des places", () => {
+    const soon: EventRow = { ...base, availability: "coming_soon", attendee_count: "0" };
+    expect(isComingSoon(soon)).toBe(true);
+    expect(cardStatusLabel(soon)).toBe("Bientôt disponible");
+  });
+  test("sans champ availability, ou ouvert : les places comme avant", () => {
+    expect(isComingSoon(base)).toBe(false);
+    expect(isComingSoon({ ...base, availability: "open" })).toBe(false);
+    expect(cardStatusLabel(base)).toBe("28 places restantes");
+  });
+  test("le refus du serveur se lit « Bientôt disponible »", () => {
+    expect(rsvpErrorMessage("Registrations for this event are not open yet")).toBe("Bientôt disponible");
   });
 });

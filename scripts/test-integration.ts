@@ -80,12 +80,13 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
 
 async function main(): Promise<number> {
   await mkdir(logDir, { recursive: true });
-  for (const log of ["server.log", "stripe.log", "integ.log"]) await Bun.write(join(logDir, log), "");
+  for (const log of ["server.log", "stripe.log", "openpanel.log", "integ.log"]) await Bun.write(join(logDir, log), "");
 
   const container = `mazl-it-${hex(4)}`;
   const pgPort = await freePort();
   const apiPort = await freePort();
   const stripePort = await freePort();
+  const openPanelPort = await freePort();
   const apiUrl = `http://127.0.0.1:${apiPort}`;
   const databaseUrl = `postgres://postgres:it@127.0.0.1:${pgPort}/mazl`;
 
@@ -110,6 +111,19 @@ async function main(): Promise<number> {
   });
   const stripeUrl = `http://127.0.0.1:${stripePort}`;
   await waitFor("fake Stripe", 60, async () => (await fetch(`${stripeUrl}/__test/requests`)).ok);
+
+  const openPanel = Bun.spawn(["bun", "tests/support/run-fake-openpanel.ts"], {
+    cwd: root,
+    env: { ...process.env, FAKE_OPENPANEL_PORT: String(openPanelPort) },
+    stdout: Bun.file(join(logDir, "openpanel.log")),
+    stderr: Bun.file(join(logDir, "openpanel.log")),
+  });
+  cleanups.push(async () => {
+    openPanel.kill();
+    await openPanel.exited;
+  });
+  const openPanelUrl = `http://127.0.0.1:${openPanelPort}`;
+  await waitFor("fake OpenPanel", 60, async () => (await fetch(`${openPanelUrl}/__test/requests`)).ok);
 
   // The server and the suites share this environment. Nothing real is reachable:
   // no Resend, OneSignal, Apple or Stripe key, a fake Stripe, a throwaway database.
@@ -139,6 +153,12 @@ async function main(): Promise<number> {
     STRIPE_API_BASE: stripeUrl,
     FAKE_STRIPE_URL: stripeUrl,
     ...FAKE_PRICE_ENV,
+    OPENPANEL_API_URL: openPanelUrl,
+    OPENPANEL_CLIENT_ID: "it-client",
+    OPENPANEL_CLIENT_SECRET: `it-secret-${hex(8)}`,
+    ANALYTICS_ID_KEY: hex(),
+    ANALYTICS_ENV: "test",
+    FAKE_OPENPANEL_URL: openPanelUrl,
   };
   for (const name of ["RESEND_API_KEY", "ONESIGNAL_REST_API_KEY"]) delete env[name];
 

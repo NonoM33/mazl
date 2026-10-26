@@ -91,6 +91,8 @@ import { createAppleSignIn } from "./features/auth/apple/apple-sign-in";
 import { ensureAppleSignInSchema, PgAppleTokenStore } from "./features/auth/apple/apple-token-store";
 import { withAppleRevocation } from "./features/account/apple-revocation";
 import { registerEventsRoutes } from "./features/events/events.routes";
+import { createEventAlertsModule } from "./features/events/event-alerts.module";
+import { oneSignalTransport } from "./features/push/infra/onesignal-transport";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
@@ -98,7 +100,8 @@ import { API_HOST_STATIC_FILES, LEGAL_PAGES, LEGAL_REDIRECTS, createWebApp, crea
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
-import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
+import { ANALYTICS, createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
+import { createAnalyticsService, observeAnalytics, registerAnalytics, withMessageAnalytics } from "./features/analytics/analytics.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { createBackoffice } from "./backoffice";
@@ -247,6 +250,12 @@ app.get("/admin/dashboard", async (c) => {
 });
 
 // Block direct access to uploads directory
+// ============ ANALYTICS (docs/analytics/plan-de-marquage.md) ============
+// OpenPanel, consent first. Observes a few API routes, so it comes before them.
+const analyticsConsents = createPrivacyModule(sql).consents;
+const analytics = createAnalyticsService(process.env, (userId) => analyticsConsents.allowsAnalytics(userId));
+observeAnalytics(app, analytics);
+
 app.use("/uploads/*", async (c) => {
   return c.json({ error: "Forbidden" }, 403);
 });
@@ -312,7 +321,7 @@ app.get("/api/count", async (c) => {
 // member with no open socket.
 const push = createPushModule({ sql });
 push.followMatches();
-const chat = createChatModule({ store: objectStore, notifier: push.messageNotifier });
+const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 
@@ -344,7 +353,11 @@ registerAccountRoutes(app, sql, memberErasure);
 registerBillingWeb(app, billingWeb);
 
 // Art. 9 consent and personal-data export (docs/web/adr/W06).
-registerPrivacy(app, createPrivacyModule(sql));
+// A decision on the analytics consent is honoured at once by the relay.
+registerPrivacy(app, createPrivacyModule(sql, (userId, purpose) => {
+  if (purpose === ANALYTICS) analytics.forgetConsent(userId);
+}));
+registerAnalytics(app, analytics, requireAuth);
 
 // ============ STAFF BACK-OFFICE ============
 // /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,
@@ -431,8 +444,10 @@ registerChat(app, chat);
 // ============ EVENTS ENDPOINTS ============
 
 // Classic events feature routes (GET /api/events, GET /api/events/:id,
-// POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp).
-registerEventsRoutes(app);
+// POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp), « Me prévenir » on a
+// coming soon event (POST/DELETE /api/events/:id/notify) and its opening
+// (POST /api/admin/events/:id/open), which pushes the members who asked.
+registerEventsRoutes(app, createEventAlertsModule({ sql, transport: oneSignalTransport }));
 
 
 

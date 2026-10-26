@@ -720,80 +720,133 @@ class _EventCard extends StatelessWidget {
 
                   const SizedBox(height: 14),
 
-                  // Bottom row: attendees count + capacity bar
-                  Row(
-                    children: [
-                      Icon(
-                        LucideIcons.users,
-                        size: 16,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        event.maxAttendees != null
-                            ? '${event.attendeeCount} / ${event.maxAttendees}'
-                            : l10n.eventsAttendeesCount(event.attendeeCount),
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                      ),
-                      if (isAlmostFull) ...[
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.warning.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.warning.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  LucideIcons.alertCircle,
-                                  size: 12,
-                                  color: AppColors.warning,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    l10n.eventsAlmostFull,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: AppColors.warning,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                  // Bottom row: « Bientôt disponible » for an event not open
+                  // yet, otherwise attendees count + capacity bar
+                  if (event.isComingSoon)
+                    _ComingSoonBadge(label: l10n.eventsComingSoon)
+                  else ...[
+                    Row(
+                      children: [
+                        Icon(
+                          LucideIcons.users,
+                          size: 16,
+                          color: Colors.grey[500],
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          event.maxAttendees != null
+                              ? '${event.attendeeCount} / ${event.maxAttendees}'
+                              : l10n.eventsAttendeesCount(event.attendeeCount),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 13,
                           ),
                         ),
+                        if (isAlmostFull) ...[
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.warning.withValues(
+                                  alpha: 0.15,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.warning.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    LucideIcons.alertCircle,
+                                    size: 12,
+                                    color: AppColors.warning,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      l10n.eventsAlmostFull,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: AppColors.warning,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                  // Capacity progress bar
-                  if (event.maxAttendees != null) ...[
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: event.attendeeCount / event.maxAttendees!,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.15),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          isAlmostFull ? AppColors.warning : typeColor,
-                        ),
-                        minHeight: 4,
-                      ),
                     ),
+                    // Capacity progress bar
+                    if (event.maxAttendees != null) ...[
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: event.attendeeCount / event.maxAttendees!,
+                          backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isAlmostFull ? AppColors.warning : typeColor,
+                          ),
+                          minHeight: 4,
+                        ),
+                      ),
+                    ],
                   ],
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// « Bientôt disponible » on the card of an event whose registrations are not
+/// open yet, where the attendees and the capacity bar would be.
+class _ComingSoonBadge extends StatelessWidget {
+  const _ComingSoonBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(LucideIcons.clock, size: 14, color: AppColors.primary),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

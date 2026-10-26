@@ -20,6 +20,7 @@ const sections: ExportSections = {
   credits: { balances: [{ kind: "boost", balance: 2 }], purchases: [], spends: [] },
   couple: null,
   eventRsvps: [],
+  eventAlerts: [{ event_id: 4, created_at: "2026-10-26", notified_at: null }],
   consents: [{ purpose: "religious_data", granted: true }],
   discoverFilters: { denominations: ["Massorti"], kashrut_levels: null, shabbat_observances: null, only_verified: true, only_with_photo: false, updated_at: "2026-10-25", internal_note: "interne" },
   consentHistory: [{ purpose: "religious_data", granted: true }],
@@ -63,11 +64,12 @@ describe("member data export", () => {
     expect(document.generated_at).toBe("2026-10-24T09:30:00.000Z");
     for (const key of [
       "account", "profile", "photos", "prompts", "preferences", "swipes_given", "matches", "messages_sent", "blocks",
-      "reports_made", "subscription", "credits", "couple", "event_rsvps", "consents", "discover_filters", "web_sessions", "withdrawal_waivers",
+      "reports_made", "subscription", "credits", "couple", "event_rsvps", "event_alerts", "consents", "discover_filters", "web_sessions", "withdrawal_waivers",
       "moderation", "verification", "waitlist_application",
     ]) {
       expect(key in document).toBe(true);
     }
+    expect(document.event_alerts).toEqual([{ event_id: 4, created_at: "2026-10-26", notified_at: null }]);
     expect(document.preferences).toEqual({ age_min: 25, age_max: 40, distance_max: 50, looking_for: "relationship" });
     expect(document.messages_sent).toEqual(sections.messagesSent);
     expect(document.couple).toBeNull();

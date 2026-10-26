@@ -168,6 +168,21 @@ void main() {
       }
     });
 
+    test(
+      'la mesure d\'usage : interactions, liées, sans suivi, analytique',
+      () {
+        final entry = collected.singleWhere(
+          (e) => shortName(e) == 'ProductInteraction',
+        );
+        expect(entry['NSPrivacyCollectedDataTypeLinked'], isTrue);
+        expect(entry['NSPrivacyCollectedDataTypeTracking'], isFalse);
+        expect(
+          entry['NSPrivacyCollectedDataTypePurposes'],
+          contains('NSPrivacyCollectedDataTypePurposeAnalytics'),
+        );
+      },
+    );
+
     test('aucun type déclaré deux fois', () {
       final names = collected.map(shortName).toList();
       expect(names.toSet().length, names.length);
@@ -186,7 +201,15 @@ void main() {
               (p) => p.replaceFirst('NSPrivacyCollectedDataTypePurpose', ''),
             );
         expect(applePurposes, containsAll(purposes), reason: shortName(entry));
-        expect(purposes, ['AppFunctionality'], reason: shortName(entry));
+        // The usage measurement (docs/analytics/plan-de-marquage.md §5) is the
+        // only collection that is not only for the app to work.
+        expect(
+          purposes,
+          shortName(entry) == 'ProductInteraction'
+              ? ['AppFunctionality', 'Analytics']
+              : ['AppFunctionality'],
+          reason: shortName(entry),
+        );
       }
     });
 

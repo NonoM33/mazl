@@ -20,5 +20,21 @@
   "privacySettingsWithdrawTitle": "Withdraw your consent?",
   "privacySettingsWithdrawBody": "Your denomination, kashrut, Shabbat observance and intention will be erased from your profile.",
   "privacySettingsWithdrawFailed": "We couldn't withdraw your consent. Please try again.",
-  "privacySettingsLoadFailed": "We couldn't load your consent. Check your connection."
+  "privacySettingsLoadFailed": "We couldn't load your consent. Check your connection.",
+  "analyticsSheetLabel": "Usage measurement",
+  "analyticsSheetTitle": "Help improve MAZL",
+  "analyticsSheetBody": "MAZL counts the screens you visit and the key steps (sign-up, purchase) to get better. Never the content of your messages, your photos or your religious practice. Your identifier is pseudonymised and nothing is shared with third parties. You can decline: MAZL works the same.",
+  "analyticsSheetAccept": "Accept",
+  "analyticsSheetDecline": "Decline",
+  "analyticsSheetErrorOutdated": "The text has been updated. Close this window and open it again.",
+  "analyticsSheetErrorSave": "Your choice couldn't be saved. Please try again.",
+  "analyticsSettingsTitle": "Usage measurement",
+  "analyticsSettingsGrantedShort": "On",
+  "analyticsSettingsDeniedShort": "Off",
+  "analyticsSettingsGrantedTitle": "Usage measurement is on",
+  "analyticsSettingsNotGrantedTitle": "Usage measurement is off",
+  "analyticsSettingsAccept": "Accept usage measurement",
+  "analyticsSettingsWithdraw": "Withdraw my consent",
+  "analyticsSettingsLoadFailed": "We couldn't read your choice. Check your connection.",
+  "analyticsSettingsSaveFailed": "Your choice couldn't be saved. Please try again."
 }

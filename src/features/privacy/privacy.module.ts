@@ -2,7 +2,7 @@ import type { Hono } from "hono";
 import type { Sql } from "postgres";
 import { createRateLimiter } from "../../shared/http/rate-limit";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
-import { ConsentService } from "./application/consent-service";
+import { ConsentService, type ConsentDecisionListener } from "./application/consent-service";
 import { ExportService } from "./application/export-service";
 import { PgConsentRepository } from "./infra/pg-consent-repository";
 import { PgExportReader } from "./infra/pg-export-reader";
@@ -10,7 +10,7 @@ import { registerPrivacyRoutes } from "./presentation/privacy.routes";
 import { createReligiousFieldsGuard } from "./presentation/religious-fields-guard";
 
 export { ensurePrivacySchema } from "./infra/schema";
-export { RELIGIOUS_DATA_TEXT, RELIGIOUS_DATA_VERSION } from "./domain/consent";
+export { ANALYTICS, RELIGIOUS_DATA_TEXT, RELIGIOUS_DATA_VERSION } from "./domain/consent";
 
 export interface PrivacyModule {
   readonly consents: ConsentService;
@@ -19,9 +19,9 @@ export interface PrivacyModule {
 
 const EXPORTS_PER_DAY = 3;
 
-export function createPrivacyModule(sql: Sql): PrivacyModule {
+export function createPrivacyModule(sql: Sql, onDecision?: ConsentDecisionListener): PrivacyModule {
   return {
-    consents: new ConsentService(new PgConsentRepository(sql)),
+    consents: new ConsentService(new PgConsentRepository(sql), onDecision),
     exports: new ExportService(new PgExportReader(sql)),
   };
 }

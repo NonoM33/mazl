@@ -256,6 +256,12 @@ final List<DuoScreen> duoScreens = [
     file: 'privacy/screens/religious_data_settings_screen.dart',
     path: '/profile/settings/religious-data',
   ),
+  const DuoScreen(
+    id: '/profile/settings/analytics',
+    feature: 'privacy',
+    file: 'privacy/screens/analytics_settings_screen.dart',
+    path: '/profile/settings/analytics',
+  ),
   DuoScreen(
     id: '/profile/settings/computers',
     feature: 'web_sessions',

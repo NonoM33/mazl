@@ -1,6 +1,7 @@
 // Removes the sample data that releases before the v1 left in a real database:
 // the twenty fake members (provider 'seed') with their photos, swipes, matches,
-// conversations and messages, and the fictitious couple catalogue.
+// conversations and messages, the fictitious couple catalogue, and the
+// "coming soon" test events of the TestFlight phase.
 //
 //   DATABASE_URL=... bun scripts/purge-seed-data.ts              dry-run: lists, changes nothing
 //   DATABASE_URL=... bun scripts/purge-seed-data.ts --dry-run    same
@@ -50,6 +51,8 @@ function report(plan: SeedPurgePlan, verb: string): void {
   listCatalogue("activities KEPT because real couples use them", plan.activitiesKept, true);
   listCatalogue(`events ${verb}`, plan.eventsToRemove, false);
   listCatalogue("events KEPT because real couples use them", plan.eventsKept, true);
+  console.log(`Coming soon test events ${verb}: ${plan.testEvents.length}`);
+  for (const event of plan.testEvents) console.log(`  - ${event.key} (${event.title})`);
 }
 
 const sql = postgres(databaseUrl, { max: 1, onnotice: () => undefined });

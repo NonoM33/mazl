@@ -6,8 +6,27 @@ import 'demo_photos.dart';
 /// État mutable du mode démo, en mémoire seulement : un message envoyé reste
 /// visible quand on rouvre la conversation, une lecture vide le compteur…
 /// Il est remis à zéro à chaque démarrage de session fictive.
+/// A consent decision of the demo member.
+typedef DemoConsent = ({bool granted, String version, DateTime decidedAt});
+
 abstract final class DemoStore {
+  static final Map<String, DemoConsent> _consents = {};
+
+  /// The demo member's decision for a consent purpose, if any.
+  static DemoConsent? consent(String purpose) => _consents[purpose];
+
+  static DemoConsent decideConsent(
+    String purpose,
+    bool granted,
+    String version,
+  ) => _consents[purpose] = (
+    granted: granted,
+    version: version,
+    decidedAt: clock(),
+  );
+
   static final Map<int, String?> _rsvp = {};
+  static final Set<int> _eventAlerts = {};
   static Map<String, dynamic> _profilePatch = {};
   static List<Map<String, dynamic>> _prompts = DemoFixtures.myPrompts();
   static bool _boostActive = false;
@@ -62,6 +81,7 @@ abstract final class DemoStore {
   static void reset() {
     chat = _newChat();
     _rsvp.clear();
+    _eventAlerts.clear();
     _profilePatch = {};
     _prompts = DemoFixtures.myPrompts();
     _boostActive = false;
@@ -72,6 +92,7 @@ abstract final class DemoStore {
     _discoverFilters = _noDiscoverFilters();
     _nextId = 9000;
     _matched.clear();
+    _consents.clear();
     couple = DemoCoupleState();
   }
 
@@ -186,10 +207,16 @@ abstract final class DemoStore {
       {
         ...e,
         if (_rsvp.containsKey(e['id'])) 'user_rsvp_status': _rsvp[e['id']],
+        if (e['availability'] == 'coming_soon')
+          'notify_requested': _eventAlerts.contains(e['id']),
       },
   ];
 
   static void setRsvp(int eventId, String? status) => _rsvp[eventId] = status;
+
+  /// « Me prévenir » on a coming soon event.
+  static void setEventAlert(int eventId, {required bool requested}) =>
+      requested ? _eventAlerts.add(eventId) : _eventAlerts.remove(eventId);
 
   static List<Map<String, dynamic>> prompts() => List.of(_prompts);
 

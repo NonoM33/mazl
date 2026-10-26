@@ -168,6 +168,10 @@ export interface EventRow {
   readonly max_attendees: number | null;
   readonly image_url: string | null;
   readonly attendee_count: string | number;
+  // "coming_soon": shown, registrations refused until it opens (absent: open).
+  readonly availability?: "open" | "coming_soon";
+  // The signed-in member asked to be told when it opens (« Me prévenir »).
+  readonly notify_requested?: boolean;
 }
 export interface EventsResponse extends Envelope { readonly events: readonly EventRow[] }
 export interface EventResponse extends Envelope { readonly event: EventRow; readonly userRsvp: { readonly status: string } | null }
@@ -202,4 +206,4 @@ export interface BillingStatus extends Envelope {
 export interface RedirectResponse extends Envelope { readonly url: string }
 
 export interface ConsentState { readonly granted: boolean | null; readonly version: string | null; readonly decided_at: string | null; readonly current_version: string; readonly text: string }
-export interface ConsentsResponse extends Envelope { readonly consents: { readonly religious_data: ConsentState } }
+export interface ConsentsResponse extends Envelope { readonly consents: { readonly religious_data: ConsentState; readonly analytics?: ConsentState } }
