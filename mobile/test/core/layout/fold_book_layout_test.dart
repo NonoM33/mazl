@@ -110,6 +110,24 @@ void main() {
       expect(end.top, start.top, reason: 'side by side, not one below');
     });
 
+    testWidgets('a page inside margins still reads as two pages opened flat '
+        'sideways (the Discover card, about 835 pt wide)', (tester) async {
+      await _pump(
+        tester,
+        DuoPose.openLandscape,
+        const Scaffold(
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: FoldSpread(start: [Text('Photo')], end: [Text('Nom')]),
+          ),
+        ),
+      );
+      final start = _rectOf(tester, find.text('Photo'));
+      final end = _rectOf(tester, find.text('Nom'));
+      expect(end.top, start.top, reason: 'side by side');
+      expect(end.left, greaterThan(start.right));
+    });
+
     testWidgets('upright and laptop: one list, end below start', (
       tester,
     ) async {

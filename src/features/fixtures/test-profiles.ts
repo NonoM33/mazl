@@ -163,10 +163,10 @@ async function upsertMember(db: Db, member: TestMember, index: number, today: Da
   return user.id;
 }
 
-// Two photos at positions 0 and 1, the first one primary. Existing rows are updated
+// One photo at position 0, primary. Existing rows are updated
 // in place (their ids, hence their signed URLs, stay), extra rows are removed.
 async function syncPhotos(db: Db, userId: number, member: TestMember): Promise<void> {
-  const wanted = [stockPhoto(member.photoId, "portrait", "faces"), stockPhoto(member.photoId, "portrait", "entropy")];
+  const wanted = [stockPhoto(member.photoId, "portrait", "faces")];
   const existing = await db<{ id: number }[]>`SELECT id FROM profile_photos WHERE user_id = ${userId} ORDER BY position ASC, id ASC`;
   for (const [position, url] of wanted.entries()) {
     const current = existing[position];

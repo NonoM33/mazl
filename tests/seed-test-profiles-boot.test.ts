@@ -43,7 +43,7 @@ describe("test profiles at start-up", () => {
   });
 
   test("SEED_TEST_PROFILES=true: the API writes the test members, with their photos", async () => {
-    expect(await countSeedMembersWithPhotos(withFlag.url)).toBe(16);
+    expect(await countSeedMembersWithPhotos(withFlag.url)).toBe(25);
   });
 
   test("without the flag: no test member gets the stock photos", async () => {

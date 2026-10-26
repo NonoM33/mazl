@@ -4,9 +4,8 @@
 // The answers (denomination, kashrut, shabbat, intention) are the values the app
 // itself stores (mobile edit_profile_screen.dart and RELATIONSHIP_INTENTIONS), so the
 // profile ranking and the Discover filters treat these members like real ones.
-// The photos are the stock photos chosen by the owner; the second photo of a member
-// is the same picture framed differently (crop=entropy), because only 18 pictures
-// were validated for 16 members.
+// The photos are the stock photos chosen by the owner, one per member: each shows a
+// different person, so a member never gets a second one.
 
 export type Gender = "female" | "male";
 
@@ -45,13 +44,19 @@ const WOMEN_PHOTOS = [
   "1562337404-3044c84ac061",
 ] as const;
 
-// Five men were validated; three profiles use the first three.
 export const MEN_PHOTOS = [
   "1507003211169-0a1dd7228f2d",
   "1528892952291-009c663ce843",
   "1600603406200-5b2a104684ac",
   "1583123810408-23e7b5d1af9f",
   "1583264277168-58ceba4b84e7",
+  "1500648767791-00dcc994a43e",
+  "1506794778202-cad84cf45f1d",
+  "1560250097-0b93528c311a",
+  "1539571696357-5a69c17a67c6",
+  "1596075780750-81249df16d19",
+  "1764546373114-2d7a87221733",
+  "1522556189639-b150ed9c4330",
 ] as const;
 
 type Answers = Pick<TestMember, "denomination" | "kashrut" | "shabbat" | "intention">;
@@ -102,6 +107,24 @@ const MEN: readonly Draft[] = [
     bio: "Chef de projet dans le retail, fan de l'OL et de cuisine lyonnaise, version casher évidemment. Je cours deux fois par semaine, un peu moins quand il pleut. J'aimerais rencontrer quelqu'un de chaleureux, avec qui rire autour d'une table." },
   { name: "Jonathan Sebbag", displayName: "Jonathan", age: 33, city: "Nice", photoVerified: false, ...answers("Massorti", "A la maison", "Observant", "friends_first"),
     bio: "Kinésithérapeute du sport, je soigne les genoux des joueurs du coin. Voile le week-end, shakshouka le dimanche, et Shabbat chez mes parents dès que je peux. Je préfère apprendre à connaître quelqu'un avant de m'engager." },
+  { name: "Nathan Ohayon", displayName: "Nathan", age: 30, city: "Boulogne-Billancourt", photoVerified: true, ...answers("Traditionaliste", "Strict", "Observant", "marriage"),
+    bio: "Pharmacien, je connais tous les habitués du quartier par leur prénom. Je joue de la guitare le dimanche et je prépare une dafina qui fait l'unanimité. Je cherche une femme avec qui bâtir un foyer joyeux." },
+  { name: "Samuel Azoulay", displayName: "Samuel", age: 27, city: "Paris", photoVerified: false, ...answers("Massorti", "A la maison", "Partiellement", "serious"),
+    bio: "Consultant le jour, comédien d'improvisation le soir. Je ne sais pas cuisiner mais je fais une excellente vaisselle. Ici pour rencontrer quelqu'un de vrai, qui aime rire autant que moi." },
+  { name: "Benjamin Toledano", displayName: "Benjamin", age: 34, city: "Neuilly-sur-Seine", photoVerified: true, ...answers("Modern Orthodox", "Strict", "Observant", "marriage"),
+    bio: "Chirurgien-dentiste, passionné de vélo et de vieux films. J'étudie la paracha chaque semaine avec un ami d'enfance. Je souhaite fonder une famille avec une femme bienveillante et pleine de vie." },
+  { name: "Élie Zerbib", displayName: "Élie", age: 25, city: "Marseille", photoVerified: false, ...answers("Laique", "Non", "Non observant", "open"),
+    bio: "Musicien et prof de piano, je joue dans des bars du Vieux-Port le week-end. Je fête Pessah en famille et je garde le reste de l'année assez libre. Je cherche une belle rencontre, sans pression." },
+  { name: "Daniel Attal", displayName: "Daniel", age: 32, city: "Strasbourg", photoVerified: true, ...answers("Orthodox", "Glatt", "Tres observant", "marriage"),
+    bio: "Professeur d'histoire au lycée, je raconte Napoléon comme un feuilleton. Shabbat est sacré chez moi, avec des invités chaque semaine. Je cherche une épouse qui partage ces valeurs et le goût des longues discussions." },
+  { name: "Yonathan Benhamou", displayName: "Yonathan", age: 28, city: "Lyon", photoVerified: false, ...answers("Traditionaliste", "A la maison", "Partiellement", "serious"),
+    bio: "Ingénieur en énergies renouvelables, je passe mes vacances à randonner dans les Alpes. Je cuisine volontiers pour les amis, surtout les grillades. J'aimerais rencontrer quelqu'un de simple et d'authentique." },
+  { name: "Gabriel Elbaz", displayName: "Gabriel", age: 29, city: "Paris", photoVerified: true, ...answers("Massorti", "A la maison", "Observant", "serious"),
+    bio: "Entrepreneur dans la food tech, je teste tous les nouveaux restaurants casher de Paris. Je fais du padel trois fois par semaine. Je cherche une partenaire curieuse et ambitieuse, pour avancer à deux." },
+  { name: "Michaël Bensimon", displayName: "Michaël", age: 31, city: "Nice", photoVerified: false, ...answers("Traditionaliste", "Strict", "Partiellement", "friends_first"),
+    bio: "Architecte, amoureux de la Méditerranée et des maisons de pierre. Le vendredi soir, c'est kiddouch avec ma famille puis balade sur la Promenade. Je préfère une amitié d'abord, et voir où ça mène." },
+  { name: "Ariel Mimoun", displayName: "Ariel", age: 26, city: "Boulogne-Billancourt", photoVerified: true, ...answers("Modern Orthodox", "A la maison", "Observant", "serious"),
+    bio: "Développeur et bénévole dans une association d'aide aux devoirs. Je lis beaucoup, je parle trop de science-fiction et je cuisine des challot le jeudi. Je cherche quelqu'un de doux et de drôle." },
 ];
 
 function members(drafts: readonly Draft[], gender: Gender, photos: readonly string[]): TestMember[] {

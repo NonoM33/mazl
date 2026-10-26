@@ -53,17 +53,12 @@ abstract final class DemoPhotos {
   static List<String> of(int userId) {
     final woman = _womenRank[userId];
     if (woman != null) {
-      return [
-        _url(_women[woman], w: 800, h: 1000),
-        _url(_women[(woman + 7) % _women.length], w: 800, h: 1000),
-      ];
+      // One photo: each stock photo shows a different person.
+      return [_url(_women[woman], w: 800, h: 1000)];
     }
     final man = _menRank[userId];
     if (man != null) {
-      return [
-        _url(_men[man], w: 800, h: 1000),
-        _url(_men[man + 2], w: 800, h: 1000),
-      ];
+      return [_url(_men[man], w: 800, h: 1000)];
     }
     return const [];
   }
