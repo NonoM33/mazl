@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/api_service.dart';
@@ -285,10 +286,12 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
             left: 16,
             right: 16,
             bottom: barBottom,
-            child: ProfileActionBar(
-              firstName: data.firstName(l10n),
-              onPass: () => _handleSwipe('pass'),
-              onLike: () => _handleSwipe('like'),
+            child: FoldSafeActions(
+              child: ProfileActionBar(
+                firstName: data.firstName(l10n),
+                onPass: () => _handleSwipe('pass'),
+                onLike: () => _handleSwipe('like'),
+              ),
             ),
           ),
       ],
