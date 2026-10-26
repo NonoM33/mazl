@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -217,46 +218,48 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SwipeProgressScale(
-                progress: _swipeDeck.progress,
-                direction: SwipeDirection.left,
-                child: RoundIconButton(
-                  icon: LucideIcons.x,
-                  tooltip: context.l10n.commonSkip,
+        FoldSafeActions(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SwipeProgressScale(
+                  progress: _swipeDeck.progress,
+                  direction: SwipeDirection.left,
+                  child: RoundIconButton(
+                    icon: LucideIcons.x,
+                    tooltip: context.l10n.commonSkip,
+                    size: 60,
+                    iconSize: 26,
+                    onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
+                  ),
+                ),
+                SwipeProgressScale(
+                  progress: _swipeDeck.progress,
+                  direction: SwipeDirection.up,
+                  child: RoundIconButton(
+                    icon: LucideIcons.bookmark,
+                    tooltip: context.l10n.commonSave,
+                    size: 72,
+                    iconSize: 30,
+                    style: RoundButtonStyle.ink,
+                    onPressed: () => _swipeDeck.swipe(SwipeDirection.up),
+                  ),
+                ),
+                RoundIconButton(
+                  icon: LucideIcons.info,
+                  tooltip: context.l10n.coupleFeedSeeDetail,
                   size: 60,
                   iconSize: 26,
-                  onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
+                  onPressed: () {
+                    if (_topIndex < _deck.length) {
+                      context.push('/couple/activities/${_deck[_topIndex].id}');
+                    }
+                  },
                 ),
-              ),
-              SwipeProgressScale(
-                progress: _swipeDeck.progress,
-                direction: SwipeDirection.up,
-                child: RoundIconButton(
-                  icon: LucideIcons.bookmark,
-                  tooltip: context.l10n.commonSave,
-                  size: 72,
-                  iconSize: 30,
-                  style: RoundButtonStyle.ink,
-                  onPressed: () => _swipeDeck.swipe(SwipeDirection.up),
-                ),
-              ),
-              RoundIconButton(
-                icon: LucideIcons.info,
-                tooltip: context.l10n.coupleFeedSeeDetail,
-                size: 60,
-                iconSize: 26,
-                onPressed: () {
-                  if (_topIndex < _deck.length) {
-                    context.push('/couple/activities/${_deck[_topIndex].id}');
-                  }
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -396,10 +399,7 @@ class _CardBack extends StatelessWidget {
 }
 
 class _ActivityCard extends StatelessWidget {
-  const _ActivityCard({
-    required this.activity,
-    this.onTapDetails,
-  });
+  const _ActivityCard({required this.activity, this.onTapDetails});
 
   final CoupleActivity activity;
   final VoidCallback? onTapDetails;
@@ -418,40 +418,35 @@ class _ActivityCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(27),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image zone: nothing of the text zone is ever drawn over it.
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ActivityVisual(activity: activity),
-                  if (activity.rating != null)
-                    PositionedDirectional(
-                      top: 16,
-                      start: 16,
-                      child: TagPill(
-                        activity.ratingLabel(l10n),
-                        icon: LucideIcons.star,
-                      ),
-                    ),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final image = Stack(
+              fit: StackFit.expand,
+              children: [
+                ActivityVisual(activity: activity),
+                if (activity.rating != null)
                   PositionedDirectional(
-                    top: 12,
-                    end: 12,
-                    child: RoundIconButton(
-                      icon: LucideIcons.info,
-                      tooltip: l10n.coupleFeedSeeDetail,
-                      size: 40,
-                      iconSize: 18,
-                      onPressed: onTapDetails,
+                    top: 16,
+                    start: 16,
+                    child: TagPill(
+                      activity.ratingLabel(l10n),
+                      icon: LucideIcons.star,
                     ),
                   ),
-                ],
-              ),
-            ),
-            // Text zone: a plain, opaque colour.
-            ColoredBox(
+                PositionedDirectional(
+                  top: 12,
+                  end: 12,
+                  child: RoundIconButton(
+                    icon: LucideIcons.info,
+                    tooltip: l10n.coupleFeedSeeDetail,
+                    size: 40,
+                    iconSize: 18,
+                    onPressed: onTapDetails,
+                  ),
+                ),
+              ],
+            );
+            final text = ColoredBox(
               color: scheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -531,8 +526,26 @@ class _ActivityCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-          ],
+            );
+            // A short card (a phone held sideways) sets the image beside the
+            // text, which then scrolls, instead of stacking them.
+            if (box.maxHeight < 300 && box.maxWidth > 400) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: image),
+                  Expanded(child: SingleChildScrollView(child: text)),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: image),
+                text,
+              ],
+            );
+          },
         ),
       ),
     );

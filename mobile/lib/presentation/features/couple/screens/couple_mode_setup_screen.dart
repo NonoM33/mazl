@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
@@ -12,7 +13,8 @@ import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
 import '../l10n/couple_failure_label.dart';
 
 /// Loads the member's matches (the real API in production).
-typedef MatchesLoader = Future<ApiResponse<List<Map<String, dynamic>>>> Function();
+typedef MatchesLoader =
+    Future<ApiResponse<List<Map<String, dynamic>>>> Function();
 
 /// Choose a match and ask them to activate the couple mode. Nothing is
 /// activated here: the other member has to accept (contract §0.1).
@@ -139,51 +141,63 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final name = request.targetName ?? '';
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Spacer(),
-          _Avatar(name: name, picture: request.targetPicture, size: 96, seed: request.targetId),
-          const SizedBox(height: 24),
-          Text(
-            l10n.coupleSpaceSetupSentTitle,
-            textAlign: TextAlign.center,
-            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name.isEmpty
-                ? l10n.coupleSpaceSetupSentBodyAnonymous
-                : l10n.coupleSpaceSetupSentBody(name),
-            textAlign: TextAlign.center,
-            style: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
-          ),
-          if (_failure != null) ...[
-            const SizedBox(height: 12),
-            _ErrorText(_failure!.label(l10n)),
-          ],
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isBusy ? null : _done,
-              child: Text(l10n.coupleSpaceSetupGotIt),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Spacer(),
+            _Avatar(
+              name: name,
+              picture: request.targetPicture,
+              size: 96,
+              seed: request.targetId,
             ),
-          ),
-          if (!_justSent) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: _isBusy ? null : _cancel,
-                child: _isBusy
-                    ? const _Spinner()
-                    : Text(l10n.coupleSpaceSetupCancelRequest),
+            const SizedBox(height: 24),
+            Text(
+              l10n.coupleSpaceSetupSentTitle,
+              textAlign: TextAlign.center,
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              name.isEmpty
+                  ? l10n.coupleSpaceSetupSentBodyAnonymous
+                  : l10n.coupleSpaceSetupSentBody(name),
+              textAlign: TextAlign.center,
+              style: textTheme.bodyLarge?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            if (_failure != null) ...[
+              const SizedBox(height: 12),
+              _ErrorText(_failure!.label(l10n)),
+            ],
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isBusy ? null : _done,
+                child: Text(l10n.coupleSpaceSetupGotIt),
+              ),
+            ),
+            if (!_justSent) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: _isBusy ? null : _cancel,
+                  child: _isBusy
+                      ? const _Spinner()
+                      : Text(l10n.coupleSpaceSetupCancelRequest),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -198,10 +212,7 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
           children: [
             Text(l10n.coupleSpaceSetupMatchesError),
             const SizedBox(height: 12),
-            TextButton(
-              onPressed: _loadMatches,
-              child: Text(l10n.commonRetry),
-            ),
+            TextButton(onPressed: _loadMatches, child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -210,7 +221,8 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     final textTheme = Theme.of(context).textTheme;
     final profiles = [
       for (final match in _matches)
-        if (match['profile'] is Map<String, dynamic>) match['profile'] as Map<String, dynamic>,
+        if (match['profile'] is Map<String, dynamic>)
+          match['profile'] as Map<String, dynamic>,
     ];
     if (profiles.isEmpty) {
       return Center(child: Text(l10n.coupleSpaceSetupNoMatches));
@@ -224,31 +236,40 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
             children: [
               Text(
                 l10n.coupleSpaceSetupWho,
-                style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 16),
               for (final profile in profiles) _buildOption(context, profile),
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          child: Column(
-            children: [
-              if (_failure != null) ...[
-                _ErrorText(_failure!.label(l10n)),
-                const SizedBox(height: 12),
-              ],
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _selectedProfile == null || _isBusy ? null : _send,
-                  child: _isBusy
-                      ? const _Spinner()
-                      : Text(l10n.coupleSpaceSetupSend),
-                ),
+        SafeArea(
+          top: false,
+          child: FoldSafeActions(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+              child: Column(
+                children: [
+                  if (_failure != null) ...[
+                    _ErrorText(_failure!.label(l10n)),
+                    const SizedBox(height: 12),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _selectedProfile == null || _isBusy
+                          ? null
+                          : _send,
+                      child: _isBusy
+                          ? const _Spinner()
+                          : Text(l10n.coupleSpaceSetupSend),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -257,21 +278,27 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
 
   Widget _buildOption(BuildContext context, Map<String, dynamic> profile) {
     final scheme = Theme.of(context).colorScheme;
-    final selected = identical(_selectedProfile, profile) ||
-        (_selectedProfile != null && _selectedProfile!['user_id'] == profile['user_id']);
+    final selected =
+        identical(_selectedProfile, profile) ||
+        (_selectedProfile != null &&
+            _selectedProfile!['user_id'] == profile['user_id']);
     final name = profile['display_name'] as String? ?? '';
     final userId = parseCoupleId(profile['user_id']);
     final border = selected ? scheme.primary : _hairline(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: selected ? scheme.primary.withValues(alpha: 0.08) : Colors.transparent,
+        color: selected
+            ? scheme.primary.withValues(alpha: 0.08)
+            : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(color: border, width: selected ? 1.5 : 1),
         ),
         child: InkWell(
-          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           onTap: () => setState(() {
             _selectedProfile = profile;
             _failure = null;
@@ -290,13 +317,13 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                 Expanded(
                   child: Text(
                     name,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                if (selected) Icon(LucideIcons.check, size: 20, color: scheme.primary),
+                if (selected)
+                  Icon(LucideIcons.check, size: 20, color: scheme.primary),
               ],
             ),
           ),
@@ -307,12 +334,19 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
 }
 
 Color _hairline(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark ? AppColors.glassBorderDark : AppColors.hairline;
+    Theme.of(context).brightness == Brightness.dark
+    ? AppColors.glassBorderDark
+    : AppColors.hairline;
 
 /// Round avatar shared by every row and the confirmation: the photo when there
 /// is one, otherwise the initial on a neutral fill.
 class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name, required this.picture, required this.size, this.seed});
+  const _Avatar({
+    required this.name,
+    required this.picture,
+    required this.size,
+    this.seed,
+  });
 
   final String name;
   final String? picture;
@@ -334,7 +368,12 @@ class _Avatar extends StatelessWidget {
       ),
       child: ClipOval(
         child: hasPicture
-            ? ProfilePhoto(url: picture, seed: seed ?? 0, radius: size / 2, iconSize: size * 0.4)
+            ? ProfilePhoto(
+                url: picture,
+                seed: seed ?? 0,
+                radius: size / 2,
+                iconSize: size * 0.4,
+              )
             : Center(
                 child: Text(
                   name.isEmpty ? '?' : name.characters.first.toUpperCase(),
@@ -356,10 +395,10 @@ class _ErrorText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        message,
-        textAlign: TextAlign.center,
-        style: const TextStyle(color: AppColors.error, fontSize: 13),
-      );
+    message,
+    textAlign: TextAlign.center,
+    style: const TextStyle(color: AppColors.error, fontSize: 13),
+  );
 }
 
 class _Spinner extends StatelessWidget {
@@ -367,10 +406,10 @@ class _Spinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-        dimension: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: DefaultTextStyle.of(context).style.color,
-        ),
-      );
+    dimension: 20,
+    child: CircularProgressIndicator(
+      strokeWidth: 2,
+      color: DefaultTextStyle.of(context).style.color,
+    ),
+  );
 }

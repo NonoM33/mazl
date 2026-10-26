@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/services/couple_api_service.dart';
@@ -102,16 +103,18 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(text: l10n.coupleFeedEventsUpcoming),
-                  Tab(
-                    text: l10n.coupleFeedEventsRegisteredTab(
-                      _registeredEvents.length,
+              child: FoldSafeActions(
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: [
+                    Tab(text: l10n.coupleFeedEventsUpcoming),
+                    Tab(
+                      text: l10n.coupleFeedEventsRegisteredTab(
+                        _registeredEvents.length,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -271,10 +274,7 @@ class _CoupleEventsScreenState extends State<CoupleEventsScreen>
           );
           _loadEvents();
         case CoupleFailed():
-          showCoupleError(
-            context,
-            context.l10n.coupleFeedEventCancelError,
-          );
+          showCoupleError(context, context.l10n.coupleFeedEventCancelError);
       }
     }
   }
