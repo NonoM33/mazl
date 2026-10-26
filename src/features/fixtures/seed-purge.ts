@@ -1,10 +1,13 @@
 import type { Sql } from "postgres";
 import { eraseUserRows } from "../../db";
 import { COUPLE_ACTIVITY_SEEDS, COUPLE_EVENT_SEEDS } from "./couple-catalogue";
+import { presentTestEvents, type TestEventRow } from "./test-events";
 
 // Removal of the sample data that releases before the v1 created in every
 // database they started on: the twenty fake members (provider 'seed') and the
-// fictitious couple catalogue. Used by scripts/purge-seed-data.ts.
+// fictitious couple catalogue; and the "coming soon" fake events of the
+// TestFlight phase (events.fixture_key), with their registrations and alerts.
+// Used by scripts/purge-seed-data.ts.
 //
 // The catalogue is shared by all couples, so a row that a real couple saved,
 // passed or booked is KEPT; a row used only by couples that include a seed
@@ -36,6 +39,7 @@ export interface SeedPurgePlan {
   readonly activitiesKept: readonly CatalogueEntry[];
   readonly eventsToRemove: readonly CatalogueEntry[];
   readonly eventsKept: readonly CatalogueEntry[];
+  readonly testEvents: readonly TestEventRow[];
 }
 
 // Condition on a row aliased `r` that carries a couple_id: the couple has no seed
@@ -98,13 +102,14 @@ async function events(db: Db): Promise<CatalogueEntry[]> {
 }
 
 export async function planSeedPurge(db: Db): Promise<SeedPurgePlan> {
-  const [accountList, activityList, eventList] = [await seedAccounts(db), await activities(db), await events(db)];
+  const [accountList, activityList, eventList, testEvents] = [await seedAccounts(db), await activities(db), await events(db), await presentTestEvents(db)];
   return {
     accounts: accountList,
     activitiesToRemove: activityList.filter((entry) => entry.references === 0),
     activitiesKept: activityList.filter((entry) => entry.references > 0),
     eventsToRemove: eventList.filter((entry) => entry.references === 0),
     eventsKept: eventList.filter((entry) => entry.references > 0),
+    testEvents,
   };
 }
 
@@ -119,6 +124,9 @@ export async function applySeedPurge(db: Db): Promise<SeedPurgePlan> {
     const eventIds = plan.eventsToRemove.map((entry) => entry.id);
     if (activityIds.length > 0) await tx`DELETE FROM couple_activities WHERE id IN ${tx(activityIds)}`;
     if (eventIds.length > 0) await tx`DELETE FROM couple_events WHERE id IN ${tx(eventIds)}`;
+    // Their registrations, alerts, photos and check-ins cascade.
+    const testEventIds = plan.testEvents.map((entry) => entry.id);
+    if (testEventIds.length > 0) await tx`DELETE FROM events WHERE id IN ${tx(testEventIds)}`;
     return plan;
   })) as SeedPurgePlan;
 }
