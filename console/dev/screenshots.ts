@@ -117,6 +117,61 @@ try {
   await page.getByRole("heading", { name: "Identité" }).waitFor();
   await shot(page, "12-fiche-membre");
 
+  // Algorithme : comprendre, régler (avec simulation), historique, lecture seule.
+  await page.goto(`${BASE}/console#/algorithme`);
+  await page.reload();
+  await page.getByRole("heading", { name: /Réglages actifs/ }).waitFor();
+  await shot(page, "16-algorithme-comprendre");
+  await page.locator("#e-multiplicateurs").scrollIntoViewIfNeeded();
+  await page.locator(".content").evaluate((element) => element.scrollTo({ top: element.scrollTop + 300 }));
+  await shot(page, "17-algorithme-multiplicateurs");
+
+  await page.goto(`${BASE}/console#/algorithme?onglet=regler`);
+  await page.getByRole("heading", { name: "Simulation en direct" }).waitFor();
+  await page.getByRole("textbox", { name: "Distance", exact: true }).fill("7");
+  await page.getByRole("textbox", { name: "Cashrout", exact: true }).fill("2");
+  await page.getByLabel("Mode de réciprocité").selectOption("geometric");
+  await page.waitForSelector(".sim-list");
+  await page.locator('section[aria-label="Vos réglages"] .sim-row').nth(1).click();
+  await page.waitForSelector(".sim-detail");
+  await page.locator(".content").evaluate((element) => element.scrollTo({ top: 0 }));
+  await page.locator(".tune-sim").evaluate((element) => element.scrollTo({ top: 0 }));
+  await shot(page, "18-algorithme-regler");
+  await page.locator(".tune-sim").evaluate((element) => element.scrollTo({ top: element.scrollHeight }));
+  await shot(page, "19-algorithme-detail-score");
+  await page.getByRole("textbox", { name: "Distance « mi-score »" }).fill("900");
+  await page.locator(".spec.has-error").first().scrollIntoViewIfNeeded();
+  await shot(page, "20-algorithme-erreur-bornes");
+  await page.getByRole("textbox", { name: "Distance « mi-score »" }).fill("40");
+  await page.getByLabel("Note de version (obligatoire)").fill("Plus de poids à la distance et réciprocité géométrique, à essayer.");
+  await page.getByLabel("Note de version (obligatoire)").scrollIntoViewIfNeeded();
+  await shot(page, "21-algorithme-enregistrer");
+
+  await page.goto(`${BASE}/console#/algorithme?onglet=historique`);
+  await page.waitForSelector("table.table tbody tr");
+  await shot(page, "22-algorithme-historique");
+  await page.locator("table.table tbody tr").nth(2).click();
+  await page.getByRole("dialog", { name: /Version n°/ }).waitFor();
+  await shot(page, "23-algorithme-version");
+  await page.keyboard.press("Escape");
+
+  const reader = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "fr-FR", colorScheme: "light" });
+  const analyst = await reader.newPage();
+  await analyst.goto(`${BASE}/console`);
+  await analyst.getByLabel("Adresse e-mail").fill("analyste@example.com");
+  await analyst.getByLabel("Mot de passe").fill("demo");
+  await analyst.getByRole("button", { name: "Se connecter" }).click();
+  await analyst.getByRole("heading", { name: "Code de vérification" }).waitFor();
+  await typeCode(analyst, "482916");
+  await analyst.getByRole("heading", { name: "Tableau de bord", level: 1 }).waitFor();
+  await analyst.goto(`${BASE}/console#/algorithme?onglet=regler`);
+  await analyst.getByText("Lecture seule.").waitFor();
+  await analyst.waitForSelector(".sim-list");
+  await shot(analyst, "24-algorithme-lecture-seule");
+  await analyst.goto(`${BASE}/console#/algorithme?onglet=historique`);
+  await analyst.waitForSelector("table.table tbody tr");
+  await shot(analyst, "25-algorithme-historique-lecture-seule");
+
   await page.goto(`${BASE}/console#/`);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.waitForSelector(".chart-svg");
@@ -126,6 +181,10 @@ try {
   await page.locator("table.table tbody tr").nth(1).click();
   await page.waitForSelector(".panel-title");
   await shot(page, "14-signalements-sombre");
+
+  await page.goto(`${BASE}/console#/algorithme?onglet=regler`);
+  await page.waitForSelector(".sim-list");
+  await shot(page, "26-algorithme-regler-sombre");
 
   const second = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "fr-FR", colorScheme: "light" });
   const enrol = await second.newPage();
