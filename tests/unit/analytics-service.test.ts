@@ -112,6 +112,37 @@ describe("client events", () => {
   });
 });
 
+describe("a slow OpenPanel", () => {
+  test("never holds more than the cap of events in flight: the excess is dropped", async () => {
+    const pending: Array<() => void> = [];
+    let delivered = 0;
+    const service = new AnalyticsService({
+      sink: {
+        send: (events) =>
+          new Promise<void>((resolve) => {
+            pending.push(() => {
+              delivered += events.length;
+              resolve();
+            });
+          }),
+      },
+      pseudonyms: { profileIdOf: () => "p" },
+      allowsAnalytics: () => Promise.resolve(true),
+      environment: "test",
+      clock: () => NOW,
+      maxEventsInFlight: 120,
+    });
+    const batch = Array.from({ length: 50 }, () => ({ name: "app_opened" }));
+    for (let index = 0; index < 4; index += 1) await service.recordClientEvents(1, ios, batch);
+    expect(pending).toHaveLength(2);
+    for (const release of pending.splice(0)) release();
+    await flush();
+    expect(delivered).toBe(100);
+    await service.recordClientEvents(1, ios, batch);
+    expect(pending).toHaveLength(1);
+  });
+});
+
 describe("server events", () => {
   test("sent only for a consenting member, tagged server", async () => {
     const { sink, consenting, service } = setup();

@@ -10,9 +10,13 @@ export interface AnalyticsServiceOptions {
   readonly clock?: () => Date;
   // How long a consent lookup is trusted; a decision of the member clears it at once.
   readonly consentTtlMs?: number;
+  // Events sent but not yet acknowledged; beyond it new ones are dropped, so a
+  // slow OpenPanel or a flood of batches never grows the server's memory.
+  readonly maxEventsInFlight?: number;
 }
 
 const DEFAULT_CONSENT_TTL_MS = 60_000;
+const DEFAULT_MAX_EVENTS_IN_FLIGHT = 2_000;
 const SERVER_VERSION = "1.0.0";
 
 interface CachedConsent {
@@ -26,10 +30,13 @@ export class AnalyticsService {
   private readonly consents = new Map<number, CachedConsent>();
   private readonly clock: () => Date;
   private readonly consentTtlMs: number;
+  private readonly maxEventsInFlight: number;
+  private inFlight = 0;
 
   constructor(private readonly options: AnalyticsServiceOptions) {
     this.clock = options.clock ?? (() => new Date());
     this.consentTtlMs = options.consentTtlMs ?? DEFAULT_CONSENT_TTL_MS;
+    this.maxEventsInFlight = options.maxEventsInFlight ?? DEFAULT_MAX_EVENTS_IN_FLIGHT;
   }
 
   get enabled(): boolean {
@@ -81,8 +88,18 @@ export class AnalyticsService {
   private dispatch(events: readonly OutgoingEvent[]): void {
     const sink = this.options.sink;
     if (sink === null || events.length === 0) return;
-    sink.send(events).catch((error: unknown) => {
-      console.warn("Analytics events not delivered:", error instanceof Error ? error.message : "unknown");
-    });
+    if (this.inFlight + events.length > this.maxEventsInFlight) {
+      console.warn(`Analytics events dropped: ${this.inFlight} already in flight`);
+      return;
+    }
+    this.inFlight += events.length;
+    sink
+      .send(events)
+      .catch((error: unknown) => {
+        console.warn("Analytics events not delivered:", error instanceof Error ? error.message : "unknown");
+      })
+      .finally(() => {
+        this.inFlight -= events.length;
+      });
   }
 }
