@@ -15,7 +15,7 @@
   'use strict';
 
   const T = window.THREE;
-  const M = window.mazlDuoBridgeMath;
+  const M = window.MazlDuoMath;
   const PI = Math.PI;
 
   // --- Palette « Encre & Tekhelet » (lib/core/theme/app_colors.dart) ---------
