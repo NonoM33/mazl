@@ -63,36 +63,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
   ),
   DuoKnownFailure(
-    '/events',
-    DuoPose.closed,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/events',
-    DuoPose.openPortrait,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/events',
-    DuoPose.openLandscape,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/events',
-    DuoPose.halfOpenBook,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/events',
-    DuoPose.halfOpenLaptop,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/events',
-    DuoPose.splitView,
-    "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
     '/events/:eventId',
     DuoPose.halfOpenBook,
     "action principale 'S'inscrire - 25 €' dans le pli",

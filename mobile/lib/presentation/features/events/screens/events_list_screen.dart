@@ -38,8 +38,9 @@ class _EventsListScreenState extends State<EventsListScreen>
     'social',
   ];
 
-  String _filterLabel(AppLocalizations l10n, String type) =>
-      type == 'all' ? l10n.eventsFilterAll : EventKind.fromApi(type).filterLabel(l10n);
+  String _filterLabel(AppLocalizations l10n, String type) => type == 'all'
+      ? l10n.eventsFilterAll
+      : EventKind.fromApi(type).filterLabel(l10n);
 
   @override
   bool get wantKeepAlive => true;
@@ -141,9 +142,7 @@ class _EventsListScreenState extends State<EventsListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.eventsTitle),
-      ),
+      appBar: AppBar(title: Text(context.l10n.eventsTitle)),
       body: Column(
         children: [
           // Type filter chips - improved design
@@ -165,7 +164,8 @@ class _EventsListScreenState extends State<EventsListScreen>
               itemCount: _eventTypes.length,
               itemBuilder: (context, index) {
                 final type = _eventTypes[index];
-                final isSelected = (_selectedType ?? 'all') == type ||
+                final isSelected =
+                    (_selectedType ?? 'all') == type ||
                     (_selectedType == null && type == 'all');
                 return Padding(
                   padding: const EdgeInsetsDirectional.only(end: 10),
@@ -173,12 +173,19 @@ class _EventsListScreenState extends State<EventsListScreen>
                     onTap: () => _onTypeSelected(type),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? _getTypeColor(type == 'all' ? null : type) : Colors.grey.withValues(alpha: 0.1),
+                        color: isSelected
+                            ? _getTypeColor(type == 'all' ? null : type)
+                            : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isSelected ? _getTypeColor(type == 'all' ? null : type) : Colors.transparent,
+                          color: isSelected
+                              ? _getTypeColor(type == 'all' ? null : type)
+                              : Colors.transparent,
                           width: 1.5,
                         ),
                       ),
@@ -189,15 +196,21 @@ class _EventsListScreenState extends State<EventsListScreen>
                             Icon(
                               _getTypeIcon(type),
                               size: 16,
-                              color: isSelected ? Colors.white : Colors.grey[600],
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey[600],
                             ),
                             const SizedBox(width: 6),
                           ],
                           Text(
                             _filterLabel(context.l10n, type),
                             style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.grey[700],
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                               fontSize: 13,
                             ),
                           ),
@@ -231,7 +244,9 @@ class _EventsListScreenState extends State<EventsListScreen>
             Icon(
               LucideIcons.wifiOff,
               size: 48,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(context.l10n.eventsLoadError),
@@ -265,17 +280,16 @@ class _EventsListScreenState extends State<EventsListScreen>
             const SizedBox(height: 24),
             Text(
               context.l10n.eventsEmptyTitle,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
               context.l10n.eventsEmptyHint,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -291,7 +305,14 @@ class _EventsListScreenState extends State<EventsListScreen>
             opacity: _isFilterLoading ? 0.5 : 1.0,
             duration: const Duration(milliseconds: 200),
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              // The tab bar capsule is counted in the bottom padding
+              // (the shell's Scaffold extends its body under it).
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                16 + MediaQuery.paddingOf(context).bottom,
+              ),
               itemCount: _events.length,
               itemBuilder: (context, index) {
                 final event = _events[index];
@@ -313,7 +334,10 @@ class _EventsListScreenState extends State<EventsListScreen>
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(20),
@@ -385,9 +409,7 @@ class _EventCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       elevation: 2,
       shadowColor: typeColor.withValues(alpha: 0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -402,7 +424,10 @@ class _EventCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: event.imageUrl == null
                         ? LinearGradient(
-                            colors: [typeColor, typeColor.withValues(alpha: 0.7)],
+                            colors: [
+                              typeColor,
+                              typeColor.withValues(alpha: 0.7),
+                            ],
                             begin: AlignmentDirectional.topStart,
                             end: AlignmentDirectional.bottomEnd,
                           )
@@ -415,12 +440,17 @@ class _EventCard extends StatelessWidget {
                           placeholder: (context, url) => Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [typeColor, typeColor.withValues(alpha: 0.7)],
+                                colors: [
+                                  typeColor,
+                                  typeColor.withValues(alpha: 0.7),
+                                ],
                               ),
                             ),
                             child: Center(
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white.withValues(alpha: 0.5)),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withValues(alpha: 0.5),
+                                ),
                                 strokeWidth: 2,
                               ),
                             ),
@@ -428,14 +458,25 @@ class _EventCard extends StatelessWidget {
                           errorWidget: (context, url, error) => Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [typeColor, typeColor.withValues(alpha: 0.7)],
+                                colors: [
+                                  typeColor,
+                                  typeColor.withValues(alpha: 0.7),
+                                ],
                               ),
                             ),
-                            child: Icon(typeIcon, size: 48, color: Colors.white54),
+                            child: Icon(
+                              typeIcon,
+                              size: 48,
+                              color: Colors.white54,
+                            ),
                           ),
                         )
                       : Center(
-                          child: Icon(typeIcon, size: 48, color: Colors.white54),
+                          child: Icon(
+                            typeIcon,
+                            size: 48,
+                            color: Colors.white54,
+                          ),
                         ),
                 ),
                 // Gradient overlay for better text visibility
@@ -462,7 +503,10 @@ class _EventCard extends StatelessWidget {
                   top: 12,
                   start: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: typeColor,
                       borderRadius: BorderRadius.circular(20),
@@ -497,7 +541,10 @@ class _EventCard extends StatelessWidget {
                     top: 12,
                     end: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.warning,
                         borderRadius: BorderRadius.circular(20),
@@ -505,14 +552,25 @@ class _EventCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(LucideIcons.clock, size: 12, color: Colors.white),
+                          Icon(
+                            LucideIcons.clock,
+                            size: 12,
+                            color: Colors.white,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             event.date.difference(DateTime.now()).inDays == 0
                                 ? l10n.commonToday
-                                : event.date.difference(DateTime.now()).inDays == 1
-                                    ? l10n.eventsTomorrow
-                                    : l10n.eventsInDays(event.date.difference(DateTime.now()).inDays),
+                                : event.date
+                                          .difference(DateTime.now())
+                                          .inDays ==
+                                      1
+                                ? l10n.eventsTomorrow
+                                : l10n.eventsInDays(
+                                    event.date
+                                        .difference(DateTime.now())
+                                        .inDays,
+                                  ),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -528,7 +586,10 @@ class _EventCard extends StatelessWidget {
                   bottom: 12,
                   end: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: event.price > 0 ? Colors.white : AppColors.success,
                       borderRadius: BorderRadius.circular(20),
@@ -545,7 +606,9 @@ class _EventCard extends StatelessWidget {
                           ? eventPriceText(event, l10n.localeName)
                           : l10n.eventsFree,
                       style: TextStyle(
-                        color: event.price > 0 ? AppColors.primary : Colors.white,
+                        color: event.price > 0
+                            ? AppColors.primary
+                            : Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
@@ -583,13 +646,20 @@ class _EventCard extends StatelessWidget {
                           color: typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(LucideIcons.calendar, size: 16, color: typeColor),
+                        child: Icon(
+                          LucideIcons.calendar,
+                          size: 16,
+                          color: typeColor,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           event.time != null
-                              ? l10n.eventsDateAtTime(_formatDate(l10n, event.date), event.time!)
+                              ? l10n.eventsDateAtTime(
+                                  _formatDate(l10n, event.date),
+                                  event.time!,
+                                )
                               : _formatDate(l10n, event.date),
                           style: TextStyle(
                             color: Colors.grey[700],
@@ -611,7 +681,11 @@ class _EventCard extends StatelessWidget {
                             color: typeColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(LucideIcons.mapPin, size: 16, color: typeColor),
+                          child: Icon(
+                            LucideIcons.mapPin,
+                            size: 16,
+                            color: typeColor,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -629,31 +703,41 @@ class _EventCard extends StatelessWidget {
                   // Bottom row: attendees count + capacity bar
                   Row(
                     children: [
-                      Icon(LucideIcons.users, size: 16, color: Colors.grey[500]),
+                      Icon(
+                        LucideIcons.users,
+                        size: 16,
+                        color: Colors.grey[500],
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         event.maxAttendees != null
                             ? '${event.attendeeCount} / ${event.maxAttendees}'
                             : l10n.eventsAttendeesCount(event.attendeeCount),
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       ),
                       if (isAlmostFull) ...[
                         const SizedBox(width: 8),
                         Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.warning.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                color: AppColors.warning.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(LucideIcons.alertCircle, size: 12, color: AppColors.warning),
+                                Icon(
+                                  LucideIcons.alertCircle,
+                                  size: 12,
+                                  color: AppColors.warning,
+                                ),
                                 const SizedBox(width: 4),
                                 Flexible(
                                   child: Text(
