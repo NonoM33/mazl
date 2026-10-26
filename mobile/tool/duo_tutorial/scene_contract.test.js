@@ -28,3 +28,25 @@ test('index.html loads three.js, then the maths, then the scene', () => {
   expect(order.every((i) => i >= 0)).toBe(true);
   expect([...order].sort((a, b) => a - b)).toEqual(order);
 });
+
+// three.min.js is a trimmed bundle. A class the scene reaches for that the
+// bundle does not export throws at the first frame and blanks the scene.
+test('every three.js class tutorial.js uses is exported by the trimmed bundle', () => {
+  const window = {};
+  const context = { window, self: window, globalThis: window, Math, console };
+  vm.runInNewContext(read('three.min.js'), context);
+  const THREE = window.THREE || context.THREE;
+  expect(THREE).toBeDefined();
+  const used = [...new Set(read('tutorial.js').match(/\bT\.[A-Z][A-Za-z0-9]*/g).map((m) => m.slice(2)))];
+  expect(used.length).toBeGreaterThan(5);
+  const missing = used.filter((name) => THREE[name] === undefined);
+  expect(missing).toEqual([]);
+});
+
+// Apple shows a fold through perspective, never a drawn line: the outline of
+// the gesture must not trace the hinge edge of each half.
+test('the gesture outline skips the hinge edge of each half', () => {
+  const scene = read('tutorial.js');
+  expect(scene).not.toMatch(/new T\.LineSegments\(new T\.EdgesGeometry/);
+  expect(scene).toMatch(/new T\.LineSegments\(silhouetteEdges\(/);
+});

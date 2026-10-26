@@ -45,7 +45,7 @@
   const TH = 0.26; // épaisseur d'une plaque
   const GAP = 0; // les deux moitiés se touchent : pas de jour, pas de fil
   const RADIUS = 0.66; // coins extérieurs
-  const HINGE_RADIUS = 0.14; // coins côté charnière
+  const HINGE_RADIUS = 0.001; // côté charnière, les coins sont vifs : les moitiés se rejoignent sans encoche
   const INSET = 0.1; // cadre noir autour de l'écran
   const BEVEL = 0.035;
   const SCREEN_Z = 0.006;
@@ -307,6 +307,22 @@
 
   const geometryCache = {};
 
+  /** Les arêtes d'une plaque sans celles du bord charnière : le contour se lit d'un seul tenant, sans trait au pli. */
+  function silhouetteEdges(geo) {
+    const edges = new T.EdgesGeometry(geo, 28);
+    const attr = edges.getAttribute('position');
+    const src = attr.array;
+    const keep = [];
+    const near = (x) => Math.abs(x) <= 2 * BEVEL + GAP + 1e-3;
+    for (let i = 0; i < src.length; i += 6) {
+      if (near(src[i]) && near(src[i + 3])) continue;
+      for (let k = 0; k < 6; k++) keep.push(src[i + k]);
+    }
+    // Le bundle allégé n'exporte pas les classes d'attributs : on reprend celle de l'attribut lu.
+    edges.setAttribute('position', new attr.constructor(new Float32Array(keep), 3));
+    return edges;
+  }
+
   function plateGeometry(side) {
     const key = 'plate' + side;
     if (geometryCache[key]) return geometryCache[key];
@@ -315,7 +331,10 @@
     const r = side > 0
       ? [HINGE_RADIUS, RADIUS, RADIUS, HINGE_RADIUS]
       : [RADIUS, HINGE_RADIUS, HINGE_RADIUS, RADIUS];
-    const shape = roundedShape(x0 + BEVEL, -H / 2 + BEVEL, x1 - BEVEL, H / 2 - BEVEL, r);
+    // Côté charnière la plaque déborde du biseau : les deux moitiés se recouvrent, aucun creux ne marque le pli.
+    const shape = side > 0
+      ? roundedShape(x0 - BEVEL, -H / 2 + BEVEL, x1 - BEVEL, H / 2 - BEVEL, r)
+      : roundedShape(x0 + BEVEL, -H / 2 + BEVEL, x1 + BEVEL, H / 2 - BEVEL, r);
     const geo = new T.ExtrudeGeometry(shape, {
       depth: TH - 2 * BEVEL,
       bevelEnabled: true,
@@ -370,7 +389,7 @@
       pivot.userData.side = side;
       const geo = plateGeometry(side);
       if (ghost) {
-        const lines = new T.LineSegments(new T.EdgesGeometry(geo, 28), ghostMat);
+        const lines = new T.LineSegments(silhouetteEdges(geo), ghostMat);
         lines.renderOrder = 100;
         pivot.add(lines);
         continue;
