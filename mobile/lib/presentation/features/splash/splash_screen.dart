@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/duo_tutorial/duo_tutorial_policy.dart';
+import '../../../core/layout/fold_cut.dart';
 import '../../../core/layout/fold_state.dart';
 import '../../../core/router/route_names.dart';
 import '../../../core/services/auth_service.dart';
@@ -56,8 +57,54 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: MazlWordmark(size: 56)),
-    );
+    return const Scaffold(body: SplashBrand());
   }
+}
+
+/// The logo of the splash screen. Flat it sits in the middle of the page;
+/// half open the fold would run through it, so it moves to the middle of the
+/// reading-start page (above the fold when set down like a laptop, beside it
+/// when held like a book) and a quiet progress ring fills the other page.
+class SplashBrand extends StatelessWidget {
+  const SplashBrand({super.key});
+
+  static const _logo = MazlWordmark(size: 56);
+
+  @override
+  Widget build(BuildContext context) => FoldCutBuilder(
+    builder: (context, cut) {
+      if (cut == null) return const Center(child: _logo);
+      final lead = SizedBox(
+        width: cut.axis == FoldSplitAxis.vertical ? cut.leadExtent : null,
+        height: cut.axis == FoldSplitAxis.horizontal ? cut.leadExtent : null,
+        child: const Center(child: _logo),
+      );
+      const wait = Center(
+        child: SizedBox.square(
+          dimension: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+      final gap = SizedBox(
+        width: cut.axis == FoldSplitAxis.vertical ? cut.gap : null,
+        height: cut.axis == FoldSplitAxis.horizontal ? cut.gap : null,
+      );
+      return switch (cut.axis) {
+        FoldSplitAxis.vertical => Row(
+          children: [
+            lead,
+            gap,
+            const Expanded(child: wait),
+          ],
+        ),
+        FoldSplitAxis.horizontal => Column(
+          children: [
+            lead,
+            gap,
+            const Expanded(child: wait),
+          ],
+        ),
+      };
+    },
+  );
 }

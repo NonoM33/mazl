@@ -18,16 +18,6 @@ class DuoKnownFailure {
 /// list can only shrink. Fixing a screen means deleting its lines here.
 const List<DuoKnownFailure> duoKnownFailures = [
   DuoKnownFailure(
-    '/',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/',
-    DuoPose.halfOpenLaptop,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/boost',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
