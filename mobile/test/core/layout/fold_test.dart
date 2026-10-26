@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/layout/fold_aware_split.dart';
 import 'package:mazl/core/layout/fold_channel.dart';
+import 'package:mazl/core/layout/fold_safe_actions.dart';
 import 'package:mazl/core/layout/fold_state.dart';
 import 'package:mazl/core/layout/side_safe_area.dart';
 
@@ -337,4 +338,64 @@ void main() {
       expect(tester.getRect(find.text('OK')).overlaps(pose.fold!), isFalse);
     });
   }
+
+  group('FoldSafeActions', () {
+    Widget page(DuoPose pose) => MaterialApp(
+      builder: duoAppBuilder(DuoPoseController(pose)),
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: FoldSafeActions(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('Continuer'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets(
+      'book pose: the button takes the side of the vertical bar, out of the fold',
+      (tester) async {
+        setDuoPose(tester, DuoPose.halfOpenBook);
+        await tester.pumpWidget(page(DuoPose.halfOpenBook));
+        await settleFold(tester);
+        final rect = tester.getRect(find.byType(ElevatedButton));
+        expect(
+          rect.left,
+          greaterThanOrEqualTo(DuoPose.halfOpenBook.fold!.right),
+        );
+        expect(rect.width, greaterThan(200));
+        expectFitsDuoPose(tester, DuoPose.halfOpenBook, 'actions');
+      },
+    );
+
+    for (final pose in [
+      DuoPose.closed,
+      DuoPose.openLandscape,
+      DuoPose.halfOpenLaptop,
+    ]) {
+      testWidgets('${pose.name}: the button keeps its full width', (
+        tester,
+      ) async {
+        setDuoPose(tester, pose);
+        await tester.pumpWidget(page(pose));
+        await settleFold(tester);
+        final safe = pose.safeRect;
+        expect(
+          tester.getRect(find.byType(ElevatedButton)).width,
+          closeTo(safe.width - 32, 0.5),
+        );
+      });
+    }
+  });
 }
