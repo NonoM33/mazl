@@ -18,6 +18,9 @@ export interface TestEvent {
   // The event takes place on this weekday (0 = Sunday) of the week that starts `weeksAhead` weeks from today.
   readonly weeksAhead: number;
   readonly weekday: number;
+  // A feast has its own date (YYYY-MM-DD), kept while it is to come; the
+  // weekday rule applies once it has passed.
+  readonly on?: string;
   readonly time: string;
   readonly endTime: string;
   readonly price: number;
@@ -91,15 +94,18 @@ export const TEST_EVENTS: readonly TestEvent[] = [
     key: "test-event-hanukkah-paris", kind: "holiday", city: "Paris", venue: "Paris 16e",
     title: "Soirée de Hanoukka",
     description: "Allumage des bougies, sufganiyot, latkes et un DJ pour finir la soirée. Une grande fête pour les célibataires de 25 à 40 ans, tenue correcte exigée.",
-    weeksAhead: 6, weekday: SUNDAY, time: "19:30", endTime: "23:30", price: 25, maxAttendees: 120,
+    // Hanoukka 5787: from the evening of 2026-12-04 to 2026-12-12.
+    weeksAhead: 6, weekday: SUNDAY, on: "2026-12-06", time: "19:30", endTime: "23:30", price: 25, maxAttendees: 120,
   },
 ];
 
 const DAY_MS = 86_400_000;
 
-// The date of an event, YYYY-MM-DD: its weekday in the week that starts
-// `weeksAhead` weeks after `today` (UTC). Always in the future.
+// The date of an event, YYYY-MM-DD: its own date while it is to come,
+// otherwise its weekday in the week that starts `weeksAhead` weeks after
+// `today` (UTC). Always in the future.
 export function testEventDate(event: TestEvent, today: Date): string {
+  if (event.on !== undefined && event.on > today.toISOString().slice(0, 10)) return event.on;
   const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()) + event.weeksAhead * 7 * DAY_MS;
   const shift = (event.weekday - new Date(start).getUTCDay() + 7) % 7;
   return new Date(start + shift * DAY_MS).toISOString().slice(0, 10);

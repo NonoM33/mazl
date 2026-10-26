@@ -47,7 +47,7 @@ describe("the fake events", () => {
 describe("testEventDate", () => {
   test("puts every event on its weekday, between one and seven weeks ahead", () => {
     for (const today of [new Date("2026-10-26T10:00:00Z"), new Date("2026-10-30T23:30:00Z"), new Date("2027-02-28T00:00:00Z")]) {
-      for (const event of TEST_EVENTS) {
+      for (const event of TEST_EVENTS.filter((candidate) => candidate.on === undefined || candidate.on <= today.toISOString().slice(0, 10))) {
         const date = testEventDate(event, today);
         expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         const days = (Date.parse(`${date}T00:00:00Z`) - Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())) / 86_400_000;
@@ -56,6 +56,17 @@ describe("testEventDate", () => {
         expect(new Date(`${date}T12:00:00Z`).getUTCDay()).toBe(event.weekday);
       }
     }
+  });
+
+  test("the Hanukkah evening falls during Hanukkah 5787 (2026-12-04 to 2026-12-12)", () => {
+    const hanukkah = TEST_EVENTS.find((event) => event.kind === "holiday");
+    if (hanukkah === undefined) throw new Error("missing");
+    for (const today of ["2026-10-26T08:00:00Z", "2026-11-30T23:00:00Z", "2026-12-05T10:00:00Z"]) {
+      const date = testEventDate(hanukkah, new Date(today));
+      expect(date >= "2026-12-04" && date <= "2026-12-12").toBe(true);
+    }
+    // Once past, the weekday rule takes over: still to come.
+    expect(testEventDate(hanukkah, new Date("2026-12-07T10:00:00Z")) > "2026-12-07").toBe(true);
   });
 
   test("the first event of 2026-10-26 (a Monday) falls on Friday 2026-11-06", () => {

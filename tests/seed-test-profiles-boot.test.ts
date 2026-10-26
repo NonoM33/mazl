@@ -29,13 +29,14 @@ interface FixtureEventRow {
   is_published: boolean;
   in_future: boolean;
   image_url: string | null;
+  date: string;
 }
 
 async function fixtureEvents(url: string): Promise<FixtureEventRow[]> {
   const sql = postgres(url, { max: 1, onnotice: () => undefined });
   try {
     return await sql<FixtureEventRow[]>`
-      SELECT id, fixture_key, availability, is_published, date > CURRENT_DATE AS in_future, image_url
+      SELECT id, fixture_key, availability, is_published, date > CURRENT_DATE AS in_future, image_url, to_char(date, 'YYYY-MM-DD') AS date
       FROM events WHERE fixture_key IS NOT NULL ORDER BY fixture_key`;
   } finally {
     await sql.end({ timeout: 2 });
@@ -46,6 +47,8 @@ async function openOne(url: string, key: string): Promise<void> {
   const sql = postgres(url, { max: 1, onnotice: () => undefined });
   try {
     await sql`UPDATE events SET availability = 'open' WHERE fixture_key = ${key}`;
+    // A feast written on a wrong date by an earlier seed (2026-12-13, after Hanukkah).
+    await sql`UPDATE events SET date = '2026-12-13' WHERE fixture_key = 'test-event-hanukkah-paris'`;
   } finally {
     await sql.end({ timeout: 2 });
   }
@@ -97,7 +100,11 @@ describe("test profiles at start-up", () => {
     servers[0] = await startServer(withFlag.url, "test");
     delete process.env.SEED_TEST_PROFILES;
     const after = await fixtureEvents(withFlag.url);
-    expect(after).toEqual(before);
+    const feast = (rows: FixtureEventRow[]) => rows.find((row) => row.fixture_key === "test-event-hanukkah-paris");
+    // Until Hanukkah 2026, a restart puts the feast back on its own date.
+    if (new Date().toISOString().slice(0, 10) < "2026-12-06") expect(feast(after)?.date).toBe("2026-12-06");
+    const others = (rows: FixtureEventRow[]) => rows.filter((row) => row !== feast(rows));
+    expect(others(after)).toEqual(others(before));
     expect(after.find((row) => row.fixture_key === key)?.availability).toBe("open");
   }, 60_000);
 });

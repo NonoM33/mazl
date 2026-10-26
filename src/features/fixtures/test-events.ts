@@ -1,5 +1,5 @@
 import type { Sql } from "postgres";
-import { TEST_EVENTS, TEST_EVENT_ADDRESS, testEventDate } from "./test-event-roster";
+import { TEST_EVENTS, TEST_EVENT_ADDRESS, testEventDate, type TestEvent } from "./test-event-roster";
 
 // The fake events of the TestFlight phase, written at start-up with the test
 // profiles (seedTestProfilesIfRequested) and removed by scripts/purge-seed-data.ts.
@@ -8,7 +8,7 @@ import { TEST_EVENTS, TEST_EVENT_ADDRESS, testEventDate } from "./test-event-ros
 //
 // They are written "coming soon" and published. A later seed refreshes their
 // text but never their availability (an administrator may have opened one),
-// and moves their date only once it has passed.
+// and moves their date only once it has passed, or to the own date of a feast.
 
 type Db = Sql;
 
@@ -17,6 +17,9 @@ export interface TestEventRow {
   readonly key: string;
   readonly title: string;
 }
+
+// A feast whose own date is still to come takes that date, whatever was stored.
+const feastToCome = (event: TestEvent, today: Date): boolean => event.on !== undefined && event.on > today.toISOString().slice(0, 10);
 
 export async function applyTestEvents(db: Db, today = new Date()): Promise<TestEventRow[]> {
   return (await db.begin(async (transaction) => {
@@ -34,7 +37,7 @@ export async function applyTestEvents(db: Db, today = new Date()): Promise<TestE
           location = EXCLUDED.location, address = EXCLUDED.address, time = EXCLUDED.time, end_time = EXCLUDED.end_time,
           price = EXCLUDED.price, currency = EXCLUDED.currency, max_attendees = EXCLUDED.max_attendees,
           image_url = NULL, is_published = true,
-          date = CASE WHEN events.date < CURRENT_DATE THEN EXCLUDED.date ELSE events.date END,
+          date = CASE WHEN events.date < CURRENT_DATE OR ${feastToCome(event, today)} THEN EXCLUDED.date ELSE events.date END,
           updated_at = NOW()
         RETURNING id`;
       if (row === undefined) throw new Error(`no row for ${event.key}`);
