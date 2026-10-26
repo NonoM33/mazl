@@ -23,16 +23,25 @@ final analyticsTransportProvider = Provider<AnalyticsTransport>(
 );
 
 /// The usage measurement, for the life of the app. It follows the member's
-/// authentication; the consent is pushed to it by [AnalyticsConsentHost] and
-/// by [decideAnalyticsConsent].
-final analyticsProvider = Provider<Analytics>((ref) {
-  final analytics = Analytics(transport: ref.watch(analyticsTransportProvider));
+/// authentication; the consent is pushed to it by `AnalyticsHost` and by
+/// [decideAnalyticsConsent].
+final analyticsProvider = Provider<Analytics>(
+  (ref) => followAuthentication(
+    ref,
+    Analytics(transport: ref.watch(analyticsTransportProvider)),
+  ),
+);
+
+/// Makes [analytics] follow the member's sign-in and sign-out, and stop with
+/// [ref]. Public so that tests build the measurement with their own clock and
+/// timers and still run this wiring.
+Analytics followAuthentication(Ref<Analytics> ref, Analytics analytics) {
   ref.listen<bool>(isAuthenticatedProvider, (_, signedIn) {
     signedIn ? analytics.signedIn() : analytics.signedOut();
   }, fireImmediately: true);
   ref.onDispose(analytics.dispose);
   return analytics;
-});
+}
 
 /// Records the member's answer on the server and, once it is accepted, tells
 /// the measurement at once (a withdrawal empties the queue before anything else

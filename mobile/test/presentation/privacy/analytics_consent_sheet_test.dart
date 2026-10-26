@@ -154,8 +154,8 @@ void main() {
       expect(foldCrossingProblems(tester, pose), isEmpty, reason: pose.name);
       for (final label in ['Accepter', 'Refuser']) {
         final size = tester.getSize(find.widgetWithText(ElevatedButton, label));
-        expect(size.height, greaterThanOrEqualTo(44), reason: '$label');
-        expect(size.width, greaterThanOrEqualTo(44), reason: '$label');
+        expect(size.height, greaterThanOrEqualTo(44), reason: label);
+        expect(size.width, greaterThanOrEqualTo(44), reason: label);
       }
     });
   }

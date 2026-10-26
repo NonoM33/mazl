@@ -25,6 +25,7 @@ abstract class RouteNames {
   static const computers = 'computers';
   static const webScan = 'webScan';
   static const religiousData = 'religiousData';
+  static const analyticsSettings = 'analyticsSettings';
 
   // Couple mode
   static const coupleSetup = 'coupleSetup';
@@ -80,6 +81,7 @@ abstract class RoutePaths {
   static const computers = '/profile/settings/computers';
   static const webScan = '/profile/settings/computers/scan';
   static const religiousData = '/profile/settings/religious-data';
+  static const analyticsSettings = '/profile/settings/analytics';
 
   // Couple mode
   static const coupleSetup = '/couple/setup';
