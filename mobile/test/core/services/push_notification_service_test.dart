@@ -113,6 +113,13 @@ void main() {
     });
   });
 
+  test('le singleton se construit sans boucler sur AuthService', () {
+    // PushNotificationService -> serveur -> ApiService -> AuthService ->
+    // PushNotificationService : un cycle à la construction faisait déborder la
+    // pile (« Stack Overflow ») dans toute la suite.
+    expect(() => PushNotificationService(), returnsNormally);
+  });
+
   test('la déconnexion passe par la passerelle', () async {
     await service.logoutUser();
 

@@ -17,16 +17,20 @@ class PushDeviceRequestFailed implements Exception {
   final int statusCode;
 
   @override
-  String toString() => 'PushDeviceRequestFailed($method $statusCode)';
+  String toString() => [runtimeType, method, statusCode].join(' ');
 }
 
 /// Talks to the server with the signed-in member's session token.
 class ApiPushDeviceServer implements PushDeviceServer {
-  ApiPushDeviceServer({ApiService? api}) : _api = api ?? ApiService();
+  ApiPushDeviceServer({ApiService? api}) : _injected = api;
 
   static const String _path = '/api/push/devices';
 
-  final ApiService _api;
+  final ApiService? _injected;
+
+  /// Resolved on first use, not at construction: the API client reaches the
+  /// auth service, which builds the push service, which builds this.
+  ApiService get _api => _injected ?? ApiService();
 
   @override
   Future<void> register({
