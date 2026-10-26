@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { clientIp } from "../../shared/http/client-ip";
 import { createAttemptGuard } from "../../shared/http/rate-limit";
+import { isAdminEmail, normalizeEmail } from "./admin.emails";
 
 // ADMIN authentication. Admin routes use a dedicated admin JWT (HMAC-SHA256)
 // plus an email whitelist, NOT the member `requireAuth` middleware.
@@ -31,13 +32,8 @@ const ADMIN_JWT_SECRET: string = (() => {
   return createHmac("sha256", memberSecret).update("mazl:admin-jwt").digest("hex");
 })();
 
-export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
-
-export const ADMIN_EMAILS: readonly string[] = ["renaudlemagicien@gmail.com", process.env.ADMIN_EMAIL]
-  .filter((email): email is string => Boolean(email))
-  .map(normalizeEmail);
-
-export const isAdminEmail = (email: string): boolean => ADMIN_EMAILS.includes(normalizeEmail(email));
+// The whitelist lives in its own module: scripts need it without the secrets this one requires.
+export { ADMIN_EMAILS, isAdminEmail, normalizeEmail } from "./admin.emails";
 
 // Compares secrets in constant time, whatever their lengths.
 export function secretsMatch(given: string, expected: string): boolean {
