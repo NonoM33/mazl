@@ -235,7 +235,7 @@ void main() {
           'EmailsOrTextMessages', // messages du chat
           'SensitiveInfo', // pratique religieuse, gabarit du visage
           'UserID', // identifiant de membre
-          'DeviceID', // identifiant OneSignal de l'appareil
+          'DeviceID', // jeton APNs de l'appareil
           'PurchaseHistory', // abonnement mazl+, Boosts
           'CrashData', // Sentry, quand le DSN est fourni
           'PerformanceData', // déclaré aussi par le manifeste de Sentry

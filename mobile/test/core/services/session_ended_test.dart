@@ -18,7 +18,7 @@ import 'package:mazl/core/web_sessions/web_sessions_api.dart';
 
 /// V1-CONTRAT §5: a 401, or a 403 `account_disabled`, on an authenticated
 /// request signs the member out (same path as the settings' « Se
-/// déconnecter »: OneSignal logout, stored session erased) — once, however
+/// déconnecter »: push unregistration, stored session erased) — once, however
 /// many requests fail at the same time.
 
 class _FakePush implements PushNotificationService {

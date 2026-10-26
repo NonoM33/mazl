@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// `main.dart` ne se lance pas dans un test (StoreKit, OneSignal, moteur
+/// `main.dart` ne se lance pas dans un test (StoreKit, push, moteur
 /// natif) : ce garde-fou lit sa source et refuse qu'on retire l'un des filets
 /// de sécurité du démarrage, ou qu'on les place dans le mauvais ordre.
 void main() {

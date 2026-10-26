@@ -284,6 +284,22 @@ class ApiService implements CoupleApi {
     return _watched((client) => client.delete(url, headers: _headers));
   }
 
+  /// Authenticated PUT, the raw response (the caller reads the status).
+  Future<http.Response> putRaw(String endpoint, Map<String, dynamic> body) =>
+      _put(endpoint, body);
+
+  /// Authenticated DELETE carrying a JSON body, the raw response.
+  Future<http.Response> deleteWithBody(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
+    debugPrint('API DELETE: $url');
+    return _watched(
+      (client) => client.delete(url, headers: _headers, body: jsonEncode(body)),
+    );
+  }
+
   /// Public POST request (returns parsed JSON)
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     final response = await _post(endpoint, body);

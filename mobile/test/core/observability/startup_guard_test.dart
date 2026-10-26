@@ -55,7 +55,7 @@ void main() {
   });
 
   test('journalise et signale l\'échec avec le nom de l\'étape', () async {
-    final failure = StateError('OneSignal indisponible');
+    final failure = StateError('push indisponible');
 
     await run([StartupStep('push', () async => throw failure)]);
 

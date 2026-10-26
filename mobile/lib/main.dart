@@ -56,7 +56,7 @@ Future<void> _start() async {
     ),
   );
 
-  // Chaque étape est protégée : si l'une échoue (réseau, StoreKit, OneSignal),
+  // Chaque étape est protégée : si l'une échoue (réseau, StoreKit, push),
   // l'app s'ouvre quand même au lieu de rester sur un écran blanc.
   AppLanguage? savedLanguage;
   await runStartupSteps(
@@ -79,13 +79,15 @@ Future<void> _start() async {
       // foldable iPhone turn sideways (tent pose).
       StartupStep(
         'orientation',
-        () => SystemChrome.setPreferredOrientations(orientationsFor(FoldState.unknown)),
+        () => SystemChrome.setPreferredOrientations(
+          orientationsFor(FoldState.unknown),
+        ),
       ),
       // Écoute les achats natifs dès le lancement : StoreKit rejoue ici les
       // transactions non terminées de la session précédente.
       StartupStep('achats', () => SubscriptionService().initialize()),
       StartupStep('auth', () => AuthService().initialize()),
-      // Push Notifications (OneSignal)
+      // Notifications push (APNs)
       StartupStep('push', () => PushNotificationService().initialize()),
     ],
     journal: journal,

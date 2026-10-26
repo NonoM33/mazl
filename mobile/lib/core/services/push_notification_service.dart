@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../router/root_navigator.dart';
 import 'auth_service.dart';
+import 'push_device_server.dart';
 import 'push_gateway.dart';
 import 'push_navigator.dart';
 
@@ -14,7 +15,7 @@ class PushNotificationService {
 
   PushNotificationService._internal()
     : this.withGateway(
-        OneSignalPushGateway(),
+        ApnsPushGateway(server: ApiPushDeviceServer()),
         PushNavigator(
           isReady: () => _router.isReady,
           open: (path) => _router.open(path),
@@ -39,15 +40,15 @@ class PushNotificationService {
   /// is even signed in: [loginUser] asks it.
   Future<void> initialize() async {
     if (_initialized) return;
-    _gateway.start(onClick: _navigator.handle);
     _initialized = true;
+    await _gateway.start(onClick: _navigator.handle);
   }
 
-  /// Login user to OneSignal (call after user authentication), then ask for
-  /// the notifications permission once. The system dialog is not waited for:
-  /// signing in must not hang on the member's answer.
+  /// Declares this phone to the server (call after user authentication), then
+  /// asks for the notifications permission once. The system dialog is not
+  /// waited for: signing in must not hang on the member's answer.
   Future<void> loginUser(int userId) async {
-    await _gateway.login('user_$userId');
+    await _gateway.login(userId);
     if (_permissionAsked) return;
     _permissionAsked = true;
     unawaited(_askPermission());
@@ -61,12 +62,7 @@ class PushNotificationService {
     }
   }
 
-  /// Logout user from OneSignal (call on user logout)
+  /// Removes this phone from the server (call on user logout, while the
+  /// session token is still valid).
   Future<void> logoutUser() => _gateway.logout();
-
-  /// Set user tags for segmentation
-  Future<void> setUserTags(Map<String, String> tags) => _gateway.addTags(tags);
-
-  /// Remove user tags
-  Future<void> removeUserTags(List<String> keys) => _gateway.removeTags(keys);
 }

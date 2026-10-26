@@ -18,7 +18,7 @@ final _sharedContainer = ProviderContainer();
 // réglages ne montrent que ce que l'app enregistre ou applique réellement.
 // Vérifié dans le code : aucun interrupteur de notification (matchs, messages,
 // Super Likes, fêtes) n'était enregistré, ni côté serveur (aucune route, aucune
-// table de préférences) ni côté OneSignal (aucune étiquette, et le serveur n'en
+// table de préférences) ni côté push (aucune étiquette, et le serveur n'en
 // lit aucune) ; aucune alerte de fête n'est envoyée par le serveur.
 void main() {
   late CoupleService couple;
