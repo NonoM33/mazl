@@ -3,7 +3,7 @@ import { createPushNotifier } from "../../src/features/push/application/push-not
 import type { PushAudience, PushDirectory, PushMessage, PushResult, PushTransport } from "../../src/features/push/application/ports";
 
 // The match and message pushes, from the contract of the app (V1-CONTRAT
-// section 1). A fake transport records what would reach OneSignal: nothing here
+// section 1). A fake transport records what would reach gorush: nothing here
 // touches the network or a database.
 
 class FakeTransport implements PushTransport {
@@ -133,7 +133,7 @@ describe("a message arrives", () => {
   });
 });
 
-describe("without OneSignal, or when it fails", () => {
+describe("without gorush, or when it fails", () => {
   test("a transport that is not configured is neither called nor is the database asked", async () => {
     const { transport, directory, notifier } = setup();
     transport.enabled = false;

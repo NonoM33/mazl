@@ -83,7 +83,10 @@ export interface ExportSections {
   readonly verificationAttempts: readonly JsonRecord[];
   readonly waitlist: JsonRecord | null;
   readonly documents: readonly JsonRecord[];
+  readonly pushDevices: readonly JsonRecord[];
 }
+
+const PUSH_DEVICE_KEYS = ["environment", "created_at", "last_seen_at"] as const;
 
 const pickAll = (rows: readonly JsonRecord[], keys: readonly string[]) => rows.map((row) => pick(row, keys));
 
@@ -118,6 +121,8 @@ export function buildExportDocument(sections: ExportSections, generatedAt: Date)
     discover_filters: pick(sections.discoverFilters, DISCOVER_FILTER_KEYS),
     web_sessions: sections.webSessions.map((row) => pick(row, WEB_SESSION_KEYS)),
     withdrawal_waivers: sections.withdrawalWaivers,
+    // The phones that receive pushes, not their APNs tokens.
+    push_devices: pickAll(sections.pushDevices, PUSH_DEVICE_KEYS),
     moderation: {
       bans: pickAll(sections.bans, BAN_KEYS),
       sanctions: pickAll(sections.sanctions, SANCTION_KEYS),

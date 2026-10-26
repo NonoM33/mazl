@@ -2,20 +2,22 @@ import type { Hono } from "hono";
 import type { Sql } from "postgres";
 import { assertAdmin } from "../admin/admin.auth";
 import { getPublishedEventById } from "../../db";
-import { isPushConfigured } from "../../onesignal";
-import type { AppVariables } from "../../shared/http/middleware";
+import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { hasOpenConnection, onNewMatch } from "../../shared/realtime/connections";
 import type { MessageNotifier } from "../chat/application/ports";
 import type { LikeListener } from "../matching/swipe.routes";
 import { createPushNotifier, type PushNotifier } from "./application/push-notifier";
 import { PgBoostEndings } from "./infra/pg-boost-endings";
+import { ensurePushSchema } from "./infra/pg-push-devices";
 import { PgPushDirectory } from "./infra/pg-push-directory";
-import { oneSignalTransport } from "./infra/onesignal-transport";
+import { memberPushDevices, memberPushTransport } from "./member-push";
 import { registerPushAdminRoutes } from "./presentation/push-admin.routes";
+import { registerPushDevicesRoutes } from "./presentation/push-devices.routes";
 
 // Composition root of the push notifications (V1-CONTRAT section 1): matches,
-// messages, likes, the end of a Boost, events announced by the administrators.
-// Nothing is sent, and no query is made, while ONESIGNAL_REST_API_KEY is absent.
+// messages, likes, the end of a Boost, events announced by the administrators,
+// sent through gorush to the APNs tokens the app declares (/api/push/devices).
+// Nothing is sent, and no query is made, while gorush is not configured.
 export interface PushModule {
   readonly notifier: PushNotifier;
   // For the chat: told about each stored message, answers at once.
@@ -26,7 +28,9 @@ export interface PushModule {
   followMatches(): void;
   // Looks for ended Boosts every `everyMs` (BOOST_END_SWEEP_MS, a minute by default).
   followBoostEndings(everyMs?: number): void;
-  registerAdminRoutes(app: Hono<{ Variables: AppVariables }>): void;
+  ensureSchema(): Promise<void>;
+  // PUT/DELETE /api/push/devices (members) and /api/admin/push/* (administrators).
+  registerRoutes(app: Hono<{ Variables: AppVariables }>): void;
 }
 
 const BOOST_END_SWEEP_MS = 60_000;
@@ -38,7 +42,7 @@ function sweepInterval(env: Readonly<Record<string, string | undefined>>): numbe
 
 export function createPushModule(options: { sql: Sql }): PushModule {
   const notifier = createPushNotifier({
-    transport: oneSignalTransport,
+    transport: memberPushTransport,
     directory: new PgPushDirectory(options.sql),
     connections: { isConnected: hasOpenConnection },
     log: { error: (line) => console.error(line) },
@@ -46,7 +50,7 @@ export function createPushModule(options: { sql: Sql }): PushModule {
   const boostEndings = new PgBoostEndings(options.sql);
 
   async function sweepBoostEndings(): Promise<void> {
-    if (!oneSignalTransport.isEnabled()) return;
+    if (!memberPushTransport.isEnabled()) return;
     for (const userId of await boostEndings.claimEnded()) await notifier.boostEnded(userId);
   }
 
@@ -61,15 +65,18 @@ export function createPushModule(options: { sql: Sql }): PushModule {
       }, everyMs);
       timer.unref();
     },
-    registerAdminRoutes: (app) =>
+    ensureSchema: () => ensurePushSchema(options.sql),
+    registerRoutes: (app) => {
+      registerPushDevicesRoutes(app, { authenticate: requireAuth, devices: memberPushDevices });
       registerPushAdminRoutes(app, {
         isAdmin: assertAdmin,
-        isConfigured: () => isPushConfigured(),
+        isConfigured: () => memberPushTransport.isEnabled(),
         loadEvent: async (eventId) => {
           const event = await getPublishedEventById(eventId);
           return event === null || event === undefined ? null : { id: Number(event.id), title: String(event.title ?? "") };
         },
         notifier,
-      }),
+      });
+    },
   };
 }

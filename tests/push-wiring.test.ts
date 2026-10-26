@@ -3,25 +3,28 @@ import type { Subprocess } from "bun";
 import { join } from "node:path";
 import { db, json, makeUser, type TestUser } from "./media-helpers";
 
-// The push notifications as OneSignal receives them (V1-CONTRAT section 1),
-// through a second API server started with a key and pointed at a fake OneSignal
-// of this file: the real hooks (new match, stored message, HTTP and WebSocket)
-// with nothing leaving the machine.
+// The push notifications as gorush receives them (V1-CONTRAT section 1),
+// through a second API server pointed at a fake gorush of this file: the app's
+// device declaration (PUT /api/push/devices) and the real hooks (new match,
+// stored message, HTTP and WebSocket) with nothing leaving the machine.
 
+// One gorush notification, as the server posts it: one per device.
 interface Received {
-  readonly authorization: string | null;
+  readonly secret: string | null;
   readonly body: {
-    include_aliases?: { external_id?: string[] };
+    tokens?: string[];
+    topic?: string;
+    production?: boolean;
     data?: Record<string, unknown>;
     collapse_id?: string;
-    headings?: { fr?: string };
-    contents?: { fr?: string };
+    title?: string;
+    message?: string;
   };
 }
 
 const received: Received[] = [];
 let providerDelayMs = 0;
-let oneSignal: ReturnType<typeof Bun.serve>;
+let gorush: ReturnType<typeof Bun.serve>;
 let api: Subprocess;
 let API = "";
 
@@ -34,13 +37,15 @@ async function freePort(): Promise<number> {
 }
 
 beforeAll(async () => {
-  oneSignal = Bun.serve({
+  gorush = Bun.serve({
     port: 0,
     hostname: "127.0.0.1",
     async fetch(request) {
       await Bun.sleep(providerDelayMs);
-      received.push({ authorization: request.headers.get("authorization"), body: (await request.json()) as Received["body"] });
-      return Response.json({ id: `fake-${received.length}`, recipients: 1 });
+      const secret = request.headers.get("x-neo-push-secret");
+      const { notifications } = (await request.json()) as { notifications: Received["body"][] };
+      for (const body of notifications) received.push({ secret, body });
+      return Response.json({ success: "ok", counts: notifications.length, logs: [] });
     },
   });
   const port = await freePort();
@@ -49,8 +54,8 @@ beforeAll(async () => {
     env: {
       ...(process.env as Record<string, string>),
       PORT: String(port),
-      ONESIGNAL_REST_API_KEY: "fake-onesignal-key",
-      ONESIGNAL_API_BASE: `http://127.0.0.1:${oneSignal.port}/api/v1`,
+      GORUSH_URL: `http://127.0.0.1:${gorush.port}`,
+      GORUSH_SHARED_SECRET: "fake-gorush-secret",
       BOOST_END_SWEEP_MS: "300",
     },
     stdout: "ignore",
@@ -70,16 +75,26 @@ beforeAll(async () => {
 afterAll(async () => {
   api?.kill();
   await api?.exited;
-  await oneSignal?.stop(true);
+  await gorush?.stop(true);
 });
 
 const EMOJI = /\p{Extended_Pictographic}/u;
 
+// The APNs token of a test member's phone: 64 hexadecimal characters from their id.
+const tokenOf = (user: TestUser): string => user.id.toString(16).padStart(64, "0");
+
+// A member with a display name and a phone declared as the app does.
 async function named(label: string, displayName: string): Promise<TestUser> {
   const user = await makeUser(label);
   await db`
     INSERT INTO profiles (user_id, display_name) VALUES (${user.id}, ${displayName})
     ON CONFLICT (user_id) DO UPDATE SET display_name = EXCLUDED.display_name`;
+  const declared = await fetch(`${API}/api/push/devices`, {
+    method: "PUT",
+    headers: json(user.token),
+    body: JSON.stringify({ token: tokenOf(user), environment: "production" }),
+  });
+  if (declared.status !== 200) throw new Error(`device declaration failed: ${declared.status}`);
   return user;
 }
 
@@ -106,7 +121,7 @@ async function matched(label: string): Promise<{ a: TestUser; b: TestUser; conve
 const message = (user: TestUser, conversationId: number, content: string) =>
   fetch(`${API}/api/conversations/${conversationId}/messages`, { method: "POST", headers: json(user.token), body: JSON.stringify({ content }) });
 
-const pushesTo = (user: TestUser): Received[] => received.filter((push) => push.body.include_aliases?.external_id?.includes(`user_${user.id}`));
+const pushesTo = (user: TestUser): Received[] => received.filter((push) => push.body.tokens?.includes(tokenOf(user)));
 
 // Pushes leave in the background: wait for the expected count, then a little
 // longer so that an unexpected extra one would show.
@@ -142,12 +157,14 @@ describe("new match", () => {
     const [toA, toB] = [ofMatch(await waitForPushes(a, 1)), ofMatch(await waitForPushes(b, 2))];
     expect(toA).toHaveLength(1);
     expect(toB).toHaveLength(1);
-    expect(toA[0]?.authorization).toBe("Key fake-onesignal-key");
+    expect(toA[0]?.secret).toBe("fake-gorush-secret");
+    expect(toA[0]?.body.topic).toBe("com.mazl.app");
+    expect(toA[0]?.body.production).toBe(true);
     expect(toA[0]?.body.data).toEqual({ type: "new_match", match_user_id: b.id, conversation_id: conversationId });
     expect(toB[0]?.body.data).toEqual({ type: "new_match", match_user_id: a.id, conversation_id: conversationId });
-    expect(toA[0]?.body.contents?.fr).toContain("Daniel");
-    expect(toA[0]?.body.contents?.fr).not.toContain("Lévy");
-    expect(`${toA[0]?.body.headings?.fr} ${toA[0]?.body.contents?.fr}`).not.toMatch(EMOJI);
+    expect(toA[0]?.body.message).toContain("Daniel");
+    expect(toA[0]?.body.message).not.toContain("Lévy");
+    expect(`${toA[0]?.body.title} ${toA[0]?.body.message}`).not.toMatch(EMOJI);
   }, 20_000);
 
   test("a match with a deactivated member pushes nobody", async () => {
@@ -172,7 +189,7 @@ describe("new message", () => {
     const push = pushes[pushes.length - 1];
     expect(push?.body.data).toEqual({ type: "new_message", conversation_id: conversationId });
     expect(push?.body.collapse_id).toBe(`conv-${conversationId}`);
-    expect(push?.body.contents?.fr).toContain("Sarah");
+    expect(push?.body.message).toContain("Sarah");
     expect(JSON.stringify(push?.body)).not.toContain("Mamie");
     expect(JSON.stringify(push?.body)).not.toContain("Cohen");
     expect(pushesTo(a).filter((p) => p.body.data?.type === "new_message")).toHaveLength(0);
@@ -253,7 +270,7 @@ describe("the end of a Boost", () => {
     const pushes = await waitForPushes(member, 1);
     await Bun.sleep(700);
     expect(pushesTo(member).map((push) => push.body.data)).toEqual([{ type: "boost_ended" }]);
-    expect(pushes[0]?.body.headings?.fr).toBe("Votre Boost est terminé");
+    expect(pushes[0]?.body.title).toBe("Votre Boost est terminé");
     expect(pushesTo(old)).toHaveLength(0);
   }, 20_000);
 
@@ -293,7 +310,7 @@ describe("the administrators' pushes", () => {
     for (const member of [a, b]) {
       const push = (await waitForPushes(member, 1)).find((p) => p.body.data?.type === "event_available");
       expect(push?.body.data).toEqual({ type: "event_available", event_id: event?.id });
-      expect(push?.body.contents?.fr).toContain("Shabbat à Paris");
+      expect(push?.body.message).toContain("Shabbat à Paris");
     }
     expect(pushesTo(off)).toHaveLength(0);
   }, 20_000);
@@ -314,5 +331,21 @@ describe("the administrators' pushes", () => {
     expect(await res.json()).toEqual({ success: true, sent: true });
     expect((await waitForPushes(a, 1)).map((push) => push.body.data)).toEqual([{ type: "admin_test" }]);
     expect(await (await fetch(`${API}/api/admin/push/status`, { headers: admin() })).json()).toEqual({ success: true, configured: true });
+  }, 20_000);
+});
+
+describe("the devices the app declares", () => {
+  test("a withdrawn device gets nothing more; a token declared by another member moves to them", async () => {
+    const a = await named("deva", "Sarah Cohen");
+    const b = await named("devb", "Daniel Lévy");
+    const withdrawn = await fetch(`${API}/api/push/devices`, { method: "DELETE", headers: json(a.token), body: JSON.stringify({ token: tokenOf(a) }) });
+    expect(withdrawn.status).toBe(200);
+    await swipe(b, a.id);
+    expect(await waitForPushes(a, 1)).toHaveLength(0);
+
+    // b's phone is now used by a: only a is pushed on it.
+    await fetch(`${API}/api/push/devices`, { method: "PUT", headers: json(a.token), body: JSON.stringify({ token: tokenOf(b), environment: "sandbox" }) });
+    const owners = await db<{ user_id: number; environment: string }[]>`SELECT user_id, environment FROM push_devices WHERE token = ${tokenOf(b)}`;
+    expect([...owners]).toEqual([{ user_id: a.id, environment: "sandbox" }]);
   }, 20_000);
 });

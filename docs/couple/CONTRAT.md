@@ -49,8 +49,8 @@ par l'acceptation (§2) et dans l'événement `couple:accepted` (§3).
 | `couple:rejected` | émetteur | `{ request_id }` |
 | `couple:ended` | l'autre membre | `{ couple_id }` |
 
-Notification push (OneSignal, si configuré) à l'arrivée d'une demande et à son
-acceptation, adressée à `user_<id>` (l'identifiant de `OneSignal.login`), sans
+Notification push (APNs via gorush, si configuré) à l'arrivée d'une demande et à
+son acceptation, adressée aux appareils déclarés du membre (V1-CONTRAT §1), sans
 nom dans le titre (« Nouvelle demande de couple »), le prénom seulement dans le
 corps. Le champ `data` ne porte que `type` : `couple_request` ou
 `couple_accepted` (V1-CONTRAT §1 ; `couple_question` pour la question du jour).

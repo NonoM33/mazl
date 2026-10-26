@@ -1,5 +1,6 @@
 import { sendToUser } from "../../../shared/realtime/connections";
-import { isPushConfigured, NotificationTypes, sendPushToUsers } from "../../../onesignal";
+import type { PushTransport } from "../../push/application/ports";
+import { memberPushTransport } from "../../push/member-push";
 import type { CoupleRequestView } from "../../../db";
 import type { CoupleView } from "../infra/couple-queries";
 
@@ -28,33 +29,45 @@ function firstName(displayName: string | null): string {
   return (displayName ?? "").trim().split(/\s+/)[0] ?? "";
 }
 
-// No-op when OneSignal is not configured. The title never carries a name.
-// The member is addressed as user_<id> (sendPushToUsers), like the app logs in.
-function pushToUser(userId: number, title: string, message: string, type: string): void {
-  if (!isPushConfigured()) return;
-  sendPushToUsers([userId], title, message, { type })
-    .then((result) => {
-      if (!result.success) console.error(`Couple push (${type}) not sent: ${result.error ?? "unknown"}`);
-    })
-    .catch(() => console.error(`Couple push (${type}) failed`));
+export interface CouplePushes {
+  pushCoupleRequest(request: CoupleRequestView): void;
+  pushCoupleAccepted(requesterId: number, accepterDisplayName: string): void;
 }
 
-export function pushCoupleRequest(request: CoupleRequestView): void {
-  const name = firstName(request.requester_name);
-  pushToUser(
-    request.target_id,
-    "Nouvelle demande de couple",
-    name ? `${name} souhaite activer le mode couple avec vous` : "Quelqu'un souhaite activer le mode couple avec vous",
-    NotificationTypes.COUPLE_REQUEST,
-  );
+// No-op when pushes are not configured. The title never carries a name.
+export function createCouplePushes(transport: PushTransport): CouplePushes {
+  function pushToUser(userId: number, title: string, message: string, type: string): void {
+    if (!transport.isEnabled()) return;
+    transport
+      .send({ recipientId: userId, title, message, data: { type } })
+      .then((result) => {
+        if (!result.ok) console.error(`Couple push (${type}) not sent: ${result.reason}`);
+      })
+      .catch(() => console.error(`Couple push (${type}) failed`));
+  }
+
+  return {
+    pushCoupleRequest(request) {
+      const name = firstName(request.requester_name);
+      pushToUser(
+        request.target_id,
+        "Nouvelle demande de couple",
+        name ? `${name} souhaite activer le mode couple avec vous` : "Quelqu'un souhaite activer le mode couple avec vous",
+        "couple_request",
+      );
+    },
+    pushCoupleAccepted(requesterId, accepterDisplayName) {
+      const name = firstName(accepterDisplayName);
+      pushToUser(
+        requesterId,
+        "Demande de couple acceptée",
+        name ? `${name} a accepté votre demande de couple` : "Votre demande de couple a été acceptée",
+        "couple_accepted",
+      );
+    },
+  };
 }
 
-export function pushCoupleAccepted(requesterId: number, accepterDisplayName: string): void {
-  const name = firstName(accepterDisplayName);
-  pushToUser(
-    requesterId,
-    "Demande de couple acceptée",
-    name ? `${name} a accepté votre demande de couple` : "Votre demande de couple a été acceptée",
-    NotificationTypes.COUPLE_ACCEPTED,
-  );
-}
+const couplePushes = createCouplePushes(memberPushTransport);
+export const pushCoupleRequest = couplePushes.pushCoupleRequest;
+export const pushCoupleAccepted = couplePushes.pushCoupleAccepted;

@@ -65,7 +65,7 @@ Statut de l'abonnement mazl+ (formule, dates de début et d'expiration, statut),
 
 ### 2.10 Notifications, e-mails et liste d'attente
 
-- **Notifications push** : un identifiant technique d'appareil et un identifiant de membre (de la forme « user_… ») sont transmis à OneSignal pour vous adresser les notifications (nouveau match, message, demande de couple, etc.). Vous pouvez les désactiver dans les réglages de votre téléphone.
+- **Notifications push** : l'identifiant technique de votre appareil (jeton de notification fourni par Apple) est conservé sur nos serveurs et transmis au service de notifications d'Apple (APNs), par notre propre serveur d'envoi, pour vous adresser les notifications (nouveau match, message, like, demande de couple, etc.). Vous pouvez les désactiver dans les réglages de votre téléphone.
 - **E-mails** : e-mails de service (vérification, documents à renvoyer, profil vérifié) et, le cas échéant, e-mails d'information ou de campagne, envoyés via Resend. Chaque message d'information comporte un lien de désinscription ; la liste des adresses désinscrites est conservée pour respecter votre choix.
 - **Liste d'attente (site)** : adresse e-mail, système d'exploitation déclaré, état de la vérification et dates d'étapes.
 
@@ -145,9 +145,8 @@ Vos données sont accessibles :
 |---|---|---|---|
 | Hetzner Online GmbH (via la plateforme Coolify) | Hébergement des serveurs, de la base de données et des fichiers, y compris l'outil de mesure d'audience OpenPanel installé par MAZL | Toutes les données du Service | Allemagne / UE. [À COMPLÉTER : confirmer le centre de données] |
 | Resend | Envoi des e-mails de service et de campagnes | Adresse e-mail, nom, contenu du message | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
-| OneSignal | Notifications push | Identifiant d'appareil, identifiant de membre, contenu de la notification | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme] |
 | Google (Sign-In) | Authentification par compte Google ; polices Google Fonts du site | Identifiant, e-mail, nom, photo du compte ; adresse IP lors du chargement des polices | États-Unis / monde : [À COMPLÉTER : mécanisme de transfert] |
-| Apple (Sign in with Apple, App Store, notifications du serveur App Store) | Authentification ; vente et facturation ; vérification des transactions | Identifiant Apple, adresse (éventuellement masquée), transactions | Apple, selon sa politique et ses mécanismes de transfert |
+| Apple (Sign in with Apple, App Store, notifications du serveur App Store, service de notifications push APNs) | Authentification ; vente et facturation ; vérification des transactions ; acheminement des notifications push | Identifiant Apple, adresse (éventuellement masquée), transactions ; jeton de notification de l'appareil et contenu de la notification | Apple, selon sa politique et ses mécanismes de transfert |
 | Stripe Payments Europe, Ltd (groupe Stripe) | Encaissement des paiements par carte sur le site, gestion des abonnements web, émission des factures, portail de gestion | Identifiant client Stripe, adresse e-mail, historique des paiements et des factures, identifiant de l'abonnement ; le numéro de carte est saisi chez Stripe et n'est jamais transmis à MAZL. Stripe agit pour MAZL comme sous-traitant et, pour ses propres obligations (lutte contre la fraude et le blanchiment, réglementation financière), comme responsable de traitement | Irlande / UE, avec des transferts possibles vers les États-Unis : encadrés par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
 | Institut national de l'information géographique et forestière (IGN) — Géoplateforme (data.geopf.fr) | Recherche de commune à la saisie de la ville | Texte saisi pour la recherche de commune, adresse IP | France |
 | Sites web que vous partagez dans un message | Aperçu de lien | Notre serveur consulte l'adresse partagée (le site visité voit l'adresse IP du serveur, pas la vôtre) | Variable |
@@ -158,7 +157,7 @@ Nous concluons avec nos sous-traitants les accords exigés par l'article 28 du R
 
 ## 7. Transferts hors de l'Union européenne
 
-Certains prestataires (Resend, OneSignal, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
+Certains prestataires (Resend, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
 
 ## 8. Sécurité
 

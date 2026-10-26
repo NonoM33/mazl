@@ -74,7 +74,6 @@ import {
 } from "./db";
 import { isValidUnsubscribeToken, sendVerificationRequestEmail } from "./email";
 import { generateJWT, verifyJWT } from "./auth";
-import { sendPushToUsers, sendPushToAll } from "./onesignal";
 import { requireAuth, type AppVariables } from "./shared/http/middleware";
 import { isAccountActive } from "./shared/http/account-state";
 import { createIpRateLimiter, createKeyedLimiter } from "./shared/http/rate-limit";
@@ -92,7 +91,7 @@ import { ensureAppleSignInSchema, PgAppleTokenStore } from "./features/auth/appl
 import { withAppleRevocation } from "./features/account/apple-revocation";
 import { registerEventsRoutes } from "./features/events/events.routes";
 import { createEventAlertsModule } from "./features/events/event-alerts.module";
-import { oneSignalTransport } from "./features/push/infra/onesignal-transport";
+import { memberPushTransport } from "./features/push/member-push";
 import { createTransactionVerifier, registerSubscriptions } from "./features/subscriptions/subscriptions.module";
 import { createCreditsService, registerCredits } from "./features/credits/credits.module";
 import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } from "./features/web-session";
@@ -317,12 +316,11 @@ app.get("/api/count", async (c) => {
 // Member document flow (GET /api/verify, POST /api/verify/upload, POST
 // /api/verify/submit): src/features/documents. Files are encrypted at rest and
 // purged after the admin decision.
-// Push notifications (OneSignal): new matches, messages that reach a member with
+// Push notifications (gorush, APNs): new matches, messages that reach a member with
 // no open socket, likes, the end of a Boost, events announced by the administrators.
 const push = createPushModule({ sql });
 push.followMatches();
-push.followBoostEndings();
-push.registerAdminRoutes(app);
+push.registerRoutes(app);
 const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
@@ -449,7 +447,7 @@ registerChat(app, chat);
 // POST /api/events/:id/rsvp, DELETE /api/events/:id/rsvp), « Me prévenir » on a
 // coming soon event (POST/DELETE /api/events/:id/notify) and its opening
 // (POST /api/admin/events/:id/open), which pushes the members who asked.
-registerEventsRoutes(app, createEventAlertsModule({ sql, transport: oneSignalTransport }));
+registerEventsRoutes(app, createEventAlertsModule({ sql, transport: memberPushTransport }));
 
 
 
@@ -803,6 +801,8 @@ await ensureAppleSignInSchema(sql);
 await ensureBillingWebSchema(sql);
 await ensurePrivacySchema(sql);
 await ensureLikeAllowanceSchema(sql);
+await push.ensureSchema();
+push.followBoostEndings();
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
 if (fuzzedAtBoot > 0) console.log(`Fuzzed ${fuzzedAtBoot} stored positions`);

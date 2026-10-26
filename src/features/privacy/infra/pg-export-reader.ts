@@ -30,12 +30,14 @@ export class PgExportReader implements ExportReader {
       this.optionalTable("face_verification_sessions", userId), this.optionalTable("identity_verifications", userId),
       this.optionalTable("face_references", userId), this.optionalTable("verification_attempts", userId),
     ]);
-    const [moderationActions, application] = await Promise.all([this.moderationActions(userId), this.waitlistOf(account)]);
+    const [moderationActions, application, pushDevices] = await Promise.all([
+      this.moderationActions(userId), this.waitlistOf(account), this.optionalTable("push_devices", userId),
+    ]);
     return {
       account, profile, photos, prompts, swipesGiven, matches, messagesSent, blocks, reportsMade,
       subscription, credits, couple, eventRsvps, eventAlerts, consents, discoverFilters: discoverFilters[0] ?? null, consentHistory, webSessions, withdrawalWaivers,
       bans, sanctions, moderationActions, faceSessions, identity, faceReference, verificationAttempts,
-      waitlist: application.waitlist, documents: application.documents,
+      waitlist: application.waitlist, documents: application.documents, pushDevices,
     };
   }
 

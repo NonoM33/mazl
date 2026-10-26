@@ -6,7 +6,7 @@ import { THROWAWAY_CREDENTIAL } from "./throwaway-credential";
 // campaigns, pagination). Needs a running server (TEST_API_URL) started with the
 // non-production dev endpoints, ADMIN_EMAIL / ADMIN_PASSWORD matching the server,
 // and TEST_DATABASE_URL pointing at the server's database. No e-mail or push is
-// ever sent: the server must run WITHOUT RESEND_API_KEY / ONESIGNAL_REST_API_KEY.
+// ever sent: the server must run WITHOUT RESEND_API_KEY / GORUSH_URL.
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@example.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "dev-admin-pass";
 
@@ -18,7 +18,7 @@ const admin = (): Record<string, string> => ({
 });
 
 beforeAll(async () => {
-  if (process.env.RESEND_API_KEY || process.env.ONESIGNAL_REST_API_KEY) {
+  if (process.env.RESEND_API_KEY || process.env.GORUSH_URL) {
     throw new Error("refusing to run: real e-mail/push keys are set, these tests would contact members");
   }
   const res = await fetch(`${BASE_URL}/api/admin/login`, {

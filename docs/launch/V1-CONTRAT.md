@@ -7,14 +7,18 @@ mode Shabbat sans promesse que l'app ne tient pas.
 Ce fichier fixe ce que plusieurs lots partagent. Un lot qui a besoin d'en changer
 une ligne s'arrête et le signale : il ne la change pas seul.
 
-## 1. Notifications push (OneSignal)
+## 1. Notifications push (APNs, via gorush)
 
-Cible : `include_aliases: { external_id: ["user_<id>"] }` avec
-`target_channel: "push"` (API actuelle `https://api.onesignal.com/notifications`,
-en-tête `Authorization: Key <clé>`), le même identifiant que
-`OneSignal.login('user_<id>')` côté app. Aucun autre format.
+L'app déclare son jeton APNs : `PUT /api/push/devices`
+`{"token": "<hex minuscule, 64 à 200>", "environment": "production" | "sandbox"}`
+à chaque lancement connecté et à chaque nouveau jeton ; `DELETE /api/push/devices`
+`{"token"}` à la déconnexion. Le serveur envoie par gorush (`neo-gorush-prod`, clé
+`.p8` de l'équipe 66GH4N82J9, `topic: com.mazl.app`) une notification par appareil
+du membre ; un jeton refusé définitivement par APNs (`Unregistered`,
+`BadDeviceToken`, `DeviceTokenNotForTopic`) est oublié.
 
-Champ `data` de chaque notification, et rien d'autre :
+Champ `data` de chaque notification (clés à la racine du `userInfo` APNs, à côté
+de `aps`), et rien d'autre :
 
 | type | champs | envoyée quand | l'app ouvre |
 |---|---|---|---|
@@ -31,8 +35,8 @@ Champ `data` de chaque notification, et rien d'autre :
 
 Le titre et le texte ne contiennent jamais le contenu du message (seulement le
 prénom affiché de l'expéditeur), vouvoiement, sans emoji.
-Les messages d'une même conversation sont regroupés côté OneSignal
-(`collapse_id: "conv-<conversation_id>"`). Un membre bloqué, banni ou inactif ne
+Les messages d'une même conversation se remplacent sur l'appareil
+(`collapse_id: "conv-<conversation_id>"`, en-tête `apns-collapse-id`). Un membre bloqué, banni ou inactif ne
 déclenche aucune notification.
 
 ## 2. Filtres avancés de Découvrir

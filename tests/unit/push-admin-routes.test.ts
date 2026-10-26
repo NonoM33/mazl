@@ -7,7 +7,7 @@ import { registerPushAdminRoutes, type PushAdminDeps } from "../../src/features/
 
 // The administrators' push routes: tell a list of members that an event is
 // open, send a test push to one member, and say whether pushes can leave at
-// all. Only an administrator gets past the guard; nothing here reaches OneSignal.
+// all. Only an administrator gets past the guard; nothing here reaches gorush.
 
 const events: Record<number, { id: number; title: string }> = { 12: { id: 12, title: "Shabbat à Paris" } };
 let told: EventAvailable[] = [];

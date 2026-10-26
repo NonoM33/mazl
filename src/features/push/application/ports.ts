@@ -1,5 +1,5 @@
 // Ports of the push feature. The notifier depends on these interfaces only; the
-// OneSignal, Postgres and WebSocket adapters live in ../infra and in shared/.
+// gorush, Postgres and WebSocket adapters live in ../infra and in shared/.
 
 // What the app routes on, and nothing else (V1-CONTRAT section 1).
 export type PushData = Readonly<Record<string, string | number>>;
@@ -43,4 +43,25 @@ export interface ConnectionRegistry {
 
 export interface PushLog {
   error(line: string): void;
+}
+
+// The APNs environment a device declared: a TestFlight or App Store build is
+// "production", a build installed from Xcode is "sandbox".
+export type ApnsEnvironment = "production" | "sandbox";
+
+export interface PushDevice {
+  readonly id: number;
+  readonly token: string;
+  readonly environment: ApnsEnvironment;
+}
+
+// The devices of each member, as the app declares them (PUT /api/push/devices).
+export interface PushDeviceStore {
+  // A token belongs to one member: declared by another, it moves to them.
+  register(userId: number, token: string, environment: ApnsEnvironment): Promise<void>;
+  // Only the caller's own token; nothing when it is not theirs.
+  unregister(userId: number, token: string): Promise<void>;
+  devicesOf(userId: number): Promise<PushDevice[]>;
+  // Tokens APNs refused for good.
+  forget(deviceIds: readonly number[]): Promise<void>;
 }
