@@ -53,6 +53,7 @@ Map<String, Object?> _consents({
 };
 
 void main() {
+  analyticsMain();
   test('religiousData reads the entry of GET /api/privacy/consents', () async {
     final seen = _Seen();
     final response = await _api(
@@ -187,5 +188,84 @@ void main() {
       http.ClientException('down'),
     ).decideReligiousData(granted: true, version: 'v');
     expect(client.errorKind, ApiErrorKind.network);
+  });
+}
+
+Map<String, Object?> _analyticsConsents({bool? granted, String? version}) => {
+  'success': true,
+  'consents': {
+    'religious_data': {
+      'granted': null,
+      'version': null,
+      'decided_at': null,
+      'current_version': '2026-10-24',
+      'text': 'Religieux.',
+    },
+    'analytics': {
+      'granted': granted,
+      'version': version,
+      'decided_at': null,
+      'current_version': '2026-10-26',
+      'text': 'Mesure d\'audience.',
+    },
+  },
+};
+
+void analyticsMain() {
+  test('analytics reads its own entry of GET /api/privacy/consents', () async {
+    final seen = _Seen();
+    final response = await _api(
+      seen,
+      200,
+      _analyticsConsents(granted: true, version: '2026-10-26'),
+    ).analytics();
+
+    expect([seen.method, seen.path], ['GET', '/api/privacy/consents']);
+    final consent = response.data!;
+    expect(consent.granted, isTrue);
+    expect(consent.currentVersion, '2026-10-26');
+    expect(consent.text, 'Mesure d\'audience.');
+    expect(consent.isValid, isTrue);
+  });
+
+  test('an outdated analytics version is not a valid consent', () async {
+    final response = await _api(
+      _Seen(),
+      200,
+      _analyticsConsents(granted: true, version: '2026-01-01'),
+    ).analytics();
+    expect(response.data!.isValid, isFalse);
+  });
+
+  test('a server without the analytics entry fails cleanly', () async {
+    final response = await _api(_Seen(), 200, _consents()).analytics();
+    expect(response.success, isFalse);
+    expect(response.error, 'invalid_response');
+  });
+
+  test('decideAnalytics sends granted, version and source app', () async {
+    final seen = _Seen();
+    final response = await _api(seen, 200, {
+      'success': true,
+    }).decideAnalytics(granted: false, version: '2026-10-26');
+
+    expect(response.success, isTrue);
+    expect(
+      [seen.method, seen.path],
+      ['PUT', '/api/privacy/consents/analytics'],
+    );
+    expect(jsonDecode(seen.body), {
+      'granted': false,
+      'version': '2026-10-26',
+      'source': 'app',
+    });
+  });
+
+  test('decideAnalytics reports an outdated version (409)', () async {
+    final response = await _api(_Seen(), 409, {
+      'success': false,
+      'error': 'consent_version_outdated',
+    }).decideAnalytics(granted: true, version: 'old');
+    expect(response.error, PrivacyConsentError.versionOutdated);
   });
 }

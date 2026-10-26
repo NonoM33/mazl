@@ -169,11 +169,15 @@ const _notUserFacing = <String, (String, List<String>)>{
     'en-tête HTTP',
     ['Bearer '],
   ),
+  'lib/core/analytics/analytics_transport.dart': (
+    'en-tête HTTP',
+    [r'Bearer $token'],
+  ),
   'lib/core/privacy/privacy_consent_api.dart': (
     'en-tête HTTP et message de FormatException, journal',
     [r'Bearer $token', 'unexpected response body'],
   ),
-  'lib/core/privacy/religious_data_consent.dart': (
+  'lib/core/privacy/consent_fields.dart': (
     'messages de FormatException (réponse du serveur illisible), journal',
     [r'invalid $key', r'missing $key'],
   ),

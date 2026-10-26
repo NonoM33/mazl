@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/analytics/analytics_event.dart';
+import '../../../../core/analytics/track_event.dart';
 import '../../../../core/services/store/credit_models.dart';
 import '../../../../core/services/store/credit_pack.dart';
 import '../../../../core/services/store/credits_service.dart';
@@ -59,6 +61,17 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
   String? _buyingProductId;
   String? _message;
 
+  @override
+  void initState() {
+    super.initState();
+    trackEvent(
+      context,
+      AnalyticsEvent.paywallViewed(
+        widget.kind == CreditKind.boost ? 'boostPacks' : 'superLikePacks',
+      ),
+    );
+  }
+
   void _reload() => setState(() {
     _message = null;
     _packs = _service.loadPacks(widget.kind);
@@ -70,8 +83,13 @@ class _CreditPacksSheetState extends State<CreditPacksSheet> {
       _buyingProductId = pack.product.id;
       _message = null;
     });
+    final productId = pack.details.id;
+    trackEvent(context, AnalyticsEvent.purchaseStarted(productId));
     final result = await _service.buyPack(pack);
     if (!mounted) return;
+    if (result is PurchaseCancelled) {
+      trackEvent(context, AnalyticsEvent.purchaseCancelled(productId));
+    }
     final l10n = context.l10n;
     setState(() {
       _buyingProductId = null;

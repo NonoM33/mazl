@@ -228,6 +228,18 @@ void main() {
     expectEndPage(tester, find.text('Retirer mon accord'), 'the button');
   });
 
+  testWidgets('/profile/settings/analytics: the text, then the choice', (
+    tester,
+  ) async {
+    await book(tester, '/profile/settings/analytics');
+    expectStartPage(tester, find.text("Mesure d'audience désactivée"), 'state');
+    expectEndPage(
+      tester,
+      find.text("Accepter la mesure d'audience"),
+      'the button',
+    );
+  });
+
   testWidgets('/profile/settings/shabbat: the times, then how they are set', (
     tester,
   ) async {

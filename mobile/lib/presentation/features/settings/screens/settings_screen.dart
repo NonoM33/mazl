@@ -1175,6 +1175,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => context.push(RoutePaths.religiousData),
                 ),
               ),
+              Consumer(
+                builder: (context, ref, _) => _SettingTile(
+                  icon: LucideIcons.activity,
+                  title: context.l10n.analyticsSettingsTitle,
+                  subtitle: switch (ref
+                      .watch(analyticsConsentProvider)
+                      .valueOrNull
+                      ?.data
+                      ?.isValid) {
+                    true => context.l10n.analyticsSettingsGrantedShort,
+                    false => context.l10n.analyticsSettingsDeniedShort,
+                    null => null,
+                  },
+                  onTap: () => context.push(RoutePaths.analyticsSettings),
+                ),
+              ),
               _SettingTile(
                 icon: LucideIcons.monitor,
                 title: context.l10n.webSessionsTitle,
