@@ -70,7 +70,11 @@ class ProfilePhoto extends StatelessWidget {
     final fallback = ColoredBox(
       color: tint,
       child: Center(
-        child: Icon(LucideIcons.user, size: iconSize, color: AppColors.textTertiaryLight),
+        child: Icon(
+          LucideIcons.user,
+          size: iconSize,
+          color: AppColors.textTertiaryLight,
+        ),
       ),
     );
     final hasUrl = url != null && url!.isNotEmpty;
@@ -90,7 +94,13 @@ class ProfilePhoto extends StatelessWidget {
 
 /// Puce d'information : « Massorti », « Shabbat en famille ».
 class TagPill extends StatelessWidget {
-  const TagPill(this.label, {super.key, this.icon, this.onDark = false, this.onCard = false});
+  const TagPill(
+    this.label, {
+    super.key,
+    this.icon,
+    this.onDark = false,
+    this.onCard = false,
+  });
 
   final String label;
   final IconData? icon;
@@ -103,12 +113,17 @@ class TagPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final background = onDark ? Colors.white : (onCard ? scheme.surface : scheme.surfaceContainer);
+    final background = onDark
+        ? Colors.white
+        : (onCard ? scheme.surface : scheme.surfaceContainer);
     final foreground = onDark ? AppColors.ink : scheme.onSurface;
     return Container(
       height: 30,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(15)),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -118,7 +133,11 @@ class TagPill extends StatelessWidget {
           ],
           Text(
             label,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: foreground),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: foreground,
+            ),
           ),
         ],
       ),
@@ -128,7 +147,13 @@ class TagPill extends StatelessWidget {
 
 enum RoundButtonStyle { outline, ink, accent }
 
+/// Smallest tap target Apple allows, whatever the drawn size of a control.
+const double kMinTapTarget = 44;
+
 /// Bouton rond à icône : retour, options, passer, aimer, envoyer.
+///
+/// Dessiné plus petit que 44 pt, il garde une zone tactile de 44 x 44 pt
+/// autour du cercle.
 class RoundIconButton extends StatelessWidget {
   const RoundIconButton({
     super.key,
@@ -151,32 +176,62 @@ class RoundIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (Color bg, Color fg, BorderSide side) = switch (style) {
-      RoundButtonStyle.outline => (scheme.surface, scheme.onSurface, BorderSide(color: scheme.outline)),
-      RoundButtonStyle.ink => (scheme.onSurface, scheme.surface, BorderSide.none),
-      RoundButtonStyle.accent => (scheme.primary, scheme.onPrimary, BorderSide.none),
+      RoundButtonStyle.outline => (
+        scheme.surface,
+        scheme.onSurface,
+        BorderSide(color: scheme.outline),
+      ),
+      RoundButtonStyle.ink => (
+        scheme.onSurface,
+        scheme.surface,
+        BorderSide.none,
+      ),
+      RoundButtonStyle.accent => (
+        scheme.primary,
+        scheme.onPrimary,
+        BorderSide.none,
+      ),
     };
-    return Semantics(
-      button: true,
-      label: tooltip,
-      child: SizedBox.square(
-        dimension: size,
-        child: Material(
-          color: bg,
-          shape: CircleBorder(side: side),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onPressed,
-            child: Center(child: Icon(icon, size: iconSize, color: fg)),
+    final circle = SizedBox.square(
+      dimension: size,
+      child: Material(
+        color: bg,
+        shape: CircleBorder(side: side),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: Center(
+            child: Icon(icon, size: iconSize, color: fg),
           ),
         ),
       ),
+    );
+    return Semantics(
+      button: true,
+      label: tooltip,
+      child: size >= kMinTapTarget
+          ? circle
+          : GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              excludeFromSemantics: true,
+              onTap: onPressed,
+              child: SizedBox.square(
+                dimension: kMinTapTarget,
+                child: Center(child: circle),
+              ),
+            ),
     );
   }
 }
 
 /// Une ligne « libellé ......... valeur » séparée par un filet.
 class FactRow extends StatelessWidget {
-  const FactRow({super.key, required this.label, required this.value, this.last = false});
+  const FactRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.last = false,
+  });
 
   final String label;
   final String value;
@@ -188,18 +243,27 @@ class FactRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        border: last ? null : Border(bottom: BorderSide(color: scheme.outlineVariant)),
+        border: last
+            ? null
+            : Border(bottom: BorderSide(color: scheme.outlineVariant)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: scheme.onSurface),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: scheme.onSurface,
+              ),
             ),
           ),
         ],

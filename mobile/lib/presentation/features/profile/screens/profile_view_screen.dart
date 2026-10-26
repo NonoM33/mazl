@@ -6,7 +6,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
-import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
@@ -26,7 +25,6 @@ import '../../couple/widgets/couple_request_dialog.dart';
 import '../../matching/widgets/match_sheet.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
 import '../widgets/profile_view/profile_top_bar.dart';
-import '../widgets/profile_view/profile_view_book.dart';
 import '../widgets/profile_view/profile_view_content.dart';
 import '../widgets/profile_view/profile_view_data.dart';
 
@@ -260,8 +258,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       children: [
         SafeArea(
           bottom: false,
-          child: FoldCutBuilder(
-            builder: (context, cut) {
+          child: Builder(
+            builder: (context) {
               final bottomPadding = showActions
                   ? barBottom + ProfileActionBar.height + 24
                   : safeBottom + 32;
@@ -291,17 +289,6 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
                   ),
                 ),
               ];
-              // Held like a book: photos and name on one page, what to read
-              // on the other.
-              if (cut != null && cut.axis == FoldSplitAxis.vertical) {
-                return ProfileViewBook(
-                  cut: cut,
-                  data: data,
-                  topBar: topBar,
-                  bottomPadding: bottomPadding,
-                  trailing: trailing,
-                );
-              }
               return ProfileViewContent(
                 data: data,
                 isOwnProfile: false,
