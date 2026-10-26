@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -230,6 +231,51 @@ class _EventsListScreenState extends State<EventsListScreen>
     );
   }
 
+  /// The tab bar capsule is counted in the bottom padding (the shell's
+  /// Scaffold extends its body under it).
+  EdgeInsets _listPadding() => EdgeInsets.fromLTRB(
+    16,
+    16,
+    16,
+    16 + MediaQuery.paddingOf(context).bottom,
+  );
+
+  Widget _cardFor(Event event, {bool featured = false}) => _EventCard(
+    event: event,
+    typeColor: _getTypeColor(event.eventType),
+    typeIcon: _getTypeIcon(event.eventType),
+    featured: featured,
+    onTap: () => context.go('/events/${event.id}'),
+  );
+
+  Widget _buildFlatList() => ListView.builder(
+    padding: _listPadding(),
+    itemCount: _events.length,
+    itemBuilder: (context, index) => _cardFor(_events[index]),
+  );
+
+  /// Held like a book: the next event, large, on the reading-start page; the
+  /// others as a list on the other page. No card crosses the fold.
+  Widget _buildBook(FoldCut cut) => Row(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        width: cut.leadExtent,
+        child: ListView(
+          padding: _listPadding(),
+          children: [_cardFor(_events.first, featured: true)],
+        ),
+      ),
+      SizedBox(width: cut.gap),
+      Expanded(
+        child: ListView(
+          padding: _listPadding(),
+          children: [for (final event in _events.skip(1)) _cardFor(event)],
+        ),
+      ),
+    ],
+  );
+
   Widget _buildBody() {
     // Show skeleton only on initial load
     if (_isInitialLoading && _events.isEmpty) {
@@ -304,25 +350,10 @@ class _EventsListScreenState extends State<EventsListScreen>
           child: AnimatedOpacity(
             opacity: _isFilterLoading ? 0.5 : 1.0,
             duration: const Duration(milliseconds: 200),
-            child: ListView.builder(
-              // The tab bar capsule is counted in the bottom padding
-              // (the shell's Scaffold extends its body under it).
-              padding: EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                16 + MediaQuery.paddingOf(context).bottom,
-              ),
-              itemCount: _events.length,
-              itemBuilder: (context, index) {
-                final event = _events[index];
-                return _EventCard(
-                  event: event,
-                  typeColor: _getTypeColor(event.eventType),
-                  typeIcon: _getTypeIcon(event.eventType),
-                  onTap: () => context.go('/events/${event.id}'),
-                );
-              },
+            child: FoldCutBuilder(
+              builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+                  ? _buildBook(cut!)
+                  : _buildFlatList(),
             ),
           ),
         ),
@@ -374,7 +405,12 @@ class _EventCard extends StatelessWidget {
     required this.typeColor,
     required this.typeIcon,
     required this.onTap,
+    this.featured = false,
   });
+
+  /// The large card of the book layout: taller visual, longer title, and the
+  /// description.
+  final bool featured;
 
   final Event event;
   final Color typeColor;
@@ -420,7 +456,7 @@ class _EventCard extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  height: 140,
+                  height: featured ? 220 : 140,
                   decoration: BoxDecoration(
                     gradient: event.imageUrl == null
                         ? LinearGradient(
@@ -627,14 +663,23 @@ class _EventCard extends StatelessWidget {
                   // Title
                   Text(
                     event.title,
-                    style: const TextStyle(
-                      fontSize: 17,
+                    style: TextStyle(
+                      fontSize: featured ? 22 : 17,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (featured && (event.description ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      event.description!,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[700], height: 1.4),
+                    ),
+                  ],
                   const SizedBox(height: 12),
 
                   // Date and time with icon

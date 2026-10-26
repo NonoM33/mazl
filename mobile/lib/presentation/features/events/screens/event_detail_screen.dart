@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -13,10 +14,7 @@ import '../../../common/widgets/directional_icon.dart';
 import '../l10n/event_texts.dart';
 
 class EventDetailScreen extends StatefulWidget {
-  const EventDetailScreen({
-    super.key,
-    required this.eventId,
-  });
+  const EventDetailScreen({super.key, required this.eventId});
 
   final String eventId;
 
@@ -197,7 +195,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               Icon(
                 LucideIcons.alertTriangle,
                 size: 48,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 16),
               Text(context.l10n.eventsNotFound),
@@ -212,228 +212,353 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       );
     }
 
-    final l10n = context.l10n;
     final event = _event!;
     final typeColor = _getTypeColor(event.eventType);
     final typeIcon = _getTypeIcon(event.eventType);
-    final isFull = event.maxAttendees != null &&
-        event.attendeeCount >= event.maxAttendees!;
 
+    return FoldCutBuilder(
+      builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+          ? _buildBook(context, cut!, event, typeColor, typeIcon)
+          : _buildFlat(context, event, typeColor, typeIcon),
+    );
+  }
+
+  bool _isFull(Event event) =>
+      event.maxAttendees != null && event.attendeeCount >= event.maxAttendees!;
+
+  Widget _visual(Event event, Color typeColor, IconData typeIcon) {
+    Widget gradient({Widget? child}) => Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [typeColor, AppColors.primary],
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+        ),
+      ),
+      child: child,
+    );
+    Widget fallback() => gradient(
+      child: Center(child: Icon(typeIcon, size: 80, color: Colors.white54)),
+    );
+    return event.imageUrl != null
+        ? CachedNetworkImage(
+            imageUrl: event.imageUrl!,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => gradient(),
+            errorWidget: (context, url, error) => fallback(),
+          )
+        : fallback();
+  }
+
+  Widget _backButton() => IconButton(
+    icon: const CircleAvatar(
+      backgroundColor: Colors.black26,
+      child: DirectionalIcon(LucideIcons.arrowLeft, color: Colors.white),
+    ),
+    onPressed: () => context.pop(),
+  );
+
+  Widget _shareButton() => IconButton(
+    icon: const CircleAvatar(
+      backgroundColor: Colors.black26,
+      child: Icon(LucideIcons.share2, color: Colors.white),
+    ),
+    onPressed: () {
+      final event = _event;
+      if (event == null) return;
+      Share.share(
+        context.l10n.eventsShareMessage(event.title),
+        subject: event.title,
+      );
+    },
+  );
+
+  /// Type badge and title.
+  List<Widget> _headline(Event event, Color typeColor, IconData typeIcon) {
+    final l10n = context.l10n;
+    return [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: typeColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(typeIcon, size: 16, color: typeColor),
+            const SizedBox(width: 6),
+            Text(
+              event.kind.detailLabel(l10n),
+              style: TextStyle(color: typeColor, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 12),
+      Text(
+        event.title,
+        style: Theme.of(
+          context,
+        ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 20),
+    ];
+  }
+
+  /// When and where.
+  List<Widget> _whenAndWhere(Event event) {
+    final l10n = context.l10n;
+    return [
+      _InfoCard(
+        icon: LucideIcons.calendar,
+        title: l10n.eventsInfoDate,
+        subtitle: _formatDate(event.date),
+      ),
+      if (event.time != null)
+        _InfoCard(
+          icon: LucideIcons.clock,
+          title: l10n.eventsInfoTime,
+          subtitle: event.endTime != null
+              ? '${event.time} - ${event.endTime}'
+              : event.time!,
+        ),
+      if (event.location != null)
+        _InfoCard(
+          icon: LucideIcons.mapPin,
+          title: l10n.eventsInfoPlace,
+          subtitle: event.location!,
+          secondaryText: event.address,
+        ),
+    ];
+  }
+
+  /// Who comes and what it costs.
+  List<Widget> _participantsAndPrice(Event event) {
+    final l10n = context.l10n;
+    final isFull = _isFull(event);
+    return [
+      _InfoCard(
+        icon: LucideIcons.users,
+        title: l10n.eventsInfoParticipants,
+        subtitle: event.maxAttendees != null
+            ? l10n.eventsCapacity(event.attendeeCount, event.maxAttendees!)
+            : l10n.eventsRegisteredCount(event.attendeeCount),
+        badge: isFull
+            ? l10n.eventsFull
+            : event.maxAttendees != null &&
+                  event.attendeeCount >= event.maxAttendees! * 0.8
+            ? l10n.eventsAlmostFull
+            : null,
+        badgeColor: isFull ? Colors.red : AppColors.warning,
+      ),
+      _InfoCard(
+        icon: LucideIcons.euro,
+        title: l10n.eventsInfoPrice,
+        subtitle: event.price > 0
+            ? l10n.eventsPricePerPerson(eventPriceText(event, l10n.localeName))
+            : l10n.eventsFree,
+      ),
+    ];
+  }
+
+  /// The description and, once registered, the confirmation banner.
+  List<Widget> _aboutAndStatus(Event event) {
+    final l10n = context.l10n;
+    return [
+      if (event.description != null && event.description!.isNotEmpty) ...[
+        Text(
+          l10n.eventsDescription,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          event.description!,
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.8),
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+      if (_hasRsvp)
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(LucideIcons.checkCircle, color: AppColors.success),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.eventsRsvpConfirmedBanner,
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+    ];
+  }
+
+  Widget _rsvpButton(Event event) {
+    final l10n = context.l10n;
+    final isFull = _isFull(event);
+    return _hasRsvp
+        ? OutlinedButton(
+            onPressed: _isRsvping ? null : _handleRsvp,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+            ),
+            child: _isRsvping
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.eventsRsvpCancel),
+          )
+        : ElevatedButton(
+            onPressed: isFull || _isRsvping ? null : _handleRsvp,
+            child: _isRsvping
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    isFull
+                        ? l10n.eventsFull
+                        : event.price > 0
+                        ? l10n.eventsRsvpJoinPaid(
+                            eventPriceText(event, l10n.localeName),
+                          )
+                        : l10n.eventsRsvpJoinFree,
+                  ),
+          );
+  }
+
+  /// Held like a book: the visual, the title, the date and the place on the
+  /// reading-start page; the description, the participants and price and the
+  /// registration button on the other. Nothing sits in the fold.
+  Widget _buildBook(
+    BuildContext context,
+    FoldCut cut,
+    Event event,
+    Color typeColor,
+    IconData typeIcon,
+  ) {
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: _backButton(),
+        actions: [_shareButton()],
+      ),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: cut.leadExtent,
+            child: ListView(
+              padding: EdgeInsets.only(bottom: 16 + bottom),
+              children: [
+                SizedBox(
+                  height: 280,
+                  child: _visual(event, typeColor, typeIcon),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ..._headline(event, typeColor, typeIcon),
+                      ..._whenAndWhere(event),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: cut.gap),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      kToolbarHeight + MediaQuery.paddingOf(context).top + 16,
+                      16,
+                      16,
+                    ),
+                    children: [
+                      ..._participantsAndPrice(event),
+                      const SizedBox(height: 12),
+                      ..._aboutAndStatus(event),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + bottom),
+                  child: _rsvpButton(event),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlat(
+    BuildContext context,
+    Event event,
+    Color typeColor,
+    IconData typeIcon,
+  ) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App bar with image
           SliverAppBar(
             expandedHeight: 250,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: event.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: event.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [typeColor, AppColors.primary],
-                            begin: AlignmentDirectional.topStart,
-                            end: AlignmentDirectional.bottomEnd,
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [typeColor, AppColors.primary],
-                            begin: AlignmentDirectional.topStart,
-                            end: AlignmentDirectional.bottomEnd,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(typeIcon, size: 80, color: Colors.white54),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [typeColor, AppColors.primary],
-                          begin: AlignmentDirectional.topStart,
-                          end: AlignmentDirectional.bottomEnd,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(typeIcon, size: 80, color: Colors.white54),
-                      ),
-                    ),
+              background: _visual(event, typeColor, typeIcon),
             ),
-            leading: IconButton(
-              icon: const CircleAvatar(
-                backgroundColor: Colors.black26,
-                child: DirectionalIcon(LucideIcons.arrowLeft, color: Colors.white),
-              ),
-              onPressed: () => context.pop(),
-            ),
-            actions: [
-              IconButton(
-                icon: const CircleAvatar(
-                  backgroundColor: Colors.black26,
-                  child: Icon(LucideIcons.share2, color: Colors.white),
-                ),
-                onPressed: () {
-                  final event = _event;
-                  if (event == null) return;
-                  Share.share(
-                    context.l10n.eventsShareMessage(event.title),
-                    subject: event.title,
-                  );
-                },
-              ),
-            ],
+            leading: _backButton(),
+            actions: [_shareButton()],
           ),
-
-          // Content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Type badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: typeColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(typeIcon, size: 16, color: typeColor),
-                        const SizedBox(width: 6),
-                        Text(
-                          event.kind.detailLabel(l10n),
-                          style: TextStyle(
-                            color: typeColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Title
-                  Text(
-                    event.title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Info cards
-                  _InfoCard(
-                    icon: LucideIcons.calendar,
-                    title: l10n.eventsInfoDate,
-                    subtitle: _formatDate(event.date),
-                  ),
-                  if (event.time != null)
-                    _InfoCard(
-                      icon: LucideIcons.clock,
-                      title: l10n.eventsInfoTime,
-                      subtitle: event.endTime != null
-                          ? '${event.time} - ${event.endTime}'
-                          : event.time!,
-                    ),
-                  if (event.location != null)
-                    _InfoCard(
-                      icon: LucideIcons.mapPin,
-                      title: l10n.eventsInfoPlace,
-                      subtitle: event.location!,
-                      secondaryText: event.address,
-                    ),
-                  _InfoCard(
-                    icon: LucideIcons.users,
-                    title: l10n.eventsInfoParticipants,
-                    subtitle: event.maxAttendees != null
-                        ? l10n.eventsCapacity(event.attendeeCount, event.maxAttendees!)
-                        : l10n.eventsRegisteredCount(event.attendeeCount),
-                    badge: isFull
-                        ? l10n.eventsFull
-                        : event.maxAttendees != null &&
-                                event.attendeeCount >=
-                                    event.maxAttendees! * 0.8
-                            ? l10n.eventsAlmostFull
-                            : null,
-                    badgeColor: isFull ? Colors.red : AppColors.warning,
-                  ),
-                  _InfoCard(
-                    icon: LucideIcons.euro,
-                    title: l10n.eventsInfoPrice,
-                    subtitle: event.price > 0
-                        ? l10n.eventsPricePerPerson(eventPriceText(event, l10n.localeName))
-                        : l10n.eventsFree,
-                  ),
-
+                  ..._headline(event, typeColor, typeIcon),
+                  ..._whenAndWhere(event),
+                  ..._participantsAndPrice(event),
                   const SizedBox(height: 24),
-
-                  // Description
-                  if (event.description != null &&
-                      event.description!.isNotEmpty) ...[
-                    Text(
-                      l10n.eventsDescription,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.description!,
-                      style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.8),
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // RSVP status
-                  if (_hasRsvp)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.success.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            LucideIcons.checkCircle,
-                            color: AppColors.success,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              l10n.eventsRsvpConfirmedBanner,
-                              style: TextStyle(
-                                color: AppColors.success,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
+                  ..._aboutAndStatus(event),
                   const SizedBox(height: 100), // Space for button
                 ],
               ),
@@ -453,44 +578,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ),
           ],
         ),
-        child: SafeArea(
-          child: FoldSafeActions(
-            child: _hasRsvp
-              ? OutlinedButton(
-                  onPressed: _isRsvping ? null : _handleRsvp,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                  ),
-                  child: _isRsvping
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.eventsRsvpCancel),
-                )
-              : ElevatedButton(
-                  onPressed: isFull || _isRsvping ? null : _handleRsvp,
-                  child: _isRsvping
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          isFull
-                              ? l10n.eventsFull
-                              : event.price > 0
-                                  ? l10n.eventsRsvpJoinPaid(eventPriceText(event, l10n.localeName))
-                                  : l10n.eventsRsvpJoinFree,
-                        ),
-                ),
-          ),
-        ),
+        child: SafeArea(child: FoldSafeActions(child: _rsvpButton(event))),
       ),
     );
   }
@@ -536,19 +624,14 @@ class _InfoCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         subtitle,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ),
                     if (badge != null)
@@ -558,8 +641,9 @@ class _InfoCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: (badgeColor ?? AppColors.warning)
-                              .withValues(alpha: 0.1),
+                          color: (badgeColor ?? AppColors.warning).withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -578,10 +662,7 @@ class _InfoCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       secondaryText!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
               ],
