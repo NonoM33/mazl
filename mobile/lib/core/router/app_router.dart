@@ -25,7 +25,6 @@ import '../../presentation/features/profile/screens/profile_view_screen.dart';
 import '../../presentation/features/profile/screens/edit_profile_screen.dart';
 import '../../presentation/features/profile/screens/profile_setup_screen.dart';
 import '../../presentation/features/settings/screens/settings_screen.dart';
-import '../../presentation/features/settings/screens/shabbat_display_screen.dart';
 import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/privacy/screens/religious_data_settings_screen.dart';
 import '../../presentation/features/web_sessions/screens/computers_screen.dart';
@@ -555,15 +554,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         name: RouteNames.shabbatMode,
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const ShabbatModeScreen(),
-                        routes: [
-                          GoRoute(
-                            path: 'display',
-                            name: RouteNames.shabbatDisplay,
-                            parentNavigatorKey: _rootNavigatorKey,
-                            builder: (context, state) =>
-                                const ShabbatDisplayScreen(),
-                          ),
-                        ],
                       ),
                       GoRoute(
                         path: 'religious-data',

@@ -1216,13 +1216,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'להחזיק אותו כמו מחשב נייד. התמונה נשארת למעלה והכפתורים למטה, מתחת לאגודל.';
 
   @override
-  String get duoTutorialTentTitle => 'להעמיד אותו כמו אוהל';
-
-  @override
-  String get duoTutorialTentBody =>
-      'לסגור אותו ולהפוך אותו על הצד. תצוגת שבת מינימליסטית נשארת על השולחן.';
-
-  @override
   String get duoTutorialReadyTitle => 'יוצאים לדרך';
 
   @override
@@ -3830,47 +3823,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get shabbatDisplayLaunchHint =>
       'מניחים את הטלפון כמו אוהל: המסך נשאר דלוק ומציג את השעה, הדלקת נרות והבדלה. מפעילים לפני שבת, ואין צורך לגעת בו אחר כך.';
-
-  @override
-  String get shabbatDisplayShabbatShalom => 'שבת שלום';
-
-  @override
-  String get shabbatDisplayShabbatName => 'שבת';
-
-  @override
-  String get shabbatDisplayTonight => 'הערב';
-
-  @override
-  String get shabbatDisplayComing => 'בקרוב';
-
-  @override
-  String get shabbatDisplayFestivalEntry => 'כניסה';
-
-  @override
-  String get shabbatDisplayFestivalExit => 'יציאה';
-
-  @override
-  String get shabbatDisplayParasha => 'פרשת השבוע';
-
-  @override
-  String shabbatDisplayHanukkahNight(int night) {
-    return 'לילה $night';
-  }
-
-  @override
-  String shabbatDisplayOmerDay(int day) {
-    return 'יום $day בעומר';
-  }
-
-  @override
-  String get shabbatDisplayExitHint => 'לחיצה ארוכה של שתי שניות ליציאה';
-
-  @override
-  String get shabbatDisplayProposalTitle =>
-      'להציב את הטלפון כמו אוהל לקראת הערב?';
-
-  @override
-  String get shabbatDisplayProposalDismiss => 'לא עכשיו';
 
   @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';
