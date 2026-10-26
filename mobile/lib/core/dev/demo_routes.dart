@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'demo_chat_routes.dart';
 import 'demo_couple_routes.dart';
 import 'demo_fixtures.dart';
+import 'demo_privacy_routes.dart';
 import 'demo_store.dart';
 
 /// Réponse fabriquée par le mode démo.
@@ -397,6 +398,7 @@ abstract final class DemoRoutes {
     }),
 
     // --- Mode couple (demo_couple_routes.dart) ---
+    ...DemoPrivacyRoutes.routes,
     ...DemoCoupleRoutes.routes,
 
     // --- Messagerie : messages, médias, réactions (demo_chat_routes.dart) ---
