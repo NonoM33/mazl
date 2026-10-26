@@ -11,7 +11,8 @@ function contentSecurityPolicy(mediaOrigin: string | null): string {
     "default-src 'self'",
     "script-src 'self' https://accounts.google.com/gsi/client https://appleid.cdn-apple.com",
     "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
-    `img-src 'self' data: blob: https://lh3.googleusercontent.com${media}`,
+    // images.unsplash.com: the stock photos of the test profiles (features/fixtures).
+    `img-src 'self' data: blob: https://lh3.googleusercontent.com https://images.unsplash.com${media}`,
     "font-src 'self'",
     "connect-src 'self' https://accounts.google.com/gsi/",
     "frame-src https://accounts.google.com/gsi/ https://appleid.apple.com",
