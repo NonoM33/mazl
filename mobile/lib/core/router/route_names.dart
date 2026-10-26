@@ -4,6 +4,7 @@ abstract class RouteNames {
   static const splash = 'splash';
   static const onboarding = 'onboarding';
   static const login = 'login';
+  static const reviewLogin = 'reviewLogin';
   static const duoTutorial = 'duoTutorial';
 
   // Main navigation routes
@@ -59,6 +60,9 @@ abstract class RoutePaths {
   static const onboarding = '/onboarding';
   static const login = '/login';
 
+  /// Identifier + password sign-in of the App Store review account.
+  static const reviewLogin = '/login/review';
+
   /// Le tutoriel de l'iPhone Duo (la route elle-même est dans duo_tutorial_policy.dart).
   static const duoTutorial = '/duo-tutorial';
 
@@ -94,7 +98,8 @@ abstract class RoutePaths {
   static const mazelTov = '/couple/mazel-tov';
 
   /// Helper to get couple activity detail path
-  static String coupleActivityPath(int activityId) => '/couple/activities/$activityId';
+  static String coupleActivityPath(int activityId) =>
+      '/couple/activities/$activityId';
 
   /// Helper to get couple event detail path
   static String coupleEventPath(int eventId) => '/couple/events/$eventId';
