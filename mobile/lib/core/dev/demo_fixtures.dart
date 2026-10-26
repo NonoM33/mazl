@@ -1,7 +1,9 @@
 import '../models/profile_prompt.dart';
+import 'demo_photos.dart';
 
 /// Données SYNTHÉTIQUES du mode démo : prénoms inventés, e-mails en
-/// `example.com`, aucune photo (les écrans affichent leurs fonds teintés).
+/// `example.com`, photos Unsplash chargées depuis le réseau (voir `DemoPhotos`), sauf pour
+/// le compte démo, volontairement sans photo.
 /// Les formes JSON reprennent exactement ce que lisent les `fromJson` de
 /// `lib/core/models/` et les méthodes d'`ApiService`.
 abstract final class DemoFixtures {
@@ -45,7 +47,7 @@ abstract final class DemoFixtures {
     'kashrut_level': kashrut,
     'shabbat_observance': shabbat,
     'relationship_intention': intention,
-    'photos': <String>[],
+    'photos': DemoPhotos.of(userId),
     'is_verified': verified,
     'verification_level': verified ? 'photo' : null,
     'distance': distance,
@@ -86,7 +88,8 @@ abstract final class DemoFixtures {
       name: 'Rachel',
       age: 26,
       city: 'Paris',
-      bio: 'Prof de piano, dîners du vendredi soir et longues marches.',
+      bio:
+          'Prof de piano, je donne des cours à Paris et je joue dans une chorale. Dîners du vendredi soir, longues marches au bord du canal : je cherche quelqu\'un de curieux et de tendre.',
       denomination: 'Massorti',
       kashrut: 'A la maison',
       shabbat: 'Partiellement',
@@ -99,7 +102,8 @@ abstract final class DemoFixtures {
       name: 'Yaël',
       age: 29,
       city: 'Neuilly-sur-Seine',
-      bio: 'Avocate, fan de randonnée et de challah maison.',
+      bio:
+          'Avocate en droit des affaires, mais jamais loin d\'un sentier de randonnée. Ma challah du vendredi fait l\'unanimité, et je ne dis jamais non à un brunch.',
       denomination: 'Orthodox',
       kashrut: 'Strict',
       shabbat: 'Observant',
@@ -113,7 +117,8 @@ abstract final class DemoFixtures {
       age: 33,
       city: 'Lyon',
       gender: 'male',
-      bio: 'Ingénieur, cuisine sépharade le dimanche.',
+      bio:
+          'Ingénieur logiciel, je cuisine sépharade le dimanche pour toute la famille. Fan de foot et de plages, je cherche une histoire sérieuse, sans prise de tête.',
       denomination: 'Traditionaliste',
       kashrut: 'A la maison',
       shabbat: 'Partiellement',
@@ -124,13 +129,14 @@ abstract final class DemoFixtures {
       userId: 204,
       name: 'Tamar',
       age: 31,
-      city: 'Paris',
-      bio: 'Architecte. Je cherche quelqu\'un qui rit facilement.',
+      city: 'Boulogne-Billancourt',
+      bio:
+          'Architecte, je dessine des maisons et je rêve d\'en habiter une à deux. Je cherche quelqu\'un qui rit facilement et qui aime flâner dans les musées.',
       denomination: 'Laique',
       kashrut: 'Non',
       shabbat: 'Non observant',
       intention: 'open',
-      distance: 2,
+      distance: 9,
     ),
     _profile(
       userId: 205,
@@ -138,7 +144,8 @@ abstract final class DemoFixtures {
       age: 35,
       city: 'Neuilly-sur-Seine',
       gender: 'male',
-      bio: 'Médecin, amateur de jazz et de voyages en Israël.',
+      bio:
+          'Médecin urgentiste, amateur de jazz et de voyages en Israël. Les week-ends, je cours au bois de Boulogne et je teste de nouveaux restaurants.',
       denomination: 'Modern Orthodox',
       kashrut: 'Strict',
       shabbat: 'Tres observant',
@@ -151,7 +158,8 @@ abstract final class DemoFixtures {
       name: 'Judith',
       age: 27,
       city: 'Lyon',
-      bio: 'Graphiste, bénévole dans une association de quartier.',
+      bio:
+          'Graphiste indépendante et bénévole dans une association de quartier. J\'aime les marchés du dimanche, les vieux disques et les amitiés qui deviennent autre chose.',
       denomination: 'Habad',
       kashrut: 'Glatt',
       shabbat: 'Observant',
@@ -163,7 +171,8 @@ abstract final class DemoFixtures {
       name: 'Naomi',
       age: 30,
       city: 'Paris',
-      bio: 'Journaliste. Le Shabbat, je déconnecte et je cuisine.',
+      bio:
+          'Journaliste, curieuse de tout. Le Shabbat, je déconnecte, je cuisine et je reçois. Je cherche quelqu\'un avec qui refaire le monde autour d\'une grande table.',
       denomination: 'Massorti',
       kashrut: 'A la maison',
       shabbat: 'Observant',
@@ -176,7 +185,8 @@ abstract final class DemoFixtures {
       name: 'Esther',
       age: 34,
       city: 'Paris',
-      bio: 'Entrepreneuse, ouverte à tout sauf à l\'ennui.',
+      bio:
+          'Entrepreneuse, ouverte à tout sauf à l\'ennui. Je passe mes week-ends entre Paris et le sud, et j\'adore improviser un voyage de dernière minute.',
       denomination: 'Autre',
       kashrut: 'Non',
       shabbat: 'Non observant',
@@ -207,7 +217,8 @@ abstract final class DemoFixtures {
       name: 'Noémie',
       age: 28,
       city: 'Paris',
-      bio: 'Sage-femme. Toujours partante pour un café.',
+      bio:
+          'Sage-femme, toujours partante pour un café ou une balade. J\'adore mon métier, mes amies et les soirées jeux de société. Je cherche du sérieux et de la bonne humeur.',
       denomination: 'Massorti',
       kashrut: 'A la maison',
       shabbat: 'Partiellement',
@@ -218,32 +229,35 @@ abstract final class DemoFixtures {
       userId: 302,
       name: 'Sarah',
       age: 31,
-      city: 'Neuilly-sur-Seine',
-      bio: 'Dentiste, passionnée de cuisine.',
+      city: 'Marseille',
+      bio:
+          'Dentiste, passionnée de cuisine et de pâtisserie. Famille très présente, Shabbat en tribu. Je rêve d\'une maison pleine de rires et de bruit.',
       denomination: 'Orthodox',
       kashrut: 'Strict',
       shabbat: 'Observant',
       intention: 'marriage',
-      distance: 6,
+      distance: 660,
     ),
     _profile(
       userId: 303,
       name: 'Myriam',
       age: 27,
-      city: 'Lyon',
-      bio: 'Étudiante en master, danseuse le week-end.',
+      city: 'Strasbourg',
+      bio:
+          'En master de psychologie, danseuse le week-end. Je suis sociable, un peu rêveuse, et je prends le temps de connaître les gens avant de m\'engager.',
       denomination: 'Traditionaliste',
       kashrut: 'A la maison',
       shabbat: 'Partiellement',
       intention: 'open',
-      distance: 460,
+      distance: 400,
     ),
     _profile(
       userId: 304,
       name: 'Déborah',
       age: 32,
       city: 'Paris',
-      bio: 'Directrice artistique et marathonienne.',
+      bio:
+          'Directrice artistique et marathonienne. Je vis entre un atelier et un parc, avec des écouteurs. Je cherche quelqu\'un qui me suive, ou au moins qui m\'attende à l\'arrivée.',
       denomination: 'Laique',
       kashrut: 'Non',
       shabbat: 'Non observant',
@@ -255,13 +269,14 @@ abstract final class DemoFixtures {
       userId: 305,
       name: 'Ilana',
       age: 29,
-      city: 'Neuilly-sur-Seine',
-      bio: 'Psychologue, amatrice de cinéma d\'auteur.',
+      city: 'Nice',
+      bio:
+          'Psychologue, amatrice de cinéma d\'auteur et de longues conversations. Je passe mes étés à Nice chez ma grand-mère, et je cherche quelqu\'un de calme et de drôle.',
       denomination: 'Massorti',
       kashrut: 'A la maison',
       shabbat: 'Observant',
       intention: 'friends_first',
-      distance: 7,
+      distance: 690,
     ),
   ];
 
@@ -270,20 +285,22 @@ abstract final class DemoFixtures {
       userId: 211,
       name: 'Elise',
       age: 28,
-      city: 'Paris',
-      bio: 'Photographe.',
+      city: 'Boulogne-Billancourt',
+      bio:
+          'Photographe, je capture les petits instants du quotidien. Je cherche une relation légère au début, mais sincère.',
       denomination: 'Massorti',
       kashrut: 'Non',
       shabbat: 'Non observant',
       intention: 'open',
-      distance: 4,
+      distance: 9,
     ),
     _profile(
       userId: 212,
       name: 'Hannah',
       age: 30,
       city: 'Paris',
-      bio: 'Cheffe pâtissière.',
+      bio:
+          'Cheffe pâtissière dans une maison réputée. Je travaille tôt, je me couche tôt, et je rêve d\'un homme qui aime goûter mes essais le dimanche matin.',
       denomination: 'Orthodox',
       kashrut: 'Strict',
       shabbat: 'Observant',
@@ -310,7 +327,7 @@ abstract final class DemoFixtures {
           'profile': {
             'user_id': p['user_id'],
             'display_name': p['display_name'],
-            'picture': null,
+            'picture': DemoPhotos.avatar(p['user_id'] as int),
             'age': p['age'],
             'location': p['location'],
             'is_verified': p['is_verified'],
@@ -365,7 +382,7 @@ abstract final class DemoFixtures {
           'otherUser': {
             'user_id': profiles[i]['user_id'],
             'display_name': profiles[i]['display_name'],
-            'picture': null,
+            'picture': DemoPhotos.avatar(profiles[i]['user_id'] as int),
             'is_verified': profiles[i]['is_verified'],
           },
         },
@@ -423,7 +440,7 @@ abstract final class DemoFixtures {
         {
           'user_id': p['user_id'],
           'display_name': p['display_name'],
-          'picture': null,
+          'picture': DemoPhotos.avatar(p['user_id'] as int),
           'age': p['age'],
           'is_verified': p['is_verified'],
           'liked_at': isoAgo(Duration(hours: 2 + i * 7)),

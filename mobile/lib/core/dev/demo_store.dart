@@ -1,6 +1,7 @@
 import 'demo_chat_state.dart';
 import 'demo_couple_state.dart';
 import 'demo_fixtures.dart';
+import 'demo_photos.dart';
 
 /// État mutable du mode démo, en mémoire seulement : un message envoyé reste
 /// visible quand on rouvre la conversation, une lecture vide le compteur…
@@ -88,7 +89,7 @@ abstract final class DemoStore {
       'otherUser': {
         'user_id': userId,
         'display_name': profile['display_name'],
-        'picture': null,
+        'picture': DemoPhotos.avatar(userId as int),
         'is_verified': profile['is_verified'],
       },
     });

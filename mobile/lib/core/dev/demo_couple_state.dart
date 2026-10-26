@@ -1,5 +1,6 @@
 import 'demo_couple_fixtures.dart';
 import 'demo_fixtures.dart';
+import 'demo_photos.dart';
 import 'demo_store.dart';
 
 enum DemoRequestOutcome { ok, notFound, notPending, forbidden }
@@ -69,7 +70,7 @@ class DemoCoupleState {
       'id': DemoStore.nextId(),
       'partner_id': request.targetId,
       'partner_name': request.targetName,
-      'partner_picture': null,
+      'partner_picture': DemoPhotos.avatar(request.targetId),
       'started_at': acceptedAt.toIso8601String(),
       'met_on_mazl_at': matched.isEmpty
           ? acceptedAt.toIso8601String()
@@ -95,7 +96,7 @@ class DemoCoupleState {
       'status': 'pending',
       'created_at': now.toUtc().toIso8601String(),
       'target_name': request.targetName,
-      'target_picture': null,
+      'target_picture': DemoPhotos.avatar(request.targetId),
     };
   }
 
@@ -114,7 +115,7 @@ class DemoCoupleState {
         'requester_name': DemoFixtures.me()['display_name'],
         'requester_picture': null,
         'target_name': r.targetName,
-        'target_picture': null,
+        'target_picture': DemoPhotos.avatar(r.targetId),
       },
   ];
 

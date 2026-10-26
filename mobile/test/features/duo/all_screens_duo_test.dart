@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -182,7 +183,22 @@ Future<List<String>> _measure(
     if (find.byType(RouteErrorScreen).evaluate().isNotEmpty) {
       throw _NotMeasurable('${screen.path} is not a route of the app');
     }
-    if (find.byType(CircularProgressIndicator).evaluate().isNotEmpty) {
+    // The wait of a photo loaded from the network is not the screen loading.
+    if (find
+        .descendant(
+          of: find.byType(Scaffold),
+          matching: find.byType(CircularProgressIndicator),
+        )
+        .evaluate()
+        .any(
+          (e) => find
+              .ancestor(
+                of: find.byWidget(e.widget),
+                matching: find.byType(CachedNetworkImage),
+              )
+              .evaluate()
+              .isEmpty,
+        )) {
       throw _NotMeasurable('${screen.id} is still loading after the wait');
     }
     final landed = router.state.uri.path;

@@ -58,11 +58,11 @@ void main() {
     expect(me.profile?.displayName, 'Léa (démo)');
   });
 
-  test('getDiscoverProfiles : 8 profils variés, sans photo', () async {
+  test('getDiscoverProfiles : 8 profils variés, avec photos', () async {
     final profiles = _ok(await _demo((a) => a.getDiscoverProfiles()));
     expect(profiles, hasLength(8));
     expect(profiles.first.displayName, 'Rachel');
-    expect(profiles.every((p) => p.photos.isEmpty), isTrue);
+    expect(profiles.every((p) => p.photos.isNotEmpty), isTrue);
     expect(profiles.map((p) => p.denomination).toSet().length, greaterThan(3));
     expect(profiles.any((p) => p.isVerified), isTrue);
     expect(profiles.any((p) => !p.isVerified), isTrue);
@@ -188,54 +188,113 @@ void main() {
     expect(match.containsKey('matched'), isFalse);
   });
 
-  test('un match ouvre une conversation, retrouvée par « Envoyer un message »', () async {
-    final match = _ok(await _demo(
-      (a) => a.sendSwipe(targetUserId: DemoFixtures.matchOnLikeUserId, action: 'like'),
-    ));
-    expect(match['match'], isTrue);
-    final conversations = _ok(await _demo((a) => a.getConversations()));
-    final id = conversationIdWith(conversations, DemoFixtures.matchOnLikeUserId);
-    expect(id, isNotNull);
-    expect(_ok(await _demo((a) => a.getMessages(id!))), isEmpty);
-    // Un second like ne crée pas de doublon.
-    await _demo((a) => a.sendSwipe(targetUserId: DemoFixtures.matchOnLikeUserId, action: 'like'));
-    final again = _ok(await _demo((a) => a.getConversations()));
-    expect(again.where((c) => c.otherUser?.userId == DemoFixtures.matchOnLikeUserId), hasLength(1));
-  });
+  test(
+    'un match ouvre une conversation, retrouvée par « Envoyer un message »',
+    () async {
+      final match = _ok(
+        await _demo(
+          (a) => a.sendSwipe(
+            targetUserId: DemoFixtures.matchOnLikeUserId,
+            action: 'like',
+          ),
+        ),
+      );
+      expect(match['match'], isTrue);
+      final conversations = _ok(await _demo((a) => a.getConversations()));
+      final id = conversationIdWith(
+        conversations,
+        DemoFixtures.matchOnLikeUserId,
+      );
+      expect(id, isNotNull);
+      expect(_ok(await _demo((a) => a.getMessages(id!))), isEmpty);
+      // Un second like ne crée pas de doublon.
+      await _demo(
+        (a) => a.sendSwipe(
+          targetUserId: DemoFixtures.matchOnLikeUserId,
+          action: 'like',
+        ),
+      );
+      final again = _ok(await _demo((a) => a.getConversations()));
+      expect(
+        again.where(
+          (c) => c.otherUser?.userId == DemoFixtures.matchOnLikeUserId,
+        ),
+        hasLength(1),
+      );
+    },
+  );
 
-  test('vérification : les vrais décodeurs du niveau 1 et 2 lisent la démo', () async {
-    Future<R> verif<R>(Future<R> Function(VerificationApi api) body) => _demo((_) => body(HttpVerificationApi()));
+  test(
+    'vérification : les vrais décodeurs du niveau 1 et 2 lisent la démo',
+    () async {
+      Future<R> verif<R>(Future<R> Function(VerificationApi api) body) =>
+          _demo((_) => body(HttpVerificationApi()));
 
-    expect(_ok(await verif((a) => a.getStatus())).level, 'none');
-    final session = _ok(await verif((a) => a.startFaceSession(FacePurpose.photo)));
-    expect(session.challenges.first, FaceChallenge.front);
-    expect(session.expiresAt.isAfter(DateTime.now()), isTrue);
+      expect(_ok(await verif((a) => a.getStatus())).level, 'none');
+      final session = _ok(
+        await verif((a) => a.startFaceSession(FacePurpose.photo)),
+      );
+      expect(session.challenges.first, FaceChallenge.front);
+      expect(session.expiresAt.isAfter(DateTime.now()), isTrue);
 
-    final frames = [for (var i = 0; i < session.challenges.length; i++) Uint8List.fromList([i])];
-    expect(_ok(await verif((a) => a.submitFace(session.sessionId, frames))).verified, isTrue);
-    expect(_ok(await verif((a) => a.getStatus())).photo.verified, isTrue);
+      final frames = [
+        for (var i = 0; i < session.challenges.length; i++)
+          Uint8List.fromList([i]),
+      ];
+      expect(
+        _ok(
+          await verif((a) => a.submitFace(session.sessionId, frames)),
+        ).verified,
+        isTrue,
+      );
+      expect(_ok(await verif((a) => a.getStatus())).photo.verified, isTrue);
 
-    final chip = ChipReadResult(dg1: Uint8List(1), dg2: Uint8List(1), sod: Uint8List(1));
-    expect(_ok(await verif((a) => a.submitIdentity('demo-id', frames, chip))).verified, isTrue);
-    expect(_ok(await verif((a) => a.getStatus())).level, 'identity');
+      final chip = ChipReadResult(
+        dg1: Uint8List(1),
+        dg2: Uint8List(1),
+        sod: Uint8List(1),
+      );
+      expect(
+        _ok(
+          await verif((a) => a.submitIdentity('demo-id', frames, chip)),
+        ).verified,
+        isTrue,
+      );
+      expect(_ok(await verif((a) => a.getStatus())).level, 'identity');
 
-    _success(await verif((a) => a.deleteFaceReference()));
-    expect(_ok(await verif((a) => a.getStatus())).photo.verified, isFalse);
-  });
+      _success(await verif((a) => a.deleteFaceReference()));
+      expect(_ok(await verif((a) => a.getStatus())).photo.verified, isFalse);
+    },
+  );
 
-  test('le badge du profil suit le statut de vérification, comme le serveur', () async {
-    Future<R> verif<R>(Future<R> Function(VerificationApi api) body) => _demo((_) => body(HttpVerificationApi()));
-    Future<bool> profileBadge() async => _ok(await _demo((a) => a.getCurrentUser())).profile?.isVerified ?? false;
+  test(
+    'le badge du profil suit le statut de vérification, comme le serveur',
+    () async {
+      Future<R> verif<R>(Future<R> Function(VerificationApi api) body) =>
+          _demo((_) => body(HttpVerificationApi()));
+      Future<bool> profileBadge() async =>
+          _ok(await _demo((a) => a.getCurrentUser())).profile?.isVerified ??
+          false;
 
-    expect(await profileBadge(), isFalse, reason: 'rien n\'est vérifié au départ');
-    expect(_ok(await verif((a) => a.getStatus())).level, 'none');
+      expect(
+        await profileBadge(),
+        isFalse,
+        reason: 'rien n\'est vérifié au départ',
+      );
+      expect(_ok(await verif((a) => a.getStatus())).level, 'none');
 
-    final session = _ok(await verif((a) => a.startFaceSession(FacePurpose.photo)));
-    final frames = [for (var i = 0; i < session.challenges.length; i++) Uint8List.fromList([i])];
-    await verif((a) => a.submitFace(session.sessionId, frames));
-    expect(await profileBadge(), isTrue);
+      final session = _ok(
+        await verif((a) => a.startFaceSession(FacePurpose.photo)),
+      );
+      final frames = [
+        for (var i = 0; i < session.challenges.length; i++)
+          Uint8List.fromList([i]),
+      ];
+      await verif((a) => a.submitFace(session.sessionId, frames));
+      expect(await profileBadge(), isTrue);
 
-    await verif((a) => a.deleteFaceReference());
-    expect(await profileBadge(), isFalse);
-  });
+      await verif((a) => a.deleteFaceReference());
+      expect(await profileBadge(), isFalse);
+    },
+  );
 }
