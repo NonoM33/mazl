@@ -18,7 +18,6 @@ class DuoScenePose {
     required this.hinge,
     required this.angle,
     required this.axis,
-    required this.sideways,
     required this.verticalBar,
     required this.step,
     required this.validated,
@@ -44,7 +43,6 @@ class DuoScenePose {
               : DuoAxis.horizontal,
         _ => landscape ? DuoAxis.vertical : DuoAxis.horizontal,
       },
-      sideways: isTentWindow(fold, size),
       verticalBar: fold.verticalBar,
       step: step,
       validated: validated,
@@ -58,9 +56,6 @@ class DuoScenePose {
   final double angle;
   final DuoAxis axis;
 
-  /// La pose tente : posé en V sur la table, écran extérieur en paysage
-  /// (voir [isTentWindow]).
-  final bool sideways;
   final VerticalBarSide? verticalBar;
   final DuoTutorialStep step;
 
@@ -85,7 +80,6 @@ class DuoScenePose {
     'hinge': hinge.name,
     'angle': angle,
     'axis': axis.name,
-    'sideways': sideways,
     'verticalBar': verticalBar?.name,
     'step': step.name,
     'stepIndex': step.index,
@@ -99,7 +93,6 @@ class DuoScenePose {
       other.hinge == hinge &&
       other.angle == angle &&
       other.axis == axis &&
-      other.sideways == sideways &&
       other.verticalBar == verticalBar &&
       other.step == step &&
       other.validated == validated &&
@@ -110,7 +103,6 @@ class DuoScenePose {
     hinge,
     angle,
     axis,
-    sideways,
     verticalBar,
     step,
     validated,

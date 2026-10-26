@@ -115,35 +115,15 @@ describe('foldAngles (la géométrie du pli)', () => {
 });
 
 describe('targetFor', () => {
-  test('fermé et en tente (valeur mesurée) : un V inversé, pas un téléphone fermé', () => {
-    const t = M.targetFor(M.normalizePose({ hinge: 'closed', angle: 0, sideways: true }));
-    expect(t).toEqual({ theta: M.TENT_ANGLE, axisT: 0, tentT: 1 });
-  });
-
-  test('entrouvert en tente (écran extérieur actif) : même V', () => {
-    const t = M.targetFor(M.normalizePose({ hinge: 'partiallyOpen', angle: 1.15, sideways: true }));
-    expect(t.tentT).toBe(1);
-    expect(t.theta).toBe(1.15);
-  });
-
-  test('un angle système absurde pour une tente retombe sur l\'angle typique', () => {
-    const t = M.targetFor(M.normalizePose({ hinge: 'partiallyOpen', angle: 2.4, sideways: true }));
-    expect(t.theta).toBe(M.TENT_ANGLE);
-  });
-
-  test('fermé et debout : pas de rotation', () => {
-    expect(M.targetFor(M.normalizePose({ hinge: 'closed' })).tentT).toBe(0);
+  test('fermé et debout : charnière verticale, angle nul', () => {
+    expect(M.targetFor(M.normalizePose({ hinge: 'closed' }))).toEqual({ theta: 0, axisT: 0 });
   });
 
   test('ouvert en portrait : charnière horizontale', () => {
     const t = M.targetFor(M.normalizePose({ hinge: 'fullyOpen', axis: 'horizontal' }));
     expect(t.axisT).toBe(1);
-    expect(t.tentT).toBe(0);
   });
 
-  test('de côté mais ouvert : pas de tente', () => {
-    expect(M.targetFor(M.normalizePose({ hinge: 'fullyOpen', sideways: true })).tentT).toBe(0);
-  });
 });
 
 describe('gestureAt (le geste rejoué par le contour)', () => {
@@ -169,14 +149,6 @@ describe('gestureAt (le geste rejoué par le contour)', () => {
     const end = M.gestureAt('table', 2.6, false);
     expect(end.theta).toBeCloseTo(1.9, 9);
     expect(end.axisT).toBe(1);
-  });
-
-  test('« Debout, comme une tente » part de l\'appareil fermé à plat et finit en V', () => {
-    const start = M.gestureAt('tent', 0.3, false);
-    const end = M.gestureAt('tent', 2.6, false);
-    expect(start.theta).toBeCloseTo(0, 9);
-    expect(end.theta).toBeCloseTo(M.TENT_ANGLE, 9);
-    expect(end.tentT).toBe(1);
   });
 
   test('le mouvement est monotone entre le départ et l\'arrivée', () => {
@@ -211,7 +183,6 @@ describe('highlightsFor', () => {
   test('chaque étape allume ce qu\'elle montre', () => {
     expect(M.highlightsFor('welcome').tabs).toBe(1);
     expect(M.highlightsFor('table').buttons).toBe(1);
-    expect(M.highlightsFor('tent').tabs).toBe(1);
   });
 
   test('le pli ne s\'allume jamais : aucune étape n\'a de fil de couture', () => {
@@ -223,58 +194,8 @@ describe('highlightsFor', () => {
   });
 });
 
-describe('la tente : un V inversé posé sur la table', () => {
-  const HALF = 4.75;
-
-  test('l\'angle d\'ouverture est de 60 à 75 degrés', () => {
-    const g = M.tentGeometry(M.TENT_ANGLE, HALF);
-    const degrees = (g.openingAngle * 180) / Math.PI;
-    expect(degrees).toBeGreaterThanOrEqual(60);
-    expect(degrees).toBeLessThanOrEqual(75);
-    for (const r of M.TENT_RANGE) {
-      expect((r * 180) / Math.PI).toBeGreaterThanOrEqual(59.9);
-      expect((r * 180) / Math.PI).toBeLessThanOrEqual(75.1);
-    }
-  });
-
-  test('la charnière est en haut, au-dessus des deux tranches', () => {
-    const g = M.tentGeometry(M.TENT_ANGLE, HALF);
-    expect(g.hingeHeight).toBeGreaterThan(HALF * Math.cos(Math.PI / 2 - 0.0) + 1);
-    // Hauteur d'un V de 69 degrés avec des moitiés de 4,75 : 4,75 x cos(34,4 degrés).
-    expect(g.hingeHeight).toBeCloseTo(HALF * Math.cos(M.TENT_ANGLE / 2), 9);
-  });
-
-  test('les deux tranches basses reposent sur la table (y = 0)', () => {
-    const g = M.tentGeometry(M.TENT_ANGLE, HALF);
-    expect(g.frontBottomY).toBeCloseTo(0, 9);
-    expect(g.backBottomY).toBeCloseTo(0, 9);
-  });
-
-  test('chaque moitié penche de la moitié de l\'angle, de part et d\'autre', () => {
-    const a = M.tentAngles(M.TENT_ANGLE);
-    expect(a.front).toBeCloseTo(M.TENT_ANGLE / 2, 9);
-    expect(a.back).toBeCloseTo(M.TENT_ANGLE / 2, 9);
-  });
-
-  test('fermé, l\'appareil est posé à plat : les deux moitiés vont du même côté', () => {
-    const a = M.tentAngles(0);
-    expect(a.front).toBeCloseTo(Math.PI / 2, 9);
-    expect(a.back).toBeCloseTo(-Math.PI / 2, 9);
-    expect(M.tentGeometry(0, HALF).openingAngle).toBeCloseTo(0, 9);
-  });
-
-  test('en s\'ouvrant, l\'angle entre les moitiés est toujours celui de la charnière', () => {
-    for (let t = 0; t <= M.TENT_ANGLE + 1e-9; t += 0.1) {
-      expect(M.tentGeometry(t, HALF).openingAngle).toBeCloseTo(t, 9);
-    }
-  });
-
-  test('la moitié avant se redresse de l\'à-plat vers le V, sans jamais passer sous la verticale', () => {
-    for (let t = 0; t <= M.TENT_ANGLE; t += 0.05) {
-      const f = M.tentAngles(t).front;
-      expect(f).toBeLessThanOrEqual(Math.PI / 2 + 1e-9);
-      expect(f).toBeGreaterThanOrEqual(t / 2 - 0.05);
-      expect(f).toBeGreaterThan(0);
-    }
+describe('les étapes', () => {
+  test('welcome, open, book, table, ready : plus d\'étape tente', () => {
+    expect(M.STEPS).toEqual(['welcome', 'open', 'book', 'table', 'ready']);
   });
 });

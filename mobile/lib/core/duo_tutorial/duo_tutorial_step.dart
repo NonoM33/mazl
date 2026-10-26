@@ -2,11 +2,11 @@ import 'dart:ui' show Size;
 
 import '../layout/fold_state.dart';
 
-/// Les six étapes du tutoriel de l'iPhone Duo, dans l'ordre. Le NOM de chaque
+/// Les cinq étapes du tutoriel de l'iPhone Duo, dans l'ordre. Le NOM de chaque
 /// étape est celui que connaît la scène 3D (`STEPS` dans
 /// `assets/duo_tutorial/pose_math.js`) : ne pas le renommer d'un côté seul.
 ///
-/// Quatre étapes demandent un geste, que l'on VOIT dans la pose réelle de
+/// Trois étapes demandent un geste, que l'on VOIT dans la pose réelle de
 /// l'appareil ([isDoneBy]) ; la bienvenue et « C'est parti » n'en demandent pas.
 enum DuoTutorialStep {
   /// Appareil fermé : la capsule d'onglets dans la colonne.
@@ -21,16 +21,13 @@ enum DuoTutorialStep {
   /// « Posez-le sur la table » : mi-ouvert, le pli horizontal (portable).
   table,
 
-  /// « Debout, comme une tente » : posé en V sur la table, écran extérieur en paysage.
-  tent,
-
   /// « C'est parti ».
   ready;
 
   /// Vrai quand l'étape attend un geste de l'utilisateur.
   bool get hasGesture => switch (this) {
     welcome || ready => false,
-    open || book || table || tent => true,
+    open || book || table => true,
   };
 
   bool get isLast => this == ready;
@@ -43,7 +40,7 @@ enum DuoTutorialStep {
   ///
   /// [fold] vient du système (charnière, pli, colonne de la barre) et [size] est
   /// la fenêtre de l'app : un livre se distingue d'un portable par le sens du
-  /// pli, une tente d'un appareil fermé debout par la fenêtre en paysage.
+  /// pli.
   bool isDoneBy(FoldState fold, Size size) => switch (this) {
     welcome || ready => false,
     open => fold.hinge == HingeStatus.fullyOpen,
@@ -55,7 +52,6 @@ enum DuoTutorialStep {
       fold.hinge == HingeStatus.partiallyOpen &&
           !isTentWindow(fold, size) &&
           !foldRunsDownThePage(fold, size),
-    tent => isTentWindow(fold, size),
   };
 }
 
@@ -63,7 +59,8 @@ enum DuoTutorialStep {
 /// 466 x 678, ou 678 x 466 tourné). L'écran intérieur mesure 669 pt et plus.
 const double kOuterDisplayMaxWidth = 700;
 
-/// La pose tente : posé en V sur la table, l'appareil montre son écran
+/// La pose tente (posé en V sur la table) n'a plus d'étape, mais elle ne doit
+/// pas valider le livre ni le portable : l'appareil montre son écran
 /// extérieur en paysage. Posé ainsi il est entrouvert, et iOS le rapporte
 /// `closed` (valeur mesurée par Device Hub) ou, probablement, `partiallyOpen`
 /// avec l'écran extérieur toujours actif : on reconnaît donc la FENÊTRE (paysage,

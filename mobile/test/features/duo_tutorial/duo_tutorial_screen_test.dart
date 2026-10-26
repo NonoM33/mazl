@@ -253,7 +253,7 @@ void main() {
 
   group('accessibilité', () {
     testWidgets(
-      'le titre est un titre, l\'avancement se lit « Étape 1 sur 6 »',
+      'le titre est un titre, l\'avancement se lit « Étape 1 sur 5 »',
       (tester) async {
         final handle = tester.ensureSemantics();
         await pumpTutorial(tester, DuoPose.closed);
@@ -261,7 +261,7 @@ void main() {
           tester.getSemantics(text((l) => l.duoTutorialWelcomeTitle)),
           matchesSemantics(label: 'MAZL, pensé pour le Duo', isHeader: true),
         );
-        expect(find.bySemanticsLabel('Étape 1 sur 6'), findsOneWidget);
+        expect(find.bySemanticsLabel('Étape 1 sur 5'), findsOneWidget);
         handle.dispose();
       },
     );
@@ -293,7 +293,6 @@ void main() {
             DuoTutorialStep.open => l10n.duoTutorialOpenTitle,
             DuoTutorialStep.book => l10n.duoTutorialBookTitle,
             DuoTutorialStep.table => l10n.duoTutorialTableTitle,
-            DuoTutorialStep.tent => l10n.duoTutorialTentTitle,
             DuoTutorialStep.ready => l10n.duoTutorialReadyTitle,
           };
           expect(title.trim(), isNotEmpty);
@@ -313,9 +312,9 @@ void main() {
             await tester.pump(const Duration(milliseconds: 500));
           }
         }
-        expect(titles, hasLength(6), reason: 'six titres différents');
-        expect(l10n.duoTutorialProgress(2, 6), contains('2'));
-        expect(l10n.duoTutorialProgress(2, 6), contains('6'));
+        expect(titles, hasLength(5), reason: 'cinq titres différents');
+        expect(l10n.duoTutorialProgress(2, 5), contains('2'));
+        expect(l10n.duoTutorialProgress(2, 5), contains('5'));
       });
     }
   });
