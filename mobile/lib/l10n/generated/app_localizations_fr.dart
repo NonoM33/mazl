@@ -1429,6 +1429,26 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Bientôt disponible';
+
+  @override
+  String get eventsNotifyMe => 'Me prévenir';
+
+  @override
+  String get eventsNotifyRequested => 'Vous serez prévenu';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Nous vous préviendrons à l\'ouverture des inscriptions.';
+
+  @override
+  String get eventsNotifyCancelled => 'Alerte retirée';
+
+  @override
+  String get eventsNotifyError =>
+      'Impossible d\'enregistrer votre demande. Réessayez.';
+
+  @override
   String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
 
   @override

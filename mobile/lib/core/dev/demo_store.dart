@@ -8,6 +8,7 @@ import 'demo_photos.dart';
 /// Il est remis à zéro à chaque démarrage de session fictive.
 abstract final class DemoStore {
   static final Map<int, String?> _rsvp = {};
+  static final Set<int> _eventAlerts = {};
   static Map<String, dynamic> _profilePatch = {};
   static List<Map<String, dynamic>> _prompts = DemoFixtures.myPrompts();
   static bool _boostActive = false;
@@ -62,6 +63,7 @@ abstract final class DemoStore {
   static void reset() {
     chat = _newChat();
     _rsvp.clear();
+    _eventAlerts.clear();
     _profilePatch = {};
     _prompts = DemoFixtures.myPrompts();
     _boostActive = false;
@@ -186,10 +188,16 @@ abstract final class DemoStore {
       {
         ...e,
         if (_rsvp.containsKey(e['id'])) 'user_rsvp_status': _rsvp[e['id']],
+        if (e['availability'] == 'coming_soon')
+          'notify_requested': _eventAlerts.contains(e['id']),
       },
   ];
 
   static void setRsvp(int eventId, String? status) => _rsvp[eventId] = status;
+
+  /// « Me prévenir » on a coming soon event.
+  static void setEventAlert(int eventId, {required bool requested}) =>
+      requested ? _eventAlerts.add(eventId) : _eventAlerts.remove(eventId);
 
   static List<Map<String, dynamic>> prompts() => List.of(_prompts);
 

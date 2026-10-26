@@ -460,6 +460,9 @@ abstract final class DemoFixtures {
       'id': 1,
       'title': 'Dîner de Shabbat communautaire',
       'description': 'Un dîner convivial pour se rencontrer, ouvert à tous.',
+      // Like the events of the TestFlight phase: announced, not open yet.
+      'availability': 'coming_soon',
+      'notify_requested': false,
       'event_type': 'social',
       'location': 'Centre communautaire',
       'address': '12 rue de l\'Exemple, Paris',

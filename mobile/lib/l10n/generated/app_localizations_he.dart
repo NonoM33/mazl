@@ -1403,6 +1403,24 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'בקרוב';
+
+  @override
+  String get eventsNotifyMe => 'עדכנו אותי';
+
+  @override
+  String get eventsNotifyRequested => 'נעדכן אותך';
+
+  @override
+  String get eventsNotifyRequestedDone => 'נעדכן אותך כשההרשמה תיפתח.';
+
+  @override
+  String get eventsNotifyCancelled => 'ההתראה בוטלה';
+
+  @override
+  String get eventsNotifyError => 'לא הצלחנו לשמור את הבקשה. נסו שוב.';
+
+  @override
   String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
 
   @override

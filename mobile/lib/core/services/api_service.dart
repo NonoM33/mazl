@@ -763,6 +763,29 @@ class ApiService implements CoupleApi {
     }
   }
 
+  /// « Me prévenir »: ask (or, with [requested] false, stop asking) to be
+  /// told by push when a coming soon event opens to registrations.
+  Future<ApiResponse<void>> setEventAlert(
+    int eventId, {
+    required bool requested,
+  }) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/api/events/$eventId/notify');
+      final response = requested
+          ? await _post('/api/events/$eventId/notify', const {})
+          : await _watched((client) => client.delete(url, headers: _headers));
+
+      if (response.statusCode != 200) {
+        return ApiResponse.httpFailure(response, 'Failed to set the alert');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return _networkFailure(e);
+    }
+  }
+
   /// Cancel RSVP
   Future<ApiResponse<void>> cancelRsvp(int eventId) async {
     try {

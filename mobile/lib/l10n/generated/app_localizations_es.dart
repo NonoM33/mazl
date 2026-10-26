@@ -1426,6 +1426,26 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Próximamente';
+
+  @override
+  String get eventsNotifyMe => 'Avisarme';
+
+  @override
+  String get eventsNotifyRequested => 'Te avisaremos';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Te avisaremos cuando se abran las inscripciones.';
+
+  @override
+  String get eventsNotifyCancelled => 'Aviso cancelado';
+
+  @override
+  String get eventsNotifyError =>
+      'No se pudo guardar tu solicitud. Inténtalo de nuevo.';
+
+  @override
   String get genreLookingForRequired => 'Indica a quién buscas';
 
   @override

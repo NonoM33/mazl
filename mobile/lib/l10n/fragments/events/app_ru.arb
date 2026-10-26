@@ -37,5 +37,11 @@
   "eventsRsvpJoinFree": "Записаться бесплатно",
   "eventsRsvpCancelled": "Запись отменена",
   "eventsRsvpDone": "Запись подтверждена",
-  "eventsShareMessage": "Присоединяйтесь ко мне на «{title}» в MAZL"
+  "eventsShareMessage": "Присоединяйтесь ко мне на «{title}» в MAZL",
+  "eventsComingSoon": "Скоро",
+  "eventsNotifyMe": "Сообщить мне",
+  "eventsNotifyRequested": "Мы вам сообщим",
+  "eventsNotifyRequestedDone": "Мы сообщим вам, когда откроется регистрация.",
+  "eventsNotifyCancelled": "Уведомление отключено",
+  "eventsNotifyError": "Не удалось сохранить запрос. Попробуйте ещё раз."
 }

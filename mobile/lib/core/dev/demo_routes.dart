@@ -395,6 +395,14 @@ abstract final class DemoRoutes {
       DemoStore.setRsvp(_id(m), null);
       return _ok;
     }),
+    DemoRoute('POST', '/api/events/(\\d+)/notify', (r, m) {
+      DemoStore.setEventAlert(_id(m), requested: true);
+      return _json({'success': true, 'notifyRequested': true});
+    }),
+    DemoRoute('DELETE', '/api/events/(\\d+)/notify', (r, m) {
+      DemoStore.setEventAlert(_id(m), requested: false);
+      return _json({'success': true, 'notifyRequested': false});
+    }),
 
     // --- Mode couple (demo_couple_routes.dart) ---
     ...DemoCoupleRoutes.routes,
