@@ -18,16 +18,6 @@ class DuoKnownFailure {
 /// list can only shrink. Fixing a screen means deleting its lines here.
 const List<DuoKnownFailure> duoKnownFailures = [
   DuoKnownFailure(
-    '/discover/profile/:userId',
-    DuoPose.halfOpenBook,
-    "élément tapable 'J'aime Rachel' dans le pli",
-  ),
-  DuoKnownFailure(
-    '/filters > after a change',
-    DuoPose.halfOpenBook,
-    "action principale 'Appliquer les filtres' dans le pli",
-  ),
-  DuoKnownFailure(
     '/profile/verification',
     DuoPose.halfOpenBook,
     "action principale 'Vérifier ma photo' dans le pli",
