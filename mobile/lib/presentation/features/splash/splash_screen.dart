@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
 /// The logo of the splash screen. Flat it sits in the middle of the page;
 /// half open the fold would run through it, so it moves to the middle of the
 /// reading-start page (above the fold when set down like a laptop, beside it
-/// when held like a book) and a quiet progress ring fills the other page.
+/// when held like a book); the other page stays empty for these two seconds.
 class SplashBrand extends StatelessWidget {
   const SplashBrand({super.key});
 
@@ -79,12 +79,6 @@ class SplashBrand extends StatelessWidget {
         height: cut.axis == FoldSplitAxis.horizontal ? cut.leadExtent : null,
         child: const Center(child: _logo),
       );
-      const wait = Center(
-        child: SizedBox.square(
-          dimension: 24,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      );
       final gap = SizedBox(
         width: cut.axis == FoldSplitAxis.vertical ? cut.gap : null,
         height: cut.axis == FoldSplitAxis.horizontal ? cut.gap : null,
@@ -94,14 +88,14 @@ class SplashBrand extends StatelessWidget {
           children: [
             lead,
             gap,
-            const Expanded(child: wait),
+            const Expanded(child: SizedBox.shrink()),
           ],
         ),
         FoldSplitAxis.horizontal => Column(
           children: [
             lead,
             gap,
-            const Expanded(child: wait),
+            const Expanded(child: SizedBox.shrink()),
           ],
         ),
       };
