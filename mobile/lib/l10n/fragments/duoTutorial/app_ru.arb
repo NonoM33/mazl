@@ -1,0 +1,21 @@
+{
+  "duoTutorialWelcomeTitle": "MAZL создан для Duo",
+  "duoTutorialWelcomeBody": "В сложенном виде вкладки выстраиваются в колонке, прямо под большим пальцем. Повторяйте жесты на своём телефоне вместе с нами.",
+  "duoTutorialOpenTitle": "Раскройте его",
+  "duoTutorialOpenBody": "Разверните iPhone полностью. Беседы появятся рядом со списком.",
+  "duoTutorialBookTitle": "Согните его как книгу",
+  "duoTutorialBookBody": "Раскройте его наполовину. Сгиб станет линией между двумя колонками: список с одной стороны, подробности с другой.",
+  "duoTutorialTableTitle": "Поставьте на стол",
+  "duoTutorialTableBody": "Держите его как ноутбук. Фото остаётся сверху, кнопки внизу, под большим пальцем.",
+  "duoTutorialTentTitle": "Поставьте домиком",
+  "duoTutorialTentBody": "Сложите его и поверните набок. Сдержанный экран Шаббата будет светиться на столе.",
+  "duoTutorialReadyTitle": "Поехали",
+  "duoTutorialReadyBody": "Вы знаете все положения. Это руководство всегда можно найти в настройках.",
+  "duoTutorialSkip": "Пропустить",
+  "duoTutorialNext": "Далее",
+  "duoTutorialStart": "Начать",
+  "duoTutorialDone": "Готово",
+  "duoTutorialProgress": "Шаг {current} из {total}",
+  "duoTutorialSettingsTitle": "MAZL на iPhone Duo",
+  "duoTutorialSettingsSubtitle": "Пересмотреть руководство"
+}

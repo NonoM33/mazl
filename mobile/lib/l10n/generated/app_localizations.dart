@@ -2124,6 +2124,120 @@ abstract class AppLocalizations {
   /// **'{start} – {end}'**
   String coupleSpaceCalendarRangeOtherMonth(String start, String end);
 
+  /// Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL, pensé pour le Duo'**
+  String get duoTutorialWelcomeTitle;
+
+  /// Étape 1 du tutoriel de l'iPhone Duo : explique que, l'appareil fermé, les onglets s'alignent dans la colonne, et invite à suivre les gestes avec son téléphone en même temps. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermé, vos onglets s\'alignent dans la colonne, sous le pouce. Suivez les gestes avec votre téléphone, en même temps que nous.'**
+  String get duoTutorialWelcomeBody;
+
+  /// Étape 2 du tutoriel de l'iPhone Duo : demande d'ouvrir le téléphone à plat. Titre court, un verbe à l'impératif de politesse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrez-le'**
+  String get duoTutorialOpenTitle;
+
+  /// Étape 2 : explique que, déplié à plat, les conversations s'affichent à côté de la liste. Deux ou trois lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépliez votre iPhone à plat. Les conversations s\'affichent à côté de la liste.'**
+  String get duoTutorialOpenBody;
+
+  /// Étape 3 : demande de plier le téléphone à moitié, comme un livre. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pliez-le comme un livre'**
+  String get duoTutorialBookTitle;
+
+  /// Étape 3 : explique que le pli devient la ligne entre deux colonnes, la liste d'un côté et le détail de l'autre. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrouvrez-le à mi-chemin. Le pli devient la ligne entre deux colonnes : la liste d\'un côté, le détail de l\'autre.'**
+  String get duoTutorialBookBody;
+
+  /// Étape 4 : demande de poser le téléphone à moitié ouvert sur une table, comme un ordinateur portable. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez-le sur la table'**
+  String get duoTutorialTableTitle;
+
+  /// Étape 4 : explique que, tenu comme un ordinateur portable, la photo reste en haut et les boutons en bas, sous le pouce. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tenez-le comme un ordinateur portable. La photo reste en haut, les boutons en bas, sous votre pouce.'**
+  String get duoTutorialTableBody;
+
+  /// Étape 5 : demande de refermer le téléphone et de le tenir debout sur le côté, comme une tente. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Debout, comme une tente'**
+  String get duoTutorialTentTitle;
+
+  /// Étape 5 : explique que, refermé et tourné sur le côté, l'écran extérieur affiche un affichage de Shabbat sobre. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.'**
+  String get duoTutorialTentBody;
+
+  /// Dernière étape du tutoriel : titre de fin, « C'est parti » (deux mots courts).
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est parti'**
+  String get duoTutorialReadyTitle;
+
+  /// Dernière étape : dit que toutes les poses sont connues et que le tutoriel se retrouve dans les Réglages. Deux lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous connaissez toutes les poses. Retrouvez ce tutoriel à tout moment dans les Réglages.'**
+  String get duoTutorialReadyBody;
+
+  /// Bouton du tutoriel de l'iPhone Duo : quitter le tutoriel tout de suite. Un mot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get duoTutorialSkip;
+
+  /// Bouton du tutoriel de l'iPhone Duo : passer à l'étape suivante, même sans avoir fait le geste. Un mot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get duoTutorialNext;
+
+  /// Bouton de la dernière étape du tutoriel : ferme le tutoriel et ouvre l'app. Deux ou trois mots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get duoTutorialStart;
+
+  /// Mention qui apparaît, avec une coche, quand le geste demandé a été reconnu sur le téléphone. Deux ou trois mots.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est fait'**
+  String get duoTutorialDone;
+
+  /// Lu par VoiceOver sur l'indicateur d'avancement du tutoriel : l'étape en cours sur le nombre d'étapes. Exemple : « Étape 2 sur 6 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current} sur {total}'**
+  String duoTutorialProgress(int current, int total);
+
+  /// Ligne des Réglages (visible seulement sur l'iPhone Duo) qui rouvre le tutoriel. Une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL sur iPhone Duo'**
+  String get duoTutorialSettingsTitle;
+
+  /// Sous-titre de la ligne des Réglages qui rouvre le tutoriel de l'iPhone Duo. Une ligne courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir le tutoriel'**
+  String get duoTutorialSettingsSubtitle;
+
   /// Titre de la liste des événements (soirées, cours, fêtes).
   ///
   /// In fr, this message translates to:

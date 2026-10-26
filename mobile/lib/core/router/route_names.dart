@@ -4,6 +4,7 @@ abstract class RouteNames {
   static const splash = 'splash';
   static const onboarding = 'onboarding';
   static const login = 'login';
+  static const duoTutorial = 'duoTutorial';
 
   // Main navigation routes
   static const discover = 'discover';
@@ -57,6 +58,9 @@ abstract class RoutePaths {
   static const splash = '/';
   static const onboarding = '/onboarding';
   static const login = '/login';
+
+  /// Le tutoriel de l'iPhone Duo (la route elle-même est dans duo_tutorial_policy.dart).
+  static const duoTutorial = '/duo-tutorial';
 
   // Main navigation routes
   static const discover = '/discover';

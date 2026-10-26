@@ -1584,6 +1584,92 @@
       }
     }
   },
+  "duoTutorialWelcomeTitle": "MAZL, pensé pour le Duo",
+  "@duoTutorialWelcomeTitle": {
+    "description": "Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères."
+  },
+  "duoTutorialWelcomeBody": "Fermé, vos onglets s'alignent dans la colonne, sous le pouce. Suivez les gestes avec votre téléphone, en même temps que nous.",
+  "@duoTutorialWelcomeBody": {
+    "description": "Étape 1 du tutoriel de l'iPhone Duo : explique que, l'appareil fermé, les onglets s'alignent dans la colonne, et invite à suivre les gestes avec son téléphone en même temps. Trois lignes au plus."
+  },
+  "duoTutorialOpenTitle": "Ouvrez-le",
+  "@duoTutorialOpenTitle": {
+    "description": "Étape 2 du tutoriel de l'iPhone Duo : demande d'ouvrir le téléphone à plat. Titre court, un verbe à l'impératif de politesse."
+  },
+  "duoTutorialOpenBody": "Dépliez votre iPhone à plat. Les conversations s'affichent à côté de la liste.",
+  "@duoTutorialOpenBody": {
+    "description": "Étape 2 : explique que, déplié à plat, les conversations s'affichent à côté de la liste. Deux ou trois lignes."
+  },
+  "duoTutorialBookTitle": "Pliez-le comme un livre",
+  "@duoTutorialBookTitle": {
+    "description": "Étape 3 : demande de plier le téléphone à moitié, comme un livre. Titre court."
+  },
+  "duoTutorialBookBody": "Entrouvrez-le à mi-chemin. Le pli devient la ligne entre deux colonnes : la liste d'un côté, le détail de l'autre.",
+  "@duoTutorialBookBody": {
+    "description": "Étape 3 : explique que le pli devient la ligne entre deux colonnes, la liste d'un côté et le détail de l'autre. Trois lignes au plus."
+  },
+  "duoTutorialTableTitle": "Posez-le sur la table",
+  "@duoTutorialTableTitle": {
+    "description": "Étape 4 : demande de poser le téléphone à moitié ouvert sur une table, comme un ordinateur portable. Titre court."
+  },
+  "duoTutorialTableBody": "Tenez-le comme un ordinateur portable. La photo reste en haut, les boutons en bas, sous votre pouce.",
+  "@duoTutorialTableBody": {
+    "description": "Étape 4 : explique que, tenu comme un ordinateur portable, la photo reste en haut et les boutons en bas, sous le pouce. Trois lignes au plus."
+  },
+  "duoTutorialTentTitle": "Debout, comme une tente",
+  "@duoTutorialTentTitle": {
+    "description": "Étape 5 : demande de refermer le téléphone et de le tenir debout sur le côté, comme une tente. Titre court."
+  },
+  "duoTutorialTentBody": "Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.",
+  "@duoTutorialTentBody": {
+    "description": "Étape 5 : explique que, refermé et tourné sur le côté, l'écran extérieur affiche un affichage de Shabbat sobre. Trois lignes au plus."
+  },
+  "duoTutorialReadyTitle": "C'est parti",
+  "@duoTutorialReadyTitle": {
+    "description": "Dernière étape du tutoriel : titre de fin, « C'est parti » (deux mots courts)."
+  },
+  "duoTutorialReadyBody": "Vous connaissez toutes les poses. Retrouvez ce tutoriel à tout moment dans les Réglages.",
+  "@duoTutorialReadyBody": {
+    "description": "Dernière étape : dit que toutes les poses sont connues et que le tutoriel se retrouve dans les Réglages. Deux lignes."
+  },
+  "duoTutorialSkip": "Passer",
+  "@duoTutorialSkip": {
+    "description": "Bouton du tutoriel de l'iPhone Duo : quitter le tutoriel tout de suite. Un mot."
+  },
+  "duoTutorialNext": "Suivant",
+  "@duoTutorialNext": {
+    "description": "Bouton du tutoriel de l'iPhone Duo : passer à l'étape suivante, même sans avoir fait le geste. Un mot."
+  },
+  "duoTutorialStart": "Commencer",
+  "@duoTutorialStart": {
+    "description": "Bouton de la dernière étape du tutoriel : ferme le tutoriel et ouvre l'app. Deux ou trois mots."
+  },
+  "duoTutorialDone": "C'est fait",
+  "@duoTutorialDone": {
+    "description": "Mention qui apparaît, avec une coche, quand le geste demandé a été reconnu sur le téléphone. Deux ou trois mots."
+  },
+  "duoTutorialProgress": "Étape {current} sur {total}",
+  "@duoTutorialProgress": {
+    "description": "Lu par VoiceOver sur l'indicateur d'avancement du tutoriel : l'étape en cours sur le nombre d'étapes. Exemple : « Étape 2 sur 6 ».",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "duoTutorialSettingsTitle": "MAZL sur iPhone Duo",
+  "@duoTutorialSettingsTitle": {
+    "description": "Ligne des Réglages (visible seulement sur l'iPhone Duo) qui rouvre le tutoriel. Une ligne."
+  },
+  "duoTutorialSettingsSubtitle": "Revoir le tutoriel",
+  "@duoTutorialSettingsSubtitle": {
+    "description": "Sous-titre de la ligne des Réglages qui rouvre le tutoriel de l'iPhone Duo. Une ligne courte."
+  },
   "eventsTitle": "Événements",
   "@eventsTitle": {
     "description": "Titre de la liste des événements (soirées, cours, fêtes)."
