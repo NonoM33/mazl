@@ -11,6 +11,7 @@ import '../../../../core/services/store/credit_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../common/widgets/directional_icon.dart';
 
 /// Screen to manage and activate profile boost
@@ -191,7 +192,7 @@ class _BoostScreenState extends State<BoostScreen> {
   Widget _buildContent() {
     final isActive = _boostStatus?.isActive ?? false;
 
-    return ListView(
+    final list = ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // Header card
@@ -202,15 +203,27 @@ class _BoostScreenState extends State<BoostScreen> {
         // Stats or benefits
         if (isActive) _buildActiveStats() else _buildBenefits(),
 
-        const SizedBox(height: 24),
-
-        // Action button
-        if (!isActive) _buildActivateButton(),
-
         const SizedBox(height: 16),
 
         // Premium upsell if not premium
         if (_remaining != null && _remaining! <= 1) _buildPremiumUpsell(),
+      ],
+    );
+    if (isActive) return list;
+    // The action stays anchored under the scrolling content, above the home
+    // indicator and out of the fold.
+    return Column(
+      children: [
+        Expanded(child: list),
+        SafeArea(
+          top: false,
+          child: FoldSafeActions(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: _buildActivateButton(),
+            ),
+          ),
+        ),
       ],
     );
   }

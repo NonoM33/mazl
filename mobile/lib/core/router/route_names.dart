@@ -4,6 +4,7 @@ abstract class RouteNames {
   static const splash = 'splash';
   static const onboarding = 'onboarding';
   static const login = 'login';
+  static const duoTutorial = 'duoTutorial';
 
   // Main navigation routes
   static const discover = 'discover';
@@ -21,6 +22,7 @@ abstract class RouteNames {
   static const verification = 'verification';
   static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
+  static const shabbatDisplay = 'shabbatDisplay';
   static const computers = 'computers';
   static const webScan = 'webScan';
   static const religiousData = 'religiousData';
@@ -57,6 +59,9 @@ abstract class RoutePaths {
   static const onboarding = '/onboarding';
   static const login = '/login';
 
+  /// Le tutoriel de l'iPhone Duo (la route elle-même est dans duo_tutorial_policy.dart).
+  static const duoTutorial = '/duo-tutorial';
+
   // Main navigation routes
   static const discover = '/discover';
   static const matches = '/matches';
@@ -73,6 +78,7 @@ abstract class RoutePaths {
   static const verification = '/profile/verification';
   static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
+  static const shabbatDisplay = '/profile/settings/shabbat/display';
   static const computers = '/profile/settings/computers';
   static const webScan = '/profile/settings/computers/scan';
   static const religiousData = '/profile/settings/religious-data';

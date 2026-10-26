@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/jewish_calendar_service.dart';
 import '../../../../l10n/l10n.dart';
+import '../shabbat_place.dart';
 import '../widgets/shabbat_hero.dart';
 
 /// Mode Shabbat : les horaires d'allumage et de havdala du lieu du membre, sur
@@ -42,23 +44,15 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
   }
 
   Future<void> _load() async {
-    final response = await _api.getCurrentUser();
-    final profile = response.success ? response.data?.profile : null;
-    final latitude = profile?.latitude;
-    final longitude = profile?.longitude;
-    final place = shabbatPlaceName(profile?.location);
-    // Coordinates without a city name cannot be told to the member: Paris.
-    final location = latitude != null && longitude != null && place != null
-        ? ShabbatLocation(name: place, latitude: latitude, longitude: longitude)
-        : null;
+    final place = await loadShabbatPlace(_api);
     final shabbat = JewishCalendarService().getThisWeekShabbat(
-      location: location ?? ShabbatLocation.paris,
+      location: place.location,
       now: widget.clock?.call(),
     );
     if (!mounted) return;
     setState(() {
       _shabbat = shabbat;
-      _place = location?.name;
+      _place = place.isDefault ? null : place.location.name;
     });
   }
 
@@ -93,9 +87,30 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     ),
               onBack: () => context.pop(),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => context.push(RoutePaths.shabbatDisplay),
+                    child: Text(l10n.shabbatDisplayLaunch),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.shabbatDisplayLaunchHint,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             if (shabbat != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 48),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
                 child: Text(
                   usesDefaultPlace
                       ? l10n.settingsShabbatUnknownPlaceHint
@@ -112,13 +127,4 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
       ),
     );
   }
-}
-
-/// Le nom de la ville d'un profil, sans son code postal (« Paris 75001 » ->
-/// « Paris ») ; null quand le profil n'en a pas.
-String? shabbatPlaceName(String? profileLocation) {
-  final name = profileLocation
-      ?.replaceFirst(RegExp(r'\s+\d{4,6}$'), '')
-      .trim();
-  return name == null || name.isEmpty ? null : name;
 }

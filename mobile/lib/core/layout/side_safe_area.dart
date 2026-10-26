@@ -1,3 +1,5 @@
+import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
+
 import 'package:flutter/material.dart';
 
 import 'fold_state.dart';
@@ -30,12 +32,17 @@ class SideSafeArea extends StatefulWidget {
 
 class _SideSafeAreaState extends State<SideSafeArea> {
   final ValueNotifier<VerticalBarContent?> _slot = ValueNotifier(null);
+  final ValueNotifier<Object?> _passThrough = ValueNotifier(null);
 
   @override
   void dispose() {
     // A publisher below may still release the slot after this frame.
     final slot = _slot;
-    WidgetsBinding.instance.addPostFrameCallback((_) => slot.dispose());
+    final passThrough = _passThrough;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      slot.dispose();
+      passThrough.dispose();
+    });
     super.dispose();
   }
 
@@ -54,13 +61,22 @@ class _SideSafeAreaState extends State<SideSafeArea> {
     return VerticalBarScope(
       geometry: bar,
       slot: _slot,
+      passThrough: _passThrough,
       child: Stack(
         fit: StackFit.passthrough,
         children: [
           Positioned.fill(
             child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor),
           ),
-          SafeArea(top: false, bottom: false, child: widget.child),
+          // Flutter's dialogs, sheets and menus keep out of a display feature
+          // (DisplayFeatureSubScreen), but iOS gives Flutter none: the fold is
+          // handed over here, so that every one of them avoids the curve.
+          MediaQuery(
+            data: media.copyWith(
+              displayFeatures: displayFeaturesOf(FoldScope.of(context)),
+            ),
+            child: SafeArea(top: false, bottom: false, child: widget.child),
+          ),
           if (bar != null)
             Positioned.fromRect(
               rect: bar.controls,
@@ -85,3 +101,14 @@ class _SideSafeAreaState extends State<SideSafeArea> {
     );
   }
 }
+
+/// The fold as Flutter's display features: a half-open hinge for each active
+/// division region.
+List<DisplayFeature> displayFeaturesOf(FoldState fold) => [
+  for (final division in fold.divisions)
+    DisplayFeature(
+      bounds: division,
+      type: DisplayFeatureType.hinge,
+      state: DisplayFeatureState.postureHalfOpened,
+    ),
+];

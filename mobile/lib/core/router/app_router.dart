@@ -10,6 +10,8 @@ import 'route_names.dart';
 import 'route_transitions.dart';
 import '../di/providers/service_providers.dart';
 import '../../presentation/features/splash/splash_screen.dart';
+import '../../presentation/features/duo_tutorial/screens/duo_tutorial_screen.dart';
+import '../duo_tutorial/duo_tutorial_policy.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
 import '../../presentation/features/auth/screens/route_error_screen.dart';
@@ -23,6 +25,7 @@ import '../../presentation/features/profile/screens/profile_view_screen.dart';
 import '../../presentation/features/profile/screens/edit_profile_screen.dart';
 import '../../presentation/features/profile/screens/profile_setup_screen.dart';
 import '../../presentation/features/settings/screens/settings_screen.dart';
+import '../../presentation/features/settings/screens/shabbat_display_screen.dart';
 import '../../presentation/features/settings/screens/shabbat_mode_screen.dart';
 import '../../presentation/features/privacy/screens/religious_data_settings_screen.dart';
 import '../../presentation/features/web_sessions/screens/computers_screen.dart';
@@ -108,6 +111,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.splash,
         name: RouteNames.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+
+      // iPhone Duo tutorial: full screen on the root navigator, once at the
+      // first launch on a foldable iPhone (`next` is where to go after it) and
+      // again from the settings (no `next`: back to the settings).
+      GoRoute(
+        path: RoutePaths.duoTutorial,
+        name: RouteNames.duoTutorial,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final next = safeDuoTutorialNext(state.uri.queryParameters['next']);
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: DuoTutorialScreen(next: next),
+            transitionsBuilder: fadeTransition,
+          );
+        },
       ),
 
       // Onboarding
@@ -535,6 +555,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         name: RouteNames.shabbatMode,
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const ShabbatModeScreen(),
+                        routes: [
+                          GoRoute(
+                            path: 'display',
+                            name: RouteNames.shabbatDisplay,
+                            parentNavigatorKey: _rootNavigatorKey,
+                            builder: (context, state) =>
+                                const ShabbatDisplayScreen(),
+                          ),
+                        ],
                       ),
                       GoRoute(
                         path: 'religious-data',

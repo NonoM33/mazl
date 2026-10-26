@@ -2124,6 +2124,120 @@ abstract class AppLocalizations {
   /// **'{start} – {end}'**
   String coupleSpaceCalendarRangeOtherMonth(String start, String end);
 
+  /// Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL, pensé pour le Duo'**
+  String get duoTutorialWelcomeTitle;
+
+  /// Étape 1 du tutoriel de l'iPhone Duo : explique que, l'appareil fermé, les onglets s'alignent dans la colonne, et invite à suivre les gestes avec son téléphone en même temps. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermé, vos onglets s\'alignent dans la colonne, sous le pouce. Suivez les gestes avec votre téléphone, en même temps que nous.'**
+  String get duoTutorialWelcomeBody;
+
+  /// Étape 2 du tutoriel de l'iPhone Duo : demande d'ouvrir le téléphone à plat. Titre court, un verbe à l'impératif de politesse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrez-le'**
+  String get duoTutorialOpenTitle;
+
+  /// Étape 2 : explique que, déplié à plat, les conversations s'affichent à côté de la liste. Deux ou trois lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépliez votre iPhone à plat. Les conversations s\'affichent à côté de la liste.'**
+  String get duoTutorialOpenBody;
+
+  /// Étape 3 : demande de plier le téléphone à moitié, comme un livre. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pliez-le comme un livre'**
+  String get duoTutorialBookTitle;
+
+  /// Étape 3 : explique que le pli devient la ligne entre deux colonnes, la liste d'un côté et le détail de l'autre. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrouvrez-le à mi-chemin. Le pli devient la ligne entre deux colonnes : la liste d\'un côté, le détail de l\'autre.'**
+  String get duoTutorialBookBody;
+
+  /// Étape 4 : demande de poser le téléphone à moitié ouvert sur une table, comme un ordinateur portable. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez-le sur la table'**
+  String get duoTutorialTableTitle;
+
+  /// Étape 4 : explique que, tenu comme un ordinateur portable, la photo reste en haut et les boutons en bas, sous le pouce. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tenez-le comme un ordinateur portable. La photo reste en haut, les boutons en bas, sous votre pouce.'**
+  String get duoTutorialTableBody;
+
+  /// Étape 5 : demande de refermer le téléphone et de le tenir debout sur le côté, comme une tente. Titre court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Debout, comme une tente'**
+  String get duoTutorialTentTitle;
+
+  /// Étape 5 : explique que, refermé et tourné sur le côté, l'écran extérieur affiche un affichage de Shabbat sobre. Trois lignes au plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.'**
+  String get duoTutorialTentBody;
+
+  /// Dernière étape du tutoriel : titre de fin, « C'est parti » (deux mots courts).
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est parti'**
+  String get duoTutorialReadyTitle;
+
+  /// Dernière étape : dit que toutes les poses sont connues et que le tutoriel se retrouve dans les Réglages. Deux lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous connaissez toutes les poses. Retrouvez ce tutoriel à tout moment dans les Réglages.'**
+  String get duoTutorialReadyBody;
+
+  /// Bouton du tutoriel de l'iPhone Duo : quitter le tutoriel tout de suite. Un mot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get duoTutorialSkip;
+
+  /// Bouton du tutoriel de l'iPhone Duo : passer à l'étape suivante, même sans avoir fait le geste. Un mot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get duoTutorialNext;
+
+  /// Bouton de la dernière étape du tutoriel : ferme le tutoriel et ouvre l'app. Deux ou trois mots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get duoTutorialStart;
+
+  /// Mention qui apparaît, avec une coche, quand le geste demandé a été reconnu sur le téléphone. Deux ou trois mots.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est fait'**
+  String get duoTutorialDone;
+
+  /// Lu par VoiceOver sur l'indicateur d'avancement du tutoriel : l'étape en cours sur le nombre d'étapes. Exemple : « Étape 2 sur 6 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current} sur {total}'**
+  String duoTutorialProgress(int current, int total);
+
+  /// Ligne des Réglages (visible seulement sur l'iPhone Duo) qui rouvre le tutoriel. Une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL sur iPhone Duo'**
+  String get duoTutorialSettingsTitle;
+
+  /// Sous-titre de la ligne des Réglages qui rouvre le tutoriel de l'iPhone Duo. Une ligne courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir le tutoriel'**
+  String get duoTutorialSettingsSubtitle;
+
   /// Titre de la liste des événements (soirées, cours, fêtes).
   ///
   /// In fr, this message translates to:
@@ -6538,6 +6652,90 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
+
+  /// Écran Mode Shabbat : bouton qui ouvre l'affichage plein écran (téléphone posé en tente). Aussi le bouton de la proposition du vendredi. Environ 20 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer l\'affichage'**
+  String get shabbatDisplayLaunch;
+
+  /// Écran Mode Shabbat : phrase sous le bouton, qui dit ce que fait l'affichage (écran allumé, heure, allumage, havdala) et qu'il se lance avant Shabbat. Ne promet aucune pause ni silence des notifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.'**
+  String get shabbatDisplayLaunchHint;
+
+  /// Affichage Shabbat : le grand titre pendant Shabbat (« Shabbat shalom »). Une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat shalom'**
+  String get shabbatDisplayShabbatShalom;
+
+  /// Affichage Shabbat : le mot « Shabbat » seul, titre de la veille de Shabbat et du prochain Shabbat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat'**
+  String get shabbatDisplayShabbatName;
+
+  /// Affichage Shabbat : petit mot au-dessus du titre, le jour même de l'allumage (« Ce soir »). Majuscules, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce soir'**
+  String get shabbatDisplayTonight;
+
+  /// Affichage Shabbat : petit mot au-dessus du titre quand le prochain Shabbat ou la prochaine fête n'est pas pour aujourd'hui (« À venir »). Majuscules, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get shabbatDisplayComing;
+
+  /// Affichage Shabbat : libellé de l'heure de début d'une fête (l'allumage qui l'ouvre). Majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée'**
+  String get shabbatDisplayFestivalEntry;
+
+  /// Affichage Shabbat : libellé de l'heure de fin d'une fête (la nuit qui la clôt). Majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortie'**
+  String get shabbatDisplayFestivalExit;
+
+  /// Affichage Shabbat : libellé au-dessus du nom de la paracha de la semaine (le passage de la Torah lu ce Shabbat). Majuscules.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paracha'**
+  String get shabbatDisplayParasha;
+
+  /// Affichage Shabbat, Hanoucca : le numéro du soir dont on allume les bougies (« Soir 3 »). {night} va de 1 à 8.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soir {night}'**
+  String shabbatDisplayHanukkahNight(int night);
+
+  /// Affichage Shabbat, période de l'Omer : le jour du compte (« Jour 10 de l'Omer »). {day} va de 1 à 49.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour {day} de l\'Omer'**
+  String shabbatDisplayOmerDay(int day);
+
+  /// Affichage Shabbat : indication discrète, en bas de l'écran, de la seule façon de quitter l'affichage (appuyer sans lâcher pendant deux secondes). Lue aussi par VoiceOver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez deux secondes pour quitter'**
+  String get shabbatDisplayExitHint;
+
+  /// Proposition affichée le jour de l'allumage (vendredi ou veille de fête) quand l'iPhone Duo est fermé et posé en paysage : propose de lancer l'affichage Shabbat. Question courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser le téléphone en tente pour ce soir ?'**
+  String get shabbatDisplayProposalTitle;
+
+  /// Proposition de l'affichage Shabbat : bouton pour la refuser jusqu'à la prochaine fois. Environ 15 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get shabbatDisplayProposalDismiss;
 
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///

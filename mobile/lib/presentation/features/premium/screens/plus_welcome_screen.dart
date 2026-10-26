@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/store/subscription_service.dart';
@@ -139,12 +140,14 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: TextButton(
-                  onPressed: _later,
-                  child: Text(l10n.commonLater),
+              FoldSafeActions(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: TextButton(
+                    onPressed: _later,
+                    child: Text(l10n.commonLater),
+                  ),
                 ),
               ),
             ],

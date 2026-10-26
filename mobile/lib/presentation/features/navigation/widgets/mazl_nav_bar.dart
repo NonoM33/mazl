@@ -142,6 +142,9 @@ class MazlNavRail extends StatelessWidget {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              // Each button is as wide as the capsule: the whole width is
+              // tappable, not only the icon (Apple: 44 x 44 pt at least).
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (var i = 0; i < items.length; i++)
                   _NavButton(item: items[i], selected: i == currentIndex, onTap: () => onTap(i)),
@@ -193,6 +196,9 @@ class MazlNavStrip extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            // Each button is as wide as the capsule: the whole width is
+            // tappable, not only the icon (Apple: 44 x 44 pt at least).
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (var i = 0; i < items.length; i++)
                 _NavButton(item: items[i], selected: i == currentIndex, onTap: () => onTap(i), extent: extent),

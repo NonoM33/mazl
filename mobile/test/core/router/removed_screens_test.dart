@@ -40,6 +40,7 @@ void main() {
       '/likes',
       '/premium',
       '/profile/settings/shabbat',
+      '/profile/settings/shabbat/display',
     ]) {
       test(path, () => expect(exists(path), isTrue));
     }

@@ -23,6 +23,7 @@ class FoldState {
     this.divisions = const [],
     this.verticalBar,
     this.occlusions = const [],
+    this.angle,
   });
 
   static const unknown = FoldState(hinge: HingeStatus.unknown);
@@ -40,13 +41,23 @@ class FoldState {
   /// bar and the Dynamic Island in the vertical bar. App controls stay out.
   final List<Rect> occlusions;
 
+  /// Opening angle of the hinge in radians (UIKit's `UIHinge.angle`: 0 closed,
+  /// pi flat), `null` when unknown. Its rate is system policy: animate from it,
+  /// never count on a frequency.
+  final double? angle;
+
+  /// Whether the device has a hinge the system reports on (the foldable
+  /// iPhone on iOS 27.1 or later).
+  bool get isFoldable => hinge != HingeStatus.unknown;
+
   /// The fold the layout has to avoid, if any.
   Rect? get activeDivision => divisions.isEmpty ? null : divisions.first;
 
   /// Reads a message of the `mazl/fold` channel:
   /// `{hinge: 'unknown'|'closed'|'partiallyOpen'|'fullyOpen',
   ///   divisions: [{x, y, width, height}, ...],
-  ///   verticalBar: 'left'|'right'|null, occlusions: [{x, y, width, height}, ...]}`.
+  ///   verticalBar: 'left'|'right'|null, occlusions: [{x, y, width, height}, ...],
+  ///   angle: radians|null}`.
   /// Anything malformed reads as [unknown] (or drops the malformed part): a
   /// wrong message must never move the layout.
   static FoldState fromMessage(Object? message) {
@@ -58,6 +69,14 @@ class FoldState {
       divisions: _rectsFrom(message['divisions']),
       verticalBar: VerticalBarSide.values.asNameMap()[message['verticalBar']],
       occlusions: _rectsFrom(message['occlusions']),
+      angle: switch (message['angle']) {
+        final num value
+            when value.isFinite &&
+                value >= 0 &&
+                value <= 2 * 3.141592653589793 =>
+          value.toDouble(),
+        _ => null,
+      },
     );
   }
 
@@ -91,6 +110,7 @@ class FoldState {
       other is FoldState &&
       other.hinge == hinge &&
       other.verticalBar == verticalBar &&
+      other.angle == angle &&
       _sameRects(other.occlusions, occlusions) &&
       _sameRects(other.divisions, divisions);
 
@@ -102,6 +122,7 @@ class FoldState {
   int get hashCode => Object.hash(
     hinge,
     verticalBar,
+    angle,
     Object.hashAll(divisions),
     Object.hashAll(occlusions),
   );

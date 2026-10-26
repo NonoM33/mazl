@@ -68,6 +68,13 @@ class _ShellState extends State<_Shell> {
                     ),
                 child: const Text('page'),
               ),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).push(
+                      _SeeThroughRoute(),
+                    ),
+                child: const Text('open detail'),
+              ),
               const SizedBox(
                 height: 200,
                 child: SizedBox.expand(key: Key('list')),
@@ -78,6 +85,37 @@ class _ShellState extends State<_Shell> {
       ),
     ),
   );
+}
+
+/// Like the chat opened from the list on a regular window: a route that
+/// draws nothing and lets the shell show the detail in its pane.
+class _SeeThroughRoute extends PageRoute<void> {
+  @override
+  bool get opaque => false;
+  @override
+  bool get maintainState => true;
+  @override
+  Color? get barrierColor => null;
+  @override
+  String? get barrierLabel => null;
+  @override
+  Duration get transitionDuration => Duration.zero;
+  @override
+  Widget buildPage(BuildContext context, Animation<double> a, Animation<double> b) =>
+      Builder(
+        builder: (context) => Column(
+          children: [
+            const VerticalBarPassThrough(),
+            TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => const AlertDialog(content: Text('Over detail')),
+              ),
+              child: const Text('dialog over detail'),
+            ),
+          ],
+        ),
+      );
 }
 
 Future<DuoPoseController> _pump(
@@ -238,6 +276,29 @@ void main() {
     expect(find.byKey(_strip), findsOneWidget);
   });
 
+  // Vécu au simulateur le 2026-10-26 : une conversation ouverte dans le
+  // panneau de droite faisait disparaître la barre d'onglets.
+  testWidgets('a detail opened in the pane keeps the tabs; a dialog over it takes them back', (
+    tester,
+  ) async {
+    await _pump(tester, DuoPose.openLandscape, twoPane: true);
+    expect(find.byKey(_strip), findsOneWidget);
+    await tester.tap(find.text('open detail'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(_strip), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Matchs'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('dialog over detail'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(_strip), findsNothing);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.byKey(_strip), findsOneWidget);
+    Navigator.of(tester.element(find.text('dialog over detail'))).pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(_strip), findsOneWidget);
+  });
+
   testWidgets(
     'folding and unfolding moves the tabs, keeps the tab and the draft',
     (tester) async {
@@ -283,4 +344,36 @@ void main() {
     expect(find.byKey(_rail), findsOneWidget);
     expect(find.byKey(_bottom), findsNothing);
   });
+
+  testWidgets(
+    'every tab of the vertical bar is tappable across the whole capsule',
+    (tester) async {
+      await _pump(tester, DuoPose.closed);
+      final capsule = tester.getRect(find.byKey(_strip));
+      final buttons = find.descendant(
+        of: find.byKey(_strip),
+        matching: find.byType(InkResponse),
+      );
+      expect(buttons, findsNWidgets(_items.length));
+      for (final button
+          in tester.widgetList(buttons).map((w) => find.byWidget(w))) {
+        final rect = tester.getRect(button);
+        // Apple: 44 x 44 pt at least; here the whole width of the capsule.
+        expect(rect.width, closeTo(capsule.width, 0.5));
+        expect(rect.height, greaterThanOrEqualTo(44));
+      }
+      // A tap near the edge of the capsule, not on the icon, still changes tab.
+      final messages = tester.getRect(
+        find
+            .descendant(
+              of: find.byKey(_strip),
+              matching: find.byType(InkResponse),
+            )
+            .at(2),
+      );
+      await tester.tapAt(Offset(capsule.left + 6, messages.center.dy));
+      await tester.pumpAndSettle();
+      expect(find.text('tab 2'), findsOneWidget);
+    },
+  );
 }

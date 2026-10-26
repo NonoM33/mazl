@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
@@ -128,9 +129,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
       }
     } else {
       // Products not configured - show message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.plusPlansSoon)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.plusPlansSoon)));
     }
   }
 
@@ -193,12 +194,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        24,
-                        20,
-                        24,
-                        32 + MediaQuery.viewPaddingOf(context).bottom,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -229,43 +225,50 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             if (i < plans.length - 1)
                               const SizedBox(height: 10),
                           ],
-                          const SizedBox(height: 28),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isPurchasing || !canBuy
-                                  ? null
-                                  : _handlePurchase,
-                              child: !canBuy
-                                  ? Text(l10n.plusAndroidSoon)
-                                  : _isPurchasing
-                                  ? SizedBox.square(
-                                      dimension: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.surface,
-                                      ),
-                                    )
-                                  : Text(
-                                      l10n.plusContinuePrice(
-                                        planTotalLabel(
-                                          price: plans[selected].price,
-                                          currencyCode:
-                                              plans[selected].currencyCode,
-                                          locale: l10n.localeName,
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                          ),
                           const SizedBox(height: 16),
                           _LegalLine(onOpenUrl: _openUrl),
                         ],
                       ),
                     ),
             ),
+            if (!_isLoading)
+              FoldSafeActions(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    24,
+                    12,
+                    24,
+                    16 + MediaQuery.viewPaddingOf(context).bottom,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isPurchasing || !canBuy
+                          ? null
+                          : _handlePurchase,
+                      child: !canBuy
+                          ? Text(l10n.plusAndroidSoon)
+                          : _isPurchasing
+                          ? SizedBox.square(
+                              dimension: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
+                            )
+                          : Text(
+                              l10n.plusContinuePrice(
+                                planTotalLabel(
+                                  price: plans[selected].price,
+                                  currencyCode: plans[selected].currencyCode,
+                                  locale: l10n.localeName,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -281,10 +284,7 @@ class _Perk {
 }
 
 List<_Perk> _perks(AppLocalizations l10n) => [
-  _Perk(
-    l10n.plusFeatureUnlimitedLikesTitle,
-    l10n.plusPerkUnlimitedLikesDetail,
-  ),
+  _Perk(l10n.plusFeatureUnlimitedLikesTitle, l10n.plusPerkUnlimitedLikesDetail),
   _Perk(l10n.plusFeatureSeeWhoLikesYouTitle, l10n.plusPerkSeeWhoDetail),
   _Perk(l10n.plusPerkSuperLikesTitle, l10n.plusPerkSuperLikesDetail),
   _Perk(l10n.plusPerkBoostTitle, l10n.plusPerkBoostDetail),

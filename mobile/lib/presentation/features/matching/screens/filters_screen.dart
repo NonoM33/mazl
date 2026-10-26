@@ -7,6 +7,7 @@ import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/matching/discover_filters.dart';
 import '../../../../core/matching/discover_filters_api.dart';
 import '../../../../core/matching/discover_filters_providers.dart';
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -358,7 +359,8 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
               left: 16,
               right: 16,
               child: SafeArea(
-                child: ElevatedButton(
+                child: FoldSafeActions(
+                  child: ElevatedButton(
                   onPressed: _isSaving ? null : _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -384,6 +386,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                  ),
                 ),
               ),
             ),

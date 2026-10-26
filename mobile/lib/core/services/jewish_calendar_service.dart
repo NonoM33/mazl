@@ -94,11 +94,11 @@ class JewishCalendarService {
     }
     final saturday = friday.add(const Duration(days: 1));
 
-    final candleLightingAt = _zmanimFor(
+    final candleLightingAt = zmanimFor(
       friday,
       location,
     ).getCandleLighting()?.toLocal();
-    final havdalaAt = _zmanimFor(saturday, location).getTzais()?.toLocal();
+    final havdalaAt = zmanimFor(saturday, location).getTzais()?.toLocal();
     return ShabbatInfo(
       parsha: _getParsha(saturday),
       candleLighting: _clock(candleLightingAt),
@@ -169,12 +169,22 @@ class JewishCalendarService {
     return parsha;
   }
 
+  /// The parasha read on [saturday], or null when none is (a festival or
+  /// Chol Hamoed takes the day). Unlike the weekly info, it never looks ahead:
+  /// the display of a festival must not announce next week's reading.
+  Parsha? weeklyParsha(DateTime saturday) {
+    final parsha = (JewishCalendar.fromDateTime(
+      saturday,
+    )..inIsrael = false).getParshah();
+    return parsha == Parsha.NONE ? null : parsha;
+  }
+
   /// `HH:mm` (24 h) of [moment], or `--:--` when the sun does not set.
   String _clock(DateTime? moment) =>
       moment == null ? '--:--' : _timeFormatter.format(moment);
 
   /// Build a zmanim calendar anchored on [date] at [place].
-  ComplexZmanimCalendar _zmanimFor(DateTime date, ShabbatLocation place) {
+  ComplexZmanimCalendar zmanimFor(DateTime date, ShabbatLocation place) {
     final location = GeoLocation.setLocation(
       place.name,
       place.latitude,
@@ -391,25 +401,20 @@ class JewishHoliday {
   bool get isToday {
     final now = DateTime.now();
     return date.year == now.year &&
-           date.month == now.month &&
-           date.day == now.day;
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   bool get isOngoing {
     if (endDate == null) return isToday;
     final now = DateTime.now();
     return now.isAfter(date.subtract(const Duration(days: 1))) &&
-           now.isBefore(endDate!.add(const Duration(days: 1)));
+        now.isBefore(endDate!.add(const Duration(days: 1)));
   }
 }
 
 /// Holiday type enum
-enum HolidayType {
-  major,
-  minor,
-  memorial,
-  israeli,
-}
+enum HolidayType { major, minor, memorial, israeli }
 
 extension HolidayTypeExtension on HolidayType {
   String get emoji {

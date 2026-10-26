@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
@@ -453,7 +454,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ],
         ),
         child: SafeArea(
-          child: _hasRsvp
+          child: FoldSafeActions(
+            child: _hasRsvp
               ? OutlinedButton(
                   onPressed: _isRsvping ? null : _handleRsvp,
                   style: OutlinedButton.styleFrom(
@@ -487,6 +489,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                   : l10n.eventsRsvpJoinFree,
                         ),
                 ),
+          ),
         ),
       ),
     );

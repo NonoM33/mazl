@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/verification.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -86,9 +87,11 @@ class PhotoLevel extends StatelessWidget {
         ] else ...[
           IdentityParagraph(l10n.verificationConsent, size: 15),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: busy || blocked ? null : onVerify,
-            child: busy ? const _BusyDot() : Text(l10n.verificationVerifyPhotoAction),
+          FoldSafeActions(
+            child: ElevatedButton(
+              onPressed: busy || blocked ? null : onVerify,
+              child: busy ? const _BusyDot() : Text(l10n.verificationVerifyPhotoAction),
+            ),
           ),
           if (blocked) ...[
             const SizedBox(height: 10),

@@ -92,6 +92,8 @@ dependencies:
   mobile_scanner: ^7.4.2
   sentry_flutter: ^10.2.0
   package_info_plus: ^9.0.1
+  wakelock_plus: ^1.5.2
+  webview_flutter: ^4.14.1
 
 dev_dependencies:
   flutter_test:
@@ -113,6 +115,7 @@ flutter:
     - assets/images/icons/
     - assets/images/backgrounds/
     - assets/images/placeholders/
+    - assets/duo_tutorial/
 
   fonts:
     - family: Geist

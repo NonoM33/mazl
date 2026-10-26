@@ -11,7 +11,7 @@ import UIKit
 /// .verticalBarEdge`, `left`, `right` or absent) and the ACTIVE occlusion
 /// regions (`reservedRegions(kind: .occlusion)`, the status bar and Dynamic
 /// Island in that bar), all in points of that view, which are Flutter's
-/// logical pixels. Before iOS 27.1, or on a device without a hinge, a single
+/// logical pixels, plus the hinge `angle` in radians when known. Before iOS 27.1, or on a device without a hinge, a single
 /// `unknown` message with nothing else is sent.
 final class FoldPosturePlugin: NSObject, FlutterStreamHandler {
   private weak var registrar: FlutterPluginRegistrar?
@@ -67,6 +67,7 @@ final class FoldPosturePlugin: NSObject, FlutterStreamHandler {
 private final class FoldObserverView: UIView {
   private let send: ([String: Any]) -> Void
   private var hinge: UIHinge.Status = .unknown
+  private var angle: Double?
   private var lastMessage: NSDictionary?
 
   init(frame: CGRect, send: @escaping ([String: Any]) -> Void) {
@@ -77,6 +78,7 @@ private final class FoldObserverView: UIView {
     autoresizingMask = [.flexibleWidth, .flexibleHeight]
     addInteraction(UIHingeInteraction { [weak self] _, update in
       self?.hinge = update.hinge?.status ?? .unknown
+      self?.angle = update.hinge.map { Double($0.angle) }
       self?.report()
     })
     // The vertical bar moves with the display, the orientation and Split View.
@@ -107,6 +109,7 @@ private final class FoldObserverView: UIView {
       "occlusions": activeFrames(of: .occlusion),
     ]
     if let side = verticalBarSide { message["verticalBar"] = side }
+    if let angle { message["angle"] = angle }
     let dictionary = message as NSDictionary
     guard dictionary != lastMessage else { return }
     lastMessage = dictionary

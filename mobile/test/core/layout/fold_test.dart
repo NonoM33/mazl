@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/layout/fold_aware_split.dart';
 import 'package:mazl/core/layout/fold_channel.dart';
+import 'package:mazl/core/layout/fold_safe_actions.dart';
 import 'package:mazl/core/layout/fold_state.dart';
 import 'package:mazl/core/layout/side_safe_area.dart';
 
@@ -297,6 +298,104 @@ void main() {
         ),
       );
       expect(tester.getSize(find.byKey(_lead)).width, width, reason: pose.name);
+    }
+  });
+
+  for (final pose in [DuoPose.halfOpenBook, DuoPose.halfOpenLaptop]) {
+    testWidgets('${pose.name}: a dialog keeps out of the fold by itself', (
+      tester,
+    ) async {
+      setDuoPose(tester, pose);
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: duoAppBuilder(DuoPoseController(pose)),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: const Text('Hello'),
+                      actions: [
+                        TextButton(onPressed: () {}, child: const Text('OK')),
+                      ],
+                    ),
+                  ),
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byType(AlertDialog)).overlaps(pose.fold!),
+        isFalse,
+      );
+      expect(tester.getRect(find.text('OK')).overlaps(pose.fold!), isFalse);
+    });
+  }
+
+  group('FoldSafeActions', () {
+    Widget page(DuoPose pose) => MaterialApp(
+      builder: duoAppBuilder(DuoPoseController(pose)),
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: FoldSafeActions(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: const Text('Continuer'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets(
+      'book pose: the button takes the side of the vertical bar, out of the fold',
+      (tester) async {
+        setDuoPose(tester, DuoPose.halfOpenBook);
+        await tester.pumpWidget(page(DuoPose.halfOpenBook));
+        await settleFold(tester);
+        final rect = tester.getRect(find.byType(ElevatedButton));
+        expect(
+          rect.left,
+          greaterThanOrEqualTo(DuoPose.halfOpenBook.fold!.right),
+        );
+        expect(rect.width, greaterThan(200));
+        expectFitsDuoPose(tester, DuoPose.halfOpenBook, 'actions');
+      },
+    );
+
+    for (final pose in [
+      DuoPose.closed,
+      DuoPose.openLandscape,
+      DuoPose.halfOpenLaptop,
+    ]) {
+      testWidgets('${pose.name}: the button keeps its full width', (
+        tester,
+      ) async {
+        setDuoPose(tester, pose);
+        await tester.pumpWidget(page(pose));
+        await settleFold(tester);
+        final safe = pose.safeRect;
+        expect(
+          tester.getRect(find.byType(ElevatedButton)).width,
+          closeTo(safe.width - 32, 0.5),
+        );
+      });
     }
   });
 }

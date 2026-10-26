@@ -22,6 +22,7 @@ void main() {
     '/profile/setup',
     '/profile/settings',
     '/profile/settings/shabbat',
+    '/profile/settings/shabbat/display',
   ];
 
   group('profileSetupRedirect, profile incomplete', () {

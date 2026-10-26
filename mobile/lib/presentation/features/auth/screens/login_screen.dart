@@ -191,20 +191,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   /// The whole screen when nothing folds it: brand on top, buttons below.
   Widget _buildFlatPage() => LayoutBuilder(
-    builder: (context, constraints) => SingleChildScrollView(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: constraints.maxHeight),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 48, 24, 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [const _Hero(), _buildBottom(context)],
+    builder: (context, constraints) => _isShortLandscape(constraints)
+        // Low and wide (the foldable iPhone standing like a tent): the brand
+        // on one side, the buttons on the other, all of them in view.
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(24, 24, 12, 24),
+                  child: _Hero(),
+                ),
+              ),
+              Expanded(child: _buildTouchPane()),
+            ],
+          )
+        : SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 48, 24, 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [const _Hero(), _buildBottom(context)],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    ),
   );
+
+  static bool _isShortLandscape(BoxConstraints constraints) =>
+      constraints.maxWidth > constraints.maxHeight &&
+      constraints.maxHeight < 560;
 
   /// Buttons and legal links, alone: the half of the screen the member touches.
   Widget _buildTouchPane() => LayoutBuilder(

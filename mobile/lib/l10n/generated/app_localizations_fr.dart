@@ -1211,6 +1211,71 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get duoTutorialWelcomeTitle => 'MAZL, pensé pour le Duo';
+
+  @override
+  String get duoTutorialWelcomeBody =>
+      'Fermé, vos onglets s\'alignent dans la colonne, sous le pouce. Suivez les gestes avec votre téléphone, en même temps que nous.';
+
+  @override
+  String get duoTutorialOpenTitle => 'Ouvrez-le';
+
+  @override
+  String get duoTutorialOpenBody =>
+      'Dépliez votre iPhone à plat. Les conversations s\'affichent à côté de la liste.';
+
+  @override
+  String get duoTutorialBookTitle => 'Pliez-le comme un livre';
+
+  @override
+  String get duoTutorialBookBody =>
+      'Entrouvrez-le à mi-chemin. Le pli devient la ligne entre deux colonnes : la liste d\'un côté, le détail de l\'autre.';
+
+  @override
+  String get duoTutorialTableTitle => 'Posez-le sur la table';
+
+  @override
+  String get duoTutorialTableBody =>
+      'Tenez-le comme un ordinateur portable. La photo reste en haut, les boutons en bas, sous votre pouce.';
+
+  @override
+  String get duoTutorialTentTitle => 'Debout, comme une tente';
+
+  @override
+  String get duoTutorialTentBody =>
+      'Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.';
+
+  @override
+  String get duoTutorialReadyTitle => 'C\'est parti';
+
+  @override
+  String get duoTutorialReadyBody =>
+      'Vous connaissez toutes les poses. Retrouvez ce tutoriel à tout moment dans les Réglages.';
+
+  @override
+  String get duoTutorialSkip => 'Passer';
+
+  @override
+  String get duoTutorialNext => 'Suivant';
+
+  @override
+  String get duoTutorialStart => 'Commencer';
+
+  @override
+  String get duoTutorialDone => 'C\'est fait';
+
+  @override
+  String duoTutorialProgress(int current, int total) {
+    return 'Étape $current sur $total';
+  }
+
+  @override
+  String get duoTutorialSettingsTitle => 'MAZL sur iPhone Duo';
+
+  @override
+  String get duoTutorialSettingsSubtitle => 'Revoir le tutoriel';
+
+  @override
   String get eventsTitle => 'Événements';
 
   @override
@@ -3829,6 +3894,54 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsRestoreNothing => 'Aucun abonnement trouvé.';
+
+  @override
+  String get shabbatDisplayLaunch => 'Lancer l\'affichage';
+
+  @override
+  String get shabbatDisplayLaunchHint =>
+      'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.';
+
+  @override
+  String get shabbatDisplayShabbatShalom => 'Shabbat shalom';
+
+  @override
+  String get shabbatDisplayShabbatName => 'Shabbat';
+
+  @override
+  String get shabbatDisplayTonight => 'Ce soir';
+
+  @override
+  String get shabbatDisplayComing => 'À venir';
+
+  @override
+  String get shabbatDisplayFestivalEntry => 'Entrée';
+
+  @override
+  String get shabbatDisplayFestivalExit => 'Sortie';
+
+  @override
+  String get shabbatDisplayParasha => 'Paracha';
+
+  @override
+  String shabbatDisplayHanukkahNight(int night) {
+    return 'Soir $night';
+  }
+
+  @override
+  String shabbatDisplayOmerDay(int day) {
+    return 'Jour $day de l\'Omer';
+  }
+
+  @override
+  String get shabbatDisplayExitHint => 'Maintenez deux secondes pour quitter';
+
+  @override
+  String get shabbatDisplayProposalTitle =>
+      'Poser le téléphone en tente pour ce soir ?';
+
+  @override
+  String get shabbatDisplayProposalDismiss => 'Pas maintenant';
 
   @override
   String get verificationProfileEyebrow => 'Votre profil';

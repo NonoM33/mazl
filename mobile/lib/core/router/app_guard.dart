@@ -11,6 +11,8 @@ const _publicRoutes = [
 
 /// The router's single redirect, free of any screen so it can be tested.
 ///
+/// 0. the iPhone Duo tutorial opens for anyone, signed in or not: it runs at
+///    the very first launch, before the rest of the journey;
 /// 1. the splash routes by itself;
 /// 2. a visitor who is not signed in only gets the public routes, and lands on
 ///    the onboarding; a member whose session the app just ended
@@ -25,7 +27,9 @@ String? appRedirect({
   required bool inCouple,
   bool sessionEnded = false,
 }) {
-  if (location == RoutePaths.splash) return null;
+  if (location == RoutePaths.splash || location == RoutePaths.duoTutorial) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     if (sessionEnded) {

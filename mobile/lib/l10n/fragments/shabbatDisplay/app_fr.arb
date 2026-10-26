@@ -1,0 +1,68 @@
+{
+  "shabbatDisplayLaunch": "Lancer l'affichage",
+  "@shabbatDisplayLaunch": {
+    "description": "Écran Mode Shabbat : bouton qui ouvre l'affichage plein écran (téléphone posé en tente). Aussi le bouton de la proposition du vendredi. Environ 20 caractères."
+  },
+  "shabbatDisplayLaunchHint": "Posez le téléphone en tente : l'écran reste allumé et affiche l'heure, l'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.",
+  "@shabbatDisplayLaunchHint": {
+    "description": "Écran Mode Shabbat : phrase sous le bouton, qui dit ce que fait l'affichage (écran allumé, heure, allumage, havdala) et qu'il se lance avant Shabbat. Ne promet aucune pause ni silence des notifications."
+  },
+  "shabbatDisplayShabbatShalom": "Shabbat shalom",
+  "@shabbatDisplayShabbatShalom": {
+    "description": "Affichage Shabbat : le grand titre pendant Shabbat (« Shabbat shalom »). Une ligne."
+  },
+  "shabbatDisplayShabbatName": "Shabbat",
+  "@shabbatDisplayShabbatName": {
+    "description": "Affichage Shabbat : le mot « Shabbat » seul, titre de la veille de Shabbat et du prochain Shabbat."
+  },
+  "shabbatDisplayTonight": "Ce soir",
+  "@shabbatDisplayTonight": {
+    "description": "Affichage Shabbat : petit mot au-dessus du titre, le jour même de l'allumage (« Ce soir »). Majuscules, une ligne."
+  },
+  "shabbatDisplayComing": "À venir",
+  "@shabbatDisplayComing": {
+    "description": "Affichage Shabbat : petit mot au-dessus du titre quand le prochain Shabbat ou la prochaine fête n'est pas pour aujourd'hui (« À venir »). Majuscules, une ligne."
+  },
+  "shabbatDisplayFestivalEntry": "Entrée",
+  "@shabbatDisplayFestivalEntry": {
+    "description": "Affichage Shabbat : libellé de l'heure de début d'une fête (l'allumage qui l'ouvre). Majuscules, demi-largeur d'écran."
+  },
+  "shabbatDisplayFestivalExit": "Sortie",
+  "@shabbatDisplayFestivalExit": {
+    "description": "Affichage Shabbat : libellé de l'heure de fin d'une fête (la nuit qui la clôt). Majuscules, demi-largeur d'écran."
+  },
+  "shabbatDisplayParasha": "Paracha",
+  "@shabbatDisplayParasha": {
+    "description": "Affichage Shabbat : libellé au-dessus du nom de la paracha de la semaine (le passage de la Torah lu ce Shabbat). Majuscules."
+  },
+  "shabbatDisplayHanukkahNight": "Soir {night}",
+  "@shabbatDisplayHanukkahNight": {
+    "description": "Affichage Shabbat, Hanoucca : le numéro du soir dont on allume les bougies (« Soir 3 »). {night} va de 1 à 8.",
+    "placeholders": {
+      "night": {
+        "type": "int"
+      }
+    }
+  },
+  "shabbatDisplayOmerDay": "Jour {day} de l'Omer",
+  "@shabbatDisplayOmerDay": {
+    "description": "Affichage Shabbat, période de l'Omer : le jour du compte (« Jour 10 de l'Omer »). {day} va de 1 à 49.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "shabbatDisplayExitHint": "Maintenez deux secondes pour quitter",
+  "@shabbatDisplayExitHint": {
+    "description": "Affichage Shabbat : indication discrète, en bas de l'écran, de la seule façon de quitter l'affichage (appuyer sans lâcher pendant deux secondes). Lue aussi par VoiceOver."
+  },
+  "shabbatDisplayProposalTitle": "Poser le téléphone en tente pour ce soir ?",
+  "@shabbatDisplayProposalTitle": {
+    "description": "Proposition affichée le jour de l'allumage (vendredi ou veille de fête) quand l'iPhone Duo est fermé et posé en paysage : propose de lancer l'affichage Shabbat. Question courte."
+  },
+  "shabbatDisplayProposalDismiss": "Pas maintenant",
+  "@shabbatDisplayProposalDismiss": {
+    "description": "Proposition de l'affichage Shabbat : bouton pour la refuser jusqu'à la prochaine fois. Environ 15 caractères."
+  }
+}
