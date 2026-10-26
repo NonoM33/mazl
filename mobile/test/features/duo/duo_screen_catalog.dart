@@ -245,6 +245,12 @@ final List<DuoScreen> duoScreens = [
     path: '/profile/settings/shabbat',
   ),
   const DuoScreen(
+    id: '/profile/settings/shabbat/display',
+    feature: 'settings',
+    file: 'settings/screens/shabbat_display_screen.dart',
+    path: '/profile/settings/shabbat/display',
+  ),
+  const DuoScreen(
     id: '/profile/settings/religious-data',
     feature: 'privacy',
     file: 'privacy/screens/religious_data_settings_screen.dart',
