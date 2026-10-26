@@ -1,6 +1,6 @@
 import { DAILY_SESSION_LIMIT } from "../domain/thresholds";
 import type { VerificationLevel } from "../domain/types";
-import type { FaceSessionRepository, VerificationStateRepository } from "./ports";
+import type { FaceSessionRepository, QuotaWaiver, VerificationStateRepository } from "./ports";
 
 export interface VerificationStatus {
   readonly photo: { readonly verified: boolean; readonly verifiedAt: Date | null; readonly attemptsToday: number };
@@ -14,6 +14,7 @@ export interface VerificationStatus {
 export interface FaceStatusDeps {
   readonly sessions: FaceSessionRepository;
   readonly state: VerificationStateRepository;
+  readonly waiver?: QuotaWaiver;
 }
 
 export async function getVerificationStatus(deps: FaceStatusDeps, userId: number): Promise<VerificationStatus> {
@@ -27,7 +28,8 @@ export async function getVerificationStatus(deps: FaceStatusDeps, userId: number
   const identityVerified = state.identityVerifiedAt !== null;
   const level: VerificationLevel = identityVerified ? "identity" : photoVerified ? "photo" : "none";
   const isVerified = level !== "none";
-  const exhausted = !isVerified && photoAttempts >= DAILY_SESSION_LIMIT;
+  const waived = (await deps.waiver?.waived(userId)) ?? false;
+  const exhausted = !isVerified && !waived && photoAttempts >= DAILY_SESSION_LIMIT;
   return {
     photo: { verified: photoVerified, verifiedAt: state.photoVerifiedAt, attemptsToday: photoAttempts },
     identity: { verified: identityVerified, verifiedAt: state.identityVerifiedAt, attemptsToday: identityAttempts },

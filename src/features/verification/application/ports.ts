@@ -125,3 +125,9 @@ export interface VerificationStateRepository {
   refreshBadge(userId: number): Promise<void>;
   read(userId: number): Promise<PhotoBadgeState>;
 }
+
+// Whether the daily limit of attempts is lifted for a member (administrators
+// testing the check, until a set date).
+export interface QuotaWaiver {
+  waived(userId: number): Promise<boolean>;
+}

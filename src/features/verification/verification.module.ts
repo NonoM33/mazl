@@ -15,6 +15,8 @@ import { readFaceConfig } from "./infra/config";
 import { createStorePhotoReader } from "./infra/store-photo-reader";
 import { PgFaceReferenceStore } from "./infra/pg-face-reference-store";
 import { PgFaceSessionRepository } from "./infra/pg-face-session-repository";
+import { PgQuotaWaiver } from "./infra/pg-quota-waiver";
+import { parseWaiverEnd } from "./domain/quota-waiver";
 import { PgProfilePhotoStore, type PhotoFileReader } from "./infra/pg-profile-photo-store";
 import { PgVerificationState } from "./infra/pg-verification-state";
 import { gcmSecretVault } from "./infra/secret-vault";
@@ -52,11 +54,12 @@ export function createVerificationModule(options: VerificationModuleOptions): Ve
   const photos = new PgProfilePhotoStore(options.sql, options.readPhoto ?? createStorePhotoReader(options.store));
   const state = new PgVerificationState(options.sql);
   const vault = gcmSecretVault;
+  const waiver = new PgQuotaWaiver(options.sql, parseWaiverEnd((options.env ?? process.env).ADMIN_VERIFICATION_UNLIMITED_UNTIL));
 
   const routeDeps: VerificationRouteDeps = {
     submit: { decoder, engine, sessions, references, photos, state, vault, thresholds: config.thresholds },
-    session: { sessions, random: Math.random },
-    status: { sessions, state },
+    session: { sessions, random: Math.random, waiver },
+    status: { sessions, state, waiver },
     reference: { references, photos, state },
   };
   const photoFaceChecker = new PhotoFaceCheckerService({

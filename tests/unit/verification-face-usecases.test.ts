@@ -112,6 +112,16 @@ describe("startFaceSession", () => {
     }
   });
 
+  test("a waived member is not held to the daily limit, the others still are", async () => {
+    for (let i = 0; i < 3; i++) await openSession(USER, "photo");
+    const waiver = { waived: async (userId: number) => userId === USER };
+    expect((await startFaceSession({ sessions, random: Math.random, waiver }, USER, "photo")).ok).toBe(true);
+    for (let i = 0; i < 3; i++) await openSession(OTHER_USER, "photo");
+    expect((await startFaceSession({ sessions, random: Math.random, waiver }, OTHER_USER, "photo")).ok).toBe(false);
+    const status = await getVerificationStatus({ sessions, state, waiver }, USER);
+    expect(status.nextAttemptTime).toBeNull();
+  });
+
   test("quotas are per purpose and per user", async () => {
     for (let i = 0; i < 3; i++) await openSession(USER, "photo");
     expect((await startFaceSession({ sessions, random: Math.random }, USER, "identity")).ok).toBe(true);
