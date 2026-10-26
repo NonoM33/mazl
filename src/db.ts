@@ -1101,6 +1101,17 @@ export async function getUserProfile(userId: number) {
   return result.length ? result[0] : null;
 }
 
+// The member's own photos as the API exposes them (signed URLs, primary
+// first), for GET /api/auth/me: the app reads its profile from there.
+export async function getOwnPhotoUrls(userId: number): Promise<string[]> {
+  const photos = await sql<{ id: number; url: string }[]>`
+    SELECT id, url FROM profile_photos
+    WHERE user_id = ${userId}
+    ORDER BY is_primary DESC, position ASC, id ASC
+  `;
+  return publicPhotoUrls(photos);
+}
+
 // `includePrivate` is for the member's OWN profile only: email and the account
 // name (possibly a legal name) are never returned about someone else.
 export async function getFullProfile(userId: number, includePrivate = false) {

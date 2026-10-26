@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { verifyGoogleIdToken, verifyAppleIdToken, generateJWT } from "../../auth";
-import { upsertUser, getUserProfile, findUserById } from "../../db";
+import { upsertUser, getUserProfile, findUserById, getOwnPhotoUrls } from "../../db";
 import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { createIpRateLimiter } from "../../shared/http/rate-limit";
@@ -57,7 +57,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
       });
 
       // Get user profile if exists
-      const profile = await getUserProfile(user.id);
+      const row = await getUserProfile(user.id);
+      // The app reads its own photos here (profile view, completion card).
+      const profile = row ? { ...row, photos: await getOwnPhotoUrls(user.id) } : null;
 
       return c.json({
         success: true,
@@ -69,7 +71,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
           picture: user.picture,
           provider: user.provider,
           isNew,
-          hasProfile: !!profile?.is_complete,
+          hasProfile: !!row?.is_complete,
         },
       });
     } catch (error) {
@@ -127,7 +129,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
       });
 
       // Get user profile if exists
-      const profile = await getUserProfile(user.id);
+      const row = await getUserProfile(user.id);
+      // The app reads its own photos here (profile view, completion card).
+      const profile = row ? { ...row, photos: await getOwnPhotoUrls(user.id) } : null;
 
       return c.json({
         success: true,
@@ -138,7 +142,7 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
           name: user.name,
           provider: user.provider,
           isNew,
-          hasProfile: !!profile?.is_complete,
+          hasProfile: !!row?.is_complete,
         },
       });
     } catch (error) {
@@ -157,7 +161,9 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
         return c.json({ success: false, error: "User not found" }, 404);
       }
 
-      const profile = await getUserProfile(user.id);
+      const row = await getUserProfile(user.id);
+      // The app reads its own photos here (profile view, completion card).
+      const profile = row ? { ...row, photos: await getOwnPhotoUrls(user.id) } : null;
 
       return c.json({
         success: true,
@@ -167,10 +173,10 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
           name: user.name,
           picture: user.picture,
           provider: user.provider,
-          hasProfile: !!profile?.is_complete,
+          hasProfile: !!row?.is_complete,
         },
         profile,
-        missing: missingProfileFields(profile),
+        missing: missingProfileFields(row),
       });
     } catch (error) {
       console.error("Get user error:", error);

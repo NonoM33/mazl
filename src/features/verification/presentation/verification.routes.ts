@@ -7,6 +7,7 @@ import { requireAuth, type AppVariables } from "../../../shared/http/middleware"
 import { parseBody } from "../../../shared/http/validation";
 import { MAX_BODY_BYTES, parseFaceSubmission, readMultipartCapped, sessionRequestSchema } from "./face-request";
 import { registerLegacyVerificationRoutes } from "./legacy-routes";
+import { captureDiagnosticsLine, captureDiagnosticsSchema } from "./capture-diagnostics";
 
 export interface VerificationRouteDeps {
   readonly session: StartSessionDeps;
@@ -27,6 +28,15 @@ function logFailure(where: string, error: unknown): void {
 // Literal /api/verification/* paths: registered before any parameterised
 // route that could capture them.
 export function registerVerificationRoutes(app: App, deps: VerificationRouteDeps): void {
+  // POST /api/verification/face/diagnostics: counts the app measured while a
+  // selfie check did not complete (no image), logged to find device issues.
+  app.post("/api/verification/face/diagnostics", requireAuth, async (c) => {
+    const body = await parseBody(captureDiagnosticsSchema, c);
+    if (!body.ok) return c.json({ success: false, error: body.error }, 400);
+    console.log(captureDiagnosticsLine(c.get("userId"), body.data));
+    return c.json({ success: true });
+  });
+
   app.post("/api/verification/face/session", requireAuth, async (c) => {
     const body = await parseBody(sessionRequestSchema, c);
     if (!body.ok) return c.json({ success: false, error: body.error }, 400);

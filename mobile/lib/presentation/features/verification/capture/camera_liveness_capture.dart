@@ -1,6 +1,10 @@
 import 'dart:typed_data';
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../../../../core/services/api_service.dart';
 
 import '../../../../core/services/verification_api.dart';
 import '../../../../core/vision/face_pose_detector.dart';
@@ -25,7 +29,10 @@ class CameraLivenessCapture implements LivenessCapture {
   final int? leftYawSign;
 
   @override
-  Future<List<Uint8List>?> capture(BuildContext context, List<FaceChallenge> challenges) {
+  Future<List<Uint8List>?> capture(
+    BuildContext context,
+    List<FaceChallenge> challenges,
+  ) {
     return Navigator.of(context, rootNavigator: true).push<List<Uint8List>>(
       MaterialPageRoute(
         fullscreenDialog: true,
@@ -34,6 +41,11 @@ class CameraLivenessCapture implements LivenessCapture {
           detector: detector,
           timeout: timeout,
           leftYawSign: leftYawSign,
+          onDiagnostics: (diagnostics) => unawaited(
+            ApiService()
+                .post('/api/verification/face/diagnostics', diagnostics)
+                .then((_) {}, onError: (Object _) {}),
+          ),
         ),
       ),
     );
