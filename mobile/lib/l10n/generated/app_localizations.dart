@@ -6539,6 +6539,90 @@ abstract class AppLocalizations {
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
 
+  /// Écran Mode Shabbat : bouton qui ouvre l'affichage plein écran (téléphone posé en tente). Aussi le bouton de la proposition du vendredi. Environ 20 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer l\'affichage'**
+  String get shabbatDisplayLaunch;
+
+  /// Écran Mode Shabbat : phrase sous le bouton, qui dit ce que fait l'affichage (écran allumé, heure, allumage, havdala) et qu'il se lance avant Shabbat. Ne promet aucune pause ni silence des notifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.'**
+  String get shabbatDisplayLaunchHint;
+
+  /// Affichage Shabbat : le grand titre pendant Shabbat (« Shabbat shalom »). Une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat shalom'**
+  String get shabbatDisplayShabbatShalom;
+
+  /// Affichage Shabbat : le mot « Shabbat » seul, titre de la veille de Shabbat et du prochain Shabbat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat'**
+  String get shabbatDisplayShabbatName;
+
+  /// Affichage Shabbat : petit mot au-dessus du titre, le jour même de l'allumage (« Ce soir »). Majuscules, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce soir'**
+  String get shabbatDisplayTonight;
+
+  /// Affichage Shabbat : petit mot au-dessus du titre quand le prochain Shabbat ou la prochaine fête n'est pas pour aujourd'hui (« À venir »). Majuscules, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get shabbatDisplayComing;
+
+  /// Affichage Shabbat : libellé de l'heure de début d'une fête (l'allumage qui l'ouvre). Majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée'**
+  String get shabbatDisplayFestivalEntry;
+
+  /// Affichage Shabbat : libellé de l'heure de fin d'une fête (la nuit qui la clôt). Majuscules, demi-largeur d'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortie'**
+  String get shabbatDisplayFestivalExit;
+
+  /// Affichage Shabbat : libellé au-dessus du nom de la paracha de la semaine (le passage de la Torah lu ce Shabbat). Majuscules.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paracha'**
+  String get shabbatDisplayParasha;
+
+  /// Affichage Shabbat, Hanoucca : le numéro du soir dont on allume les bougies (« Soir 3 »). {night} va de 1 à 8.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soir {night}'**
+  String shabbatDisplayHanukkahNight(int night);
+
+  /// Affichage Shabbat, période de l'Omer : le jour du compte (« Jour 10 de l'Omer »). {day} va de 1 à 49.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour {day} de l\'Omer'**
+  String shabbatDisplayOmerDay(int day);
+
+  /// Affichage Shabbat : indication discrète, en bas de l'écran, de la seule façon de quitter l'affichage (appuyer sans lâcher pendant deux secondes). Lue aussi par VoiceOver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez deux secondes pour quitter'**
+  String get shabbatDisplayExitHint;
+
+  /// Proposition affichée le jour de l'allumage (vendredi ou veille de fête) quand l'iPhone Duo est fermé et posé en paysage : propose de lancer l'affichage Shabbat. Question courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser le téléphone en tente pour ce soir ?'**
+  String get shabbatDisplayProposalTitle;
+
+  /// Proposition de l'affichage Shabbat : bouton pour la refuser jusqu'à la prochaine fois. Environ 15 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get shabbatDisplayProposalDismiss;
+
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
   /// In fr, this message translates to:

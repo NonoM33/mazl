@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import 'push_permission.dart';
+import 'quiet_display.dart';
 
 /// What the app needs from the push provider. OneSignal behind it in the app, a
 /// fake in the tests.
@@ -35,7 +36,11 @@ class OneSignalPushGateway implements PushGateway {
     });
 
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      event.notification.display();
+      routeForegroundNotification(
+        QuietDisplay.instance,
+        display: event.notification.display,
+        discard: event.preventDefault,
+      );
     });
   }
 
@@ -52,8 +57,17 @@ class OneSignalPushGateway implements PushGateway {
   );
 
   @override
-  Future<void> addTags(Map<String, String> tags) => OneSignal.User.addTags(tags);
+  Future<void> addTags(Map<String, String> tags) =>
+      OneSignal.User.addTags(tags);
 
   @override
   Future<void> removeTags(List<String> keys) => OneSignal.User.removeTags(keys);
 }
+
+/// A notification that arrives while the app is open: shown, unless the
+/// Shabbat display is on, which nothing may disturb (no banner, no sound).
+void routeForegroundNotification(
+  QuietDisplay quiet, {
+  required VoidCallback display,
+  required VoidCallback discard,
+}) => quiet.isOn ? discard() : display();

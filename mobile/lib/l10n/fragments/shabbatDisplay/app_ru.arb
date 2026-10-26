@@ -1,0 +1,16 @@
+{
+  "shabbatDisplayLaunch": "Запустить экран",
+  "shabbatDisplayLaunchHint": "Поставьте телефон домиком: экран остаётся включённым и показывает время, зажигание свечей и Авдалу. Запустите его до Шаббата и больше не трогайте.",
+  "shabbatDisplayShabbatShalom": "Шаббат шалом",
+  "shabbatDisplayShabbatName": "Шаббат",
+  "shabbatDisplayTonight": "Сегодня вечером",
+  "shabbatDisplayComing": "Скоро",
+  "shabbatDisplayFestivalEntry": "Начало",
+  "shabbatDisplayFestivalExit": "Конец",
+  "shabbatDisplayParasha": "Недельная глава",
+  "shabbatDisplayHanukkahNight": "Ночь {night}",
+  "shabbatDisplayOmerDay": "День {day} Омера",
+  "shabbatDisplayExitHint": "Удерживайте две секунды, чтобы выйти",
+  "shabbatDisplayProposalTitle": "Поставить телефон домиком на сегодняшний вечер?",
+  "shabbatDisplayProposalDismiss": "Не сейчас"
+}

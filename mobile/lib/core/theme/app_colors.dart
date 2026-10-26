@@ -91,6 +91,14 @@ abstract class AppColors {
   static const shabbatText = Color(0xFFF4F1EA);
   static const shabbatMuted = Color(0xFFB9B6AE);
 
+  // Affichage Shabbat (téléphone posé en tente, allumé toute la nuit) : un
+  // noir presque pur, jamais de blanc, des tons éteints.
+  static const shabbatDisplayBackground = Color(0xFF050507);
+  static const shabbatDisplayText = Color(0xFFB9B4A8);
+  static const shabbatDisplayMuted = Color(0xFF8A877F);
+  static const shabbatDisplayFlame = Color(0xFFC48A2A);
+  static const shabbatDisplayWax = Color(0xFF34343A);
+
   static const premiumGradient = [tekhelet, tekhelet, tekhelet];
 
   static const LinearGradient primaryGradient = LinearGradient(
