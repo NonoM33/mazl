@@ -245,6 +245,12 @@ final List<DuoScreen> duoScreens = [
     path: '/profile/settings/shabbat',
   ),
   const DuoScreen(
+    id: '/duo-tutorial',
+    feature: 'duo_tutorial',
+    file: 'duo_tutorial/screens/duo_tutorial_screen.dart',
+    path: '/duo-tutorial',
+  ),
+  const DuoScreen(
     id: '/profile/settings/shabbat/display',
     feature: 'settings',
     file: 'settings/screens/shabbat_display_screen.dart',

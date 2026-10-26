@@ -30,6 +30,9 @@ import 'duo_known_failures.dart';
 import 'duo_screen_catalog.dart';
 import 'duo_geometry.dart';
 import 'duo_screens.dart';
+import 'package:mazl/presentation/features/duo_tutorial/duo_tutorial_providers.dart';
+
+import '../../core/duo_tutorial/fake_duo_scene_renderer.dart';
 
 // Every screen of the app in every posture of the foldable iPhone (iPhone
 // Duo), opened by its route through the real router in the demo session
@@ -121,6 +124,10 @@ Future<List<String>> _measure(
     overrides: [
       if (screen.session == DuoSession.signedOut)
         isAuthenticatedProvider.overrideWithValue(false),
+      // The tutorial's 3D scene is a web view: a fake renderer, as in its own tests.
+      duoSceneRendererFactoryProvider.overrideWithValue(
+        FakeDuoSceneRenderer.new,
+      ),
       // What the demo server does not serve, and the camera.
       privacyConsentApiProvider.overrideWithValue(
         FakePrivacyConsentApi(granted: true, version: '2026-10-24'),
