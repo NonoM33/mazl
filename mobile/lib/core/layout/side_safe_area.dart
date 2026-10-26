@@ -32,12 +32,17 @@ class SideSafeArea extends StatefulWidget {
 
 class _SideSafeAreaState extends State<SideSafeArea> {
   final ValueNotifier<VerticalBarContent?> _slot = ValueNotifier(null);
+  final ValueNotifier<Object?> _passThrough = ValueNotifier(null);
 
   @override
   void dispose() {
     // A publisher below may still release the slot after this frame.
     final slot = _slot;
-    WidgetsBinding.instance.addPostFrameCallback((_) => slot.dispose());
+    final passThrough = _passThrough;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      slot.dispose();
+      passThrough.dispose();
+    });
     super.dispose();
   }
 
@@ -56,6 +61,7 @@ class _SideSafeAreaState extends State<SideSafeArea> {
     return VerticalBarScope(
       geometry: bar,
       slot: _slot,
+      passThrough: _passThrough,
       child: Stack(
         fit: StackFit.passthrough,
         children: [

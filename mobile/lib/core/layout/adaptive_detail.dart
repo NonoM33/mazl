@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'vertical_bar.dart';
 import 'window_size.dart';
 
 /// A screen that is the "detail" of a list: an open conversation, the profile
@@ -167,7 +168,8 @@ class _DetailPageBodyState extends State<_DetailPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    if (isRegularWidth(context)) return const SizedBox.shrink();
+    // The shell draws the detail in its pane and keeps its tabs.
+    if (isRegularWidth(context)) return const VerticalBarPassThrough();
     // Full screen: the sides belong to the safe area, which is not symmetric
     // on every display.
     return SafeArea(top: false, bottom: false, child: KeyedSubtree(key: _key, child: widget.child));

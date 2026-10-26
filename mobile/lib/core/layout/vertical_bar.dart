@@ -117,12 +117,16 @@ class VerticalBarScope extends InheritedWidget {
     super.key,
     required this.geometry,
     required this.slot,
+    required this.passThrough,
     required super.child,
   });
 
   /// `null` when the bars are horizontal.
   final VerticalBarGeometry? geometry;
   final ValueNotifier<VerticalBarContent?> slot;
+
+  /// The see-through route on top, if any ([VerticalBarPassThrough]).
+  final ValueNotifier<Object?> passThrough;
 
   static VerticalBarScope? _of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<VerticalBarScope>();
@@ -135,9 +139,14 @@ class VerticalBarScope extends InheritedWidget {
   static ValueNotifier<VerticalBarContent?>? slotOf(BuildContext context) =>
       _of(context)?.slot;
 
+  static ValueNotifier<Object?>? passThroughOf(BuildContext context) =>
+      _of(context)?.passThrough;
+
   @override
   bool updateShouldNotify(VerticalBarScope oldWidget) =>
-      oldWidget.geometry != geometry || oldWidget.slot != slot;
+      oldWidget.geometry != geometry ||
+      oldWidget.slot != slot ||
+      oldWidget.passThrough != passThrough;
 }
 
 /// Puts [bar] in the vertical bar while the screen around it is the one on
@@ -155,11 +164,29 @@ class VerticalBarPublisher extends StatefulWidget {
 
 class _VerticalBarPublisherState extends State<VerticalBarPublisher> {
   ValueNotifier<VerticalBarContent?>? _slot;
+  ValueNotifier<Object?>? _passThrough;
+
+  void _onPassThrough() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final passThrough = VerticalBarScope.passThroughOf(context);
+    if (passThrough == _passThrough) return;
+    _passThrough?.removeListener(_onPassThrough);
+    _passThrough = passThrough?..addListener(_onPassThrough);
+  }
 
   @override
   Widget build(BuildContext context) {
     final slot = VerticalBarScope.slotOf(context);
-    final onTop = ModalRoute.isCurrentOf(context) ?? true;
+    // Covered only by a see-through route (a detail drawn in this screen's
+    // pane), the screen is still the one the user acts on.
+    final onTop =
+        (ModalRoute.isCurrentOf(context) ?? true) ||
+        _passThrough?.value != null;
     if (slot != _slot) _release();
     _slot = slot;
     // The slot is drawn by an ancestor: it changes after this frame, never
@@ -184,6 +211,54 @@ class _VerticalBarPublisherState extends State<VerticalBarPublisher> {
     // Never notify the slot's listeners while the tree is being torn down.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (slot.value?.owner == this) slot.value = null;
+    });
+  }
+
+  @override
+  void dispose() {
+    _passThrough?.removeListener(_onPassThrough);
+    _release();
+    super.dispose();
+  }
+}
+
+/// Marks a route that draws nothing of its own and lets the screen below show
+/// it (a detail opened in the tab shell's pane): while that route is the one
+/// on top, the screen below keeps its vertical bar. A dialog or a page over
+/// it takes the bar back, as over any screen. Draws nothing.
+class VerticalBarPassThrough extends StatefulWidget {
+  const VerticalBarPassThrough({super.key});
+
+  @override
+  State<VerticalBarPassThrough> createState() => _VerticalBarPassThroughState();
+}
+
+class _VerticalBarPassThroughState extends State<VerticalBarPassThrough> {
+  ValueNotifier<Object?>? _passThrough;
+
+  @override
+  Widget build(BuildContext context) {
+    final passThrough = VerticalBarScope.passThroughOf(context);
+    if (passThrough != _passThrough) _release();
+    _passThrough = passThrough;
+    final onTop = ModalRoute.isCurrentOf(context) ?? true;
+    // The publisher below rebuilds on this change: never during this build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || passThrough == null) return;
+      if (onTop) {
+        passThrough.value = this;
+      } else if (passThrough.value == this) {
+        passThrough.value = null;
+      }
+    });
+    return const SizedBox.shrink();
+  }
+
+  void _release() {
+    final passThrough = _passThrough;
+    if (passThrough == null || passThrough.value != this) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (passThrough.value == this) passThrough.value = null;
     });
   }
 
