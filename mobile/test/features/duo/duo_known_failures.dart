@@ -88,16 +88,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/filters',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/filters > after a change',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/matches',
     DuoPose.halfOpenLaptop,
     'crosses the fold (book layout to do)',
