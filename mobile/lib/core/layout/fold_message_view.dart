@@ -77,6 +77,8 @@ class FoldMessageView extends StatelessWidget {
     );
     return FoldCutBuilder(
       minPaneExtent: kFoldMessagePaneExtent,
+      // A message reads as one block on a flat screen, however wide.
+      spreadWhenWide: false,
       builder: (context, cut) {
         if (cut != null) {
           final lead = centered(message);

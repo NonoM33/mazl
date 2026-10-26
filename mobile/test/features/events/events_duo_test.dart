@@ -172,9 +172,9 @@ void main() {
       });
     });
 
-    testWidgets('open landscape: still one column of cards', (tester) async {
+    testWidgets('open portrait: still one column of cards', (tester) async {
       await _inServer(() async {
-        await _pump(tester, DuoPose.openLandscape, const EventsListScreen());
+        await _pump(tester, DuoPose.openPortrait, const EventsListScreen());
         final first = _rect(tester, 'Dîner de Shabbat');
         final second = _rect(tester, 'Conférence Talmud');
         expect(second.left, first.left);
@@ -280,11 +280,11 @@ void main() {
       });
     });
 
-    testWidgets('open landscape: the registration bar still spans the page', (
+    testWidgets('open portrait: the registration bar still spans the page', (
       tester,
     ) async {
       await _inServer(() async {
-        await openDetail(tester, DuoPose.openLandscape);
+        await openDetail(tester, DuoPose.openPortrait);
         expect(
           tester.getRect(find.byType(ElevatedButton)).width,
           greaterThan(500),

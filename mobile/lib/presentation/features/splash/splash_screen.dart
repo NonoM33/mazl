@@ -72,6 +72,8 @@ class SplashBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FoldCutBuilder(
+    // A logo is centred on a flat screen, however wide.
+    spreadWhenWide: false,
     builder: (context, cut) {
       if (cut == null) return const Center(child: _logo);
       final lead = SizedBox(

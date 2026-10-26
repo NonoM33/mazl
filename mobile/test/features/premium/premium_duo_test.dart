@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mazl/core/layout/fold_cut.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/premium/screens/plus_welcome_screen.dart';
 import 'package:mazl/presentation/features/premium/screens/premium_screen.dart';
@@ -76,6 +77,32 @@ void main() {
       expect(foldCrossingProblems(tester, DuoPose.halfOpenBook), isEmpty);
     });
 
+    testWidgets('opened flat sideways: the same two pages, around the middle '
+        'of the screen', (tester) async {
+      await _pump(tester, DuoPose.openLandscape, _offer());
+      // No fold: the room left by the side column (951 - 84) is cut in two
+      // with a gutter between the pages.
+      const gutter = Rect.fromLTWH(
+        (867 - kSpreadGutter) / 2,
+        0,
+        kSpreadGutter,
+        669,
+      );
+      final l10n = _l10n();
+      expect(
+        tester.getRect(find.text(l10n.plusOfferTagline)).right,
+        lessThanOrEqualTo(gutter.left),
+      );
+      expect(
+        tester.getRect(find.text(l10n.plusMonths(3))).left,
+        greaterThanOrEqualTo(gutter.right),
+      );
+      expect(
+        tester.getRect(find.byType(ElevatedButton)).left,
+        greaterThanOrEqualTo(gutter.right),
+      );
+    });
+
     testWidgets('book in Hebrew: the promise is right of the fold, the '
         'purchase left', (tester) async {
       await _pump(
@@ -117,10 +144,10 @@ void main() {
       expect(buyLabel(), chosen);
     });
 
-    testWidgets('open landscape: one column, the purchase spans the page', (
+    testWidgets('open portrait: one column, the purchase spans the page', (
       tester,
     ) async {
-      await _pump(tester, DuoPose.openLandscape, _offer());
+      await _pump(tester, DuoPose.openPortrait, _offer());
       final l10n = _l10n();
       expect(
         tester.getRect(find.text(l10n.plusMonths(3))).top,
@@ -180,10 +207,10 @@ void main() {
       );
     });
 
-    testWidgets('open landscape: greeting and ways to begin in one column', (
+    testWidgets('open portrait: greeting and ways to begin in one column', (
       tester,
     ) async {
-      await _pump(tester, DuoPose.openLandscape, _welcome());
+      await _pump(tester, DuoPose.openPortrait, _welcome());
       final l10n = _l10n();
       final subtitle = tester.getRect(find.text(l10n.plusWelcomeSubtitle));
       final likes = tester.getRect(find.text(l10n.plusWelcomeLikesCount(3)));

@@ -96,8 +96,24 @@ void main() {
       );
     });
 
-    testWidgets('flat and laptop: one list, end below start', (tester) async {
-      for (final pose in [DuoPose.openLandscape, DuoPose.halfOpenLaptop]) {
+    testWidgets('opened flat sideways: two pages around the middle', (
+      tester,
+    ) async {
+      await _pump(tester, DuoPose.openLandscape, spread());
+      // The pages share the room the side column leaves: 951 - 84 points.
+      const room = 951.0 - 84;
+      const secondPage = (room + kSpreadGutter) / 2;
+      final start = _rectOf(tester, find.text('Profil'));
+      final end = _rectOf(tester, find.text('Réglages'));
+      expect(start.right, lessThanOrEqualTo(secondPage - kSpreadGutter));
+      expect(end.left, secondPage);
+      expect(end.top, start.top, reason: 'side by side, not one below');
+    });
+
+    testWidgets('upright and laptop: one list, end below start', (
+      tester,
+    ) async {
+      for (final pose in [DuoPose.openPortrait, DuoPose.halfOpenLaptop]) {
         await _pump(tester, pose, spread());
         final start = _rectOf(tester, find.text('Profil'));
         final end = _rectOf(tester, find.text('Réglages'));
@@ -109,11 +125,11 @@ void main() {
     testWidgets('folding and unfolding keep what the member typed', (
       tester,
     ) async {
-      final pose = await _pump(tester, DuoPose.openLandscape, spread());
+      final pose = await _pump(tester, DuoPose.openPortrait, spread());
       await tester.enterText(find.byKey(const Key('name')), 'Jeanne');
       await pose.moveTo(tester, DuoPose.halfOpenBook);
       expect(find.text('Jeanne'), findsOneWidget);
-      await pose.moveTo(tester, DuoPose.openLandscape);
+      await pose.moveTo(tester, DuoPose.openPortrait);
       expect(find.text('Jeanne'), findsOneWidget);
     });
   });

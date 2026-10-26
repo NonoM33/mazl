@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'fold_cut.dart';
 import 'fold_state.dart';
 
 /// Widest a single-column page grows: lines stay readable and the canon's
@@ -51,10 +52,17 @@ class ContentMaxWidth extends StatelessWidget {
   /// Held like a book and half open, the fold runs down the middle of the
   /// window: the page takes the whole width so that each side of the fold
   /// keeps a usable half (see [FoldAwareSplit]).
+  ///
+  /// Opened flat and turned sideways (or on an iPad), the page takes the
+  /// whole width too: it is read as two pages ([FoldCut.spread]).
   double _maxWidthFor(BuildContext context) {
     final fold = FoldScope.of(context).activeDivision;
-    return fold != null && fold.height > fold.width
-        ? double.infinity
-        : maxWidth;
+    if (fold != null) {
+      return fold.height > fold.width ? double.infinity : maxWidth;
+    }
+    final window = MediaQuery.sizeOf(context);
+    final spread =
+        window.width >= kSpreadMinWidth && window.width > window.height;
+    return spread ? double.infinity : maxWidth;
   }
 }

@@ -143,10 +143,10 @@ void main() {
     );
   });
 
-  testWidgets('open landscape: one column, the header above the benefits', (
+  testWidgets('open portrait: one column, the header above the benefits', (
     tester,
   ) async {
-    await _pump(tester, DuoPose.openLandscape);
+    await _pump(tester, DuoPose.openPortrait);
     final l10n = _l10n();
     expect(
       tester.getRect(find.text(l10n.boostBenefitsTitle)).top,

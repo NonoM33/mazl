@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/layout/fold_aware_split.dart';
 import 'package:mazl/core/layout/fold_channel.dart';
+import 'package:mazl/core/layout/fold_cut.dart';
 import 'package:mazl/core/layout/fold_safe_actions.dart';
 import 'package:mazl/core/layout/fold_state.dart';
 import 'package:mazl/core/layout/side_safe_area.dart';
@@ -147,7 +148,6 @@ void main() {
       for (final pose in [
         DuoPose.closed,
         DuoPose.openPortrait,
-        DuoPose.openLandscape,
         DuoPose.splitView,
       ]) {
         await _pump(tester, pose);
@@ -155,6 +155,18 @@ void main() {
         expect(find.text('axis null'), findsOneWidget, reason: pose.name);
         expectFitsDuoPose(tester, pose, 'flat page');
       }
+    });
+
+    testWidgets('opened flat sideways: two pages around the middle, no fold', (
+      tester,
+    ) async {
+      await _pump(tester, DuoPose.openLandscape);
+      expect(find.text('axis vertical'), findsOneWidget);
+      final lead = tester.getRect(find.byKey(_lead));
+      final field = tester.getRect(find.byKey(_field));
+      expect(lead.right, lessThan(field.left));
+      expect(field.left - lead.right, kSpreadGutter);
+      expectFitsDuoPose(tester, DuoPose.openLandscape, 'spread page');
     });
 
     testWidgets('laptop pose: lead above the fold, fields and button below', (
@@ -283,11 +295,11 @@ void main() {
     },
   );
 
-  testWidgets('the reading column spans the window when a book fold cuts it', (
-    tester,
-  ) async {
+  testWidgets('the reading column spans the window when a book fold cuts it, '
+      'or when the window is wide enough for two pages', (tester) async {
     for (final (pose, width) in [
-      (DuoPose.openLandscape, kContentMaxWidth),
+      (DuoPose.openLandscape, 951.0 - 84),
+      (DuoPose.openPortrait, kContentMaxWidth),
       (DuoPose.halfOpenBook, 951.0 - 84),
     ]) {
       setDuoPose(tester, pose);
