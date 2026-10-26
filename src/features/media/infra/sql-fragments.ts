@@ -1,4 +1,5 @@
-import type { Sql } from "postgres";
+import type { PendingQuery, Row, Sql } from "postgres";
+import { DEMO_PHOTO_SQL_PATTERN } from "../domain/stored-photo";
 
 // SQL fragments shared by the monolith's profile-shaped queries. They assume
 // the aliases `p` (profiles, possibly NULL after a LEFT JOIN) and `u` (users).
@@ -21,15 +22,21 @@ export function badgeColumns(sql: Sql) {
   `;
 }
 
+// A photo row the API may expose: an uploaded file (a storage key) or a stock
+// photo of a test profile. Other http(s) rows are legacy and never exposed.
+export function displayablePhoto(sql: Sql, url: PendingQuery<Row[]>) {
+  return sql`(${url} NOT ILIKE 'http%' OR ${url} ~ ${DEMO_PHOTO_SQL_PATTERN})`;
+}
+
 // First displayable uploaded photo (primary first). External legacy rows are
 // skipped: they are never exposed.
 export function primaryPhotoColumns(sql: Sql) {
   return sql`
     (SELECT pp.id FROM profile_photos pp
-       WHERE pp.user_id = u.id AND pp.url NOT ILIKE 'http%'
+       WHERE pp.user_id = u.id AND ${displayablePhoto(sql, sql`pp.url`)}
        ORDER BY pp.is_primary DESC, pp.position ASC, pp.id ASC LIMIT 1) AS primary_photo_id,
     (SELECT pp.url FROM profile_photos pp
-       WHERE pp.user_id = u.id AND pp.url NOT ILIKE 'http%'
+       WHERE pp.user_id = u.id AND ${displayablePhoto(sql, sql`pp.url`)}
        ORDER BY pp.is_primary DESC, pp.position ASC, pp.id ASC LIMIT 1) AS primary_photo_url
   `;
 }

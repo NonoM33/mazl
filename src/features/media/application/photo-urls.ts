@@ -1,4 +1,4 @@
-import { classifyStoredUrl, parseGoogleAvatar } from "../domain/stored-photo";
+import { classifyStoredUrl, isDemoPhotoUrl, parseGoogleAvatar } from "../domain/stored-photo";
 import { signPhotoUrl } from "./photo-signer";
 
 // Turns stored rows into what API responses may expose. Imported by the
@@ -11,10 +11,12 @@ export interface PhotoRef {
 
 export function publicPhotoUrl(photo: PhotoRef, nowMs: number = Date.now()): string | null {
   const kind = classifyStoredUrl(photo.url);
+  if (kind === "demo") return photo.url;
   return kind === "local" || kind === "legacy" ? signPhotoUrl(photo.id, nowMs) : null;
 }
 
 export function publicAvatarUrl(picture: string | null): string | null {
+  if (picture !== null && isDemoPhotoUrl(picture)) return picture;
   return parseGoogleAvatar(picture)?.toString() ?? null;
 }
 

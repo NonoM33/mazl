@@ -1,6 +1,7 @@
 import type { PendingQuery, Row, Sql } from "postgres";
 import type { ApplicableFilters, CandidateSet, CandidateSource } from "../application/ports";
 import { answerKey, NO_FILTERS, type DiscoverFilters } from "../domain/discover-filters";
+import { displayablePhoto } from "../../media/infra/sql-fragments";
 import { TEXT_OID } from "./pg-types";
 import type { Gender, LookingFor, MatchProfile, VerificationLevel } from "../domain/profile";
 
@@ -135,7 +136,7 @@ export class PgCandidateSource implements CandidateSource {
       ${answerIn(sql`p.kashrut_level`, filters.kashrutLevels)}
       ${answerIn(sql`p.shabbat_observance`, filters.shabbatObservances)}
       ${filters.onlyVerified ? sql`AND p.verification_level IN ('photo', 'selfie', 'identity')` : sql``}
-      ${filters.onlyWithPhoto ? sql`AND EXISTS (SELECT 1 FROM profile_photos ph WHERE ph.user_id = p.user_id AND ph.url NOT ILIKE 'http%')` : sql``}
+      ${filters.onlyWithPhoto ? sql`AND EXISTS (SELECT 1 FROM profile_photos ph WHERE ph.user_id = p.user_id AND ${displayablePhoto(sql, sql`ph.url`)})` : sql``}
     `;
   }
 
@@ -149,7 +150,7 @@ export class PgCandidateSource implements CandidateSource {
         DATE_PART('year', AGE(p.birthdate))::int AS age,
         p.age_min, p.age_max, p.distance_max, p.latitude, p.longitude,
         p.denomination, p.kashrut_level, p.shabbat_observance, p.relationship_intention,
-        (SELECT count(*)::int FROM profile_photos ph WHERE ph.user_id = p.user_id AND ph.url NOT ILIKE 'http%') AS photo_count,
+        (SELECT count(*)::int FROM profile_photos ph WHERE ph.user_id = p.user_id AND ${displayablePhoto(sql, sql`ph.url`)}) AS photo_count,
         (p.bio IS NOT NULL AND btrim(p.bio) <> '') AS has_bio,
         (SELECT count(*)::int FROM profile_prompts pr WHERE pr.user_id = p.user_id) AS prompt_count,
         p.verification_level,

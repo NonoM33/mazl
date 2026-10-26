@@ -54,4 +54,32 @@ describe("public photo URLs", () => {
     expect(publicPicture(null, "https://i.pravatar.cc/1")).toBeNull();
     expect(publicPicture({ id: 9, url: "https://i.pravatar.cc/1" }, null)).toBeNull();
   });
+
+  // The stock photos of the test profiles are the one third-party exception.
+  const STOCK = "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop&crop=faces&q=80";
+  const THUMB = "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=faces&q=80";
+
+  test("a stock photo of a test profile is exposed as it is, as photo and as picture", () => {
+    expect(publicPhotoUrl({ id: 5, url: STOCK })).toBe(STOCK);
+    expect(publicAvatarUrl(THUMB)).toBe(THUMB);
+    expect(publicPicture({ id: 5, url: STOCK }, THUMB)).toBe(STOCK);
+    expect(publicPicture(null, THUMB)).toBe(THUMB);
+  });
+
+  test("anything that only looks like a stock photo stays hidden", () => {
+    const lookalikes = [
+      STOCK.replace("images.unsplash.com", "images.unsplash.com.evil.example"),
+      STOCK.replace("https://", "http://"),
+      STOCK.replace("https://", "https://user@"),
+      "https://evil.example/https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop&crop=faces&q=80",
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      `${STOCK}&extra=1`,
+      STOCK.replace("fit=crop", "fit=max"),
+      "https://plus.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop&crop=faces&q=80",
+    ];
+    for (const url of lookalikes) {
+      expect([url, publicPhotoUrl({ id: 1, url })]).toEqual([url, null]);
+      expect([url, publicAvatarUrl(url)]).toEqual([url, null]);
+    }
+  });
 });
