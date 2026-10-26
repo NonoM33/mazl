@@ -96,7 +96,6 @@ class _AnalyticsConsentSheetState extends ConsumerState<AnalyticsConsentSheet> {
           style: const TextStyle(fontSize: 14, height: 1.5),
         ),
       ),
-      const SizedBox(height: 16),
     ];
   }
 
@@ -143,6 +142,8 @@ class _AnalyticsConsentSheetState extends ConsumerState<AnalyticsConsentSheet> {
           ),
         ),
       ),
+      // Outside the scrolling words, so the buttons never touch them.
+      const SizedBox(height: 16),
       ..._choices(context),
     ],
   );
