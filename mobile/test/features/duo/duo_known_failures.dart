@@ -63,31 +63,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
   ),
   DuoKnownFailure(
-    '/boost',
-    DuoPose.closed,
-    "action principale 'Activer le Boost' sous la barre d'accueil (17 pt)",
-  ),
-  DuoKnownFailure(
-    '/boost',
-    DuoPose.tent,
-    'action principale hors écran, sous la partie visible de sa liste',
-  ),
-  DuoKnownFailure(
-    '/boost',
-    DuoPose.openLandscape,
-    "action principale 'Activer le Boost' sous la barre d'accueil (20 pt)",
-  ),
-  DuoKnownFailure(
-    '/boost',
-    DuoPose.halfOpenBook,
-    "action principale 'Activer le Boost' sous la barre d'accueil (20 pt)",
-  ),
-  DuoKnownFailure(
-    '/boost',
-    DuoPose.splitView,
-    "action principale 'Activer le Boost' sous la barre d'accueil (20 pt)",
-  ),
-  DuoKnownFailure(
     '/events',
     DuoPose.closed,
     "élément tapable 'Événement' sous la barre d'accueil (2 pt) (en bas de liste)",
