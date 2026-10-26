@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/fold_state.dart';
 import 'package:mazl/core/layout/side_safe_area.dart';
+import 'package:mazl/core/layout/vertical_bar.dart';
 
 /// The poses of the foldable iPhone (iPhone Duo): window size in logical
 /// points and safe-area padding, as measured on the iOS 27.1 simulator.
@@ -42,11 +43,43 @@ enum DuoPose {
   /// coordinates. Only in the two half-open poses.
   final Rect? fold;
 
-  FoldState get foldState => fold == null
-      ? FoldState(
-          hinge: this == closed ? HingeStatus.closed : HingeStatus.fullyOpen,
-        )
-      : FoldState(hinge: HingeStatus.partiallyOpen, divisions: [fold!]);
+  /// What the native side reports in this pose (measured on the iOS 27.1
+  /// simulator for the outer display: vertical bar on the right, status
+  /// cluster 84 x 174 and camera; inner display held sideways: status cluster
+  /// 84 x 108, first app control at y 120).
+  FoldState get foldState {
+    final hinge = fold != null
+        ? HingeStatus.partiallyOpen
+        : this == closed
+        ? HingeStatus.closed
+        : HingeStatus.fullyOpen;
+    final bar = padding.right > 0 && padding.top == 0
+        ? VerticalBarSide.right
+        : null;
+    final occlusions = switch (this) {
+      closed => const [
+        Rect.fromLTWH(382, 0, 84, 174),
+        Rect.fromLTWH(399.7, 29.3, 37, 37),
+      ],
+      openLandscape || halfOpenBook => const [Rect.fromLTWH(867, 0, 84, 108)],
+      _ => const <Rect>[],
+    };
+    return FoldState(
+      hinge: hinge,
+      divisions: fold == null ? const [] : [fold!],
+      verticalBar: bar,
+      occlusions: occlusions,
+    );
+  }
+
+  /// The system's vertical bar in this pose, `null` when the bars are
+  /// horizontal.
+  VerticalBarGeometry? get verticalBar => VerticalBarGeometry.resolve(
+    fold: foldState,
+    size: size,
+    viewPadding: padding,
+    platform: TargetPlatform.iOS,
+  );
 
   /// Where interactive elements may be: inside the safe area, out of the fold.
   Rect get safeRect => padding.deflateRect(Offset.zero & size);
@@ -99,24 +132,43 @@ Iterable<Element> _tappables(WidgetTester tester) => find
     .evaluate();
 
 /// No overflow was reported while the screen laid out in [pose], every
-/// tappable element lies inside the safe area of [pose] and none touches its
-/// fold. [reason] names the screen in the failure message.
+/// tappable element lies inside the safe area of [pose] (or in the app's part
+/// of the system's vertical bar), none is under a system element, and none
+/// outside a scrolling list touches the fold. [reason] names the screen in the
+/// failure message.
 void expectFitsDuoPose(WidgetTester tester, DuoPose pose, String reason) {
   final error = tester.takeException();
   expect(error, isNull, reason: '$reason in ${pose.name}: $error');
+  final bar = pose.verticalBar?.controls;
   for (final element in _tappables(tester)) {
     final box = element.renderObject! as RenderBox;
     final rect = box.localToGlobal(Offset.zero) & box.size;
     final label =
         '$reason in ${pose.name}: ${element.widget.runtimeType} '
         'at $rect';
+    bool inside(Rect area) =>
+        area.inflate(0.5).contains(rect.topLeft) &&
+        area.inflate(0.5).contains(rect.bottomRight);
+    // The app's bars may also sit in the system's vertical bar, below the
+    // status bar and the Dynamic Island.
     expect(
-      pose.safeRect.inflate(0.5).contains(rect.topLeft) &&
-          pose.safeRect.inflate(0.5).contains(rect.bottomRight),
+      inside(pose.safeRect) || (bar != null && inside(bar)),
       isTrue,
-      reason: '$label is outside the safe area ${pose.safeRect}',
+      reason:
+          '$label is outside the safe area ${pose.safeRect}'
+          '${bar == null ? '' : ' and the vertical bar $bar'}',
     );
-    if (pose.fold != null) {
+    for (final occluded in pose.foldState.occlusions) {
+      expect(
+        rect.overlaps(occluded),
+        isFalse,
+        reason: '$label is under the system at $occluded',
+      );
+    }
+    // Apple: keep interactive elements out of the curve; scrolling content
+    // does not need to avoid it (the member scrolls it out of the way).
+    final scrolls = element.findAncestorWidgetOfExactType<Scrollable>() != null;
+    if (pose.fold != null && !scrolls) {
       expect(
         rect.overlaps(pose.fold!),
         isFalse,
