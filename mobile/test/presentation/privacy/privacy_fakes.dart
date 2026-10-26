@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mazl/core/di/providers/privacy_providers.dart';
+import 'package:mazl/core/privacy/analytics_consent.dart';
 import 'package:mazl/core/privacy/privacy_consent_api.dart';
 import 'package:mazl/core/privacy/religious_data_consent.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/l10n/l10n.dart';
 
+const analyticsConsentText = 'J\'accepte la mesure d\'audience.';
 const consentText = 'Je consens au traitement de ma pratique religieuse.';
 
 /// In-memory server: a PUT changes what the next GET returns.
 class FakePrivacyConsentApi implements PrivacyConsentApi {
-  FakePrivacyConsentApi({this.granted, this.version});
+  FakePrivacyConsentApi({
+    this.granted,
+    this.version,
+    this.analyticsGranted = false,
+    this.analyticsVersion = '2026-10-26',
+  });
+
+  /// Analytics defaults to "asked and refused" so that no sheet interrupts
+  /// a test that is about something else.
+  bool? analyticsGranted;
+  String? analyticsVersion;
 
   bool? granted;
   String? version;
@@ -42,6 +54,33 @@ class FakePrivacyConsentApi implements PrivacyConsentApi {
     if (failDecide) return ApiResponse.failure('boom', ApiErrorKind.server);
     this.granted = granted;
     this.version = version;
+    return ApiResponse<void>.success(null);
+  }
+
+  @override
+  Future<ApiResponse<AnalyticsConsent>> analytics() async {
+    calls.add('get:analytics');
+    if (failFetch) return ApiResponse.failure('network', ApiErrorKind.network);
+    return ApiResponse.success(
+      AnalyticsConsent(
+        granted: analyticsGranted,
+        version: analyticsVersion,
+        decidedAt: null,
+        currentVersion: '2026-10-26',
+        text: analyticsConsentText,
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<void>> decideAnalytics({
+    required bool granted,
+    required String version,
+  }) async {
+    calls.add('put:analytics:$granted:$version');
+    if (failDecide) return ApiResponse.failure('boom', ApiErrorKind.server);
+    analyticsGranted = granted;
+    analyticsVersion = version;
     return ApiResponse<void>.success(null);
   }
 }
