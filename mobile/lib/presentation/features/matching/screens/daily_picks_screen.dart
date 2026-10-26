@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
 import '../../../../core/motion/mazl_motion.dart';
@@ -38,6 +39,10 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   bool _loadFailed = false;
   ApiErrorKind? _errorKind;
   DateTime? _nextRefreshTime;
+
+  /// Keeps the grid (scroll position, cards) when the device folds and the
+  /// page is rearranged around it.
+  final GlobalKey _gridKey = GlobalKey(debugLabel: 'daily-picks-grid');
 
   @override
   void initState() {
@@ -247,88 +252,111 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // Header
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+    final header = _picksHeader();
+    final grid = KeyedSubtree(key: _gridKey, child: _picksGrid());
+    return FoldCutBuilder(
+      builder: (context, cut) {
+        // Held like a book: the title and the time left on the reading-start
+        // page, the picks on the other one, nothing in the curve.
+        if (cut != null && cut.axis == FoldSplitAxis.vertical) {
+          return Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentGold.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      LucideIcons.sparkles,
-                      color: AppColors.accentGold,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Wraps instead of overflowing with a large text size.
-                  Flexible(
-                    child: Text(
-                      context.l10n.matchingPicksCount(_dailyPicks.length),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(
+                width: cut.leadExtent,
+                child: Center(child: header),
               ),
-              const SizedBox(height: 8),
-              Text(
-                context.l10n.matchingPicksUpdatedIn(
-                  _timeUntilRefresh().hours,
-                  _timeUntilRefresh().minutes,
+              SizedBox(width: cut.gap),
+              Expanded(child: grid),
+            ],
+          );
+        }
+        return Column(
+          children: [
+            header,
+            Expanded(child: grid),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _picksHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentGold.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                child: const Icon(
+                  LucideIcons.sparkles,
+                  color: AppColors.accentGold,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Wraps instead of overflowing with a large text size.
+              Flexible(
+                child: Text(
+                  context.l10n.matchingPicksCount(_dailyPicks.length),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
-        ),
-
-        // Picks grid
-        Expanded(
-          child: GridView.builder(
-            // Last row clear of the home indicator.
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + MediaQuery.paddingOf(context).bottom,
+          const SizedBox(height: 8),
+          Text(
+            context.l10n.matchingPicksUpdatedIn(
+              _timeUntilRefresh().hours,
+              _timeUntilRefresh().minutes,
             ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _dailyPicks.length,
-            itemBuilder: (context, index) {
-              final pick = _dailyPicks[index];
-              final card = _DailyPickCard(
-                profile: pick,
-                onTap: () => _openProfile(pick),
-                onLike: () => _handleLike(pick),
-                onSuperLike: () => _handleSuperLike(pick),
-              );
-              // Reduced motion: the grid is simply there, no staggered pop.
-              if (MazlMotion.reduced(context)) return card;
-              return card.animate(delay: (index * 100).ms).fadeIn().scale(
-                    begin: const Offset(0.9, 0.9),
-                    end: const Offset(1, 1),
-                  );
-            },
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _picksGrid() {
+    return GridView.builder(
+      // Last row clear of the home indicator.
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        16 + MediaQuery.paddingOf(context).bottom,
+      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: _dailyPicks.length,
+      itemBuilder: (context, index) {
+        final pick = _dailyPicks[index];
+        final card = _DailyPickCard(
+          profile: pick,
+          onTap: () => _openProfile(pick),
+          onLike: () => _handleLike(pick),
+          onSuperLike: () => _handleSuperLike(pick),
+        );
+        // Reduced motion: the grid is simply there, no staggered pop.
+        if (MazlMotion.reduced(context)) return card;
+        return card
+            .animate(delay: (index * 100).ms)
+            .fadeIn()
+            .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1));
+      },
     );
   }
 }

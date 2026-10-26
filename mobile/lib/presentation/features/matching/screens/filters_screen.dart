@@ -8,6 +8,7 @@ import '../../../../core/matching/discover_filters.dart';
 import '../../../../core/matching/discover_filters_api.dart';
 import '../../../../core/matching/discover_filters_providers.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -276,6 +277,7 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
   @override
   Widget build(BuildContext context) {
     final locked = !_plus;
+    final advanced = _advancedSections(locked);
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.matchingFilters),
@@ -288,9 +290,11 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
       ),
       body: Stack(
         children: [
-          ListView(
+          // Held like a book: the search on the first page, the religious
+          // criteria and the options on the other.
+          FoldSpread(
             padding: const EdgeInsets.all(16),
-            children: [
+            start: [
               _FilterSection(
                 title: context.l10n.matchingFiltersAge,
                 icon: LucideIcons.users,
@@ -349,7 +353,10 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
                   ],
                 ),
               ),
-              ..._advancedSections(locked),
+              ...advanced.start,
+            ],
+            end: [
+              ...advanced.end,
               const SizedBox(height: 100), // Space for the apply button
             ],
           ),
@@ -361,31 +368,31 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
               child: SafeArea(
                 child: FoldSafeActions(
                   child: ElevatedButton(
-                  onPressed: _isSaving ? null : _save,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                    onPressed: _isSaving ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            context.l10n.matchingFiltersApply,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        )
-                      : Text(
-                          context.l10n.matchingFiltersApply,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                   ),
                 ),
               ),
@@ -395,85 +402,98 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
     );
   }
 
-  List<Widget> _advancedSections(bool locked) {
+  /// The advanced criteria, split for the two pages of the book: the
+  /// denomination follows the search on the first page, the rest is on the
+  /// other. Flat the two are one list, in the same order as ever.
+  ({List<Widget> start, List<Widget> end}) _advancedSections(bool locked) {
     switch (_advanced) {
       case _AdvancedState.loading:
-        return const [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        ];
+        return (
+          start: const [],
+          end: const [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
       case _AdvancedState.failed:
-        return [
-          _FilterSection(
-            title: context.l10n.matchingFiltersAdvanced,
-            icon: LucideIcons.settings,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(context.l10n.matchingFiltersLoadFailed),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: _loadFilters,
-                  child: Text(context.l10n.commonRetry),
-                ),
-              ],
+        return (
+          start: const [],
+          end: [
+            _FilterSection(
+              title: context.l10n.matchingFiltersAdvanced,
+              icon: LucideIcons.settings,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.l10n.matchingFiltersLoadFailed),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: _loadFilters,
+                    child: Text(context.l10n.commonRetry),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ];
+          ],
+        );
       case _AdvancedState.ready:
-        return [
-          _choiceSection(
-            title: context.l10n.matchingFiltersDenomination,
-            icon: LucideIcons.star,
-            choices: denominationChoices,
-            selected: _selection.denominations,
-            locked: locked,
-          ),
-          _choiceSection(
-            title: context.l10n.matchingFiltersKashrut,
-            icon: LucideIcons.utensils,
-            choices: kashrutChoices,
-            selected: _selection.kashrut,
-            locked: locked,
-          ),
-          _choiceSection(
-            title: context.l10n.matchingFiltersShabbatSection,
-            icon: LucideIcons.heart,
-            choices: shabbatChoices,
-            selected: _selection.shabbat,
-            locked: locked,
-          ),
-          _FilterSection(
-            title: context.l10n.matchingFiltersOptions,
-            icon: LucideIcons.settings,
-            locked: locked,
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: Text(context.l10n.matchingFiltersVerifiedTitle),
-                  subtitle: Text(context.l10n.matchingFiltersVerifiedHint),
-                  value: _selection.onlyVerified,
-                  activeThumbColor: AppColors.primary,
-                  onChanged: (value) =>
-                      setState(() => _selection.onlyVerified = value),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                SwitchListTile(
-                  title: Text(context.l10n.matchingFiltersPhotoTitle),
-                  subtitle: Text(context.l10n.matchingFiltersPhotoHint),
-                  value: _selection.onlyWithPhoto,
-                  activeThumbColor: AppColors.primary,
-                  onChanged: (value) =>
-                      setState(() => _selection.onlyWithPhoto = value),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ],
+        return (
+          start: [
+            _choiceSection(
+              title: context.l10n.matchingFiltersDenomination,
+              icon: LucideIcons.star,
+              choices: denominationChoices,
+              selected: _selection.denominations,
+              locked: locked,
             ),
-          ),
-          if (locked) _upsell(),
-        ];
+          ],
+          end: [
+            _choiceSection(
+              title: context.l10n.matchingFiltersKashrut,
+              icon: LucideIcons.utensils,
+              choices: kashrutChoices,
+              selected: _selection.kashrut,
+              locked: locked,
+            ),
+            _choiceSection(
+              title: context.l10n.matchingFiltersShabbatSection,
+              icon: LucideIcons.heart,
+              choices: shabbatChoices,
+              selected: _selection.shabbat,
+              locked: locked,
+            ),
+            _FilterSection(
+              title: context.l10n.matchingFiltersOptions,
+              icon: LucideIcons.settings,
+              locked: locked,
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(context.l10n.matchingFiltersVerifiedTitle),
+                    subtitle: Text(context.l10n.matchingFiltersVerifiedHint),
+                    value: _selection.onlyVerified,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (value) =>
+                        setState(() => _selection.onlyVerified = value),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  SwitchListTile(
+                    title: Text(context.l10n.matchingFiltersPhotoTitle),
+                    subtitle: Text(context.l10n.matchingFiltersPhotoHint),
+                    value: _selection.onlyWithPhoto,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (value) =>
+                        setState(() => _selection.onlyWithPhoto = value),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+            ),
+            if (locked) _upsell(),
+          ],
+        );
     }
   }
 

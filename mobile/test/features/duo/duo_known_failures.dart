@@ -16,5 +16,4 @@ class DuoKnownFailure {
 /// The ratchet. Every couple (screen, pose) that fails TODAY. The test fails
 /// when a screen that is not listed fails, and when a listed one passes: the
 /// list can only shrink. Fixing a screen means deleting its lines here.
-const List<DuoKnownFailure> duoKnownFailures = [
-];
+const List<DuoKnownFailure> duoKnownFailures = [];

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
+import '../../../../core/layout/fold_grid.dart';
 import '../../../../core/models/swipe_result.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
@@ -86,7 +88,9 @@ class _LikesScreenState extends State<LikesScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(context.l10n.likesYouLiked(profile.displayName ?? '')),
+              content: Text(
+                context.l10n.likesYouLiked(profile.displayName ?? ''),
+              ),
             ),
           );
         }
@@ -170,75 +174,110 @@ class _LikesScreenState extends State<LikesScreen> {
     );
   }
 
-  Widget _scrollable(List<Widget> children) {
+  static const _pagePadding = 24.0;
+
+  /// [child] kept on the reading-start page while a fold runs down the
+  /// screen: the title, the sentences and the buttons around the grid never
+  /// reach the curve. Flat, it is left as it is.
+  Widget _onFirstPage(FoldCut? cut, Widget child) {
+    if (cut == null || cut.axis != FoldSplitAxis.vertical) return child;
+    return Align(
+      alignment: AlignmentDirectional.topStart,
+      child: SizedBox(width: cut.leadExtent - _pagePadding, child: child),
+    );
+  }
+
+  Widget _scrollable(List<Widget> Function(FoldCut? cut) children) {
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
-      onRefresh: _loadLikes,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(24, 16, 24, bottom + 24),
-        children: [_buildHeader(), ...children],
+    return FoldCutBuilder(
+      builder: (context, cut) => RefreshIndicator(
+        onRefresh: _loadLikes,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            _pagePadding,
+            16,
+            _pagePadding,
+            bottom + 24,
+          ),
+          children: [_onFirstPage(cut, _buildHeader()), ...children(cut)],
+        ),
       ),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return _scrollable(const [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 48),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      ]);
+      return _scrollable(
+        (_) => const [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ],
+      );
     }
 
-    if (_loadFailed) return _scrollable([_buildError()]);
+    if (_loadFailed) {
+      return _scrollable((cut) => [_onFirstPage(cut, _buildError())]);
+    }
 
     if (_likesData == null || _likesData!.likes.isEmpty) {
-      return _scrollable([_buildEmptyState()]);
+      return _scrollable((cut) => [_onFirstPage(cut, _buildEmptyState())]);
     }
 
     final data = _likesData!;
     final isPremium = data.isPremium;
     final likes = data.likes;
 
-    return _scrollable([
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          mainAxisExtent: isPremium ? 200 + LikeCard.actionsExtent : 120,
+    return _scrollable(
+      (cut) => [
+        LayoutBuilder(
+          builder: (context, box) => GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            // Two columns flat; held like a book, the columns fall on either
+            // side of the fold.
+            gridDelegate: FoldGridDelegate(
+              cut: cut,
+              crossAxisStart: _pagePadding,
+              maxCrossAxisExtent: (box.maxWidth - 10) / 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              mainAxisExtent: isPremium ? 200 + LikeCard.actionsExtent : 120,
+            ),
+            itemCount: likes.length,
+            itemBuilder: (context, index) {
+              final like = likes[index];
+              if (!isPremium) {
+                return LockedLikeTile(onTap: _showPremiumPrompt);
+              }
+              return LikeCard(
+                name: like.displayName ?? context.l10n.matchingCardAnonymous,
+                age: like.age,
+                pictureUrl: like.photoUrl,
+                isVerified: like.isVerified,
+                seed: like.userId,
+                onTap: () => _showProfilePreview(like),
+                onLike: () => _handleLike(like),
+                onPass: () => _handlePass(like),
+              );
+            },
+          ),
         ),
-        itemCount: likes.length,
-        itemBuilder: (context, index) {
-          final like = likes[index];
-          if (!isPremium) {
-            return LockedLikeTile(onTap: _showPremiumPrompt);
-          }
-          return LikeCard(
-            name: like.displayName ?? context.l10n.matchingCardAnonymous,
-            age: like.age,
-            pictureUrl: like.photoUrl,
-            isVerified: like.isVerified,
-            seed: like.userId,
-            onTap: () => _showProfilePreview(like),
-            onLike: () => _handleLike(like),
-            onPass: () => _handlePass(like),
-          );
-        },
-      ),
-      if (!isPremium) ...[
-        const SizedBox(height: 24),
-        MazlPlusPill(
-          label: context.l10n.likesSeeWhoWithPlus,
-          onPressed: () => context.push(RoutePaths.premium),
-        ),
+        if (!isPremium) ...[
+          const SizedBox(height: 24),
+          _onFirstPage(
+            cut,
+            MazlPlusPill(
+              label: context.l10n.likesSeeWhoWithPlus,
+              onPressed: () => context.push(RoutePaths.premium),
+            ),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 
   Widget _buildError() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/layout/content_max_width.dart';
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_state.dart';
 import '../../../../core/layout/safe_insets.dart';
 import '../../../../core/layout/vertical_bar.dart';
@@ -312,37 +313,48 @@ class EmptyDetailPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final invitation = Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.8,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.8,
-                  height: 1.1,
+      // Set down like a laptop the fold runs across the middle of the pane:
+      // the invitation is centred in the half above it, out of the curve.
+      child: FoldCutBuilder(
+        builder: (context, cut) => cut?.axis == FoldSplitAxis.horizontal
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: cut!.leadExtent,
+                  child: Center(child: invitation),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
+              )
+            : Center(child: invitation),
       ),
     );
   }

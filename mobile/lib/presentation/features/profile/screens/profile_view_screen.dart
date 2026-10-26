@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/models/swipe_result.dart';
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
@@ -25,6 +26,7 @@ import '../../couple/widgets/couple_request_dialog.dart';
 import '../../matching/widgets/match_sheet.dart';
 import '../widgets/profile_view/profile_couple_section.dart';
 import '../widgets/profile_view/profile_top_bar.dart';
+import '../widgets/profile_view/profile_view_book.dart';
 import '../widgets/profile_view/profile_view_content.dart';
 import '../widgets/profile_view/profile_view_data.dart';
 
@@ -39,7 +41,8 @@ class ProfileViewScreen extends ConsumerStatefulWidget {
 
   final String? userId;
   final bool isOwnProfile;
-  final bool isFromMatch; // True when viewing a matched profile (from chat or matches list)
+  final bool
+  isFromMatch; // True when viewing a matched profile (from chat or matches list)
   final ApiService? apiService;
 
   @override
@@ -63,7 +66,9 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
 
   CoupleRelation get _relation {
     final userId = _viewedUserId;
-    return userId == null ? CoupleRelation.none : _coupleService.relationWithUser(userId);
+    return userId == null
+        ? CoupleRelation.none
+        : _coupleService.relationWithUser(userId);
   }
 
   @override
@@ -148,7 +153,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   Future<void> _loadMyPrompts() async {
     final response = await _apiService.getMyPrompts();
     if (!mounted || !response.success || response.data == null) return;
-    final sorted = [...response.data!]..sort((a, b) => a.position.compareTo(b.position));
+    final sorted = [...response.data!]
+      ..sort((a, b) => a.position.compareTo(b.position));
     setState(() => _myPrompts = sorted);
   }
 
@@ -175,7 +181,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     final currentUser = ref.watch(currentUserProvider);
     final profile = _userProfile?.profile;
     return ProfileViewData(
-      name: profile?.displayName ??
+      name:
+          profile?.displayName ??
           _userProfile?.name ??
           currentUser?.displayName ??
           l10n.profileFallbackName,
@@ -201,8 +208,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       body: _isLoading
           ? const ProfileViewSkeleton()
           : isOwnProfile
-              ? _buildOwnProfile(_viewData())
-              : _buildOtherProfile(_viewData()),
+          ? _buildOwnProfile(_viewData())
+          : _buildOtherProfile(_viewData()),
     );
   }
 
@@ -230,7 +237,11 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
         prompts: [
           for (final p in _myPrompts)
             (
-              question: promptQuestionText(context.l10n, p.promptId, p.promptText),
+              question: promptQuestionText(
+                context.l10n,
+                p.promptId,
+                p.promptText,
+              ),
               answer: p.answer,
             ),
         ],
@@ -249,36 +260,56 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       children: [
         SafeArea(
           bottom: false,
-          child: ProfileViewContent(
-            data: data,
-            isOwnProfile: false,
-            bottomPadding: showActions
-                ? barBottom + ProfileActionBar.height + 24
-                : safeBottom + 32,
-            topBar: ProfileTopBar.other(
-              onBack: () => context.pop(),
-              onOptions: _showBlockReportDialog,
-            ),
-            trailing: [
-              ProfileCompatibilitySection(
-                firstName: data.firstName(l10n),
-                hasPremium: ref.watch(isMazlProProvider),
-                score: _compatibilityScore,
-                onUnlock: () => context.push(RoutePaths.premium),
-              ),
-              if (widget.isFromMatch) _buildCoupleSection(data.name),
-              Align(
-                alignment: Alignment.center,
-                child: TextButton.icon(
-                  onPressed: _showBlockReportDialog,
-                  icon: const Icon(LucideIcons.flag, size: 16),
-                  label: Text(l10n.profileReportThisProfile),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          child: FoldCutBuilder(
+            builder: (context, cut) {
+              final bottomPadding = showActions
+                  ? barBottom + ProfileActionBar.height + 24
+                  : safeBottom + 32;
+              final topBar = ProfileTopBar.other(
+                onBack: () => context.pop(),
+                onOptions: _showBlockReportDialog,
+              );
+              final trailing = [
+                ProfileCompatibilitySection(
+                  firstName: data.firstName(l10n),
+                  hasPremium: ref.watch(isMazlProProvider),
+                  score: _compatibilityScore,
+                  onUnlock: () => context.push(RoutePaths.premium),
+                ),
+                if (widget.isFromMatch) _buildCoupleSection(data.name),
+                Align(
+                  alignment: Alignment.center,
+                  child: TextButton.icon(
+                    onPressed: _showBlockReportDialog,
+                    icon: const Icon(LucideIcons.flag, size: 16),
+                    label: Text(l10n.profileReportThisProfile),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ];
+              // Held like a book: photos and name on one page, what to read
+              // on the other.
+              if (cut != null && cut.axis == FoldSplitAxis.vertical) {
+                return ProfileViewBook(
+                  cut: cut,
+                  data: data,
+                  topBar: topBar,
+                  bottomPadding: bottomPadding,
+                  trailing: trailing,
+                );
+              }
+              return ProfileViewContent(
+                data: data,
+                isOwnProfile: false,
+                bottomPadding: bottomPadding,
+                topBar: topBar,
+                trailing: trailing,
+              );
+            },
           ),
         ),
         if (showActions)
@@ -301,7 +332,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   Widget _buildCoupleSection(String userName) {
     final state = switch (_relation) {
       CoupleRelation.partner => CoupleEntryState.inCouple,
-      CoupleRelation.coupleWithSomeoneElse => CoupleEntryState.coupleWithSomeoneElse,
+      CoupleRelation.coupleWithSomeoneElse =>
+        CoupleEntryState.coupleWithSomeoneElse,
       CoupleRelation.requestSent => CoupleEntryState.pending,
       CoupleRelation.requestReceived => CoupleEntryState.received,
       CoupleRelation.none => CoupleEntryState.available,
@@ -362,7 +394,11 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   void _respondToCoupleRequest() {
     final request = _coupleService.receivedRequest;
     if (request == null) return;
-    CoupleRequestDialog.show(context, request: request, service: _coupleService);
+    CoupleRequestDialog.show(
+      context,
+      request: request,
+      service: _coupleService,
+    );
   }
 
   void _showMessage(String message, {required bool isError}) {
@@ -420,7 +456,8 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
     BlockReportDialog.show(
       context,
       userId: _otherProfile!.userId,
-      userName: _otherProfile!.displayName ?? context.l10n.profileFallbackReportName,
+      userName:
+          _otherProfile!.displayName ?? context.l10n.profileFallbackReportName,
       onBlocked: () {
         // Navigate back after blocking
         if (mounted) context.pop();

@@ -10,10 +10,18 @@ class _Scroller {
   double pixels = 0;
   Duration time = Duration.zero;
 
-  void scroll(double delta, {Duration every = const Duration(milliseconds: 16)}) {
+  void scroll(
+    double delta, {
+    Duration every = const Duration(milliseconds: 16),
+  }) {
     time += every;
     pixels = (pixels + delta).clamp(0, 10000);
-    controller.onScroll(delta: delta, pixels: pixels, minExtent: 0, timestamp: time);
+    controller.onScroll(
+      delta: delta,
+      pixels: pixels,
+      minExtent: 0,
+      timestamp: time,
+    );
   }
 
   void down(double total, {double step = 10}) {
