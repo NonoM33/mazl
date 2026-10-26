@@ -98,7 +98,8 @@ import { API_HOST_STATIC_FILES, LEGAL_PAGES, LEGAL_REDIRECTS, createWebApp, crea
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
-import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
+import { ANALYTICS, createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
+import { createAnalyticsService, observeAnalytics, registerAnalytics, withMessageAnalytics } from "./features/analytics/analytics.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
 import { createBackoffice } from "./backoffice";
@@ -247,6 +248,12 @@ app.get("/admin/dashboard", async (c) => {
 });
 
 // Block direct access to uploads directory
+// ============ ANALYTICS (docs/analytics/plan-de-marquage.md) ============
+// OpenPanel, consent first. Observes a few API routes, so it comes before them.
+const analyticsConsents = createPrivacyModule(sql).consents;
+const analytics = createAnalyticsService(process.env, (userId) => analyticsConsents.allowsAnalytics(userId));
+observeAnalytics(app, analytics);
+
 app.use("/uploads/*", async (c) => {
   return c.json({ error: "Forbidden" }, 403);
 });
@@ -312,7 +319,7 @@ app.get("/api/count", async (c) => {
 // member with no open socket.
 const push = createPushModule({ sql });
 push.followMatches();
-const chat = createChatModule({ store: objectStore, notifier: push.messageNotifier });
+const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 
@@ -344,7 +351,11 @@ registerAccountRoutes(app, sql, memberErasure);
 registerBillingWeb(app, billingWeb);
 
 // Art. 9 consent and personal-data export (docs/web/adr/W06).
-registerPrivacy(app, createPrivacyModule(sql));
+// A decision on the analytics consent is honoured at once by the relay.
+registerPrivacy(app, createPrivacyModule(sql, (userId, purpose) => {
+  if (purpose === ANALYTICS) analytics.forgetConsent(userId);
+}));
+registerAnalytics(app, analytics, requireAuth);
 
 // ============ STAFF BACK-OFFICE ============
 // /api/backoffice/* (staff roles + TOTP, audit journal, trust & safety,

@@ -34,7 +34,7 @@ Propriétés communes ajoutées par le serveur : `platform` (`ios`, `android`, `
 | événement | propriétés | quand |
 |---|---|---|
 | `app_opened` | — | démarrage à froid de l'app (ou ouverture du site) |
-| `screen_viewed` | `screen` : NOM de route (`discover`, `chat`…), jamais un chemin avec un id | chaque changement d'écran |
+| `screen_viewed` | `screen` : NOM de route (`discover`, `chat`…), jamais un chemin avec un id | chaque changement d'écran ; relayé vers l'événement natif `screen_view` d'OpenPanel (`__path` = `/<screen>`), pour ses rapports Pages |
 | `onboarding_step_viewed` | `step` (entier 0..30), `step_name` (identifiant) | chaque étape de l'inscription (création du profil) |
 | `signup_completed` | — | profil terminé, première arrivée dans l'app |
 | `paywall_viewed` | `source` (identifiant de l'écran d'origine) | ouverture de l'écran mazl+ / crédits |
@@ -42,7 +42,7 @@ Propriétés communes ajoutées par le serveur : `platform` (`ios`, `android`, `
 | `purchase_cancelled` | `product_id` | achat abandonné par le membre |
 | `analytics_consent_granted` | — | juste après l'accord (premier événement envoyé) |
 
-Identifiant (`screen`, `step_name`, `source`) : `^[a-z][a-zA-Z0-9_]{0,39}$`.
+Identifiant (`screen`, `step_name`, `source`, `plan_type`, `product`) : `^[a-z][a-zA-Z0-9_]{0,39}$`.
 `product_id` : `^[a-z0-9][a-z0-9._]{0,79}$`.
 
 ### Émis par le serveur (plus fiable que l'app)
@@ -52,8 +52,8 @@ Identifiant (`screen`, `step_name`, `source`) : `^[a-z][a-zA-Z0-9_]{0,39}$`.
 | `swipe` | `action` : `like`, `pass`, `super_like` | `POST /api/swipes` réussi |
 | `match_created` | `via` : `like`, `super_like` ; `role` : `initiator` (celui qui swipe en dernier) ou `receiver` | swipe réciproque ; émis pour CHAQUE membre consentant |
 | `message_sent` | — | message enregistré (HTTP ou WebSocket) |
-| `purchase_validated` | `kind` : `subscription` / `consumable` ; `product_id` ; `plan_type` (abonnement) | reçu Apple vérifié par le serveur (achat ou restauration) |
-| `verification_submitted` | `step` : `face` / `identity` ; `outcome` : `approved` / `pending` / `rejected` | soumission de vérification traitée |
+| `purchase_validated` | abonnement : `kind` = `subscription`, `product_id`, `plan_type` ; consommable : `kind` = `consumable`, `product` (`super_like`, `boost`) | reçu Apple vérifié par le serveur ; abonnement : achat ou restauration ; consommable : seulement s'il est crédité (un reçu rejoué ne compte pas) |
+| `verification_submitted` | `step` : `face` / `identity` ; `outcome` : `approved` / `rejected` | soumission de vérification traitée |
 
 ### Ce qu'on en tire dans OpenPanel
 
@@ -63,6 +63,8 @@ Identifiant (`screen`, `step_name`, `source`) : `^[a-z][a-zA-Z0-9_]{0,39}$`.
 - **Rétention** : jours actifs par `profileId` (cohortes de rétention natives d'OpenPanel).
 - **Achats** : `paywall_viewed` → `purchase_started` → `purchase_validated`.
 - **Vérification** : `verification_submitted` par `step` et `outcome`.
+
+Les événements serveur sont observés sur les réponses des routes (`src/features/analytics/presentation/server-events.ts`) : les autres features ignorent l'analytique. Les messages passent par le notificateur du chat (HTTP et WebSocket).
 
 ## 3. Avant la connexion
 
@@ -78,7 +80,8 @@ accepte la mesure juste après sa connexion. S'il refuse, ou ferme l'app, ils so
 - `PUT /api/privacy/consents/analytics` `{granted, version, source}` ; un retrait coupe
   l'envoi immédiatement (cache du serveur invalidé, file de l'app vidée).
 - Question posée une fois, après la connexion, avec « Accepter » et « Refuser » de même poids ;
-  modifiable dans Réglages › Mesure d'audience.
+  modifiable dans Réglages › Mesure d'audience (app) et Réglages › Confidentialité (site, où la
+  question est une bannière qui ne bloque rien).
 
 ## 5. iOS
 
