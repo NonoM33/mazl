@@ -39,12 +39,13 @@ abstract class AnalyticsTransport {
 class HttpAnalyticsTransport implements AnalyticsTransport {
   HttpAnalyticsTransport({
     required this.platform,
-    required this.appVersion,
+    required Future<String> Function() appVersion,
     http.Client? client,
     String? baseUrl,
     String? Function()? tokenProvider,
     Duration? requestTimeout,
   }) : _client = SessionGuardClient(client),
+       _appVersion = appVersion,
        _baseUrl = baseUrl ?? ApiConfig.baseUrl,
        _token = tokenProvider ?? (() => AuthService().currentUser?.jwtToken),
        _timeout = requestTimeout ?? ApiConfig.requestTimeout;
@@ -54,8 +55,8 @@ class HttpAnalyticsTransport implements AnalyticsTransport {
   /// `ios` or `android`.
   final String platform;
 
-  /// `1.0.0+1`.
-  final String appVersion;
+  /// `1.0.0+1`, read once.
+  final Future<String> Function() _appVersion;
 
   final http.Client _client;
   final String _baseUrl;
@@ -67,6 +68,7 @@ class HttpAnalyticsTransport implements AnalyticsTransport {
     final token = _token();
     if (token == null) return AnalyticsSendResult.retry;
     try {
+      final appVersion = await _appVersion();
       final response = await _client
           .post(
             Uri.parse('$_baseUrl$path'),

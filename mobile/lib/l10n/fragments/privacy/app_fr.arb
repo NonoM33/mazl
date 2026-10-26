@@ -86,5 +86,21 @@
   "privacySettingsLoadFailed": "Impossible de charger votre accord. Vérifiez votre connexion.",
   "@privacySettingsLoadFailed": {
     "description": "Texte de l'écran de consentement quand l'état de l'accord n'a pas pu être chargé. Un bouton « Réessayer » suit."
-  }
+  },
+  "analyticsSheetLabel": "Mesure d'audience",
+  "analyticsSheetTitle": "Aider à améliorer MAZL",
+  "analyticsSheetBody": "MAZL compte les écrans visités et les grandes étapes (inscription, achat) pour s'améliorer. Jamais le contenu de vos messages, vos photos ni votre pratique religieuse. Votre identifiant est pseudonymisé et rien n'est partagé avec des tiers. Vous pouvez refuser : MAZL fonctionne pareil.",
+  "analyticsSheetAccept": "Accepter",
+  "analyticsSheetDecline": "Refuser",
+  "analyticsSheetErrorOutdated": "Le texte a été mis à jour. Fermez cette fenêtre puis rouvrez-la.",
+  "analyticsSheetErrorSave": "Votre choix n'a pas pu être enregistré. Réessayez.",
+  "analyticsSettingsTitle": "Mesure d'audience",
+  "analyticsSettingsGrantedShort": "Activée",
+  "analyticsSettingsDeniedShort": "Désactivée",
+  "analyticsSettingsGrantedTitle": "Mesure d'audience activée",
+  "analyticsSettingsNotGrantedTitle": "Mesure d'audience désactivée",
+  "analyticsSettingsAccept": "Accepter la mesure d'audience",
+  "analyticsSettingsWithdraw": "Retirer mon accord",
+  "analyticsSettingsLoadFailed": "Impossible de lire votre choix. Vérifiez votre connexion.",
+  "analyticsSettingsSaveFailed": "Votre choix n'a pas pu être enregistré. Réessayez."
 }

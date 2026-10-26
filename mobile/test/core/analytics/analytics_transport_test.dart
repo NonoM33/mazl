@@ -21,7 +21,7 @@ HttpAnalyticsTransport _transport(
   String? token = 'jwt-1',
 }) => HttpAnalyticsTransport(
   platform: 'ios',
-  appVersion: '1.0.0+1',
+  appVersion: () async => '1.0.0+1',
   baseUrl: 'https://api.test',
   tokenProvider: () => token,
   client: MockClient((request) async {

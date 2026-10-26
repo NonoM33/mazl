@@ -4649,6 +4649,102 @@ abstract class AppLocalizations {
   /// **'Impossible de charger votre accord. Vérifiez votre connexion.'**
   String get privacySettingsLoadFailed;
 
+  /// No description provided for @analyticsSheetLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience'**
+  String get analyticsSheetLabel;
+
+  /// No description provided for @analyticsSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aider à améliorer MAZL'**
+  String get analyticsSheetTitle;
+
+  /// No description provided for @analyticsSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL compte les écrans visités et les grandes étapes (inscription, achat) pour s\'améliorer. Jamais le contenu de vos messages, vos photos ni votre pratique religieuse. Votre identifiant est pseudonymisé et rien n\'est partagé avec des tiers. Vous pouvez refuser : MAZL fonctionne pareil.'**
+  String get analyticsSheetBody;
+
+  /// No description provided for @analyticsSheetAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get analyticsSheetAccept;
+
+  /// No description provided for @analyticsSheetDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get analyticsSheetDecline;
+
+  /// No description provided for @analyticsSheetErrorOutdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le texte a été mis à jour. Fermez cette fenêtre puis rouvrez-la.'**
+  String get analyticsSheetErrorOutdated;
+
+  /// No description provided for @analyticsSheetErrorSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'a pas pu être enregistré. Réessayez.'**
+  String get analyticsSheetErrorSave;
+
+  /// No description provided for @analyticsSettingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience'**
+  String get analyticsSettingsTitle;
+
+  /// No description provided for @analyticsSettingsGrantedShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activée'**
+  String get analyticsSettingsGrantedShort;
+
+  /// No description provided for @analyticsSettingsDeniedShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivée'**
+  String get analyticsSettingsDeniedShort;
+
+  /// No description provided for @analyticsSettingsGrantedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience activée'**
+  String get analyticsSettingsGrantedTitle;
+
+  /// No description provided for @analyticsSettingsNotGrantedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure d\'audience désactivée'**
+  String get analyticsSettingsNotGrantedTitle;
+
+  /// No description provided for @analyticsSettingsAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter la mesure d\'audience'**
+  String get analyticsSettingsAccept;
+
+  /// No description provided for @analyticsSettingsWithdraw.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer mon accord'**
+  String get analyticsSettingsWithdraw;
+
+  /// No description provided for @analyticsSettingsLoadFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire votre choix. Vérifiez votre connexion.'**
+  String get analyticsSettingsLoadFailed;
+
+  /// No description provided for @analyticsSettingsSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre choix n\'a pas pu être enregistré. Réessayez.'**
+  String get analyticsSettingsSaveFailed;
+
   /// Profil du membre : étiquette en capitales tout en haut de son propre profil.
   ///
   /// In fr, this message translates to:

@@ -2711,6 +2711,59 @@ class AppLocalizationsHe extends AppLocalizations {
       'לא ניתן לטעון את ההסכמה. יש לבדוק את החיבור.';
 
   @override
+  String get analyticsSheetLabel => 'מדידת שימוש';
+
+  @override
+  String get analyticsSheetTitle => 'עזרו לשפר את MAZL';
+
+  @override
+  String get analyticsSheetBody =>
+      'MAZL סופרת את המסכים שבהם ביקרתם ואת השלבים העיקריים (הרשמה, רכישה) כדי להשתפר. אף פעם לא את תוכן ההודעות, התמונות או אורח החיים הדתי שלכם. המזהה שלכם מוצפן בכינוי, ושום דבר לא משותף עם צדדים שלישיים. אפשר לסרב: MAZL תעבוד בדיוק אותו דבר.';
+
+  @override
+  String get analyticsSheetAccept => 'אישור';
+
+  @override
+  String get analyticsSheetDecline => 'סירוב';
+
+  @override
+  String get analyticsSheetErrorOutdated =>
+      'הטקסט עודכן. יש לסגור את החלון ולפתוח אותו מחדש.';
+
+  @override
+  String get analyticsSheetErrorSave =>
+      'לא ניתן היה לשמור את הבחירה. יש לנסות שוב.';
+
+  @override
+  String get analyticsSettingsTitle => 'מדידת שימוש';
+
+  @override
+  String get analyticsSettingsGrantedShort => 'פעילה';
+
+  @override
+  String get analyticsSettingsDeniedShort => 'כבויה';
+
+  @override
+  String get analyticsSettingsGrantedTitle => 'מדידת השימוש פעילה';
+
+  @override
+  String get analyticsSettingsNotGrantedTitle => 'מדידת השימוש כבויה';
+
+  @override
+  String get analyticsSettingsAccept => 'לאשר מדידת שימוש';
+
+  @override
+  String get analyticsSettingsWithdraw => 'לבטל את ההסכמה שלי';
+
+  @override
+  String get analyticsSettingsLoadFailed =>
+      'לא ניתן לקרוא את הבחירה. יש לבדוק את החיבור.';
+
+  @override
+  String get analyticsSettingsSaveFailed =>
+      'לא ניתן היה לשמור את הבחירה. יש לנסות שוב.';
+
+  @override
   String get profileMyProfile => 'הפרופיל שלי';
 
   @override
