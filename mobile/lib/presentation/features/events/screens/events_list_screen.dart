@@ -268,10 +268,27 @@ class _EventsListScreenState extends State<EventsListScreen>
       ),
       SizedBox(width: cut.gap),
       Expanded(
-        child: ListView(
-          padding: _listPadding(),
-          children: [for (final event in _events.skip(1)) _cardFor(event)],
-        ),
+        child: _events.length > 1
+            ? ListView(
+                padding: _listPadding(),
+                children: [
+                  for (final event in _events.skip(1)) _cardFor(event),
+                ],
+              )
+            : Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text(
+                    context.l10n.eventsNoOthers,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.5,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
       ),
     ],
   );

@@ -1059,6 +1059,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleSpaceSetupWho => 'С кем?';
 
   @override
+  String get coupleSpaceSetupExplain =>
+      'Выберите свой мэтч. Как только Ваш запрос примут, вы оба перейдёте в режим пары.';
+
+  @override
   String get coupleSpaceSetupSend => 'Отправить запрос';
 
   @override
@@ -1313,6 +1317,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get eventsEmptyHint =>
       'Загляните позже,\nчтобы увидеть новые мероприятия.';
+
+  @override
+  String get eventsNoOthers => 'Других событий пока нет. Загляните позже.';
 
   @override
   String get eventsTomorrow => 'Завтра';
@@ -3887,13 +3894,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRestoreNothing => 'Подписка не найдена.';
-
-  @override
-  String get shabbatDisplayLaunch => 'Запустить экран';
-
-  @override
-  String get shabbatDisplayLaunchHint =>
-      'Поставьте телефон домиком: экран остаётся включённым и показывает время, зажигание свечей и Авдалу. Запустите его до Шаббата и больше не трогайте.';
 
   @override
   String get verificationProfileEyebrow => 'Ваш профиль';

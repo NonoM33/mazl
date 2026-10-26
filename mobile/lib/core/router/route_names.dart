@@ -77,7 +77,6 @@ abstract class RoutePaths {
   static const verification = '/profile/verification';
   static const verificationIdentity = '/verification/identity';
   static const shabbatMode = '/profile/settings/shabbat';
-  static const shabbatDisplay = '/profile/settings/shabbat/display';
   static const computers = '/profile/settings/computers';
   static const webScan = '/profile/settings/computers/scan';
   static const religiousData = '/profile/settings/religious-data';

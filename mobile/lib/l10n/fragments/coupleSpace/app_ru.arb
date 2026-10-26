@@ -44,6 +44,7 @@
   "coupleSpaceAddFailed": "Не удалось добавить. {reason}",
   "coupleSpaceSetupTitle": "Режим пары",
   "coupleSpaceSetupWho": "С кем?",
+  "coupleSpaceSetupExplain": "Выберите свой мэтч. Как только Ваш запрос примут, вы оба перейдёте в режим пары.",
   "coupleSpaceSetupSend": "Отправить запрос",
   "coupleSpaceSetupNoMatches": "Пока нет мэтчей.",
   "coupleSpaceSetupMatchesError": "Не удалось загрузить Ваши мэтчи.",

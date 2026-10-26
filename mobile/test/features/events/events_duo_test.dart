@@ -44,10 +44,13 @@ final _events = [
   _event(3, 'Soirée rencontres'),
 ];
 
+/// What the server lists; a test may serve fewer events.
+List<Map<String, Object?>> _served = _events;
+
 MockClient _server() => MockClient((request) async {
   final path = request.url.path;
   if (path == '/api/events') {
-    return http.Response(jsonEncode({'success': true, 'events': _events}), 200);
+    return http.Response(jsonEncode({'success': true, 'events': _served}), 200);
   }
   if (request.method == 'POST') {
     return http.Response(jsonEncode({'success': true}), 200);
@@ -125,6 +128,24 @@ void main() {
           );
         }
         expect(foldCrossingProblems(tester, DuoPose.halfOpenBook), isEmpty);
+      });
+    });
+
+    testWidgets('book with one event: the other page says there is no other', (
+      tester,
+    ) async {
+      _served = [_events.first];
+      addTearDown(() => _served = _events);
+      await _inServer(() async {
+        await _pump(tester, DuoPose.halfOpenBook, const EventsListScreen());
+        final fold = DuoPose.halfOpenBook.fold!;
+        expect(
+          _rect(
+            tester,
+            "Pas d'autre événement pour l'instant. Revenez bientôt.",
+          ).left,
+          greaterThanOrEqualTo(fold.right),
+        );
       });
     });
 

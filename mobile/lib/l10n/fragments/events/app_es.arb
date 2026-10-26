@@ -13,6 +13,7 @@
   "eventsLoadError": "No se pudieron cargar los eventos",
   "eventsEmptyTitle": "Ningún evento",
   "eventsEmptyHint": "Vuelve pronto para descubrir\nnuevos eventos.",
+  "eventsNoOthers": "No hay más eventos por ahora. Vuelve pronto.",
   "eventsTomorrow": "Mañana",
   "eventsInDays": "En {days} d",
   "eventsDateAtTime": "{date} a las {time}",

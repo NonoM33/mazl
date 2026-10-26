@@ -371,6 +371,17 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            if (chosen == null) ...[
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.coupleSpaceSetupExplain,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  height: 1.5,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
             if (name.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(

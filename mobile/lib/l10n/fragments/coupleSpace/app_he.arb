@@ -44,6 +44,7 @@
   "coupleSpaceAddFailed": "לא ניתן להוסיף. {reason}",
   "coupleSpaceSetupTitle": "מצב זוגי",
   "coupleSpaceSetupWho": "עם מי?",
+  "coupleSpaceSetupExplain": "יש לבחור התאמה. ברגע שהבקשה תאושר, שני הצדדים עוברים למצב זוגי.",
   "coupleSpaceSetupSend": "לשלוח את הבקשה",
   "coupleSpaceSetupNoMatches": "עדיין אין התאמות.",
   "coupleSpaceSetupMatchesError": "לא ניתן לטעון את ההתאמות.",

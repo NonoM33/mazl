@@ -44,6 +44,7 @@
   "coupleSpaceAddFailed": "No se pudo añadir. {reason}",
   "coupleSpaceSetupTitle": "Modo pareja",
   "coupleSpaceSetupWho": "¿Con quién?",
+  "coupleSpaceSetupExplain": "Elige a tu match. En cuanto acepten tu solicitud, los dos pasáis al modo pareja.",
   "coupleSpaceSetupSend": "Enviar solicitud",
   "coupleSpaceSetupNoMatches": "Aún no tienes matches.",
   "coupleSpaceSetupMatchesError": "No se pudieron cargar tus matches.",

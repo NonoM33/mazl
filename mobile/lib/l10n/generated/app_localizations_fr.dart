@@ -1053,6 +1053,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coupleSpaceSetupWho => 'Avec qui ?';
 
   @override
+  String get coupleSpaceSetupExplain =>
+      'Choisissez votre match. Dès que votre demande est acceptée, vous passez tous les deux en mode couple.';
+
+  @override
   String get coupleSpaceSetupSend => 'Envoyer la demande';
 
   @override
@@ -1310,6 +1314,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get eventsEmptyHint =>
       'Revenez bientôt pour découvrir\nde nouveaux événements.';
+
+  @override
+  String get eventsNoOthers =>
+      'Pas d\'autre événement pour l\'instant. Revenez bientôt.';
 
   @override
   String get eventsTomorrow => 'Demain';
@@ -3887,13 +3895,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsRestoreNothing => 'Aucun abonnement trouvé.';
-
-  @override
-  String get shabbatDisplayLaunch => 'Lancer l\'affichage';
-
-  @override
-  String get shabbatDisplayLaunchHint =>
-      'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.';
 
   @override
   String get verificationProfileEyebrow => 'Votre profil';

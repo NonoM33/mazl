@@ -1041,6 +1041,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coupleSpaceSetupWho => 'עם מי?';
 
   @override
+  String get coupleSpaceSetupExplain =>
+      'יש לבחור התאמה. ברגע שהבקשה תאושר, שני הצדדים עוברים למצב זוגי.';
+
+  @override
   String get coupleSpaceSetupSend => 'לשלוח את הבקשה';
 
   @override
@@ -1286,6 +1290,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get eventsEmptyHint => 'כדאי לחזור בקרוב\nכדי לגלות אירועים חדשים.';
+
+  @override
+  String get eventsNoOthers => 'אין אירועים נוספים כרגע. כדאי לחזור בקרוב.';
 
   @override
   String get eventsTomorrow => 'מחר';
@@ -3816,13 +3823,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsRestoreNothing => 'לא נמצא מינוי.';
-
-  @override
-  String get shabbatDisplayLaunch => 'הפעלת התצוגה';
-
-  @override
-  String get shabbatDisplayLaunchHint =>
-      'מניחים את הטלפון כמו אוהל: המסך נשאר דלוק ומציג את השעה, הדלקת נרות והבדלה. מפעילים לפני שבת, ואין צורך לגעת בו אחר כך.';
 
   @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';

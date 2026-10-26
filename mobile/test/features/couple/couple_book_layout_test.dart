@@ -217,6 +217,7 @@ void main() {
       final l10n = _l10n();
       _onFirstPage(tester, find.text(l10n.coupleSpaceSetupWho));
       _onFirstPage(tester, find.byKey(const ValueKey('couple-setup-heart')));
+      _onFirstPage(tester, find.text(l10n.coupleSpaceSetupExplain));
       _onSecondPage(tester, find.text('Myriam'));
       _onSecondPage(tester, find.text('Noémie'));
       _onSecondPage(tester, find.text(l10n.coupleSpaceSetupSend));

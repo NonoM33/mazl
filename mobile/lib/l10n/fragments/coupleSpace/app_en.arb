@@ -44,6 +44,7 @@
   "coupleSpaceAddFailed": "Couldn't add it. {reason}",
   "coupleSpaceSetupTitle": "Couple mode",
   "coupleSpaceSetupWho": "Who with?",
+  "coupleSpaceSetupExplain": "Choose your match. Once your request is accepted, you both switch to couple mode.",
   "coupleSpaceSetupSend": "Send request",
   "coupleSpaceSetupNoMatches": "No matches yet.",
   "coupleSpaceSetupMatchesError": "Couldn't load your matches.",

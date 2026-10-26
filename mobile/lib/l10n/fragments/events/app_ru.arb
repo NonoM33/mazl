@@ -13,6 +13,7 @@
   "eventsLoadError": "Не удалось загрузить мероприятия",
   "eventsEmptyTitle": "Нет мероприятий",
   "eventsEmptyHint": "Загляните позже,\nчтобы увидеть новые мероприятия.",
+  "eventsNoOthers": "Других событий пока нет. Загляните позже.",
   "eventsTomorrow": "Завтра",
   "eventsInDays": "Через {days} дн.",
   "eventsDateAtTime": "{date} в {time}",

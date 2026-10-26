@@ -1372,6 +1372,10 @@
   "@coupleSpaceSetupWho": {
     "description": "Titre de la liste des matchs, au-dessus des personnes que l'on peut inviter en mode couple."
   },
+  "coupleSpaceSetupExplain": "Choisissez votre match. Dès que votre demande est acceptée, vous passez tous les deux en mode couple.",
+  "@coupleSpaceSetupExplain": {
+    "description": "Under the question, on the first page of the partner choice held like a book: what happens once the request is sent."
+  },
   "coupleSpaceSetupSend": "Envoyer la demande",
   "@coupleSpaceSetupSend": {
     "description": "Bouton qui envoie la demande de mode couple à la personne choisie."
@@ -1717,6 +1721,10 @@
   "eventsEmptyHint": "Revenez bientôt pour découvrir\nde nouveaux événements.",
   "@eventsEmptyHint": {
     "description": "Liste des événements : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu)."
+  },
+  "eventsNoOthers": "Pas d'autre événement pour l'instant. Revenez bientôt.",
+  "@eventsNoOthers": {
+    "description": "Second page of the events list held like a book, when the next event (first page) is the only one."
   },
   "eventsTomorrow": "Demain",
   "@eventsTomorrow": {
@@ -5111,14 +5119,6 @@
   "settingsRestoreNothing": "Aucun abonnement trouvé.",
   "@settingsRestoreNothing": {
     "description": "Réglages, « Restaurer les achats » : le magasin d'applications ne connaît aucun abonnement mazl+ pour ce compte."
-  },
-  "shabbatDisplayLaunch": "Lancer l'affichage",
-  "@shabbatDisplayLaunch": {
-    "description": "Écran Mode Shabbat : bouton qui ouvre l'affichage plein écran (téléphone posé en tente). Aussi le bouton de la proposition du vendredi. Environ 20 caractères."
-  },
-  "shabbatDisplayLaunchHint": "Posez le téléphone en tente : l'écran reste allumé et affiche l'heure, l'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.",
-  "@shabbatDisplayLaunchHint": {
-    "description": "Écran Mode Shabbat : phrase sous le bouton, qui dit ce que fait l'affichage (écran allumé, heure, allumage, havdala) et qu'il se lance avant Shabbat. Ne promet aucune pause ni silence des notifications."
   },
   "verificationProfileEyebrow": "Votre profil",
   "@verificationProfileEyebrow": {

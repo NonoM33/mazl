@@ -1868,6 +1868,12 @@ abstract class AppLocalizations {
   /// **'Avec qui ?'**
   String get coupleSpaceSetupWho;
 
+  /// Under the question, on the first page of the partner choice held like a book: what happens once the request is sent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre match. Dès que votre demande est acceptée, vous passez tous les deux en mode couple.'**
+  String get coupleSpaceSetupExplain;
+
   /// Bouton qui envoie la demande de mode couple à la personne choisie.
   ///
   /// In fr, this message translates to:
@@ -2309,6 +2315,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Revenez bientôt pour découvrir\nde nouveaux événements.'**
   String get eventsEmptyHint;
+
+  /// Second page of the events list held like a book, when the next event (first page) is the only one.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas d\'autre événement pour l\'instant. Revenez bientôt.'**
+  String get eventsNoOthers;
 
   /// Carte d'événement : « demain », en tête de la ligne de date et sur le badge.
   ///
@@ -6640,18 +6652,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
-
-  /// Écran Mode Shabbat : bouton qui ouvre l'affichage plein écran (téléphone posé en tente). Aussi le bouton de la proposition du vendredi. Environ 20 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Lancer l\'affichage'**
-  String get shabbatDisplayLaunch;
-
-  /// Écran Mode Shabbat : phrase sous le bouton, qui dit ce que fait l'affichage (écran allumé, heure, allumage, havdala) et qu'il se lance avant Shabbat. Ne promet aucune pause ni silence des notifications.
-  ///
-  /// In fr, this message translates to:
-  /// **'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.'**
-  String get shabbatDisplayLaunchHint;
 
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///

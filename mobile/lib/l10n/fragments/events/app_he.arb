@@ -13,6 +13,7 @@
   "eventsLoadError": "לא ניתן לטעון את האירועים",
   "eventsEmptyTitle": "אין אירועים",
   "eventsEmptyHint": "כדאי לחזור בקרוב\nכדי לגלות אירועים חדשים.",
+  "eventsNoOthers": "אין אירועים נוספים כרגע. כדאי לחזור בקרוב.",
   "eventsTomorrow": "מחר",
   "eventsInDays": "בעוד {days} ימים",
   "eventsDateAtTime": "{date} בשעה {time}",

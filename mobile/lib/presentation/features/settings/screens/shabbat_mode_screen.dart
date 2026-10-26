@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/layout/fold_spread.dart';
-import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/jewish_calendar_service.dart';
 import '../../../../l10n/l10n.dart';
@@ -91,27 +90,6 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
             ),
           ],
           end: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => context.push(RoutePaths.shabbatDisplay),
-                    child: Text(l10n.shabbatDisplayLaunch),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.shabbatDisplayLaunchHint,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.5,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             if (shabbat != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),

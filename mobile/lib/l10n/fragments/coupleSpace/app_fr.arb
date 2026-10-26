@@ -202,6 +202,10 @@
   "@coupleSpaceSetupWho": {
     "description": "Titre de la liste des matchs, au-dessus des personnes que l'on peut inviter en mode couple."
   },
+  "coupleSpaceSetupExplain": "Choisissez votre match. Dès que votre demande est acceptée, vous passez tous les deux en mode couple.",
+  "@coupleSpaceSetupExplain": {
+    "description": "Under the question, on the first page of the partner choice held like a book: what happens once the request is sent."
+  },
   "coupleSpaceSetupSend": "Envoyer la demande",
   "@coupleSpaceSetupSend": {
     "description": "Bouton qui envoie la demande de mode couple à la personne choisie."

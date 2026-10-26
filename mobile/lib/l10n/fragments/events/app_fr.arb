@@ -55,6 +55,10 @@
   "@eventsEmptyHint": {
     "description": "Liste des événements : explication de l'état vide, sur deux lignes centrées (le retour à la ligne est voulu)."
   },
+  "eventsNoOthers": "Pas d'autre événement pour l'instant. Revenez bientôt.",
+  "@eventsNoOthers": {
+    "description": "Second page of the events list held like a book, when the next event (first page) is the only one."
+  },
   "eventsTomorrow": "Demain",
   "@eventsTomorrow": {
     "description": "Carte d'événement : « demain », en tête de la ligne de date et sur le badge."

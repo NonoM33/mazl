@@ -228,13 +228,18 @@ void main() {
     expectEndPage(tester, find.text('Retirer mon accord'), 'the button');
   });
 
-  testWidgets('/profile/settings/shabbat: the times, then the launch', (
+  testWidgets('/profile/settings/shabbat: the times, then how they are set', (
     tester,
   ) async {
     await book(tester, '/profile/settings/shabbat');
     expectStartPage(tester, find.text('ALLUMAGE'), 'candle lighting');
     expectStartPage(tester, find.text('HAVDALA'), 'havdalah');
-    expectEndPage(tester, find.text("Lancer l'affichage"), 'the button');
+    expectEndPage(
+      tester,
+      find.textContaining('havdala à la tombée de la nuit'),
+      'the explanation',
+    );
+    expect(find.text("Lancer l'affichage"), findsNothing);
   });
 
   testWidgets('/profile/verification: level 1, then level 2', (tester) async {
