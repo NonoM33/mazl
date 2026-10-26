@@ -297,7 +297,13 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
         // Picks grid
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
+            // Last row clear of the home indicator.
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              16 + MediaQuery.paddingOf(context).bottom,
+            ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 0.7,

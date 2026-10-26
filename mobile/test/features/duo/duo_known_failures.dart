@@ -28,41 +28,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     "action principale 'Appliquer les filtres' dans le pli",
   ),
   DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.closed,
-    "élément tapable 'Pick' sous la barre d'accueil (16 pt) ; élément tapable icône U+e0f2 sous la barre d'accueil (8 pt) ; élément tapable icône U+e176 sous la barre d'accueil (8 pt)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.tent,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.openPortrait,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.openLandscape,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.halfOpenBook,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.halfOpenLaptop,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.splitView,
-    "élément tapable 'Pick' sous la barre d'accueil (18 pt) (en bas de liste) ; élément tapable icône U+e0f2 sous la barre d'accueil (10 pt) (en bas de liste) ; élément tapable icône U+e176 sous la barre d'accueil (10 pt) (en bas de liste)",
-  ),
-  DuoKnownFailure(
     '/profile/verification',
     DuoPose.halfOpenBook,
     "action principale 'Vérifier ma photo' dans le pli",
