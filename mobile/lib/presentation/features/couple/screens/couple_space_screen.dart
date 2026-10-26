@@ -196,13 +196,13 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: scheme.primary,
+                  color: scheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   LucideIcons.heart,
                   size: 16,
-                  color: scheme.onPrimary,
+                  color: scheme.onPrimaryContainer,
                 ),
               ),
               const SizedBox(width: 12),

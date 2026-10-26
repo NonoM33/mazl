@@ -16,7 +16,9 @@ class AppTheme {
   static ThemeData _build(Brightness brightness) {
     final p = _Palette(brightness);
     final text = AppTypography.textTheme(p.text, p.muted);
-    final pill = RoundedRectangleBorder(borderRadius: BorderRadius.circular(28));
+    final pill = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(28),
+    );
     final buttonText = AppTypography.button;
 
     return ThemeData(
@@ -27,8 +29,8 @@ class AppTheme {
         brightness: brightness,
         primary: p.accent,
         onPrimary: p.onAccent,
-        primaryContainer: p.accent.withValues(alpha: 0.12),
-        onPrimaryContainer: p.accent,
+        primaryContainer: p.fill,
+        onPrimaryContainer: p.onFill,
         secondary: p.accent,
         onSecondary: p.onAccent,
         tertiary: p.accent,
@@ -43,8 +45,8 @@ class AppTheme {
         surfaceContainerHighest: p.surface,
         outline: p.hairline,
         outlineVariant: p.divider,
-        error: AppColors.error,
-        onError: Colors.white,
+        error: p.error,
+        onError: p.isDark ? AppColors.ink : Colors.white,
         inverseSurface: p.text,
         onInverseSurface: p.background,
         shadow: Colors.black,
@@ -90,8 +92,8 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: p.accent,
-          foregroundColor: p.onAccent,
+          backgroundColor: p.fill,
+          foregroundColor: p.onFill,
           minimumSize: const Size(64, 56),
           shape: pill,
           textStyle: buttonText,
@@ -129,7 +131,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: p.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         border: _inputBorder(Colors.transparent),
         enabledBorder: _inputBorder(Colors.transparent),
         focusedBorder: _inputBorder(p.text),
@@ -236,11 +241,11 @@ class AppTheme {
   }
 
   static OutlineInputBorder _inputBorder(Color color) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(24),
-        borderSide: color == Colors.transparent
-            ? BorderSide.none
-            : BorderSide(color: color, width: 1.5),
-      );
+    borderRadius: BorderRadius.circular(24),
+    borderSide: color == Colors.transparent
+        ? BorderSide.none
+        : BorderSide(color: color, width: 1.5),
+  );
 }
 
 class _Palette {
@@ -258,5 +263,16 @@ class _Palette {
 
   /// Texte sur l'accent : le blanc sur le tekhelet clair du thème sombre
   /// n'atteint que 3,8:1, l'encre y passe à 5,2:1.
+  /// Aplat portant du texte ou une icône (bouton plein, bulle envoyée) :
+  /// le tekhelet de marque dans les deux thèmes, blanc dessus (6,35:1). La
+  /// variante claire de l'accent n'y donne que 3,77:1 avec du blanc et
+  /// l'encre dessus était peu lisible.
+  Color get fill => AppColors.tekhelet;
+  Color get onFill => Colors.white;
+
+  /// Le rouge d'erreur de la marque n'atteint que 3,53:1 sur l'encre ; sa
+  /// variante claire passe 4,5:1 sur le fond et sur les cartes sombres.
+  Color get error => isDark ? AppColors.errorOnDark : AppColors.error;
+
   Color get onAccent => isDark ? AppColors.ink : Colors.white;
 }

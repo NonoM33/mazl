@@ -406,7 +406,7 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   fontSize: 14,
-                  color: full ? AppColors.error : scheme.onSurfaceVariant,
+                  color: full ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant,
                   fontWeight: full ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),

@@ -658,7 +658,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
+              Icon(LucideIcons.userX, color: Theme.of(context).colorScheme.error, size: 48),
               const SizedBox(height: 16),
               Text(
                 context.l10n.settingsDeleteAccount,
@@ -715,7 +715,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     ? LucideIcons.checkCircle
                                     : LucideIcons.circle,
                                 color: isSelected
-                                    ? AppColors.error
+                                    ? Theme.of(context).colorScheme.error
                                     : Theme.of(
                                         context,
                                       ).colorScheme.onSurfaceVariant,
@@ -788,9 +788,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: AppColors.error.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.alertTriangle,
-              color: AppColors.error,
+              color: Theme.of(context).colorScheme.error,
               size: 40,
             ),
           ),
@@ -807,8 +807,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   context.l10n.settingsDeleteIrreversible,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.error,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -913,7 +913,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             child: Icon(
               isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-              color: isDestructive ? AppColors.error : AppColors.primary,
+              color: isDestructive ? Theme.of(context).colorScheme.error : AppColors.primary,
               size: 32,
             ),
           ),
@@ -956,7 +956,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDestructive
-                          ? AppColors.error
+                          ? Theme.of(context).colorScheme.error
                           : AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1492,8 +1492,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: OutlinedButton(
                   onPressed: _handleLogout,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
-                    side: const BorderSide(color: AppColors.error),
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                    side: BorderSide(color: Theme.of(context).colorScheme.error),
                   ),
                   child: Text(l10n.settingsLogOut),
                 ),
@@ -1538,7 +1538,7 @@ class _SectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           letterSpacing: 1,
         ),
       ),

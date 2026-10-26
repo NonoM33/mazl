@@ -177,11 +177,11 @@ class _MatchSheetContentState extends State<MatchSheetContent> with TickerProvid
         width: MatchSheetContent.badgeSize,
         height: MatchSheetContent.badgeSize,
         decoration: BoxDecoration(
-          color: scheme.primary,
+          color: scheme.primaryContainer,
           shape: BoxShape.circle,
           border: Border.all(color: scheme.surface, width: 3),
         ),
-        child: Icon(LucideIcons.heart, color: scheme.onPrimary, size: 14),
+        child: Icon(LucideIcons.heart, color: scheme.onPrimaryContainer, size: 14),
       ),
     );
     return Stack(

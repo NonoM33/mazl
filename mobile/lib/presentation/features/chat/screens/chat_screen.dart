@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
-import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/block_report_dialog.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -69,9 +68,9 @@ class _ChatScreenState extends State<ChatScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('muted_conversation_$_conversationId', true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.chatMutedConfirmation)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.chatMutedConfirmation)));
   }
 
   void _showOptions() {
@@ -106,10 +105,13 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(LucideIcons.userX, color: AppColors.error),
+            leading: Icon(
+              LucideIcons.userX,
+              color: Theme.of(context).colorScheme.error,
+            ),
             title: Text(
               sheet.l10n.chatOptionsBlock,
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             onTap: () {
               Navigator.pop(sheet);

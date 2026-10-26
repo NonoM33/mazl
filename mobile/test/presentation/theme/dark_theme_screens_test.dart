@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mazl/core/likes/like_allowance_api.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/core/services/couple_service.dart';
 import 'package:mazl/core/services/premium_gate.dart';
@@ -28,21 +27,29 @@ import '../../support/dark_theme_audit.dart';
 // Mode sombre : les écrans les plus vus ne gardent aucune surface claire
 // derrière un texte clair. Le contraste est calculé sur le rendu réel.
 
+/// Jamais détruit : les services de l'app sont des singletons que le scope
+/// détruirait avec lui (voir settings_honest_rows_test.dart).
+final _sharedContainer = ProviderContainer();
+
 Future<void> _pumpDark(
   WidgetTester tester,
   Widget home, {
+  Brightness brightness = Brightness.dark,
   Size size = const Size(390, 844),
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
-    ProviderScope(
+    UncontrolledProviderScope(
+      container: _sharedContainer,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.dark,
+        themeMode: brightness == Brightness.dark
+            ? ThemeMode.dark
+            : ThemeMode.light,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: kTestLocale,
@@ -124,88 +131,104 @@ void main() {
 
   tearDown(PremiumGate.resetForTest);
 
-  testWidgets('Réglages', (tester) async {
-    PackageInfo.setMockInitialValues(
-      appName: 'MAZL',
-      packageName: 'app.mazl',
-      version: '2.3.4',
-      buildNumber: '567',
-      buildSignature: '',
-    );
-    final couple = CoupleService.forTesting(
-      api: FakeCoupleApi(),
-      pollInterval: const Duration(hours: 1),
-    );
-    addTearDown(couple.dispose);
-    await couple.initialize();
-    CoupleService.instanceForTesting = couple;
-
-    await _pumpDark(
-      tester,
-      const SettingsScreen(),
-      size: const Size(390, 3200),
-    );
-    await captureDarkPng(tester, 'reglages');
-
-    expect(lowContrastTexts(tester), isEmpty);
-  });
-
-  testWidgets('Découvrir', (tester) async {
-    final api = FakeDiscoverApi(discoverProfiles(3));
-    await _pumpDark(
-      tester,
-      DiscoverScreen(
-        apiService: api,
-        likeAllowanceApi: FakeLikeAllowanceApi.free(remaining: 7),
-      ),
-    );
-    await captureDarkPng(tester, 'decouvrir');
-
-    expect(lowContrastTexts(tester), isEmpty);
-  });
-
-  testWidgets('Événements', (tester) async {
-    await http.runWithClient(() async {
-      await _pumpDark(tester, const EventsListScreen());
-      await captureDarkPng(tester, 'evenements');
-
-      expect(find.text('Dîner de Shabbat'), findsWidgets);
-      expect(lowContrastTexts(tester), isEmpty);
-    }, _events);
-  });
-
-  testWidgets('Messages', (tester) async {
-    await http.runWithClient(() async {
-      final router = GoRouter(
-        routes: [
-          GoRoute(path: '/', builder: (_, _) => const ConversationsScreen()),
-        ],
+  for (final brightness in Brightness.values) {
+    testWidgets('Réglages (${brightness.name})', (tester) async {
+      PackageInfo.setMockInitialValues(
+        appName: 'MAZL',
+        packageName: 'app.mazl',
+        version: '2.3.4',
+        buildNumber: '567',
+        buildSignature: '',
       );
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.dark,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: kTestLocale,
-            builder: darkCaptureBuilder,
-            routerConfig: router,
-          ),
+      final couple = CoupleService.forTesting(
+        api: FakeCoupleApi(),
+        pollInterval: const Duration(hours: 1),
+      );
+      addTearDown(couple.dispose);
+      await couple.initialize();
+      CoupleService.instanceForTesting = couple;
+
+      await _pumpDark(
+        tester,
+        const SettingsScreen(),
+        size: const Size(390, 3200),
+        brightness: brightness,
+      );
+      await captureDarkPng(tester, 'reglages-${brightness.name}');
+
+      expect(lowContrastTexts(tester), isEmpty);
+    });
+  }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('Découvrir (${brightness.name})', (tester) async {
+      final api = FakeDiscoverApi(discoverProfiles(3));
+      await _pumpDark(
+        tester,
+        DiscoverScreen(
+          apiService: api,
+          likeAllowanceApi: FakeLikeAllowanceApi.free(remaining: 7),
         ),
+        brightness: brightness,
       );
-      for (var i = 0; i < 6; i++) {
-        await tester.pump(const Duration(milliseconds: 150));
-      }
-      await captureDarkPng(tester, 'messages');
+      await captureDarkPng(tester, 'decouvrir-${brightness.name}');
 
-      expect(find.text('Sarah Exemple'), findsOneWidget);
       expect(lowContrastTexts(tester), isEmpty);
-    }, _conversations);
-  });
+    });
+  }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('Événements (${brightness.name})', (tester) async {
+      await http.runWithClient(() async {
+        await _pumpDark(
+          tester,
+          const EventsListScreen(),
+          brightness: brightness,
+        );
+        await captureDarkPng(tester, 'evenements-${brightness.name}');
+
+        expect(find.text('Dîner de Shabbat'), findsWidgets);
+        expect(lowContrastTexts(tester), isEmpty);
+      }, _events);
+    });
+  }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('Messages (${brightness.name})', (tester) async {
+      await http.runWithClient(() async {
+        final router = GoRouter(
+          routes: [
+            GoRoute(path: '/', builder: (_, _) => const ConversationsScreen()),
+          ],
+        );
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: brightness == Brightness.dark
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: kTestLocale,
+              builder: darkCaptureBuilder,
+              routerConfig: router,
+            ),
+          ),
+        );
+        for (var i = 0; i < 6; i++) {
+          await tester.pump(const Duration(milliseconds: 150));
+        }
+        await captureDarkPng(tester, 'messages-${brightness.name}');
+
+        expect(find.text('Sarah Exemple'), findsOneWidget);
+        expect(lowContrastTexts(tester), isEmpty);
+      }, _conversations);
+    });
+  }
 }

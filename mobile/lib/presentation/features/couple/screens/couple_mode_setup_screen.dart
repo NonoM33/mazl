@@ -517,7 +517,7 @@ class _ErrorText extends StatelessWidget {
   Widget build(BuildContext context) => Text(
     message,
     textAlign: TextAlign.center,
-    style: const TextStyle(color: AppColors.error, fontSize: 13),
+    style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13),
   );
 }
 

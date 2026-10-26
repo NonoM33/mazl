@@ -402,8 +402,8 @@ void main() {
               .widget<Text>(find.text('Shabbat shalom'))
               .style!
               .color!;
-          expect(fill, scheme.primary);
-          expect(ink, scheme.onPrimary);
+          expect(fill, scheme.primaryContainer);
+          expect(ink, scheme.onPrimaryContainer);
           expect(contrast(fill, ink), greaterThanOrEqualTo(4.5));
         },
       );

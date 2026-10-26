@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../chat_providers.dart';
@@ -336,7 +335,10 @@ class _MessageRowState extends ConsumerState<MessageRow> {
           behavior: HitTestBehavior.opaque,
           child: Text(
             context.l10n.chatFailedRetry,
-            style: const TextStyle(fontSize: 12, color: AppColors.error),
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ),
       );

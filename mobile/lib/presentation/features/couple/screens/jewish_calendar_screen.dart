@@ -266,8 +266,8 @@ class _DayCell extends StatelessWidget {
     final Color? fill;
     final Color textColor;
     if (isSelected) {
-      fill = scheme.primary;
-      textColor = scheme.onPrimary;
+      fill = scheme.primaryContainer;
+      textColor = scheme.onPrimaryContainer;
     } else if (isToday) {
       fill = scheme.onSurface;
       textColor = scheme.surface;

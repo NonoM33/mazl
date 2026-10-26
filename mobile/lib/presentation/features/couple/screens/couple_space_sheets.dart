@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/couple_api_service.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../l10n/couple_failure_label.dart';
 
@@ -46,7 +45,7 @@ class _SheetSubmit extends StatelessWidget {
             child: Text(
               error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ElevatedButton(

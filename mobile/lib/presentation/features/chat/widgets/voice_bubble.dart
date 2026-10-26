@@ -114,8 +114,10 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
     final shown = playing || (isCurrent && position > Duration.zero)
         ? position
         : total;
-    final buttonFill = widget.mine ? scheme.onPrimary : scheme.onSurface;
-    final buttonIcon = widget.mine ? scheme.primary : scheme.surface;
+    final buttonFill = widget.mine
+        ? scheme.onPrimaryContainer
+        : scheme.onSurface;
+    final buttonIcon = widget.mine ? scheme.primaryContainer : scheme.surface;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -178,7 +180,10 @@ class _VoiceBubbleContentState extends ConsumerState<VoiceBubbleContent> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      VoiceBubbleContent.speedLabel(_speed, context.l10n.localeName),
+                      VoiceBubbleContent.speedLabel(
+                        _speed,
+                        context.l10n.localeName,
+                      ),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,

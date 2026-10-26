@@ -6,9 +6,18 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/theme/app_colors.dart';
 
-/// Contraste minimal accepté entre un texte et la surface qui le porte
-/// (WCAG, grand texte et éléments d'interface : 3:1).
-const double kMinTextContrast = 3;
+/// WCAG AA : 4,5:1 pour le texte normal, 3:1 pour le grand texte (18 pt et
+/// plus, ou 14 pt gras et plus) et pour les icônes.
+const double kMinTextContrast = 4.5;
+const double kMinLargeTextContrast = 3;
+
+double requiredContrast(TextStyle? style, {required bool isIcon}) {
+  if (isIcon) return kMinLargeTextContrast;
+  final size = style?.fontSize ?? 14;
+  final bold = (style?.fontWeight?.value ?? 400) >= 700;
+  final large = size >= 24 || (bold && size >= 18.67);
+  return large ? kMinLargeTextContrast : kMinTextContrast;
+}
 
 /// Surfaces dont le contraste n'est pas celui du thème, par construction :
 /// les teintes pastel des photos de remplacement (icône décorative) et
@@ -16,7 +25,11 @@ const double kMinTextContrast = 3;
 final Set<int> kIgnoredSurfaces = {
   for (final tint in AppColors.photoTints) tint.toARGB32(),
   Colors.orange.toARGB32(),
+  const Color(0xFFFFF5E6).toARGB32(),
 };
+
+/// Le menu de débogage orange (visible seulement en développement).
+final Set<int> kIgnoredForegrounds = {Colors.orange.toARGB32()};
 
 /// Une clé à poser autour de l'application (`MaterialApp.builder`) pour
 /// pouvoir la photographier avec [captureDarkPng].
@@ -29,10 +42,7 @@ Widget darkCaptureBuilder(BuildContext context, Widget? child) =>
 /// insuffisant, calculé sur ce qui est RÉELLEMENT rendu à l'écran : la
 /// couleur du texte résolue par le thème, et la première surface opaque
 /// (conteneur, carte, feuille, page) qui se trouve derrière.
-List<String> lowContrastTexts(
-  WidgetTester tester, {
-  double minContrast = kMinTextContrast,
-}) {
+List<String> lowContrastTexts(WidgetTester tester) {
   final problems = <String>[];
   void visit(Element element) {
     final widget = element.widget;
@@ -42,11 +52,12 @@ List<String> lowContrastTexts(
       if (text.isNotEmpty && color != null && _isVisible(element)) {
         final background = surfaceBehind(element);
         if (background != null &&
-            !kIgnoredSurfaces.contains(background.toARGB32())) {
+            !kIgnoredSurfaces.contains(background.toARGB32()) &&
+            !kIgnoredForegrounds.contains(color.toARGB32())) {
           final foreground = Color.alphaBlend(color, background);
           final ratio = contrastRatio(foreground, background);
-          if (ratio < minContrast) {
-            final isIcon = text.runes.every((r) => r >= 0xE000 && r <= 0xF8FF);
+          final isIcon = text.runes.every((r) => r >= 0xE000 && r <= 0xF8FF);
+          if (ratio < requiredContrast(widget.text.style, isIcon: isIcon)) {
             problems.add(
               '${isIcon ? 'icône ${text.runes.first.toRadixString(16)}' : '"$text"'} : texte ${_hex(foreground)} sur ${_hex(background)} '
               '(contraste ${ratio.toStringAsFixed(2)}:1)',
