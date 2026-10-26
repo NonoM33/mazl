@@ -60,6 +60,34 @@ class AppLocalizationsEs extends AppLocalizations {
   String get authRouteErrorHome => 'Volver al inicio';
 
   @override
+  String get authLoginReviewLink => 'Iniciar sesión con usuario';
+
+  @override
+  String get authReviewTitle => 'Iniciar sesión con usuario';
+
+  @override
+  String get authReviewIntro =>
+      'Introduce el usuario y la contraseña que te han facilitado.';
+
+  @override
+  String get authReviewUsernameLabel => 'Usuario';
+
+  @override
+  String get authReviewPasswordLabel => 'Contraseña';
+
+  @override
+  String get authReviewShowPassword => 'Mostrar contraseña';
+
+  @override
+  String get authReviewHidePassword => 'Ocultar contraseña';
+
+  @override
+  String get authReviewSubmit => 'Iniciar sesión';
+
+  @override
+  String get authErrorInvalidCredentials => 'Usuario o contraseña incorrectos.';
+
+  @override
   String get boostTitle => 'Boost';
 
   @override

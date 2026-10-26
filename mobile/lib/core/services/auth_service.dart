@@ -84,6 +84,9 @@ enum AuthProvider {
   google,
   apple,
   email,
+
+  /// The App Store review account, signed in with an identifier and a password.
+  review,
   unknown,
 }
 
@@ -93,6 +96,9 @@ enum AuthProvider {
 enum AuthFailure {
   cancelled,
   rateLimited,
+
+  /// The identifier or the password was refused (never which one).
+  invalidCredentials,
   network,
   server,
   unsupported,
@@ -138,8 +144,9 @@ class AuthResult {
       AuthResult(success: false, failure: failure);
 }
 
-/// Authentication Service handling Google and Apple Sign-In (v1: no e-mail
-/// sign-in, the server has no such route)
+/// Authentication Service handling Google and Apple Sign-In, plus the one
+/// identifier + password sign-in of the App Store review account (v1: no
+/// e-mail sign-in, the server has no such route)
 class AuthService extends ChangeNotifier {
   static AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
@@ -293,14 +300,7 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user, relit l'abonnement (sans bloquer la connexion) et déclare l’appareil au serveur de push
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
+      await _openSession(user);
       return AuthResult.success(user);
     } catch (e) {
       debugPrint('AuthService: Google sign-in error - $e');
@@ -401,19 +401,72 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user, relit l'abonnement (sans bloquer la connexion) et déclare l’appareil au serveur de push
-      await _saveUser(user);
-      unawaited(_store.onSignedIn(user.jwtToken));
-      await _pushService.loginUser(int.parse(user.id));
-
-      debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
-
-      await _loadProfileCompleteness();
+      await _openSession(user);
       return AuthResult.success(user);
     } catch (e) {
       debugPrint('AuthService: Apple sign-in error - $e');
       return AuthResult.failure(authFailureOf(e));
     }
+  }
+
+  /// Signs in the App Store review account with an identifier and a password
+  /// (docs/launch/REVIEW-LOGIN-CONTRAT.md). The session opens like the Apple
+  /// one. The password goes to the server and nowhere else: it is neither
+  /// logged nor stored, and no error text is printed (an exception may quote
+  /// the request body).
+  Future<AuthResult> signInWithReviewCredentials(
+    String username,
+    String password,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/review'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'username': username, 'password': password}),
+      );
+
+      if (response.statusCode != 200) {
+        debugPrint('AuthService: review sign-in refused (${response.statusCode})');
+        return AuthResult.failure(_reviewFailureForStatus(response.statusCode));
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return AuthResult.failure(AuthFailure.unknown);
+      }
+
+      final backendUser = data['user'];
+      final user = AuthUser(
+        id: backendUser['id'].toString(),
+        email: backendUser['email'] ?? '',
+        displayName: backendUser['name'],
+        photoUrl: backendUser['picture'],
+        provider: AuthProvider.review,
+        jwtToken: data['token'],
+      );
+
+      await _openSession(user);
+      return AuthResult.success(user);
+    } catch (e) {
+      debugPrint('AuthService: review sign-in error - ${e.runtimeType}');
+      return AuthResult.failure(authFailureOf(e));
+    }
+  }
+
+  static AuthFailure _reviewFailureForStatus(int status) =>
+      status == 401 ? AuthFailure.invalidCredentials : authFailureForStatus(status);
+
+  /// Saves the user, reads the subscription again (without holding the
+  /// sign-in back), registers the device with the push server and asks
+  /// whether the profile is complete.
+  Future<void> _openSession(AuthUser user) async {
+    await _saveUser(user);
+    unawaited(_store.onSignedIn(user.jwtToken));
+    await _pushService.loginUser(int.parse(user.id));
+
+    debugPrint('AuthService: Backend auth successful - user ID: ${user.id}');
+
+    await _loadProfileCompleteness();
   }
 
   /// Sign out current user

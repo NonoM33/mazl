@@ -13,5 +13,14 @@
   "authErrorAccountDisabled": "Tu cuenta está desactivada. Escríbenos a {contact}.",
   "authRouteErrorTitle": "Página no encontrada",
   "authRouteErrorBody": "Ha ocurrido un error",
-  "authRouteErrorHome": "Volver al inicio"
+  "authRouteErrorHome": "Volver al inicio",
+  "authLoginReviewLink": "Iniciar sesión con usuario",
+  "authReviewTitle": "Iniciar sesión con usuario",
+  "authReviewIntro": "Introduce el usuario y la contraseña que te han facilitado.",
+  "authReviewUsernameLabel": "Usuario",
+  "authReviewPasswordLabel": "Contraseña",
+  "authReviewShowPassword": "Mostrar contraseña",
+  "authReviewHidePassword": "Ocultar contraseña",
+  "authReviewSubmit": "Iniciar sesión",
+  "authErrorInvalidCredentials": "Usuario o contraseña incorrectos."
 }

@@ -194,6 +194,60 @@ abstract class AppLocalizations {
   /// **'Retour à l\'accueil'**
   String get authRouteErrorHome;
 
+  /// Connexion : lien texte discret sous les boutons Apple et Google, visible de tous, qui ouvre la connexion par identifiant et mot de passe (compte de démonstration remis à la revue de l'App Store).
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par identifiant'**
+  String get authLoginReviewLink;
+
+  /// Connexion par identifiant : titre de l'écran.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion par identifiant'**
+  String get authReviewTitle;
+
+  /// Connexion par identifiant : phrase sous le titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez l\'identifiant et le mot de passe qui vous ont été remis.'**
+  String get authReviewIntro;
+
+  /// Connexion par identifiant : intitulé du champ identifiant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant'**
+  String get authReviewUsernameLabel;
+
+  /// Connexion par identifiant : intitulé du champ mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authReviewPasswordLabel;
+
+  /// Connexion par identifiant : info-bulle et description vocale du bouton qui montre le mot de passe saisi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher le mot de passe'**
+  String get authReviewShowPassword;
+
+  /// Connexion par identifiant : info-bulle et description vocale du bouton qui masque le mot de passe saisi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer le mot de passe'**
+  String get authReviewHidePassword;
+
+  /// Connexion par identifiant : bouton qui envoie l'identifiant et le mot de passe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authReviewSubmit;
+
+  /// Connexion par identifiant : erreur quand l'identifiant ou le mot de passe est refusé (on ne dit jamais lequel des deux).
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant ou mot de passe incorrect.'**
+  String get authErrorInvalidCredentials;
+
   /// Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes).
   ///
   /// In fr, this message translates to:

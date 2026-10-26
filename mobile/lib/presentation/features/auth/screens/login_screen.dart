@@ -18,6 +18,8 @@ import '../../../common/l10n/open_public_link.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/auth_failure_text.dart';
 import '../l10n/linked_text.dart';
+import '../widgets/auth_button_spinner.dart';
+import '../widgets/auth_error_banner.dart';
 
 /// Les deux façons de se connecter, pour savoir quel bouton affiche
 /// l'indicateur de chargement.
@@ -246,9 +248,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       if (_error != null)
-        _ErrorBanner(message: _error!(context.l10n))
+        AuthErrorBanner(message: _error!(context.l10n))
       else if (_sessionNotice(context.l10n) case final notice?)
-        _ErrorBanner(message: notice),
+        AuthErrorBanner(message: notice),
       _buildActions(),
       const SizedBox(height: 20),
       _buildLegal(context),
@@ -263,7 +265,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ElevatedButton.icon(
             onPressed: _isLoading ? null : _handleAppleSignIn,
             icon: _activeMethod == _SignInMethod.apple
-                ? const _ButtonSpinner()
+                ? const AuthButtonSpinner()
                 : const Icon(LucideIcons.apple, size: 20),
             label: Text(context.l10n.authLoginApple),
           ),
@@ -272,8 +274,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         OutlinedButton(
           onPressed: _isLoading ? null : _handleGoogleSignIn,
           child: _activeMethod == _SignInMethod.google
-              ? const _ButtonSpinner()
+              ? const AuthButtonSpinner()
               : Text(context.l10n.authLoginGoogle),
+        ),
+        const SizedBox(height: 4),
+        TextButton(
+          onPressed: _isLoading
+              ? null
+              : () => context.push(RoutePaths.reviewLogin),
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          child: Text(context.l10n.authLoginReviewLink),
         ),
         if (kDevLoginAvailable) ...[
           const SizedBox(height: 4),
@@ -342,61 +354,6 @@ class _Hero extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ErrorBanner extends StatelessWidget {
-  const _ErrorBanner({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.circleAlert, size: 18, color: scheme.error),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: scheme.error,
-                  height: 1.35,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ButtonSpinner extends StatelessWidget {
-  const _ButtonSpinner();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: CircularProgressIndicator(
-        strokeWidth: 2,
-        color: IconTheme.of(context).color,
-      ),
     );
   }
 }
