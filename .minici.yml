@@ -1,0 +1,66 @@
+# Pipeline minici (https://app.minici.157.180.43.90.sslip.io), schema :
+# packages/contracts/src/pipeline.ts du depot minici. Aucun job de deploiement :
+# la production ne part que par `bun scripts/deploy/deploy.ts prod`.
+version: 1
+
+jobs:
+  test:
+    name: Backend - tests unitaires et client web
+    on:
+      push: { branches: ["*"] }
+      merge_request: { target_branches: ["*"] }
+    timeout_minutes: 20
+    steps:
+      - name: Installer les dependances
+        run: bun install --frozen-lockfile
+      - name: Telecharger les modeles de visage (SHA-256 epingles)
+        run: bun run models:fetch
+      - name: Tests unitaires
+        run: bun test tests/unit
+      - name: Tests du client web
+        run: bun test tests/web-client
+
+  integration:
+    name: Backend - integration (Postgres jetable, Docker)
+    on:
+      push: { branches: ["*"] }
+      merge_request: { target_branches: ["*"] }
+    timeout_minutes: 40
+    steps:
+      - name: Installer les dependances
+        run: bun install --frozen-lockfile
+      - name: Telecharger les modeles de visage (SHA-256 epingles)
+        run: bun run models:fetch
+      - name: Suites d'integration contre un vrai serveur
+        run: bun scripts/test-integration.ts
+
+  mobile:
+    name: Mobile Flutter - analyse et tests
+    on:
+      push: { branches: ["*"] }
+      merge_request: { target_branches: ["*"] }
+    timeout_minutes: 90
+    steps:
+      - name: Dependances Flutter
+        run: |
+          export PATH="$HOME/development/flutter/bin:/opt/homebrew/share/flutter/bin:/opt/homebrew/bin:$PATH"
+          cd mobile && flutter pub get --enforce-lockfile
+      - name: Analyse statique
+        run: |
+          export PATH="$HOME/development/flutter/bin:/opt/homebrew/share/flutter/bin:/opt/homebrew/bin:$PATH"
+          cd mobile && flutter analyze
+      - name: Tests Flutter
+        timeout_minutes: 80
+        run: |
+          export PATH="$HOME/development/flutter/bin:/opt/homebrew/share/flutter/bin:/opt/homebrew/bin:$PATH"
+          cd mobile && flutter test --reporter=failures-only
+
+  tutoriel:
+    name: Scene du tutoriel Duo
+    on:
+      push: { branches: ["*"] }
+      merge_request: { target_branches: ["*"] }
+    timeout_minutes: 10
+    steps:
+      - name: Tests de la scene
+        run: cd mobile/tool/duo_tutorial && bun test
