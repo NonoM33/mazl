@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/di/providers/web_sessions_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -111,10 +112,12 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: _connect,
-            icon: const Icon(LucideIcons.qrCode),
-            label: Text(context.l10n.webSessionsConnect),
+          FoldSafeActions(
+            child: ElevatedButton.icon(
+              onPressed: _connect,
+              icon: const Icon(LucideIcons.qrCode),
+              label: Text(context.l10n.webSessionsConnect),
+            ),
           ),
           const SizedBox(height: 28),
           ..._content(),

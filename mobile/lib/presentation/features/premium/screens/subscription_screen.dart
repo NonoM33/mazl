@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/store/credits_service.dart';
@@ -111,7 +112,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     _snapshot =
         widget.snapshot ??
         SubscriptionSnapshot.current(service: widget.service);
-    if (widget.snapshot == null) _refresh();
+    // Après la première image : le service prévient ses écouteurs, ce qui est
+    // interdit pendant la construction.
+    if (widget.snapshot == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _refresh();
+      });
+    }
   }
 
   Future<void> _refresh() async {
@@ -135,9 +142,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     }
     final opened = await _subscriptions.manageSubscriptions();
     if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.plusManageFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.plusManageFailed)));
     }
   }
 
@@ -153,9 +160,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       RestoreNothing() => l10n.plusNothingToRestore,
       RestoreFailed(:final problem) => purchaseProblemText(l10n, problem),
     };
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -189,26 +196,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       : const _InactiveBody(),
                 ),
               ),
-              if (snapshot.isActive) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _manage,
-                    child: Text(
-                      Theme.of(context).platform == TargetPlatform.android
-                          ? l10n.plusManageGooglePlay
-                          : l10n.plusManageAppStore,
+              FoldSafeActions(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (snapshot.isActive) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: _manage,
+                          child: Text(
+                            Theme.of(context).platform == TargetPlatform.android
+                                ? l10n.plusManageGooglePlay
+                                : l10n.plusManageAppStore,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: TextButton(
+                        onPressed: _restore,
+                        child: Text(l10n.plusRestorePurchases),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-              ],
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: TextButton(
-                  onPressed: _restore,
-                  child: Text(l10n.plusRestorePurchases),
+                  ],
                 ),
               ),
             ],
@@ -385,9 +399,11 @@ class _InactiveBody extends StatelessWidget {
             ).textTheme.bodyLarge!.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
-          PlusCtaButton(
-            label: l10n.plusDiscover,
-            onPressed: () => context.push(RoutePaths.premium),
+          FoldSafeActions(
+            child: PlusCtaButton(
+              label: l10n.plusDiscover,
+              onPressed: () => context.push(RoutePaths.premium),
+            ),
           ),
         ],
       ),
