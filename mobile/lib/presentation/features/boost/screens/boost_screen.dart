@@ -482,7 +482,10 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 8),
           Text(
             context.l10n.boostRemaining(remaining),
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
           ),
         ],
       ],
@@ -511,7 +514,10 @@ class _BoostScreenState extends State<BoostScreen> {
                 ),
                 Text(
                   context.l10n.boostUpsellBody,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -559,7 +565,13 @@ class _StatCard extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );

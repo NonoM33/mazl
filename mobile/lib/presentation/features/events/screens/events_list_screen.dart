@@ -182,7 +182,8 @@ class _EventsListScreenState extends State<EventsListScreen>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _getTypeColor(type == 'all' ? null : type)
-                            : Colors.grey.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
@@ -200,7 +201,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                               size: 16,
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[600],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 6),
                           ],
@@ -209,7 +212,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.w500,
@@ -652,7 +657,10 @@ class _EventCard extends StatelessWidget {
                       event.description!,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[700], height: 1.4),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -682,7 +690,9 @@ class _EventCard extends StatelessWidget {
                                 )
                               : _formatDate(l10n, event.date),
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -711,7 +721,11 @@ class _EventCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             event.location!,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -730,7 +744,7 @@ class _EventCard extends StatelessWidget {
                         Icon(
                           LucideIcons.users,
                           size: 16,
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -738,7 +752,9 @@ class _EventCard extends StatelessWidget {
                               ? '${event.attendeeCount} / ${event.maxAttendees}'
                               : l10n.eventsAttendeesCount(event.attendeeCount),
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -796,7 +812,10 @@ class _EventCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: event.attendeeCount / event.maxAttendees!,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.15),
                           valueColor: AlwaysStoppedAnimation<Color>(
                             isAlmostFull ? AppColors.warning : typeColor,
                           ),

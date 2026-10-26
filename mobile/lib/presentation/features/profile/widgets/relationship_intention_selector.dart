@@ -32,10 +32,7 @@ class RelationshipIntentionSelector extends StatelessWidget {
       children: [
         Text(
           context.l10n.profileLookingFor,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
@@ -85,10 +82,14 @@ class _IntentionChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.surface,
+          color: isSelected
+              ? AppColors.primary
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.outlineVariant,
+            color: isSelected
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -113,7 +114,9 @@ class _IntentionChip extends StatelessWidget {
             Text(
               intention.selectorLabel(context.l10n),
               style: TextStyle(
-                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
@@ -126,10 +129,7 @@ class _IntentionChip extends StatelessWidget {
 
 /// Display-only badge for relationship intention on profiles
 class RelationshipIntentionBadge extends StatelessWidget {
-  const RelationshipIntentionBadge({
-    super.key,
-    required this.intentionId,
-  });
+  const RelationshipIntentionBadge({super.key, required this.intentionId});
 
   final String intentionId;
 
@@ -146,18 +146,12 @@ class RelationshipIntentionBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _intentionIcon(intention),
-            size: 16,
-            color: AppColors.primary,
-          ),
+          Icon(_intentionIcon(intention), size: 16, color: AppColors.primary),
           const SizedBox(width: 6),
           Text(
             intention.selectorLabel(context.l10n),
@@ -175,10 +169,7 @@ class RelationshipIntentionBadge extends StatelessWidget {
 
 /// Full intention display with description
 class RelationshipIntentionCard extends StatelessWidget {
-  const RelationshipIntentionCard({
-    super.key,
-    required this.intentionId,
-  });
+  const RelationshipIntentionCard({super.key, required this.intentionId});
 
   final String intentionId;
 
@@ -203,9 +194,7 @@ class RelationshipIntentionCard extends StatelessWidget {
           end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -228,9 +217,9 @@ class RelationshipIntentionCard extends StatelessWidget {
               children: [
                 Text(
                   context.l10n.profileLookingFor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -54,10 +54,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   void _trackStep(int step) => trackEvent(
     context,
-    AnalyticsEvent.onboardingStepViewed(
-      step: step,
-      stepName: _stepNames[step],
-    ),
+    AnalyticsEvent.onboardingStepViewed(step: step, stepName: _stepNames[step]),
   );
 
   @override
@@ -142,7 +139,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget _buildProgress() {
     return LinearProgressIndicator(
       value: (_currentStep + 1) / _totalSteps,
-      backgroundColor: AppColors.dividerLight,
+      backgroundColor: Theme.of(context).colorScheme.outlineVariant,
       valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
     );
   }
@@ -767,7 +764,11 @@ class _GenderChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? AppColors.primary : Colors.grey),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         child: Center(
           child: Text(
@@ -857,7 +858,9 @@ class _PhotoSlot extends StatelessWidget {
                 children: [
                   Icon(
                     LucideIcons.imagePlus,
-                    color: isPrimary ? AppColors.primary : Colors.grey,
+                    color: isPrimary
+                        ? AppColors.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 32,
                   ),
                   if (isPrimary) ...[

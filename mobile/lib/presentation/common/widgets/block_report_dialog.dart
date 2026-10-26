@@ -55,10 +55,7 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         // Title
         Text(
           widget.userName,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
 
@@ -114,14 +111,11 @@ class _BlockReportDialogState extends State<BlockReportDialog> {
         ),
         child: Icon(icon, color: iconColor),
       ),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          color: Colors.grey[600],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: 13,
         ),
       ),
@@ -169,7 +163,8 @@ class _BlockConfirmationDialog extends StatefulWidget {
   final VoidCallback? onBlocked;
 
   @override
-  State<_BlockConfirmationDialog> createState() => _BlockConfirmationDialogState();
+  State<_BlockConfirmationDialog> createState() =>
+      _BlockConfirmationDialogState();
 }
 
 class _BlockConfirmationDialogState extends State<_BlockConfirmationDialog> {
@@ -260,7 +255,10 @@ class _BlockConfirmationDialogState extends State<_BlockConfirmationDialog> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 14,
+              ),
             ),
           ),
         ],
@@ -306,7 +304,9 @@ class _ReportDialogState extends State<_ReportDialog> {
     final result = await _apiService.reportUser(
       userId: widget.userId,
       category: _selectedCategory!,
-      comment: _commentController.text.isNotEmpty ? _commentController.text : null,
+      comment: _commentController.text.isNotEmpty
+          ? _commentController.text
+          : null,
       blockUser: _alsoBlock,
     );
 
@@ -359,7 +359,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                 const SizedBox(height: 8),
                 Text(
                   context.l10n.safetyReportWhy(widget.userName),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -369,23 +371,34 @@ class _ReportDialogState extends State<_ReportDialog> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: InkWell(
-                      onTap: () => setState(() => _selectedCategory = category.id),
+                      onTap: () =>
+                          setState(() => _selectedCategory = category.id),
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                            color: isSelected
+                                ? AppColors.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(12),
-                          color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : null,
+                          color: isSelected
+                              ? AppColors.primary.withValues(alpha: 0.05)
+                              : null,
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                              color: isSelected ? AppColors.primary : Colors.grey,
+                              isSelected
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -402,7 +415,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                                     category.description(context.l10n),
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -433,11 +448,15 @@ class _ReportDialogState extends State<_ReportDialog> {
                 // Also block checkbox
                 CheckboxListTile(
                   value: _alsoBlock,
-                  onChanged: (value) => setState(() => _alsoBlock = value ?? false),
+                  onChanged: (value) =>
+                      setState(() => _alsoBlock = value ?? false),
                   title: Text(context.l10n.safetyReportAlsoBlock),
                   subtitle: Text(
                     context.l10n.safetyReportAlsoBlockHint,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
@@ -470,7 +489,10 @@ class _ReportDialogState extends State<_ReportDialog> {
                           )
                         : Text(
                             context.l10n.safetyReportSend,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                   ),
                 ),

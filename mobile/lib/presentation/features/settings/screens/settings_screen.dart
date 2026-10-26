@@ -229,7 +229,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: Icon(
                           LucideIcons.x,
                           size: 20,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -245,7 +245,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   decoration: InputDecoration(
                     hintText: context.l10n.settingsCitySearchHint,
                     filled: true,
-                    fillColor: Colors.grey.withValues(alpha: 0.1),
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -284,7 +286,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   context.l10n.settingsCitySearchHelp,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
               ),
               // Suggestions list
@@ -665,7 +670,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(
                   context.l10n.settingsDeleteReasonPrompt,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -688,7 +695,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.error.withValues(alpha: 0.1)
-                                : Colors.grey.withValues(alpha: 0.1),
+                                : Theme.of(context).colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
@@ -705,7 +713,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     : LucideIcons.circle,
                                 color: isSelected
                                     ? AppColors.error
-                                    : Colors.grey,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 12),
                               Expanded(child: Text(reason.label(context.l10n))),
@@ -803,7 +813,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   context.l10n.settingsDeleteDataList,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -1220,7 +1233,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Text(
                             userEmail,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
@@ -1487,7 +1502,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onPressed: _handleDeleteAccount,
                   child: Text(
                     l10n.settingsDeleteAccount,
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

@@ -111,9 +111,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.settingsBlockedUsers),
-      ),
+      appBar: AppBar(title: Text(context.l10n.settingsBlockedUsers)),
       body: _buildBody(),
     );
   }
@@ -158,10 +156,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
 }
 
 class _BlockedUserTile extends StatelessWidget {
-  const _BlockedUserTile({
-    required this.user,
-    required this.onUnblock,
-  });
+  const _BlockedUserTile({required this.user, required this.onUnblock});
 
   final BlockedUser user;
   final VoidCallback onUnblock;
@@ -193,13 +188,14 @@ class _BlockedUserTile extends StatelessWidget {
       ),
       subtitle: Text(
         context.l10n.settingsBlockedOn(user.blockedAt),
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 12,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       trailing: TextButton(
         onPressed: onUnblock,
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-        ),
+        style: TextButton.styleFrom(foregroundColor: AppColors.primary),
         child: Text(context.l10n.settingsBlockedUnblock),
       ),
     );
