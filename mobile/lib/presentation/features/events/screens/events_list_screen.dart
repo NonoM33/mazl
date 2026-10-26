@@ -182,7 +182,8 @@ class _EventsListScreenState extends State<EventsListScreen>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _getTypeColor(type == 'all' ? null : type)
-                            : Colors.grey.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
@@ -200,7 +201,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                               size: 16,
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[600],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 6),
                           ],
@@ -209,7 +212,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.w500,
@@ -312,7 +317,7 @@ class _EventsListScreenState extends State<EventsListScreen>
     if (_events.isEmpty) {
       return FoldMessageView(
         icon: LucideIcons.calendar,
-        iconColor: AppColors.primary,
+        iconColor: Theme.of(context).colorScheme.primary,
         title: context.l10n.eventsEmptyTitle,
         line: context.l10n.eventsEmptyHint,
       );
@@ -652,7 +657,10 @@ class _EventCard extends StatelessWidget {
                       event.description!,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[700], height: 1.4),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -669,7 +677,7 @@ class _EventCard extends StatelessWidget {
                         child: Icon(
                           LucideIcons.calendar,
                           size: 16,
-                          color: typeColor,
+                          color: _readableOnSurface(context, typeColor),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -682,7 +690,9 @@ class _EventCard extends StatelessWidget {
                                 )
                               : _formatDate(l10n, event.date),
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -704,14 +714,18 @@ class _EventCard extends StatelessWidget {
                           child: Icon(
                             LucideIcons.mapPin,
                             size: 16,
-                            color: typeColor,
+                            color: _readableOnSurface(context, typeColor),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             event.location!,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -730,7 +744,7 @@ class _EventCard extends StatelessWidget {
                         Icon(
                           LucideIcons.users,
                           size: 16,
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -738,7 +752,9 @@ class _EventCard extends StatelessWidget {
                               ? '${event.attendeeCount} / ${event.maxAttendees}'
                               : l10n.eventsAttendeesCount(event.attendeeCount),
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontSize: 13,
                           ),
                         ),
@@ -796,7 +812,10 @@ class _EventCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: event.attendeeCount / event.maxAttendees!,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.15),
                           valueColor: AlwaysStoppedAnimation<Color>(
                             isAlmostFull ? AppColors.warning : typeColor,
                           ),
@@ -835,7 +854,11 @@ class _ComingSoonBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.clock, size: 14, color: AppColors.primary),
+            Icon(
+              LucideIcons.clock,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -843,7 +866,7 @@ class _ComingSoonBadge extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -855,3 +878,9 @@ class _ComingSoonBadge extends StatelessWidget {
     );
   }
 }
+
+/// La couleur du type d'évènement quand elle sert de texte ou d'icône : le
+/// tekhelet de marque est trop sombre sur le fond sombre, le thème en donne
+/// la variante claire.
+Color _readableOnSurface(BuildContext context, Color color) =>
+    color == AppColors.primary ? Theme.of(context).colorScheme.primary : color;

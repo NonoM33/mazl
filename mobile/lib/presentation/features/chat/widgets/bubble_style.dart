@@ -65,10 +65,10 @@ class BubbleColors {
     final scheme = Theme.of(context).colorScheme;
     return mine
         ? BubbleColors._(
-            background: scheme.primary,
-            text: scheme.onPrimary,
-            muted: scheme.onPrimary.withValues(alpha: 0.78),
-            inset: scheme.onPrimary.withValues(alpha: 0.14),
+            background: scheme.primaryContainer,
+            text: scheme.onPrimaryContainer,
+            muted: scheme.onPrimaryContainer.withValues(alpha: 0.85),
+            inset: scheme.onPrimaryContainer.withValues(alpha: 0.14),
           )
         : BubbleColors._(
             background: scheme.surfaceContainer,

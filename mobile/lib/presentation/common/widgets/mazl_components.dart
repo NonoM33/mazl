@@ -187,8 +187,8 @@ class RoundIconButton extends StatelessWidget {
         BorderSide.none,
       ),
       RoundButtonStyle.accent => (
-        scheme.primary,
-        scheme.onPrimary,
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
         BorderSide.none,
       ),
     };

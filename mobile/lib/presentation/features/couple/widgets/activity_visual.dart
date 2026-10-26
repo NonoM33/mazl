@@ -65,14 +65,14 @@ class AccentPill extends StatelessWidget {
       height: 30,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: scheme.primary,
+        color: scheme.primaryContainer,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: scheme.onPrimary),
+            Icon(icon, size: 14, color: scheme.onPrimaryContainer),
             const SizedBox(width: 6),
           ],
           Flexible(
@@ -83,7 +83,7 @@ class AccentPill extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: scheme.onPrimary,
+                color: scheme.onPrimaryContainer,
               ),
             ),
           ),

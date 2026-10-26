@@ -34,7 +34,7 @@ class ComposerRoundButton extends StatelessWidget {
             child: Icon(
               icon,
               size: 22,
-              color: Theme.of(context).colorScheme.onPrimary,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
         ),
@@ -96,13 +96,17 @@ class MicButton extends StatelessWidget {
               dimension: 48,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: recording ? scheme.primary : Colors.transparent,
+                  color: recording
+                      ? scheme.primaryContainer
+                      : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   LucideIcons.mic,
                   size: 22,
-                  color: recording ? scheme.onPrimary : scheme.onSurface,
+                  color: recording
+                      ? scheme.onPrimaryContainer
+                      : scheme.onSurface,
                 ),
               ),
             ),

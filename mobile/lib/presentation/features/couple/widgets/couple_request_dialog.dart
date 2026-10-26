@@ -129,7 +129,7 @@ class _CoupleRequestDialogState extends State<CoupleRequestDialog> {
               Text(
                 _failure!.label(l10n),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.error, fontSize: 13),
+                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13),
               ),
             ],
             const SizedBox(height: 24),

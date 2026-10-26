@@ -31,10 +31,10 @@ class RecordingStrip extends StatelessWidget {
           IconButton(
             tooltip: context.l10n.chatRecordingCancel,
             constraints: const BoxConstraints.tightFor(width: 44, height: 44),
-            icon: const Icon(
+            icon: Icon(
               LucideIcons.trash2,
               size: 20,
-              color: AppColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
             onPressed: onCancel,
           )
@@ -67,7 +67,7 @@ class RecordingStrip extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       color: cancelling
-                          ? AppColors.error
+                          ? Theme.of(context).colorScheme.error
                           : scheme.onSurfaceVariant,
                     ),
                   ),

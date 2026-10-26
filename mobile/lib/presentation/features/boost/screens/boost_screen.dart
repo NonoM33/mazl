@@ -354,7 +354,10 @@ class _BoostScreenState extends State<BoostScreen> {
           children: [
             Row(
               children: [
-                const Icon(LucideIcons.barChart2, color: AppColors.primary),
+                Icon(
+                  LucideIcons.barChart2,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -482,7 +485,10 @@ class _BoostScreenState extends State<BoostScreen> {
           const SizedBox(height: 8),
           Text(
             context.l10n.boostRemaining(remaining),
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
           ),
         ],
       ],
@@ -499,7 +505,7 @@ class _BoostScreenState extends State<BoostScreen> {
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.plus, color: AppColors.primary),
+          Icon(LucideIcons.plus, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -511,7 +517,10 @@ class _BoostScreenState extends State<BoostScreen> {
                 ),
                 Text(
                   context.l10n.boostUpsellBody,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -559,7 +568,13 @@ class _StatCard extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );

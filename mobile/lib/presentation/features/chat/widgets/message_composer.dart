@@ -288,7 +288,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
       return ComposerRoundButton(
         label: context.l10n.chatComposerSendVoice,
         icon: LucideIcons.arrowUp,
-        color: scheme.primary,
+        color: scheme.primaryContainer,
         onTap: _sendRecording,
       );
     }
@@ -301,7 +301,7 @@ class _MessageComposerState extends ConsumerState<MessageComposer> {
           key: const ValueKey('send'),
           label: context.l10n.chatComposerSend,
           icon: LucideIcons.arrowUp,
-          color: scheme.primary,
+          color: scheme.primaryContainer,
           onTap: _submit,
         ),
       );

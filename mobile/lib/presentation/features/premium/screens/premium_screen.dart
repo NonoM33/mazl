@@ -522,7 +522,7 @@ class _PlanRow extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: scheme.primary,
+                        color: scheme.primaryContainer,
                         borderRadius: BorderRadius.circular(13),
                       ),
                       child: Text(
@@ -530,7 +530,7 @@ class _PlanRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: scheme.onPrimary,
+                          color: scheme.onPrimaryContainer,
                         ),
                       ),
                     ),
