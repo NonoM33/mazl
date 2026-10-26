@@ -75,3 +75,30 @@ inside the throwaway Postgres (`tests/support/scratch-database.ts`).
 Sample data (20 fake members with provider `seed`, a fictitious couple catalogue) exists only when `NODE_ENV` is
 `development` or `test`. Databases started by older releases are cleaned with
 `DATABASE_URL=... bun scripts/purge-seed-data.ts` (dry-run by default, `--apply` to delete, in one transaction).
+
+### Test members for the TestFlight phase
+
+While the app is in TestFlight, new members first find 16 fake profiles (13 women, 3 men, provider `seed`, address
+`@mazl.seed`, two stock photos each) in Discover, and only the administrator's account also finds 5 matches and 4
+conversations. Nobody else gets a match or a message, and a test member never likes anybody. The script writes
+nothing by itself at start-up: it is run on purpose.
+
+```bash
+# 1. dry-run (the default): prints the target database (host and name, never the password) and the plan
+DATABASE_URL=<url of the database> ADMIN_EMAIL=<same value as on the API> bun scripts/seed-test-profiles.ts
+# 2. apply, in ONE transaction (take a backup first)
+DATABASE_URL=<url of the database> ADMIN_EMAIL=<same value as on the API> bun scripts/seed-test-profiles.ts --apply
+```
+
+- **Staging first**, then production, each with its own `DATABASE_URL` (Coolify, application terminal or a tunnel);
+  look at the dry-run's `Database:` line before every `--apply`. The API must already have started on that database.
+- It can be run again at any time: members are matched on their `provider_id` (the old development seed members
+  `seed-female-1..10` and `seed-male-1..3` are taken over, not duplicated), photos keep their rows, matches and messages
+  are never written twice. The other old `seed-male-N` are switched off (`is_active = false`), not deleted.
+- The administrator is whoever `isAdminEmail` accepts (`src/features/admin/admin.emails.ts`: the built-in address and
+  `ADMIN_EMAIL`); no address is written in the script nor printed, the dry-run shows the account id.
+- The stock photos (`images.unsplash.com`, exact format of `src/features/media/domain/stored-photo.ts`) are the only
+  third-party photos the API exposes.
+- **Purge**, when the real members have arrived: `DATABASE_URL=... bun scripts/purge-seed-data.ts` (dry-run), then
+  `--apply`. It removes the test members, their photos, swipes and every fake match and conversation.
+- Tests: `bun run test:integration` (`tests/seed-test-profiles.test.ts`) and `bun test tests/unit/seed-test-roster.test.ts`.

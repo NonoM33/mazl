@@ -45,10 +45,15 @@ export function bootSchema(url: string, nodeEnv: string): Promise<{ code: number
   return runBun(["-e", script], { NODE_ENV: nodeEnv, DATABASE_URL: url });
 }
 
-// Boots the real API on the given database (every feature creates its tables, as
-// in a deployment), waits until it answers, then stops it. The secrets come from
-// the environment of the integration run.
-export async function bootServerSchema(url: string, nodeEnv: string): Promise<void> {
+export interface RunningServer {
+  readonly baseUrl: string;
+  stop(): Promise<void>;
+}
+
+// Starts the real API on the given database (every feature creates its tables, as in a
+// deployment) and waits until it answers. The secrets come from the environment of the
+// integration run.
+export async function startServer(url: string, nodeEnv: string): Promise<RunningServer> {
   const probe = Bun.serve({ port: 0, fetch: () => new Response("") });
   const port = probe.port;
   await probe.stop(true);
@@ -58,18 +63,28 @@ export async function bootServerSchema(url: string, nodeEnv: string): Promise<vo
     stdout: "ignore",
     stderr: "ignore",
   });
+  const stop = async (): Promise<void> => {
+    server.kill();
+    await server.exited;
+  };
+  const baseUrl = `http://127.0.0.1:${port}`;
   try {
     for (let attempt = 0; attempt < 120; attempt += 1) {
       try {
-        if ((await fetch(`http://127.0.0.1:${port}/api/health`)).ok) return;
+        if ((await fetch(`${baseUrl}/api/health`)).ok) return { baseUrl, stop };
       } catch {
         // not listening yet
       }
       await Bun.sleep(250);
     }
     throw new Error("the API did not start on the scratch database");
-  } finally {
-    server.kill();
-    await server.exited;
+  } catch (error: unknown) {
+    await stop();
+    throw error;
   }
+}
+
+// Boots the real API on the given database, waits until it answers, then stops it.
+export async function bootServerSchema(url: string, nodeEnv: string): Promise<void> {
+  await (await startServer(url, nodeEnv)).stop();
 }
