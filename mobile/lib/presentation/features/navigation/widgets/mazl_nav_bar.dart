@@ -154,6 +154,60 @@ class MazlNavRail extends StatelessWidget {
   }
 }
 
+/// The same destinations as [MazlNavBar], in the vertical bar of the
+/// foldable iPhone (closed, or held sideways): the column along one side that
+/// iOS gives to the status bar, the Dynamic Island and the app's bars.
+///
+/// As Apple's own tab bar does there, it is an icon-only ink capsule aligned
+/// to the BOTTOM of the room it is given ([VerticalBarGeometry.controls]),
+/// within reach of the thumb. When the room is short, the buttons get smaller
+/// before the capsule scrolls; the labels stay for VoiceOver.
+class MazlNavStrip extends StatelessWidget {
+  const MazlNavStrip({super.key, required this.items, required this.currentIndex, required this.onTap});
+
+  static const width = 56.0;
+  static const itemExtent = 52.0;
+  static const minItemExtent = 44.0;
+  static const _padding = 4.0;
+
+  final List<MazlNavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final room = constraints.maxHeight - 2 * _padding;
+        final extent = (room / items.length).clamp(minItemExtent, itemExtent).toDouble();
+        final capsule = Container(
+          key: const Key('mazl-nav-strip'),
+          width: width,
+          padding: const EdgeInsets.symmetric(vertical: _padding),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.cardDark : AppColors.ink,
+            borderRadius: BorderRadius.circular(width / 2),
+            border: isDark ? Border.all(color: AppColors.dividerDark) : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < items.length; i++)
+                _NavButton(item: items[i], selected: i == currentIndex, onTap: () => onTap(i), extent: extent),
+            ],
+          ),
+        );
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: SingleChildScrollView(reverse: true, child: capsule),
+        );
+      },
+    );
+  }
+}
+
 /// One of the two faces of the bar: fades, and is neither tappable nor read
 /// out loud while hidden. The leaving face is gone in the first third of the
 /// resize and the arriving one only shows in the second half, so the pill's
@@ -224,11 +278,19 @@ class _CollapsedTab extends StatelessWidget {
 }
 
 class _NavButton extends StatelessWidget {
-  const _NavButton({required this.item, required this.selected, required this.onTap});
+  const _NavButton({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+    this.extent = MazlNavBar.barHeight,
+  });
 
   final MazlNavItem item;
   final bool selected;
   final VoidCallback onTap;
+
+  /// Height of the button (its width comes from the bar).
+  final double extent;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +303,7 @@ class _NavButton extends StatelessWidget {
         onTap: onTap,
         radius: 28,
         child: SizedBox(
-          height: MazlNavBar.barHeight,
+          height: extent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

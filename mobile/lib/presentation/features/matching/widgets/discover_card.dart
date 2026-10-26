@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/models/profile.dart' show Profile;
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -15,6 +16,11 @@ import '../../profile/l10n/profile_answer_labels.dart';
 /// Aucun texte n'est posé sur la photo. Passer et aimer chevauchent le bord
 /// bas de la photo, à droite ; les actions secondaires (annuler, super like,
 /// boost) sont de petits boutons à contour à gauche.
+///
+/// Sur un iPhone pliable à moitié plié, le pli coupe la carte : la photo reste
+/// du côté où l'on regarde (au-dessus du pli, ou du côté de lecture), le nom,
+/// les puces et TOUS les boutons passent de l'autre côté, hors de la courbe.
+/// La carte garde son état (photo affichée) en se pliant.
 class DiscoverCard extends StatefulWidget {
   const DiscoverCard({
     super.key,
@@ -61,31 +67,135 @@ class _DiscoverCardState extends State<DiscoverCard> {
 
   @override
   Widget build(BuildContext context) {
+    return FoldAwareSplit(
+      lead: _buildLead(context),
+      action: Builder(builder: _buildCard),
+    );
+  }
+
+  BoxDecoration _cardDecoration(ColorScheme scheme) => BoxDecoration(
+    color: scheme.surface,
+    borderRadius: BorderRadius.circular(32),
+    border: Border.all(color: scheme.outlineVariant),
+  );
+
+  /// Half open: the photo alone, on the half where the member looks.
+  Widget _buildLead(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      decoration: BoxDecoration(
-        color: scheme.surface,
+      foregroundDecoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: scheme.outlineVariant),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: _buildPhotoBlock(overlayActions: false),
+    );
+  }
+
+  /// Flat: the whole card. Split by the fold: the photo is the lead's, and
+  /// the name, the details and the buttons fill the other half.
+  Widget _buildCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final split = FoldAwareSplit.axisOf(context) != null;
+    return Container(
+      decoration: _cardDecoration(scheme),
+      child: split
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: _buildInfo(
+                      context,
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    ),
+                  ),
+                ),
+                _buildSplitActions(),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: _buildPhotoBlock(overlayActions: true)),
+                _buildInfo(
+                  context,
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                ),
+              ],
+            ),
+    );
+  }
+
+  /// The four buttons under the details, on the half the fold leaves for them.
+  Widget _buildSplitActions() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Wrap(
+        textDirection: TextDirection.ltr,
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
         children: [
-          Expanded(child: _buildPhotoBlock()),
-          _buildInfo(context),
+          if (widget.secondaryActions.isNotEmpty) _buildSecondaryActions(),
+          _buildPassAndLike(),
         ],
       ),
     );
   }
 
-  Widget _buildPhotoBlock() {
+  Widget _buildSecondaryActions() => Row(
+    textDirection: TextDirection.ltr,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 0; i < widget.secondaryActions.length; i++) ...[
+        if (i > 0) const SizedBox(width: 8),
+        widget.secondaryActions[i],
+      ],
+    ],
+  );
+
+  // Swiping right likes in every language: the buttons keep the same sides as
+  // the gesture, so they do not mirror in Hebrew.
+  Widget _buildPassAndLike() => Row(
+    textDirection: TextDirection.ltr,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _followsSwipe(
+        SwipeDirection.left,
+        RoundIconButton(
+          icon: LucideIcons.x,
+          tooltip: context.l10n.matchingCardPass,
+          size: DiscoverCard._actionSize,
+          iconSize: 26,
+          onPressed: widget.onPass,
+        ),
+      ),
+      const SizedBox(width: 12),
+      _followsSwipe(
+        SwipeDirection.right,
+        RoundIconButton(
+          icon: LucideIcons.heart,
+          tooltip: context.l10n.matchingCardLike,
+          size: DiscoverCard._actionSize,
+          iconSize: 26,
+          style: RoundButtonStyle.accent,
+          onPressed: widget.onLike,
+        ),
+      ),
+    ],
+  );
+
+  /// The photo, its progress bars and the « Vérifiée » pill. With
+  /// [overlayActions] the buttons straddle its bottom edge (flat card).
+  Widget _buildPhotoBlock({required bool overlayActions}) {
     final photos = _profile.photos;
     final index = photos.isEmpty ? 0 : _photoIndex.clamp(0, photos.length - 1);
     final url = photos.isEmpty ? null : photos[index];
     return Stack(
       children: [
         Positioned.fill(
-          bottom: DiscoverCard._overhang,
+          bottom: overlayActions ? DiscoverCard._overhang : 0,
           child: LayoutBuilder(
             builder: (context, constraints) => GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -112,55 +222,10 @@ class _DiscoverCardState extends State<DiscoverCard> {
             left: 16,
             child: _givesWayToLike(const _VerifiedPill()),
           ),
-        if (widget.secondaryActions.isNotEmpty)
-          Positioned(
-            left: 16,
-            bottom: 8,
-            child: Row(
-              textDirection: TextDirection.ltr,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < widget.secondaryActions.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  widget.secondaryActions[i],
-                ],
-              ],
-            ),
-          ),
-        Positioned(
-          right: 16,
-          bottom: 0,
-          // Swiping right likes in every language: the buttons keep the same
-          // sides as the gesture, so they do not mirror in Hebrew.
-          child: Row(
-            textDirection: TextDirection.ltr,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _followsSwipe(
-                SwipeDirection.left,
-                RoundIconButton(
-                  icon: LucideIcons.x,
-                  tooltip: context.l10n.matchingCardPass,
-                  size: DiscoverCard._actionSize,
-                  iconSize: 26,
-                  onPressed: widget.onPass,
-                ),
-              ),
-              const SizedBox(width: 12),
-              _followsSwipe(
-                SwipeDirection.right,
-                RoundIconButton(
-                  icon: LucideIcons.heart,
-                  tooltip: context.l10n.matchingCardLike,
-                  size: DiscoverCard._actionSize,
-                  iconSize: 26,
-                  style: RoundButtonStyle.accent,
-                  onPressed: widget.onLike,
-                ),
-              ),
-            ],
-          ),
-        ),
+        if (overlayActions && widget.secondaryActions.isNotEmpty)
+          Positioned(left: 16, bottom: 8, child: _buildSecondaryActions()),
+        if (overlayActions)
+          Positioned(right: 16, bottom: 0, child: _buildPassAndLike()),
       ],
     );
   }
@@ -190,13 +255,13 @@ class _DiscoverCardState extends State<DiscoverCard> {
     );
   }
 
-  Widget _buildInfo(BuildContext context) {
+  Widget _buildInfo(BuildContext context, {required EdgeInsets padding}) {
     final scheme = Theme.of(context).colorScheme;
     final name = _profile.displayName ?? context.l10n.matchingCardAnonymous;
     final meta = _metaLine(context);
     final tags = _tags(context.l10n);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -266,7 +331,8 @@ class _DiscoverCardState extends State<DiscoverCard> {
   String _metaLine(BuildContext context) {
     final parts = <String>[
       if (_hasText(_profile.location)) _profile.location!.trim(),
-      if (_profile.distance != null) context.l10n.matchingCardDistance(_profile.distance!.round()),
+      if (_profile.distance != null)
+        context.l10n.matchingCardDistance(_profile.distance!.round()),
     ];
     return parts.join(' · ');
   }

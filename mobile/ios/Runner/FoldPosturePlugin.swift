@@ -4,11 +4,15 @@ import UIKit
 /// Streams the fold of a foldable iPhone to Dart on the `mazl/fold` event
 /// channel (read by `lib/core/layout/fold_channel.dart`).
 ///
-/// Each message is `{hinge, divisions}`: the hinge status of
-/// `UIHingeInteraction` and the ACTIVE division regions of the Flutter view
-/// (`reservedRegions(kind: .division)`), in points of that view, which are
-/// Flutter's logical pixels. Before iOS 27.1, or on a device without a hinge,
-/// a single `unknown` message with no division is sent.
+/// Each message is `{hinge, divisions, verticalBar, occlusions}`: the hinge
+/// status of `UIHingeInteraction`, the ACTIVE division regions of the Flutter
+/// view (`reservedRegions(kind: .division)`, the curve of a half-open display),
+/// the physical side of the system's vertical bar (`traitCollection
+/// .verticalBarEdge`, `left`, `right` or absent) and the ACTIVE occlusion
+/// regions (`reservedRegions(kind: .occlusion)`, the status bar and Dynamic
+/// Island in that bar), all in points of that view, which are Flutter's
+/// logical pixels. Before iOS 27.1, or on a device without a hinge, a single
+/// `unknown` message with nothing else is sent.
 final class FoldPosturePlugin: NSObject, FlutterStreamHandler {
   private weak var registrar: FlutterPluginRegistrar?
   private var observer: UIView?
@@ -75,6 +79,10 @@ private final class FoldObserverView: UIView {
       self?.hinge = update.hinge?.status ?? .unknown
       self?.report()
     })
+    // The vertical bar moves with the display, the orientation and Split View.
+    registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) { (self: FoldObserverView, _) in
+      self.report()
+    }
   }
 
   @available(*, unavailable)
@@ -93,7 +101,20 @@ private final class FoldObserverView: UIView {
   }
 
   private func report() {
-    let divisions = reservedRegions(kind: .division)
+    var message: [String: Any] = [
+      "hinge": Self.name(of: hinge),
+      "divisions": activeFrames(of: .division),
+      "occlusions": activeFrames(of: .occlusion),
+    ]
+    if let side = verticalBarSide { message["verticalBar"] = side }
+    let dictionary = message as NSDictionary
+    guard dictionary != lastMessage else { return }
+    lastMessage = dictionary
+    send(message)
+  }
+
+  private func activeFrames(of kind: UIView.ReservedRegion.Kind) -> [[String: Double]] {
+    reservedRegions(kind: kind)
       .filter(\.isActive)
       .map { region in
         [
@@ -103,11 +124,16 @@ private final class FoldObserverView: UIView {
           "height": Double(region.frame.size.height),
         ]
       }
-    let message: [String: Any] = ["hinge": Self.name(of: hinge), "divisions": divisions]
-    let dictionary = message as NSDictionary
-    guard dictionary != lastMessage else { return }
-    lastMessage = dictionary
-    send(message)
+  }
+
+  /// The physical side of the vertical bar: UIKit speaks leading / trailing.
+  private var verticalBarSide: String? {
+    let rightToLeft = effectiveUserInterfaceLayoutDirection == .rightToLeft
+    switch traitCollection.verticalBarEdge {
+    case .leading: return rightToLeft ? "right" : "left"
+    case .trailing: return rightToLeft ? "left" : "right"
+    default: return nil
+    }
   }
 
   private static func name(of status: UIHinge.Status) -> String {
