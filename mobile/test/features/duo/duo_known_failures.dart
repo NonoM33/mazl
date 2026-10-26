@@ -73,11 +73,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/daily-picks',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/discover/profile/:userId',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
