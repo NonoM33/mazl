@@ -32,15 +32,20 @@ class SideSafeArea extends StatefulWidget {
 
 class _SideSafeAreaState extends State<SideSafeArea> {
   final ValueNotifier<VerticalBarContent?> _slot = ValueNotifier(null);
+  final ValueNotifier<VerticalBarContent?> _navigationSlot = ValueNotifier(
+    null,
+  );
   final ValueNotifier<Object?> _passThrough = ValueNotifier(null);
 
   @override
   void dispose() {
     // A publisher below may still release the slot after this frame.
     final slot = _slot;
+    final navigationSlot = _navigationSlot;
     final passThrough = _passThrough;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       slot.dispose();
+      navigationSlot.dispose();
       passThrough.dispose();
     });
     super.dispose();
@@ -61,6 +66,7 @@ class _SideSafeAreaState extends State<SideSafeArea> {
     return VerticalBarScope(
       geometry: bar,
       slot: _slot,
+      navigationSlot: _navigationSlot,
       passThrough: _passThrough,
       child: Stack(
         fit: StackFit.passthrough,
@@ -92,6 +98,37 @@ class _SideSafeAreaState extends State<SideSafeArea> {
                             key: ObjectKey(content.owner),
                             child: content.child,
                           ),
+                  ),
+                ),
+              ),
+            ),
+          // The screen's navigation at the top of the column, under the
+          // status bar: only its buttons take touches, the tabs below stay
+          // reachable.
+          if (bar != null)
+            Positioned.fromRect(
+              rect: bar.controls,
+              // Drawn above the navigator: the buttons' tooltips need an
+              // overlay of their own, free to paint beyond the column.
+              child: Overlay.wrap(
+                clipBehavior: Clip.none,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: ValueListenableBuilder<VerticalBarContent?>(
+                    valueListenable: _navigationSlot,
+                    builder: (context, content, _) => AnimatedSwitcher(
+                      duration: duration,
+                      layoutBuilder: (current, previous) => Stack(
+                        alignment: Alignment.topCenter,
+                        children: [...previous, ?current],
+                      ),
+                      child: content == null
+                          ? const SizedBox.shrink()
+                          : KeyedSubtree(
+                              key: ObjectKey(content.owner),
+                              child: content.child,
+                            ),
+                    ),
                   ),
                 ),
               ),

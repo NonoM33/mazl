@@ -118,12 +118,17 @@ class VerticalBarScope extends InheritedWidget {
     required this.geometry,
     required this.slot,
     required this.passThrough,
+    this.navigationSlot,
     required super.child,
   });
 
   /// `null` when the bars are horizontal.
   final VerticalBarGeometry? geometry;
   final ValueNotifier<VerticalBarContent?> slot;
+
+  /// The top of the column: the navigation of the screen on top (back or
+  /// close first, then its actions), as iOS puts a navigation bar there.
+  final ValueNotifier<VerticalBarContent?>? navigationSlot;
 
   /// The see-through route on top, if any ([VerticalBarPassThrough]).
   final ValueNotifier<Object?> passThrough;
@@ -139,6 +144,10 @@ class VerticalBarScope extends InheritedWidget {
   static ValueNotifier<VerticalBarContent?>? slotOf(BuildContext context) =>
       _of(context)?.slot;
 
+  static ValueNotifier<VerticalBarContent?>? navigationSlotOf(
+    BuildContext context,
+  ) => _of(context)?.navigationSlot;
+
   static ValueNotifier<Object?>? passThroughOf(BuildContext context) =>
       _of(context)?.passThrough;
 
@@ -146,6 +155,7 @@ class VerticalBarScope extends InheritedWidget {
   bool updateShouldNotify(VerticalBarScope oldWidget) =>
       oldWidget.geometry != geometry ||
       oldWidget.slot != slot ||
+      oldWidget.navigationSlot != navigationSlot ||
       oldWidget.passThrough != passThrough;
 }
 
@@ -154,9 +164,17 @@ class VerticalBarScope extends InheritedWidget {
 /// the sheet's own controls), and takes it back otherwise. Draws nothing in
 /// place.
 class VerticalBarPublisher extends StatefulWidget {
-  const VerticalBarPublisher({super.key, required this.bar});
+  const VerticalBarPublisher({
+    super.key,
+    required this.bar,
+    this.navigation = false,
+  });
 
   final Widget bar;
+
+  /// Into the top of the column (the screen's navigation) rather than the
+  /// bottom (its tabs).
+  final bool navigation;
 
   @override
   State<VerticalBarPublisher> createState() => _VerticalBarPublisherState();
@@ -181,7 +199,9 @@ class _VerticalBarPublisherState extends State<VerticalBarPublisher> {
 
   @override
   Widget build(BuildContext context) {
-    final slot = VerticalBarScope.slotOf(context);
+    final slot = widget.navigation
+        ? VerticalBarScope.navigationSlotOf(context)
+        : VerticalBarScope.slotOf(context);
     // Covered only by a see-through route (a detail drawn in this screen's
     // pane), the screen is still the one the user acts on.
     final onTop =
