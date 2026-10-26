@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/services/jewish_calendar_service.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
@@ -80,9 +81,11 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
     final titleStyle = Theme.of(context).textTheme.titleLarge;
 
     return Scaffold(
-      body: ListView(
+      // Held like a book: the month to read on the first page, what the
+      // week and the holidays hold on the other.
+      body: FoldSpread(
         padding: EdgeInsets.fromLTRB(24, top + 16, 24, bottom + 24),
-        children: [
+        start: [
           Text(
             l10n.coupleSpaceCalendarTitle,
             style: const TextStyle(
@@ -102,6 +105,8 @@ class _JewishCalendarScreenState extends State<JewishCalendarScreen> {
             onNext: () => _shiftMonth(1),
           ),
           const SizedBox(height: 32),
+        ],
+        end: [
           _ShabbatCard(shabbat: shabbat),
           const SizedBox(height: 32),
           Text(l10n.coupleSpaceCalendarShabbatIdeas, style: titleStyle),
@@ -157,7 +162,9 @@ class _MonthGrid extends StatelessWidget {
     final weekdayInitials = [
       for (var i = 0; i < 7; i++)
         // 7 January 2024 was a Sunday.
-        DateFormat.EEEEE(locale).format(DateTime(2024, 1, 7 + (firstDay + i) % 7)),
+        DateFormat.EEEEE(
+          locale,
+        ).format(DateTime(2024, 1, 7 + (firstDay + i) % 7)),
     ];
     final cellCount = ((leading + daysInMonth + 6) ~/ 7) * 7;
 
@@ -590,7 +597,9 @@ class _HolidayCard extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [for (final idea in ideas) _IdeaChip(idea.label(l10n))],
+                children: [
+                  for (final idea in ideas) _IdeaChip(idea.label(l10n)),
+                ],
               ),
             ],
           ],

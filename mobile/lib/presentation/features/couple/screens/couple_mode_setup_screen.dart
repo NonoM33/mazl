@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
@@ -11,6 +12,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart' show ProfilePhoto;
 import '../l10n/couple_failure_label.dart';
+import '../widgets/book_pages.dart';
 
 /// Loads the member's matches (the real API in production).
 typedef MatchesLoader =
@@ -141,63 +143,90 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final name = request.targetName ?? '';
+    final message = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _Avatar(
+          name: name,
+          picture: request.targetPicture,
+          size: 96,
+          seed: request.targetId,
+        ),
+        const SizedBox(height: 24),
+        Text(
+          l10n.coupleSpaceSetupSentTitle,
+          textAlign: TextAlign.center,
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          name.isEmpty
+              ? l10n.coupleSpaceSetupSentBodyAnonymous
+              : l10n.coupleSpaceSetupSentBody(name),
+          textAlign: TextAlign.center,
+          style: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+        if (_failure != null) ...[
+          const SizedBox(height: 12),
+          _ErrorText(_failure!.label(l10n)),
+        ],
+      ],
+    );
+    final buttons = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _isBusy ? null : _done,
+            child: Text(l10n.coupleSpaceSetupGotIt),
+          ),
+        ),
+        if (!_justSent) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: _isBusy ? null : _cancel,
+              child: _isBusy
+                  ? const _Spinner()
+                  : Text(l10n.coupleSpaceSetupCancelRequest),
+            ),
+          ),
+        ],
+      ],
+    );
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const Spacer(),
-            _Avatar(
-              name: name,
-              picture: request.targetPicture,
-              size: 96,
-              seed: request.targetId,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              l10n.coupleSpaceSetupSentTitle,
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              name.isEmpty
-                  ? l10n.coupleSpaceSetupSentBodyAnonymous
-                  : l10n.coupleSpaceSetupSentBody(name),
-              textAlign: TextAlign.center,
-              style: textTheme.bodyLarge?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-            if (_failure != null) ...[
-              const SizedBox(height: 12),
-              _ErrorText(_failure!.label(l10n)),
-            ],
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isBusy ? null : _done,
-                child: Text(l10n.coupleSpaceSetupGotIt),
-              ),
-            ),
-            if (!_justSent) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _isBusy ? null : _cancel,
-                  child: _isBusy
-                      ? const _Spinner()
-                      : Text(l10n.coupleSpaceSetupCancelRequest),
+      child: FoldCutBuilder(
+        minPaneExtent: bookPaneExtent,
+        builder: (context, cut) {
+          // Held like a book: the answer to read on one page, the buttons on
+          // the other.
+          if (cut?.axis == FoldSplitAxis.vertical) {
+            return bookPages(
+              cut!,
+              lead: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: message,
                 ),
               ),
-            ],
-          ],
-        ),
+              action: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: buttons,
+                ),
+              ),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [const Spacer(), message, const Spacer(), buttons],
+            ),
+          );
+        },
       ),
     );
   }
@@ -228,51 +257,134 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
       return Center(child: Text(l10n.coupleSpaceSetupNoMatches));
     }
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+    final footer = SafeArea(
+      top: false,
+      child: FoldSafeActions(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+          child: Column(
             children: [
-              Text(
-                l10n.coupleSpaceSetupWho,
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+              if (_failure != null) ...[
+                _ErrorText(_failure!.label(l10n)),
+                const SizedBox(height: 12),
+              ],
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _selectedProfile == null || _isBusy ? null : _send,
+                  child: _isBusy
+                      ? const _Spinner()
+                      : Text(l10n.coupleSpaceSetupSend),
                 ),
               ),
-              const SizedBox(height: 16),
-              for (final profile in profiles) _buildOption(context, profile),
             ],
           ),
         ),
-        SafeArea(
-          top: false,
-          child: FoldSafeActions(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-              child: Column(
+      ),
+    );
+    final options = [
+      for (final profile in profiles) _buildOption(context, profile),
+    ];
+
+    return FoldCutBuilder(
+      minPaneExtent: bookPaneExtent,
+      builder: (context, cut) {
+        // Held like a book: the question and the person chosen on one page,
+        // the matches and the button on the other.
+        if (cut?.axis == FoldSplitAxis.vertical) {
+          return bookPages(
+            cut!,
+            lead: _buildChoice(context),
+            action: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                    children: options,
+                  ),
+                ),
+                footer,
+              ],
+            ),
+          );
+        }
+        return Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
                 children: [
-                  if (_failure != null) ...[
-                    _ErrorText(_failure!.label(l10n)),
-                    const SizedBox(height: 12),
-                  ],
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _selectedProfile == null || _isBusy
-                          ? null
-                          : _send,
-                      child: _isBusy
-                          ? const _Spinner()
-                          : Text(l10n.coupleSpaceSetupSend),
+                  Text(
+                    l10n.coupleSpaceSetupWho,
+                    style: textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  ...options,
                 ],
               ),
             ),
-          ),
+            footer,
+          ],
+        );
+      },
+    );
+  }
+
+  /// The page to look at while the book is open: the question, then the
+  /// person chosen (a heart while nobody is).
+  Widget _buildChoice(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final chosen = _selectedProfile;
+    final name = chosen?['display_name'] as String? ?? '';
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (chosen == null)
+              Container(
+                key: const ValueKey('couple-setup-heart'),
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.surfaceContainer,
+                ),
+                child: Icon(LucideIcons.heart, size: 36, color: scheme.primary),
+              )
+            else
+              _Avatar(
+                name: name,
+                picture: chosen['picture'] as String?,
+                size: 96,
+                seed: parseCoupleId(chosen['user_id']),
+              ),
+            const SizedBox(height: 24),
+            Text(
+              context.l10n.coupleSpaceSetupWho,
+              textAlign: TextAlign.center,
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (name.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                name,
+                key: const ValueKey('couple-setup-chosen'),
+                textAlign: TextAlign.center,
+                style: textTheme.titleMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
         ),
-      ],
+      ),
     );
   }
 

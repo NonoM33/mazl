@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_event.dart';
 import '../../../../core/services/couple_api_service.dart';
@@ -11,6 +12,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/couple_failure_label.dart';
 import '../l10n/couple_feed_labels.dart';
+import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 
@@ -170,9 +172,53 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
       );
     }
 
-    return Scaffold(
-      body: _buildContent(event),
-      bottomNavigationBar: _buildRegistrationBar(event),
+    return FoldCutBuilder(
+      minPaneExtent: bookPaneExtent,
+      builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+          ? Scaffold(body: _buildBook(event, cut!))
+          : Scaffold(
+              body: _buildContent(event),
+              bottomNavigationBar: _buildRegistrationBar(event),
+            ),
+    );
+  }
+
+  /// Held like a book: the photo, the title and the price to look at on the
+  /// first page; the practical details and the registration on the other.
+  Widget _buildBook(CoupleEvent event, FoldCut cut) {
+    return bookPages(
+      cut,
+      lead: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHero(event),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+              child: _buildHeadline(event),
+            ),
+          ],
+        ),
+      ),
+      action: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                MediaQuery.paddingOf(context).top + 24,
+                24,
+                24,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildDetails(event),
+              ),
+            ),
+          ),
+          _buildRegistrationBar(event),
+        ],
+      ),
     );
   }
 
@@ -206,9 +252,6 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
   }
 
   Widget _buildContent(CoupleEvent event) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = context.l10n;
-    final when = event.whenLabel(l10n);
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,44 +262,61 @@ class _CoupleEventDetailScreenState extends State<CoupleEventDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SectionLabel(when),
-                const SizedBox(height: 10),
-                Text(
-                  event.title,
-                  style: textTheme.headlineMedium?.copyWith(fontSize: 30),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    TagPill(
-                      eventCategoryLabel(l10n, event.category),
-                      icon: eventCategoryIcon(event.category),
-                    ),
-                    if (event.isKosher) TagPill(l10n.coupleFeedKosher),
-                    if (event.isFeatured)
-                      TagPill(l10n.coupleFeedFeatured, icon: LucideIcons.star),
-                  ],
-                ),
+                _buildHeadline(event),
                 const SizedBox(height: 24),
-                _buildPriceCard(event),
-                const SizedBox(height: 24),
-                ..._buildFacts(event),
-                _buildSection(l10n.coupleFeedDescription, event.description),
-                if (event.whatIncluded != null) ...[
-                  const SizedBox(height: 24),
-                  _buildSection(
-                    l10n.coupleFeedEventIncluded,
-                    event.whatIncluded!,
-                  ),
-                ],
+                ..._buildDetails(event),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// When, title, tags and price: what the member looks at first.
+  Widget _buildHeadline(CoupleEvent event) {
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionLabel(event.whenLabel(l10n)),
+        const SizedBox(height: 10),
+        Text(
+          event.title,
+          style: textTheme.headlineMedium?.copyWith(fontSize: 30),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            TagPill(
+              eventCategoryLabel(l10n, event.category),
+              icon: eventCategoryIcon(event.category),
+            ),
+            if (event.isKosher) TagPill(l10n.coupleFeedKosher),
+            if (event.isFeatured)
+              TagPill(l10n.coupleFeedFeatured, icon: LucideIcons.star),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildPriceCard(event),
+      ],
+    );
+  }
+
+  /// Place, dress code, description: the practical side.
+  List<Widget> _buildDetails(CoupleEvent event) {
+    final l10n = context.l10n;
+    return [
+      ..._buildFacts(event),
+      _buildSection(l10n.coupleFeedDescription, event.description),
+      if (event.whatIncluded != null) ...[
+        const SizedBox(height: 24),
+        _buildSection(l10n.coupleFeedEventIncluded, event.whatIncluded!),
+      ],
+    ];
   }
 
   List<Widget> _buildFacts(CoupleEvent event) {

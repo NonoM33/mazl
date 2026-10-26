@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,6 +10,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
+import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
@@ -140,24 +142,72 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _loadActivities,
-      child: ListView.builder(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          8,
-          24,
-          24 + MediaQuery.paddingOf(context).bottom,
+    // Half open, the list stays out of the fold: the count is what the first
+    // page (or the top half) shows, the activities are on the other.
+    return FoldAwareSplit(
+      minPaneExtent: bookPaneExtent,
+      lead: _buildSummary(),
+      action: RefreshIndicator(
+        onRefresh: _loadActivities,
+        child: ListView.builder(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            8,
+            24,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
+          itemCount: _activities.length,
+          itemBuilder: (context, index) {
+            final activity = _activities[index];
+            return _SavedActivityCard(
+              activity: activity,
+              onTap: () => context.push('/couple/activities/${activity.id}'),
+              onRemove: () => _removeActivity(activity),
+            );
+          },
         ),
-        itemCount: _activities.length,
-        itemBuilder: (context, index) {
-          final activity = _activities[index];
-          return _SavedActivityCard(
-            activity: activity,
-            onTap: () => context.push('/couple/activities/${activity.id}'),
-            onRemove: () => _removeActivity(activity),
-          );
-        },
+      ),
+    );
+  }
+
+  /// How many activities the couple has kept: a bookmark and the count.
+  Widget _buildSummary() {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                LucideIcons.bookmark,
+                size: 32,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${_activities.length}',
+              key: const ValueKey('saved-count'),
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              context.l10n.coupleFeedSavedTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
