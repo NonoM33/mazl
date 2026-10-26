@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
@@ -74,84 +75,126 @@ class _PlusWelcomeScreenState extends State<PlusWelcomeScreen> {
         ? l10n.plusActiveSubscription
         : l10n.plusActiveSubscriptionPlan(l10n.plusMonths(months));
 
+    final intro = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionLabel(eyebrow),
+        const SizedBox(height: 14),
+        Text.rich(
+          TextSpan(
+            children: brandPhraseSpans(l10n.plusWelcomeTitle, [
+              const TextSpan(text: 'mazl'),
+              TextSpan(
+                text: '+',
+                style: TextStyle(color: scheme.primary),
+              ),
+            ]),
+          ),
+          semanticsLabel: l10n.plusWelcomeTitle,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+            fontSize: 48,
+            letterSpacing: -2.6,
+            height: 0.98,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Text(
+          l10n.plusWelcomeSubtitle,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 17,
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+    final actions = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ActionRow(
+          icon: LucideIcons.heart,
+          title: _likesTitle(l10n),
+          detail: l10n.plusWelcomeLikesDetail,
+          inverted: true,
+          onTap: () => context.push(RoutePaths.likes),
+        ),
+        const SizedBox(height: 10),
+        _ActionRow(
+          icon: LucideIcons.zap,
+          title: l10n.plusWelcomeBoostTitle,
+          detail: l10n.plusWelcomeBoostDetail,
+          onTap: () => context.go(RoutePaths.discover),
+        ),
+        const SizedBox(height: 10),
+        _ActionRow(
+          icon: LucideIcons.slidersHorizontal,
+          title: l10n.plusWelcomeFiltersTitle,
+          detail: l10n.plusWelcomeFiltersDetail,
+          onTap: () => context.push(RoutePaths.filters),
+        ),
+      ],
+    );
+    final later = FoldSafeActions(
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: TextButton(onPressed: _later, child: Text(l10n.commonLater)),
+      ),
+    );
+
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 72, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
+        child: FoldCutBuilder(
+          builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+              // Held like a book: the greeting on the reading-start page,
+              // the three ways to begin and "later" on the other.
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      width: cut!.leadExtent,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 72, 24, 16),
+                        child: intro,
+                      ),
+                    ),
+                    SizedBox(width: cut.gap),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 72, 24, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(child: actions),
+                            ),
+                            later,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 72, 24, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SectionLabel(eyebrow),
-                      const SizedBox(height: 14),
-                      Text.rich(
-                        TextSpan(
-                          children: brandPhraseSpans(l10n.plusWelcomeTitle, [
-                            const TextSpan(text: 'mazl'),
-                            TextSpan(
-                              text: '+',
-                              style: TextStyle(color: scheme.primary),
-                            ),
-                          ]),
-                        ),
-                        semanticsLabel: l10n.plusWelcomeTitle,
-                        style: Theme.of(context).textTheme.displayMedium!
-                            .copyWith(
-                              fontSize: 48,
-                              letterSpacing: -2.6,
-                              height: 0.98,
-                            ),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        l10n.plusWelcomeSubtitle,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontSize: 17,
-                          color: scheme.onSurfaceVariant,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              intro,
+                              const SizedBox(height: 36),
+                              actions,
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 36),
-                      _ActionRow(
-                        icon: LucideIcons.heart,
-                        title: _likesTitle(l10n),
-                        detail: l10n.plusWelcomeLikesDetail,
-                        inverted: true,
-                        onTap: () => context.push(RoutePaths.likes),
-                      ),
-                      const SizedBox(height: 10),
-                      _ActionRow(
-                        icon: LucideIcons.zap,
-                        title: l10n.plusWelcomeBoostTitle,
-                        detail: l10n.plusWelcomeBoostDetail,
-                        onTap: () => context.go(RoutePaths.discover),
-                      ),
-                      const SizedBox(height: 10),
-                      _ActionRow(
-                        icon: LucideIcons.slidersHorizontal,
-                        title: l10n.plusWelcomeFiltersTitle,
-                        detail: l10n.plusWelcomeFiltersDetail,
-                        onTap: () => context.push(RoutePaths.filters),
-                      ),
+                      later,
                     ],
                   ),
                 ),
-              ),
-              FoldSafeActions(
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: TextButton(
-                    onPressed: _later,
-                    child: Text(l10n.commonLater),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

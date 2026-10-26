@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/store/subscription_models.dart';
@@ -157,118 +158,187 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
   }
 
+  Widget _pitch(AppLocalizations l10n) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const PlusWord(size: 72),
+      const SizedBox(height: 16),
+      Text(
+        l10n.plusOfferTagline,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
+          letterSpacing: -0.45,
+        ),
+      ),
+      const SizedBox(height: 28),
+      for (final perk in _perks(l10n)) _PerkRow(perk: perk),
+    ],
+  );
+
+  Widget _planChoice(
+    AppLocalizations l10n,
+    List<_PlanOffer> plans,
+    int selected,
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SectionLabel(l10n.plusYourPlan),
+      const SizedBox(height: 12),
+      for (var i = 0; i < plans.length; i++) ...[
+        _PlanRow(
+          plan: plans[i],
+          savingsPercent: _savingsPercent(plans, plans[i]),
+          selected: i == selected,
+          onTap: () => setState(() => _selectedPlanIndex = i),
+        ),
+        if (i < plans.length - 1) const SizedBox(height: 10),
+      ],
+      const SizedBox(height: 16),
+      _LegalLine(onOpenUrl: _openUrl),
+    ],
+  );
+
+  Widget _buyButton(
+    AppLocalizations l10n,
+    List<_PlanOffer> plans,
+    int selected,
+  ) {
+    // Seul iOS achète pour l'instant : le serveur ne vérifie pas Google Play.
+    final canBuy = Theme.of(context).platform != TargetPlatform.android;
+    return FoldSafeActions(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          12,
+          24,
+          16 + MediaQuery.viewPaddingOf(context).bottom,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _isPurchasing || !canBuy ? null : _handlePurchase,
+            child: !canBuy
+                ? Text(l10n.plusAndroidSoon)
+                : _isPurchasing
+                ? SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                  )
+                : Text(
+                    l10n.plusContinuePrice(
+                      planTotalLabel(
+                        price: plans[selected].price,
+                        currencyCode: plans[selected].currencyCode,
+                        locale: l10n.localeName,
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _topBar(AppLocalizations l10n) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+    child: Row(
+      children: [
+        RoundIconButton(
+          icon: LucideIcons.x,
+          tooltip: l10n.commonClose,
+          onPressed: () => context.pop(),
+        ),
+        const Spacer(),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+          onPressed: _handleRestore,
+          child: Text(l10n.plusRestore),
+        ),
+      ],
+    ),
+  );
+
+  /// Held like a book: the promise and the perks on the reading-start page,
+  /// the plans, the legal line and the purchase button on the other.
+  Widget _book(
+    FoldCut cut,
+    AppLocalizations l10n,
+    List<_PlanOffer> plans,
+    int selected,
+  ) => Row(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        width: cut.leadExtent,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          child: _pitch(l10n),
+        ),
+      ),
+      SizedBox(width: cut.gap),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                child: _planChoice(l10n, plans, selected),
+              ),
+            ),
+            _buyButton(l10n, plans, selected),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _flat(AppLocalizations l10n, List<_PlanOffer> plans, int selected) =>
+      Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _pitch(l10n),
+                  const SizedBox(height: 28),
+                  _planChoice(l10n, plans, selected),
+                ],
+              ),
+            ),
+          ),
+          _buyButton(l10n, plans, selected),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final plans = _plans;
     final selected = _selectedPlanIndex.clamp(0, plans.length - 1);
-    // Seul iOS achète pour l'instant : le serveur ne vérifie pas Google Play.
-    final canBuy = Theme.of(context).platform != TargetPlatform.android;
 
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Row(
-                children: [
-                  RoundIconButton(
-                    icon: LucideIcons.x,
-                    tooltip: l10n.commonClose,
-                    onPressed: () => context.pop(),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(44, 44),
-                    ),
-                    onPressed: _handleRestore,
-                    child: Text(l10n.plusRestore),
-                  ),
-                ],
-              ),
-            ),
+            _topBar(l10n),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const PlusWord(size: 72),
-                          const SizedBox(height: 16),
-                          Text(
-                            l10n.plusOfferTagline,
-                            style: Theme.of(context).textTheme.titleLarge!
-                                .copyWith(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: -0.45,
-                                ),
-                          ),
-                          const SizedBox(height: 28),
-                          for (final perk in _perks(l10n)) _PerkRow(perk: perk),
-                          const SizedBox(height: 28),
-                          SectionLabel(l10n.plusYourPlan),
-                          const SizedBox(height: 12),
-                          for (var i = 0; i < plans.length; i++) ...[
-                            _PlanRow(
-                              plan: plans[i],
-                              savingsPercent: _savingsPercent(plans, plans[i]),
-                              selected: i == selected,
-                              onTap: () =>
-                                  setState(() => _selectedPlanIndex = i),
-                            ),
-                            if (i < plans.length - 1)
-                              const SizedBox(height: 10),
-                          ],
-                          const SizedBox(height: 16),
-                          _LegalLine(onOpenUrl: _openUrl),
-                        ],
-                      ),
+                  : FoldCutBuilder(
+                      builder: (context, cut) =>
+                          cut?.axis == FoldSplitAxis.vertical
+                          ? _book(cut!, l10n, plans, selected)
+                          : _flat(l10n, plans, selected),
                     ),
             ),
-            if (!_isLoading)
-              FoldSafeActions(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    24,
-                    12,
-                    24,
-                    16 + MediaQuery.viewPaddingOf(context).bottom,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isPurchasing || !canBuy
-                          ? null
-                          : _handlePurchase,
-                      child: !canBuy
-                          ? Text(l10n.plusAndroidSoon)
-                          : _isPurchasing
-                          ? SizedBox.square(
-                              dimension: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Theme.of(context).colorScheme.surface,
-                              ),
-                            )
-                          : Text(
-                              l10n.plusContinuePrice(
-                                planTotalLabel(
-                                  price: plans[selected].price,
-                                  currencyCode: plans[selected].currencyCode,
-                                  locale: l10n.localeName,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
