@@ -168,6 +168,30 @@ void main() {
       _expectNoGradient(tester);
     });
 
+    // Vu le 2026-10-27 : « Refuser » sans fond laissait passer le texte de la
+    // fiche qui défile dessous, illisible.
+    testWidgets('« Refuser » a un fond opaque, la fiche ne transparaît pas', (tester) async {
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: brightness == Brightness.dark ? AppTheme.darkTheme : AppTheme.lightTheme,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: kTestLocale,
+            home: Scaffold(
+              body: Center(
+                child: ProfileActionBar(firstName: 'Sarah', onPass: () {}, onLike: () {}),
+              ),
+            ),
+          ),
+        );
+        final button = tester.widget<OutlinedButton>(find.byKey(const ValueKey('profile-decline')));
+        final fill = button.style?.backgroundColor?.resolve(<WidgetState>{});
+        expect(fill, isNotNull, reason: brightness.name);
+        expect(fill!.a, 1.0, reason: '${brightness.name}: an opaque fill');
+      }
+    });
+
     testWidgets('un long prénom ne déborde pas', (tester) async {
       await _pump(
         tester,

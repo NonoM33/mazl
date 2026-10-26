@@ -31,8 +31,11 @@ class ProfileActionBar extends StatelessWidget {
             child: OutlinedButton(
               key: const ValueKey('profile-decline'),
               onPressed: onPass,
+              // The bar floats over the scrolling profile: an opaque fill,
+              // or the text scrolling underneath shows through the word.
               style: OutlinedButton.styleFrom(
                 shape: const StadiumBorder(),
+                backgroundColor: scheme.surfaceContainerHigh,
                 foregroundColor: scheme.onSurface,
                 side: BorderSide(color: scheme.outline),
                 textStyle: const TextStyle(
