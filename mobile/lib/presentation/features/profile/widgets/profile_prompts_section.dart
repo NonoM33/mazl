@@ -409,7 +409,7 @@ class _PromptCard extends StatelessWidget {
                       prompt.promptText,
                     ),
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -422,7 +422,7 @@ class _PromptCard extends StatelessWidget {
                   icon: Icon(
                     LucideIcons.moreVertical,
                     size: 18,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   onSelected: (value) {
                     if (value == 'edit') onEdit();
@@ -498,12 +498,15 @@ class _AddPromptButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.plus, color: AppColors.primary),
+            Icon(
+              LucideIcons.plus,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 8),
             Text(
               context.l10n.profilePromptAdd,
               style: TextStyle(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),

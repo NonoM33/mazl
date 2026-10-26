@@ -653,8 +653,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 12),
         ReligiousDataGate(
           onValidityChanged: (valid) {
-            if (valid != _religiousConsent)
+            if (valid != _religiousConsent) {
               setState(() => _religiousConsent = valid);
+            }
           },
           child: Column(
             children: [

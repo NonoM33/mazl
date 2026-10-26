@@ -151,12 +151,16 @@ class RelationshipIntentionBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_intentionIcon(intention), size: 16, color: AppColors.primary),
+          Icon(
+            _intentionIcon(intention),
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           const SizedBox(width: 6),
           Text(
             intention.selectorLabel(context.l10n),
             style: TextStyle(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
@@ -206,7 +210,7 @@ class RelationshipIntentionCard extends StatelessWidget {
             ),
             child: Icon(
               _intentionIcon(intention),
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               size: 24,
             ),
           ),

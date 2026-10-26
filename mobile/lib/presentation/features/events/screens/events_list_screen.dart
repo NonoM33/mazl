@@ -317,7 +317,7 @@ class _EventsListScreenState extends State<EventsListScreen>
     if (_events.isEmpty) {
       return FoldMessageView(
         icon: LucideIcons.calendar,
-        iconColor: AppColors.primary,
+        iconColor: Theme.of(context).colorScheme.primary,
         title: context.l10n.eventsEmptyTitle,
         line: context.l10n.eventsEmptyHint,
       );
@@ -677,7 +677,7 @@ class _EventCard extends StatelessWidget {
                         child: Icon(
                           LucideIcons.calendar,
                           size: 16,
-                          color: typeColor,
+                          color: _readableOnSurface(context, typeColor),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -714,7 +714,7 @@ class _EventCard extends StatelessWidget {
                           child: Icon(
                             LucideIcons.mapPin,
                             size: 16,
-                            color: typeColor,
+                            color: _readableOnSurface(context, typeColor),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -854,7 +854,11 @@ class _ComingSoonBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.clock, size: 14, color: AppColors.primary),
+            Icon(
+              LucideIcons.clock,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -862,7 +866,7 @@ class _ComingSoonBadge extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -874,3 +878,9 @@ class _ComingSoonBadge extends StatelessWidget {
     );
   }
 }
+
+/// La couleur du type d'évènement quand elle sert de texte ou d'icône : le
+/// tekhelet de marque est trop sombre sur le fond sombre, le thème en donne
+/// la variante claire.
+Color _readableOnSurface(BuildContext context, Color color) =>
+    color == AppColors.primary ? Theme.of(context).colorScheme.primary : color;

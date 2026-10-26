@@ -178,7 +178,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Icon(
                         LucideIcons.mapPin,
                         size: 20,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -190,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Icon(
                         LucideIcons.check,
                         size: 20,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ],
                   ),
@@ -307,7 +307,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       return ListTile(
                         leading: Icon(
                           LucideIcons.mapPin,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         title: Text(suggestion.displayName),
                         contentPadding: EdgeInsets.zero,
@@ -385,7 +385,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         style: TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -447,7 +447,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               minVerticalPadding: 14,
               title: Text(label),
               trailing: _lookingFor == value
-                  ? Icon(LucideIcons.check, color: AppColors.primary)
+                  ? Icon(
+                      LucideIcons.check,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
                   : null,
               onTap: () {
                 setState(() => _lookingFor = value);
@@ -496,7 +499,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -1213,7 +1216,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ? Icon(
                               LucideIcons.user,
                               size: 40,
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                             )
                           : null,
                     ),

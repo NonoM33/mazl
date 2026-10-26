@@ -354,7 +354,10 @@ class _BoostScreenState extends State<BoostScreen> {
           children: [
             Row(
               children: [
-                const Icon(LucideIcons.barChart2, color: AppColors.primary),
+                Icon(
+                  LucideIcons.barChart2,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -502,7 +505,7 @@ class _BoostScreenState extends State<BoostScreen> {
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.plus, color: AppColors.primary),
+          Icon(LucideIcons.plus, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

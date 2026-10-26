@@ -867,9 +867,9 @@ class _PhotoSlot extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       context.l10n.profilePrimaryPhoto,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
