@@ -11,7 +11,7 @@ import { matchesFilters, NO_FILTERS, type AdvancedFilters } from "./advanced-fil
 import { AdvancedFiltersPanel } from "./advanced-filters-panel";
 import { BoostButton } from "./boost-button";
 import { cardPhotos } from "./photos";
-import { DeckEmpty, DeckError, DeckSkeleton } from "./deck-states";
+import { DeckEmpty, DeckError, DeckSkeleton, IncompleteProfile } from "./deck-states";
 import { DeckStage, type Leaving } from "./deck-stage";
 import { PreferencesPanel } from "./preferences-panel";
 import { loadDiscoverLot } from "./load-lot";
@@ -70,7 +70,8 @@ export function DiscoverScreen() {
             <AdvancedFiltersPanel filters={filters} plus={plus} onChange={setFilters} />
           </aside>
           <section className="stack gap-24" aria-label="Profils proposés">
-            {top === undefined && deck.status === "error" && <DeckError message={deck.error ?? ""} onRetry={deck.refresh} />}
+            {top === undefined && deck.incomplete !== null && <IncompleteProfile missing={deck.incomplete} />}
+            {top === undefined && deck.status === "error" && deck.incomplete === null && <DeckError message={deck.error ?? ""} onRetry={deck.refresh} />}
             {top === undefined && deck.status !== "error" && !deck.exhausted && <DeckSkeleton />}
             {top === undefined && deck.status !== "error" && deck.exhausted && <DeckEmpty onOpenFilters={() => column.current?.focus()} onRefresh={deck.refresh} />}
             {top !== undefined && <DeckStage visible={deck.visible} photoIndex={photos.index} leaving={leaving} onStep={photos.step} onExpired={deck.onExpired} />}
