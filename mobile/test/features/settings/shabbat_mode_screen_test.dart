@@ -172,7 +172,7 @@ void main() {
 
     for (final locale in locales) {
       testWidgets('${locale.languageCode} : ni interrupteur, ni curseur, ni '
-          'bouton inerte', (tester) async {
+          'bouton inerte (le seul bouton lance l\'affichage)', (tester) async {
         await _pump(
           tester,
           _member(location: 'Jérusalem', latitude: 31.7683, longitude: 35.2137),
@@ -183,8 +183,8 @@ void main() {
         expect(find.byType(SwitchListTile), findsNothing);
         expect(find.byType(Slider), findsNothing);
         expect(find.byType(OutlinedButton), findsNothing);
-        expect(find.byType(ElevatedButton), findsNothing);
         expect(find.byType(TextButton), findsNothing);
+        expect(find.byType(ElevatedButton), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
     }

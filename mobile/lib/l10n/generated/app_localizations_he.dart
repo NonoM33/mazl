@@ -3760,6 +3760,47 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsRestoreNothing => 'לא נמצא מינוי.';
 
   @override
+  String get shabbatDisplayLaunch => 'הפעלת התצוגה';
+
+  @override
+  String get shabbatDisplayLaunchHint =>
+      'מניחים את הטלפון כמו אוהל: המסך נשאר דלוק ומציג את השעה, הדלקת נרות והבדלה. מפעילים לפני שבת, ואין צורך לגעת בו אחר כך.';
+
+  @override
+  String get shabbatDisplayShabbatShalom => 'שבת שלום';
+
+  @override
+  String get shabbatDisplayShabbatName => 'שבת';
+
+  @override
+  String get shabbatDisplayTonight => 'הערב';
+
+  @override
+  String get shabbatDisplayComing => 'בקרוב';
+
+  @override
+  String get shabbatDisplayFestivalEntry => 'כניסה';
+
+  @override
+  String get shabbatDisplayFestivalExit => 'יציאה';
+
+  @override
+  String get shabbatDisplayParasha => 'פרשת השבוע';
+
+  @override
+  String shabbatDisplayHanukkahNight(int night) {
+    return 'לילה $night';
+  }
+
+  @override
+  String shabbatDisplayOmerDay(int day) {
+    return 'יום $day בעומר';
+  }
+
+  @override
+  String get shabbatDisplayExitHint => 'לחיצה ארוכה של שתי שניות ליציאה';
+
+  @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';
 
   @override

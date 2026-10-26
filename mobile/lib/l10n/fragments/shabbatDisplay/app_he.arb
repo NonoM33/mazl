@@ -1,0 +1,14 @@
+{
+  "shabbatDisplayLaunch": "הפעלת התצוגה",
+  "shabbatDisplayLaunchHint": "מניחים את הטלפון כמו אוהל: המסך נשאר דלוק ומציג את השעה, הדלקת נרות והבדלה. מפעילים לפני שבת, ואין צורך לגעת בו אחר כך.",
+  "shabbatDisplayShabbatShalom": "שבת שלום",
+  "shabbatDisplayShabbatName": "שבת",
+  "shabbatDisplayTonight": "הערב",
+  "shabbatDisplayComing": "בקרוב",
+  "shabbatDisplayFestivalEntry": "כניסה",
+  "shabbatDisplayFestivalExit": "יציאה",
+  "shabbatDisplayParasha": "פרשת השבוע",
+  "shabbatDisplayHanukkahNight": "לילה {night}",
+  "shabbatDisplayOmerDay": "יום {day} בעומר",
+  "shabbatDisplayExitHint": "לחיצה ארוכה של שתי שניות ליציאה"
+}

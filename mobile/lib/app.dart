@@ -15,6 +15,7 @@ import 'core/layout/orientation_policy.dart';
 import 'core/layout/side_safe_area.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/dismiss_keyboard_on_tap.dart';
+import 'core/widgets/quiet_backdrop.dart';
 import 'l10n/l10n.dart';
 
 /// One subscription to the fold of the device for the life of the app.
@@ -64,19 +65,21 @@ class MazlApp extends ConsumerWidget {
         return FoldStateHost(
           states: _foldStates,
           child: OrientationPolicy(
-            child: SideSafeArea(
-              child: ReduceMotionScope(
-                child: DismissKeyboardOnTap(
-                  child: CoupleFlowHost(
-                    service: couple,
-                    router: router,
-                    navigatorKey: rootNavigatorKey,
-                    realtime: socket.events,
-                    auth: auth,
-                    isAuthenticated: () => auth.isAuthenticated,
-                    onSignedIn: socket.connect,
-                    onSignedOut: socket.disconnect,
-                    child: child ?? const SizedBox.shrink(),
+            child: QuietBackdrop(
+              child: SideSafeArea(
+                child: ReduceMotionScope(
+                  child: DismissKeyboardOnTap(
+                    child: CoupleFlowHost(
+                      service: couple,
+                      router: router,
+                      navigatorKey: rootNavigatorKey,
+                      realtime: socket.events,
+                      auth: auth,
+                      isAuthenticated: () => auth.isAuthenticated,
+                      onSignedIn: socket.connect,
+                      onSignedOut: socket.disconnect,
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),

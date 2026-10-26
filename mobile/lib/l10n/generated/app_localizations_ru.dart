@@ -3831,6 +3831,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRestoreNothing => 'Подписка не найдена.';
 
   @override
+  String get shabbatDisplayLaunch => 'Запустить экран';
+
+  @override
+  String get shabbatDisplayLaunchHint =>
+      'Поставьте телефон домиком: экран остаётся включённым и показывает время, зажигание свечей и Авдалу. Запустите его до Шаббата и больше не трогайте.';
+
+  @override
+  String get shabbatDisplayShabbatShalom => 'Шаббат шалом';
+
+  @override
+  String get shabbatDisplayShabbatName => 'Шаббат';
+
+  @override
+  String get shabbatDisplayTonight => 'Сегодня вечером';
+
+  @override
+  String get shabbatDisplayComing => 'Скоро';
+
+  @override
+  String get shabbatDisplayFestivalEntry => 'Начало';
+
+  @override
+  String get shabbatDisplayFestivalExit => 'Конец';
+
+  @override
+  String get shabbatDisplayParasha => 'Недельная глава';
+
+  @override
+  String shabbatDisplayHanukkahNight(int night) {
+    return 'Ночь $night';
+  }
+
+  @override
+  String shabbatDisplayOmerDay(int day) {
+    return 'День $day Омера';
+  }
+
+  @override
+  String get shabbatDisplayExitHint => 'Удерживайте две секунды, чтобы выйти';
+
+  @override
   String get verificationProfileEyebrow => 'Ваш профиль';
 
   @override

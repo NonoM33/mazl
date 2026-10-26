@@ -171,7 +171,7 @@ class RestDisplayResolver {
     }
     // A run still open at the end of the window cannot be the nearest one:
     // the window is wider than any gap between two rests.
-    throw StateError('No rest found within $_daysAhead days of $today');
+    throw RestNotFoundError(today);
   }
 
   /// The day as a rest day (Shabbat or a festival), null on a working day.
@@ -249,4 +249,15 @@ class _RestDay {
 
   final DateTime date;
   final JewishHolidayId? holiday;
+}
+
+/// The calendar window held no rest: the window is wider than any gap between
+/// two rests, so this only says the calendar library broke its promise.
+class RestNotFoundError extends Error {
+  RestNotFoundError(this.today);
+
+  final DateTime today;
+
+  @override
+  String toString() => '$runtimeType($today)';
 }

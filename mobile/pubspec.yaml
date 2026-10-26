@@ -92,6 +92,7 @@ dependencies:
   mobile_scanner: ^7.4.2
   sentry_flutter: ^10.2.0
   package_info_plus: ^9.0.1
+  wakelock_plus: ^1.5.2
 
 dev_dependencies:
   flutter_test:

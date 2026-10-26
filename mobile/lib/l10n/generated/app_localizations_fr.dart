@@ -3831,6 +3831,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsRestoreNothing => 'Aucun abonnement trouvé.';
 
   @override
+  String get shabbatDisplayLaunch => 'Lancer l\'affichage';
+
+  @override
+  String get shabbatDisplayLaunchHint =>
+      'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.';
+
+  @override
+  String get shabbatDisplayShabbatShalom => 'Shabbat shalom';
+
+  @override
+  String get shabbatDisplayShabbatName => 'Shabbat';
+
+  @override
+  String get shabbatDisplayTonight => 'Ce soir';
+
+  @override
+  String get shabbatDisplayComing => 'À venir';
+
+  @override
+  String get shabbatDisplayFestivalEntry => 'Entrée';
+
+  @override
+  String get shabbatDisplayFestivalExit => 'Sortie';
+
+  @override
+  String get shabbatDisplayParasha => 'Paracha';
+
+  @override
+  String shabbatDisplayHanukkahNight(int night) {
+    return 'Soir $night';
+  }
+
+  @override
+  String shabbatDisplayOmerDay(int day) {
+    return 'Jour $day de l\'Omer';
+  }
+
+  @override
+  String get shabbatDisplayExitHint => 'Maintenez deux secondes pour quitter';
+
+  @override
   String get verificationProfileEyebrow => 'Votre profil';
 
   @override
