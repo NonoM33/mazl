@@ -100,6 +100,7 @@ import { createPlusStatus, registerLikesVisibility } from "./features/likes-visi
 import { createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { registerCoupleRoutes } from "./features/couple/couple.routes";
 import { registerAdminRoutes } from "./features/admin/admin.routes";
+import { registerAdminEntryRoutes } from "./features/admin/admin.entry-routes";
 import { createBackoffice } from "./backoffice";
 import { registerProfileRoutes } from "./features/profile/profile.routes";
 import { createMediaModule, ensureMediaSchema, fuzzExistingLocations } from "./features/media";
@@ -237,9 +238,7 @@ if (SERVE_WEBSITE) {
   for (const [from, to] of Object.entries(LEGAL_REDIRECTS)) app.get(from, (c) => c.redirect(to, 301));
 }
 
-app.get("/admin", async (c) => {
-  return new Response(Bun.file("./public/admin-login.html"));
-});
+registerAdminEntryRoutes(app);
 
 app.get("/admin/dashboard", async (c) => {
   return new Response(Bun.file("./public/admin.html"));
