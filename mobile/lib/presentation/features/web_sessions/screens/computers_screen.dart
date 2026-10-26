@@ -13,6 +13,7 @@ import '../../../../core/web_sessions/web_sessions_api.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/web_session_format.dart';
 import '../../../../l10n/l10n.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 enum _Stage { loading, ready, error }
 
@@ -95,7 +96,9 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.webSessionsTitle)),
+      appBar: ColumnAppBar(
+        appBar: AppBar(title: Text(context.l10n.webSessionsTitle)),
+      ),
       // Held like a book: what this is and the button to connect on the page
       // where the reading starts, the computers on the other.
       body: FoldSpread(

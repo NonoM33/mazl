@@ -17,6 +17,7 @@ import '../../../common/widgets/mazl_components.dart';
 import '../l10n/plan_price.dart';
 import '../l10n/plus_text.dart';
 import '../widgets/plus_widgets.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// L'offre mazl+ : avantages, choix de la formule, achat.
 class PremiumScreen extends StatefulWidget {
@@ -250,14 +251,21 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
+  /// Its own `onPressed` on this page's context: with a vertical bar the
+  /// button is drawn above the navigator.
+  Widget close(AppLocalizations l10n) => RoundIconButton(
+    icon: LucideIcons.x,
+    tooltip: l10n.commonClose,
+    onPressed: () => context.pop(),
+  );
+
   Widget _topBar(AppLocalizations l10n) => Padding(
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
     child: Row(
       children: [
-        RoundIconButton(
-          icon: LucideIcons.x,
-          tooltip: l10n.commonClose,
-          onPressed: () => context.pop(),
+        BarNavigation(
+          buttons: [close(l10n)],
+          inline: close(l10n),
         ),
         const Spacer(),
         TextButton(

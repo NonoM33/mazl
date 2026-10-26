@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Screen to manage blocked users
 class BlockedUsersScreen extends StatefulWidget {
@@ -111,7 +112,9 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.settingsBlockedUsers)),
+      appBar: ColumnAppBar(
+        appBar: AppBar(title: Text(context.l10n.settingsBlockedUsers)),
+      ),
       body: _buildBody(),
     );
   }

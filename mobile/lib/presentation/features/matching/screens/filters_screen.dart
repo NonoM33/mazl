@@ -15,6 +15,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../privacy/widgets/religious_consent_sheet.dart';
 import '../l10n/filter_options.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Discovery filters. Age and distance describe the search and stay in the
 /// profile (free); the advanced filters (religious practice, verified, photo)
@@ -279,14 +280,16 @@ class _FiltersScreenState extends ConsumerState<FiltersScreen> {
     final locked = !_plus;
     final advanced = _advancedSections(locked);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.matchingFilters),
-        actions: [
-          TextButton(
-            onPressed: _resetFilters,
-            child: Text(context.l10n.matchingFiltersReset),
-          ),
-        ],
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.matchingFilters),
+          actions: [
+            TextButton(
+              onPressed: _resetFilters,
+              child: Text(context.l10n.matchingFiltersReset),
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [

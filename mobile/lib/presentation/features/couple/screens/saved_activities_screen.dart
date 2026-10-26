@@ -13,6 +13,7 @@ import '../widgets/activity_visual.dart';
 import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 class SavedActivitiesScreen extends StatefulWidget {
   const SavedActivitiesScreen({super.key, this.apiService});
@@ -110,15 +111,17 @@ class _SavedActivitiesScreenState extends State<SavedActivitiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.coupleFeedSavedTitle),
-        actions: [
-          if (_activities.isNotEmpty)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 24),
-              child: Center(child: TagPill('${_activities.length}')),
-            ),
-        ],
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.coupleFeedSavedTitle),
+          actions: [
+            if (_activities.isNotEmpty)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 24),
+                child: Center(child: TagPill('${_activities.length}')),
+              ),
+          ],
+        ),
       ),
       body: _buildBody(),
     );

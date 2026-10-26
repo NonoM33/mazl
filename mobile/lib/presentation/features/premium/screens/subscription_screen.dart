@@ -14,6 +14,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/plus_text.dart';
 import '../widgets/plus_widgets.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Ce que l'écran « Abonnement » affiche.
 class SubscriptionSnapshot {
@@ -170,6 +171,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final snapshot = _snapshot;
     final l10n = context.l10n;
     final rtl = Directionality.of(context) == TextDirection.rtl;
+    // Its own `onPressed` on this page's context: with a vertical bar the
+    // button is drawn above the navigator.
+    Widget back() => RoundIconButton(
+      icon: rtl ? LucideIcons.chevronRight : LucideIcons.chevronLeft,
+      tooltip: l10n.commonBack,
+      onPressed: () => context.pop(),
+    );
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -177,12 +185,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RoundIconButton(
-                icon: rtl ? LucideIcons.chevronRight : LucideIcons.chevronLeft,
-                tooltip: l10n.commonBack,
-                onPressed: () => context.pop(),
+              BarNavigation(
+                buttons: [back()],
+                inline: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [back(), const SizedBox(height: 24)],
+                ),
               ),
-              const SizedBox(height: 24),
               Text(
                 l10n.plusSubscriptionTitle,
                 style: Theme.of(

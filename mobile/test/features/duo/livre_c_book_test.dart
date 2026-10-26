@@ -205,7 +205,16 @@ void main() {
       find.text('Scannez le QR code affiché sur app.mazl.app'),
       'the explanation',
     );
-    expectStartPage(tester, find.byTooltip('Fermer'), 'the close button');
+    // Held like a book, iOS keeps a column on one side: the cross is at the
+    // top of that column, within reach of the thumb, not on a page.
+    expect(find.byTooltip('Fermer'), findsOneWidget);
+    expect(
+      DuoPose.halfOpenBook.verticalBar!.controls
+          .inflate(0.5)
+          .contains(tester.getCenter(find.byTooltip('Fermer'))),
+      isTrue,
+      reason: 'the close button is not in the vertical bar',
+    );
     expectEndPage(tester, find.byKey(const Key('camera')), 'the camera');
   });
 

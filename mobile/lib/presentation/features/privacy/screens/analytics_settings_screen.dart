@@ -9,6 +9,7 @@ import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Shows whether MAZL may measure how the app is used and lets the member
 /// accept or withdraw at any time. Withdrawing stops the measurement at once.
@@ -46,7 +47,9 @@ class _AnalyticsSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(analyticsConsentProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.analyticsSettingsTitle)),
+      appBar: ColumnAppBar(
+        appBar: AppBar(title: Text(context.l10n.analyticsSettingsTitle)),
+      ),
       body: _content(state),
     );
   }

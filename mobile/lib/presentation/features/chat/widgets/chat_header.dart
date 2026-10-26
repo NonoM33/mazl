@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/bar_navigation.dart';
+import '../../../../core/layout/vertical_bar.dart';
 import '../../../../core/models/conversation.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
@@ -26,6 +28,21 @@ class ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final back = IconButton(
+      tooltip: context.l10n.commonBack,
+      constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+      icon: const DirectionalIcon(LucideIcons.chevronLeft, size: 24),
+      onPressed: onBack,
+    );
+    final options = IconButton(
+      tooltip: context.l10n.chatHeaderOptions,
+      constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+      icon: const Icon(LucideIcons.ellipsis, size: 22),
+      onPressed: onOptions,
+    );
+    // Avec une colonne verticale (iPhone Duo), retour et options sont en haut
+    // de la colonne ; l'avatar et le nom restent ici.
+    final inColumn = VerticalBarScope.geometryOf(context) != null;
     return Container(
       padding: EdgeInsetsDirectional.only(
         top: MediaQuery.paddingOf(context).top,
@@ -40,12 +57,10 @@ class ChatHeader extends StatelessWidget {
         height: 64,
         child: Row(
           children: [
-            IconButton(
-              tooltip: context.l10n.commonBack,
-              constraints: const BoxConstraints.tightFor(width: 44, height: 44),
-              icon: const DirectionalIcon(LucideIcons.chevronLeft, size: 24),
-              onPressed: onBack,
-            ),
+            if (inColumn)
+              BarNavigation(buttons: [back, options], inline: const SizedBox())
+            else
+              back,
             Expanded(
               child: InkWell(
                 onTap: onOpenProfile,
@@ -92,13 +107,7 @@ class ChatHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              tooltip: context.l10n.chatHeaderOptions,
-              constraints: const BoxConstraints.tightFor(width: 44, height: 44),
-              icon: const Icon(LucideIcons.ellipsis, size: 22),
-              onPressed: onOptions,
-            ),
+            if (!inColumn) ...[const SizedBox(width: 8), options],
           ],
         ),
       ),

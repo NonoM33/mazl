@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../widgets/religious_consent_sheet.dart';
 import '../../../../l10n/l10n.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Shows the state of the religious-data consent and lets the member give or
 /// withdraw it. Withdrawing erases the four practice fields on the server.
@@ -71,7 +72,9 @@ class _ReligiousDataSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(religiousDataConsentProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.privacySettingsTitle)),
+      appBar: ColumnAppBar(
+        appBar: AppBar(title: Text(context.l10n.privacySettingsTitle)),
+      ),
       // Held like a book: the explanation on the page where the reading
       // starts, the decision on the other.
       body: _content(state),

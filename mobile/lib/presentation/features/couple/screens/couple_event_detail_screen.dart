@@ -16,6 +16,7 @@ import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../widgets/event_category.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 class CoupleEventDetailScreen extends StatefulWidget {
   const CoupleEventDetailScreen({
@@ -440,13 +441,21 @@ class _BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
-    return PositionedDirectional(
-      top: top + 8,
-      start: 24,
-      child: RoundIconButton(
-        icon: backArrowIcon(context),
-        tooltip: context.l10n.commonBack,
-        onPressed: () => context.pop(),
+    // Its own `onPressed` on this page's context: with a vertical bar the
+    // button is drawn above the navigator, at the top of the column.
+    Widget back() => RoundIconButton(
+      icon: backArrowIcon(context),
+      tooltip: context.l10n.commonBack,
+      onPressed: () => context.pop(),
+    );
+    return Positioned.fill(
+      child: BarNavigation(
+        buttons: [back()],
+        inline: Stack(
+          children: [
+            PositionedDirectional(top: top + 8, start: 24, child: back()),
+          ],
+        ),
       ),
     );
   }

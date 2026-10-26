@@ -31,6 +31,7 @@ import '../l10n/delete_account_reason.dart';
 import '../widgets/language_picker_sheet.dart';
 import '../../couple/l10n/couple_failure_label.dart';
 import '../widgets/settings_couple_card.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -658,7 +659,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(LucideIcons.userX, color: Theme.of(context).colorScheme.error, size: 48),
+              Icon(
+                LucideIcons.userX,
+                color: Theme.of(context).colorScheme.error,
+                size: 48,
+              ),
               const SizedBox(height: 16),
               Text(
                 context.l10n.settingsDeleteAccount,
@@ -913,7 +918,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             child: Icon(
               isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-              color: isDestructive ? Theme.of(context).colorScheme.error : AppColors.primary,
+              color: isDestructive
+                  ? Theme.of(context).colorScheme.error
+                  : AppColors.primary,
               size: 32,
             ),
           ),
@@ -1178,17 +1185,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settingsTitle),
-        leading: IconButton(
-          icon: const DirectionalIcon(LucideIcons.arrowLeft),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              context.go('/profile');
-            }
-          },
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(l10n.settingsTitle),
+          leading: IconButton(
+            tooltip: context.l10n.commonBack,
+            icon: const DirectionalIcon(LucideIcons.arrowLeft),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                context.go('/profile');
+              }
+            },
+          ),
         ),
       ),
       body: Stack(
@@ -1493,7 +1503,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onPressed: _handleLogout,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.error,
-                    side: BorderSide(color: Theme.of(context).colorScheme.error),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                   child: Text(l10n.settingsLogOut),
                 ),

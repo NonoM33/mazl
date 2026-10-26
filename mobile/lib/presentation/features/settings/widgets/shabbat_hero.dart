@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Bandeau sombre « Shabbat shalom. » : deux bougies, le titre, l'heure
 /// d'allumage et celle de la havdala. Pensé pour s'étendre sous la barre
@@ -45,7 +46,19 @@ class ShabbatHero extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (onBack != null) _BackButton(onPressed: onBack!),
+                  if (onBack != null)
+                    BarNavigation(
+                      // On the app's own (light) background in the vertical
+                      // bar: a dark icon, not the white one of the dark hero.
+                      buttons: [
+                        IconButton(
+                          tooltip: context.l10n.commonBack,
+                          icon: const DirectionalIcon(LucideIcons.chevronLeft, size: 26),
+                          onPressed: onBack,
+                        ),
+                      ],
+                      inline: _BackButton(onPressed: onBack!),
+                    ),
                   const Spacer(),
                   const _Candles(),
                 ],

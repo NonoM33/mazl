@@ -14,6 +14,9 @@ import '../../../common/widgets/directional_icon.dart';
 import '../l10n/event_texts.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
+import 'package:mazl/core/layout/vertical_bar.dart';
 
 class EventDetailScreen extends StatefulWidget {
   const EventDetailScreen({super.key, required this.eventId});
@@ -189,12 +192,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(appBar: AppBar(), body: const FoldSpinner());
+      return Scaffold(
+        appBar: ColumnAppBar(appBar: AppBar()),
+        body: const FoldSpinner(),
+      );
     }
 
     if (_hasError || _event == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: ColumnAppBar(appBar: AppBar()),
         body: FoldMessageView(
           icon: LucideIcons.alertTriangle,
           title: context.l10n.eventsNotFound,
@@ -494,12 +500,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: _backButton(),
-        actions: [_shareButton()],
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: _backButton(),
+          actions: [_shareButton()],
+        ),
       ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -573,8 +581,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: _visual(event, typeColor, typeIcon),
             ),
-            leading: _backButton(),
-            actions: [_shareButton()],
+            leading: BarNavigation(
+              buttons: [_backButton(), _shareButton()],
+              inline: _backButton(),
+            ),
+            actions: VerticalBarScope.geometryOf(context) == null
+                ? [_shareButton()]
+                : null,
           ),
           SliverToBoxAdapter(
             child: Padding(

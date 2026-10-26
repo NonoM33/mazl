@@ -18,6 +18,7 @@ import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../privacy/widgets/religious_data_gate.dart';
 import '../l10n/profile_answer_labels.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 import 'edit_profile_screen.dart'
     show DenominationStoredValue, KashrutStoredValue, ShabbatStoredValue;
 
@@ -100,16 +101,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          context.l10n.profileSetupStep(_currentStep + 1, _totalSteps),
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(
+            context.l10n.profileSetupStep(_currentStep + 1, _totalSteps),
+          ),
+          leading: _currentStep > 0
+              ? IconButton(
+                  tooltip: context.l10n.commonBack,
+                  icon: const DirectionalIcon(LucideIcons.arrowLeft),
+                  onPressed: _previousStep,
+                )
+              : null,
         ),
-        leading: _currentStep > 0
-            ? IconButton(
-                icon: const DirectionalIcon(LucideIcons.arrowLeft),
-                onPressed: _previousStep,
-              )
-            : null,
       ),
       // Folded half open, the fold cuts the page: progress and title on one
       // side of it, fields and button on the other. Otherwise the title
@@ -734,9 +738,7 @@ class _StepHeader extends StatelessWidget {
         Text(
           subtitle,
           style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurfaceVariant,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

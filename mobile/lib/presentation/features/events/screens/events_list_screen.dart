@@ -12,6 +12,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../widgets/skeletons.dart';
 import '../l10n/event_texts.dart';
 import '../../../../core/layout/fold_message_view.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 class EventsListScreen extends StatefulWidget {
   const EventsListScreen({super.key});
@@ -144,7 +145,9 @@ class _EventsListScreenState extends State<EventsListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.eventsTitle)),
+      appBar: ColumnAppBar(
+        appBar: AppBar(title: Text(context.l10n.eventsTitle)),
+      ),
       body: Column(
         children: [
           // Type filter chips - improved design

@@ -16,6 +16,9 @@ import '../widgets/activity_visual.dart';
 import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
+import 'package:mazl/core/layout/vertical_bar.dart';
 
 class CoupleActivityDetailScreen extends StatefulWidget {
   const CoupleActivityDetailScreen({
@@ -156,7 +159,7 @@ class _CoupleActivityDetailScreenState
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: ColumnAppBar(appBar: AppBar()),
         body: const FoldSpinner(),
       );
     }
@@ -165,7 +168,7 @@ class _CoupleActivityDetailScreenState
     if (failure != null || _activity == null) {
       final notFound = failure?.kind == CoupleFailureKind.notFound;
       return Scaffold(
-        appBar: AppBar(),
+        appBar: ColumnAppBar(appBar: AppBar()),
         body: notFound || failure == null
             ? CoupleMessageView(
                 icon: LucideIcons.searchX,
@@ -194,14 +197,19 @@ class _CoupleActivityDetailScreenState
             expandedHeight: 300,
             pinned: true,
             leadingWidth: 72,
-            leading: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 24),
-              child: Center(child: _backButton()),
+            leading: BarNavigation(
+              buttons: [_backButton(), ..._visualButtons(activity)],
+              inline: Padding(
+                padding: const EdgeInsetsDirectional.only(start: 24),
+                child: Center(child: _backButton()),
+              ),
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: ActivityVisual(activity: activity, iconSize: 48),
             ),
-            actions: [..._visualActions(activity), const SizedBox(width: 24)],
+            actions: VerticalBarScope.geometryOf(context) == null
+                ? [..._visualActions(activity), const SizedBox(width: 24)]
+                : null,
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -239,15 +247,24 @@ class _CoupleActivityDetailScreenState
                 fit: StackFit.expand,
                 children: [
                   ActivityVisual(activity: activity, iconSize: 48),
-                  PositionedDirectional(
-                    top: top + 8,
-                    start: 24,
-                    child: _backButton(),
-                  ),
-                  PositionedDirectional(
-                    top: top + 8,
-                    end: 24,
-                    child: Row(children: _visualActions(activity)),
+                  Positioned.fill(
+                    child: BarNavigation(
+                      buttons: [_backButton(), ..._visualButtons(activity)],
+                      inline: Stack(
+                        children: [
+                          PositionedDirectional(
+                            top: top + 8,
+                            start: 24,
+                            child: _backButton(),
+                          ),
+                          PositionedDirectional(
+                            top: top + 8,
+                            end: 24,
+                            child: Row(children: _visualActions(activity)),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -284,8 +301,14 @@ class _CoupleActivityDetailScreenState
     onPressed: () => Navigator.of(context).maybePop(),
   );
 
-  /// Share and save, over the visual.
+  /// Share and save, over the visual, with a gap between them.
   List<Widget> _visualActions(CoupleActivity activity) {
+    final buttons = _visualButtons(activity);
+    return [buttons[0], const SizedBox(width: 8), buttons[1]];
+  }
+
+  /// Share and save, each on its own (the vertical bar stacks them).
+  List<Widget> _visualButtons(CoupleActivity activity) {
     final l10n = context.l10n;
     return [
       RoundIconButton(
@@ -302,7 +325,6 @@ class _CoupleActivityDetailScreenState
           );
         },
       ),
-      const SizedBox(width: 8),
       RoundIconButton(
         icon: _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,
         tooltip: _isSaved ? l10n.coupleFeedRemoveFromSaved : l10n.commonSave,

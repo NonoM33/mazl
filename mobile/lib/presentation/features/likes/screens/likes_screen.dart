@@ -14,6 +14,7 @@ import '../../chat/conversation_lookup.dart';
 import '../../matching/widgets/match_sheet.dart';
 import '../widgets/like_widgets.dart';
 import '../../../common/widgets/mazl_sheet.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
@@ -148,15 +149,24 @@ class _LikesScreenState extends State<LikesScreen> {
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final band = hasLikes ? _likesBand(data.totalCount) : null;
+    // Own `onPressed` on this page's context: with a vertical bar the button
+    // is drawn above the navigator.
+    Widget back() => RoundIconButton(
+      icon: backArrowIcon(context),
+      tooltip: l10n.commonBack,
+      onPressed: () => context.pop(),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RoundIconButton(
-          icon: backArrowIcon(context),
-          tooltip: l10n.commonBack,
-          onPressed: () => context.pop(),
+        BarNavigation(
+          buttons: [back()],
+          inline: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [back(), const SizedBox(height: 24)],
+          ),
         ),
-        const SizedBox(height: 24),
         Text(l10n.likesTitle, style: Theme.of(context).textTheme.displaySmall),
         if (band != null) ...[
           const SizedBox(height: 12),

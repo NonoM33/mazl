@@ -18,6 +18,7 @@ import '../widgets/relationship_intention_selector.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -509,24 +510,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.profileEditTitle),
-        leading: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _saveProfile,
-            child: _isSaving
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(context.l10n.commonSave),
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.profileEditTitle),
+          leading: IconButton(
+            tooltip: context.l10n.commonClose,
+            icon: const Icon(LucideIcons.x),
+            onPressed: () => context.pop(),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: _isSaving ? null : _saveProfile,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(context.l10n.commonSave),
+            ),
+          ],
+        ),
       ),
       body: _buildBody(),
     );

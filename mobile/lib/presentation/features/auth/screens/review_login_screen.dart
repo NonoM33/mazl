@@ -9,6 +9,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
+import '../../../../core/layout/bar_navigation.dart';
 import '../l10n/auth_failure_text.dart';
 import '../widgets/auth_button_spinner.dart';
 import '../widgets/auth_error_banner.dart';
@@ -99,12 +100,17 @@ class _ReviewLoginScreenState extends ConsumerState<ReviewLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final back = Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: IconButton(
-        tooltip: context.l10n.commonBack,
-        icon: const DirectionalIcon(LucideIcons.arrowLeft),
-        onPressed: _goBack,
+    Widget backButton() => IconButton(
+      tooltip: context.l10n.commonBack,
+      icon: const DirectionalIcon(LucideIcons.arrowLeft),
+      onPressed: _goBack,
+    );
+    // With a vertical bar (foldable iPhone) the button is at its top.
+    final back = BarNavigation(
+      buttons: [backButton()],
+      inline: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: backButton(),
       ),
     );
     return Scaffold(

@@ -14,6 +14,7 @@ import '../providers/verification_providers.dart';
 import '../verification_reasons.dart';
 import 'verification_sections.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 enum _Stage { loading, ready, working }
 
@@ -144,19 +145,25 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Its own `onPressed` on this page's context: with a vertical bar the
+    // button is drawn above the navigator.
+    Widget back() => RoundIconButton(
+      // « back » points right in a right-to-left language
+      icon: Directionality.of(context) == TextDirection.rtl ? LucideIcons.arrowRight : LucideIcons.arrowLeft,
+      tooltip: context.l10n.commonBack,
+      onPressed: () => context.pop(),
+    );
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: RoundIconButton(
-                  // « back » points right in a right-to-left language
-                  icon: Directionality.of(context) == TextDirection.rtl ? LucideIcons.arrowRight : LucideIcons.arrowLeft,
-                  tooltip: context.l10n.commonBack,
-                  onPressed: () => context.pop(),
+            BarNavigation(
+              buttons: [back()],
+              inline: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: back(),
                 ),
               ),
             ),

@@ -9,6 +9,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import 'identity_messages.dart';
 import 'identity_parts.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Cadre commun de chaque étape : un bouton fermer, une étiquette d'étape,
 /// un grand titre, un paragraphe, le contenu, puis les actions épinglées en
@@ -121,6 +122,9 @@ class IdentityHeader extends StatelessWidget {
   final String? eyebrow;
   final VoidCallback? onClose;
 
+  Widget close(BuildContext context) =>
+      RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonClose, onPressed: onClose);
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -130,7 +134,12 @@ class IdentityHeader extends StatelessWidget {
         children: [
           SizedBox(
             width: 44,
-            child: onClose == null ? null : RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonClose, onPressed: onClose),
+            child: onClose == null
+                ? null
+                : BarNavigation(
+                    buttons: [close(context)],
+                    inline: close(context),
+                  ),
           ),
           Expanded(child: Center(child: eyebrow == null ? null : SectionLabel(eyebrow!))),
           const SizedBox(width: 44),

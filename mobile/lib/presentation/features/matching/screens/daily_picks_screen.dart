@@ -21,6 +21,7 @@ import '../../chat/conversation_lookup.dart';
 import '../widgets/match_sheet.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Daily Picks Screen - Curated profiles for the user each day
 class DailyPicksScreen extends StatefulWidget {
@@ -173,11 +174,14 @@ class _DailyPicksScreenState extends State<DailyPicksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.matchingDiscoverDailyPicks),
-        leading: IconButton(
-          icon: const DirectionalIcon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.matchingDiscoverDailyPicks),
+          leading: IconButton(
+            tooltip: context.l10n.commonBack,
+            icon: const DirectionalIcon(LucideIcons.arrowLeft),
+            onPressed: () => context.pop(),
+          ),
         ),
       ),
       body: _buildBody(),

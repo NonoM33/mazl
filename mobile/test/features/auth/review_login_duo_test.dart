@@ -136,20 +136,19 @@ void main() {
 
       testWidgets('a way out is in view and the form is whole', (tester) async {
         await _pump(tester, pose);
-        for (final finder in [
-          _back,
-          _username,
-          _passwordField,
-          _submit,
-          _eye,
-        ]) {
+        final back = _back;
+        for (final finder in [back, _username, _passwordField, _submit, _eye]) {
           expect(finder.hitTestable(), findsOneWidget, reason: '$finder');
           final rect = tester.getRect(finder);
+          // With a vertical bar the way out is at its top (2026-10-27).
+          final area = identical(finder, back)
+              ? (pose.verticalBar?.controls ?? pose.safeRect)
+              : pose.safeRect;
           expect(
-            pose.safeRect.inflate(0.5).contains(rect.topLeft) &&
-                pose.safeRect.inflate(0.5).contains(rect.bottomRight),
+            area.inflate(0.5).contains(rect.topLeft) &&
+                area.inflate(0.5).contains(rect.bottomRight),
             isTrue,
-            reason: '$finder at $rect leaves ${pose.safeRect}',
+            reason: '$finder at $rect leaves $area',
           );
         }
       });
@@ -228,8 +227,13 @@ void main() {
     for (final part in [_username, _passwordField, _submit]) {
       expect(tester.getRect(part).left, greaterThanOrEqualTo(fold.right));
     }
-    // The way out is on the reading side, next to the title.
-    expect(tester.getRect(_back).right, lessThanOrEqualTo(fold.left));
+    // The way out is at the top of the vertical bar, within reach of the thumb.
+    expect(
+      DuoPose.halfOpenBook.verticalBar!.controls
+          .inflate(0.5)
+          .contains(tester.getCenter(_back)),
+      isTrue,
+    );
   });
 
   testWidgets('book in Hebrew: mirrored, the form on the left', (tester) async {

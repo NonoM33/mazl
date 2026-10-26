@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// The selfie screen: the live camera in a circle ringed by the hold
 /// progress, one big instruction, one bar per pose. Always dark.
@@ -46,6 +47,9 @@ class LivenessStage extends StatelessWidget {
     );
   }
 
+  Widget cancel(BuildContext context) =>
+      RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonCancel, onPressed: onCancel);
+
   Widget _scaffold(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -61,7 +65,10 @@ class LivenessStage extends StatelessWidget {
                   height: 44,
                   child: Row(
                     children: [
-                      RoundIconButton(icon: LucideIcons.x, tooltip: context.l10n.commonCancel, onPressed: onCancel),
+                      BarNavigation(
+                        buttons: [cancel(context)],
+                        inline: cancel(context),
+                      ),
                       Expanded(
                         child: Center(
                           child: SectionLabel(context.l10n.verificationLivenessPoseCounter(math.min(done + 1, total), total)),

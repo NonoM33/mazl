@@ -186,7 +186,14 @@ void main() {
       );
       final l10n = _l10n();
       _onFirstPage(tester, find.text('Spa en duo'));
-      _onFirstPage(tester, find.byIcon(LucideIcons.bookmark));
+      // Share and save follow the back button at the top of the vertical bar.
+      expect(
+        DuoPose.halfOpenBook.verticalBar!.controls
+            .inflate(0.5)
+            .contains(tester.getCenter(find.byIcon(LucideIcons.bookmark))),
+        isTrue,
+        reason: 'save is not in the vertical bar',
+      );
       _onSecondPage(tester, find.text('Moment de détente à deux.'));
       _onSecondPage(tester, find.text('Spa Marais'));
       _onSecondPage(tester, find.text(l10n.coupleFeedBook));

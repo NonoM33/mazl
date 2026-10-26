@@ -12,6 +12,7 @@ import '../../../../core/web_sessions/web_sessions_api.dart';
 import '../widgets/confirm_pairing_sheet.dart';
 import '../widgets/qr_scanner_view.dart';
 import '../../../../l10n/l10n.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Reads the QR code shown by app.mazl.app and approves the login.
 /// Pops with true once the computer is connected.
@@ -113,12 +114,23 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
   @override
   Widget build(BuildContext context) {
     final instructions = _Instructions(message: _message, busy: _waiting);
-    final close = Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: IconButton(
-        tooltip: context.l10n.commonClose,
-        icon: const Icon(Icons.close, color: Colors.white),
-        onPressed: () => context.pop(),
+    // With a vertical bar the button is at its top, on the app's own
+    // background: dark, not white as over the camera.
+    final close = BarNavigation(
+      buttons: [
+        IconButton(
+          tooltip: context.l10n.commonClose,
+          icon: const Icon(Icons.close),
+          onPressed: () => context.pop(),
+        ),
+      ],
+      inline: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: IconButton(
+          tooltip: context.l10n.commonClose,
+          icon: const Icon(Icons.close, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
       ),
     );
     // Held like a book (or set down like a laptop) the camera takes one page

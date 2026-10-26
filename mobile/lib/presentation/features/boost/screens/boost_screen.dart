@@ -16,6 +16,7 @@ import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/fold_pages.dart';
 import '../../../../core/layout/fold_message_view.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Screen to manage and activate profile boost
 class BoostScreen extends StatefulWidget {
@@ -155,11 +156,14 @@ class _BoostScreenState extends State<BoostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.boostTitle),
-        leading: IconButton(
-          icon: const DirectionalIcon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.boostTitle),
+          leading: IconButton(
+            tooltip: context.l10n.commonBack,
+            icon: const DirectionalIcon(LucideIcons.arrowLeft),
+            onPressed: () => context.pop(),
+          ),
         ),
       ),
       body: _isLoading

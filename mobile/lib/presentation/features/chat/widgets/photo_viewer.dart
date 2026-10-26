@@ -9,6 +9,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../l10n/l10n.dart';
 import 'photo_grid.dart';
+import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// Opens the full-screen viewer on the root navigator (docs/design/CHAT.md §7).
 Future<void> openPhotoViewer(
@@ -250,22 +251,39 @@ class _PhotoViewerState extends State<PhotoViewer>
                     ),
                   ),
                 ),
-                PositionedDirectional(
-                  top: MediaQuery.paddingOf(context).top + 8,
-                  start: 8,
-                  child: Opacity(
-                    opacity: 1 - progress,
-                    child: SizedBox.square(
-                      dimension: 44,
-                      child: IconButton(
+                // With a vertical bar the cross is at its top, on the app's own
+                // (light) background: dark, not white as over the photo.
+                Positioned.fill(
+                  child: BarNavigation(
+                    buttons: [
+                      IconButton(
                         tooltip: context.l10n.commonClose,
-                        icon: const Icon(
-                          LucideIcons.x,
-                          size: 24,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(LucideIcons.x, size: 24),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
+                    ],
+                    inline: Stack(
+                      children: [
+                        PositionedDirectional(
+                          top: MediaQuery.paddingOf(context).top + 8,
+                          start: 8,
+                          child: Opacity(
+                            opacity: 1 - progress,
+                            child: SizedBox.square(
+                              dimension: 44,
+                              child: IconButton(
+                                tooltip: context.l10n.commonClose,
+                                icon: const Icon(
+                                  LucideIcons.x,
+                                  size: 24,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

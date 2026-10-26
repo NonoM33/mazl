@@ -15,6 +15,7 @@ import '../l10n/couple_failure_label.dart';
 import '../widgets/book_pages.dart';
 import '../../../common/widgets/fold_pages.dart';
 import '../../../../core/layout/fold_message_view.dart';
+import 'package:mazl/core/layout/column_app_bar.dart';
 
 /// Loads the member's matches (the real API in production).
 typedef MatchesLoader =
@@ -122,11 +123,14 @@ class _CoupleModeSetupScreenState extends State<CoupleModeSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.coupleSpaceSetupTitle),
-        leading: IconButton(
-          icon: const DirectionalIcon(LucideIcons.arrowLeft),
-          onPressed: _back,
+      appBar: ColumnAppBar(
+        appBar: AppBar(
+          title: Text(context.l10n.coupleSpaceSetupTitle),
+          leading: IconButton(
+            tooltip: context.l10n.commonBack,
+            icon: const DirectionalIcon(LucideIcons.arrowLeft),
+            onPressed: _back,
+          ),
         ),
       ),
       body: ListenableBuilder(
