@@ -204,9 +204,12 @@ class _VerticalBarPublisherState extends State<VerticalBarPublisher> {
         : VerticalBarScope.slotOf(context);
     // Covered only by a see-through route (a detail drawn in this screen's
     // pane), the screen is still the one the user acts on.
+    // A tab kept alive offstage (its ticker mode off) never publishes over
+    // the tab on screen.
     final onTop =
-        (ModalRoute.isCurrentOf(context) ?? true) ||
-        _passThrough?.value != null;
+        TickerMode.valuesOf(context).enabled &&
+        ((ModalRoute.isCurrentOf(context) ?? true) ||
+            _passThrough?.value != null);
     if (slot != _slot) _release();
     _slot = slot;
     // The slot is drawn by an ancestor: it changes after this frame, never

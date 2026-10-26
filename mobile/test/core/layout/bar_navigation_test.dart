@@ -117,4 +117,38 @@ void main() {
       },
     );
   }
+
+  testWidgets('a tab kept offstage does not publish over the tab on screen', (
+    tester,
+  ) async {
+    const pose = DuoPose.closed;
+    setDuoPose(tester, pose);
+    Widget nav(String key) => BarNavigation(
+      buttons: [
+        IconButton(
+          key: Key(key),
+          icon: const Icon(Icons.settings),
+          onPressed: () {},
+        ),
+      ],
+      inline: const SizedBox(),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: duoAppBuilder(DuoPoseController(pose)),
+        home: Scaffold(
+          body: Stack(
+            children: [
+              nav('visible'),
+              TickerMode(enabled: false, child: Offstage(child: nav('hidden'))),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('visible')), findsOneWidget);
+    expect(find.byKey(const Key('hidden')), findsNothing);
+  });
 }
