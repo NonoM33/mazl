@@ -474,7 +474,7 @@ abstract final class DemoFixtures {
       'price': 25,
       'currency': 'EUR',
       'max_attendees': 40,
-      'attendee_count': 31,
+      'attendee_count': 0,
       'image_url': null,
       'is_published': true,
       'user_rsvp_status': null,
