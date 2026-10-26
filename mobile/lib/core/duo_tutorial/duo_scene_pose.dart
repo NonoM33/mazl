@@ -44,7 +44,7 @@ class DuoScenePose {
               : DuoAxis.horizontal,
         _ => landscape ? DuoAxis.vertical : DuoAxis.horizontal,
       },
-      sideways: fold.hinge == HingeStatus.closed && landscape,
+      sideways: isTentWindow(fold, size),
       verticalBar: fold.verticalBar,
       step: step,
       validated: validated,
@@ -58,7 +58,8 @@ class DuoScenePose {
   final double angle;
   final DuoAxis axis;
 
-  /// Fermé et tourné sur le côté (la pose tente).
+  /// La pose tente : posé en V sur la table, écran extérieur en paysage
+  /// (voir [isTentWindow]).
   final bool sideways;
   final VerticalBarSide? verticalBar;
   final DuoTutorialStep step;

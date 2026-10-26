@@ -21,7 +21,7 @@ enum DuoTutorialStep {
   /// « Posez-le sur la table » : mi-ouvert, le pli horizontal (portable).
   table,
 
-  /// « Debout, comme une tente » : fermé et tourné sur le côté.
+  /// « Debout, comme une tente » : posé en V sur la table, écran extérieur en paysage.
   tent,
 
   /// « C'est parti ».
@@ -49,13 +49,31 @@ enum DuoTutorialStep {
     open => fold.hinge == HingeStatus.fullyOpen,
     book =>
       fold.hinge == HingeStatus.partiallyOpen &&
+          !isTentWindow(fold, size) &&
           foldRunsDownThePage(fold, size),
     table =>
       fold.hinge == HingeStatus.partiallyOpen &&
+          !isTentWindow(fold, size) &&
           !foldRunsDownThePage(fold, size),
-    tent => fold.hinge == HingeStatus.closed && size.width > size.height,
+    tent => isTentWindow(fold, size),
   };
 }
+
+/// Au plus cette largeur (points) : la fenêtre de l'écran EXTERNE (environ
+/// 466 x 678, ou 678 x 466 tourné). L'écran intérieur mesure 669 pt et plus.
+const double kOuterDisplayMaxWidth = 700;
+
+/// La pose tente : posé en V sur la table, l'appareil montre son écran
+/// extérieur en paysage. Posé ainsi il est entrouvert, et iOS le rapporte
+/// `closed` (valeur mesurée par Device Hub) ou, probablement, `partiallyOpen`
+/// avec l'écran extérieur toujours actif : on reconnaît donc la FENÊTRE (paysage,
+/// de la taille de l'écran extérieur, aucun pli actif), pas la charnière seule.
+bool isTentWindow(FoldState fold, Size size) =>
+    (fold.hinge == HingeStatus.closed ||
+        fold.hinge == HingeStatus.partiallyOpen) &&
+    fold.divisions.isEmpty &&
+    size.width > size.height &&
+    size.width < kOuterDisplayMaxWidth;
 
 /// Le pli du mi-ouvert court-il de haut en bas de la page (appareil tenu comme
 /// un livre) ? Sans pli connu, la fenêtre en paysage fait foi.

@@ -35,12 +35,15 @@ void main() {
       expect(done(DuoTutorialStep.table, DuoPose.openPortrait), isFalse);
     });
 
-    test('« Debout, comme une tente » : fermé ET tourné sur le côté', () {
-      expect(done(DuoTutorialStep.tent, DuoPose.tent), isTrue);
-      // Fermé mais debout : la colonne de la barre est à droite, pas une tente.
-      expect(done(DuoTutorialStep.tent, DuoPose.closed), isFalse);
-      expect(done(DuoTutorialStep.tent, DuoPose.openLandscape), isFalse);
-    });
+    test(
+      '« Debout, comme une tente » : la fenêtre de l\'écran extérieur, en paysage',
+      () {
+        expect(done(DuoTutorialStep.tent, DuoPose.tent), isTrue);
+        // Fermé mais debout : la colonne de la barre est à droite, pas une tente.
+        expect(done(DuoTutorialStep.tent, DuoPose.closed), isFalse);
+        expect(done(DuoTutorialStep.tent, DuoPose.openLandscape), isFalse);
+      },
+    );
 
     test('bienvenue et « C\'est parti » n\'ont pas de geste', () {
       for (final pose in DuoPose.values) {
@@ -52,6 +55,92 @@ void main() {
       expect(DuoTutorialStep.open.hasGesture, isTrue);
     });
   });
+
+  group(
+    'la vraie tente est entrouverte : charnière partiallyOpen, écran extérieur actif',
+    () {
+      // Mesuré par Device Hub : la tente rapporte `closed`. Posé en V, iOS peut
+      // la rapporter `partiallyOpen` avec l'écran extérieur toujours actif : même
+      // fenêtre (678 x 466), aucune division de pli.
+      final partiallyOpenTent = FoldState(
+        hinge: HingeStatus.partiallyOpen,
+        verticalBar: DuoPose.tent.foldState.verticalBar,
+        occlusions: DuoPose.tent.foldState.occlusions,
+        angle: 1.2,
+      );
+      final size = DuoPose.tent.size;
+
+      test('reconnue comme une tente', () {
+        expect(DuoTutorialStep.tent.isDoneBy(partiallyOpenTent, size), isTrue);
+      });
+
+      test(
+        'et pas comme un livre ni comme un portable, malgré la charnière',
+        () {
+          expect(
+            DuoTutorialStep.book.isDoneBy(partiallyOpenTent, size),
+            isFalse,
+          );
+          expect(
+            DuoTutorialStep.table.isDoneBy(partiallyOpenTent, size),
+            isFalse,
+          );
+          expect(
+            DuoTutorialStep.open.isDoneBy(partiallyOpenTent, size),
+            isFalse,
+          );
+        },
+      );
+
+      test('un mi-ouvert sur l\'écran intérieur n\'est pas une tente', () {
+        for (final pose in [DuoPose.halfOpenBook, DuoPose.halfOpenLaptop]) {
+          expect(
+            DuoTutorialStep.tent.isDoneBy(pose.foldState, pose.size),
+            isFalse,
+            reason: pose.name,
+          );
+        }
+      });
+
+      test('un pli actif écarte la tente même dans une fenêtre étroite', () {
+        final withFold = FoldState(
+          hinge: HingeStatus.partiallyOpen,
+          divisions: const [Rect.fromLTWH(319, 0, 40, 466)],
+        );
+        expect(DuoTutorialStep.tent.isDoneBy(withFold, size), isFalse);
+      });
+
+      test(
+        'une fenêtre de l\'écran intérieur n\'est jamais une tente (largeur 700 pt et plus)',
+        () {
+          expect(
+            DuoTutorialStep.tent.isDoneBy(
+              DuoPose.closed.foldState,
+              const Size(951, 669),
+            ),
+            isFalse,
+          );
+          expect(
+            DuoTutorialStep.tent.isDoneBy(
+              DuoPose.closed.foldState,
+              const Size(700, 466),
+            ),
+            isFalse,
+          );
+        },
+      );
+
+      test('debout et fermé ou entrouvert en portrait : pas une tente', () {
+        expect(
+          DuoTutorialStep.tent.isDoneBy(
+            partiallyOpenTent,
+            const Size(466, 678),
+          ),
+          isFalse,
+        );
+      });
+    },
+  );
 
   test('un seul geste par pose : aucune pose ne valide deux étapes', () {
     for (final pose in DuoPose.values) {

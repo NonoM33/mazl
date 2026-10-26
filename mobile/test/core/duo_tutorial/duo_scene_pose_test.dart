@@ -36,6 +36,30 @@ void main() {
     expect(pose.verticalBar, VerticalBarSide.left);
   });
 
+  test(
+    'tente entrouverte (charnière partiallyOpen, écran extérieur) : de côté aussi',
+    () {
+      final pose = DuoScenePose.from(
+        fold: FoldState(
+          hinge: HingeStatus.partiallyOpen,
+          verticalBar: VerticalBarSide.left,
+          angle: 1.2,
+        ),
+        size: DuoPose.tent.size,
+        step: DuoTutorialStep.tent,
+        validated: false,
+        reduceMotion: false,
+      );
+      expect(pose.sideways, isTrue);
+      expect(pose.angle, 1.2);
+    },
+  );
+
+  test('un mi-ouvert sur l\'écran intérieur n\'est pas de côté', () {
+    expect(sceneFor(DuoPose.halfOpenBook).sideways, isFalse);
+    expect(sceneFor(DuoPose.halfOpenLaptop).sideways, isFalse);
+  });
+
   test('livre : le pli vertical, l\'angle réel', () {
     final pose = sceneFor(DuoPose.halfOpenBook);
     expect(pose.axis, DuoAxis.vertical);
