@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/paired_avatars.dart';
+import '../widgets/book_pages.dart';
 
 /// Beautiful celebration screen shown when couple mode is activated
 class MazelTovScreen extends StatefulWidget {
@@ -133,31 +135,64 @@ class _MazelTovContentState extends State<_MazelTovContent>
         body: SafeArea(
           child: FadeTransition(
             opacity: fade,
-            child: CustomScrollView(
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    child: Column(
-                      children: [
-                        const Spacer(flex: 2),
-                        _buildTitle(context),
-                        const SizedBox(height: 40),
-                        _buildCoupleVisual(),
-                        const SizedBox(height: 40),
-                        _buildMessage(context),
-                        const Spacer(flex: 3),
-                        _buildContinueButton(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            child: FoldCutBuilder(
+              minPaneExtent: bookPaneExtent,
+              builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+                  ? _buildBook(cut!)
+                  : _buildFlat(),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFlat() {
+    return CustomScrollView(
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
+                _buildTitle(context),
+                const SizedBox(height: 40),
+                _buildCoupleVisual(),
+                const SizedBox(height: 40),
+                _buildMessage(context),
+                const Spacer(flex: 3),
+                _buildContinueButton(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Held like a book: the celebration to look at on the first page (the
+  /// blessing, the couple), the words and the way forward on the other.
+  Widget _buildBook(FoldCut cut) {
+    Widget page(List<Widget> children) => Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      ),
+    );
+    return bookPages(
+      cut,
+      lead: page([
+        _buildTitle(context),
+        const SizedBox(height: 40),
+        _buildCoupleVisual(),
+      ]),
+      action: page([
+        _buildMessage(context),
+        const SizedBox(height: 40),
+        _buildContinueButton(),
+      ]),
     );
   }
 

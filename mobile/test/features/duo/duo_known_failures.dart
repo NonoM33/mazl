@@ -38,46 +38,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/couple/activities',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/activities/:activityId',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/activities/saved',
-    DuoPose.halfOpenLaptop,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/calendar',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/events/:eventId',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/mazel-tov',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/setup',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/couple/space',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/couple/space/settings',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',

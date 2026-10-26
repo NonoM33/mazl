@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
@@ -12,6 +13,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
+import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 
 class CoupleActivityDetailScreen extends StatefulWidget {
@@ -174,11 +176,16 @@ class _CoupleActivityDetailScreenState
     }
 
     final activity = _activity!;
-    final l10n = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final city = activity.city;
 
+    return FoldCutBuilder(
+      minPaneExtent: bookPaneExtent,
+      builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+          ? Scaffold(body: _buildBook(activity, cut!))
+          : _buildFlat(activity),
+    );
+  }
+
+  Widget _buildFlat(CoupleActivity activity) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -188,49 +195,12 @@ class _CoupleActivityDetailScreenState
             leadingWidth: 72,
             leading: Padding(
               padding: const EdgeInsetsDirectional.only(start: 24),
-              child: Center(
-                child: RoundIconButton(
-                  icon: backArrowIcon(context),
-                  tooltip: l10n.commonBack,
-                  size: 40,
-                  iconSize: 18,
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-              ),
+              child: Center(child: _backButton()),
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: ActivityVisual(activity: activity, iconSize: 48),
             ),
-            actions: [
-              RoundIconButton(
-                icon: LucideIcons.share2,
-                tooltip: l10n.commonShare,
-                size: 40,
-                iconSize: 18,
-                onPressed: () {
-                  final activity = _activity;
-                  if (activity == null) return;
-                  Share.share(
-                    l10n.coupleFeedActivityShareText(activity.title),
-                    subject: activity.title,
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-              RoundIconButton(
-                icon: _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,
-                tooltip: _isSaved
-                    ? l10n.coupleFeedRemoveFromSaved
-                    : l10n.commonSave,
-                size: 40,
-                iconSize: 18,
-                style: _isSaved
-                    ? RoundButtonStyle.ink
-                    : RoundButtonStyle.outline,
-                onPressed: _toggleSaved,
-              ),
-              const SizedBox(width: 24),
-            ],
+            actions: [..._visualActions(activity), const SizedBox(width: 24)],
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -238,239 +208,336 @@ class _CoupleActivityDetailScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      TagPill(
-                        activity.categoryName(l10n),
-                        icon: activityCategoryIcon(activity.category),
-                      ),
-                      const SizedBox(width: 12),
-                      if (activity.rating != null)
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Icon(
-                                LucideIcons.star,
-                                color: scheme.onSurface,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  activity.ratingWithReviewsLabel(l10n),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.titleSmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(activity.title, style: textTheme.headlineMedium),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 4,
-                    children: [
-                      if (city != null)
-                        _MetaItem(icon: LucideIcons.mapPin, label: city),
-                      if (activity.durationLabel(l10n) case final duration?)
-                        _MetaItem(icon: LucideIcons.clock, label: duration),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (activity.isPartner)
-                        AccentPill(
-                          activity.discountPercent != null
-                              ? l10n.coupleFeedPartnerDiscount(
-                                  activity.discountPercent!,
-                                )
-                              : l10n.coupleFeedPartnerMazl,
-                          icon: LucideIcons.badgePercent,
-                        ),
-                      if (activity.isKosher) TagPill(l10n.coupleFeedKosher),
-                      TagPill(
-                        activity.priceLabel(l10n),
-                        icon: LucideIcons.euro,
-                      ),
-                    ],
-                  ),
+                  _buildHeadline(activity),
                   const SizedBox(height: 24),
-                  if (activity.isPartner && activity.discountCode != null) ...[
-                    Container(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        20,
-                        16,
-                        12,
-                        16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SectionLabel(l10n.coupleFeedPromoCodeLabel),
-                                const SizedBox(height: 6),
-                                Text(
-                                  activity.discountCode!,
-                                  style: textTheme.titleLarge?.copyWith(
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          RoundIconButton(
-                            icon: LucideIcons.copy,
-                            tooltip: l10n.coupleFeedCopyCode,
-                            size: 40,
-                            iconSize: 18,
-                            onPressed: () =>
-                                _copyDiscountCode(activity.discountCode!),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  SectionLabel(l10n.coupleFeedDescription),
-                  const SizedBox(height: 8),
-                  Text(activity.description, style: textTheme.bodyLarge),
-                  const SizedBox(height: 24),
-                  if (activity.tags.isNotEmpty) ...[
-                    SectionLabel(l10n.coupleFeedTags),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final tag in activity.tags) TagPill('#$tag'),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  if (activity.address != null ||
-                      activity.location != null) ...[
-                    SectionLabel(l10n.coupleFeedAddress),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (activity.location != null)
-                            Text(
-                              activity.location!,
-                              style: textTheme.titleMedium,
-                            ),
-                          if (activity.address != null)
-                            Text(
-                              activity.address!,
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          if (city != null)
-                            Text(
-                              city,
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  if (activity.phone != null || activity.website != null) ...[
-                    SectionLabel(l10n.coupleFeedContact),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        if (activity.phone != null)
-                          Expanded(
-                            child: _ContactButton(
-                              icon: LucideIcons.phone,
-                              label: l10n.coupleFeedCall,
-                              onPressed: () => _makeCall(activity.phone!),
-                            ),
-                          ),
-                        if (activity.phone != null && activity.website != null)
-                          const SizedBox(width: 12),
-                        if (activity.website != null)
-                          Expanded(
-                            child: _ContactButton(
-                              icon: LucideIcons.globe,
-                              label: l10n.coupleFeedWebsite,
-                              onPressed: () => _openUrl(activity.website!),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  ..._buildDetails(activity),
                 ],
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          border: Border(top: BorderSide(color: scheme.outlineVariant)),
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-        child: SafeArea(
-          child: FoldSafeActions(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.coupleFeedFromPrice,
-                        style: textTheme.bodySmall,
-                      ),
-                      Text(
-                        activity.priceLabel(l10n),
-                        style: textTheme.titleLarge,
-                      ),
-                    ],
+      bottomNavigationBar: _buildBookingBar(activity),
+    );
+  }
+
+  /// Held like a book: the visual, the title and the labels to look at on
+  /// the first page; the description, the address and the booking on the
+  /// other.
+  Widget _buildBook(CoupleActivity activity, FoldCut cut) {
+    final top = MediaQuery.paddingOf(context).top;
+    return bookPages(
+      cut,
+      lead: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 300 + top,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ActivityVisual(activity: activity, iconSize: 48),
+                  PositionedDirectional(
+                    top: top + 8,
+                    start: 24,
+                    child: _backButton(),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: activity.bookingUrl != null
-                        ? () => _openUrl(activity.bookingUrl!)
-                        : null,
-                    icon: const Icon(LucideIcons.externalLink, size: 18),
-                    label: Text(l10n.coupleFeedBook),
+                  PositionedDirectional(
+                    top: top + 8,
+                    end: 24,
+                    child: Row(children: _visualActions(activity)),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+              child: _buildHeadline(activity),
+            ),
+          ],
+        ),
+      ),
+      action: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(24, top + 24, 24, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildDetails(activity),
+              ),
+            ),
+          ),
+          _buildBookingBar(activity),
+        ],
+      ),
+    );
+  }
+
+  Widget _backButton() => RoundIconButton(
+    icon: backArrowIcon(context),
+    tooltip: context.l10n.commonBack,
+    size: 40,
+    iconSize: 18,
+    onPressed: () => Navigator.of(context).maybePop(),
+  );
+
+  /// Share and save, over the visual.
+  List<Widget> _visualActions(CoupleActivity activity) {
+    final l10n = context.l10n;
+    return [
+      RoundIconButton(
+        icon: LucideIcons.share2,
+        tooltip: l10n.commonShare,
+        size: 40,
+        iconSize: 18,
+        onPressed: () {
+          final activity = _activity;
+          if (activity == null) return;
+          Share.share(
+            l10n.coupleFeedActivityShareText(activity.title),
+            subject: activity.title,
+          );
+        },
+      ),
+      const SizedBox(width: 8),
+      RoundIconButton(
+        icon: _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,
+        tooltip: _isSaved ? l10n.coupleFeedRemoveFromSaved : l10n.commonSave,
+        size: 40,
+        iconSize: 18,
+        style: _isSaved ? RoundButtonStyle.ink : RoundButtonStyle.outline,
+        onPressed: _toggleSaved,
+      ),
+    ];
+  }
+
+  /// Category, rating, title, place, duration and labels.
+  Widget _buildHeadline(CoupleActivity activity) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final city = activity.city;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            TagPill(
+              activity.categoryName(l10n),
+              icon: activityCategoryIcon(activity.category),
+            ),
+            const SizedBox(width: 12),
+            if (activity.rating != null)
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(LucideIcons.star, color: scheme.onSurface, size: 16),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        activity.ratingWithReviewsLabel(l10n),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleSmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Text(activity.title, style: textTheme.headlineMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 16,
+          runSpacing: 4,
+          children: [
+            if (city != null) _MetaItem(icon: LucideIcons.mapPin, label: city),
+            if (activity.durationLabel(l10n) case final duration?)
+              _MetaItem(icon: LucideIcons.clock, label: duration),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (activity.isPartner)
+              AccentPill(
+                activity.discountPercent != null
+                    ? l10n.coupleFeedPartnerDiscount(activity.discountPercent!)
+                    : l10n.coupleFeedPartnerMazl,
+                icon: LucideIcons.badgePercent,
+              ),
+            if (activity.isKosher) TagPill(l10n.coupleFeedKosher),
+            TagPill(activity.priceLabel(l10n), icon: LucideIcons.euro),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Promo code, description, tags, address and contact.
+  List<Widget> _buildDetails(CoupleActivity activity) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final city = activity.city;
+    return [
+      if (activity.isPartner && activity.discountCode != null) ...[
+        Container(
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 16),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SectionLabel(l10n.coupleFeedPromoCodeLabel),
+                    const SizedBox(height: 6),
+                    Text(
+                      activity.discountCode!,
+                      style: textTheme.titleLarge?.copyWith(letterSpacing: 2),
+                    ),
+                  ],
+                ),
+              ),
+              RoundIconButton(
+                icon: LucideIcons.copy,
+                tooltip: l10n.coupleFeedCopyCode,
+                size: 40,
+                iconSize: 18,
+                onPressed: () => _copyDiscountCode(activity.discountCode!),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+      SectionLabel(l10n.coupleFeedDescription),
+      const SizedBox(height: 8),
+      Text(activity.description, style: textTheme.bodyLarge),
+      const SizedBox(height: 24),
+      if (activity.tags.isNotEmpty) ...[
+        SectionLabel(l10n.coupleFeedTags),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [for (final tag in activity.tags) TagPill('#$tag')],
+        ),
+        const SizedBox(height: 24),
+      ],
+      if (activity.address != null || activity.location != null) ...[
+        SectionLabel(l10n.coupleFeedAddress),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (activity.location != null)
+                Text(activity.location!, style: textTheme.titleMedium),
+              if (activity.address != null)
+                Text(
+                  activity.address!,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              if (city != null)
+                Text(
+                  city,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+      if (activity.phone != null || activity.website != null) ...[
+        SectionLabel(l10n.coupleFeedContact),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            if (activity.phone != null)
+              Expanded(
+                child: _ContactButton(
+                  icon: LucideIcons.phone,
+                  label: l10n.coupleFeedCall,
+                  onPressed: () => _makeCall(activity.phone!),
+                ),
+              ),
+            if (activity.phone != null && activity.website != null)
+              const SizedBox(width: 12),
+            if (activity.website != null)
+              Expanded(
+                child: _ContactButton(
+                  icon: LucideIcons.globe,
+                  label: l10n.coupleFeedWebsite,
+                  onPressed: () => _openUrl(activity.website!),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 24),
+      ],
+    ];
+  }
+
+  Widget _buildBookingBar(CoupleActivity activity) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        border: Border(top: BorderSide(color: scheme.outlineVariant)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      child: SafeArea(
+        child: FoldSafeActions(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.coupleFeedFromPrice, style: textTheme.bodySmall),
+                    Text(
+                      activity.priceLabel(l10n),
+                      style: textTheme.titleLarge,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: activity.bookingUrl != null
+                      ? () => _openUrl(activity.bookingUrl!)
+                      : null,
+                  icon: const Icon(LucideIcons.externalLink, size: 18),
+                  label: Text(l10n.coupleFeedBook),
+                ),
+              ),
+            ],
           ),
         ),
       ),

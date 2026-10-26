@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/couple_activity.dart';
 import '../../../../core/services/couple_api_service.dart';
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
@@ -12,6 +13,7 @@ import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../../widgets/skeletons.dart';
 import '../l10n/couple_feed_labels.dart';
 import '../widgets/activity_visual.dart';
+import '../widgets/book_pages.dart';
 import '../widgets/couple_message_view.dart';
 
 class CoupleActivitiesFeedScreen extends StatefulWidget {
@@ -32,10 +34,13 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       widget.apiService ?? CoupleApiService();
 
   /// The deck as the swipe deck sees it. Only replaced by a (re)load or a
-  /// rollback, together with [_deckGeneration], so the deck never sees its
-  /// count change.
+  /// rollback, together with [_deckKey], so the deck never sees its count
+  /// change.
   List<CoupleActivity> _deck = [];
-  int _deckGeneration = 0;
+
+  /// Keeps the deck's own state (the card on top, a throw under way) when the
+  /// screen folds into a book and back; renewed with each new deck.
+  GlobalKey _deckKey = GlobalKey(debugLabel: 'couple-activities-deck');
 
   /// Index in [_deck] of the card on top.
   int _topIndex = 0;
@@ -85,7 +90,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       switch (result) {
         case CoupleOk(:final value):
           _deck = value;
-          _deckGeneration++;
+          _deckKey = GlobalKey(debugLabel: 'couple-activities-deck');
           _topIndex = 0;
           _deckDone = value.isEmpty;
         case CoupleFailed(:final failure):
@@ -105,35 +110,72 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
     super.build(context);
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-              child: Row(
+        child: FoldCutBuilder(
+          minPaneExtent: bookPaneExtent,
+          builder: (context, cut) => cut?.axis == FoldSplitAxis.vertical
+              ? _buildBook(cut!)
+              : Column(
+                  children: [
+                    _buildTitleBar(),
+                    _buildCategoryFilter(),
+                    Expanded(child: _buildBody()),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              context.l10n.coupleFeedActivitiesTitle,
+              style: const TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -2,
+                height: 1.05,
+              ),
+            ),
+          ),
+          RoundIconButton(
+            icon: LucideIcons.bookmark,
+            tooltip: context.l10n.coupleFeedSavedTitle,
+            onPressed: () => context.push('/couple/activities/saved'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Held like a book: the card to look at fills the first page; the title,
+  /// the categories and the buttons that act on the card are on the other.
+  Widget _buildBook(FoldCut cut) {
+    return bookPages(
+      cut,
+      lead: _buildStage(),
+      action: Column(
+        children: [
+          _buildTitleBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  Expanded(
-                    child: Text(
-                      context.l10n.coupleFeedActivitiesTitle,
-                      style: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -2,
-                        height: 1.05,
-                      ),
-                    ),
-                  ),
-                  RoundIconButton(
-                    icon: LucideIcons.bookmark,
-                    tooltip: context.l10n.coupleFeedSavedTitle,
-                    onPressed: () => context.push('/couple/activities/saved'),
-                  ),
+                  for (final category in categories)
+                    SizedBox(height: 44, child: _categoryChip(category)),
                 ],
               ),
             ),
-            _buildCategoryFilter(),
-            Expanded(child: _buildBody()),
-          ],
-        ),
+          ),
+          if (_hasDeck) _buildDeckButtons(),
+        ],
       ),
     );
   }
@@ -146,22 +188,22 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         itemCount: categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          return _CategoryChip(
-            label: activityFilterLabel(context.l10n, cat),
-            selected: _selectedCategory == cat,
-            onTap: () {
-              setState(() => _selectedCategory = cat);
-              _loadActivities();
-            },
-          );
-        },
+        itemBuilder: (context, index) => _categoryChip(categories[index]),
       ),
     );
   }
 
-  Widget _buildBody() {
+  Widget _categoryChip(String? category) => _CategoryChip(
+    label: activityFilterLabel(context.l10n, category),
+    selected: _selectedCategory == category,
+    onTap: () {
+      setState(() => _selectedCategory = category);
+      _loadActivities();
+    },
+  );
+
+  /// The card deck, or what takes its place: loading, failure, nothing left.
+  Widget _buildStage() {
     if (_isLoading) {
       return const ProfileCardSkeleton();
     }
@@ -181,88 +223,98 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
       );
     }
 
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+      child: SwipeDeck(
+        key: _deckKey,
+        controller: _swipeDeck,
+        itemCount: _deck.length,
+        // Left = pass, up = save. A right swipe has no meaning here.
+        allowed: const {SwipeDirection.left, SwipeDirection.up},
+        intents: {
+          SwipeDirection.left: const SwipeIntent(
+            icon: LucideIcons.x,
+            color: AppColors.muted,
+          ),
+          SwipeDirection.up: SwipeIntent(
+            icon: LucideIcons.bookmark,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        },
+        onSwiped: _onSwiped,
+        onEnd: _onDeckEnd,
+        cardBuilder: (context, index, isTop) {
+          // Only the card on top carries text: the one behind is a bare,
+          // opaque shell.
+          if (!isTop) return const _CardBack();
+          final activity = _deck[index];
+          return _ActivityCard(
+            activity: activity,
+            onTapDetails: () =>
+                context.push('/couple/activities/${activity.id}'),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Whether the deck is on screen, with its buttons.
+  bool get _hasDeck => !_isLoading && _failure == null && !_deckDone;
+
+  Widget _buildBody() {
+    if (!_hasDeck) return _buildStage();
     return Column(
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            child: SwipeDeck(
-              key: ValueKey(_deckGeneration),
-              controller: _swipeDeck,
-              itemCount: _deck.length,
-              // Left = pass, up = save. A right swipe has no meaning here.
-              allowed: const {SwipeDirection.left, SwipeDirection.up},
-              intents: {
-                SwipeDirection.left: const SwipeIntent(
-                  icon: LucideIcons.x,
-                  color: AppColors.muted,
-                ),
-                SwipeDirection.up: SwipeIntent(
-                  icon: LucideIcons.bookmark,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              },
-              onSwiped: _onSwiped,
-              onEnd: _onDeckEnd,
-              cardBuilder: (context, index, isTop) {
-                // Only the card on top carries text: the one behind is a bare,
-                // opaque shell.
-                if (!isTop) return const _CardBack();
-                final activity = _deck[index];
-                return _ActivityCard(
-                  activity: activity,
-                  onTapDetails: () =>
-                      context.push('/couple/activities/${activity.id}'),
-                );
-              },
-            ),
-          ),
-        ),
-        FoldSafeActions(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SwipeProgressScale(
-                  progress: _swipeDeck.progress,
-                  direction: SwipeDirection.left,
-                  child: RoundIconButton(
-                    icon: LucideIcons.x,
-                    tooltip: context.l10n.commonSkip,
-                    size: 60,
-                    iconSize: 26,
-                    onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
-                  ),
-                ),
-                SwipeProgressScale(
-                  progress: _swipeDeck.progress,
-                  direction: SwipeDirection.up,
-                  child: RoundIconButton(
-                    icon: LucideIcons.bookmark,
-                    tooltip: context.l10n.commonSave,
-                    size: 72,
-                    iconSize: 30,
-                    style: RoundButtonStyle.ink,
-                    onPressed: () => _swipeDeck.swipe(SwipeDirection.up),
-                  ),
-                ),
-                RoundIconButton(
-                  icon: LucideIcons.info,
-                  tooltip: context.l10n.coupleFeedSeeDetail,
-                  size: 60,
-                  iconSize: 26,
-                  onPressed: () {
-                    if (_topIndex < _deck.length) {
-                      context.push('/couple/activities/${_deck[_topIndex].id}');
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
+        Expanded(child: _buildStage()),
+        _buildDeckButtons(),
       ],
+    );
+  }
+
+  Widget _buildDeckButtons() {
+    return FoldSafeActions(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SwipeProgressScale(
+              progress: _swipeDeck.progress,
+              direction: SwipeDirection.left,
+              child: RoundIconButton(
+                icon: LucideIcons.x,
+                tooltip: context.l10n.commonSkip,
+                size: 60,
+                iconSize: 26,
+                onPressed: () => _swipeDeck.swipe(SwipeDirection.left),
+              ),
+            ),
+            SwipeProgressScale(
+              progress: _swipeDeck.progress,
+              direction: SwipeDirection.up,
+              child: RoundIconButton(
+                icon: LucideIcons.bookmark,
+                tooltip: context.l10n.commonSave,
+                size: 72,
+                iconSize: 30,
+                style: RoundButtonStyle.ink,
+                onPressed: () => _swipeDeck.swipe(SwipeDirection.up),
+              ),
+            ),
+            RoundIconButton(
+              icon: LucideIcons.info,
+              tooltip: context.l10n.coupleFeedSeeDetail,
+              size: 60,
+              iconSize: 26,
+              onPressed: () {
+                if (_topIndex < _deck.length) {
+                  context.push('/couple/activities/${_deck[_topIndex].id}');
+                }
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -302,7 +354,7 @@ class _CoupleActivitiesFeedScreenState extends State<CoupleActivitiesFeedScreen>
   void _restore(CoupleActivity activity) {
     setState(() {
       _deck = [activity, ..._deck.sublist(_topIndex.clamp(0, _deck.length))];
-      _deckGeneration++;
+      _deckKey = GlobalKey(debugLabel: 'couple-activities-deck');
       _topIndex = 0;
       _deckDone = false;
     });

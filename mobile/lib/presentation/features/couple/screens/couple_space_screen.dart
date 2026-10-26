@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/models/couple_space.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
@@ -141,17 +142,20 @@ class _CoupleSpaceScreenState extends State<CoupleSpaceScreen> {
     final bottom = MediaQuery.paddingOf(context).bottom;
     return RefreshIndicator(
       onRefresh: _loadData,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
+      // Held like a book: the couple, its numbers and its memories to look at
+      // on the first page; the actions, the goals and the dates on the other.
+      child: FoldSpread(
         padding: EdgeInsets.fromLTRB(24, 0, 24, bottom + 16),
-        children: [
+        start: [
           _buildCoupleHeader(),
           const SizedBox(height: 16),
           _buildStatsSection(),
           const SizedBox(height: 32),
-          _buildQuickActions(),
-          const SizedBox(height: 32),
           _buildMemoriesSection(),
+          const SizedBox(height: 32),
+        ],
+        end: [
+          _buildQuickActions(),
           const SizedBox(height: 32),
           _buildBucketListSection(),
           const SizedBox(height: 32),
