@@ -28,11 +28,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/boost',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/chat',
     DuoPose.halfOpenLaptop,
     'crosses the fold (book layout to do)',
@@ -93,16 +88,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/events',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/events/:eventId',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/filters',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
@@ -120,16 +105,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
   DuoKnownFailure(
     '/matches',
     DuoPose.halfOpenLaptop,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/premium',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/premium/welcome',
-    DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(

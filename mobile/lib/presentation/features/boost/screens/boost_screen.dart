@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
@@ -191,42 +192,86 @@ class _BoostScreenState extends State<BoostScreen> {
 
   Widget _buildContent() {
     final isActive = _boostStatus?.isActive ?? false;
+    final details = <Widget>[
+      // Stats or benefits
+      if (isActive) _buildActiveStats() else _buildBenefits(),
 
-    final list = ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Header card
-        _buildHeaderCard(isActive),
+      const SizedBox(height: 16),
 
-        const SizedBox(height: 24),
+      // Premium upsell if not premium
+      if (_remaining != null && _remaining! <= 1) _buildPremiumUpsell(),
+    ];
 
-        // Stats or benefits
-        if (isActive) _buildActiveStats() else _buildBenefits(),
+    return FoldCutBuilder(
+      builder: (context, cut) {
+        if (cut?.axis == FoldSplitAxis.vertical) {
+          return _buildBook(cut!, isActive, details);
+        }
+        final list = ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Header card
+            _buildHeaderCard(isActive),
 
-        const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
-        // Premium upsell if not premium
-        if (_remaining != null && _remaining! <= 1) _buildPremiumUpsell(),
-      ],
-    );
-    if (isActive) return list;
-    // The action stays anchored under the scrolling content, above the home
-    // indicator and out of the fold.
-    return Column(
-      children: [
-        Expanded(child: list),
-        SafeArea(
-          top: false,
-          child: FoldSafeActions(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: _buildActivateButton(),
-            ),
-          ),
-        ),
-      ],
+            ...details,
+          ],
+        );
+        if (isActive) return list;
+        // The action stays anchored under the scrolling content, above the
+        // home indicator and out of the fold.
+        return Column(
+          children: [
+            Expanded(child: list),
+            _buildAnchoredActivate(),
+          ],
+        );
+      },
     );
   }
+
+  Widget _buildAnchoredActivate() => SafeArea(
+    top: false,
+    child: FoldSafeActions(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: _buildActivateButton(),
+      ),
+    ),
+  );
+
+  /// Held like a book: the Boost card (promise, countdown) on the
+  /// reading-start page, the benefits or the stats, the upsell and the
+  /// activation button on the other.
+  Widget _buildBook(FoldCut cut, bool isActive, List<Widget> details) => Row(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        width: cut.leadExtent,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _buildHeaderCard(isActive),
+          ),
+        ),
+      ),
+      SizedBox(width: cut.gap),
+      Expanded(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: details,
+              ),
+            ),
+            if (!isActive) _buildAnchoredActivate(),
+          ],
+        ),
+      ),
+    ],
+  );
 
   Widget _buildHeaderCard(bool isActive) {
     return Container(
