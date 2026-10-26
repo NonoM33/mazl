@@ -41,10 +41,8 @@ void main() {
       },
     );
 
-    test('couvrent OneSignal et la lecture NFC des passeports', () {
+    test('couvrent la lecture NFC des passeports', () {
       final pubspec = File('pubspec.yaml').readAsStringSync();
-      expect(pubspec, contains('onesignal_flutter:'));
-      expect(rules, contains('com.onesignal'));
       expect(pubspec, contains('dmrtd:'));
       expect(rules, contains('im.nfc.flutter_nfc_kit'));
     });

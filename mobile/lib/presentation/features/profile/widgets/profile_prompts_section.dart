@@ -11,10 +11,7 @@ import '../l10n/prompt_labels.dart';
 
 /// Widget to manage profile prompts (Hinge-style Q&A)
 class ProfilePromptsSection extends StatefulWidget {
-  const ProfilePromptsSection({
-    super.key,
-    this.onPromptsChanged,
-  });
+  const ProfilePromptsSection({super.key, this.onPromptsChanged});
 
   final VoidCallback? onPromptsChanged;
 
@@ -216,7 +213,10 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
     }
   }
 
-  Future<String?> _showAnswerDialog(String question, {String? currentAnswer}) async {
+  Future<String?> _showAnswerDialog(
+    String question, {
+    String? currentAnswer,
+  }) async {
     final controller = TextEditingController(text: currentAnswer);
 
     return showMazlSheet<String>(
@@ -229,10 +229,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
           // Question
           Text(
             question,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
@@ -245,14 +242,19 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
             decoration: InputDecoration(
               hintText: context.l10n.profilePromptYourAnswer,
               filled: true,
-              fillColor: Colors.grey.withValues(alpha: 0.1),
+              fillColor: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
               ),
             ),
           ),
@@ -293,15 +295,12 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
           children: [
             Text(
               context.l10n.profilePromptsMine,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
               '${_myPrompts.length}/$maxPrompts',
               style: TextStyle(
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -312,7 +311,7 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
           context.l10n.profilePromptsSubtitle,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 12),
@@ -330,7 +329,9 @@ class _ProfilePromptsSectionState extends State<ProfilePromptsSection> {
               children: [
                 Text(
                   apiErrorText(context.l10n, _errorKind),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 TextButton(
                   onPressed: _loadData,
@@ -375,9 +376,9 @@ class _PromptCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -394,7 +395,9 @@ class _PromptCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Row(
               children: [
@@ -406,7 +409,7 @@ class _PromptCard extends StatelessWidget {
                       prompt.promptText,
                     ),
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -416,7 +419,11 @@ class _PromptCard extends StatelessWidget {
                 PopupMenuButton<String>(
                   // Above the floating tab bar, like every overlay (sheet_rules_test).
                   useRootNavigator: true,
-                  icon: Icon(LucideIcons.moreVertical, size: 18, color: AppColors.primary),
+                  icon: Icon(
+                    LucideIcons.moreVertical,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   onSelected: (value) {
                     if (value == 'edit') onEdit();
                     if (value == 'delete') onDelete();
@@ -436,7 +443,11 @@ class _PromptCard extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          const Icon(LucideIcons.trash2, size: 18, color: Colors.red),
+                          const Icon(
+                            LucideIcons.trash2,
+                            size: 18,
+                            color: Colors.red,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             context.l10n.commonDelete,
@@ -455,10 +466,7 @@ class _PromptCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Text(
               prompt.answer,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.4,
-              ),
+              style: const TextStyle(fontSize: 15, height: 1.4),
             ),
           ),
         ],
@@ -490,12 +498,15 @@ class _AddPromptButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.plus, color: AppColors.primary),
+            Icon(
+              LucideIcons.plus,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 8),
             Text(
               context.l10n.profilePromptAdd,
               style: TextStyle(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -529,10 +540,7 @@ class _PromptSelectionSheet extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Text(
               context.l10n.profilePromptChoose,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           // List
@@ -550,17 +558,19 @@ class _PromptSelectionSheet extends StatelessWidget {
                         entry.key.isEmpty ? null : entry.key,
                       ),
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
                     ),
                   ),
                   // Prompts in category
-                  ...entry.value.map((prompt) => _PromptOption(
-                        prompt: prompt,
-                        onTap: () => Navigator.pop(context, prompt),
-                      )),
+                  ...entry.value.map(
+                    (prompt) => _PromptOption(
+                      prompt: prompt,
+                      onTap: () => Navigator.pop(context, prompt),
+                    ),
+                  ),
                 ],
                 const SizedBox(height: 20),
               ],
@@ -573,10 +583,7 @@ class _PromptSelectionSheet extends StatelessWidget {
 }
 
 class _PromptOption extends StatelessWidget {
-  const _PromptOption({
-    required this.prompt,
-    required this.onTap,
-  });
+  const _PromptOption({required this.prompt, required this.onTap});
 
   final PromptTemplate prompt;
   final VoidCallback onTap;
@@ -590,21 +597,26 @@ class _PromptOption extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 promptQuestionText(context.l10n, prompt.id, prompt.text),
-                style: const TextStyle(fontSize: 15),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
             DirectionalIcon(
               LucideIcons.chevronRight,
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
           ],

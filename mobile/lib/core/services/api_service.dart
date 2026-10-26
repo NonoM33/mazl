@@ -284,6 +284,22 @@ class ApiService implements CoupleApi {
     return _watched((client) => client.delete(url, headers: _headers));
   }
 
+  /// Authenticated PUT, the raw response (the caller reads the status).
+  Future<http.Response> putRaw(String endpoint, Map<String, dynamic> body) =>
+      _put(endpoint, body);
+
+  /// Authenticated DELETE carrying a JSON body, the raw response.
+  Future<http.Response> deleteWithBody(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
+    debugPrint('API DELETE: $url');
+    return _watched(
+      (client) => client.delete(url, headers: _headers, body: jsonEncode(body)),
+    );
+  }
+
   /// Public POST request (returns parsed JSON)
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     final response = await _post(endpoint, body);
@@ -754,6 +770,29 @@ class ApiService implements CoupleApi {
       final data = jsonDecode(response.body);
       if (data['success'] != true) {
         return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return _networkFailure(e);
+    }
+  }
+
+  /// « Me prévenir »: ask (or, with [requested] false, stop asking) to be
+  /// told by push when a coming soon event opens to registrations.
+  Future<ApiResponse<void>> setEventAlert(
+    int eventId, {
+    required bool requested,
+  }) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/api/events/$eventId/notify');
+      final response = requested
+          ? await _post('/api/events/$eventId/notify', const {})
+          : await _watched((client) => client.delete(url, headers: _headers));
+
+      if (response.statusCode != 200) {
+        return ApiResponse.httpFailure(response, 'Failed to set the alert');
       }
 
       return ApiResponse.success(null);

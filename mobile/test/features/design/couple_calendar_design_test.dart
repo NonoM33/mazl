@@ -333,7 +333,7 @@ void main() {
         await tester.tap(find.byKey(Key('calendar-cell-${_dayKey(other)}')));
         await tester.pump();
 
-        expect(_fillOf(tester, otherKey), theme.colorScheme.primary);
+        expect(_fillOf(tester, otherKey), theme.colorScheme.primaryContainer);
         expect(_fillOf(tester, otherKey), isNot(_fillOf(tester, todayKey)));
       },
     );

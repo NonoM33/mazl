@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../privacy/analytics_consent.dart';
 import '../../privacy/privacy_consent_api.dart';
 import '../../privacy/religious_data_consent.dart';
 import '../../services/api_service.dart';
@@ -14,4 +15,10 @@ final privacyConsentApiProvider = Provider<PrivacyConsentApi>(
 final religiousDataConsentProvider =
     FutureProvider.autoDispose<ApiResponse<ReligiousDataConsent>>(
       (ref) => ref.watch(privacyConsentApiProvider).religiousData(),
+    );
+
+/// The member's current analytics consent (null data: not known yet).
+final analyticsConsentProvider =
+    FutureProvider.autoDispose<ApiResponse<AnalyticsConsent>>(
+      (ref) => ref.watch(privacyConsentApiProvider).analytics(),
     );

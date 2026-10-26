@@ -171,9 +171,15 @@ void main() {
       () => _open(tester, '/profile/settings', DuoPose.openPortrait),
     );
     final account = tester.getRect(find.text('COMPTE'));
+    // A long single list: the couple section is further down, reached by
+    // scrolling down, in the same column.
+    await tester.scrollUntilVisible(
+      find.text('MODE COUPLE'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     final couple = tester.getRect(find.text('MODE COUPLE'));
     expect(couple.left, account.left);
-    expect(couple.top, greaterThan(account.bottom));
   });
 
   testWidgets('/profile/settings/computers: connect, then the computers', (
@@ -226,6 +232,18 @@ void main() {
     await book(tester, '/profile/settings/religious-data');
     expectStartPage(tester, find.text('Accord donné'), 'the state');
     expectEndPage(tester, find.text('Retirer mon accord'), 'the button');
+  });
+
+  testWidgets('/profile/settings/analytics: the text, then the choice', (
+    tester,
+  ) async {
+    await book(tester, '/profile/settings/analytics');
+    expectStartPage(tester, find.text("Mesure d'audience désactivée"), 'state');
+    expectEndPage(
+      tester,
+      find.text("Accepter la mesure d'audience"),
+      'the button',
+    );
   });
 
   testWidgets('/profile/settings/shabbat: the times, then how they are set', (

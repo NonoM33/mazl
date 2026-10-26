@@ -1429,6 +1429,26 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Bientôt disponible';
+
+  @override
+  String get eventsNotifyMe => 'Me prévenir';
+
+  @override
+  String get eventsNotifyRequested => 'Vous serez prévenu';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Nous vous préviendrons à l\'ouverture des inscriptions.';
+
+  @override
+  String get eventsNotifyCancelled => 'Alerte retirée';
+
+  @override
+  String get eventsNotifyError =>
+      'Impossible d\'enregistrer votre demande. Réessayez.';
+
+  @override
   String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
 
   @override
@@ -2761,6 +2781,60 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get privacySettingsLoadFailed =>
       'Impossible de charger votre accord. Vérifiez votre connexion.';
+
+  @override
+  String get analyticsSheetLabel => 'Mesure d\'audience';
+
+  @override
+  String get analyticsSheetTitle => 'Aider à améliorer MAZL';
+
+  @override
+  String get analyticsSheetBody =>
+      'MAZL compte les écrans visités et les grandes étapes (inscription, achat) pour s\'améliorer. Jamais le contenu de vos messages, vos photos ni votre pratique religieuse. Votre identifiant est pseudonymisé et rien n\'est partagé avec des tiers. Vous pouvez refuser : MAZL fonctionne pareil.';
+
+  @override
+  String get analyticsSheetAccept => 'Accepter';
+
+  @override
+  String get analyticsSheetDecline => 'Refuser';
+
+  @override
+  String get analyticsSheetErrorOutdated =>
+      'Le texte a été mis à jour. Fermez cette fenêtre puis rouvrez-la.';
+
+  @override
+  String get analyticsSheetErrorSave =>
+      'Votre choix n\'a pas pu être enregistré. Réessayez.';
+
+  @override
+  String get analyticsSettingsTitle => 'Mesure d\'audience';
+
+  @override
+  String get analyticsSettingsGrantedShort => 'Activée';
+
+  @override
+  String get analyticsSettingsDeniedShort => 'Désactivée';
+
+  @override
+  String get analyticsSettingsGrantedTitle => 'Mesure d\'audience activée';
+
+  @override
+  String get analyticsSettingsNotGrantedTitle =>
+      'Mesure d\'audience désactivée';
+
+  @override
+  String get analyticsSettingsAccept => 'Accepter la mesure d\'audience';
+
+  @override
+  String get analyticsSettingsWithdraw => 'Retirer mon accord';
+
+  @override
+  String get analyticsSettingsLoadFailed =>
+      'Impossible de lire votre choix. Vérifiez votre connexion.';
+
+  @override
+  String get analyticsSettingsSaveFailed =>
+      'Votre choix n\'a pas pu être enregistré. Réessayez.';
 
   @override
   String get profileMyProfile => 'Mon profil';

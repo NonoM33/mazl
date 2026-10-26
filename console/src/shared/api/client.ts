@@ -24,6 +24,7 @@ export interface ApiClient {
   get<T>(path: string, query?: Query): Promise<ApiResult<T>>;
   post<T>(path: string, body?: unknown): Promise<ApiResult<T>>;
   patch<T>(path: string, body?: unknown): Promise<ApiResult<T>>;
+  delete<T>(path: string): Promise<ApiResult<T>>;
 }
 
 const FALLBACK_MESSAGES: Readonly<Record<string, string>> = {
@@ -37,6 +38,13 @@ const FALLBACK_MESSAGES: Readonly<Record<string, string>> = {
   same_decider: "Une contestation doit être tranchée par une autre personne que l'auteur de la décision.",
   invalid_credentials: "Identifiants incorrects.",
   invalid_code: "Code incorrect ou expiré.",
+  invalid_body: "La requête est mal formée : vérifiez les champs saisis.",
+  invalid_params: "Certains réglages sont hors des bornes autorisées.",
+  invalid_preview: "La simulation demandée est invalide.",
+  version_not_found: "Cette version n'existe plus.",
+  no_ab_test: "Aucun test A/B n'est en cours.",
+  variant_is_active: "Cette version est déjà la version active : elle ne peut pas être sa propre variante.",
+  corrupt_version: "Cette version contient des réglages invalides et ne peut pas être utilisée.",
 };
 
 export function messageForError(code: string, serverMessage: string | undefined, status: number): string {
@@ -104,6 +112,7 @@ export function createApiClient(deps: ApiClientDeps): ApiClient {
     get: (path, query) => request("GET", path, query),
     post: (path, body) => request("POST", path, undefined, body),
     patch: (path, body) => request("PATCH", path, undefined, body),
+    delete: (path) => request("DELETE", path),
   };
 }
 

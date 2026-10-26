@@ -1426,6 +1426,26 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get eventsComingSoon => 'Скоро';
+
+  @override
+  String get eventsNotifyMe => 'Сообщить мне';
+
+  @override
+  String get eventsNotifyRequested => 'Мы вам сообщим';
+
+  @override
+  String get eventsNotifyRequestedDone =>
+      'Мы сообщим вам, когда откроется регистрация.';
+
+  @override
+  String get eventsNotifyCancelled => 'Уведомление отключено';
+
+  @override
+  String get eventsNotifyError =>
+      'Не удалось сохранить запрос. Попробуйте ещё раз.';
+
+  @override
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override
@@ -2756,6 +2776,61 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get privacySettingsLoadFailed =>
       'Не удалось загрузить Ваше согласие. Проверьте соединение.';
+
+  @override
+  String get analyticsSheetLabel => 'Измерение использования';
+
+  @override
+  String get analyticsSheetTitle => 'Помогите улучшить MAZL';
+
+  @override
+  String get analyticsSheetBody =>
+      'MAZL считает посещённые вами экраны и ключевые шаги (регистрация, покупка), чтобы становиться лучше. Никогда не содержимое ваших сообщений, ваши фото или религиозную практику. Ваш идентификатор псевдонимизирован, третьим лицам ничего не передаётся. Вы можете отказаться: MAZL будет работать так же.';
+
+  @override
+  String get analyticsSheetAccept => 'Принять';
+
+  @override
+  String get analyticsSheetDecline => 'Отказаться';
+
+  @override
+  String get analyticsSheetErrorOutdated =>
+      'Текст был обновлён. Закройте это окно и откройте его снова.';
+
+  @override
+  String get analyticsSheetErrorSave =>
+      'Не удалось сохранить ваш выбор. Попробуйте ещё раз.';
+
+  @override
+  String get analyticsSettingsTitle => 'Измерение использования';
+
+  @override
+  String get analyticsSettingsGrantedShort => 'Включено';
+
+  @override
+  String get analyticsSettingsDeniedShort => 'Выключено';
+
+  @override
+  String get analyticsSettingsGrantedTitle =>
+      'Измерение использования включено';
+
+  @override
+  String get analyticsSettingsNotGrantedTitle =>
+      'Измерение использования выключено';
+
+  @override
+  String get analyticsSettingsAccept => 'Принять измерение использования';
+
+  @override
+  String get analyticsSettingsWithdraw => 'Отозвать моё согласие';
+
+  @override
+  String get analyticsSettingsLoadFailed =>
+      'Не удалось прочитать ваш выбор. Проверьте подключение.';
+
+  @override
+  String get analyticsSettingsSaveFailed =>
+      'Не удалось сохранить ваш выбор. Попробуйте ещё раз.';
 
   @override
   String get profileMyProfile => 'Мой профиль';

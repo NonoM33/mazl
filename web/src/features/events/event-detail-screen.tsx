@@ -8,7 +8,7 @@ import { useResource } from "../../shared/hooks/use-resource";
 import { Link } from "../../shared/router";
 import { EmptyState, Skeleton } from "../../shared/ui/empty-state";
 import { Photo } from "../../shared/ui/photo";
-import { attendeesLabel, clock, eventTypeLabel, longDay, priceLabel, spotsLabel } from "./event-format";
+import { attendeesLabel, cardStatusLabel, clock, eventTypeLabel, longDay, priceLabel } from "./event-format";
 import { RsvpPanel } from "./rsvp-panel";
 import "./events.css";
 
@@ -24,7 +24,7 @@ function Fact({ icon, label, children }: { readonly icon: ReactNode; readonly la
 function Facts({ event }: { readonly event: EventRow }) {
   const start = clock(event.time);
   const end = clock(event.end_time);
-  const spots = spotsLabel(event);
+  const spots = cardStatusLabel(event);
   const place = [event.location, event.address].filter(Boolean).join(" · ");
   return (
     <>

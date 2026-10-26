@@ -1,6 +1,6 @@
 # Politique de confidentialité de MAZL
 
-**Version du 24 octobre 2026** — projet soumis à validation juridique avant publication.
+**Version du 26 octobre 2026** — projet soumis à validation juridique avant publication.
 
 > Documents liés : [Conditions générales d'utilisation](/cgu.html) · [Conditions générales de vente](/cgv.html)
 
@@ -65,13 +65,22 @@ Statut de l'abonnement mazl+ (formule, dates de début et d'expiration, statut),
 
 ### 2.10 Notifications, e-mails et liste d'attente
 
-- **Notifications push** : un identifiant technique d'appareil et un identifiant de membre (de la forme « user_… ») sont transmis à OneSignal pour vous adresser les notifications (nouveau match, message, demande de couple, etc.). Vous pouvez les désactiver dans les réglages de votre téléphone.
+- **Notifications push** : l'identifiant technique de votre appareil (jeton de notification fourni par Apple) est conservé sur nos serveurs et transmis au service de notifications d'Apple (APNs), par notre propre serveur d'envoi, pour vous adresser les notifications (nouveau match, message, like, demande de couple, etc.). Vous pouvez les désactiver dans les réglages de votre téléphone.
 - **E-mails** : e-mails de service (vérification, documents à renvoyer, profil vérifié) et, le cas échéant, e-mails d'information ou de campagne, envoyés via Resend. Chaque message d'information comporte un lien de désinscription ; la liste des adresses désinscrites est conservée pour respecter votre choix.
 - **Liste d'attente (site)** : adresse e-mail, système d'exploitation déclaré, état de la vérification et dates d'étapes.
 
 ### 2.11 Raison de départ
 
 Si vous la renseignez à la suppression de votre compte, la raison est conservée **sans aucun identifiant** (ni numéro de membre, ni e-mail).
+
+### 2.12 Mesure d'audience (seulement avec votre accord)
+
+Si vous l'acceptez, MAZL mesure l'utilisation de l'application et de l'espace membre du site pour les améliorer : écrans consultés (le nom de l'écran, jamais son adresse ni l'identifiant d'un autre membre), étapes de l'inscription, swipes (« like », « passer », « super like »), matchs, messages envoyés (le fait d'en envoyer un, **jamais leur contenu ni leur destinataire**), achats validés (produit), vérifications soumises (étape et résultat), version de l'application et plateforme (iOS ou web).
+
+- **Identifiant pseudonyme** : ces mesures sont rattachées à un code calculé à partir de votre numéro de membre avec une clé secrète ; elles ne contiennent ni votre nom, ni votre adresse e-mail, ni votre numéro de membre, ni vos informations de pratique religieuse, ni votre position, ni votre adresse IP (nous ne la transmettons pas à l'outil de mesure, qui ne peut donc pas vous localiser).
+- **Outil** : OpenPanel, logiciel libre installé sur nos propres serveurs (hébergeur indiqué à l'article 6) ; aucune donnée n'est transmise à l'éditeur d'OpenPanel ni à un tiers, aucune publicité, aucun croisement avec d'autres applications ou sites.
+- **Consentement** : demandé après la connexion, avec « Accepter » et « Refuser » au même niveau ; rien n'est mesuré avant votre réponse (les écrans consultés juste avant sont gardés en mémoire de l'appareil, jamais enregistrés, et effacés si vous refusez). Votre choix est enregistré avec sa date et la version du texte. Vous pouvez le modifier à tout moment dans les réglages (application : Réglages › Mesure d'audience ; site : Réglages › Confidentialité) ; le retrait arrête la mesure immédiatement.
+- **Après la suppression de votre compte**, plus rien ne permet de relier ces mesures à vous.
 
 ## 3. Finalités et bases légales
 
@@ -87,7 +96,7 @@ Si vous la renseignez à la suppression de votre compte, la raison est conservé
 | Notifications push d'usage | identifiant d'appareil, identifiant de membre | Exécution du contrat (notifications de service) ; consentement (autorisation système) |
 | E-mails de service | adresse e-mail | Exécution du contrat |
 | Informations et campagnes commerciales | adresse e-mail | Consentement ou intérêt légitime selon la règle applicable à la prospection électronique ; opposition à tout moment. [À COMPLÉTER : régime retenu par l'éditeur] |
-| Améliorer le Service, statistiques agrégées | données d'usage agrégées | Intérêt légitime (art. 6.1.f). [À COMPLÉTER : confirmer l'absence d'outil de mesure d'audience] |
+| Mesure d'audience de l'application et de l'espace membre pour améliorer le Service (article 2.12) | événements d'usage rattachés à un identifiant pseudonyme | Consentement (art. 6.1.a et article 82 de la loi Informatique et Libertés), retirable à tout moment |
 | Répondre aux demandes des autorités, exercer ou défendre des droits en justice | données utiles | Obligation légale ; intérêt légitime |
 
 Nous ne vendons pas vos données et ne les utilisons pas pour de la publicité ciblée.
@@ -114,6 +123,8 @@ Nous ne vendons pas vos données et ne les utilisons pas pour de la publicité c
 | Abonnement, solde et historique de crédits tenus par MAZL | Effacés avec le compte. Les justificatifs de paiement et obligations comptables sont tenus par Apple (ou Google) ; l'éditeur conserve les pièces comptables exigées par la loi pendant 10 ans. [À COMPLÉTER : confirmer] |
 | Adresse de la liste d'attente | Jusqu'à la suppression du compte correspondant ou à la désinscription ; l'adresse désinscrite est conservée dans la liste d'opposition |
 | Raison de départ anonyme | Sans limite de durée (non personnelle) |
+| Mesures d'audience pseudonymes (article 2.12) | 25 mois au plus à compter de leur collecte. Le retrait du consentement arrête la collecte ; la suppression du compte rompt tout lien avec vous. [À COMPLÉTER : purge automatique au-delà de 25 mois à mettre en place dans l'outil de mesure] |
+| Historique de vos décisions de consentement (pratique religieuse, mesure d'audience) | Jusqu'à la suppression du compte, pour prouver le consentement |
 | Journaux techniques (adresse IP, erreurs) | [À COMPLÉTER : durée, 12 mois au plus recommandés pour les journaux de connexion exigés par la LCEN] |
 | Données exigées par la loi ou une réquisition judiciaire | Le temps exigé par la loi |
 
@@ -132,11 +143,10 @@ Vos données sont accessibles :
 
 | Prestataire | Rôle | Données concernées | Localisation / transfert |
 |---|---|---|---|
-| Hetzner Online GmbH (via la plateforme Coolify) | Hébergement des serveurs, de la base de données et des fichiers | Toutes les données du Service | Allemagne / UE. [À COMPLÉTER : confirmer le centre de données] |
+| Hetzner Online GmbH (via la plateforme Coolify) | Hébergement des serveurs, de la base de données et des fichiers, y compris l'outil de mesure d'audience OpenPanel installé par MAZL | Toutes les données du Service | Allemagne / UE. [À COMPLÉTER : confirmer le centre de données] |
 | Resend | Envoi des e-mails de service et de campagnes | Adresse e-mail, nom, contenu du message | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
-| OneSignal | Notifications push | Identifiant d'appareil, identifiant de membre, contenu de la notification | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme] |
 | Google (Sign-In) | Authentification par compte Google ; polices Google Fonts du site | Identifiant, e-mail, nom, photo du compte ; adresse IP lors du chargement des polices | États-Unis / monde : [À COMPLÉTER : mécanisme de transfert] |
-| Apple (Sign in with Apple, App Store, notifications du serveur App Store) | Authentification ; vente et facturation ; vérification des transactions | Identifiant Apple, adresse (éventuellement masquée), transactions | Apple, selon sa politique et ses mécanismes de transfert |
+| Apple (Sign in with Apple, App Store, notifications du serveur App Store, service de notifications push APNs) | Authentification ; vente et facturation ; vérification des transactions ; acheminement des notifications push | Identifiant Apple, adresse (éventuellement masquée), transactions ; jeton de notification de l'appareil et contenu de la notification | Apple, selon sa politique et ses mécanismes de transfert |
 | Stripe Payments Europe, Ltd (groupe Stripe) | Encaissement des paiements par carte sur le site, gestion des abonnements web, émission des factures, portail de gestion | Identifiant client Stripe, adresse e-mail, historique des paiements et des factures, identifiant de l'abonnement ; le numéro de carte est saisi chez Stripe et n'est jamais transmis à MAZL. Stripe agit pour MAZL comme sous-traitant et, pour ses propres obligations (lutte contre la fraude et le blanchiment, réglementation financière), comme responsable de traitement | Irlande / UE, avec des transferts possibles vers les États-Unis : encadrés par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
 | Institut national de l'information géographique et forestière (IGN) — Géoplateforme (data.geopf.fr) | Recherche de commune à la saisie de la ville | Texte saisi pour la recherche de commune, adresse IP | France |
 | Sites web que vous partagez dans un message | Aperçu de lien | Notre serveur consulte l'adresse partagée (le site visité voit l'adresse IP du serveur, pas la vôtre) | Variable |
@@ -147,7 +157,7 @@ Nous concluons avec nos sous-traitants les accords exigés par l'article 28 du R
 
 ## 7. Transferts hors de l'Union européenne
 
-Certains prestataires (Resend, OneSignal, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
+Certains prestataires (Resend, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
 
 ## 8. Sécurité
 
@@ -174,9 +184,9 @@ La vérification de votre visage et de votre document est réalisée par un trai
 
 ## 12. Cookies et traceurs
 
-**Site https://mazl.app.** Les pages du site vitrine, de la liste d'attente et des mentions légales **ne déposent pas de cookie et n'utilisent pas d'outil de mesure d'audience ni de publicité**. Le chargement des polices du site peut cependant solliciter Google Fonts (les polices sont servies par Google, qui reçoit alors votre adresse IP) ; les pages juridiques n'utilisent aucune police externe. La console d'administration (réservée à l'équipe) mémorise une session dans le stockage local du navigateur. L'espace membre du site (après connexion) ne contient **aucun pixel publicitaire, aucune mesure d'audience et aucun script tiers** ; seule la page de connexion charge le script du fournisseur de connexion que vous choisissez (Google, et Apple si activé), nécessaire à cette connexion. Si nous ajoutons un jour un traceur soumis à consentement, un bandeau vous permettra de l'accepter ou de le refuser avant tout dépôt. [À COMPLÉTER : confirmer l'absence de tout traceur sur le site à la date de publication]
+**Site https://mazl.app.** Les pages du site vitrine, de la liste d'attente et des mentions légales **ne déposent pas de cookie et n'utilisent pas d'outil de mesure d'audience ni de publicité**. Le chargement des polices du site peut cependant solliciter Google Fonts (les polices sont servies par Google, qui reçoit alors votre adresse IP) ; les pages juridiques n'utilisent aucune police externe. La console d'administration (réservée à l'équipe) mémorise une session dans le stockage local du navigateur. L'espace membre du site (après connexion) ne contient **aucun pixel publicitaire et aucun script tiers** ; la mesure d'audience décrite à l'article 2.12 n'y fonctionne qu'après votre accord, ne dépose aucun cookie et n'écrit rien dans votre navigateur ; seule la page de connexion charge le script du fournisseur de connexion que vous choisissez (Google, et Apple si activé), nécessaire à cette connexion. Si nous ajoutons un jour un traceur soumis à consentement, un bandeau vous permettra de l'accepter ou de le refuser avant tout dépôt. [À COMPLÉTER : confirmer l'absence de tout traceur sur le site à la date de publication]
 
-**Application mobile.** Elle utilise le stockage sécurisé de l'appareil pour votre jeton de session et des préférences locales strictement nécessaires au fonctionnement. Elle demande les autorisations suivantes, que vous pouvez refuser ou retirer dans les réglages de votre téléphone : appareil photo (photos, selfie), photothèque, localisation, notifications, microphone (messages vocaux) et NFC (lecture de la puce du document). Elle n'intègre pas de publicité ni d'outil de mesure d'audience tiers. [À COMPLÉTER : confirmer avant publication, notamment pour la déclaration « confidentialité des données » de l'App Store]
+**Application mobile.** Elle utilise le stockage sécurisé de l'appareil pour votre jeton de session et des préférences locales strictement nécessaires au fonctionnement. Elle demande les autorisations suivantes, que vous pouvez refuser ou retirer dans les réglages de votre téléphone : appareil photo (photos, selfie), photothèque, localisation, notifications, microphone (messages vocaux) et NFC (lecture de la puce du document). Elle n'intègre ni publicité, ni outil de mesure d'audience tiers, ni identifiant publicitaire (IDFA) ; elle ne pratique aucun « suivi » au sens d'Apple (App Tracking Transparency). La seule mesure d'audience est celle de l'article 2.12, soumise à votre accord. [À COMPLÉTER : confirmer avant publication, notamment pour la déclaration « confidentialité des données » de l'App Store]
 
 ## 13. Évaluation d'impact
 

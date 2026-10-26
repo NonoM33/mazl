@@ -85,8 +85,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _shabbatObservance = profile?.shabbatObservance;
         // Only what the selector offers: a stored word the server would
         // refuse (« Je ne sais pas ») is not sent back.
-        _relationshipIntention =
-            RelationshipIntention.fromId(profile?.relationshipIntention)?.id;
+        _relationshipIntention = RelationshipIntention.fromId(
+          profile?.relationshipIntention,
+        )?.id;
         _bioController.text = _bio ?? '';
         _isLoading = false;
       });
@@ -221,25 +222,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: Colors.red.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              LucideIcons.trash2,
-              color: Colors.red,
-              size: 32,
-            ),
+            child: const Icon(LucideIcons.trash2, color: Colors.red, size: 32),
           ),
           const SizedBox(height: 16),
           Text(
             context.l10n.profileDeletePhotoTitle,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             context.l10n.profileIrreversible,
             style: TextStyle(
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
@@ -365,10 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           // Text field
@@ -380,14 +371,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               decoration: InputDecoration(
                 hintText: hint,
                 filled: true,
-                fillColor: Colors.grey.withValues(alpha: 0.1),
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
@@ -413,7 +409,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 child: Text(
                   context.l10n.commonSave,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -441,10 +440,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           // Options
@@ -457,11 +453,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.primary.withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.05),
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: isSelected
                       ? Border.all(color: AppColors.primary, width: 2)
@@ -474,7 +475,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         choice.label,
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
                           color: isSelected ? AppColors.primary : null,
                         ),
                       ),
@@ -554,10 +557,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           children: [
             Text(
               l10n.profilePhotos,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             if (_isUploadingPhoto)
               const SizedBox(
@@ -572,7 +572,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           l10n.profilePhotosHint,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 12),
@@ -583,10 +583,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Bio
         Text(
           l10n.profileAbout,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -612,7 +609,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           locked: !_religiousConsent,
           child: RelationshipIntentionSelector(
             selectedIntention: _relationshipIntention,
-            onChanged: (value) => setState(() => _relationshipIntention = value),
+            onChanged: (value) =>
+                setState(() => _relationshipIntention = value),
           ),
         ),
 
@@ -621,10 +619,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Basic info
         Text(
           l10n.profileBasicInfo,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         _EditField(
@@ -653,63 +648,66 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Jewish preferences
         Text(
           l10n.profilePracticeTitle,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         ReligiousDataGate(
           onValidityChanged: (valid) {
-            if (valid != _religiousConsent) setState(() => _religiousConsent = valid);
+            if (valid != _religiousConsent) {
+              setState(() => _religiousConsent = valid);
+            }
           },
           child: Column(
             children: [
-        _EditField(
-          label: l10n.profileDenomination,
-          value: denominationField(l10n, _denomination),
-          onTap: () {
-            final current = ProfileLabels.denominationAnswer(_denomination)?.kind;
-            _showSelectionSheet(
-              l10n.profileDenomination,
-              [
-                for (final kind in Denomination.choices)
-                  _Choice(kind.label(l10n), kind.storedValue!, kind == current),
-              ],
-              (v) => setState(() => _denomination = v),
-            );
-          },
-        ),
-        _EditField(
-          label: l10n.profileFieldKashrut,
-          value: kashrutField(l10n, _kashrut),
-          onTap: () {
-            final current = ProfileLabels.kashrutAnswer(_kashrut)?.kind;
-            _showSelectionSheet(
-              l10n.profileFieldKashrut,
-              [
-                for (final kind in Kashrut.choices)
-                  _Choice(kind.optionLabel(l10n), kind.storedValue, kind == current),
-              ],
-              (v) => setState(() => _kashrut = v),
-            );
-          },
-        ),
-        _EditField(
-          label: l10n.profileShabbat,
-          value: shabbatField(l10n, _shabbatObservance),
-          onTap: () {
-            final current = ProfileLabels.shabbatAnswer(_shabbatObservance)?.kind;
-            _showSelectionSheet(
-              l10n.profileShabbat,
-              [
-                for (final kind in ShabbatObservance.choices)
-                  _Choice(kind.optionLabel(l10n), kind.storedValue!, kind == current),
-              ],
-              (v) => setState(() => _shabbatObservance = v),
-            );
-          },
-        ),
+              _EditField(
+                label: l10n.profileDenomination,
+                value: denominationField(l10n, _denomination),
+                onTap: () {
+                  final current = ProfileLabels.denominationAnswer(
+                    _denomination,
+                  )?.kind;
+                  _showSelectionSheet(l10n.profileDenomination, [
+                    for (final kind in Denomination.choices)
+                      _Choice(
+                        kind.label(l10n),
+                        kind.storedValue!,
+                        kind == current,
+                      ),
+                  ], (v) => setState(() => _denomination = v));
+                },
+              ),
+              _EditField(
+                label: l10n.profileFieldKashrut,
+                value: kashrutField(l10n, _kashrut),
+                onTap: () {
+                  final current = ProfileLabels.kashrutAnswer(_kashrut)?.kind;
+                  _showSelectionSheet(l10n.profileFieldKashrut, [
+                    for (final kind in Kashrut.choices)
+                      _Choice(
+                        kind.optionLabel(l10n),
+                        kind.storedValue,
+                        kind == current,
+                      ),
+                  ], (v) => setState(() => _kashrut = v));
+                },
+              ),
+              _EditField(
+                label: l10n.profileShabbat,
+                value: shabbatField(l10n, _shabbatObservance),
+                onTap: () {
+                  final current = ProfileLabels.shabbatAnswer(
+                    _shabbatObservance,
+                  )?.kind;
+                  _showSelectionSheet(l10n.profileShabbat, [
+                    for (final kind in ShabbatObservance.choices)
+                      _Choice(
+                        kind.optionLabel(l10n),
+                        kind.storedValue!,
+                        kind == current,
+                      ),
+                  ], (v) => setState(() => _shabbatObservance = v));
+                },
+              ),
             ],
           ),
         ),
@@ -857,10 +855,10 @@ class _PhotoSlot extends StatelessWidget {
                     ),
                 ],
               )
-            : const Center(
+            : Center(
                 child: Icon(
                   LucideIcons.imagePlus,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 32,
                 ),
               ),
@@ -887,14 +885,11 @@ class _EditField extends StatelessWidget {
       title: Text(
         label,
         style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: 14,
         ),
       ),
-      subtitle: Text(
-        value,
-        style: const TextStyle(fontSize: 16),
-      ),
+      subtitle: Text(value, style: const TextStyle(fontSize: 16)),
       trailing: const DirectionalIcon(LucideIcons.chevronRight),
       onTap: onTap,
     );

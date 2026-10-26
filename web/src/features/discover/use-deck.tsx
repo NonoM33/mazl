@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from "react";
-import { describeError } from "../../shared/api/errors";
+import { classifyLoadFailure, type MissingProfileField } from "../../shared/api/errors";
 import type { ProfileCard, SwipeAction } from "../../shared/api/types";
 import { SIGNED_URL_REFRESH_MS } from "../../shared/hooks/use-resource";
 import { useToast } from "../../shared/ui/toast";
@@ -25,6 +25,8 @@ export interface DeckApi {
   readonly visible: readonly ProfileCard[];
   readonly status: "loading" | "ready" | "error";
   readonly error: string | null;
+  /** Set when the server refuses the feed because the profile is incomplete. */
+  readonly incomplete: readonly MissingProfileField[] | null;
   readonly exhausted: boolean;
   readonly canUndo: boolean;
   readonly act: (card: ProfileCard, action: SwipeAction) => Promise<SwipeOutcome | null>;
@@ -41,6 +43,7 @@ export function useDeck({ load, autoReload, keep }: DeckOptions): DeckApi {
   const [state, dispatch] = useReducer(deckReducer, EMPTY_DECK);
   const [status, setStatus] = useState<DeckApi["status"]>("loading");
   const [error, setError] = useState<string | null>(null);
+  const [incomplete, setIncomplete] = useState<readonly MissingProfileField[] | null>(null);
   const loader = useRef(load);
   const alive = useRef(false);
   const busy = useRef(false);
@@ -60,10 +63,13 @@ export function useDeck({ load, autoReload, keep }: DeckOptions): DeckApi {
       dispatch({ type: "loaded", profiles });
       setStatus("ready");
       setError(null);
+      setIncomplete(null);
     } catch (failure) {
       if (!alive.current || mine !== generation.current) return;
+      const outcome = classifyLoadFailure(failure);
       setStatus("error");
-      setError(describeError(failure));
+      setError(outcome.kind === "error" ? outcome.message : null);
+      setIncomplete(outcome.kind === "profile_incomplete" ? outcome.missing : null);
     } finally {
       if (mine === generation.current) busy.current = false;
     }
@@ -121,5 +127,5 @@ export function useDeck({ load, autoReload, keep }: DeckOptions): DeckApi {
     void run(false);
   }, [run]);
 
-  return { visible, status, error, exhausted: state.exhausted, canUndo: lastPassed !== undefined, act, undo, refresh, onExpired, overlays: swipe.overlays, overlayOpen: swipe.overlayOpen };
+  return { visible, status, error, incomplete, exhausted: state.exhausted, canUndo: lastPassed !== undefined, act, undo, refresh, onExpired, overlays: swipe.overlays, overlayOpen: swipe.overlayOpen };
 }

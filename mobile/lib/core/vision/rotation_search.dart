@@ -42,3 +42,12 @@ class RotationSearch {
     }
   }
 }
+
+/// The quarter turn to try first for a frame [width] x [height] from a sensor
+/// mounted at [sensorDegrees]. A frame that already stands in portrait (the
+/// camera plugin on iOS, capture locked upright) is upright as it is: turning
+/// it lays the face on its side, where a head turned left or right reads as a
+/// nod and the side poses of the selfie never pass (seen on iPhone on
+/// 2026-10-26: 720 x 1280 frames, sensor 90).
+int firstRotation(int width, int height, int sensorDegrees) =>
+    height > width ? 0 : sensorDegrees % 360;

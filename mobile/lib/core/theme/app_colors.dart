@@ -49,6 +49,7 @@ abstract class AppColors {
   static const success = Color(0xFF15803D);
   static const warning = Color(0xFFB45309);
   static const error = Color(0xFFC8281C);
+  static const errorOnDark = Color(0xFFF2685A);
   static const info = tekhelet;
 
   // Neutres — clair

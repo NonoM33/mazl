@@ -37,17 +37,23 @@ Tests: `cd tests/unit && bun test ./storage-*.test.ts`; the one against a real s
 when `S3_TEST_ENDPOINT` is set (with `S3_TEST_BUCKET`, `S3_TEST_ACCESS_KEY_ID`,
 `S3_TEST_SECRET_ACCESS_KEY`).
 
-## Push notifications (OneSignal)
+## Push notifications (APNs through gorush)
+
+Pushes go through gorush (Coolify Perso `neo-gorush-prod`, shared with Neo, reached on the internal Docker network
+`coolify` behind a guard that wants a shared secret), which holds the team's APNs `.p8` key.
 
 | variable | meaning |
 |---|---|
-| `ONESIGNAL_REST_API_KEY` | REST API key. Absent: nothing is sent and no query is made for a push. |
-| `ONESIGNAL_APP_ID` | OneSignal app (default: the production app). |
-| `ONESIGNAL_API_BASE` | Stand-in server for tests only (refused when `NODE_ENV=production`). |
+| `GORUSH_URL` | `http://neo-gorush:8088`. Absent (or no secret): nothing is sent and no query is made for a push. |
+| `GORUSH_SHARED_SECRET` | The secret of the gorush guard (`X-Neo-Push-Secret`), the same as on `neo-gorush-prod`. |
+| `APNS_TOPIC` | The app's bundle id (default `com.mazl.app`). |
+| `BOOST_END_SWEEP_MS` | How often ended Boosts are looked for (default 60000). |
 
-A member is addressed as `user_<id>`, the identifier the app gives `OneSignal.login`. Pushes: a new match (both
-members), a message (only to a recipient with no open WebSocket, grouped by conversation), a couple request and
-its acceptance. The contract (`data` fields, wording rules) is in `docs/launch/V1-CONTRAT.md` section 1; the code is
+The app declares its APNs token with `PUT /api/push/devices` (`DELETE` at sign-out); a token APNs refuses for good
+is forgotten. Pushes: a new match (both members), a message (only to a recipient with no open WebSocket, grouped by
+conversation), a like or a super like (anonymous), the end of a Boost, a couple request and its acceptance, an event
+announced by the administrators (`POST /api/admin/push/event-available`). `POST /api/admin/push/test {user_id}` sends
+a test push and `GET /api/admin/push/status` says whether pushes can leave. The contract (`data` fields, wording rules) is in `docs/launch/V1-CONTRAT.md` section 1; the code is
 in `src/features/push/`. A blocked, banned, restricted or inactive member triggers nothing.
 
 ## Tests
@@ -66,7 +72,7 @@ The integration run is self-contained and leaves nothing behind. It needs Docker
   the `/api/dev/*` routes the suites use), with every secret drawn at random;
 - the fake Stripe of `tests/support/` (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_API_BASE`, the
   `STRIPE_PRICE_*` and `FAKE_STRIPE_URL`), so the billing suites never reach api.stripe.com;
-- no `RESEND_API_KEY` and no `ONESIGNAL_REST_API_KEY`: no e-mail and no push is ever sent.
+- no `RESEND_API_KEY` and no `GORUSH_URL`: no e-mail and no push is ever sent.
 
 Logs are written to `.integ/` (`server.log`, `stripe.log`, `integ.log`, ignored by git). Suites that must start
 from an empty database or may destroy data (`seed-data-gate`, `purge-seed-data`) create a database of their own

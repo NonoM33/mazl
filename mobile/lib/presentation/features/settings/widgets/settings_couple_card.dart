@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/services/couple_service.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 
 /// How long a couple has existed, in calendar days (not 24 h slices):
@@ -178,7 +177,7 @@ class _ActiveCouple extends StatelessWidget {
         const SizedBox(height: 4),
         TextButton(
           onPressed: onLeave,
-          style: TextButton.styleFrom(foregroundColor: AppColors.error),
+          style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
           child: Text(
             l10n.settingsCoupleLeave,
             maxLines: 1,

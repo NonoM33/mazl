@@ -182,7 +182,8 @@ class _EventsListScreenState extends State<EventsListScreen>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _getTypeColor(type == 'all' ? null : type)
-                            : Colors.grey.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
@@ -200,7 +201,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                               size: 16,
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[600],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 6),
                           ],
@@ -209,7 +212,9 @@ class _EventsListScreenState extends State<EventsListScreen>
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.w500,
@@ -312,7 +317,7 @@ class _EventsListScreenState extends State<EventsListScreen>
     if (_events.isEmpty) {
       return FoldMessageView(
         icon: LucideIcons.calendar,
-        iconColor: AppColors.primary,
+        iconColor: Theme.of(context).colorScheme.primary,
         title: context.l10n.eventsEmptyTitle,
         line: context.l10n.eventsEmptyHint,
       );
@@ -652,7 +657,10 @@ class _EventCard extends StatelessWidget {
                       event.description!,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[700], height: 1.4),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -669,7 +677,7 @@ class _EventCard extends StatelessWidget {
                         child: Icon(
                           LucideIcons.calendar,
                           size: 16,
-                          color: typeColor,
+                          color: _readableOnSurface(context, typeColor),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -682,7 +690,9 @@ class _EventCard extends StatelessWidget {
                                 )
                               : _formatDate(l10n, event.date),
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -704,14 +714,18 @@ class _EventCard extends StatelessWidget {
                           child: Icon(
                             LucideIcons.mapPin,
                             size: 16,
-                            color: typeColor,
+                            color: _readableOnSurface(context, typeColor),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             event.location!,
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -720,78 +734,95 @@ class _EventCard extends StatelessWidget {
 
                   const SizedBox(height: 14),
 
-                  // Bottom row: attendees count + capacity bar
-                  Row(
-                    children: [
-                      Icon(
-                        LucideIcons.users,
-                        size: 16,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        event.maxAttendees != null
-                            ? '${event.attendeeCount} / ${event.maxAttendees}'
-                            : l10n.eventsAttendeesCount(event.attendeeCount),
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                      ),
-                      if (isAlmostFull) ...[
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.warning.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.warning.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  LucideIcons.alertCircle,
-                                  size: 12,
-                                  color: AppColors.warning,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    l10n.eventsAlmostFull,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: AppColors.warning,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                  // Bottom row: « Bientôt disponible » for an event not open
+                  // yet, otherwise attendees count + capacity bar
+                  if (event.isComingSoon)
+                    _ComingSoonBadge(label: l10n.eventsComingSoon)
+                  else ...[
+                    Row(
+                      children: [
+                        Icon(
+                          LucideIcons.users,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          event.maxAttendees != null
+                              ? '${event.attendeeCount} / ${event.maxAttendees}'
+                              : l10n.eventsAttendeesCount(event.attendeeCount),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            fontSize: 13,
                           ),
                         ),
+                        if (isAlmostFull) ...[
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.warning.withValues(
+                                  alpha: 0.15,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.warning.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    LucideIcons.alertCircle,
+                                    size: 12,
+                                    color: AppColors.warning,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      l10n.eventsAlmostFull,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: AppColors.warning,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                  // Capacity progress bar
-                  if (event.maxAttendees != null) ...[
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: event.attendeeCount / event.maxAttendees!,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.15),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          isAlmostFull ? AppColors.warning : typeColor,
-                        ),
-                        minHeight: 4,
-                      ),
                     ),
+                    // Capacity progress bar
+                    if (event.maxAttendees != null) ...[
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: event.attendeeCount / event.maxAttendees!,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant
+                              .withValues(alpha: 0.15),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isAlmostFull ? AppColors.warning : typeColor,
+                          ),
+                          minHeight: 4,
+                        ),
+                      ),
+                    ],
                   ],
                 ],
               ),
@@ -802,3 +833,54 @@ class _EventCard extends StatelessWidget {
     );
   }
 }
+
+/// « Bientôt disponible » on the card of an event whose registrations are not
+/// open yet, where the attendees and the capacity bar would be.
+class _ComingSoonBadge extends StatelessWidget {
+  const _ComingSoonBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              LucideIcons.clock,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// La couleur du type d'évènement quand elle sert de texte ou d'icône : le
+/// tekhelet de marque est trop sombre sur le fond sombre, le thème en donne
+/// la variante claire.
+Color _readableOnSurface(BuildContext context, Color color) =>
+    color == AppColors.primary ? Theme.of(context).colorScheme.primary : color;

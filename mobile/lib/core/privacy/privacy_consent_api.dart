@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/session_guard.dart';
+import 'analytics_consent.dart';
 import 'religious_data_consent.dart';
 
 /// Error codes carried by a failed [ApiResponse] of [PrivacyConsentApi].
@@ -28,6 +29,16 @@ abstract class PrivacyConsentApi {
   /// `PUT /api/privacy/consents/religious_data`. Refusing or withdrawing
   /// (`granted: false`) erases the four practice fields on the server.
   Future<ApiResponse<void>> decideReligiousData({
+    required bool granted,
+    required String version,
+  });
+
+  /// `GET /api/privacy/consents`, the `analytics` entry.
+  Future<ApiResponse<AnalyticsConsent>> analytics();
+
+  /// `PUT /api/privacy/consents/analytics`. Withdrawing (`granted: false`)
+  /// stops the measurement on the server at once.
+  Future<ApiResponse<void>> decideAnalytics({
     required bool granted,
     required String version,
   });
@@ -62,30 +73,48 @@ class HttpPrivacyConsentApi implements PrivacyConsentApi {
   }
 
   @override
-  Future<ApiResponse<ReligiousDataConsent>> religiousData() => _guard(() async {
-    final response = await _client
-        .get(_uri(_consentsPath), headers: _headers)
-        .timeout(_timeout);
-    final failure = _failureOf<ReligiousDataConsent>(response);
-    if (failure != null) return failure;
-    final consents = _json(response)['consents'];
-    final entry = consents is Map<String, dynamic>
-        ? consents['religious_data']
-        : null;
-    if (entry is! Map<String, dynamic>) {
-      throw const FormatException('religious_data');
-    }
-    return ApiResponse.success(ReligiousDataConsent.fromJson(entry));
-  });
+  Future<ApiResponse<ReligiousDataConsent>> religiousData() =>
+      _fetch('religious_data', ReligiousDataConsent.fromJson);
+
+  @override
+  Future<ApiResponse<AnalyticsConsent>> analytics() =>
+      _fetch('analytics', AnalyticsConsent.fromJson);
 
   @override
   Future<ApiResponse<void>> decideReligiousData({
     required bool granted,
     required String version,
-  }) => _guard(() async {
+  }) => _decide('religious_data', granted, version);
+
+  @override
+  Future<ApiResponse<void>> decideAnalytics({
+    required bool granted,
+    required String version,
+  }) => _decide('analytics', granted, version);
+
+  Future<ApiResponse<T>> _fetch<T>(
+    String purpose,
+    T Function(Map<String, dynamic>) parse,
+  ) => _guard(() async {
+    final response = await _client
+        .get(_uri(_consentsPath), headers: _headers)
+        .timeout(_timeout);
+    final failure = _failureOf<T>(response);
+    if (failure != null) return failure;
+    final consents = _json(response)['consents'];
+    final entry = consents is Map<String, dynamic> ? consents[purpose] : null;
+    if (entry is! Map<String, dynamic>) throw FormatException(purpose);
+    return ApiResponse.success(parse(entry));
+  });
+
+  Future<ApiResponse<void>> _decide(
+    String purpose,
+    bool granted,
+    String version,
+  ) => _guard(() async {
     final response = await _client
         .put(
-          _uri('$_consentsPath/religious_data'),
+          _uri('$_consentsPath/$purpose'),
           headers: _headers,
           body: jsonEncode({
             'granted': granted,

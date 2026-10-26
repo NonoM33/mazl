@@ -5,12 +5,14 @@
 //   admin@example.com       super-administrateur, code à 6 chiffres accepté : tout sauf 000000
 //   moderation@example.com  modérateur
 //   support@example.com     support (lecture seule)
+//   analyste@example.com    analyste (algorithme en lecture seule : matching.read sans matching.tune)
 //   nouveau@example.com     session directe sans second facteur → écran d'enrôlement
 import { Hono } from "hono";
 import { buildConsole } from "../../src/features/console/console.bundle";
 import { registerConsoleRoutes } from "../../src/features/console/console.routes";
 import { ROLE_LABELS, ROLE_PERMISSIONS, type StaffRole } from "../../src/features/staff/domain/roles";
 import type { MeDto, Priority, ReportStatus } from "../src/shared/api/contracts";
+import { registerMatchingMock } from "./mock-matching";
 import { conversationFor, dashboard, memberFile, members, memberRef, reportDetail, reports, silhouetteSvg, type MockReport } from "./mock-data";
 
 const PORT = Number(process.env["PORT"] ?? 3470);
@@ -19,6 +21,7 @@ const ACCOUNTS: Readonly<Record<string, StaffRole>> = {
   "moderation@example.com": "moderator",
   "support@example.com": "support",
   "nouveau@example.com": "moderator",
+  "analyste@example.com": "analyst",
 };
 
 const sessions = new Map<string, MeDto>();
@@ -142,6 +145,8 @@ api.get("/members/:id", (c) => {
   return member === undefined ? c.json(fail("not_found"), 404) : c.json(ok(memberFile(member)));
 });
 api.post("/members/:id/sanctions", (c) => c.json(ok({ reference: "EXP-2026-0001", appealCode: "H2NV-8PLC-5WJA" })));
+
+registerMatchingMock(api, meOf);
 
 app.route("/api/backoffice", api);
 app.get("/mock/photos/:name", (c) => {

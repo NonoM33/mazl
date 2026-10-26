@@ -1,3 +1,5 @@
+import 'consent_fields.dart';
+
 /// Consent to the processing of religious-practice data (GDPR article 9),
 /// as returned by `GET /api/privacy/consents` (docs/web/adr/W06-rgpd-article9.md).
 class ReligiousDataConsent {
@@ -16,10 +18,10 @@ class ReligiousDataConsent {
     }
     return ReligiousDataConsent(
       granted: granted as bool?,
-      version: _optionalString(json, 'version'),
-      decidedAt: _optionalDate(json, 'decided_at'),
-      currentVersion: _requiredString(json, 'current_version'),
-      text: _requiredString(json, 'text'),
+      version: optionalConsentString(json, 'version'),
+      decidedAt: optionalConsentDate(json, 'decided_at'),
+      currentVersion: requiredConsentString(json, 'current_version'),
+      text: requiredConsentString(json, 'text'),
     );
   }
 
@@ -34,22 +36,4 @@ class ReligiousDataConsent {
 
   /// The server only honours a consent given to the current wording.
   bool get isValid => granted == true && version == currentVersion;
-}
-
-String _requiredString(Map<String, dynamic> json, String key) {
-  final value = json[key];
-  if (value is! String) throw FormatException('missing $key');
-  return value;
-}
-
-String? _optionalString(Map<String, dynamic> json, String key) {
-  final value = json[key];
-  if (value == null) return null;
-  if (value is! String) throw FormatException('invalid $key');
-  return value;
-}
-
-DateTime? _optionalDate(Map<String, dynamic> json, String key) {
-  final raw = _optionalString(json, key);
-  return raw == null ? null : DateTime.parse(raw).toLocal();
 }

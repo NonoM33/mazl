@@ -32,6 +32,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   bool _hasError = false;
   bool _isRsvping = false;
   bool _hasRsvp = false;
+  bool _isAlerting = false;
 
   int get _eventId => int.tryParse(widget.eventId) ?? 0;
 
@@ -75,23 +76,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           _isRsvping = false;
           if (response.success) {
             _hasRsvp = false;
-            _event = Event(
-              id: _event!.id,
-              title: _event!.title,
-              description: _event!.description,
-              eventType: _event!.eventType,
-              location: _event!.location,
-              address: _event!.address,
-              date: _event!.date,
-              time: _event!.time,
-              endTime: _event!.endTime,
-              price: _event!.price,
-              currency: _event!.currency,
-              maxAttendees: _event!.maxAttendees,
+            _event = _event!.copyWith(
               attendeeCount: _event!.attendeeCount - 1,
-              imageUrl: _event!.imageUrl,
-              isPublished: _event!.isPublished,
-              userRsvpStatus: null,
+              userRsvpStatus: () => null,
             );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -110,23 +97,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           _isRsvping = false;
           if (response.success) {
             _hasRsvp = true;
-            _event = Event(
-              id: _event!.id,
-              title: _event!.title,
-              description: _event!.description,
-              eventType: _event!.eventType,
-              location: _event!.location,
-              address: _event!.address,
-              date: _event!.date,
-              time: _event!.time,
-              endTime: _event!.endTime,
-              price: _event!.price,
-              currency: _event!.currency,
-              maxAttendees: _event!.maxAttendees,
+            _event = _event!.copyWith(
               attendeeCount: _event!.attendeeCount + 1,
-              imageUrl: _event!.imageUrl,
-              isPublished: _event!.isPublished,
-              userRsvpStatus: 'going',
+              userRsvpStatus: () => 'going',
             );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -138,6 +111,41 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         });
       }
     }
+  }
+
+  /// « Me prévenir » on a coming soon event, or « Vous serez prévenu » touched
+  /// again to withdraw the alert.
+  Future<void> _toggleAlert() async {
+    final event = _event;
+    if (event == null || _isAlerting) return;
+    final requested = !event.notifyRequested;
+    setState(() => _isAlerting = true);
+    final response = await _apiService.setEventAlert(
+      _eventId,
+      requested: requested,
+    );
+    if (!mounted) return;
+    final l10n = context.l10n;
+    setState(() {
+      _isAlerting = false;
+      if (response.success) {
+        _event = event.copyWith(notifyRequested: requested);
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          !response.success
+              ? l10n.eventsNotifyError
+              : requested
+              ? l10n.eventsNotifyRequestedDone
+              : l10n.eventsNotifyCancelled,
+        ),
+        backgroundColor: response.success
+            ? AppColors.success
+            : AppColors.warning,
+      ),
+    );
   }
 
   Color _getTypeColor(String? type) {
@@ -181,10 +189,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const FoldSpinner(),
-      );
+      return Scaffold(appBar: AppBar(), body: const FoldSpinner());
     }
 
     if (_hasError || _event == null) {
@@ -399,9 +404,45 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     ];
   }
 
+  /// Registrations not open yet: « Bientôt disponible », disabled, and the
+  /// alert the member may ask for.
+  Widget _comingSoonActions(Event event) {
+    final l10n = context.l10n;
+    final requested = event.notifyRequested;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ElevatedButton.icon(
+          onPressed: null,
+          icon: const Icon(LucideIcons.clock, size: 18),
+          label: Text(l10n.eventsComingSoon),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _isAlerting ? null : _toggleAlert,
+          icon: _isAlerting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(
+                  requested ? LucideIcons.bellRing : LucideIcons.bell,
+                  size: 18,
+                ),
+          label: Text(
+            requested ? l10n.eventsNotifyRequested : l10n.eventsNotifyMe,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _rsvpButton(Event event) {
     final l10n = context.l10n;
     final isFull = _isFull(event);
+    if (event.isComingSoon) return _comingSoonActions(event);
     return _hasRsvp
         ? OutlinedButton(
             onPressed: _isRsvping ? null : _handleRsvp,
@@ -602,7 +643,7 @@ class _InfoCard extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -611,7 +652,10 @@ class _InfoCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 Row(
                   children: [
@@ -649,7 +693,10 @@ class _InfoCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       secondaryText!,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
               ],

@@ -30,12 +30,19 @@ class LivenessCaptureScreen extends StatefulWidget {
     required this.detector,
     required this.timeout,
     this.leftYawSign,
+    this.onDiagnostics,
   });
 
   final List<FaceChallenge> challenges;
   final FacePoseDetector detector;
   final Duration timeout;
   final int? leftYawSign;
+
+  /// Called once when the screen closes before the check completed, with
+  /// counts only (no image): how many frames, how many with a face, the
+  /// feedback given, the sizes involved. Sent to the server to find why a
+  /// device cannot pass.
+  final void Function(Map<String, dynamic> diagnostics)? onDiagnostics;
 
   @override
   State<LivenessCaptureScreen> createState() => _LivenessCaptureScreenState();
@@ -50,6 +57,7 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
   bool _analysing = false;
   bool _permanentlyDenied = false;
   bool _closed = false;
+  final _diagnostics = CaptureDiagnostics();
 
   @override
   void initState() {
@@ -66,6 +74,9 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
 
   @override
   void dispose() {
+    if (_liveness.phase != LivenessPhase.completed && _diagnostics.frames > 0) {
+      widget.onDiagnostics?.call(_diagnostics.toJson());
+    }
     _closed = true;
     WidgetsBinding.instance.removeObserver(this);
     _clock?.cancel();
@@ -146,6 +157,7 @@ class _LivenessCaptureScreenState extends State<LivenessCaptureScreen> with Widg
       if (_closed) return;
       final now = DateTime.now();
       final shouldCapture = _liveness.observe(faces, now);
+      _diagnostics.record(image, description, faces, _liveness.feedback);
       setState(() {});
       if (shouldCapture) await _takeStill();
     } catch (e) {
@@ -298,4 +310,50 @@ class _CoverPreview extends StatelessWidget {
       ),
     );
   }
+}
+/// Counts kept during one selfie check, for [LivenessCaptureScreen.onDiagnostics].
+class CaptureDiagnostics {
+  int frames = 0;
+  int framesWithFace = 0;
+  final Map<String, int> feedback = {};
+  int imageWidth = 0;
+  int imageHeight = 0;
+  int sensorOrientation = 0;
+  Map<String, dynamic>? lastFace;
+
+  void record(
+    CameraImage image,
+    CameraDescription camera,
+    List<FacePose> faces,
+    PoseFeedback given,
+  ) {
+    frames++;
+    imageWidth = image.width;
+    imageHeight = image.height;
+    sensorOrientation = camera.sensorOrientation;
+    feedback.update(given.name, (n) => n + 1, ifAbsent: () => 1);
+    if (faces.isEmpty) return;
+    framesWithFace++;
+    final face = faces.first;
+    final frame = face.frameSize;
+    lastFace = {
+      'cx': face.box.center.dx / frame.width,
+      'cy': face.box.center.dy / frame.height,
+      'w': face.box.width / frame.width,
+      'frameWidth': frame.width.round(),
+      'frameHeight': frame.height.round(),
+    };
+  }
+
+  Map<String, dynamic> toJson() => {
+    'platform': Platform.isIOS ? 'ios' : 'android',
+    'frames': frames,
+    'framesWithFace': framesWithFace,
+    'feedback': feedback,
+    'imageWidth': imageWidth,
+    'imageHeight': imageHeight,
+    'sensorOrientation': sensorOrientation,
+    'rotation': null,
+    'lastFace': lastFace,
+  };
 }

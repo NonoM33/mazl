@@ -20,8 +20,8 @@ export class PgExportReader implements ExportReader {
       this.photos(userId), this.prompts(userId), this.swipesGiven(userId), this.matches(userId),
       this.messagesSent(userId), this.blocks(userId), this.reportsMade(userId),
     ]);
-    const [credits, eventRsvps, consents, consentHistory, webSessions, withdrawalWaivers, discoverFilters] = await Promise.all([
-      this.credits(userId), this.eventRsvps(userId), this.consents(userId), this.consentHistory(userId),
+    const [credits, eventRsvps, eventAlerts, consents, consentHistory, webSessions, withdrawalWaivers, discoverFilters] = await Promise.all([
+      this.credits(userId), this.eventRsvps(userId), this.eventAlerts(userId), this.consents(userId), this.consentHistory(userId),
       this.optionalTable(WEB_SESSIONS_TABLE, userId), this.optionalTable(WITHDRAWAL_WAIVERS_TABLE, userId),
       this.optionalTable(DISCOVER_FILTERS_TABLE, userId),
     ]);
@@ -30,12 +30,14 @@ export class PgExportReader implements ExportReader {
       this.optionalTable("face_verification_sessions", userId), this.optionalTable("identity_verifications", userId),
       this.optionalTable("face_references", userId), this.optionalTable("verification_attempts", userId),
     ]);
-    const [moderationActions, application] = await Promise.all([this.moderationActions(userId), this.waitlistOf(account)]);
+    const [moderationActions, application, pushDevices] = await Promise.all([
+      this.moderationActions(userId), this.waitlistOf(account), this.optionalTable("push_devices", userId),
+    ]);
     return {
       account, profile, photos, prompts, swipesGiven, matches, messagesSent, blocks, reportsMade,
-      subscription, credits, couple, eventRsvps, consents, discoverFilters: discoverFilters[0] ?? null, consentHistory, webSessions, withdrawalWaivers,
+      subscription, credits, couple, eventRsvps, eventAlerts, consents, discoverFilters: discoverFilters[0] ?? null, consentHistory, webSessions, withdrawalWaivers,
       bans, sanctions, moderationActions, faceSessions, identity, faceReference, verificationAttempts,
-      waitlist: application.waitlist, documents: application.documents,
+      waitlist: application.waitlist, documents: application.documents, pushDevices,
     };
   }
 
@@ -150,6 +152,12 @@ export class PgExportReader implements ExportReader {
   private eventRsvps(userId: number): Rows {
     return this.sql<JsonRecord[]>`
       SELECT event_id, status, paid, created_at FROM event_rsvps WHERE user_id = ${userId} ORDER BY id
+    `;
+  }
+
+  private eventAlerts(userId: number): Rows {
+    return this.sql<JsonRecord[]>`
+      SELECT event_id, created_at, notified_at FROM event_open_alerts WHERE user_id = ${userId} ORDER BY created_at, event_id
     `;
   }
 

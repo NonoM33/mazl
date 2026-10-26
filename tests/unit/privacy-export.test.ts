@@ -20,6 +20,7 @@ const sections: ExportSections = {
   credits: { balances: [{ kind: "boost", balance: 2 }], purchases: [], spends: [] },
   couple: null,
   eventRsvps: [],
+  eventAlerts: [{ event_id: 4, created_at: "2026-10-26", notified_at: null }],
   consents: [{ purpose: "religious_data", granted: true }],
   discoverFilters: { denominations: ["Massorti"], kashrut_levels: null, shabbat_observances: null, only_verified: true, only_with_photo: false, updated_at: "2026-10-25", internal_note: "interne" },
   consentHistory: [{ purpose: "religious_data", granted: true }],
@@ -33,6 +34,7 @@ const sections: ExportSections = {
   faceReference: [{ model: "sface-2021", created_at: "2026-03-01", embedding_sealed: "sealed-bytes" }],
   verificationAttempts: [{ status: "verified", created_at: "2026-03-01", gesture_id: "g1" }],
   waitlist: { status: "confirmed", created_at: "2025-12-01", verification_status: "verified", verified_at: "2025-12-05", verification_token: "tok", token: "tok2" },
+  pushDevices: [{ id: 3, user_id: 7, token: "a1b2".repeat(16), environment: "production", created_at: "2026-10-26", last_seen_at: "2026-10-26" }],
   documents: [{ type: "selfie_id", status: "approved", created_at: "2025-12-02", reviewed_at: "2025-12-05", purged_at: "2025-12-06", filename: "abc.enc", reviewer_notes: "interne" }],
 };
 
@@ -63,13 +65,16 @@ describe("member data export", () => {
     expect(document.generated_at).toBe("2026-10-24T09:30:00.000Z");
     for (const key of [
       "account", "profile", "photos", "prompts", "preferences", "swipes_given", "matches", "messages_sent", "blocks",
-      "reports_made", "subscription", "credits", "couple", "event_rsvps", "consents", "discover_filters", "web_sessions", "withdrawal_waivers",
+      "reports_made", "subscription", "credits", "couple", "event_rsvps", "event_alerts", "consents", "discover_filters", "web_sessions", "withdrawal_waivers", "push_devices",
       "moderation", "verification", "waitlist_application",
     ]) {
       expect(key in document).toBe(true);
     }
+    expect(document.event_alerts).toEqual([{ event_id: 4, created_at: "2026-10-26", notified_at: null }]);
     expect(document.preferences).toEqual({ age_min: 25, age_max: 40, distance_max: 50, looking_for: "relationship" });
     expect(document.messages_sent).toEqual(sections.messagesSent);
+    // That a phone receives pushes, which and since when; not its APNs token.
+    expect(document.push_devices).toEqual([{ environment: "production", created_at: "2026-10-26", last_seen_at: "2026-10-26" }]);
     expect(document.couple).toBeNull();
   });
 

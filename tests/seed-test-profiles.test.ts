@@ -99,39 +99,39 @@ describe("scripts/seed-test-profiles.ts", () => {
     }
   }, 60_000);
 
-  test("--apply takes over the old members, creates the others, with two photos each", async () => {
+  test("--apply takes over the old members, creates the others, with one photo each", async () => {
     const result = await run(SEED, "--apply");
     expect([result.code, result.code === 0 ? "" : result.out]).toEqual([0, ""]);
 
     const rows = await seedRows();
-    // 20 old members + 3 new women; each old key kept its row.
-    expect(rows).toHaveLength(23);
+    // 20 old members + 3 new women + 2 new men; each old key kept its row.
+    expect(rows).toHaveLength(25);
     for (const [providerId, id] of legacyIds) expect(rows.find((row) => row.provider_id === providerId)?.id).toBe(id);
     const active = rows.filter((row) => row.is_active);
-    expect(active).toHaveLength(16);
-    expect(rows.filter((row) => !row.is_active).every((row) => /^seed-male-(4|5|6|7|8|9|10)$/.test(row.provider_id))).toBe(true);
+    expect(active).toHaveLength(25);
+    expect(rows.filter((row) => !row.is_active)).toHaveLength(0);
 
     const members = await sql<{ id: number; gender: string; looking_for: string; age: number; bio: string; location: string; is_complete: boolean; verified: boolean; picture: string }[]>`
       SELECT u.id, p.gender, p.looking_for, DATE_PART('year', AGE(p.birthdate))::int AS age, p.bio, p.location, p.is_complete,
              (p.photo_verified_at IS NOT NULL AND EXISTS (SELECT 1 FROM profile_photos v WHERE v.user_id = u.id AND v.is_primary AND v.face_match)) AS verified, u.picture
       FROM users u JOIN profiles p ON p.user_id = u.id WHERE u.provider = 'seed' AND u.is_active ORDER BY u.id`;
     expect(members.filter((member) => member.gender === "female")).toHaveLength(13);
-    expect(members.filter((member) => member.gender === "male")).toHaveLength(3);
+    expect(members.filter((member) => member.gender === "male")).toHaveLength(12);
     expect(members.every((member) => member.is_complete && member.age >= 23 && member.age <= 34 && member.bio.length > 80)).toBe(true);
     expect(members.every((member) => member.looking_for === (member.gender === "female" ? "male" : "female"))).toBe(true);
-    expect(members.filter((member) => member.verified)).toHaveLength(8);
+    expect(members.filter((member) => member.verified)).toHaveLength(13);
     expect(new Set(members.map((member) => member.location))).toEqual(new Set(["Paris", "Neuilly-sur-Seine", "Boulogne-Billancourt", "Lyon", "Marseille", "Strasbourg", "Nice"]));
 
     const primaries = new Set<string>();
     for (const member of members) {
       const photos = await sql<{ url: string; position: number; is_primary: boolean }[]>`SELECT url, position, is_primary FROM profile_photos WHERE user_id = ${member.id} ORDER BY position`;
-      expect(photos.map((photo) => [photo.position, photo.is_primary])).toEqual([[0, true], [1, false]]);
+      expect(photos.map((photo) => [photo.position, photo.is_primary])).toEqual([[0, true]]);
       for (const photo of photos) expect(photo.url).toMatch(/^https:\/\/images\.unsplash\.com\/photo-\d+-[0-9a-f]+\?w=800&h=1000&fit=crop&crop=(faces|entropy)&q=80$/);
       expect(photos[0]?.url).toMatch(/crop=faces/);
       primaries.add(photos[0]?.url ?? "");
       expect(member.picture).toMatch(/^https:\/\/images\.unsplash\.com\/photo-\d+-[0-9a-f]+\?w=200&h=200&fit=crop&crop=faces&q=80$/);
     }
-    expect(primaries.size).toBe(16);
+    expect(primaries.size).toBe(25);
     expect(await count(sql`SELECT COUNT(*)::text AS n FROM profile_photos ph JOIN users u ON u.id = ph.user_id WHERE u.is_active AND ph.url NOT LIKE 'https://images.unsplash.com/%'`)).toBe(0);
   }, 60_000);
 
@@ -204,7 +204,7 @@ describe("scripts/seed-test-profiles.ts", () => {
     const rows = await sql<{ age_min: number; age_max: number; distance_max: number | null }[]>`
       SELECT p.age_min, p.age_max, p.distance_max FROM profiles p JOIN users u ON u.id = p.user_id
       WHERE u.provider = 'seed' AND u.is_active = true`;
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(25);
     for (const row of rows) expect([row.age_min, row.age_max, row.distance_max]).toEqual([18, 99, null]);
   });
 
@@ -233,7 +233,7 @@ describe("scripts/seed-test-profiles.ts", () => {
     expect(shown.map((profile) => active.get(profile.user_id)).sort()).toEqual(Array.from({ length: 13 }, (_, index) => `seed-female-${index + 1}`).sort());
     expect(body.profiles.some((profile) => inactive.has(profile.user_id))).toBe(false);
     for (const profile of shown) {
-      expect(profile.photos).toHaveLength(2);
+      expect(profile.photos).toHaveLength(1);
       expect(profile.photos.every((url) => url.startsWith("https://images.unsplash.com/photo-"))).toBe(true);
       expect(profile.picture ?? null).toBe(profile.photos[0] ?? null);
     }

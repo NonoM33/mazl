@@ -27,10 +27,10 @@ class LinkPreviewCard extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final colors = BubbleColors.of(context, mine: mine);
     final fill = mine
-        ? scheme.onPrimary.withValues(alpha: 0.12)
+        ? scheme.onPrimaryContainer.withValues(alpha: 0.12)
         : scheme.surface;
     final domainColor = mine
-        ? scheme.onPrimary.withValues(alpha: 0.7)
+        ? scheme.onPrimaryContainer.withValues(alpha: 0.85)
         : scheme.onSurfaceVariant;
     final uri = Uri.tryParse(preview.url);
     return Padding(

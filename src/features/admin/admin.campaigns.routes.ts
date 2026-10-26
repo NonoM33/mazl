@@ -18,7 +18,8 @@ import {
   type CampaignRecord,
 } from "../../db";
 import { sendCampaignEmail } from "../../email";
-import { sendPushToUsers } from "../../onesignal";
+import type { PushTransport } from "../push/application/ports";
+import { memberPushTransport } from "../push/member-push";
 import { assertAdmin } from "./admin.auth";
 import { parsePagination, parseRecordId } from "./admin.pagination";
 
@@ -106,18 +107,42 @@ async function deliverEmails(campaign: CampaignRecord, recipients: Array<{ id: n
   return { sent, errors, total: recipients.length };
 }
 
-async function deliverPush(campaign: CampaignRecord, recipients: Array<{ id: number }>): Promise<SendOutcome> {
-  const userIds = recipients.map((r) => r.id);
-  if (userIds.length === 0) return { sent: 0, errors: 0, total: 0 };
+const PUSH_CONCURRENCY = 10;
 
-  const pushResult = await sendPushToUsers(userIds, campaign.title, campaign.content, { campaignId: campaign.id });
-  if (!pushResult.success) {
-    console.error(`Campaign ${campaign.id}: push failed:`, pushResult.error);
-    return { sent: 0, errors: userIds.length, total: userIds.length };
+// One push per recipient (gorush addresses devices, not members); only the
+// members reached are marked sent.
+export async function deliverPushCampaign(
+  transport: PushTransport,
+  campaign: Pick<CampaignRecord, "id" | "title" | "content">,
+  recipients: ReadonlyArray<{ id: number }>,
+  markSent: (campaignId: number, userIds: number[]) => Promise<void>,
+): Promise<SendOutcome> {
+  const total = recipients.length;
+  if (total === 0) return { sent: 0, errors: 0, total: 0 };
+  if (!transport.isEnabled()) {
+    console.error(`Campaign ${campaign.id}: push not configured`);
+    return { sent: 0, errors: total, total };
   }
-  await markCampaignRecipientsSent(campaign.id, userIds);
-  return { sent: pushResult.recipients || userIds.length, errors: 0, total: userIds.length };
+  let sent = 0;
+  for (let start = 0; start < total; start += PUSH_CONCURRENCY) {
+    const batch = recipients.slice(start, start + PUSH_CONCURRENCY);
+    const results = await Promise.all(
+      batch.map((recipient) =>
+        transport
+          .send({ recipientId: recipient.id, title: campaign.title, message: campaign.content, data: { type: "announcement", campaign_id: campaign.id } })
+          .catch(() => ({ ok: false as const, reason: "failed" })),
+      ),
+    );
+    const reached = batch.filter((_, index) => results[index]?.ok === true).map((recipient) => recipient.id);
+    if (reached.length > 0) await markSent(campaign.id, reached);
+    sent += reached.length;
+  }
+  if (sent < total) console.error(`Campaign ${campaign.id}: ${total - sent} push(es) not delivered`);
+  return { sent, errors: total - sent, total };
 }
+
+const deliverPush = (campaign: CampaignRecord, recipients: Array<{ id: number }>): Promise<SendOutcome> =>
+  deliverPushCampaign(memberPushTransport, campaign, recipients, markCampaignRecipientsSent);
 
 export function registerAdminCampaignsRoutes(app: Hono<{ Variables: AppVariables }>): void {
   // Get campaigns (admin)

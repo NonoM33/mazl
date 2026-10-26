@@ -28,7 +28,7 @@ export const SECTIONS: readonly SectionDef[] = [
   { id: "contestations", label: "Contestations", permission: "appeals.decide", implemented: false, description: "Décisions contestées par les membres (DSA, art. 20)." },
   { id: "verification", label: "Vérification", permission: "verification.review", implemented: false, description: "Dossiers d'identité et de selfie en attente." },
   { id: "autorites", label: "Autorités", permission: "authorities.manage", implemented: false, description: "Réquisitions et demandes des autorités." },
-  { id: "algorithme", label: "Algorithme", permission: "matching.read", implemented: false, description: "Réglage et simulation du moteur de rencontres." },
+  { id: "algorithme", label: "Algorithme", permission: "matching.read", implemented: true, description: "Réglage et simulation du moteur de rencontres." },
   { id: "audit", label: "Journal d'audit", permission: "audit.read", implemented: false, description: "Historique scellé des actions du staff." },
   { id: "equipe", label: "Équipe", permission: "staff.manage", implemented: false, description: "Membres du staff, rôles et second facteur." },
   { id: "transparence", label: "Transparence", permission: "dashboard.read", implemented: false, description: "Chiffres de l'article 15 du DSA." },

@@ -12,7 +12,11 @@ const OWNER_WOMEN = [
   "1623717217554-72ca676de535", "1525186402429-b4ff38bedec6", "1581714161666-dade083654ae", "1619896382906-4f4681290afc",
   "1562337404-3044c84ac061",
 ];
-const OWNER_MEN = ["1507003211169-0a1dd7228f2d", "1528892952291-009c663ce843", "1600603406200-5b2a104684ac", "1583123810408-23e7b5d1af9f", "1583264277168-58ceba4b84e7"];
+const OWNER_MEN = [
+  "1507003211169-0a1dd7228f2d", "1528892952291-009c663ce843", "1600603406200-5b2a104684ac", "1583123810408-23e7b5d1af9f",
+  "1583264277168-58ceba4b84e7", "1500648767791-00dcc994a43e", "1506794778202-cad84cf45f1d", "1560250097-0b93528c311a",
+  "1539571696357-5a69c17a67c6", "1596075780750-81249df16d19", "1764546373114-2d7a87221733", "1522556189639-b150ed9c4330",
+];
 // The values the mobile app stores (edit_profile_screen.dart).
 const DENOMINATIONS = ["Laique", "Traditionaliste", "Massorti", "Modern Orthodox", "Orthodox", "Habad", "Autre"];
 const KASHRUT = ["Non", "A la maison", "Strict", "Glatt"];
@@ -23,10 +27,10 @@ describe("test members roster", () => {
   const women = TEST_MEMBERS.filter((member) => member.gender === "female");
   const men = TEST_MEMBERS.filter((member) => member.gender === "male");
 
-  test("13 women and 3 men, half of them with a verified photo, one key and one address each", () => {
-    expect([women.length, men.length]).toEqual([13, 3]);
-    expect(TEST_MEMBERS.filter((member) => member.photoVerified)).toHaveLength(8);
-    expect(new Set(TEST_MEMBERS.map((member) => member.providerId)).size).toBe(16);
+  test("13 women and 12 men, half of them with a verified photo, one key and one address each", () => {
+    expect([women.length, men.length]).toEqual([13, 12]);
+    expect(TEST_MEMBERS.filter((member) => member.photoVerified)).toHaveLength(13);
+    expect(new Set(TEST_MEMBERS.map((member) => member.providerId)).size).toBe(25);
     for (const member of TEST_MEMBERS) {
       expect(member.providerId).toMatch(/^seed-(female|male)-\d+$/);
       expect(member.email).toBe(`fake.${member.gender}.${member.providerId.split("-")[2]}@mazl.seed`);
@@ -62,9 +66,9 @@ describe("test members roster", () => {
 
   test("photos: only the owner's pictures, a different main picture for everybody, in the exposed format", () => {
     expect(women.map((member) => member.photoId)).toEqual(OWNER_WOMEN);
-    expect(men.map((member) => member.photoId)).toEqual(OWNER_MEN.slice(0, 3));
+    expect(men.map((member) => member.photoId)).toEqual(OWNER_MEN);
     expect([...MEN_PHOTOS] as string[]).toEqual(OWNER_MEN);
-    expect(new Set(TEST_MEMBERS.map((member) => member.photoId)).size).toBe(16);
+    expect(new Set(TEST_MEMBERS.map((member) => member.photoId)).size).toBe(25);
     for (const member of TEST_MEMBERS) {
       expect(stockPhoto(member.photoId, "portrait")).toBe(`https://images.unsplash.com/photo-${member.photoId}?w=800&h=1000&fit=crop&crop=faces&q=80`);
       expect(stockPhoto(member.photoId, "thumbnail")).toBe(`https://images.unsplash.com/photo-${member.photoId}?w=200&h=200&fit=crop&crop=faces&q=80`);

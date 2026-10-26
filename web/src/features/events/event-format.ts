@@ -30,6 +30,14 @@ export const attendeesLabel = (event: EventRow): string => (attendees(event) < 2
 
 export const isFull = (event: EventRow): boolean => spotsLeft(event) === 0;
 
+// Announced, but registrations are not open yet.
+export const isComingSoon = (event: EventRow): boolean => event.availability === "coming_soon";
+
+export const COMING_SOON = "Bientôt disponible";
+
+// What the card says about the seats: « Bientôt disponible » before the opening.
+export const cardStatusLabel = (event: EventRow): string | null => (isComingSoon(event) ? COMING_SOON : spotsLabel(event));
+
 export function spotsLabel(event: EventRow): string | null {
   const left = spotsLeft(event);
   if (left === null) return null;
@@ -72,5 +80,6 @@ export function rsvpErrorMessage(code: string): string {
   if (code === "Event is full") return "Complet";
   if (code === "Event is over") return "Événement passé";
   if (code === "Event not found") return "Événement introuvable";
+  if (code === "Registrations for this event are not open yet") return COMING_SOON;
   return "L'inscription n'a pas abouti. Réessayez.";
 }

@@ -13,13 +13,15 @@ class _FakeGateway implements PushGateway {
   Completer<void>? permissionDialog;
 
   @override
-  void start({required void Function(Map<String, dynamic> data) onClick}) {
+  Future<void> start({
+    required void Function(Map<String, dynamic> data) onClick,
+  }) async {
     log.add('start');
     this.onClick = onClick;
   }
 
   @override
-  Future<void> login(String externalId) async => log.add('login $externalId');
+  Future<void> login(int userId) async => log.add('login $userId');
 
   @override
   Future<void> logout() async => log.add('logout');
@@ -29,12 +31,6 @@ class _FakeGateway implements PushGateway {
     log.add('askPermission');
     await permissionDialog?.future;
   }
-
-  @override
-  Future<void> addTags(Map<String, String> tags) async => log.add('tags');
-
-  @override
-  Future<void> removeTags(List<String> keys) async => log.add('untags');
 }
 
 void main() {
@@ -62,7 +58,7 @@ void main() {
       await service.initialize();
       await service.loginUser(5);
 
-      expect(gateway.log, ['start', 'login user_5', 'askPermission']);
+      expect(gateway.log, ['start', 'login 5', 'askPermission']);
     });
 
     test('une seule fois par session, même à chaque connexion', () async {
@@ -94,7 +90,7 @@ void main() {
       await failingService.loginUser(5);
       await Future<void>.delayed(Duration.zero);
 
-      expect(failing.log, ['login user_5', 'askPermission']);
+      expect(failing.log, ['login 5', 'askPermission']);
     });
   });
 
@@ -117,12 +113,17 @@ void main() {
     });
   });
 
-  test('la déconnexion et les étiquettes passent par la passerelle', () async {
-    await service.logoutUser();
-    await service.setUserTags({'a': 'b'});
-    await service.removeUserTags(['a']);
+  test('le singleton se construit sans boucler sur AuthService', () {
+    // PushNotificationService -> serveur -> ApiService -> AuthService ->
+    // PushNotificationService : un cycle à la construction faisait déborder la
+    // pile (« Stack Overflow ») dans toute la suite.
+    expect(() => PushNotificationService(), returnsNormally);
+  });
 
-    expect(gateway.log, ['logout', 'tags', 'untags']);
+  test('la déconnexion passe par la passerelle', () async {
+    await service.logoutUser();
+
+    expect(gateway.log, ['logout']);
   });
 }
 

@@ -67,7 +67,7 @@ class _ProfileViewContentState extends State<ProfileViewContent> {
     final data = widget.data;
     final facts = data.facts(l10n);
     final bio = data.bio;
-    final lookingFor = data.lookingFor;
+    final lookingFor = lookingForLabel(l10n, data.lookingFor);
     final identity = _identityBlock(l10n);
     // Each block keeps its number whichever page it is on.
     final leading = [
@@ -78,7 +78,7 @@ class _ProfileViewContentState extends State<ProfileViewContent> {
       if (bio != null && bio.isNotEmpty)
         ProfileTextSection(label: l10n.profileAbout, text: bio),
       if (facts.isNotEmpty) ProfileFactsSection(facts: facts),
-      if (lookingFor != null && lookingFor.isNotEmpty)
+      if (lookingFor != null)
         ProfileTextSection(label: l10n.profileLookingFor, text: lookingFor),
       if (widget.prompts.isNotEmpty)
         ProfilePromptCards(prompts: widget.prompts),
@@ -199,4 +199,17 @@ class _ProfileViewContentState extends State<ProfileViewContent> {
       ),
     );
   }
+}
+
+/// Who a member looks for, as a sentence: the server's codes `male` / `female`
+/// read as words, a sentence the member wrote stays as written, and any other
+/// code (`all`, `serious`…) is not shown.
+String? lookingForLabel(AppLocalizations l10n, String? value) {
+  final text = value?.trim() ?? '';
+  return switch (text.toLowerCase()) {
+    'male' => l10n.profileAMan,
+    'female' => l10n.profileAWoman,
+    _ when text.isEmpty || RegExp(r'^[a-z_]+$').hasMatch(text) => null,
+    _ => text,
+  };
 }

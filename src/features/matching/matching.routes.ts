@@ -17,7 +17,7 @@ import type { CreditsGateway } from "../credits/application/ports";
 import type { Feed } from "./application/discover";
 import type { DiscoverFiltersService } from "./application/discover-filters-service";
 import { createDiscoverFiltersService } from "./matching.module";
-import { registerSwipeRoute } from "./swipe.routes";
+import { registerSwipeRoute, type LikeListener } from "./swipe.routes";
 import { registerDiscoverRoutes } from "./presentation/discover.routes";
 import { registerDiscoverFiltersRoutes } from "./presentation/discover-filters.routes";
 
@@ -39,6 +39,8 @@ export interface MatchingRouteDeps {
   // The advanced filters (GET/PUT /api/discover/filters); built on the shared
   // database when absent.
   readonly filters?: Pick<DiscoverFiltersService, "read" | "update">;
+  // Told of the likes that formed no match (the push to the member liked).
+  readonly likes?: LikeListener;
 }
 
 const legacyFeed: Pick<Feed, "discover" | "dailyPicks"> = {
@@ -78,6 +80,7 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
     authenticate: requireAuth,
     credits: deps.credits,
     swipes: { currentAction: getSwipeAction, canSwipeOn, record: recordSwipe, onMatch: emitNewMatch },
+    ...(deps.likes === undefined ? {} : { likes: deps.likes }),
   });
 
   // Get user's matches

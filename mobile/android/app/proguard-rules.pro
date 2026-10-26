@@ -22,10 +22,6 @@
 }
 -keep class com.dexterous.flutterlocalnotifications.** { *; }
 
-# --- OneSignal (notifications push) ----------------------------------------
--keep class com.onesignal.** { *; }
--dontwarn com.onesignal.**
-
 # --- Lecture NFC des passeports (flutter_nfc_kit, via dmrtd) ----------------
 # Le plugin s'appuie sur les classes android.nfc.tech.* et leurs noms.
 -keep class im.nfc.flutter_nfc_kit.** { *; }

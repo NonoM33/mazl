@@ -52,6 +52,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   double? _longitude;
   int _distanceMax = 50;
   int _ageMin = 18;
+  String? _lookingFor; // 'male' | 'female', as the server stores it
   int _ageMax = 99;
 
   /// « 1.0.0 (12) » : the version and the build of the installed app.
@@ -96,6 +97,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _distanceMax = profile?.distanceMax ?? 50;
         _ageMin = profile?.ageMin ?? 18;
         _ageMax = profile?.ageMax ?? 99;
+        _lookingFor = profile?.lookingFor;
       });
     }
   }
@@ -108,6 +110,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'distanceMax': _distanceMax,
       'ageMin': _ageMin,
       'ageMax': _ageMax,
+      if (_lookingFor != null) 'lookingFor': _lookingFor,
     };
 
     // Include coordinates if available
@@ -150,7 +153,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: Text(context.l10n.settingsLocation, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                child: Text(
+                  context.l10n.settingsLocation,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               // Current location display
               if (_location != null && selectedCity == null)
@@ -160,11 +169,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
+                      Icon(
+                        LucideIcons.mapPin,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -172,7 +187,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
-                      Icon(LucideIcons.check, size: 20, color: AppColors.primary),
+                      Icon(
+                        LucideIcons.check,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ],
                   ),
                 ),
@@ -184,11 +203,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(LucideIcons.mapPin, size: 20, color: AppColors.success),
+                      Icon(
+                        LucideIcons.mapPin,
+                        size: 20,
+                        color: AppColors.success,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -201,7 +226,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           selectedCity = null;
                           controller.clear();
                         }),
-                        child: Icon(LucideIcons.x, size: 20, color: Colors.grey),
+                        child: Icon(
+                          LucideIcons.x,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -216,7 +245,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   decoration: InputDecoration(
                     hintText: context.l10n.settingsCitySearchHint,
                     filled: true,
-                    fillColor: Colors.grey.withValues(alpha: 0.1),
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -255,7 +286,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   context.l10n.settingsCitySearchHelp,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
               ),
               // Suggestions list
@@ -263,12 +297,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     itemCount: suggestions.length,
                     itemBuilder: (context, index) {
                       final suggestion = suggestions[index];
                       return ListTile(
-                        leading: Icon(LucideIcons.mapPin, color: AppColors.primary),
+                        leading: Icon(
+                          LucideIcons.mapPin,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         title: Text(suggestion.displayName),
                         contentPadding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(
@@ -288,7 +328,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const SizedBox(height: 16),
               // Save button
               _buildSheetButton(
-                selectedCity != null ? context.l10n.commonSave : context.l10n.commonClose,
+                selectedCity != null
+                    ? context.l10n.commonSave
+                    : context.l10n.commonClose,
                 () {
                   if (selectedCity != null) {
                     setState(() {
@@ -322,7 +364,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(20),
-              child: Text(context.l10n.settingsMaxDistance, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                context.l10n.settingsMaxDistance,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -337,7 +385,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         style: TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -369,6 +417,53 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  String _lookingForLabel(AppLocalizations l10n) => switch (_lookingFor) {
+    'male' => l10n.profileAMan,
+    'female' => l10n.profileAWoman,
+    _ => '—',
+  };
+
+  /// Who Discover proposes: chosen at sign-up, changed here.
+  void _showLookingForSheet() {
+    showMazlSheet(
+      context,
+      padded: false,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              sheetContext.l10n.profileILookFor,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          for (final (value, label) in [
+            ('female', sheetContext.l10n.profileAWoman),
+            ('male', sheetContext.l10n.profileAMan),
+          ])
+            ListTile(
+              key: ValueKey('looking-for-$value'),
+              minVerticalPadding: 14,
+              title: Text(label),
+              trailing: _lookingFor == value
+                  ? Icon(
+                      LucideIcons.check,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : null,
+              onTap: () {
+                setState(() => _lookingFor = value);
+                Navigator.pop(sheetContext);
+                _saveSettings();
+              },
+            ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
   void _showAgeRangeSheet() {
     RangeValues tempRange = RangeValues(_ageMin.toDouble(), _ageMax.toDouble());
     showMazlSheet(
@@ -380,7 +475,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(20),
-              child: Text(context.l10n.settingsAgeRange, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                context.l10n.settingsAgeRange,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -391,11 +492,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        context.l10n.settingsAgeRangeValue(tempRange.start.round(), tempRange.end.round()),
+                        context.l10n.settingsAgeRangeValue(
+                          tempRange.start.round(),
+                          tempRange.end.round(),
+                        ),
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -434,9 +538,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showMazlSheet(
       context,
       padded: false,
-      builder: (sheetContext) => LanguagePickerSheet(
-        onChosen: () => Navigator.of(sheetContext).pop(),
-      ),
+      builder: (sheetContext) =>
+          LanguagePickerSheet(onChosen: () => Navigator.of(sheetContext).pop()),
     );
   }
 
@@ -451,9 +554,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
-          child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );
@@ -461,7 +569,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _handleOpenSubscription() async {
     final isPremium = SubscriptionService().isMazlPro;
-    await context.push<bool>(isPremium ? RoutePaths.subscription : RoutePaths.premium);
+    await context.push<bool>(
+      isPremium ? RoutePaths.subscription : RoutePaths.premium,
+    );
     if (mounted) setState(() {});
   }
 
@@ -476,9 +586,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // The store's own wording is a diagnostic, not for the screen.
           RestoreFailed() => context.l10n.settingsRestoreError,
         };
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
         setState(() {});
       }
     } finally {
@@ -548,11 +658,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(LucideIcons.userX, color: AppColors.error, size: 48),
+              Icon(LucideIcons.userX, color: Theme.of(context).colorScheme.error, size: 48),
               const SizedBox(height: 16),
               Text(
                 context.l10n.settingsDeleteAccount,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Padding(
@@ -560,7 +673,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(
                   context.l10n.settingsDeleteReasonPrompt,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -575,14 +690,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: InkWell(
-                        onTap: () => setSheetState(() => selectedReason = reason),
+                        onTap: () =>
+                            setSheetState(() => selectedReason = reason),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.error.withValues(alpha: 0.1)
-                                : Colors.grey.withValues(alpha: 0.1),
+                                : Theme.of(context).colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
@@ -598,8 +715,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     ? LucideIcons.checkCircle
                                     : LucideIcons.circle,
                                 color: isSelected
-                                    ? AppColors.error
-                                    : Colors.grey,
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 12),
                               Expanded(child: Text(reason.label(context.l10n))),
@@ -669,9 +788,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: AppColors.error.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.alertTriangle,
-              color: AppColors.error,
+              color: Theme.of(context).colorScheme.error,
               size: 40,
             ),
           ),
@@ -688,8 +807,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   context.l10n.settingsDeleteIrreversible,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.error,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -697,7 +816,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   context.l10n.settingsDeleteDataList,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -785,24 +907,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: (isDestructive ? AppColors.error : AppColors.primary).withValues(alpha: 0.1),
+              color: (isDestructive ? AppColors.error : AppColors.primary)
+                  .withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               isDestructive ? LucideIcons.alertTriangle : LucideIcons.logOut,
-              color: isDestructive ? AppColors.error : AppColors.primary,
+              color: isDestructive ? Theme.of(context).colorScheme.error : AppColors.primary,
               size: 32,
             ),
           ),
           const SizedBox(height: 16),
-          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -815,7 +943,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onPressed: () => Navigator.pop(context, false),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                     child: Text(context.l10n.commonCancel),
                   ),
@@ -825,10 +955,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDestructive ? AppColors.error : AppColors.primary,
+                      backgroundColor: isDestructive
+                          ? Theme.of(context).colorScheme.error
+                          : AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                     child: Text(confirmText),
                   ),
@@ -861,7 +995,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            result.failure?.label(l10n) ?? l10n.settingsCoupleCancelRequestError,
+            result.failure?.label(l10n) ??
+                l10n.settingsCoupleCancelRequestError,
           ),
         ),
       );
@@ -900,7 +1035,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.settingsRestoreError), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text(context.l10n.settingsRestoreError),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -930,7 +1068,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -958,9 +1099,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('User ID: $userId', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'User ID: $userId',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}'),
+                  Text(
+                    'Mode couple actif: ${activeCouple != null ? "OUI" : "NON"}',
+                  ),
                   if (activeCouple != null) ...[
                     const SizedBox(height: 8),
                     Text('Partner: ${activeCouple['partner_name']}'),
@@ -968,11 +1114,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Text('Status: ${activeCouple['status']}'),
                   ],
                   const SizedBox(height: 16),
-                  Text('Historique (${allCouples.length} couples):', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ...allCouples.map((c) => Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text('- ID ${c['id']}: ${c['status']} (partner: ${c['partner_name']})'),
-                  )),
+                  Text(
+                    'Historique (${allCouples.length} couples):',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  ...allCouples.map(
+                    (c) => Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        '- ID ${c['id']}: ${c['status']} (partner: ${c['partner_name']})',
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -989,7 +1142,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -1013,8 +1169,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final currentUser = ref.watch(currentUserProvider);
     final inCouple = _coupleService.isCoupleModeEnabled;
 
-    final userEmail = _userProfile?.email ?? currentUser?.email ?? l10n.settingsNotSignedIn;
-    final userName = _userProfile?.name ?? currentUser?.displayName ?? l10n.settingsDefaultUserName;
+    final userEmail =
+        _userProfile?.email ?? currentUser?.email ?? l10n.settingsNotSignedIn;
+    final userName =
+        _userProfile?.name ??
+        currentUser?.displayName ??
+        l10n.settingsDefaultUserName;
     final userPicture = _userProfile?.picture ?? currentUser?.photoUrl;
 
     return Scaffold(
@@ -1037,7 +1197,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // page where the reading starts, the rest on the other.
           FoldSpread(
             // Each page ends above the home indicator.
-            padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.paddingOf(context).bottom,
+            ),
             start: [
               // User header
               Container(
@@ -1047,9 +1209,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                      backgroundImage: userPicture != null ? CachedNetworkImageProvider(userPicture) : null,
+                      backgroundImage: userPicture != null
+                          ? CachedNetworkImageProvider(userPicture)
+                          : null,
                       child: userPicture == null
-                          ? Icon(LucideIcons.user, size: 40, color: AppColors.primary)
+                          ? Icon(
+                              LucideIcons.user,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
                           : null,
                     ),
                     const SizedBox(width: 16),
@@ -1057,9 +1225,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text(userEmail, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                          Text(
+                            userEmail,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -1083,7 +1265,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SettingTile(
                 icon: LucideIcons.languages,
                 title: l10n.settingsLanguage,
-                subtitle: ref.watch(appLanguageProvider)?.autonym ??
+                subtitle:
+                    ref.watch(appLanguageProvider)?.autonym ??
                     l10n.settingsLanguageSystem,
                 onTap: _showLanguageSheet,
               ),
@@ -1096,6 +1279,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: l10n.settingsLocation,
                   subtitle: _location ?? l10n.settingsLocationNotSet,
                   onTap: _showLocationSheet,
+                ),
+                _SettingTile(
+                  icon: LucideIcons.heart,
+                  title: l10n.profileILookFor,
+                  subtitle: _lookingForLabel(l10n),
+                  onTap: _showLookingForSheet,
                 ),
                 _SettingTile(
                   icon: LucideIcons.radar,
@@ -1120,7 +1309,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 subtitle: l10n.settingsShabbatAutoPause,
                 onTap: () => context.push(RoutePaths.shabbatMode),
               ),
-
             ],
             end: [
               // Couple Mode Section
@@ -1175,6 +1363,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => context.push(RoutePaths.religiousData),
                 ),
               ),
+              Consumer(
+                builder: (context, ref, _) => _SettingTile(
+                  icon: LucideIcons.activity,
+                  title: context.l10n.analyticsSettingsTitle,
+                  subtitle: switch (ref
+                      .watch(analyticsConsentProvider)
+                      .valueOrNull
+                      ?.data
+                      ?.isValid) {
+                    true => context.l10n.analyticsSettingsGrantedShort,
+                    false => context.l10n.analyticsSettingsDeniedShort,
+                    null => null,
+                  },
+                  onTap: () => context.push(RoutePaths.analyticsSettings),
+                ),
+              ),
               _SettingTile(
                 icon: LucideIcons.monitor,
                 title: context.l10n.webSessionsTitle,
@@ -1221,12 +1425,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               if (kDebugMode) ...[
                 _SectionHeader(title: 'Debug (Dev Only)'),
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: Colors.orange.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1235,7 +1444,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           Icon(LucideIcons.bug, color: Colors.orange, size: 20),
                           const SizedBox(width: 8),
-                          const Text('Menu Debug', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                          const Text(
+                            'Menu Debug',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -1277,8 +1492,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: OutlinedButton(
                   onPressed: _handleLogout,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
-                    side: const BorderSide(color: AppColors.error),
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                    side: BorderSide(color: Theme.of(context).colorScheme.error),
                   ),
                   child: Text(l10n.settingsLogOut),
                 ),
@@ -1288,7 +1503,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextButton(
                   onPressed: _handleDeleteAccount,
-                  child: Text(l10n.settingsDeleteAccount, style: const TextStyle(color: Colors.grey)),
+                  child: Text(
+                    l10n.settingsDeleteAccount,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -1318,7 +1538,7 @@ class _SectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           letterSpacing: 1,
         ),
       ),
@@ -1341,6 +1561,7 @@ class _SettingTile extends StatelessWidget {
   final String? subtitle;
   final Color? iconColor;
   final bool showChevron;
+
   /// Null for a row that only informs: it is then not tappable.
   final VoidCallback? onTap;
 
@@ -1350,7 +1571,9 @@ class _SettingTile extends StatelessWidget {
       leading: Icon(icon, color: iconColor ?? AppColors.primary),
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: showChevron ? const DirectionalIcon(LucideIcons.chevronRight) : null,
+      trailing: showChevron
+          ? const DirectionalIcon(LucideIcons.chevronRight)
+          : null,
       onTap: onTap,
     );
   }

@@ -146,7 +146,7 @@ class AuthService extends ChangeNotifier {
   AuthService._internal() : _pushService = PushNotificationService();
 
   /// An instance with its own push service, for tests that must observe the
-  /// sign-out without OneSignal.
+  /// sign-out without the push server.
   @visibleForTesting
   AuthService.forTesting({required PushNotificationService push})
     : _pushService = push;
@@ -196,7 +196,7 @@ class AuthService extends ChangeNotifier {
         _currentUser = AuthUser.fromJson(jsonDecode(userJson));
         debugPrint('AuthService: Restored user session - ${_currentUser?.email}');
 
-        // Relit l'abonnement et connecte OneSignal avec l'utilisateur restauré
+        // Relit l'abonnement et déclare l’appareil au serveur de push pour l’utilisateur restauré
         if (_currentUser != null) {
           unawaited(_store.onSignedIn(_currentUser!.jwtToken));
           await _pushService.loginUser(int.parse(_currentUser!.id));
@@ -293,7 +293,7 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et déclare l’appareil au serveur de push
       await _saveUser(user);
       unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
@@ -401,7 +401,7 @@ class AuthService extends ChangeNotifier {
         jwtToken: data['token'],
       );
 
-      // Save user, relit l'abonnement (sans bloquer la connexion) et connecte OneSignal
+      // Save user, relit l'abonnement (sans bloquer la connexion) et déclare l’appareil au serveur de push
       await _saveUser(user);
       unawaited(_store.onSignedIn(user.jwtToken));
       await _pushService.loginUser(int.parse(user.id));
@@ -435,7 +435,7 @@ class AuthService extends ChangeNotifier {
         await _googleSignIn.signOut();
       }
 
-      // Efface l'abonnement et le solde en mémoire et déconnecte OneSignal
+      // Efface l'abonnement et le solde en mémoire et retire l’appareil du serveur de push
       _store.onSignedOut();
       await _pushService.logoutUser();
 

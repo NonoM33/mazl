@@ -37,6 +37,20 @@ export function parisDay(date: Date): string {
   return parisDayFormat.format(date);
 }
 
+// Why a feed came back empty, in counts only (no profile data): how many
+// candidates the database offered, and how many the engine set aside, by reason.
+export function emptyFeedReport(
+  userId: number,
+  page: FeedPage,
+  candidates: number,
+  exclusions: readonly { readonly reason: string }[],
+): string {
+  const byReason = new Map<string, number>();
+  for (const exclusion of exclusions) byReason.set(exclusion.reason, (byReason.get(exclusion.reason) ?? 0) + 1);
+  const reasons = [...byReason.entries()].map(([reason, n]) => `${reason}=${n}`).join(" ");
+  return `Empty Discover for user ${userId} (offset ${page.offset}): ${candidates} candidate(s) from the database${reasons === "" ? "" : `, set aside: ${reasons}`}`;
+}
+
 function versionFor(userId: number, state: MatchingState): ParamsVersion {
   const ab = state.abTest;
   return ab !== null && inAbTestShare(userId, ab.sharePercent) ? ab.variant : state.active;
@@ -55,6 +69,12 @@ export function createFeed(deps: FeedDeps): Feed {
     const ctx = { now: now.toISOString(), excluded: set.excluded, filters: set.filters };
     const result = rankCandidates(set.viewer, set.candidates, ctx, version.params, seed, RANKING_WINDOW);
     const userIds = result.ranked.slice(page.offset, page.offset + page.limit).map((c) => c.userId);
+    if (userIds.length === 0) {
+      const f = set.filters;
+      const viewer = `viewer gender=${set.viewer.gender ?? "?"} looking_for=${set.viewer.lookingFor ?? "?"} age=${set.viewer.age ?? "?"} range=${set.viewer.ageMin}-${set.viewer.ageMax}`;
+      const filters = `filters denominations=${f?.denominations?.length ?? "-"} kashrut=${f?.kashrutLevels?.length ?? "-"} shabbat=${f?.shabbatObservances?.length ?? "-"} verified=${f?.onlyVerified ?? false} photo=${f?.onlyWithPhoto ?? false}`;
+      console.log(`${emptyFeedReport(userId, page, set.candidates.length, result.exclusions)} | ${viewer} | ${filters} | excluded ids=${set.excluded.size}`);
+    }
     return { userIds, versionId: version.id };
   }
 

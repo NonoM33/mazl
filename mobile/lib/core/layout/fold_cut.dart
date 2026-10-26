@@ -14,7 +14,7 @@ enum FoldSplitAxis {
 
 /// Narrowest box that reads as two pages without a fold: the inner display
 /// of the foldable iPhone opened flat and turned sideways, an iPad.
-const double kSpreadMinWidth = 840;
+const double kSpreadMinWidth = 720;
 
 /// The gutter between the two pages of a spread without a fold.
 const double kSpreadGutter = 40;

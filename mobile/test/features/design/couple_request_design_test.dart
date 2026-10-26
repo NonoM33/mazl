@@ -125,6 +125,8 @@ void main() {
 
   group('choix « Avec qui ? »', () {
     Future<void> pumpSetup(WidgetTester tester, Brightness brightness) async {
+      // A phone: wide windows show the choice as two pages.
+      _setSize(tester, _sizes.first);
       await tester.pumpWidget(
         _host(
           CoupleModeSetupScreen(service: service, loadMatches: _threeMatches),

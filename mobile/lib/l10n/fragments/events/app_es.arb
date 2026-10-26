@@ -37,5 +37,11 @@
   "eventsRsvpJoinFree": "Inscribirme gratis",
   "eventsRsvpCancelled": "Inscripción cancelada",
   "eventsRsvpDone": "Inscripción confirmada",
-  "eventsShareMessage": "Únete a mí en \"{title}\" en MAZL"
+  "eventsShareMessage": "Únete a mí en \"{title}\" en MAZL",
+  "eventsComingSoon": "Próximamente",
+  "eventsNotifyMe": "Avisarme",
+  "eventsNotifyRequested": "Te avisaremos",
+  "eventsNotifyRequestedDone": "Te avisaremos cuando se abran las inscripciones.",
+  "eventsNotifyCancelled": "Aviso cancelado",
+  "eventsNotifyError": "No se pudo guardar tu solicitud. Inténtalo de nuevo."
 }

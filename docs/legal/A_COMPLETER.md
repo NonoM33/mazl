@@ -58,6 +58,6 @@ Chaque mention `[À COMPLÉTER : …]` des trois documents (`cgu.md`, `cgv.md`, 
 | Régime de la prospection (consentement ou intérêt légitime) pour les e-mails de campagne | Conf. 3 |
 | Confirmer l'absence d'outil de mesure d'audience (site et app) et de tout traceur | Conf. 3, 12 |
 | Durées de purge à fixer : historique de mises à jour de position (`location_updates`), sessions de vérification faciale (`face_verification_sessions`), journal de modération (`moderation_logs`), journaux techniques (IP), rotation des sauvegardes, pièces comptables | Conf. 4 |
-| Mécanisme de transfert hors UE pour Resend, OneSignal, Google, Apple, Stripe (CCT, DPF) et accords de sous-traitance (art. 28) | Conf. 6, 7 |
+| Mécanisme de transfert hors UE pour Resend, Google, Apple, Stripe (CCT, DPF) et accords de sous-traitance (art. 28) | Conf. 6, 7 |
 | Date de l'analyse d'impact (AIPD) et éventuelle consultation de la CNIL | Conf. 13 |
 | Déclaration « confidentialité des données » de l'App Store, cohérente avec la politique | Conf. 12 |

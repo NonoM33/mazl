@@ -27,7 +27,7 @@ class QuoteBlock extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final colors = BubbleColors.of(context, mine: mine);
     final rule = mine
-        ? scheme.onPrimary.withValues(alpha: 0.6)
+        ? scheme.onPrimaryContainer.withValues(alpha: 0.6)
         : scheme.primary;
     return GestureDetector(
       onTap: onTap,
