@@ -3611,21 +3611,69 @@
     "description": "Texte de l'écran de consentement quand l'état de l'accord n'a pas pu être chargé. Un bouton « Réessayer » suit."
   },
   "analyticsSheetLabel": "Mesure d'audience",
+  "@analyticsSheetLabel": {
+    "description": "Étiquette au-dessus du titre de la feuille qui demande l'accord pour la mesure d'audience (comprendre : mesure de l'usage de l'app)."
+  },
   "analyticsSheetTitle": "Aider à améliorer MAZL",
+  "@analyticsSheetTitle": {
+    "description": "Titre de la feuille posée une fois après la connexion pour demander l'accord de mesurer l'usage de l'app."
+  },
   "analyticsSheetBody": "MAZL compte les écrans visités et les grandes étapes (inscription, achat) pour s'améliorer. Jamais le contenu de vos messages, vos photos ni votre pratique religieuse. Votre identifiant est pseudonymisé et rien n'est partagé avec des tiers. Vous pouvez refuser : MAZL fonctionne pareil.",
+  "@analyticsSheetBody": {
+    "description": "Explication de la mesure d'usage : ce qui est compté, ce qui ne l'est jamais, le refus possible sans conséquence. Texte sobre, ton rassurant."
+  },
   "analyticsSheetAccept": "Accepter",
+  "@analyticsSheetAccept": {
+    "description": "Bouton qui donne l'accord pour la mesure d'audience. Même poids visuel que le bouton de refus."
+  },
   "analyticsSheetDecline": "Refuser",
+  "@analyticsSheetDecline": {
+    "description": "Bouton qui refuse la mesure d'audience. Même poids visuel que le bouton d'accord."
+  },
   "analyticsSheetErrorOutdated": "Le texte a été mis à jour. Fermez cette fenêtre puis rouvrez-la.",
+  "@analyticsSheetErrorOutdated": {
+    "description": "Erreur quand le texte du consentement a changé pendant que la feuille était ouverte."
+  },
   "analyticsSheetErrorSave": "Votre choix n'a pas pu être enregistré. Réessayez.",
+  "@analyticsSheetErrorSave": {
+    "description": "Erreur quand le choix du membre n'a pas pu être enregistré sur le serveur."
+  },
   "analyticsSettingsTitle": "Mesure d'audience",
+  "@analyticsSettingsTitle": {
+    "description": "Titre de l'écran et de la ligne des réglages pour la mesure d'audience."
+  },
   "analyticsSettingsGrantedShort": "Activée",
+  "@analyticsSettingsGrantedShort": {
+    "description": "Sous-titre de la ligne des réglages quand la mesure d'audience est acceptée."
+  },
   "analyticsSettingsDeniedShort": "Désactivée",
+  "@analyticsSettingsDeniedShort": {
+    "description": "Sous-titre de la ligne des réglages quand la mesure d'audience est refusée ou pas encore acceptée."
+  },
   "analyticsSettingsGrantedTitle": "Mesure d'audience activée",
+  "@analyticsSettingsGrantedTitle": {
+    "description": "Titre de l'écran quand la mesure d'audience est activée."
+  },
   "analyticsSettingsNotGrantedTitle": "Mesure d'audience désactivée",
+  "@analyticsSettingsNotGrantedTitle": {
+    "description": "Titre de l'écran quand la mesure d'audience est désactivée."
+  },
   "analyticsSettingsAccept": "Accepter la mesure d'audience",
+  "@analyticsSettingsAccept": {
+    "description": "Bouton de l'écran des réglages qui accepte la mesure d'audience."
+  },
   "analyticsSettingsWithdraw": "Retirer mon accord",
+  "@analyticsSettingsWithdraw": {
+    "description": "Bouton de l'écran des réglages qui retire l'accord : la mesure s'arrête aussitôt."
+  },
   "analyticsSettingsLoadFailed": "Impossible de lire votre choix. Vérifiez votre connexion.",
+  "@analyticsSettingsLoadFailed": {
+    "description": "Texte de l'écran quand l'état de l'accord n'a pas pu être lu. Un bouton « Réessayer » suit."
+  },
   "analyticsSettingsSaveFailed": "Votre choix n'a pas pu être enregistré. Réessayez.",
+  "@analyticsSettingsSaveFailed": {
+    "description": "Message bref quand le choix n'a pas pu être enregistré depuis les réglages."
+  },
   "profileMyProfile": "Mon profil",
   "@profileMyProfile": {
     "description": "Profil du membre : étiquette en capitales tout en haut de son propre profil."

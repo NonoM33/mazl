@@ -8,7 +8,6 @@ import 'package:mazl/core/di/providers/analytics_providers.dart';
 import 'package:mazl/core/services/store/credit_models.dart';
 import 'package:mazl/core/services/store/credits_service.dart';
 import 'package:mazl/core/services/store/store_products.dart';
-import 'package:mazl/core/services/store/subscription_api.dart';
 import 'package:mazl/core/services/store/subscription_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/l10n/generated/app_localizations.dart';
