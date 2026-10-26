@@ -86,12 +86,54 @@
     return { vHalf, yaw, pitch, topTilt: PI - t - pitch };
   }
 
+  /** Ouverture d'une tente : un V inversé de 60 à 75 degrés, posé sur ses deux tranches. */
+  const TENT_ANGLE = 1.2;
+  const TENT_RANGE = [1.047, 1.309];
+
+  /** L'angle de la tente montrée : celui du système s'il est dans la plage, sinon le typique. */
+  function tentAngle(angle) {
+    return angle >= TENT_RANGE[0] && angle <= TENT_RANGE[1] ? angle : TENT_ANGLE;
+  }
+
+  /**
+   * La tente : la charnière en haut, les deux moitiés descendent jusqu'à la
+   * table. `front` et `back` sont l'écart de chaque moitié avec la verticale
+   * (avant : vers la caméra ; arrière : à l'opposé, négatif = vers la caméra).
+   * Fermé (theta 0) l'appareil est posé à plat, les deux moitiés empilées ;
+   * en s'ouvrant, la moitié avant se redresse jusqu'au V symétrique.
+   */
+  function tentAngles(theta) {
+    const t = clamp(theta, 0, PI);
+    const lay = smoothstep(0, TENT_ANGLE, t);
+    const front = lerp(PI / 2, t / 2, lay);
+    return { front, back: t - front };
+  }
+
+  /**
+   * La géométrie de la tente pour des moitiés de longueur `length` : à quelle
+   * hauteur est la charnière et où reposent les deux tranches basses (la table
+   * est à y = 0).
+   */
+  function tentGeometry(theta, length) {
+    const { front, back } = tentAngles(theta);
+    const frontDrop = length * Math.cos(front);
+    const backDrop = length * Math.cos(back);
+    const hingeHeight = Math.max(frontDrop, backDrop, 0);
+    return {
+      hingeHeight,
+      frontBottomY: hingeHeight - frontDrop,
+      backBottomY: hingeHeight - backDrop,
+      openingAngle: front + back,
+    };
+  }
+
   /** Ce que la scène cherche à atteindre pour un message. */
   function targetFor(pose) {
+    const tent = pose.sideways && (pose.hinge === 'closed' || pose.hinge === 'partiallyOpen');
     return {
-      theta: pose.angle,
-      axisT: pose.axis === 'horizontal' && pose.hinge !== 'closed' ? 1 : 0,
-      rollT: pose.hinge === 'closed' && pose.sideways ? 1 : 0,
+      theta: tent ? tentAngle(pose.angle) : pose.angle,
+      axisT: !tent && pose.axis === 'horizontal' && pose.hinge !== 'closed' ? 1 : 0,
+      tentT: tent ? 1 : 0,
     };
   }
 
@@ -100,10 +142,11 @@
    * à `to`. `null` quand l'étape n'a pas de geste.
    */
   const GESTURES = {
-    open: { from: { theta: 0, axisT: 0, rollT: 0 }, to: { theta: PI, axisT: 0, rollT: 0 } },
-    book: { from: { theta: PI, axisT: 0, rollT: 0 }, to: { theta: 1.9, axisT: 0, rollT: 0 } },
-    table: { from: { theta: PI, axisT: 1, rollT: 0 }, to: { theta: 1.9, axisT: 1, rollT: 0 } },
-    tent: { from: { theta: 0, axisT: 0, rollT: 0 }, to: { theta: 0, axisT: 0, rollT: 1 } },
+    open: { from: { theta: 0, axisT: 0, tentT: 0 }, to: { theta: PI, axisT: 0, tentT: 0 } },
+    book: { from: { theta: PI, axisT: 0, tentT: 0 }, to: { theta: 1.9, axisT: 0, tentT: 0 } },
+    table: { from: { theta: PI, axisT: 1, tentT: 0 }, to: { theta: 1.9, axisT: 1, tentT: 0 } },
+    // Posé à plat, fermé ; on l'entrouvre, puis on le dresse en V sur la table.
+    tent: { from: { theta: 0, axisT: 0, tentT: 1 }, to: { theta: TENT_ANGLE, axisT: 0, tentT: 1 } },
   };
   const GESTURE_PERIOD = 3.6;
 
@@ -126,7 +169,7 @@
     return {
       theta: lerp(g.from.theta, g.to.theta, f.u),
       axisT: lerp(g.from.axisT, g.to.axisT, f.u),
-      rollT: lerp(g.from.rollT, g.to.rollT, f.u),
+      tentT: lerp(g.from.tentT, g.to.tentT, f.u),
       alpha: f.alpha,
       u: f.u,
     };
@@ -150,6 +193,8 @@
   return {
     DEFAULT_ANGLE,
     STEPS,
+    TENT_ANGLE,
+    TENT_RANGE,
     approach,
     clamp,
     easeInOut,
@@ -161,5 +206,8 @@
     normalizePose,
     smoothstep,
     targetFor,
+    tentAngle,
+    tentAngles,
+    tentGeometry,
   };
 });
