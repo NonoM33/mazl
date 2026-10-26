@@ -208,6 +208,7 @@ Future<List<String>> _measure(
 
     problems.addAll(tappableProblems(tester, pose));
     problems.addAll(foldCrossingProblems(tester, pose));
+    problems.addAll(navigationOutsideColumnProblems(tester, pose));
     final primary = screen.primary?.call();
     if (primary != null) {
       if (primary.evaluate().isNotEmpty) {
@@ -241,6 +242,7 @@ Future<List<String>> _measure(
         for (final line in [
           ...tappableProblems(tester, pose),
           ...foldCrossingProblems(tester, pose),
+          ...navigationOutsideColumnProblems(tester, pose),
         ])
           if (!seen.contains(boxOf(line))) '$line [at the end of the list]',
       ]);

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/rendering.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:mazl/presentation/common/widgets/directional_icon.dart';
+import 'package:mazl/presentation/common/widgets/mazl_components.dart';
 
 import '../../helpers/duo_poses.dart';
+import '../../helpers/l10n_helpers.dart';
 
 // What `expectFitsDuoPose` checks, with two differences the crawl needs:
 //
@@ -234,6 +238,77 @@ List<String> foldCrossingProblems(WidgetTester tester, DuoPose pose) {
   }
   return [
     for (final e in byBox.entries) '${e.value} at ${e.key}: crosses the fold',
+  ];
+}
+
+/// The arrows that only mean « back » on an icon button (a chevron also pages
+/// through months, so it is left to the tooltip).
+final Set<IconData> _backArrows = {
+  LucideIcons.arrowLeft,
+  LucideIcons.arrowRight,
+  Icons.arrow_back,
+  Icons.arrow_back_ios,
+  Icons.arrow_back_ios_new,
+};
+
+bool _isBackArrow(Widget? icon) =>
+    (icon is Icon && _backArrows.contains(icon.icon)) ||
+    (icon is DirectionalIcon && _backArrows.contains(icon.icon));
+
+/// One line per back or close button of the screen that is not in the
+/// vertical bar. With a column (the foldable iPhone closed, sideways or held
+/// like a book), iOS puts a screen's navigation at the top of that column,
+/// within reach of the thumb, not in the top-left corner (regles/iphone-duo.md
+/// §2.6). A back or close button is a [BackButton], a [CloseButton], or an
+/// icon whose tooltip or label is the app's own « Retour », « Fermer » or
+/// « Annuler » (the texts are read from the l10n of the tests, not written
+/// here), or an icon button that draws a back arrow, tooltip or not. Without
+/// a column, nothing is asked.
+List<String> navigationOutsideColumnProblems(
+  WidgetTester tester,
+  DuoPose pose,
+) {
+  final column = pose.verticalBar?.controls;
+  if (column == null) return const [];
+  final l10n = lookupAppLocalizations(kTestLocale);
+  final labels = {l10n.commonBack, l10n.commonClose, l10n.commonCancel};
+  final buttons = find
+      .byWidgetPredicate(
+        (widget) =>
+            widget is BackButton ||
+            widget is CloseButton ||
+            (widget is IconButton && _isBackArrow(widget.icon)) ||
+            (widget is RoundIconButton && _backArrows.contains(widget.icon)) ||
+            (widget is Tooltip && labels.contains(widget.message)) ||
+            (widget is Semantics &&
+                (widget.properties.button ?? false) &&
+                labels.contains(widget.properties.label)),
+      )
+      .hitTestable()
+      .evaluate();
+  final byBox = <String, String>{};
+  for (final element in buttons) {
+    final box = element.renderObject;
+    if (box is! RenderBox || !box.hasSize) continue;
+    final rect = box.localToGlobal(Offset.zero) & box.size;
+    if (rect.isEmpty) continue;
+    final inside = column.inflate(0.5);
+    if (inside.contains(rect.topLeft) && inside.contains(rect.bottomRight)) {
+      continue;
+    }
+    // An icon button and its tooltip are one button: said once.
+    final key = _rect(
+      Rect.fromCenter(center: rect.center.translate(0, 0), width: 1, height: 1),
+    );
+    byBox.putIfAbsent(
+      key,
+      () => '${describeElement(element)} at ${_rect(rect)}',
+    );
+  }
+  return [
+    for (final e in byBox.entries)
+      '${e.value}: navigation outside the vertical bar '
+          '(${_rect(column)})',
   ];
 }
 

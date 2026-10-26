@@ -674,6 +674,7 @@ Future<List<String>> _measure(
     _expectStateReached(state);
     problems
       ..addAll(foldCrossingProblems(tester, pose))
+      ..addAll(navigationOutsideColumnProblems(tester, pose))
       ..addAll(_waitingCrossingProblems(tester, pose));
     await _pumpFor(tester, 1000);
     await tester.pumpWidget(const SizedBox());
