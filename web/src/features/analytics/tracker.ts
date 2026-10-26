@@ -1,4 +1,4 @@
-import { matchPath } from "../../shared/router";
+import { matchPath } from "../../shared/match-path";
 
 // The website's side of docs/analytics/plan-de-marquage.md: screens only,
 // relayed by the server, never before the member's consent.
