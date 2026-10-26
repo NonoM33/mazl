@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_safe_actions.dart';
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/di/providers/web_sessions_providers.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -95,9 +96,11 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.webSessionsTitle)),
-      body: ListView(
+      // Held like a book: what this is and the button to connect on the page
+      // where the reading starts, the computers on the other.
+      body: FoldSpread(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
-        children: [
+        start: [
           SectionLabel(
             context.l10n.webSessionsSectionLabel,
             color: AppColors.tekhelet,
@@ -120,8 +123,8 @@ class _ComputersScreenState extends ConsumerState<ComputersScreen> {
             ),
           ),
           const SizedBox(height: 28),
-          ..._content(),
         ],
+        end: _content(),
       ),
     );
   }

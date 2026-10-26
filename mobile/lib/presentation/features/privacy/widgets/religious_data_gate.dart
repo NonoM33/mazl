@@ -31,10 +31,18 @@ class _ReligiousDataGateState extends ConsumerState<ReligiousDataGate> {
   @override
   void initState() {
     super.initState();
+    // The first report comes after the frame: a gate built lazily, when a
+    // list scrolls to it, must not rebuild its parent in the middle of a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.onValidityChanged(
+          _validityOf(ref.read(religiousDataConsentProvider)),
+        );
+      }
+    });
     ref.listenManual(
       religiousDataConsentProvider,
       (_, next) => widget.onValidityChanged(_validityOf(next)),
-      fireImmediately: true,
     );
   }
 

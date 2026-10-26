@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/di/providers/verification_providers.dart';
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/verification_api.dart';
 import '../../../../l10n/l10n.dart';
@@ -173,9 +174,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       return VerificationRetry(message: (_loadError ?? const _Reason(null)).text(l10n), onRetry: _loadStatus);
     }
     final busy = _stage == _Stage.working;
-    return ListView(
+    // Held like a book: the title and the photo level on the page where the
+    // reading starts, the identity level on the other. Flat, one list.
+    return FoldSpread(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-      children: [
+      start: [
         SectionLabel(l10n.verificationProfileEyebrow),
         const SizedBox(height: 10),
         IdentityHeadline(l10n.verificationTitle, size: 34),
@@ -189,8 +192,8 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
           onVerify: _verifyPhoto,
           onRemove: _removeVerification,
         ),
-        IdentityLevel(step: status.identity, enabled: !busy, onVerify: _verifyIdentity),
       ],
+      end: [IdentityLevel(step: status.identity, enabled: !busy, onVerify: _verifyIdentity)],
     );
   }
 }
