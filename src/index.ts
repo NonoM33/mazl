@@ -70,6 +70,7 @@ import {
   getCoupleStats,
   getCoupleAchievements,
   getCoupleByUserId,
+  seedTestProfilesIfRequested,
 } from "./db";
 import { isValidUnsubscribeToken, sendVerificationRequestEmail } from "./email";
 import { generateJWT, verifyJWT } from "./auth";
@@ -792,6 +793,7 @@ await ensureVerificationSchema(sql);
 await ensureWebSessionSchema(sql);
 await backoffice.ensureSchemas();
 backoffice.startSweeper();
+await seedTestProfilesIfRequested();
 
 console.log(`Server running on http://localhost:${port}`);
 

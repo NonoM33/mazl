@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import { applyTestProfiles } from "./features/fixtures/test-profiles";
 import { createCreditTables, eraseCredits } from "./features/credits/infra/schema";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
@@ -1862,6 +1863,20 @@ export async function deleteProfilePrompt(userId: number, promptId: number): Pro
     RETURNING id
   `;
   return rows.length > 0;
+}
+
+// ============ TEST PROFILES (TestFlight phase) ============
+
+// The test profiles and the administrators' sample conversations
+// (features/fixtures/test-profiles), written at start-up when
+// SEED_TEST_PROFILES=true (src/index.ts, once every schema is in place: they
+// touch the media and verification columns): the hosting has no shell to run
+// scripts/seed-test-profiles.ts against its database. Idempotent, so every
+// restart is harmless; scripts/purge-seed-data.ts removes all of it.
+export async function seedTestProfilesIfRequested(flag = process.env.SEED_TEST_PROFILES): Promise<void> {
+  if (flag !== "true") return;
+  const plan = await applyTestProfiles(sql);
+  console.log(`Test profiles ready: ${plan.members.length} member(s), ${plan.admins.length} administrator account(s)`);
 }
 
 // ============ SEED FAKE PROFILES ============
