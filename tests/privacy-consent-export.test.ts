@@ -91,6 +91,62 @@ describe("religious data consent", () => {
   });
 });
 
+describe("analytics consent", () => {
+  const putAnalytics = (token: string, body: Record<string, unknown>) =>
+    fetch(`${BASE_URL}/api/privacy/consents/analytics`, { method: "PUT", headers: json(token), body: JSON.stringify(body) });
+
+  test("is listed next to the religious one, never asked yet", async () => {
+    const member = await makeUser("analytics-fresh");
+    const body = (await (await fetchConsents(member.token)).json()) as {
+      consents: { analytics: { granted: boolean | null; current_version: string; text: string } };
+    };
+    expect(body.consents.analytics.granted).toBeNull();
+    expect(body.consents.analytics.current_version).toBe("2026-10-26");
+    expect(body.consents.analytics.text).toContain("pseudonyme");
+  });
+
+  test("granted then withdrawn: recorded under its own purpose, the religious data untouched", async () => {
+    const member = await makeUser("analytics-withdraw");
+    expect((await putConsent(member.token, { granted: true, version: "2026-10-24", source: "web" })).status).toBe(200);
+    await fetch(`${BASE_URL}/api/profile`, {
+      method: "PUT",
+      headers: json(member.token),
+      body: JSON.stringify({ displayName: "Jeanne Exemple", denomination: "Massorti" }),
+    });
+    expect((await putAnalytics(member.token, { granted: true, version: "2026-10-26", source: "app" })).status).toBe(200);
+    expect((await putAnalytics(member.token, { granted: false, version: "2026-10-26", source: "app" })).status).toBe(200);
+
+    expect((await profileRow(member.id)).denomination).toBe("Massorti");
+    const current = (await (await fetchConsents(member.token)).json()) as {
+      consents: { analytics: { granted: boolean }; religious_data: { granted: boolean } };
+    };
+    expect(current.consents.analytics.granted).toBe(false);
+    expect(current.consents.religious_data.granted).toBe(true);
+    const events = await db<{ granted: boolean }[]>`
+      SELECT granted FROM user_consent_events WHERE user_id = ${member.id} AND purpose = 'analytics' ORDER BY id
+    `;
+    expect(events.map((event) => event.granted)).toEqual([true, false]);
+  });
+
+  test("the religious version is refused for the analytics consent (409, current version given)", async () => {
+    const member = await makeUser("analytics-old");
+    const response = await putAnalytics(member.token, { granted: true, version: "2026-10-24", source: "app" });
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ success: false, error: "consent_version_outdated", current_version: "2026-10-26" });
+  });
+
+  test("an unknown purpose answers 404 and records nothing", async () => {
+    const member = await makeUser("analytics-unknown");
+    const response = await fetch(`${BASE_URL}/api/privacy/consents/marketing`, {
+      method: "PUT",
+      headers: json(member.token),
+      body: JSON.stringify({ granted: true, version: "2026-10-26", source: "app" }),
+    });
+    expect(response.status).toBe(404);
+    expect(await db`SELECT 1 FROM user_consents WHERE user_id = ${member.id}`).toHaveLength(0);
+  });
+});
+
 describe("personal data export", () => {
   test("contains the message SENT and not the message RECEIVED, with no secret key", async () => {
     const { a, b, conversationId } = await makeMatch("export");
