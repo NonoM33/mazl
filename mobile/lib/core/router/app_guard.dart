@@ -7,6 +7,7 @@ const _publicRoutes = [
   RoutePaths.splash,
   RoutePaths.onboarding,
   RoutePaths.login,
+  RoutePaths.reviewLogin,
 ];
 
 /// The router's single redirect, free of any screen so it can be tested.
@@ -33,7 +34,9 @@ String? appRedirect({
 
   if (!isAuthenticated) {
     if (sessionEnded) {
-      return location == RoutePaths.login ? null : RoutePaths.login;
+      return location == RoutePaths.login || location == RoutePaths.reviewLogin
+          ? null
+          : RoutePaths.login;
     }
     return _publicRoutes.contains(location) ? null : RoutePaths.onboarding;
   }

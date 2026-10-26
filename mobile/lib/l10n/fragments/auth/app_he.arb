@@ -13,5 +13,14 @@
   "authErrorAccountDisabled": "החשבון שלך הושבת. כתבו לנו אל {contact}.",
   "authRouteErrorTitle": "העמוד לא נמצא",
   "authRouteErrorBody": "אירעה שגיאה",
-  "authRouteErrorHome": "חזרה לדף הבית"
+  "authRouteErrorHome": "חזרה לדף הבית",
+  "authLoginReviewLink": "התחברות עם שם משתמש",
+  "authReviewTitle": "התחברות עם שם משתמש",
+  "authReviewIntro": "יש להזין את שם המשתמש והסיסמה שנמסרו.",
+  "authReviewUsernameLabel": "שם משתמש",
+  "authReviewPasswordLabel": "סיסמה",
+  "authReviewShowPassword": "הצגת הסיסמה",
+  "authReviewHidePassword": "הסתרת הסיסמה",
+  "authReviewSubmit": "התחברות",
+  "authErrorInvalidCredentials": "שם המשתמש או הסיסמה שגויים."
 }

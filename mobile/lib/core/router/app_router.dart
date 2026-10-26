@@ -14,6 +14,7 @@ import '../../presentation/features/duo_tutorial/screens/duo_tutorial_screen.dar
 import '../duo_tutorial/duo_tutorial_policy.dart';
 import '../../presentation/features/onboarding/screens/onboarding_screen.dart';
 import '../../presentation/features/auth/screens/login_screen.dart';
+import '../../presentation/features/auth/screens/review_login_screen.dart';
 import '../../presentation/features/auth/screens/route_error_screen.dart';
 import '../../presentation/features/navigation/screens/main_navigation_screen.dart';
 import '../../presentation/features/matching/screens/discover_screen.dart';
@@ -149,6 +150,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const LoginScreen(),
           transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Identifier + password sign-in of the App Store review account: open
+      // to a visitor who is not signed in, pushed over the login.
+      GoRoute(
+        path: RoutePaths.reviewLogin,
+        name: RouteNames.reviewLogin,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const ReviewLoginScreen(),
+          transitionsBuilder: slideLeftTransition,
         ),
       ),
 

@@ -1,5 +1,6 @@
 import type { Sql } from "postgres";
 import { isAdminTestAccount } from "../admin/admin.emails";
+import { REVIEW_PROVIDER } from "../auth/review/review-login";
 import {
   CONVERSATIONS_PER_ADMIN,
   CONVERSATION_SCRIPTS,
@@ -14,7 +15,7 @@ import {
 
 // The test members of the TestFlight phase (provider 'seed'), created by
 // scripts/seed-test-profiles.ts, and the conversations that ONLY the administrator
-// finds in their own account. scripts/purge-seed-data.ts removes all of it.
+// (and the App Store review account) finds in their own account. scripts/purge-seed-data.ts removes all of it.
 //
 // Nothing here likes anybody for a test member: the matches of the administrator are
 // written directly (the like of the administrator is recorded, never one of a seed
@@ -73,12 +74,13 @@ function poolFor(lookingFor: string | null): readonly TestMember[] {
 }
 
 async function adminAccounts(db: Db): Promise<AdminAccount[]> {
-  const rows = await db<{ id: number; email: string; looking_for: string | null }[]>`
-    SELECT u.id, u.email, p.looking_for
+  const rows = await db<{ id: number; email: string; provider: string; looking_for: string | null }[]>`
+    SELECT u.id, u.email, u.provider, p.looking_for
     FROM users u LEFT JOIN profiles p ON p.user_id = u.id
     WHERE u.provider <> 'seed' AND u.is_active IS NOT FALSE
     ORDER BY u.id`;
-  return rows.filter((row) => isAdminTestAccount(row)).map((row) => ({ id: row.id, lookingFor: row.looking_for }));
+  // The App Store reviewer gets the same sample matches and conversations.
+  return rows.filter((row) => isAdminTestAccount(row) || row.provider === REVIEW_PROVIDER).map((row) => ({ id: row.id, lookingFor: row.looking_for }));
 }
 
 async function partnerships(db: Db, admin: AdminAccount): Promise<Partnership[]> {

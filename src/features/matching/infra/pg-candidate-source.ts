@@ -105,6 +105,8 @@ export class PgCandidateSource implements CandidateSource {
       WHERE p.user_id <> ${viewer.userId}
         AND u.is_active = true
         AND p.is_complete = true
+        -- the App Store review account is never offered to anybody
+        AND u.provider <> 'review'
         AND NOT EXISTS (SELECT 1 FROM swipes s WHERE s.user_id = ${viewer.userId} AND s.target_user_id = p.user_id)
         AND NOT EXISTS (
           SELECT 1 FROM blocked_users b

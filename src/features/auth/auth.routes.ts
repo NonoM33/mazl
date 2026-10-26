@@ -5,10 +5,20 @@ import { missingProfileFields } from "../profile/domain/profile-completeness";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
 import { createIpRateLimiter } from "../../shared/http/rate-limit";
 import type { AppleSignInPort } from "./apple/apple-sign-in";
+import type { ReviewAccount } from "./review/review-account";
+import { checkReviewCredentials, parseReviewCredentials, REVIEW_PROVIDER, type PasswordVerifier, type ReviewLoginConfig } from "./review/review-login";
+
+export interface ReviewSignIn {
+  readonly config: ReviewLoginConfig | null;
+  readonly verify: PasswordVerifier;
+  readonly ensureAccount: (username: string) => Promise<{ account: ReviewAccount; isNew: boolean }>;
+}
 
 // Sign-in is public: limit it per client address so that a stolen or guessed
 // token cannot be tried in bulk.
 const signInLimiter = createIpRateLimiter({ max: 30, windowMs: 15 * 60_000 });
+// A password can be guessed: far fewer tries for the review sign-in.
+const reviewSignInLimiter = createIpRateLimiter({ max: 10, windowMs: 15 * 60_000 });
 
 const accountDisabled = { success: false, error: "account_disabled" } as const;
 const isString = (value: unknown): value is string => typeof value === "string" && value.length > 0;
@@ -17,7 +27,7 @@ const NAME_MAX = 100;
 // Presentation layer for the AUTH feature. These routes are moved verbatim from
 // the monolith (src/index.ts) and mounted under `/api/auth`. Behaviour, payloads
 // and status codes are identical to the original inline handlers.
-export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, appleSignIn: AppleSignInPort): void {
+export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, appleSignIn: AppleSignInPort, review: ReviewSignIn): void {
   const auth = new Hono<{ Variables: AppVariables }>();
 
   // Google OAuth - Verify ID token from mobile app
@@ -147,6 +157,41 @@ export function registerAuthRoutes(app: Hono<{ Variables: AppVariables }>, apple
       });
     } catch (error) {
       console.error("Apple auth error:", error);
+      return c.json({ success: false, error: "Authentication failed" }, 500);
+    }
+  });
+
+  // App Store review account: user name + password (docs/launch/REVIEW-LOGIN-CONTRAT.md).
+  // Switched off (404) unless the hosting carries both REVIEW_LOGIN_* variables.
+  auth.post("/review", reviewSignInLimiter, async (c) => {
+    const config = review.config;
+    if (config === null) return c.json({ error: "Not found" }, 404);
+    try {
+      const credentials = parseReviewCredentials(await c.req.json().catch(() => null));
+      if (credentials === null) return c.json({ success: false, error: "credentials_required" }, 400);
+      if (!(await checkReviewCredentials(config, credentials, review.verify))) {
+        console.warn("Review sign-in refused");
+        return c.json({ success: false, error: "invalid_credentials" }, 401);
+      }
+
+      const { account, isNew } = await review.ensureAccount(config.username);
+      if (account.is_active === false) return c.json(accountDisabled, 403);
+
+      const token = generateJWT({
+        id: account.id,
+        email: account.email,
+        name: account.name ?? undefined,
+        provider: REVIEW_PROVIDER,
+        providerId: config.username,
+      });
+      const row = await getUserProfile(account.id);
+      return c.json({
+        success: true,
+        token,
+        user: { id: account.id, email: account.email, name: account.name, provider: account.provider, isNew, hasProfile: !!row?.is_complete },
+      });
+    } catch (error) {
+      console.error("Review auth error:", error);
       return c.json({ success: false, error: "Authentication failed" }, 500);
     }
   });

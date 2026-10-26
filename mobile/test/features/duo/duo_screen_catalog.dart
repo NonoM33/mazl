@@ -88,6 +88,14 @@ final List<DuoScreen> duoScreens = [
     session: DuoSession.signedOut,
     primary: () => _action('Continuer avec Google'),
   ),
+  DuoScreen(
+    id: '/login/review',
+    feature: 'auth',
+    file: 'auth/screens/review_login_screen.dart',
+    path: '/login/review',
+    session: DuoSession.signedOut,
+    primary: () => _action('Se connecter'),
+  ),
   // matching
   const DuoScreen(
     id: '/discover',

@@ -8,6 +8,23 @@ import { createScratchDatabase, startServer, type RunningServer, type ScratchDat
 // "coming soon" fake events.
 
 const ADMIN_EMAIL = "boot-admin@example.com";
+const REVIEW_USERNAME = "relecteur-boot";
+
+// The App Store review account (provider 'review') and what the seed gave it.
+async function reviewAccount(url: string): Promise<{ profiles: number; matches: number; messages: number } | null> {
+  const sql = postgres(url, { max: 1, onnotice: () => undefined });
+  try {
+    const [row] = await sql<{ id: number; profiles: string; matches: string; messages: string }[]>`
+      SELECT u.id,
+        (SELECT COUNT(*) FROM profiles p WHERE p.user_id = u.id AND p.is_complete)::text AS profiles,
+        (SELECT COUNT(*) FROM matches m WHERE u.id IN (m.user1_id, m.user2_id))::text AS matches,
+        (SELECT COUNT(*) FROM messages x JOIN conversations c ON c.id = x.conversation_id WHERE u.id IN (c.user1_id, c.user2_id))::text AS messages
+      FROM users u WHERE u.provider = 'review' AND u.provider_id = ${REVIEW_USERNAME}`;
+    return row === undefined ? null : { profiles: Number(row.profiles), matches: Number(row.matches), messages: Number(row.messages) };
+  } finally {
+    await sql.end({ timeout: 2 });
+  }
+}
 
 async function countSeedMembersWithPhotos(url: string): Promise<number> {
   const sql = postgres(url, { max: 1, onnotice: () => undefined });
@@ -64,9 +81,13 @@ describe("test profiles at start-up", () => {
     withoutFlag = await createScratchDatabase();
     process.env.ADMIN_EMAIL = ADMIN_EMAIL;
     process.env.SEED_TEST_PROFILES = "true";
+    process.env.REVIEW_LOGIN_USERNAME = REVIEW_USERNAME;
+    process.env.REVIEW_LOGIN_PASSWORD_HASH = await Bun.password.hash("exemple-motdepasse");
     servers.push(await startServer(withFlag.url, "test"));
     delete process.env.SEED_TEST_PROFILES;
     servers.push(await startServer(withoutFlag.url, "test"));
+    delete process.env.REVIEW_LOGIN_USERNAME;
+    delete process.env.REVIEW_LOGIN_PASSWORD_HASH;
   }, 120_000);
 
   afterAll(async () => {
@@ -78,6 +99,17 @@ describe("test profiles at start-up", () => {
 
   test("SEED_TEST_PROFILES=true: the API writes the test members, with their photos", async () => {
     expect(await countSeedMembersWithPhotos(withFlag.url)).toBe(25);
+  });
+
+  test("SEED_TEST_PROFILES=true: the App Store review account exists with a complete profile, matches and conversations", async () => {
+    const account = await reviewAccount(withFlag.url);
+    expect(account?.profiles).toBe(1);
+    expect(account?.matches ?? 0).toBeGreaterThan(0);
+    expect(account?.messages ?? 0).toBeGreaterThan(0);
+  });
+
+  test("without the flag: the review account is only created at its first sign-in", async () => {
+    expect(await reviewAccount(withoutFlag.url)).toBeNull();
   });
 
   test("without the flag: no test member gets the stock photos", async () => {

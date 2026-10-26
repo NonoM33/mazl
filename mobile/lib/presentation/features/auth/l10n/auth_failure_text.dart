@@ -11,6 +11,7 @@ String authFailureText(
 }) => switch (failure) {
   AuthFailure.cancelled => l10n.authErrorCancelled,
   AuthFailure.rateLimited => l10n.errorRateLimited,
+  AuthFailure.invalidCredentials => l10n.authErrorInvalidCredentials,
   AuthFailure.network => l10n.errorNetwork,
   AuthFailure.server => l10n.errorServer,
   AuthFailure.unsupported => l10n.authErrorUnsupported,

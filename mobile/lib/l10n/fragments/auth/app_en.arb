@@ -13,5 +13,14 @@
   "authErrorAccountDisabled": "Your account is disabled. Write to us at {contact}.",
   "authRouteErrorTitle": "Page not found",
   "authRouteErrorBody": "Something went wrong",
-  "authRouteErrorHome": "Back to home"
+  "authRouteErrorHome": "Back to home",
+  "authLoginReviewLink": "Sign in with a username",
+  "authReviewTitle": "Sign in with a username",
+  "authReviewIntro": "Enter the username and password you were given.",
+  "authReviewUsernameLabel": "Username",
+  "authReviewPasswordLabel": "Password",
+  "authReviewShowPassword": "Show password",
+  "authReviewHidePassword": "Hide password",
+  "authReviewSubmit": "Sign in",
+  "authErrorInvalidCredentials": "Incorrect username or password."
 }
