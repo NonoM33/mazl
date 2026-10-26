@@ -31,14 +31,6 @@
   "@duoTutorialTableBody": {
     "description": "Étape 4 : explique que, tenu comme un ordinateur portable, la photo reste en haut et les boutons en bas, sous le pouce. Trois lignes au plus."
   },
-  "duoTutorialTentTitle": "Debout, comme une tente",
-  "@duoTutorialTentTitle": {
-    "description": "Étape 5 : demande de refermer le téléphone et de le tenir debout sur le côté, comme une tente. Titre court."
-  },
-  "duoTutorialTentBody": "Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.",
-  "@duoTutorialTentBody": {
-    "description": "Étape 5 : explique que, refermé et tourné sur le côté, l'écran extérieur affiche un affichage de Shabbat sobre. Trois lignes au plus."
-  },
   "duoTutorialReadyTitle": "C'est parti",
   "@duoTutorialReadyTitle": {
     "description": "Dernière étape du tutoriel : titre de fin, « C'est parti » (deux mots courts)."

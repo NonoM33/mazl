@@ -9,7 +9,6 @@ extension DuoTutorialStepText on DuoTutorialStep {
     DuoTutorialStep.open => l10n.duoTutorialOpenTitle,
     DuoTutorialStep.book => l10n.duoTutorialBookTitle,
     DuoTutorialStep.table => l10n.duoTutorialTableTitle,
-    DuoTutorialStep.tent => l10n.duoTutorialTentTitle,
     DuoTutorialStep.ready => l10n.duoTutorialReadyTitle,
   };
 
@@ -18,7 +17,6 @@ extension DuoTutorialStepText on DuoTutorialStep {
     DuoTutorialStep.open => l10n.duoTutorialOpenBody,
     DuoTutorialStep.book => l10n.duoTutorialBookBody,
     DuoTutorialStep.table => l10n.duoTutorialTableBody,
-    DuoTutorialStep.tent => l10n.duoTutorialTentBody,
     DuoTutorialStep.ready => l10n.duoTutorialReadyBody,
   };
 }

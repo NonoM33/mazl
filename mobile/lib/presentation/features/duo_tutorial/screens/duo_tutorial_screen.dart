@@ -17,7 +17,7 @@ import '../widgets/duo_check.dart';
 import '../widgets/duo_step_indicator.dart';
 
 /// Le tutoriel de l'iPhone Duo, en plein écran : une scène 3D qui suit en
-/// direct la charnière réelle de l'appareil, six étapes à faire EN MÊME TEMPS,
+/// direct la charnière réelle de l'appareil, cinq étapes à faire EN MÊME TEMPS,
 /// et toujours « Passer » et « Suivant ».
 ///
 /// Le titre et les boutons sont des widgets Flutter, lisibles par VoiceOver,

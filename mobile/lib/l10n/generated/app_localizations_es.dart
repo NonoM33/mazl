@@ -1240,13 +1240,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Sujétalo como un portátil. La foto queda arriba y los botones abajo, bajo tu pulgar.';
 
   @override
-  String get duoTutorialTentTitle => 'De pie, como una tienda';
-
-  @override
-  String get duoTutorialTentBody =>
-      'Ciérralo y gíralo de lado. Una pantalla de Shabat sobria vela sobre la mesa.';
-
-  @override
   String get duoTutorialReadyTitle => '¡Vamos!';
 
   @override
@@ -3882,47 +3875,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get shabbatDisplayLaunchHint =>
       'Coloca el teléfono como una tienda de campaña: la pantalla se queda encendida y muestra la hora, el encendido de velas y la Havdalá. Inícialo antes de Shabat y no lo toques después.';
-
-  @override
-  String get shabbatDisplayShabbatShalom => 'Shabat shalom';
-
-  @override
-  String get shabbatDisplayShabbatName => 'Shabat';
-
-  @override
-  String get shabbatDisplayTonight => 'Esta noche';
-
-  @override
-  String get shabbatDisplayComing => 'Próximamente';
-
-  @override
-  String get shabbatDisplayFestivalEntry => 'Entrada';
-
-  @override
-  String get shabbatDisplayFestivalExit => 'Salida';
-
-  @override
-  String get shabbatDisplayParasha => 'Parashá';
-
-  @override
-  String shabbatDisplayHanukkahNight(int night) {
-    return 'Noche $night';
-  }
-
-  @override
-  String shabbatDisplayOmerDay(int day) {
-    return 'Día $day del Ómer';
-  }
-
-  @override
-  String get shabbatDisplayExitHint => 'Mantén pulsado dos segundos para salir';
-
-  @override
-  String get shabbatDisplayProposalTitle =>
-      '¿Poner el teléfono como una tienda de campaña para esta noche?';
-
-  @override
-  String get shabbatDisplayProposalDismiss => 'Ahora no';
 
   @override
   String get verificationProfileEyebrow => 'Tu perfil';

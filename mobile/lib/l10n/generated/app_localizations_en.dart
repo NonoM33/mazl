@@ -1223,13 +1223,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Hold it like a laptop. The photo stays on top, the buttons below, under your thumb.';
 
   @override
-  String get duoTutorialTentTitle => 'Stand it like a tent';
-
-  @override
-  String get duoTutorialTentBody =>
-      'Close it and turn it on its side. A calm Shabbat display keeps watch on the table.';
-
-  @override
   String get duoTutorialReadyTitle => 'Let\'s go';
 
   @override
@@ -3855,47 +3848,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shabbatDisplayLaunchHint =>
       'Stand the phone like a tent: the screen stays on and shows the time, candle lighting and Havdalah. Start it before Shabbat, then leave it alone.';
-
-  @override
-  String get shabbatDisplayShabbatShalom => 'Shabbat shalom';
-
-  @override
-  String get shabbatDisplayShabbatName => 'Shabbat';
-
-  @override
-  String get shabbatDisplayTonight => 'Tonight';
-
-  @override
-  String get shabbatDisplayComing => 'Coming up';
-
-  @override
-  String get shabbatDisplayFestivalEntry => 'Begins';
-
-  @override
-  String get shabbatDisplayFestivalExit => 'Ends';
-
-  @override
-  String get shabbatDisplayParasha => 'Parasha';
-
-  @override
-  String shabbatDisplayHanukkahNight(int night) {
-    return 'Night $night';
-  }
-
-  @override
-  String shabbatDisplayOmerDay(int day) {
-    return 'Day $day of the Omer';
-  }
-
-  @override
-  String get shabbatDisplayExitHint => 'Hold for two seconds to leave';
-
-  @override
-  String get shabbatDisplayProposalTitle =>
-      'Stand the phone like a tent for tonight?';
-
-  @override
-  String get shabbatDisplayProposalDismiss => 'Not now';
 
   @override
   String get verificationProfileEyebrow => 'Your profile';

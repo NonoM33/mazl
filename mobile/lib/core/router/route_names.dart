@@ -22,7 +22,6 @@ abstract class RouteNames {
   static const verification = 'verification';
   static const verificationIdentity = 'verificationIdentity';
   static const shabbatMode = 'shabbatMode';
-  static const shabbatDisplay = 'shabbatDisplay';
   static const computers = 'computers';
   static const webScan = 'webScan';
   static const religiousData = 'religiousData';

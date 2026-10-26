@@ -1239,13 +1239,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Tenez-le comme un ordinateur portable. La photo reste en haut, les boutons en bas, sous votre pouce.';
 
   @override
-  String get duoTutorialTentTitle => 'Debout, comme une tente';
-
-  @override
-  String get duoTutorialTentBody =>
-      'Refermez-le et tournez-le sur le côté. Un affichage de Shabbat sobre veille sur la table.';
-
-  @override
   String get duoTutorialReadyTitle => 'C\'est parti';
 
   @override
@@ -3901,47 +3894,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get shabbatDisplayLaunchHint =>
       'Posez le téléphone en tente : l\'écran reste allumé et affiche l\'heure, l\'allumage et la havdala. À lancer avant Shabbat, sans rien toucher ensuite.';
-
-  @override
-  String get shabbatDisplayShabbatShalom => 'Shabbat shalom';
-
-  @override
-  String get shabbatDisplayShabbatName => 'Shabbat';
-
-  @override
-  String get shabbatDisplayTonight => 'Ce soir';
-
-  @override
-  String get shabbatDisplayComing => 'À venir';
-
-  @override
-  String get shabbatDisplayFestivalEntry => 'Entrée';
-
-  @override
-  String get shabbatDisplayFestivalExit => 'Sortie';
-
-  @override
-  String get shabbatDisplayParasha => 'Paracha';
-
-  @override
-  String shabbatDisplayHanukkahNight(int night) {
-    return 'Soir $night';
-  }
-
-  @override
-  String shabbatDisplayOmerDay(int day) {
-    return 'Jour $day de l\'Omer';
-  }
-
-  @override
-  String get shabbatDisplayExitHint => 'Maintenez deux secondes pour quitter';
-
-  @override
-  String get shabbatDisplayProposalTitle =>
-      'Poser le téléphone en tente pour ce soir ?';
-
-  @override
-  String get shabbatDisplayProposalDismiss => 'Pas maintenant';
 
   @override
   String get verificationProfileEyebrow => 'Votre profil';

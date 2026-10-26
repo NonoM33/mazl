@@ -31,12 +31,6 @@
     hinge: 0x2b2b33,
     tints: [0xe7e4df, 0xe1e5ea, 0xe8e2e5, 0xe1e8e4, 0xe3e1ea],
     bust: 0xcdd2da,
-    // Mode Shabbat du design system : fond encre fixe, textes chauds, flamme ambrée.
-    shabbatGround: 0x0b0b0f,
-    shabbatText: 0xf4f1ea,
-    shabbatMuted: 0xb9b6ae,
-    candle: 0xf2b544,
-    wick: 0x3a3a42,
   };
 
   // --- Dimensions (1 unité = 100 points d'écran) ----------------------------
@@ -279,30 +273,6 @@
     layer.shape(heartShape(0.16), -w / 2 + 0.18 + pw / 2 + 0.7, y + 0.01, C.paper, 1);
   }
 
-  /** Écran extérieur, en tente : la colonne à gauche, un affichage de Chabbat minimal. */
-  /**
-   * Écran extérieur, en tente : l'affichage de Shabbat tel que l'app le montre,
-   * un écran de nuit sans aucune commande (ni capsule d'onglets ni bouton) :
-   * deux bougies à la flamme ambrée à gauche, la grande heure et les horaires à droite.
-   */
-  function buildCoverTent(layer, w, h) {
-    layer.rect(0, 0, w, h, C.shabbatGround, 1, 0.42);
-    const left = -w / 2 + COLUMN + 0.35;
-    for (const dx of [0, 0.62]) {
-      layer.rect(left + dx, -0.35, 0.16, 1.5, C.wick, 1, 0.06);
-      layer.add(new T.CircleGeometry(1, 28), left + dx, 0.62, C.candle, 1);
-      layer.last.scale.set(0.085, 0.16, 1);
-      layer.circle(left + dx, 0.62, 0.32, C.candle, 0.12);
-    }
-    const right = left + 1.45;
-    layer.bar(right, 1.0, 2.1, 0.42, C.shabbatText, 1);
-    layer.bar(right, 0.42, 1.5, 0.11, C.shabbatMuted, 0.85);
-    layer.bar(right, -0.18, 0.9, 0.09, C.shabbatMuted, 0.6);
-    layer.bar(right + 1.15, -0.18, 0.9, 0.09, C.shabbatMuted, 0.6);
-    layer.bar(right, -0.42, 0.7, 0.15, C.shabbatText, 0.95);
-    layer.bar(right + 1.15, -0.42, 0.7, 0.15, C.shabbatText, 0.95);
-  }
-
   // --- L'appareil --------------------------------------------------------------
 
   const geometryCache = {};
@@ -374,7 +344,7 @@
 
     const hl = highlightSet();
     const shaded = [];
-    const layers = { listV: null, chatV: null, photoH: null, buttonsH: null, coverP: null, coverT: null };
+    const layers = { listV: null, chatV: null, photoH: null, buttonsH: null, coverP: null };
     const all = [];
 
     const bodyMat = ghost
@@ -433,12 +403,9 @@
         cover.add(coverScreen);
         const cp = new Layer(SCREEN_Z);
         buildCoverPortrait(cp, sw, sh, hl);
-        const ct = new Layer(SCREEN_Z * 1.5);
-        buildCoverTent(ct, sh, sw, hl);
-        cover.add(cp.group, ct.group);
+        cover.add(cp.group);
         pivot.add(cover);
         layers.coverP = cp;
-        layers.coverT = ct;
       }
     }
 
@@ -460,24 +427,6 @@
     const qb = new T.Quaternion();
     const qz = new T.Quaternion().setFromAxisAngle(AXIS_Z, PI / 2);
     const tmp = new T.Quaternion();
-    const basis = new T.Matrix4();
-    const bx = new T.Vector3();
-    const by = new T.Vector3(1, 0, 0);
-    const bz = new T.Vector3();
-    /** Orientation d'une moitié de tente écartée de `b` de la verticale. */
-    const tentBasis = (b, front, out) => {
-      const s = Math.sin(b);
-      const c = Math.cos(b);
-      if (front) {
-        // Plaque de gauche : son dos (écran extérieur) fait face à la caméra.
-        bx.set(0, c, -s);
-        bz.set(0, -s, -c);
-      } else {
-        bx.set(0, -c, -s);
-        bz.set(0, -s, c);
-      }
-      out.setFromRotationMatrix(basis.makeBasis(bx, by, bz));
-    };
     const qw = new T.Quaternion();
     const normal = new T.Vector3();
 
@@ -487,8 +436,8 @@
       hl,
       allLayers: all,
       ghostMat,
-      /** Place les plaques pour un angle de charnière, un axe (0 vertical, 1 horizontal) et la tente (0 non, 1 oui : un V inversé sur la table). */
-      pose(theta, axisT, tentT) {
+      /** Place les plaques pour un angle de charnière, un axe (0 vertical, 1 horizontal) */
+      pose(theta, axisT) {
         const f = M.foldAngles(theta);
         // Charnière verticale : chaque plaque tourne d'autant, de part et d'autre.
         qa.setFromAxisAngle(AXIS_Y, f.vHalf);
@@ -498,16 +447,8 @@
         pivots.left.quaternion.slerpQuaternions(qa, tmp, axisT);
         tmp.setFromAxisAngle(AXIS_X, f.topTilt).multiply(qz);
         pivots.right.quaternion.slerpQuaternions(qb, tmp, axisT);
-        if (tentT > 0) {
-          // Tente : la charnière en haut, les moitiés descendent sur leur tranche basse.
-          const t = M.tentAngles(theta);
-          tentBasis(t.front, true, qa);
-          tentBasis(t.back, false, qb);
-          pivots.left.quaternion.slerp(qa, tentT);
-          pivots.right.quaternion.slerp(qb, tentT);
-        }
-        rig.rotation.set(0, f.yaw * (1 - axisT) * (1 - tentT), 0, 'ZYX');
-        hingeGroup.rotation.z = Math.max(axisT, tentT) * (PI / 2);
+        rig.rotation.set(0, f.yaw * (1 - axisT), 0, 'ZYX');
+        hingeGroup.rotation.z = axisT * (PI / 2);
         rig.position.set(0, 0, 0);
         rig.updateMatrixWorld(true);
         const box = measure(rig);
@@ -616,7 +557,7 @@
   // Avant le premier message de Flutter : l'appareil fermé, comme à l'étape 1.
   let pose = M.normalizePose({ hinge: 'closed' });
   let target = M.targetFor(pose);
-  const cur = { theta: target.theta, axisT: target.axisT, tentT: target.tentT, trace: 0, ghostAlpha: 0, dist: 14, ty: 3 };
+  const cur = { theta: target.theta, axisT: target.axisT, trace: 0, ghostAlpha: 0, dist: 14, ty: 3 };
   const hlCur = { tabs: 0, buttons: 0 };
   let width = 1;
   let height = 1;
@@ -657,9 +598,8 @@
     const half = snap ? 0 : 0.1;
     cur.theta = M.approach(cur.theta, target.theta, dt, half);
     cur.axisT = M.approach(cur.axisT, target.axisT, dt, snap ? 0 : 0.2);
-    cur.tentT = M.approach(cur.tentT, target.tentT, dt, snap ? 0 : 0.28);
 
-    const box = real.pose(cur.theta, cur.axisT, cur.tentT);
+    const box = real.pose(cur.theta, cur.axisT);
 
     // Les calques d'écran se fondent selon l'orientation de l'appareil.
     const aH = M.smoothstep(0.35, 0.65, cur.axisT);
@@ -667,11 +607,7 @@
     real.layers.chatV.setAlpha(1 - aH);
     real.layers.photoH.setAlpha(aH);
     real.layers.buttonsH.setAlpha(aH);
-    const aT = M.smoothstep(0.35, 0.65, cur.tentT);
-    real.layers.coverP.setAlpha(1 - aT);
-    real.layers.coverT.setAlpha(aT);
-    // En tente la moitié est couchée d'un quart de tour : l'aperçu paysage se redresse.
-    real.layers.coverT.group.rotation.z = (PI / 2) * cur.tentT;
+    real.layers.coverP.setAlpha(1);
 
     // Les éclats : l'étape allume, le geste réussi les tient allumés.
     const want = M.highlightsFor(pose.step);
@@ -688,7 +624,7 @@
     cur.ghostAlpha = M.approach(cur.ghostAlpha, goalAlpha, dt, snap ? 0 : 0.08);
     if (g && cur.ghostAlpha > 0.01) {
       ghost.rig.visible = true;
-      ghost.pose(g.theta, g.axisT, g.tentT);
+      ghost.pose(g.theta, g.axisT);
       ghost.ghostMat.opacity = cur.ghostAlpha * 0.9;
     } else {
       ghost.rig.visible = false;
@@ -735,9 +671,9 @@
     cur.dist = M.approach(cur.dist, need, dt, snap ? 0 : 0.35);
     cur.ty = M.approach(cur.ty, centerY, dt, snap ? 0 : 0.35);
     const flat = M.clamp((box.max.z - box.min.z) / 5.5, 0, 1) * cur.axisT;
-    const elevation = M.lerp(M.lerp(0.2, 0.52, flat), 0.3, cur.tentT);
+    const elevation = M.lerp(0.2, 0.52, flat);
     const sway = snap ? 0 : Math.sin(time * 0.42) * 0.09;
-    const azimuth = M.lerp(0.2, 0.62, cur.tentT) + sway;
+    const azimuth = 0.2 + sway;
     camera.position.set(
       Math.sin(azimuth) * Math.cos(elevation) * cur.dist,
       cur.ty + Math.sin(elevation) * cur.dist,
@@ -759,8 +695,8 @@
     const from = M.gestureAt(step, 0.6, false);
     const to = M.gestureAt(step, 2.4, false);
     if (!from || !to) return (boundsCache[step] = null);
-    const box = ghost.pose(from.theta, from.axisT, from.tentT).clone();
-    box.union(ghost.pose(to.theta, to.axisT, to.tentT));
+    const box = ghost.pose(from.theta, from.axisT).clone();
+    box.union(ghost.pose(to.theta, to.axisT));
     return (boundsCache[step] = box);
   }
 

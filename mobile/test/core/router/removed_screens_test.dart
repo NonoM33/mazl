@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mazl/core/router/app_router.dart';
 
-// Décision de Renaud du 2026-10-25 : les façades qui ne font rien (ou qui
+// Décisions de Renaud des 2026-10-25 et 2026-10-26 : les façades qui ne font rien (ou qui
 // appellent des routes serveur inexistantes) quittent l'app. Aucun chemin du
 // routeur ne doit plus y mener.
 void main() {
@@ -22,6 +22,7 @@ void main() {
       '/success-stories': 'succès de couples (3 routes serveur inexistantes)',
       '/visitors': 'visiteurs (route serveur inexistante)',
       '/profile/ai-shadchan': 'AI Shadchan (route serveur inexistante)',
+      '/profile/settings/shabbat/display': 'affichage Shabbat en tente',
     };
     for (final entry in removed.entries) {
       test('${entry.key} : ${entry.value}', () {
@@ -40,7 +41,6 @@ void main() {
       '/likes',
       '/premium',
       '/profile/settings/shabbat',
-      '/profile/settings/shabbat/display',
     ]) {
       test(path, () => expect(exists(path), isTrue));
     }

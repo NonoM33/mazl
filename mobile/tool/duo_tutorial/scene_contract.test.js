@@ -50,3 +50,11 @@ test('the gesture outline skips the hinge edge of each half', () => {
   expect(scene).not.toMatch(/new T\.LineSegments\(new T\.EdgesGeometry/);
   expect(scene).toMatch(/new T\.LineSegments\(silhouetteEdges\(/);
 });
+
+// The tent step is gone: the scene keeps no tent pose, no Shabbat cover screen
+// and setPose takes no tent argument.
+test('the scene and its maths know nothing of the tent', () => {
+  for (const name of ['tutorial.js', 'pose_math.js']) {
+    expect(read(name)).not.toMatch(/tent|sideways|shabbat/i);
+  }
+});

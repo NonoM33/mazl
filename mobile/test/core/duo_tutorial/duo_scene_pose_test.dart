@@ -20,44 +20,18 @@ DuoScenePose sceneFor(
 );
 
 /// Ce que la page 3D reçoit pour chaque pose mesurée : la charnière réelle,
-/// l'axe du pli (vu de la fenêtre) et si l'appareil est de côté.
+/// l'axe du pli (vu de la fenêtre).
 void main() {
-  test('fermé et debout : charnière fermée, angle 0, pas de côté', () {
+  test('fermé et debout : charnière fermée, angle 0', () {
     final pose = sceneFor(DuoPose.closed);
     expect(pose.hinge, HingeStatus.closed);
     expect(pose.angle, 0);
-    expect(pose.sideways, isFalse);
     expect(pose.verticalBar, VerticalBarSide.right);
   });
 
-  test('en tente : fermé et de côté, colonne à gauche', () {
+  test('en tente : colonne à gauche', () {
     final pose = sceneFor(DuoPose.tent);
-    expect(pose.sideways, isTrue);
     expect(pose.verticalBar, VerticalBarSide.left);
-  });
-
-  test(
-    'tente entrouverte (charnière partiallyOpen, écran extérieur) : de côté aussi',
-    () {
-      final pose = DuoScenePose.from(
-        fold: FoldState(
-          hinge: HingeStatus.partiallyOpen,
-          verticalBar: VerticalBarSide.left,
-          angle: 1.2,
-        ),
-        size: DuoPose.tent.size,
-        step: DuoTutorialStep.tent,
-        validated: false,
-        reduceMotion: false,
-      );
-      expect(pose.sideways, isTrue);
-      expect(pose.angle, 1.2);
-    },
-  );
-
-  test('un mi-ouvert sur l\'écran intérieur n\'est pas de côté', () {
-    expect(sceneFor(DuoPose.halfOpenBook).sideways, isFalse);
-    expect(sceneFor(DuoPose.halfOpenLaptop).sideways, isFalse);
   });
 
   test('livre : le pli vertical, l\'angle réel', () {
@@ -124,7 +98,6 @@ void main() {
       expect(message['verticalBar'], 'right');
       expect(message['step'], 'book');
       expect(message['axis'], 'vertical');
-      expect(message['sideways'], false);
       expect(message['validated'], false);
       expect(message['reduceMotion'], false);
     });
@@ -148,7 +121,7 @@ void main() {
       // Les noms sont ceux de STEPS dans assets/duo_tutorial/pose_math.js.
       expect(
         [for (final s in DuoTutorialStep.values) s.name],
-        ['welcome', 'open', 'book', 'table', 'tent', 'ready'],
+        ['welcome', 'open', 'book', 'table', 'ready'],
       );
     });
   });
