@@ -64,7 +64,8 @@ Future<void> _pump(
 /// Les deux heures du bandeau (allumage, havdala), en minutes depuis minuit.
 List<int> _heroMinutes(WidgetTester tester) {
   final times = find.byWidgetPredicate(
-    (widget) => widget is Text && RegExp(r'^\d\d:\d\d$').hasMatch(widget.data ?? ''),
+    (widget) =>
+        widget is Text && RegExp(r'^\d\d:\d\d$').hasMatch(widget.data ?? ''),
   );
   return [
     for (final element in times.evaluate())
@@ -83,7 +84,11 @@ int _minutesOfDay(DateTime utcInstant) {
 void _expectClose(int actual, int expected, String what) {
   var gap = (actual - expected).abs();
   if (gap > 720) gap = 1440 - gap;
-  expect(gap, lessThanOrEqualTo(2), reason: '$what : $actual au lieu de $expected');
+  expect(
+    gap,
+    lessThanOrEqualTo(2),
+    reason: '$what : $actual au lieu de $expected',
+  );
 }
 
 void main() {
@@ -100,13 +105,23 @@ void main() {
       // havdala 17:33 (UTC+2) = 15:33 UTC, le samedi 10 janvier 2026.
       final minutes = _heroMinutes(tester);
       expect(minutes, hasLength(2));
-      _expectClose(minutes[0], _minutesOfDay(DateTime.utc(2026, 1, 9, 14, 35)), 'allumage');
-      _expectClose(minutes[1], _minutesOfDay(DateTime.utc(2026, 1, 10, 15, 33)), 'havdala');
+      _expectClose(
+        minutes[0],
+        _minutesOfDay(DateTime.utc(2026, 1, 9, 14, 35)),
+        'allumage',
+      );
+      _expectClose(
+        minutes[1],
+        _minutesOfDay(DateTime.utc(2026, 1, 10, 15, 33)),
+        'havdala',
+      );
       expect(find.text('Basé sur Jérusalem'), findsOneWidget);
       expect(find.textContaining('Paris'), findsNothing);
     });
 
-    testWidgets('Paris par les coordonnées : les heures de Paris', (tester) async {
+    testWidgets('Paris par les coordonnées : les heures de Paris', (
+      tester,
+    ) async {
       await _pump(
         tester,
         _member(location: 'Paris 75001', latitude: 48.8566, longitude: 2.3522),
@@ -114,8 +129,16 @@ void main() {
 
       // Hebcal : allumage 15:55 UTC, havdala 17:08 UTC.
       final minutes = _heroMinutes(tester);
-      _expectClose(minutes[0], _minutesOfDay(DateTime.utc(2026, 1, 9, 15, 55)), 'allumage');
-      _expectClose(minutes[1], _minutesOfDay(DateTime.utc(2026, 1, 10, 17, 8)), 'havdala');
+      _expectClose(
+        minutes[0],
+        _minutesOfDay(DateTime.utc(2026, 1, 9, 15, 55)),
+        'allumage',
+      );
+      _expectClose(
+        minutes[1],
+        _minutesOfDay(DateTime.utc(2026, 1, 10, 17, 8)),
+        'havdala',
+      );
       // Le code postal n'est pas un nom de lieu.
       expect(find.text('Basé sur Paris'), findsOneWidget);
     });
@@ -126,7 +149,11 @@ void main() {
       await _pump(tester, _member(location: 'Lyon'));
 
       final minutes = _heroMinutes(tester);
-      _expectClose(minutes[0], _minutesOfDay(DateTime.utc(2026, 1, 9, 15, 55)), 'allumage');
+      _expectClose(
+        minutes[0],
+        _minutesOfDay(DateTime.utc(2026, 1, 9, 15, 55)),
+        'allumage',
+      );
       expect(find.text('Basé sur Paris, France'), findsOneWidget);
       expect(
         find.textContaining('votre ville n\'est pas connue'),
@@ -172,7 +199,9 @@ void main() {
 
     for (final locale in locales) {
       testWidgets('${locale.languageCode} : ni interrupteur, ni curseur, ni '
-          'bouton inerte (le seul bouton lance l\'affichage)', (tester) async {
+          'bouton : l\'écran montre les horaires, rien à lancer', (
+        tester,
+      ) async {
         await _pump(
           tester,
           _member(location: 'Jérusalem', latitude: 31.7683, longitude: 35.2137),
@@ -184,7 +213,7 @@ void main() {
         expect(find.byType(Slider), findsNothing);
         expect(find.byType(OutlinedButton), findsNothing);
         expect(find.byType(TextButton), findsNothing);
-        expect(find.byType(ElevatedButton), findsOneWidget);
+        expect(find.byType(ElevatedButton), findsNothing);
         expect(tester.takeException(), isNull);
       });
     }
