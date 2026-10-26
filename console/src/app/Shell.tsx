@@ -82,6 +82,9 @@ export function Shell({ active, children }: { readonly active: SectionId | null;
             </span>
             <span className="sidebar-role">{me.roleLabel}</span>
           </div>
+          <a className="sidebar-logout" href="/admin/connexion">
+            Ancienne console
+          </a>
           <button type="button" className="sidebar-logout" onClick={session.logout}>
             <Icon name="logout" size={16} />
             Se déconnecter

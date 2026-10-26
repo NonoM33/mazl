@@ -5,29 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MAZL — Admin Dashboard</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    @font-face { font-family: "Geist"; font-weight: 400; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-400.ttf") format("truetype"); }
+    @font-face { font-family: "Geist"; font-weight: 500; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-500.ttf") format("truetype"); }
+    @font-face { font-family: "Geist"; font-weight: 600; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-600.ttf") format("truetype"); }
+    @font-face { font-family: "Geist"; font-weight: 700; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-700.ttf") format("truetype"); }
     :root {
-      --primary: #6C5CE7;
-      --primary-dark: #5849c2;
-      --secondary: #FD79A8;
-      --accent: #FF6B6B;
-      --success: #00B894;
-      --warning: #FDCB6E;
-      --dark: #2D3436;
-      --text: #2D3436;
-      --text-light: #636E72;
-      --text-muted: #B2BEC3;
-      --bg: #F8F9FE;
-      --bg-card: #ffffff;
-      --border: #E9ECEF;
-      --gradient: linear-gradient(135deg, #6C5CE7 0%, #FD79A8 100%);
-      --shadow: 0 4px 20px rgba(108, 92, 231, 0.1);
-      --shadow-hover: 0 8px 30px rgba(108, 92, 231, 0.15);
+      --primary: #2747F5;
+      --primary-dark: #1A35C9;
+      --primary-light: #5B78FF;
+      --secondary: #5B78FF;
+      --accent: #C8281C;
+      --success: #15803D;
+      --warning: #B45309;
+      --dark: #0B0B0F;
+      --text: #0B0B0F;
+      --text-light: #6B6B76;
+      --text-muted: #6B6B76;
+      --bg: #F3F3F5;
+      --bg-card: #FFFFFF;
+      --border: #E2E2E6;
+      --shadow: 0 1px 2px rgba(11, 11, 15, 0.04);
+      --shadow-hover: 0 1px 2px rgba(11, 11, 15, 0.08);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       display: flex;
@@ -54,9 +57,9 @@
     .sidebar-logo {
       font-size: 28px;
       font-weight: 700;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--dark);
+      font-weight: 700;
+      letter-spacing: -0.055em;
       text-decoration: none;
     }
     .sidebar-subtitle {
@@ -98,7 +101,7 @@
       color: var(--primary);
     }
     .nav-item.active {
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1) 0%, rgba(253, 121, 168, 0.1) 100%);
+      background: rgba(39, 71, 245, 0.1);
       color: var(--primary);
     }
     .nav-item svg {
@@ -201,10 +204,10 @@
       justify-content: center;
       margin-bottom: 16px;
     }
-    .stat-icon.purple { background: rgba(108, 92, 231, 0.1); color: var(--primary); }
-    .stat-icon.pink { background: rgba(253, 121, 168, 0.1); color: var(--secondary); }
-    .stat-icon.green { background: rgba(0, 184, 148, 0.1); color: var(--success); }
-    .stat-icon.orange { background: rgba(253, 203, 110, 0.1); color: var(--warning); }
+    .stat-icon.purple { background: rgba(39, 71, 245, 0.1); color: var(--primary); }
+    .stat-icon.pink { background: rgba(91, 120, 255, 0.1); color: var(--secondary); }
+    .stat-icon.green { background: rgba(21, 128, 61, 0.1); color: var(--success); }
+    .stat-icon.orange { background: rgba(180, 83, 9, 0.1); color: var(--warning); }
     .stat-value {
       font-size: 32px;
       font-weight: 700;
@@ -285,12 +288,11 @@
       text-decoration: none;
     }
     .btn-primary {
-      background: var(--gradient);
+      background: var(--primary);
       color: white;
     }
     .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+      background: var(--primary-dark);
     }
     .btn-secondary {
       background: var(--bg);
@@ -326,10 +328,10 @@
       font-size: 12px;
       font-weight: 500;
     }
-    .badge-success { background: rgba(0, 184, 148, 0.1); color: var(--success); }
-    .badge-warning { background: rgba(253, 203, 110, 0.2); color: #D68910; }
-    .badge-danger { background: rgba(255, 107, 107, 0.1); color: var(--accent); }
-    .badge-primary { background: rgba(108, 92, 231, 0.1); color: var(--primary); }
+    .badge-success { background: rgba(21, 128, 61, 0.1); color: var(--success); }
+    .badge-warning { background: rgba(180, 83, 9, 0.2); color: #B45309; }
+    .badge-danger { background: rgba(200, 40, 28, 0.1); color: var(--accent); }
+    .badge-primary { background: rgba(39, 71, 245, 0.1); color: var(--primary); }
 
     /* Form Elements */
     .form-group {
@@ -354,7 +356,7 @@
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+      box-shadow: 0 0 0 3px rgba(39, 71, 245, 0.1);
     }
     .form-row {
       display: grid;
@@ -485,7 +487,7 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: var(--gradient);
+      background: var(--primary);
       color: white;
       display: flex;
       align-items: center;
@@ -599,8 +601,8 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <a href="/" class="sidebar-logo">MAZL</a>
-      <div class="sidebar-subtitle">Admin Dashboard</div>
+      <a href="/" class="sidebar-logo" aria-label="mazl">mazl.</a>
+      <div class="sidebar-subtitle">Ancienne console</div>
     </div>
 
     <nav class="sidebar-nav">
@@ -1131,7 +1133,7 @@
     const adminToken = localStorage.getItem('mazl_admin_token');
     const adminEmail = localStorage.getItem('mazl_admin_email');
     if (!adminToken) {
-      window.location.href = '/admin';
+      window.location.href = '/admin/connexion';
     }
 
     const API_BASE = '';
@@ -1147,7 +1149,7 @@
     function redirectToLogin() {
       localStorage.removeItem('mazl_admin_token');
       localStorage.removeItem('mazl_admin_email');
-      window.location.href = '/admin';
+      window.location.href = '/admin/connexion';
     }
 
     // API helper
