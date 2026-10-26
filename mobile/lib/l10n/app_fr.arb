@@ -73,6 +73,10 @@
   "@authRouteErrorHome": {
     "description": "Page d'erreur de l'app : bouton qui ramène à l'accueil."
   },
+  "authErrorInvalidCredentials": "Identifiant ou mot de passe incorrect.",
+  "@authErrorInvalidCredentials": {
+    "description": "Connexion par identifiant : erreur quand l'identifiant ou le mot de passe est refusé (on ne dit jamais lequel des deux)."
+  },
   "boostTitle": "Boost",
   "@boostTitle": {
     "description": "Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes)."

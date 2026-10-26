@@ -13,5 +13,6 @@
   "authErrorAccountDisabled": "Tu cuenta está desactivada. Escríbenos a {contact}.",
   "authRouteErrorTitle": "Página no encontrada",
   "authRouteErrorBody": "Ha ocurrido un error",
-  "authRouteErrorHome": "Volver al inicio"
+  "authRouteErrorHome": "Volver al inicio",
+  "authErrorInvalidCredentials": "Usuario o contraseña incorrectos."
 }

@@ -13,5 +13,6 @@
   "authErrorAccountDisabled": "Your account is disabled. Write to us at {contact}.",
   "authRouteErrorTitle": "Page not found",
   "authRouteErrorBody": "Something went wrong",
-  "authRouteErrorHome": "Back to home"
+  "authRouteErrorHome": "Back to home",
+  "authErrorInvalidCredentials": "Incorrect username or password."
 }

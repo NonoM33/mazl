@@ -194,6 +194,12 @@ abstract class AppLocalizations {
   /// **'Retour à l\'accueil'**
   String get authRouteErrorHome;
 
+  /// Connexion par identifiant : erreur quand l'identifiant ou le mot de passe est refusé (on ne dit jamais lequel des deux).
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant ou mot de passe incorrect.'**
+  String get authErrorInvalidCredentials;
+
   /// Titre de la barre d'en-tête de l'écran Boost. « Boost » est le nom de la fonction (mettre son profil en avant 30 minutes).
   ///
   /// In fr, this message translates to:

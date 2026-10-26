@@ -60,6 +60,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get authRouteErrorHome => 'Volver al inicio';
 
   @override
+  String get authErrorInvalidCredentials => 'Usuario o contraseña incorrectos.';
+
+  @override
   String get boostTitle => 'Boost';
 
   @override

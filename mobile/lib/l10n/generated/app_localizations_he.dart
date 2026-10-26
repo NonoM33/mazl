@@ -58,6 +58,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get authRouteErrorHome => 'חזרה לדף הבית';
 
   @override
+  String get authErrorInvalidCredentials => 'שם המשתמש או הסיסמה שגויים.';
+
+  @override
   String get boostTitle => 'בוסט';
 
   @override

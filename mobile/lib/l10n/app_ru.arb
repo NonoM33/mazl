@@ -15,6 +15,7 @@
   "authRouteErrorTitle": "Страница не найдена",
   "authRouteErrorBody": "Произошла ошибка",
   "authRouteErrorHome": "На главную",
+  "authErrorInvalidCredentials": "Неверный логин или пароль.",
   "boostTitle": "Буст",
   "boostHeadlineActive": "Буст включён",
   "boostHeadlineIdle": "Продвиньте свой профиль",

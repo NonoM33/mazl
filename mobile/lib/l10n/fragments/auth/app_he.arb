@@ -13,5 +13,6 @@
   "authErrorAccountDisabled": "החשבון שלך הושבת. כתבו לנו אל {contact}.",
   "authRouteErrorTitle": "העמוד לא נמצא",
   "authRouteErrorBody": "אירעה שגיאה",
-  "authRouteErrorHome": "חזרה לדף הבית"
+  "authRouteErrorHome": "חזרה לדף הבית",
+  "authErrorInvalidCredentials": "שם המשתמש או הסיסמה שגויים."
 }

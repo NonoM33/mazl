@@ -13,5 +13,6 @@
   "authErrorAccountDisabled": "Ваш аккаунт отключён. Напишите нам: {contact}.",
   "authRouteErrorTitle": "Страница не найдена",
   "authRouteErrorBody": "Произошла ошибка",
-  "authRouteErrorHome": "На главную"
+  "authRouteErrorHome": "На главную",
+  "authErrorInvalidCredentials": "Неверный логин или пароль."
 }

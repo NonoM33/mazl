@@ -60,6 +60,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authRouteErrorHome => 'На главную';
 
   @override
+  String get authErrorInvalidCredentials => 'Неверный логин или пароль.';
+
+  @override
   String get boostTitle => 'Буст';
 
   @override

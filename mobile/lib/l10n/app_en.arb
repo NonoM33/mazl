@@ -15,6 +15,7 @@
   "authRouteErrorTitle": "Page not found",
   "authRouteErrorBody": "Something went wrong",
   "authRouteErrorHome": "Back to home",
+  "authErrorInvalidCredentials": "Incorrect username or password.",
   "boostTitle": "Boost",
   "boostHeadlineActive": "Boost is on",
   "boostHeadlineIdle": "Boost your profile",

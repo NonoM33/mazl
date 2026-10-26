@@ -15,6 +15,7 @@
   "authRouteErrorTitle": "Página no encontrada",
   "authRouteErrorBody": "Ha ocurrido un error",
   "authRouteErrorHome": "Volver al inicio",
+  "authErrorInvalidCredentials": "Usuario o contraseña incorrectos.",
   "boostTitle": "Boost",
   "boostHeadlineActive": "Boost activo",
   "boostHeadlineIdle": "Impulsa tu perfil",
