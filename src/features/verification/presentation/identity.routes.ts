@@ -29,6 +29,8 @@ export function registerIdentityRoutes(app: App, deps: SubmitIdentityDeps): void
         frames: parsed.frames,
         chip: parsed.chip,
       });
+      // The outcome only: never a document field, a face or a score.
+      console.log(`Identity verification user ${c.get("userId")}: ${result.verified ? "verified" : `refused (${result.reason})`}`);
       if (!result.verified) return c.json({ success: true, verified: false, reason: result.reason });
       return c.json({ success: true, verified: true });
     } catch (error: unknown) {
