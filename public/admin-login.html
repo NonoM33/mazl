@@ -11,6 +11,8 @@
     @font-face { font-family: "Geist"; font-weight: 500; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-500.ttf") format("truetype"); }
     @font-face { font-family: "Geist"; font-weight: 600; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-600.ttf") format("truetype"); }
     @font-face { font-family: "Geist"; font-weight: 700; font-style: normal; font-display: swap; src: url("/console/fonts/Geist-700.ttf") format("truetype"); }
+    @font-face { font-family: "Geist Mono"; font-weight: 500; font-style: normal; font-display: swap; src: url("/console/fonts/GeistMono-500.ttf") format("truetype"); }
+    @font-face { font-family: "Geist Mono"; font-weight: 400; font-style: normal; font-display: swap; src: url("/console/fonts/GeistMono-400.ttf") format("truetype"); }
     :root {
       --ink: #0B0B0F;
       --paper: #FFFFFF;
@@ -41,12 +43,15 @@
       border-radius: 14px;
       padding: 32px;
     }
-    .logo { font-size: 34px; font-weight: 700; letter-spacing: -0.055em; line-height: 0.95; }
-    .subtitle { margin: 8px 0 24px; font-size: 13px; color: var(--muted); }
+    .brand { display: flex; align-items: baseline; gap: 10px; }
+    .logo { font-size: 28px; font-weight: 700; letter-spacing: -0.055em; line-height: 0.95; }
     .admin-badge {
-      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--tekhelet); margin-left: 6px;
+      font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+      border: 1px solid var(--hairline); border-radius: 4px; padding: 2px 6px;
     }
+    .title { margin-top: 24px; font-size: 24px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.15; }
+    .subtitle { margin: 6px 0 24px; font-size: 14px; color: var(--muted); line-height: 1.5; }
     .google-btn, .submit-btn {
       display: flex; align-items: center; justify-content: center; gap: 10px;
       width: 100%; height: 44px; border-radius: 10px; font: inherit; font-size: 14px; font-weight: 500;
@@ -81,6 +86,8 @@
     .google-btn .spinner { border-color: var(--hairline); border-top-color: var(--tekhelet); }
     @keyframes spin { to { transform: rotate(360deg); } }
     .footer-note { margin-top: 24px; text-align: center; font-size: 13px; }
+    .page-note { margin-top: 20px; text-align: center; font-size: 12.5px; color: var(--muted); }
+    .shell { width: 100%; max-width: 400px; }
     .footer-note a { color: var(--tekhelet); text-decoration: none; }
     .footer-note a:hover { color: var(--tekhelet-dark); text-decoration: underline; }
     @media (prefers-color-scheme: dark) {
@@ -91,12 +98,14 @@
   </style>
 </head>
 <body>
+  <main class="shell">
   <div class="login-card">
-    <h1 class="logo">mazl.</h1>
-    <p class="subtitle">
-      Ancienne console
+    <div class="brand">
+      <span class="logo" aria-label="mazl">mazl.</span>
       <span class="admin-badge">Staff</span>
-    </p>
+    </div>
+    <h1 class="title">Connexion à l'ancienne console</h1>
+    <p class="subtitle">Événements, campagnes et abonnements, en attendant leur arrivée dans la nouvelle console.</p>
 
     <button class="google-btn" id="google-btn" onclick="handleGoogleLogin()">
       <svg viewBox="0 0 24 24">
@@ -112,7 +121,7 @@
 
     <form id="login-form">
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
+        <label class="form-label" for="email">Adresse e-mail</label>
         <input type="email" id="email" name="email" class="form-input" placeholder="admin@mazl.app" required autocomplete="email" />
       </div>
       <div class="form-group">
@@ -125,6 +134,8 @@
 
     <p class="footer-note"><a href="/console">Retour à la nouvelle console</a></p>
   </div>
+  <p class="page-note">Accès réservé à l'équipe MAZL.</p>
+  </main>
 
   <script>
     const STORAGE_KEY = 'mazl_admin_token';

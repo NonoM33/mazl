@@ -52,4 +52,37 @@ describe.each(PAGES)("%s uses the Encre & Tekhelet design", (file) => {
     expect(html).not.toMatch(/font-family:\s*['"]?(Inter|Playfair)/);
     expect(html).toContain("#2747F5");
   });
+
+  test("labels use the self-hosted Geist Mono of the staff console", async () => {
+    expect(await read()).toContain("/console/fonts/GeistMono-400.ttf");
+  });
+});
+
+describe("the old dashboard looks like the staff console", () => {
+  const css = async (selector: string): Promise<string> => {
+    const html = await Bun.file("public/admin.html").text();
+    const rule = new RegExp(`\\n\\s*${selector.replaceAll(".", "\\.")}\\s*\\{([^}]*)\\}`).exec(html);
+    if (rule?.[1] === undefined) throw new Error(`no CSS rule for ${selector}`);
+    return rule[1];
+  };
+
+  test("the sidebar is ink, like the console's", async () => {
+    expect(await css(".sidebar")).toMatch(/background:\s*var\(--side-bg\)/);
+    expect(await Bun.file("public/admin.html").text()).toContain("--side-bg: #0B0B0F");
+  });
+
+  test("key figures are flat mist tiles, without coloured icons", async () => {
+    const html = await Bun.file("public/admin.html").text();
+    expect(html).not.toContain("stat-icon");
+    const card = await css(".stat-card");
+    expect(card).toMatch(/background:\s*var\(--bg\)/);
+    expect(card).not.toContain("box-shadow: var(--shadow)");
+  });
+
+  test("the page titles are in French", async () => {
+    const html = await Bun.file("public/admin.html").text();
+    expect(html).not.toMatch(/>\s*Dashboard\s*</);
+    expect(html).not.toContain("dashboard: 'Dashboard'");
+    expect(html).toContain("dashboard: 'Tableau de bord'");
+  });
 });
