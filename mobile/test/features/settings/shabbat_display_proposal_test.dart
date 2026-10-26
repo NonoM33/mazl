@@ -141,6 +141,39 @@ void main() {
       expect(propose(_pesachAfternoon), isTrue);
     });
 
+    test('en vraie tente, entrouvert en V inversé (charnière partiallyOpen, '
+        'écran extérieur, sans pli actif) : oui', () {
+      const tent = FoldState(
+        hinge: HingeStatus.partiallyOpen,
+        verticalBar: VerticalBarSide.left,
+        angle: 1.9,
+      );
+      expect(propose(_fridayAfternoon, fold: tent), isTrue);
+    });
+
+    test('entrouvert mais avec un pli actif : non (livre, portable)', () {
+      for (final pose in [DuoPose.halfOpenBook, DuoPose.halfOpenLaptop]) {
+        expect(
+          propose(_fridayAfternoon, fold: pose.foldState, size: pose.size),
+          isFalse,
+          reason: pose.name,
+        );
+      }
+      // Même à la taille de l'écran extérieur, un pli actif exclut la tente.
+      expect(
+        propose(_fridayAfternoon, fold: DuoPose.halfOpenBook.foldState),
+        isFalse,
+      );
+    });
+
+    test('entrouvert à la taille de l\'écran intérieur : non', () {
+      const open = FoldState(hinge: HingeStatus.partiallyOpen);
+      expect(
+        propose(_fridayAfternoon, fold: open, size: const Size(951, 669)),
+        isFalse,
+      );
+    });
+
     test('fermé mais debout (portrait) : non', () {
       expect(
         propose(
@@ -245,6 +278,32 @@ void main() {
 
       expect(find.text(_title), findsNothing);
       expect(harness.placeReads, 0);
+    });
+
+    testWidgets('en tente entrouverte (partiallyOpen) : elle se montre', (
+      tester,
+    ) async {
+      final controller = DuoPoseController(DuoPose.tent);
+      setDuoPose(tester, DuoPose.tent);
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+          builder: duoAppBuilder(controller),
+          home: FoldScope(
+            state: const FoldState(
+              hinge: HingeStatus.partiallyOpen,
+              verticalBar: VerticalBarSide.left,
+            ),
+            child: _Harness().host(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text(_title), findsOneWidget);
     });
 
     testWidgets('trop tôt, ou un jour ordinaire : rien, et pas d\'appel '

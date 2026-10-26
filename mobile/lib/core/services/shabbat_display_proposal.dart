@@ -7,8 +7,25 @@ import 'rest_display_content.dart';
 /// How long before candle lighting the display is proposed.
 const Duration kShabbatDisplayProposalWindow = Duration(hours: 4);
 
+/// The window of the outer display, the largest width it has (the inner
+/// display is 669 pt wide or more, in every pose).
+const double kOuterDisplayMaxWidth = 700;
+
+/// Whether the foldable iPhone stands like a tent: the window is sideways and
+/// as small as the outer display, no fold is active, and the hinge is closed
+/// or only partly open (a real tent is slightly open, an inverted V, the outer
+/// display facing the room). The book and laptop poses have an active fold on
+/// the inner display and are out.
+bool isTentPose({required FoldState fold, required Size size}) =>
+    fold.isFoldable &&
+    size.width < kOuterDisplayMaxWidth &&
+    size.width > size.height &&
+    fold.activeDivision == null &&
+    (fold.hinge == HingeStatus.closed ||
+        fold.hinge == HingeStatus.partiallyOpen);
+
 /// Whether the app should propose the Shabbat display now: the phone is a
-/// foldable iPhone standing like a tent (closed, held sideways), and the next
+/// foldable iPhone standing like a tent ([isTentPose]), and the next
 /// rest begins within [window] (the afternoon of Friday, or of the eve of a
 /// festival). Never while the rest is on, never on another phone, never when
 /// the sun does not set (no hour to count from).
@@ -19,10 +36,7 @@ bool shouldProposeShabbatDisplay({
   required Size size,
   Duration window = kShabbatDisplayProposalWindow,
 }) {
-  final tent =
-      fold.isFoldable &&
-      fold.hinge == HingeStatus.closed &&
-      size.width > size.height;
+  final tent = isTentPose(fold: fold, size: size);
   if (!tent || content.moment == RestDisplayMoment.resting) return false;
   if (!content.rest.timesKnown) return false;
   final untilEntry = content.rest.entry.difference(now);

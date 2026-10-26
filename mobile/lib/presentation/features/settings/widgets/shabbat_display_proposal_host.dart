@@ -79,10 +79,7 @@ class _ShabbatDisplayProposalHostState
     super.didChangeDependencies();
     final fold = FoldScope.of(context);
     final size = MediaQuery.sizeOf(context);
-    final tent =
-        fold.isFoldable &&
-        fold.hinge == HingeStatus.closed &&
-        size.width > size.height;
+    final tent = isTentPose(fold: fold, size: size);
     if (tent == _tent) return;
     _tent = tent;
     _evaluate();
