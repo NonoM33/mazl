@@ -43,6 +43,11 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+      # permission_handler compiles each permission only when its macro is set;
+      # without it the plugin answers "permanently denied" whatever the member
+      # chose in Settings. One line per Permission.<name> the app requests.
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PERMISSION_CAMERA=1'
     end
   end
 end
