@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/di/providers/privacy_providers.dart';
 import '../../../../core/di/providers/service_providers.dart';
 import '../../../../core/duo_tutorial/duo_tutorial_policy.dart';
@@ -1032,8 +1033,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       body: Stack(
         children: [
-          ListView(
-            children: [
+          // Held like a book: the account, discovery and Jewish settings on the
+          // page where the reading starts, the rest on the other.
+          FoldSpread(
+            // Each page ends above the home indicator.
+            padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+            start: [
               // User header
               Container(
                 padding: const EdgeInsets.all(16),
@@ -1116,6 +1121,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () => context.push(RoutePaths.shabbatMode),
               ),
 
+            ],
+            end: [
               // Couple Mode Section
               _SectionHeader(title: l10n.settingsSectionCouple),
               _buildCoupleModeCard(context),

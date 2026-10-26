@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers/privacy_providers.dart';
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/privacy/religious_data_consent.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -18,6 +19,8 @@ class ReligiousDataSettingsScreen extends ConsumerStatefulWidget {
   ConsumerState<ReligiousDataSettingsScreen> createState() =>
       _ReligiousDataSettingsScreenState();
 }
+
+const _pagePadding = EdgeInsets.fromLTRB(24, 8, 24, 48);
 
 class _ReligiousDataSettingsScreenState
     extends ConsumerState<ReligiousDataSettingsScreen> {
@@ -69,58 +72,66 @@ class _ReligiousDataSettingsScreenState
     final state = ref.watch(religiousDataConsentProvider);
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.privacySettingsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
-        children: _content(state),
-      ),
+      // Held like a book: the explanation on the page where the reading
+      // starts, the decision on the other.
+      body: _content(state),
     );
   }
 
-  List<Widget> _content(AsyncValue<ApiResponse<ReligiousDataConsent>> state) {
+  Widget _content(AsyncValue<ApiResponse<ReligiousDataConsent>> state) {
     final consent = state.valueOrNull?.data;
     if (state.isLoading) {
-      return const [
-        Padding(
-          padding: EdgeInsets.all(32),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      ];
+      return const Padding(
+        padding: EdgeInsets.all(32),
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (consent == null) {
-      return [
-        Semantics(
-          liveRegion: true,
-          child: Text(context.l10n.privacySettingsLoadFailed),
-        ),
-        TextButton(onPressed: _refresh, child: Text(context.l10n.commonRetry)),
-      ];
+      return ListView(
+        padding: _pagePadding,
+        children: [
+          Semantics(
+            liveRegion: true,
+            child: Text(context.l10n.privacySettingsLoadFailed),
+          ),
+          TextButton(
+            onPressed: _refresh,
+            child: Text(context.l10n.commonRetry),
+          ),
+        ],
+      );
     }
     final valid = consent.isValid;
-    return [
-      SectionLabel(context.l10n.privacySheetLabel, color: AppColors.tekhelet),
-      const SizedBox(height: 12),
-      Semantics(
-        header: true,
-        child: Text(
-          valid
-              ? context.l10n.privacySettingsGrantedTitle
-              : context.l10n.privacySettingsNotGrantedTitle,
-          style: Theme.of(context).textTheme.headlineSmall,
+    return FoldSpread(
+      padding: _pagePadding,
+      start: [
+        SectionLabel(context.l10n.privacySheetLabel, color: AppColors.tekhelet),
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            valid
+                ? context.l10n.privacySettingsGrantedTitle
+                : context.l10n.privacySettingsNotGrantedTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
         ),
-      ),
-      const SizedBox(height: 12),
-      Text(consent.text, style: const TextStyle(fontSize: 14, height: 1.5)),
-      const SizedBox(height: 24),
-      if (valid)
-        OutlinedButton(
-          onPressed: _busy ? null : () => _withdraw(consent),
-          child: Text(context.l10n.privacySettingsWithdraw),
-        )
-      else
-        ElevatedButton(
-          onPressed: _busy ? null : () => _grant(consent),
-          child: Text(context.l10n.privacyGive),
-        ),
-    ];
+        const SizedBox(height: 12),
+        Text(consent.text, style: const TextStyle(fontSize: 14, height: 1.5)),
+        const SizedBox(height: 24),
+      ],
+      end: [
+        if (valid)
+          OutlinedButton(
+            onPressed: _busy ? null : () => _withdraw(consent),
+            child: Text(context.l10n.privacySettingsWithdraw),
+          )
+        else
+          ElevatedButton(
+            onPressed: _busy ? null : () => _grant(consent),
+            child: Text(context.l10n.privacyGive),
+          ),
+      ],
+    );
   }
 }

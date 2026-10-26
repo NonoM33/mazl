@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/jewish_calendar_service.dart';
@@ -74,9 +75,10 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        body: ListView(
-          padding: EdgeInsets.zero,
-          children: [
+        // Held like a book: the dark hero (times, place) on the page where the
+        // reading starts, the launch button and the explanation on the other.
+        body: FoldSpread(
+          start: [
             ShabbatHero(
               candleLighting: _display(shabbat?.candleLighting),
               havdala: _display(shabbat?.havdala),
@@ -87,6 +89,8 @@ class _ShabbatModeScreenState extends State<ShabbatModeScreen> {
                     ),
               onBack: () => context.pop(),
             ),
+          ],
+          end: [
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
               child: Column(

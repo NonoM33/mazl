@@ -78,17 +78,7 @@ const List<DuoKnownFailure> duoKnownFailures = [
     'crosses the fold (book layout to do)',
   ),
   DuoKnownFailure(
-    '/couple/space/settings',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
     '/daily-picks',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/discover/profile/:userId',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
   ),
@@ -129,46 +119,6 @@ const List<DuoKnownFailure> duoKnownFailures = [
   ),
   DuoKnownFailure(
     '/premium/welcome',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/edit',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/settings',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/settings/computers',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/settings/computers/scan',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/settings/religious-data',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/settings/shabbat',
-    DuoPose.halfOpenBook,
-    'crosses the fold (book layout to do)',
-  ),
-  DuoKnownFailure(
-    '/profile/verification',
     DuoPose.halfOpenBook,
     'crosses the fold (book layout to do)',
   ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/providers/web_sessions_providers.dart';
+import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/web_sessions/web_login_qr.dart';
@@ -111,35 +112,79 @@ class _WebScanScreenState extends ConsumerState<WebScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final instructions = _Instructions(message: _message, busy: _waiting);
+    final close = Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: IconButton(
+        tooltip: context.l10n.commonClose,
+        icon: const Icon(Icons.close, color: Colors.white),
+        onPressed: () => context.pop(),
+      ),
+    );
+    // Held like a book (or set down like a laptop) the camera takes one page
+    // and the explanation the other, out of the curve. Flat, the explanation
+    // is written over the camera.
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Semantics(
+      body: FoldAwareSplit(
+        lead: SafeArea(
+          child: Column(
+            children: [
+              close,
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(child: instructions),
+                ),
+              ),
+            ],
+          ),
+        ),
+        action: _CameraStage(
+          camera: Semantics(
             label: context.l10n.webSessionsScanCameraLabel,
             child: ref.watch(qrScannerBuilderProvider)(context, _onCode),
           ),
-          const IgnorePointer(child: Center(child: _Frame())),
+          close: close,
+          instructions: instructions,
+        ),
+      ),
+    );
+  }
+}
+
+/// The camera with its frame; when the page is not split, the close button
+/// and the instructions are drawn over it.
+class _CameraStage extends StatelessWidget {
+  const _CameraStage({
+    required this.camera,
+    required this.close,
+    required this.instructions,
+  });
+
+  final Widget camera;
+  final Widget close;
+  final Widget instructions;
+
+  @override
+  Widget build(BuildContext context) {
+    final split = FoldAwareSplit.axisOf(context) != null;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        camera,
+        const IgnorePointer(child: Center(child: _Frame())),
+        if (!split)
           SafeArea(
             child: Column(
               children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: IconButton(
-                    tooltip: context.l10n.commonClose,
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => context.pop(),
-                  ),
-                ),
+                close,
                 const Spacer(),
-                _Instructions(message: _message, busy: _waiting),
+                instructions,
                 const SizedBox(height: 32),
               ],
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }

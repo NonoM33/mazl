@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_spread.dart';
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -548,9 +549,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     final l10n = context.l10n;
-    return ListView(
+    // Held like a book: the photos and the bio on the page where the reading
+    // starts, the prompts, intention and the fields on the other.
+    return FoldSpread(
       padding: const EdgeInsets.all(16),
-      children: [
+      start: [
         // Photos section
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -603,7 +606,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
 
         const SizedBox(height: 24),
-
+      ],
+      end: [
         // Profile Prompts
         const ProfilePromptsSection(),
 
