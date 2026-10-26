@@ -3801,6 +3801,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get shabbatDisplayExitHint => 'לחיצה ארוכה של שתי שניות ליציאה';
 
   @override
+  String get shabbatDisplayProposalTitle =>
+      'להציב את הטלפון כמו אוהל לקראת הערב?';
+
+  @override
+  String get shabbatDisplayProposalDismiss => 'לא עכשיו';
+
+  @override
   String get verificationProfileEyebrow => 'הפרופיל שלך';
 
   @override

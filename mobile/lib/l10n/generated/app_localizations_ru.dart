@@ -3872,6 +3872,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shabbatDisplayExitHint => 'Удерживайте две секунды, чтобы выйти';
 
   @override
+  String get shabbatDisplayProposalTitle =>
+      'Поставить телефон домиком на сегодняшний вечер?';
+
+  @override
+  String get shabbatDisplayProposalDismiss => 'Не сейчас';
+
+  @override
   String get verificationProfileEyebrow => 'Ваш профиль';
 
   @override

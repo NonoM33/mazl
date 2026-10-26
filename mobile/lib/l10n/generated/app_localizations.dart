@@ -6611,6 +6611,18 @@ abstract class AppLocalizations {
   /// **'Maintenez deux secondes pour quitter'**
   String get shabbatDisplayExitHint;
 
+  /// Proposition affichée le jour de l'allumage (vendredi ou veille de fête) quand l'iPhone Duo est fermé et posé en paysage : propose de lancer l'affichage Shabbat. Question courte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser le téléphone en tente pour ce soir ?'**
+  String get shabbatDisplayProposalTitle;
+
+  /// Proposition de l'affichage Shabbat : bouton pour la refuser jusqu'à la prochaine fois. Environ 15 caractères.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get shabbatDisplayProposalDismiss;
+
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
   /// In fr, this message translates to:

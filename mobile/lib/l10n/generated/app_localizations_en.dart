@@ -3826,6 +3826,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shabbatDisplayExitHint => 'Hold for two seconds to leave';
 
   @override
+  String get shabbatDisplayProposalTitle =>
+      'Stand the phone like a tent for tonight?';
+
+  @override
+  String get shabbatDisplayProposalDismiss => 'Not now';
+
+  @override
   String get verificationProfileEyebrow => 'Your profile';
 
   @override

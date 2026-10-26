@@ -10,5 +10,7 @@
   "shabbatDisplayParasha": "Parashá",
   "shabbatDisplayHanukkahNight": "Noche {night}",
   "shabbatDisplayOmerDay": "Día {day} del Ómer",
-  "shabbatDisplayExitHint": "Mantén pulsado dos segundos para salir"
+  "shabbatDisplayExitHint": "Mantén pulsado dos segundos para salir",
+  "shabbatDisplayProposalTitle": "¿Poner el teléfono como una tienda de campaña para esta noche?",
+  "shabbatDisplayProposalDismiss": "Ahora no"
 }

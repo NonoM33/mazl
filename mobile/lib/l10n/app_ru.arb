@@ -1083,6 +1083,8 @@
   "shabbatDisplayHanukkahNight": "Ночь {night}",
   "shabbatDisplayOmerDay": "День {day} Омера",
   "shabbatDisplayExitHint": "Удерживайте две секунды, чтобы выйти",
+  "shabbatDisplayProposalTitle": "Поставить телефон домиком на сегодняшний вечер?",
+  "shabbatDisplayProposalDismiss": "Не сейчас",
   "verificationProfileEyebrow": "Ваш профиль",
   "verificationTitle": "Верификация",
   "verificationLevel1": "Уровень 1",

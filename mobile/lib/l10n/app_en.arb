@@ -1083,6 +1083,8 @@
   "shabbatDisplayHanukkahNight": "Night {night}",
   "shabbatDisplayOmerDay": "Day {day} of the Omer",
   "shabbatDisplayExitHint": "Hold for two seconds to leave",
+  "shabbatDisplayProposalTitle": "Stand the phone like a tent for tonight?",
+  "shabbatDisplayProposalDismiss": "Not now",
   "verificationProfileEyebrow": "Your profile",
   "verificationTitle": "Verification",
   "verificationLevel1": "Level 1",

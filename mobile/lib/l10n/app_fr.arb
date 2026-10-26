@@ -5092,6 +5092,14 @@
   "@shabbatDisplayExitHint": {
     "description": "Affichage Shabbat : indication discrète, en bas de l'écran, de la seule façon de quitter l'affichage (appuyer sans lâcher pendant deux secondes). Lue aussi par VoiceOver."
   },
+  "shabbatDisplayProposalTitle": "Poser le téléphone en tente pour ce soir ?",
+  "@shabbatDisplayProposalTitle": {
+    "description": "Proposition affichée le jour de l'allumage (vendredi ou veille de fête) quand l'iPhone Duo est fermé et posé en paysage : propose de lancer l'affichage Shabbat. Question courte."
+  },
+  "shabbatDisplayProposalDismiss": "Pas maintenant",
+  "@shabbatDisplayProposalDismiss": {
+    "description": "Proposition de l'affichage Shabbat : bouton pour la refuser jusqu'à la prochaine fois. Environ 15 caractères."
+  },
   "verificationProfileEyebrow": "Votre profil",
   "@verificationProfileEyebrow": {
     "description": "Page Vérification : petite étiquette au-dessus du grand titre."

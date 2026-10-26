@@ -1083,6 +1083,8 @@
   "shabbatDisplayHanukkahNight": "Noche {night}",
   "shabbatDisplayOmerDay": "Día {day} del Ómer",
   "shabbatDisplayExitHint": "Mantén pulsado dos segundos para salir",
+  "shabbatDisplayProposalTitle": "¿Poner el teléfono como una tienda de campaña para esta noche?",
+  "shabbatDisplayProposalDismiss": "Ahora no",
   "verificationProfileEyebrow": "Tu perfil",
   "verificationTitle": "Verificación",
   "verificationLevel1": "Nivel 1",

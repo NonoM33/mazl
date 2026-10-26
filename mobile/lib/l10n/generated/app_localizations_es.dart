@@ -3853,6 +3853,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shabbatDisplayExitHint => 'Mantén pulsado dos segundos para salir';
 
   @override
+  String get shabbatDisplayProposalTitle =>
+      '¿Poner el teléfono como una tienda de campaña para esta noche?';
+
+  @override
+  String get shabbatDisplayProposalDismiss => 'Ahora no';
+
+  @override
   String get verificationProfileEyebrow => 'Tu perfil';
 
   @override

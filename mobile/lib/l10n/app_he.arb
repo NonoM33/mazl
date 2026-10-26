@@ -1083,6 +1083,8 @@
   "shabbatDisplayHanukkahNight": "לילה {night}",
   "shabbatDisplayOmerDay": "יום {day} בעומר",
   "shabbatDisplayExitHint": "לחיצה ארוכה של שתי שניות ליציאה",
+  "shabbatDisplayProposalTitle": "להציב את הטלפון כמו אוהל לקראת הערב?",
+  "shabbatDisplayProposalDismiss": "לא עכשיו",
   "verificationProfileEyebrow": "הפרופיל שלך",
   "verificationTitle": "אימות",
   "verificationLevel1": "רמה 1",

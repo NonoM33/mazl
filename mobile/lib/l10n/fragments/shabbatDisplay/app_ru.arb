@@ -10,5 +10,7 @@
   "shabbatDisplayParasha": "Недельная глава",
   "shabbatDisplayHanukkahNight": "Ночь {night}",
   "shabbatDisplayOmerDay": "День {day} Омера",
-  "shabbatDisplayExitHint": "Удерживайте две секунды, чтобы выйти"
+  "shabbatDisplayExitHint": "Удерживайте две секунды, чтобы выйти",
+  "shabbatDisplayProposalTitle": "Поставить телефон домиком на сегодняшний вечер?",
+  "shabbatDisplayProposalDismiss": "Не сейчас"
 }
