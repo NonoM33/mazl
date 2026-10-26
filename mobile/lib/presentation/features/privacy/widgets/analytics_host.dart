@@ -55,6 +55,7 @@ class _AnalyticsHostState extends ConsumerState<AnalyticsHost>
   Timer? _retry;
   bool _asking = false;
   bool _askedThisSession = false;
+  bool _wasSignedIn = false;
 
   QuietDisplay get _quiet => widget.quiet ?? QuietDisplay.instance;
 
@@ -92,6 +93,8 @@ class _AnalyticsHostState extends ConsumerState<AnalyticsHost>
 
   void _onAuthentication(bool signedIn) {
     if (signedIn) {
+      _wasSignedIn = true;
+      _analytics.signedIn();
       _consentSubscription ??= ref.listenManual(
         analyticsConsentProvider,
         (_, state) => _onConsent(state),
@@ -99,6 +102,10 @@ class _AnalyticsHostState extends ConsumerState<AnalyticsHost>
       );
       return;
     }
+    // Only a real sign-out empties the memory: the events of the welcome and
+    // login screens, before the first sign-in, must wait for the answer.
+    if (_wasSignedIn) _analytics.signedOut();
+    _wasSignedIn = false;
     _consentSubscription?.close();
     _consentSubscription = null;
     _retry?.cancel();

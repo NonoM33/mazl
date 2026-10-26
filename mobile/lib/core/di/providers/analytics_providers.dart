@@ -6,7 +6,6 @@ import '../../analytics/analytics.dart';
 import '../../analytics/analytics_transport.dart';
 import '../../services/api_service.dart';
 import 'privacy_providers.dart';
-import 'service_providers.dart';
 
 Future<String>? _appVersion;
 
@@ -22,26 +21,14 @@ final analyticsTransportProvider = Provider<AnalyticsTransport>(
   ),
 );
 
-/// The usage measurement, for the life of the app. It follows the member's
-/// authentication; the consent is pushed to it by `AnalyticsHost` and by
-/// [decideAnalyticsConsent].
-final analyticsProvider = Provider<Analytics>(
-  (ref) => followAuthentication(
-    ref,
-    Analytics(transport: ref.watch(analyticsTransportProvider)),
-  ),
-);
-
-/// Makes [analytics] follow the member's sign-in and sign-out, and stop with
-/// [ref]. Public so that tests build the measurement with their own clock and
-/// timers and still run this wiring.
-Analytics followAuthentication(Ref<Analytics> ref, Analytics analytics) {
-  ref.listen<bool>(isAuthenticatedProvider, (_, signedIn) {
-    signedIn ? analytics.signedIn() : analytics.signedOut();
-  }, fireImmediately: true);
+/// The usage measurement, for the life of the app. `AnalyticsHost` tells it
+/// when the member signs in and out and gives it the consent read from the
+/// server; [decideAnalyticsConsent] tells it the member's answer.
+final analyticsProvider = Provider<Analytics>((ref) {
+  final analytics = Analytics(transport: ref.watch(analyticsTransportProvider));
   ref.onDispose(analytics.dispose);
   return analytics;
-}
+});
 
 /// Records the member's answer on the server and, once it is accepted, tells
 /// the measurement at once (a withdrawal empties the queue before anything else

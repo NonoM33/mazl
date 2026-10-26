@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/analytics/analytics_event.dart';
+import '../../../../core/analytics/track_event.dart';
 import '../../../../core/layout/fold_aware_split.dart';
 import '../../../../core/models/profile_labels.dart';
 import '../../../../core/router/route_names.dart';
@@ -40,6 +42,29 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   int _currentStep = 0;
   final int _totalSteps = 4;
+
+  /// The steps of the sign-up as the measurement names them (the index is the
+  /// step, the name is stable whatever the language).
+  static const _stepNames = [
+    'basicInfo',
+    'photos',
+    'jewishPractice',
+    'preferences',
+  ];
+
+  void _trackStep(int step) => trackEvent(
+    context,
+    AnalyticsEvent.onboardingStepViewed(
+      step: step,
+      stepName: _stepNames[step],
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _trackStep(0);
+  }
 
   // Step 1 - basic info
   DateTime? _birthDate;
@@ -137,6 +162,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
               setState(() => _currentStep = index);
+              _trackStep(index);
             },
             children: [
               _buildBasicInfoStep(inlineHeader),
@@ -345,6 +371,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     if (response.success) {
       // Gender and looking-for are both in this payload (checked above).
       ProfileCompletenessService().markComplete();
+      trackEvent(context, AnalyticsEvent.signupCompleted());
       context.go(RoutePaths.discover);
     } else {
       _fail(apiErrorText(context.l10n, response.errorKind));

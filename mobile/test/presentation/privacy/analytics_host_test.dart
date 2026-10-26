@@ -52,9 +52,7 @@ class _Rig {
     container = ProviderContainer(
       overrides: [
         privacyConsentApiProvider.overrideWithValue(api),
-        analyticsProvider.overrideWith(
-          (ref) => followAuthentication(ref, analytics),
-        ),
+        analyticsProvider.overrideWithValue(analytics),
         isAuthenticatedProvider.overrideWith((ref) => ref.watch(_signedIn)),
       ],
     );
@@ -212,6 +210,15 @@ void main() {
       expect(names, contains('screen_viewed'));
     },
   );
+
+  testWidgets('the events before the first sign-in are kept, not wiped', (
+    tester,
+  ) async {
+    final rig = _Rig();
+    await rig.pump(tester);
+    // app_opened and the first screen, signed out.
+    expect(rig.analytics.pendingCount, 2);
+  });
 
   testWidgets('going to the background flushes what waits', (tester) async {
     final rig = _Rig(granted: true);
