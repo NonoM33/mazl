@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -98,15 +99,17 @@ class IdentityPage extends StatelessWidget {
     );
   }
 
-  Widget _footer() => Padding(
-    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (note != null) ...[note!, const SizedBox(height: 16)],
-        for (var i = 0; i < actions.length; i++) ...[if (i > 0) const SizedBox(height: 4), actions[i]],
-      ],
+  Widget _footer() => FoldSafeActions(
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (note != null) ...[note!, const SizedBox(height: 16)],
+          for (var i = 0; i < actions.length; i++) ...[if (i > 0) const SizedBox(height: 4), actions[i]],
+        ],
+      ),
     ),
   );
 }
