@@ -1,37 +1,34 @@
-# Conditions générales d'utilisation de MAZL
+---
+slug: cgu
+title: Conditions générales d'utilisation
+nav: CGU
+description: Les règles d'usage de MAZL, l'application de rencontre de la communauté juive : accès dès 18 ans, vérification d'identité, conduite, modération, signalement et recours, mode couple.
+lead: Les règles du jeu pour se rencontrer sérieusement : qui peut s'inscrire, comment on se comporte, comment on signale, comment on conteste.
+version: 2026-10-27
+status: projet
+---
 
-**Version du 24 octobre 2026** — projet soumis à validation juridique avant publication.
+> **L'essentiel.** MAZL est réservé aux personnes de 18 ans et plus. Les profils vérifiés le sont par un selfie en direct et la lecture de la puce du passeport ou de la carte d'identité, toujours avec votre consentement. On se respecte, on signale ce qui ne va pas, et toute sanction est motivée et contestable. Vous pouvez supprimer votre compte à tout moment, depuis l'Application.
 
-> Documents liés : [Conditions générales de vente](/cgv.html) · [Politique de confidentialité](/confidentialite.html)
+## 1. Éditeur et définitions
 
-## 1. Qui sommes-nous
+MAZL (« l'Application » ou « le Service ») est une application mobile de rencontre destinée à la communauté juive, accompagnée d'un site accessible à l'adresse https://mazl.app (« le Site ») et d'un espace membre accessible depuis ce site (mazl.app/app).
 
-MAZL (« l'Application » ou « le Service ») est une application mobile de rencontre destinée à la communauté juive, accompagnée d'un site vitrine accessible à l'adresse https://mazl.app (« le Site »).
+Le Service est édité par la société identifiée dans les [mentions légales](/mentions-legales), qui font partie intégrante des présentes conditions (« MAZL », « nous »). Le « membre » ou « vous » désigne toute personne qui crée un compte ou utilise le Service.
 
-Le Service est édité par :
+## 2. Objet, acceptation et modification
 
-- Raison sociale : [À COMPLÉTER : raison sociale de l'éditeur]
-- Forme juridique et capital social : [À COMPLÉTER : forme juridique, capital]
-- Siège social : [À COMPLÉTER : adresse complète du siège]
-- Immatriculation : [À COMPLÉTER : SIREN et ville du RCS]
-- N° de TVA intracommunautaire : [À COMPLÉTER : numéro de TVA, le cas échéant]
-- Directeur de la publication : [À COMPLÉTER : nom du directeur de la publication]
-- Contact : [À COMPLÉTER : adresse e-mail de contact] (l'adresse hello@mazl.app figure aujourd'hui sur le Site ; à confirmer)
-- Hébergement : les serveurs du Service sont hébergés par Hetzner Online GmbH (Industriestr. 25, 91710 Gunzenhausen, Allemagne), au travers de la plateforme de déploiement Coolify. [À COMPLÉTER : confirmer l'hébergeur, le centre de données et les coordonnées à faire figurer au titre de la loi du 21 juin 2004 (LCEN)]
+Les présentes conditions générales d'utilisation (« CGU ») régissent l'accès et l'utilisation du Service. En créant un compte ou en utilisant le Service, vous déclarez les avoir lues et les accepter. Si vous ne les acceptez pas, n'utilisez pas le Service.
 
-L'éditeur est ci-après « MAZL », « nous ».
+Les offres payantes (abonnement mazl+, MAZL Couple, Boosts, Super Likes) sont soumises en plus aux [Conditions générales de vente](/cgv). Le traitement de vos données personnelles est décrit dans la [Politique de confidentialité](/confidentialite) et l'usage des traceurs dans la [Politique de cookies](/cookies).
 
-## 2. Objet et acceptation
-
-Les présentes conditions générales d'utilisation (« CGU ») régissent l'accès et l'utilisation du Service. En créant un compte ou en utilisant le Service, vous déclarez les avoir lues et les accepter sans réserve. Si vous ne les acceptez pas, n'utilisez pas le Service.
-
-Les offres payantes (abonnement mazl+, Boosts, Super Likes) sont soumises en plus aux [Conditions générales de vente](/cgv.html). Le traitement de vos données personnelles est décrit dans la [Politique de confidentialité](/confidentialite.html).
-
-Nous pouvons modifier les CGU, notamment pour tenir compte de l'évolution du Service ou de la loi. Les membres sont informés des modifications substantielles dans l'Application ou par e-mail, avec un préavis raisonnable [À COMPLÉTER : préavis retenu, par exemple 30 jours]. La poursuite de l'utilisation après l'entrée en vigueur vaut acceptation ; à défaut, le membre peut supprimer son compte (article 12).
+Nous pouvons modifier les CGU, notamment pour tenir compte de l'évolution du Service ou de la loi. Les membres sont informés des modifications substantielles dans l'Application ou par e-mail, avec un préavis raisonnable [À COMPLÉTER : préavis retenu, par exemple 30 jours]. La poursuite de l'utilisation après l'entrée en vigueur vaut acceptation ; à défaut, le membre peut supprimer son compte (article 13).
 
 ## 3. Description du Service
 
-MAZL permet à des personnes majeures de créer un profil, de découvrir les profils d'autres membres, d'exprimer un intérêt (« Like », « Super Like »), d'échanger des messages (texte, photos, messages vocaux) lorsqu'un intérêt est réciproque (« match »), de participer à des événements, et, pour deux membres qui se sont choisis, d'utiliser un « mode couple » (article 10).
+MAZL permet à des personnes majeures de créer un profil, de découvrir les profils d'autres membres, d'exprimer un intérêt (« Like », « Super Like »), d'échanger des messages (texte, photos, messages vocaux) lorsqu'un intérêt est réciproque (« match »), de consulter les horaires de chabbat de leur ville, de participer à des événements et, pour deux membres qui se sont choisis, d'utiliser un « mode couple » (article 10). Le Service est accessible dans l'Application et, après connexion, dans l'espace membre du Site.
+
+MAZL s'adresse aux personnes qui se reconnaissent dans la communauté juive et qui cherchent une relation sérieuse. MAZL ne contrôle pas l'appartenance religieuse des membres, ne l'exige pas pour créer un compte et ne garantit pas l'exactitude des informations de pratique que chacun déclare.
 
 MAZL est un service d'intermédiation de rencontres. MAZL ne garantit ni la réalisation d'une rencontre, ni la compatibilité, ni le résultat recherché.
 
@@ -39,14 +36,14 @@ MAZL est un service d'intermédiation de rencontres. MAZL ne garantit ni la réa
 
 ### 4.1 Conditions d'accès
 
-- Le Service est **strictement réservé aux personnes âgées d'au moins 18 ans révolus**. En vous inscrivant, vous déclarez avoir 18 ans ou plus. La date de naissance saisie est contrôlée et, lorsque la vérification d'identité par document est réalisée (article 5), elle est remplacée par celle du document et ne peut plus être modifiée.
+- Le Service est **strictement réservé aux personnes âgées d'au moins 18 ans révolus**. En vous inscrivant, vous déclarez avoir 18 ans ou plus. La date de naissance saisie est contrôlée ; lorsque la vérification d'identité par document est réalisée (article 5), elle est remplacée par celle du document et ne peut plus être modifiée. Un compte dont nous apprenons qu'il appartient à un mineur est supprimé.
 - Vous devez avoir la capacité juridique de contracter et ne faire l'objet d'aucune mesure d'exclusion du Service.
 - Vous ne pouvez détenir qu'un seul compte.
 - Vous devez disposer d'un terminal compatible et d'un accès à Internet ; les frais de connexion restent à votre charge.
 
 ### 4.2 Inscription et connexion
 
-L'inscription se fait au moyen d'un compte Google ou d'un compte Apple (« Se connecter avec Google », « Se connecter avec Apple »). Nous recevons de ces fournisseurs les informations nécessaires à la création du compte (identifiant, adresse e-mail éventuellement masquée par Apple, nom, photo de profil du compte Google). Vous complétez ensuite votre profil.
+L'inscription se fait au moyen d'un compte Google ou d'un compte Apple (« Se connecter avec Google », « Se connecter avec Apple »). Nous recevons de ces fournisseurs les informations nécessaires à la création du compte (identifiant, adresse e-mail éventuellement masquée par Apple, nom, photo de profil du compte Google). Vous complétez ensuite votre profil. L'espace membre du Site s'ouvre depuis un compte existant, par la même connexion ou en scannant un QR code avec l'Application.
 
 Vous vous engagez à fournir des informations exactes, complètes et à jour, et à ne pas usurper l'identité d'un tiers. Vous êtes responsable de la confidentialité de l'accès à votre appareil et à vos comptes Google ou Apple ; toute activité réalisée depuis votre compte est présumée être la vôtre. Signalez-nous sans délai toute utilisation non autorisée.
 
@@ -56,14 +53,14 @@ Nous nous efforçons d'assurer un accès continu au Service, sans obligation de 
 
 ## 5. Vérification des profils : selfie et pièce d'identité
 
-MAZL met en avant des profils vérifiés pour limiter les faux profils. Deux niveaux existent :
+MAZL met en avant des profils vérifiés pour limiter les faux profils. La vérification est **facultative** et se fait en deux niveaux :
 
 1. **Selfie vérifié (niveau 1).** Vous réalisez un court selfie vidéo guidé (face, tête tournée à gauche, à droite), qui permet de contrôler qu'une personne réelle est présente et que son visage correspond à vos photos de profil. Les images sont traitées en mémoire ; seule une empreinte numérique chiffrée de votre visage est conservée afin de vérifier les photos que vous ajouterez plus tard.
-2. **Pièce d'identité (niveau 2).** Vous lisez la puce électronique de votre passeport ou de votre carte nationale d'identité avec votre téléphone, puis un selfie vérifie que vous êtes bien le titulaire du document. À défaut de lecture de puce, un parcours de relecture manuelle de documents transmis peut être proposé. Nous ne conservons pas le nom figurant sur le document ; nous conservons le résultat de la vérification, le pays émetteur, le type et la date d'expiration du document, la date de naissance et une empreinte cryptographique irréversible du document, qui sert à empêcher qu'un même document ouvre plusieurs comptes ou qu'un document d'un membre définitivement exclu serve à se réinscrire.
+2. **Pièce d'identité (niveau 2).** Vous lisez la puce électronique (NFC) de votre passeport ou de votre carte nationale d'identité avec votre téléphone ; MAZL en contrôle l'authenticité, puis un selfie vérifie que vous êtes bien le titulaire du document. À défaut de lecture de puce, un parcours de relecture manuelle de documents transmis peut être proposé. Nous ne conservons ni l'image du document, ni la photo de la puce, ni votre nom, ni le numéro du document ; nous conservons le résultat de la vérification, le pays émetteur, le type et la date d'expiration du document, la date de naissance et une empreinte cryptographique irréversible du document, qui sert à empêcher qu'un même document ouvre plusieurs comptes ou qu'un document d'un membre définitivement exclu serve à se réinscrire.
 
-La vérification est destinée à renforcer la confiance entre membres. Elle **repose sur votre consentement explicite**, recueilli dans l'Application avant tout traitement, et peut être retirée (voir la [Politique de confidentialité](/confidentialite.html)). Le badge de vérification atteste uniquement qu'un contrôle technique a été réussi ; il ne constitue ni une garantie de l'honnêteté, ni un certificat de bonne conduite du membre.
+La vérification **repose sur votre consentement explicite**, recueilli dans l'Application avant tout traitement, et peut être retirée à tout moment (voir la [Politique de confidentialité](/confidentialite)). Le badge de vérification atteste uniquement qu'un contrôle technique a été réussi ; il ne constitue ni une garantie de l'honnêteté, ni un certificat de bonne conduite du membre.
 
-Un échec de vérification n'entraîne pas à lui seul de sanction, mais certaines fonctionnalités peuvent être réservées aux profils vérifiés. Le nombre d'essais est limité (trois sessions par jour et par type de vérification).
+Un échec de vérification n'entraîne pas à lui seul de sanction, mais certaines fonctionnalités peuvent être réservées aux profils vérifiés. Le nombre d'essais est limité (trois sessions par jour et par type de vérification). Le contrôle est automatisé ; vous pouvez demander l'intervention d'une personne et contester un refus en écrivant à l'adresse de contact.
 
 ## 6. Règles de conduite
 
@@ -80,7 +77,7 @@ Vous vous engagez à utiliser le Service de bonne foi, dans le respect de la loi
 - de transmettre des données personnelles d'un tiers sans son consentement, ou de porter atteinte à la vie privée d'autrui ;
 - d'utiliser le Service à des fins illicites ou contraires à l'ordre public et aux bonnes mœurs.
 
-Sur le **respect de la vie privée des autres membres** : les informations qu'un membre vous communique (notamment sur sa pratique religieuse, sa vie personnelle et ses coordonnées) sont destinées à la seule rencontre. Vous vous interdisez de les utiliser à d'autres fins, de les révéler ou de les exploiter à l'encontre de la personne concernée.
+**Respect de la vie privée des autres membres.** Les informations qu'un membre vous communique (notamment sur sa pratique religieuse, sa vie personnelle et ses coordonnées) sont destinées à la seule rencontre. Vous vous interdisez de les utiliser à d'autres fins, de les révéler ou de les exploiter à l'encontre de la personne concernée.
 
 **Rencontres hors ligne.** MAZL ne contrôle pas le comportement des membres en dehors du Service. Soyez prudent : retrouvez-vous dans un lieu public, informez un proche, ne communiquez ni vos données bancaires ni votre adresse personnelle à une personne que vous ne connaissez pas encore. Un comportement gravement fautif lors d'une rencontre peut être signalé (article 8) et conduire à une sanction.
 
@@ -90,7 +87,7 @@ Sur le **respect de la vie privée des autres membres** : les informations qu'un
 
 Vous restez titulaire des droits sur les contenus que vous publiez (photos, texte de présentation, réponses aux questions de profil, messages, messages vocaux, souvenirs et listes du mode couple, etc.) (« Contenus »). Vous garantissez que vous disposez de tous les droits et autorisations nécessaires, notamment du droit à l'image des personnes qui y figurent, et que ces Contenus respectent la loi et les présentes CGU. Les photos de profil doivent vous représenter et ne montrer aucun autre tiers identifiable sans son accord.
 
-Vous concédez à MAZL, pour la durée de votre inscription et pour le monde entier, une licence non exclusive, gratuite et non cessible, d'hébergement, de stockage, de reproduction technique (notamment le ré-encodage des images), d'adaptation technique et d'affichage de vos Contenus, **dans la seule mesure nécessaire à la fourniture du Service** auprès des autres membres. Cette licence prend fin à la suppression du Contenu ou du compte, sous réserve des durées de conservation techniques décrites dans la [Politique de confidentialité](/confidentialite.html).
+Vous concédez à MAZL, pour la durée de votre inscription et pour le monde entier, une licence non exclusive, gratuite et non cessible, d'hébergement, de stockage, de reproduction technique (notamment le ré-encodage des images), d'adaptation technique et d'affichage de vos Contenus, **dans la seule mesure nécessaire à la fourniture du Service** auprès des autres membres. Cette licence prend fin à la suppression du Contenu ou du compte, sous réserve des durées de conservation techniques décrites dans la [Politique de confidentialité](/confidentialite).
 
 Les photos de profil sont traitées à l'envoi : orientation corrigée, **métadonnées supprimées (notamment la géolocalisation intégrée)**, redimensionnement.
 
@@ -98,60 +95,102 @@ Les photos de profil sont traitées à l'envoi : orientation corrigée, **métad
 
 L'Application, le Site, la marque MAZL, les logos, les interfaces, les bases de données, les textes et les éléments graphiques sont protégés par le droit de la propriété intellectuelle et appartiennent à MAZL ou à ses concédants. Il vous est consenti un droit personnel, non exclusif, non transférable et révocable d'utiliser l'Application pour votre usage privé, conformément aux CGU. Toute reproduction, représentation, extraction, décompilation, ingénierie inverse ou exploitation en dehors de ce cadre est interdite.
 
-### 7.3 Retrait de contenus illicites
+## 8. Signalement, modération et recours
 
-Conformément à la loi pour la confiance dans l'économie numérique (LCEN) et au règlement (UE) 2022/2065 (« règlement sur les services numériques »), toute personne peut nous signaler un contenu qu'elle estime illicite par le moyen de signalement de l'Application ou à l'adresse de contact. Le signalement doit indiquer le contenu en cause et les raisons pour lesquelles il est considéré comme illicite. Nous examinons les signalements avec diligence et retirons ou rendons inaccessible tout contenu manifestement illicite ; l'auteur concerné est informé de la décision et de ses motifs, et peut la contester par écrit auprès du service de contact. [À COMPLÉTER : point de contact unique de l'éditeur au sens de l'article 12 du règlement (UE) 2022/2065, si applicable]
+Cet article décrit les règles, procédures et outils de modération de MAZL, comme l'exige le règlement (UE) 2022/2065 sur les services numériques (« DSA ») ; il s'applique dans la mesure où ses dispositions concernent MAZL.
 
-## 8. Modération, signalement et blocage
+### 8.1 Signaler un membre ou un contenu
 
-- **Signalement.** Depuis un profil ou une conversation, vous pouvez signaler un membre ou un message en choisissant un motif (faux profil, photos inappropriées, harcèlement, spam, personne mineure, comportement hors ligne, autre) et en ajoutant des précisions. Nous traitons les signalements manuellement ; l'équipe de modération peut consulter les éléments utiles à leur examen (profil, photos, et, lorsque le signalement vise un message, ce message).
+- **Dans l'Application**, depuis un profil ou une conversation, vous pouvez signaler un membre ou un message en choisissant un motif (faux profil, photos inappropriées, harcèlement, spam, personne mineure, comportement hors ligne, autre) et en ajoutant des précisions.
+- **Toute personne, membre ou non**, peut signaler un contenu qu'elle estime illicite à l'adresse du point de contact indiquée dans les [mentions légales](/mentions-legales). Le signalement doit comporter : une explication des raisons pour lesquelles le contenu est jugé illicite ; son emplacement précis (profil, photo, message) ; votre nom et votre adresse électronique, sauf s'il s'agit d'une infraction grave visée par la directive 2011/93/UE (exploitation sexuelle des enfants) ; une déclaration de bonne foi sur l'exactitude et l'exhaustivité des informations.
+- Nous confirmons la réception d'un signalement envoyé avec une adresse électronique, puis informons son auteur de la décision prise et des voies de recours ouvertes.
+- **Objectifs de traitement** : 4 heures pour une personne mineure ou un comportement hors ligne dangereux, 24 heures pour le harcèlement et l'escroquerie, 72 heures pour un faux profil ou des photos inappropriées, 7 jours pour le reste. Ce sont des objectifs, non des garanties.
+- Un signalement manifestement infondé et répété peut conduire, après avertissement, à la suspension du traitement des signalements de son auteur (article 23 du DSA).
+
+### 8.2 Comment nous modérons
+
+- **Décisions prises par des personnes.** Les signalements sont traités par l'équipe de modération, qui peut consulter les éléments utiles à leur examen (profil, photos et, lorsque le signalement vise un message, ce message). Aucune sanction n'est décidée exclusivement par un traitement automatisé ; des outils peuvent seulement aider à repérer ou à classer des signalements. Les décisions tiennent compte de la gravité des faits, de leur contexte et de l'historique du membre.
+- **Pas de surveillance générale.** MAZL n'est soumis à aucune obligation générale de surveillance des contenus. Les conversations privées ne sont pas lues de manière systématique ; la modération n'y accède que dans le cadre d'un signalement, d'une enquête, d'une obligation légale ou pour assurer la sécurité du Service, et chaque lecture est journalisée.
+- **Photos.** Les photos de profil peuvent être contrôlées avant ou après leur publication, et supprimées si elles ne respectent pas les CGU.
 - **Blocage.** Vous pouvez à tout moment bloquer un membre : vous ne vous verrez plus mutuellement et il ne pourra plus vous écrire.
-- **Modération des photos.** Les photos de profil peuvent être contrôlées avant ou après leur publication, et supprimées si elles ne respectent pas les CGU.
-- **Pas de surveillance générale.** MAZL n'est soumis à aucune obligation générale de surveillance des contenus. Les conversations privées ne sont pas lues de manière systématique ; elles ne sont consultées par la modération que dans le cadre d'un signalement, d'une enquête, d'une obligation légale ou pour assurer la sécurité du Service.
-- **Garde-fous.** Les décisions de modération sont prises par des personnes ; elles tiennent compte de la gravité des faits et de l'historique du membre.
+- **Contenus manifestement illicites.** MAZL retire promptement ou rend inaccessible tout contenu dont elle a connaissance du caractère manifestement illicite, conformément à l'article 6 de la loi du 21 juin 2004 (LCEN) et à l'article 6 du DSA.
+
+### 8.3 Motivation de nos décisions
+
+Lorsque nous retirons un contenu, restreignons la visibilité d'un profil, suspendons ou supprimons un compte, nous adressons au membre concerné, sauf obligation légale contraire, un **exposé des motifs** clair et précis : une référence de décision, la décision et sa portée (et sa durée), les faits et circonstances retenus, le motif et la clause des CGU ou la disposition légale invoquée, l'indication de l'éventuel recours à un signalement ou à un outil de détection, et les voies de recours (article 8.4). Il est envoyé à l'adresse électronique du compte ou affiché dans l'Application. [À COMPLÉTER : le canal d'envoi de l'exposé des motifs au membre (e-mail, notification) n'est pas encore branché ; à mettre en service avant publication, voir A_COMPLETER.md]
+
+### 8.4 Contester une décision
+
+Un membre peut contester gratuitement une décision de sanction ou de restriction **pendant six mois** à compter de son exposé des motifs, même si son compte est suspendu ou supprimé. Pour cela, il écrit à l'adresse de contact en indiquant la **référence de la décision et le code de contestation** reçus dans l'exposé des motifs, et en expliquant sa position. La contestation est examinée par une personne **différente** de celle qui a pris la décision contestée, qui la confirme ou l'annule et motive sa réponse. Si la décision est annulée, la sanction est levée et le compte est réactivé.
+
+### 8.5 Autres recours
+
+Le membre peut aussi saisir un organe de règlement extrajudiciaire des litiges certifié au titre de l'article 21 du DSA [À COMPLÉTER : organe choisi, le cas échéant], le médiateur de la consommation (article 17), le coordinateur pour les services numériques du pays où il réside (en France, l'Arcom) ou les tribunaux, sans préjudice de ses autres droits.
 
 ## 9. Sanctions
 
 En cas de manquement aux CGU, à la loi ou aux droits d'un tiers, MAZL peut, selon la gravité et de façon proportionnée, et sans préjudice de toute action en justice :
 
 1. adresser un avertissement ;
-2. retirer un contenu, un badge ou une fonctionnalité ;
+2. retirer un contenu, un badge ou une fonctionnalité, ou **restreindre** la visibilité du profil dans la découverte ;
 3. **suspendre** le compte à titre temporaire ;
 4. **bannir** le compte de façon définitive, sans remboursement des sommes déjà versées pour les services en cours, sauf disposition légale impérative contraire ;
 5. empêcher la création d'un nouveau compte, y compris au moyen d'une empreinte irréversible du document d'identité vérifié d'un membre définitivement exclu ;
 6. signaler les faits aux autorités compétentes, et leur communiquer les données qu'elles sont en droit d'obtenir (réquisition judiciaire notamment).
 
-Sauf urgence, atteinte grave ou obligation légale, le membre est informé par e-mail ou dans l'Application du motif de la mesure et peut présenter ses observations à l'adresse de contact. L'exclusion d'un membre ne permet pas d'obtenir la restitution de ses Contenus au-delà de ce que la loi impose (voir l'exercice des droits dans la [Politique de confidentialité](/confidentialite.html)).
+Toute sanction fait l'objet de l'exposé des motifs de l'article 8.3 et peut être contestée dans les conditions de l'article 8.4. L'exclusion d'un membre ne permet pas d'obtenir la restitution de ses Contenus au-delà de ce que la loi impose (voir l'exercice des droits dans la [Politique de confidentialité](/confidentialite)).
 
-## 10. Mode couple
+## 10. Mode couple, MAZL Couple et conciergerie
 
 Le mode couple est une fonctionnalité réservée à deux membres qui déclarent former un couple.
 
-- Un couple n'est créé **que si les deux membres y consentent** : l'un envoie une demande, l'autre l'accepte. Aucun membre ne peut être placé en couple sans son accord, et un membre ne peut appartenir qu'à un seul couple actif à la fois.
-- Il donne accès à un espace commun (question du jour, souvenirs, dates à retenir, liste d'envies, activités et événements, jalons). Les contenus de cet espace sont visibles par les deux membres du couple.
+- Un couple n'est créé **que si les deux membres y consentent** : l'un envoie une demande, l'autre l'accepte, et seulement entre deux membres qui ont matché et dont aucun n'a bloqué l'autre. Aucun membre ne peut être placé en couple sans son accord, et un membre ne peut appartenir qu'à un seul couple actif à la fois.
+- Il donne accès à un espace commun : question du jour, bilan mensuel, souvenirs, dates à retenir, rituels et rappels, liste d'envies, sorties et événements, jalons. Les contenus partagés sont visibles par les deux membres. **Votre réponse à la question du jour n'est lisible par l'autre qu'après que vous avez répondu vous-même. Au bilan mensuel, chacun répond seul : le couple ne voit qu'une synthèse quand les deux ont répondu, jamais la note de l'autre.**
 - À l'acceptation, les conversations du membre avec d'autres personnes peuvent être archivées, à sa demande, de sorte qu'elles cessent d'apparaître.
-- Chacun des deux membres peut mettre fin au couple à tout moment ; l'espace commun cesse alors d'être accessible. Chacun peut aussi supprimer son compte (article 12).
+- Chacun des deux membres peut mettre fin au couple à tout moment ; l'espace commun cesse alors d'être accessible. Chacun peut aussi supprimer son compte (article 13).
 - Les membres en couple restent soumis à l'ensemble des règles de conduite.
 
-## 11. Offres payantes
+**MAZL Couple** est un abonnement payant dont un seul des deux membres s'acquitte et dont les deux profitent (voir les [Conditions générales de vente](/cgv)). Sans abonnement, l'espace couple reste accessible dans une version limitée.
 
-Certaines fonctionnalités (abonnement mazl+, Boosts, Super Likes supplémentaires) sont payantes. Leurs conditions, y compris le droit de rétractation, le renouvellement et la résiliation, figurent dans les [Conditions générales de vente](/cgv.html). Les achats sont réalisés via l'App Store d'Apple et sont facturés par la boutique.
+**Conciergerie.** Avec MAZL Couple, un couple peut demander de l'aide pour organiser une sortie, une surprise, un cadeau ou un week-end. Les deux membres voient et écrivent dans les mêmes demandes. Vous interagissez d'abord avec un **assistant automatique fondé sur l'intelligence artificielle**, puis l'équipe MAZL lit la demande et la confirme. Vous êtes ainsi informés que :
 
-## 12. Suspension et suppression du compte
+- l'assistant propose au plus trois idées ; il **ne réserve rien, n'engage aucun paiement et ne promet ni prix exact ni disponibilité** ; seule l'équipe MAZL confirme et réserve, après votre choix ;
+- seuls le texte de votre demande, la date souhaitée, la ville et vos contraintes (par exemple cacherout, budget) sont transmis à l'assistant, jamais votre nom complet, votre adresse électronique, votre téléphone, vos photos ni vos données de vérification. Évitez de saisir des informations dont vous ne voulez pas qu'elles soient lues par un système automatique ;
+- les réponses d'une intelligence artificielle peuvent comporter des erreurs ; vérifiez les informations (horaires, adresses, restrictions alimentaires) avant d'en tenir compte ;
+- l'usage de l'assistant est limité à 20 messages par couple et par jour. Si l'assistant est indisponible, votre demande est transmise directement à l'équipe.
 
-### 12.1 Suppression par le membre
+L'équipe voit le prénom des deux membres, la durée du couple et la conversation de la demande, et rien d'autre de leur profil. Le traitement des données est décrit dans la [Politique de confidentialité](/confidentialite).
 
-Vous pouvez supprimer votre compte à tout moment, **depuis l'Application** (réglages du compte), ou en écrivant à l'adresse de contact. La suppression est **définitive et immédiate** : elle efface votre profil, vos photos, vos swipes, vos matchs, vos conversations (y compris les messages et médias que vous avez échangés, qui disparaissent également pour votre interlocuteur), votre participation aux événements, vos crédits et l'historique de vos abonnements et achats tenus par MAZL. Elle ne résilie pas, à elle seule, un abonnement souscrit auprès d'Apple : **pensez à résilier votre abonnement dans les réglages de l'App Store** avant de supprimer votre compte (voir les CGV). Vous pouvez indiquer, si vous le souhaitez, la raison de votre départ ; elle est conservée de façon anonyme. Le détail des données conservées malgré la suppression figure dans la [Politique de confidentialité](/confidentialite.html).
+## 11. Comment les profils vous sont proposés
 
-### 12.2 Suspension ou suppression par MAZL
+La page « Découvrir » classe les profils de façon automatisée, et vous pouvez en comprendre les principaux paramètres :
+
+- **Vos filtres d'abord** : genre recherché, tranche d'âge et distance maximale. Un membre bloqué, déjà vu ou dont le compte est fermé ou restreint n'est jamais proposé.
+- **Puis la compatibilité**, à partir de ce que chacun a choisi de renseigner : courant, rapport à la cacherout et au chabbat, intention (relation recherchée), âge, distance, profil complet et vérification d'identité. La proposition tient compte des deux sens (ce que vous cherchez et ce que l'autre cherche).
+- **Un peu de fraîcheur et de variété** : les profils récemment actifs et les nouveaux membres sont légèrement favorisés ; un profil qui reçoit déjà beaucoup de likes est légèrement atténué ; une petite part de chaque page est réservée à des profils plausibles hors du haut du classement.
+- **Le Boost** place votre profil en tête de pile pendant 30 minutes ; son effet est plafonné et il ne garantit aucun résultat.
+
+Ces classements ne produisent aucun effet juridique à votre égard. Vous pouvez modifier vos filtres à tout moment dans l'Application, et renseigner ou retirer les informations de pratique religieuse (article 2.3 de la [Politique de confidentialité](/confidentialite)).
+
+## 12. Offres payantes
+
+Certaines fonctionnalités (abonnement mazl+, abonnement MAZL Couple, Boosts, Super Likes supplémentaires) sont payantes. Leurs conditions, y compris le prix, le droit de rétractation, le renouvellement et la résiliation, figurent dans les [Conditions générales de vente](/cgv). Les achats sont réalisés via l'App Store d'Apple, ou sur le Site par carte bancaire.
+
+## 13. Suspension et suppression du compte
+
+### 13.1 Suppression par le membre
+
+Vous pouvez supprimer votre compte à tout moment, **depuis l'Application** (réglages du compte), ou en écrivant à l'adresse de contact. La suppression est **définitive et immédiate** : elle efface votre profil, vos photos, vos swipes, vos matchs, vos conversations (y compris les messages et médias que vous avez échangés, qui disparaissent également pour votre interlocuteur), votre participation aux événements, vos crédits et l'historique de vos abonnements et achats tenus par MAZL. Elle ne résilie pas, à elle seule, un abonnement souscrit auprès d'Apple : **pensez à résilier votre abonnement dans les réglages de l'App Store** avant de supprimer votre compte (voir les CGV). Vous pouvez indiquer, si vous le souhaitez, la raison de votre départ ; elle est conservée de façon anonyme. Le détail des données conservées malgré la suppression figure dans la [Politique de confidentialité](/confidentialite).
+
+### 13.2 Suspension ou suppression par MAZL
 
 MAZL peut suspendre ou supprimer un compte dans les cas de l'article 9, en cas d'inactivité prolongée [À COMPLÉTER : durée d'inactivité, si une politique d'inactivité est appliquée], d'inexactitude des informations, ou à la demande d'une autorité. Le membre dont le compte est supprimé ne peut en principe pas en créer un nouveau sans l'accord de MAZL.
 
-### 12.3 Résiliation de MAZL
+### 13.3 Arrêt du Service
 
 MAZL peut cesser d'exploiter tout ou partie du Service ; les membres en sont alors informés dans un délai raisonnable et les abonnements en cours sont traités conformément aux CGV.
 
-## 13. Responsabilité
+## 14. Responsabilité
 
 - MAZL est tenu d'une obligation de moyens pour l'accès et le fonctionnement du Service.
 - MAZL **n'est pas responsable** du contenu publié par les membres, de leurs propos, de leur comportement en ligne ou hors ligne, de l'exactitude des informations qu'ils déclarent, ni des rencontres. La responsabilité de MAZL ne peut être recherchée que pour les contenus qu'il a lui-même publiés ou après qu'il a eu connaissance du caractère manifestement illicite d'un contenu et qu'il n'a pas agi promptement pour le retirer.
@@ -159,35 +198,31 @@ MAZL peut cesser d'exploiter tout ou partie du Service ; les membres en sont alo
 - Sauf faute lourde ou dolosive, dommage corporel ou toute autre responsabilité qui ne peut être limitée par la loi, et sauf dispositions impératives plus favorables aux consommateurs, la responsabilité de MAZL est limitée aux dommages directs et prévisibles. [À COMPLÉTER : plafond éventuel de responsabilité, à valider par l'éditeur]
 - Rien dans les présentes CGU n'exclut les droits dont le consommateur bénéficie en vertu de dispositions légales impératives, notamment la garantie légale de conformité des contenus et services numériques (articles L224-25-1 et suivants du Code de la consommation).
 
-## 14. Données personnelles
+## 15. Données personnelles
 
-Les données des membres sont traitées conformément au règlement (UE) 2016/679 (RGPD), à la loi « Informatique et Libertés » et à la [Politique de confidentialité](/confidentialite.html), qui fait partie intégrante des CGU. Certaines données (pratique religieuse, vérification biométrique du visage) relèvent de catégories particulières et ne sont traitées qu'avec votre consentement explicite.
+Les données des membres sont traitées conformément au règlement (UE) 2016/679 (RGPD), à la loi « Informatique et Libertés » et à la [Politique de confidentialité](/confidentialite), qui fait partie intégrante des CGU. Certaines données (pratique religieuse, vérification biométrique du visage) relèvent de catégories particulières et ne sont traitées qu'avec votre consentement explicite.
 
-## 15. Dispositions générales
+## 16. Dispositions générales
 
-- **Intégralité.** Les CGU, les CGV et la Politique de confidentialité constituent l'intégralité de l'accord entre vous et MAZL au titre du Service.
+- **Intégralité.** Les CGU, les CGV, la Politique de confidentialité et les mentions légales constituent l'intégralité de l'accord entre vous et MAZL au titre du Service.
 - **Divisibilité.** Si une stipulation est déclarée nulle ou inapplicable, les autres demeurent en vigueur.
 - **Non-renonciation.** Le fait de ne pas se prévaloir d'un manquement ne vaut pas renonciation à s'en prévaloir ultérieurement.
 - **Cession.** MAZL peut céder le contrat à une société qui reprendrait le Service ; les membres en seront informés.
 - **Preuve.** Les registres informatiques de MAZL, conservés dans des conditions raisonnables de sécurité, font foi entre les parties, sauf preuve contraire.
 - **Langue.** Les présentes CGU sont rédigées en français. Toute traduction est fournie à titre indicatif ; seule la version française fait foi.
 
-## 16. Droit applicable, médiation et litiges
+## 17. Droit applicable, médiation et litiges
 
 Les CGU sont soumises au **droit français**. Pour un consommateur résidant dans l'Union européenne, cette clause ne le prive pas de la protection que lui assurent les dispositions impératives de la loi de son pays de résidence.
 
-**Réclamation préalable.** En cas de difficulté, contactez d'abord MAZL à l'adresse [À COMPLÉTER : adresse e-mail ou postale du service de réclamation].
+**Réclamation préalable.** En cas de difficulté, contactez d'abord MAZL à l'adresse [À COMPLÉTER : adresse électronique ou postale du service de réclamation].
 
-**Médiation de la consommation.** Conformément aux articles L611-1 et suivants du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable du litige qui l'oppose à MAZL, après avoir tenté de résoudre le litige directement auprès de MAZL par une réclamation écrite. Le médiateur compétent est : [À COMPLÉTER : nom, adresse postale et site internet du médiateur de la consommation choisi par l'éditeur]. 
+**Médiation de la consommation.** Conformément aux articles L611-1 et suivants du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable du litige qui l'oppose à MAZL, après avoir tenté de résoudre le litige directement auprès de MAZL par une réclamation écrite. Le médiateur compétent est : [À COMPLÉTER : nom, adresse postale et site internet du médiateur de la consommation choisi par l'éditeur].
 
-**Plateforme européenne de règlement en ligne des litiges (RLL).** Pour les contrats conclus en ligne, la Commission européenne a mis fin à sa plateforme de règlement en ligne des litiges au 20 juillet 2025 ; le recours au médiateur ci-dessus demeure ouvert. [À COMPLÉTER : vérifier avec le conseil de l'éditeur la mention à conserver concernant la plateforme RLL]
+**Plateforme européenne de règlement en ligne des litiges (RLL).** La Commission européenne a mis fin à sa plateforme de règlement en ligne des litiges le 20 juillet 2025 ; le recours au médiateur ci-dessus demeure ouvert. [À COMPLÉTER : faire confirmer par le conseil de l'éditeur que cette mention peut être retirée]
 
 **Juridiction.** À défaut de résolution amiable, les tribunaux français sont compétents. Le consommateur peut saisir, à son choix, la juridiction du lieu où il demeurait au moment de la conclusion du contrat ou de la survenance du fait dommageable, ou celle du lieu de résidence de MAZL. Pour un membre agissant à titre professionnel : [À COMPLÉTER : tribunal compétent, par exemple le tribunal de commerce du siège de l'éditeur].
 
-## 17. Contact
+## 18. Contact
 
-Pour toute question relative aux CGU, à un signalement ou à l'exercice de vos droits : [À COMPLÉTER : adresse e-mail de contact] — [À COMPLÉTER : adresse postale].
-
----
-
-*Document en projet : il doit être relu et validé par un conseil juridique avant publication. Les mentions entre crochets doivent être complétées par l'éditeur (voir `docs/legal/A_COMPLETER.md`).*
+Pour toute question relative aux CGU, à un signalement, à une contestation ou à l'exercice de vos droits : l'adresse électronique et l'adresse postale figurent dans les [mentions légales](/mentions-legales).
