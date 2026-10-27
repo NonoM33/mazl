@@ -50,8 +50,8 @@ Retours haptiques autorisés, et seulement eux :
 
 | moment | haptique |
 |---|---|
-| franchissement d'un seuil (aimer, passer, fermer une photo, survol d'une réaction) | `HapticFeedback.selectionClick` |
-| seuil de la réponse glissée, double tap sur une bulle | `HapticFeedback.lightImpact` |
+| franchissement d'un seuil (aimer, passer, fermer une photo, survol d'une réaction, tirer pour actualiser) | `HapticFeedback.selectionClick` |
+| seuil de la réponse glissée, double tap sur une bulle, éclosion de l'étoile d'actualisation | `HapticFeedback.lightImpact` |
 | super like acquis, match, début et envoi d'un message vocal | `HapticFeedback.mediumImpact` |
 
 Rien au départ de la carte, rien sur les boutons, rien en continu pendant un geste. Revenir en
@@ -137,8 +137,36 @@ du couple.
 - **Feuilles** (`showMazlSheet`) : élastique quand on les tire vers le haut ; la fermeture dépend
   de la vitesse du geste autant que de la distance. Pas d'haptique.
 - **Pages et listes** : défilement natif de la plateforme, jamais réécrit. Seul un indicateur de
-  page glisse au lieu de sauter.
+  page glisse au lieu de sauter. Exception : une liste qu'on peut actualiser rebondit partout
+  (Android compris), pour que l'étoile du §7bis s'ouvre de la même façon.
 - **Barre d'onglets repliée** : déjà en ressort, inchangée.
+
+## 7bis. Tirer pour actualiser : l'étoile « Le trait »
+
+Choisie par Renaud le 2026-10-27 (variante A de `docs/design/pull-refresh-proposition.html`, où les
+quatre propositions restent jouables). Widget unique : `StarRefresh`
+(`mobile/lib/presentation/common/widgets/star_refresh/`), à la place de `RefreshIndicator`, qui est
+refusé dans `lib/` par `test/core/motion_single_source_test.dart`.
+
+- **Pendant** : la liste suit le doigt et rebondit. L'étoile se construit dans l'espace ouvert :
+  le triangle pointe en haut se trace, puis le triangle pointe en bas, pendant qu'elle se redresse
+  d'un quart de tour et grandit de 0,6 à 1. Elle apparaît en fondu sur les 26 premiers points
+  (`refreshFadeInGap`).
+- **Seuil** : 64 points (`refreshThreshold`), `selectionClick` en le franchissant (une fois ;
+  revenir en deçà ne redéclenche rien). On actualise en **lâchant** au-delà du seuil.
+- **Chargement** : la liste reste baissée de 60 points (`refreshHold`) ; les deux tracés deviennent
+  deux comètes de 55 % de leur triangle (`refreshCometShare`, en 300 ms `refreshCometShrink`) qui
+  font le tour pendant que l'étoile tourne d'un tiers par tour de 800 ms (`refreshCycle`). Le
+  chargement finit **toujours sur un tour entier**, donc sur une étoile droite, et dure au moins
+  un tour (`refreshMinCycles`) même si la réponse est instantanée.
+- **Éclosion** : les comètes se referment, l'étoile gonfle jusqu'à 1,4 (`refreshBloomScale`) et se
+  remplit de tekhelet, puis revient, en 600 ms (`refreshBloom`) ; `lightImpact`. La liste remonte
+  ensuite en ressort (`spring`).
+- **Où** : au-dessus du milieu de la liste tirée (la page tirée quand le Duo est tenu en livre),
+  jamais dans le pli ; une liste qui traverse le pli met l'étoile du côté le plus large.
+- **Animations réduites** : l'étoile se construit toujours sous le doigt, mais ne tourne pas et ne
+  gonfle pas ; elle reste entière pendant le chargement, son remplissage s'efface en 150 ms
+  (`reducedFade`) et la liste remonte en 120 ms (`reducedReturn`).
 
 ## 8. Ce que les tests doivent prouver
 
