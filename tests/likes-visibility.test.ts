@@ -48,13 +48,13 @@ describe("received likes: is_premium", () => {
     const free = await receivedBody(liked.token);
     expect(free.is_premium).toBe(false);
     expect(free.count).toBe(1);
-    expect(Object.keys(free.likes[0] ?? {}).sort()).toEqual(["display_name", "is_verified", "liked_at"]);
+    expect(Object.keys(free.likes[0] ?? {}).sort()).toEqual(["blurredPhotoUrl", "display_name", "is_super_like", "is_verified", "liked_at"]);
 
     await grantPlus(liked.id);
     const plus = await receivedBody(liked.token);
     expect(plus.is_premium).toBe(true);
     expect(plus.likes[0]).toMatchObject({ user_id: liker.id, display_name: "Jonas" });
-    expect(Object.keys(plus.likes[0] ?? {})).toEqual(expect.arrayContaining(["user_id", "picture", "age", "is_verified", "liked_at"]));
+    expect(Object.keys(plus.likes[0] ?? {})).toEqual(expect.arrayContaining(["user_id", "picture", "age", "is_verified", "liked_at", "is_super_like", "note"]));
   });
 
   test("a member with no like at all still gets the flag", async () => {
@@ -80,7 +80,7 @@ describe("received likes and mazl+", () => {
 
     const [teaser] = await receivedLikes(liked.token);
     expect(teaser).toBeDefined();
-    expect(Object.keys(teaser ?? {}).sort()).toEqual(["display_name", "is_verified", "liked_at"]);
+    expect(Object.keys(teaser ?? {}).sort()).toEqual(["blurredPhotoUrl", "display_name", "is_super_like", "is_verified", "liked_at"]);
 
     await db`
       INSERT INTO subscriptions (user_id, plan_type, status, store, product_id, original_transaction_id, started_at, expires_at)

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { BASE_URL, VOICE_FIXTURE, WAVEFORM, auth, db, json, makeMatch, makeUser, sendText, upload, type Pair, type TestUser } from "./chat-helpers";
-import { jpegWithGps } from "./media-helpers";
+import { grantPlus, jpegWithGps } from "./media-helpers";
 
 // CONTRAT.md §0.1: only the two members of a conversation may read, write or
 // react. Everything else is a 404 that looks like "does not exist".
@@ -81,6 +81,8 @@ describe("old app versions keep working", () => {
 
   test("rows written before the redesign are read as text, and is_read becomes read_at", async () => {
     const pair = await makeMatch("backfill");
+    // The author is mazl+: only then is the read time handed out (docs/premium/MONETISATION.md section 4).
+    await grantPlus(pair.a.id);
     // A row exactly as the old code wrote it: no new column filled in.
     const [old] = await db<{ id: number }[]>`
       INSERT INTO messages (conversation_id, sender_id, content, is_read, created_at)

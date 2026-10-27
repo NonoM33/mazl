@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { BASE_URL, onlyRow, auth, db, json, makeMatch, send, sendText, uploadOk, WAVEFORM, VOICE_FIXTURE, type ApiMessage, type Pair } from "./chat-helpers";
-import { jpegWithGps } from "./media-helpers";
+import { grantPlus, jpegWithGps } from "./media-helpers";
 
 // CONTRAT.md §1-§2 over HTTP, against a real server and database.
 
@@ -283,6 +283,8 @@ describe("unsend", () => {
 describe("read receipts", () => {
   test("up_to_id marks what the caller received, up to that message, and sets read_at", async () => {
     const pair = await makeMatch("read");
+    // The author is mazl+: only then is the read time handed out (docs/premium/MONETISATION.md section 4).
+    await grantPlus(pair.a.id);
     const m1 = await sendText(pair.a.token, pair.conversationId, "1");
     const m2 = await sendText(pair.a.token, pair.conversationId, "2");
     const m3 = await sendText(pair.a.token, pair.conversationId, "3");
