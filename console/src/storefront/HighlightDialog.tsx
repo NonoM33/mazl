@@ -9,6 +9,7 @@ import { LangField } from "./LangFields";
 import { HIGHLIGHT_MAX, highlightDraft, validateHighlight } from "./offers-model";
 import { LANG_LABELS } from "./theme-texts";
 import { LANGS, type Lang, type ProductDto } from "./types";
+import { productLabel } from "./product-view";
 
 /** Texte d'accroche d'une offre (« Le plus choisi »), en cinq langues. Vide partout = pas d'accroche. */
 export function HighlightDialog({ product, onClose, onDone }: { readonly product: ProductDto; readonly onClose: () => void; readonly onDone: () => void }): ReactElement {
@@ -39,7 +40,7 @@ export function HighlightDialog({ product, onClose, onDone }: { readonly product
   };
 
   return (
-    <Modal title={`Accroche — ${product.label}`} onClose={onClose}>
+    <Modal title={`Accroche — ${productLabel(product)}`} onClose={onClose}>
       <div className="stack">
         <p className="modal-lead">Un court texte posé sur l'offre dans l'app (par exemple « Le plus choisi »). Une langue laissée vide reprend le français. Laissez tout vide pour retirer l'accroche.</p>
         {LANGS.map((lang) => (

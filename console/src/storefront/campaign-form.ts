@@ -6,7 +6,7 @@ import { LANGS, type CampaignDto, type CampaignInput, type CampaignTarget, type 
 export const NAME_MAX = 80;
 export const TITLE_MAX = 60;
 export const SUBTITLE_MAX = 140;
-export const CTA_MAX = 32;
+export const CTA_MAX = 30;
 export const DISCOUNT_MIN = 5;
 export const DISCOUNT_MAX = 90;
 export const DURATION_MAX_DAYS = 45;

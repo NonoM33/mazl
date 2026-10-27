@@ -1,15 +1,16 @@
-// Maquette de /api/backoffice/storefront : même contrat que le serveur (docs/storefront/CONTRACT.md §5), état en mémoire.
+// Maquette de /api/backoffice/storefront : mêmes formes que le serveur (src/features/storefront/presentation/schemas.ts), état en mémoire.
+// tests/unit/console-storefront-contract.test.ts valide chaque réponse de cette maquette contre les schémas du serveur.
 // Prix : ceux de docs/premium/APP-STORE-CONNECT.md pour la France, les États-Unis et le Royaume-Uni des abonnements ;
 // Israël, Canada et les consommables hors France sont fictifs mais plausibles. Aucune donnée de membre.
 //
 // Pour voir les erreurs du serveur : un nom de campagne qui contient « erreur Apple » est refusé par Apple à la programmation
-// (502 apple_error) ; « sans clés » donne 503 store_not_configured.
+// (502 store_error) ; « sans clés » donne 503 store_not_configured.
 import type { Hono } from "hono";
 import { defaultTexts } from "../src/storefront/theme-texts";
 import { parisLocalToIso } from "../src/storefront/paris-time";
-import { overlaps } from "../src/storefront/timeline";
 import { THEMES, themeById } from "../src/storefront/themes";
-import { THEME_IDS, type ApplePriceChangeDto, type CampaignDto, type CampaignInput, type LocalizedText, type PresetDto, type PricePointDto, type ProductDto, type StorePriceDto, type ThemeId } from "../src/storefront/types";
+import { campaignState } from "../src/storefront/campaign-state";
+import { THEME_IDS, type ApplePlanDto, type CampaignDto, type CampaignInput, type LocalizedText, type PresetDto, type PricePointDto, type ProductDisplayDto, type ProductDto, type StorePriceDto, type ThemeId, type WebPriceDto } from "../src/storefront/types";
 import type { MeDto } from "../src/shared/api/contracts";
 
 const DAY = 86_400_000;
@@ -94,31 +95,83 @@ function presetFor(themeId: ThemeId, year: number): PresetDto {
   const hebrew = themeById(themeId).hebrew;
   const start = event.first - (before + (hebrew ? 1 : 0)) * DAY;
   const endExclusive = event.first + (event.days - 1 + after + 1) * DAY;
+  const theme = themeById(themeId);
+  const startsAt = parisLocalToIso(`${dayString(start)}T00:00`) ?? "";
+  const endsAt = parisLocalToIso(`${dayString(endExclusive)}T00:00`) ?? "";
   return {
     themeId,
-    name: `${themeById(themeId).label} ${year}`,
-    startsAt: parisLocalToIso(`${dayString(start)}T00:00`) ?? "",
-    endsAt: parisLocalToIso(`${dayString(endExclusive)}T00:00`) ?? "",
-    conflictsWith: [],
+    glyph: theme.glyph,
+    accent: theme.accent,
+    name: `${themeId} ${year}`,
+    eventStart: dayString(event.first),
+    eventEnd: dayString(event.first + (event.days - 1) * DAY),
+    startsAt,
+    endsAt,
+    past: Date.parse(endsAt) <= Date.now(),
+    existing: [],
+    conflicts: [],
+    overlapsThemes: [],
   };
 }
 
 // ---------- Catalogue ----------
 
-const eur = (amount: string): StorePriceDto => ({ territory: "FRA", currency: "EUR", amount });
-const prices = (fr: string, us: string, gb: string, il: string, ca: string): readonly StorePriceDto[] => [eur(fr), { territory: "USA", currency: "USD", amount: us }, { territory: "GBR", currency: "GBP", amount: gb }, { territory: "ISR", currency: "ILS", amount: il }, { territory: "CAN", currency: "CAD", amount: ca }];
+const eur = (amount: string): StorePriceDto => ({ territory: "FRA", currency: "EUR", customerPrice: amount });
+const prices = (fr: string, us: string, gb: string, il: string, ca: string): readonly StorePriceDto[] => [eur(fr), { territory: "USA", currency: "USD", customerPrice: us }, { territory: "GBR", currency: "GBP", customerPrice: gb }, { territory: "ISR", currency: "ILS", customerPrice: il }, { territory: "CAN", currency: "CAD", customerPrice: ca }];
 const hl = (fr: string, en: string, he: string, es: string, ru: string): LocalizedText => ({ fr, en, he, es, ru });
 
+interface ProductSeed {
+  readonly productId: string;
+  readonly kind: ProductDto["kind"];
+  readonly months: number | null;
+  readonly featured: boolean;
+  readonly highlight: LocalizedText | null;
+  readonly apple: readonly StorePriceDto[];
+  readonly webCents: number | null;
+}
+
+const STAMP = "2026-10-20T09:00:00.000Z";
+
+function productOf(seed: ProductSeed, sortOrder: number, visible = true): ProductDto {
+  const priceId = seed.webCents === null ? null : `price_example_${seed.productId.split(".").slice(-2).join("")}`;
+  const web: readonly WebPriceDto[] = seed.webCents === null || priceId === null ? [] : [{ priceId, amountCents: seed.webCents, currency: "EUR" }];
+  return {
+    productId: seed.productId,
+    visible,
+    sortOrder,
+    featured: seed.featured,
+    highlight: seed.highlight,
+    stripePriceId: priceId,
+    updatedAt: STAMP,
+    updatedBy: null,
+    kind: seed.kind,
+    months: seed.months,
+    effectiveStripePriceId: priceId,
+    prices: { apple: { status: "ok", items: [...seed.apple] }, web: { status: "ok", items: [...web] } },
+  };
+}
+
 const products: ProductDto[] = [
-  { productId: "com.mazl.app.plus.12m", kind: "subscription", label: "mazl+ 12 mois", visible: true, sortOrder: 0, featured: false, highlight: hl("Le plus économique", "Best value", "הכי משתלם", "El más económico", "Самый выгодный"), applePrices: prices("99.99", "119.99", "89.99", "399.90", "149.99"), appleError: null, web: { priceId: "price_example_plus12m", amountCents: 9999, currency: "EUR" } },
-  { productId: "com.mazl.app.plus.6m", kind: "subscription", label: "mazl+ 6 mois", visible: true, sortOrder: 1, featured: false, highlight: null, applePrices: prices("69.99", "79.99", "64.99", "249.90", "99.99"), appleError: null, web: { priceId: "price_example_plus6m", amountCents: 6999, currency: "EUR" } },
-  { productId: "com.mazl.app.plus.3m", kind: "subscription", label: "mazl+ 3 mois", visible: true, sortOrder: 2, featured: true, highlight: hl("Le plus choisi", "Most popular", "הנבחר ביותר", "El más elegido", "Самый популярный"), applePrices: prices("44.99", "49.99", "39.99", "179.90", "64.99"), appleError: null, web: { priceId: "price_example_plus3m", amountCents: 4499, currency: "EUR" } },
-  { productId: "com.mazl.app.plus.1m", kind: "subscription", label: "mazl+ 1 mois", visible: true, sortOrder: 3, featured: false, highlight: null, applePrices: prices("19.99", "19.99", "17.99", "69.90", "26.99"), appleError: null, web: { priceId: "price_example_plus1m", amountCents: 1999, currency: "EUR" } },
-  { productId: "com.mazl.app.boost.1", kind: "boost", label: "1 Boost", visible: true, sortOrder: 4, featured: false, highlight: null, applePrices: prices("7.99", "6.99", "6.99", "29.90", "8.99"), appleError: null, web: { priceId: "price_example_boost1", amountCents: 799, currency: "EUR" } },
-  { productId: "com.mazl.app.boost.3", kind: "boost", label: "3 Boosts", visible: true, sortOrder: 5, featured: false, highlight: null, applePrices: prices("19.99", "19.99", "17.99", "69.90", "26.99"), appleError: null, web: { priceId: "price_example_boost3", amountCents: 1999, currency: "EUR" } },
-  { productId: "com.mazl.app.superlikes.5", kind: "superlikes", label: "5 Super Likes", visible: true, sortOrder: 6, featured: false, highlight: null, applePrices: prices("4.99", "4.99", "4.49", "19.90", "6.49"), appleError: null, web: null },
-  { productId: "com.mazl.app.superlikes.15", kind: "superlikes", label: "15 Super Likes", visible: false, sortOrder: 7, featured: false, highlight: null, applePrices: prices("11.99", "11.99", "10.99", "49.90", "15.99"), appleError: null, web: null },
+  productOf({ productId: "com.mazl.app.plus.12m", kind: "subscription", months: 12, featured: false, highlight: hl("Le plus économique", "Best value", "הכי משתלם", "El más económico", "Самый выгодный"), apple: prices("99.99", "119.99", "89.99", "399.90", "149.99"), webCents: 9999 }, 0),
+  productOf({ productId: "com.mazl.app.plus.6m", kind: "subscription", months: 6, featured: false, highlight: null, apple: prices("69.99", "79.99", "64.99", "249.90", "99.99"), webCents: 6999 }, 1),
+  productOf({ productId: "com.mazl.app.plus.3m", kind: "subscription", months: 3, featured: true, highlight: hl("Le plus choisi", "Most popular", "הנבחר ביותר", "El más elegido", "Самый популярный"), apple: prices("44.99", "49.99", "39.99", "179.90", "64.99"), webCents: 4499 }, 2),
+  productOf({ productId: "com.mazl.app.plus.1m", kind: "subscription", months: 1, featured: false, highlight: null, apple: prices("19.99", "19.99", "17.99", "69.90", "26.99"), webCents: 1999 }, 3),
+  productOf({ productId: "com.mazl.app.boost.1", kind: "credits", months: null, featured: false, highlight: null, apple: prices("7.99", "6.99", "6.99", "29.90", "8.99"), webCents: 799 }, 4),
+  productOf({ productId: "com.mazl.app.boost.3", kind: "credits", months: null, featured: false, highlight: null, apple: prices("19.99", "19.99", "17.99", "69.90", "26.99"), webCents: 1999 }, 5),
+  productOf({ productId: "com.mazl.app.superlikes.5", kind: "credits", months: null, featured: false, highlight: null, apple: prices("4.99", "4.99", "4.49", "19.90", "6.49"), webCents: null }, 6),
+  productOf({ productId: "com.mazl.app.superlikes.15", kind: "credits", months: null, featured: false, highlight: null, apple: prices("11.99", "11.99", "10.99", "49.90", "15.99"), webCents: null }, 7, false),
 ];
+
+const displayOf = (product: ProductDto): ProductDisplayDto => ({
+  productId: product.productId,
+  visible: product.visible,
+  sortOrder: product.sortOrder,
+  featured: product.featured,
+  highlight: product.highlight,
+  stripePriceId: product.stripePriceId,
+  updatedAt: product.updatedAt,
+  updatedBy: product.updatedBy,
+});
 
 const TIERS = [0.99, 1.99, 2.99, 3.99, 4.99, 5.99, 6.99, 7.99, 8.99, 9.99, 11.99, 12.99, 14.99, 15.99, 17.99, 19.99, 21.99, 24.99, 29.99, 34.99, 39.99, 44.99, 49.99, 54.99, 59.99, 64.99, 69.99, 79.99, 89.99, 99.99, 109.99, 119.99, 129.99, 149.99];
 const FACTORS: Readonly<Record<string, { readonly factor: number; readonly currency: string; readonly ending: number }>> = { FRA: { factor: 1, currency: "EUR", ending: 0.99 }, USA: { factor: 1.11, currency: "USD", ending: 0.99 }, GBR: { factor: 0.9, currency: "GBP", ending: 0.99 }, ISR: { factor: 4, currency: "ILS", ending: 0.9 }, CAN: { factor: 1.45, currency: "CAD", ending: 0.99 } };
@@ -131,13 +184,30 @@ const convert = (frAmount: number, territory: string): string => {
 
 // ---------- Campagnes ----------
 
-const campaigns: CampaignDto[] = [];
+/** Une campagne telle qu'elle est rangée : le serveur ne range que brouillon, programmée ou annulée ; « en cours » et « terminée » se calculent. */
+type StoredCampaign = Omit<CampaignDto, "status"> & { status: "draft" | "scheduled" | "cancelled" };
+
+const campaigns: StoredCampaign[] = [];
 let nextId = 1;
 const now = (): number => Date.now();
+const viewOf = (campaign: StoredCampaign): CampaignDto => ({ ...campaign, status: campaignState(campaign, new Date(now())) });
 
-function makeCampaign(themeId: ThemeId, input: Partial<CampaignInput> & { readonly startsAt: string; readonly endsAt: string }, status: CampaignDto["status"], name?: string): CampaignDto {
+const codeFor = (themeId: ThemeId, startsAt: string): string => `${themeId.replace(/_/g, "").toUpperCase().slice(0, 10)}${startsAt.slice(2, 4)}`;
+const isSubscription = (productId: string): boolean => products.find((p) => p.productId === productId)?.kind === "subscription";
+const soldOnWeb = (productId: string): boolean => products.find((p) => p.productId === productId)?.effectiveStripePriceId != null;
+
+function scheduleArtifacts(campaign: StoredCampaign): Pick<StoredCampaign, "apple" | "stripe"> {
+  const code = codeFor(campaign.themeId, campaign.startsAt);
+  const subscriptions = campaign.targets.filter((target) => isSubscription(target.productId));
+  return {
+    apple: { codes: subscriptions.map((target, i) => ({ productId: target.productId, offerCodeId: `offer_example_${campaign.id}_${i}`, customCodeId: `code_example_${campaign.id}_${i}`, customCode: `${code}${i === 0 ? "" : i + 1}` })), error: null },
+    stripe: { promotions: campaign.targets.filter((target) => soldOnWeb(target.productId)).map((target, i) => ({ productId: target.productId, couponId: `coupon_example_${campaign.id}_${i}`, promotionCodeId: `promo_example_${campaign.id}_${i}` })), error: null },
+  };
+}
+
+function makeCampaign(themeId: ThemeId, input: Partial<CampaignInput> & { readonly startsAt: string; readonly endsAt: string }, status: StoredCampaign["status"], name?: string): StoredCampaign {
   const stamp = new Date(now() - 20 * DAY).toISOString();
-  const campaign: CampaignDto = {
+  const campaign: StoredCampaign = {
     id: nextId,
     themeId,
     name: name ?? input.name ?? `${themeById(themeId).label} ${input.startsAt.slice(0, 4)}`,
@@ -147,22 +217,21 @@ function makeCampaign(themeId: ThemeId, input: Partial<CampaignInput> & { readon
     targets: input.targets ?? ["com.mazl.app.plus.12m", "com.mazl.app.plus.6m", "com.mazl.app.plus.3m", "com.mazl.app.plus.1m"].map((productId) => ({ productId, discountPercent: themeId === "black_friday" ? 40 : 30 })),
     changeAppIcon: input.changeAppIcon ?? true,
     status,
-    apple: status === "scheduled" ? { offerCodes: [codeFor(themeId, input.startsAt)], error: null } : null,
-    stripe: status === "scheduled" ? { couponId: `coupon_example_${nextId}`, promotionCode: codeFor(themeId, input.startsAt) } : null,
+    apple: { codes: [], error: null },
+    stripe: { promotions: [], error: null },
     createdBy: "admin@example.com",
     createdAt: stamp,
     updatedAt: stamp,
   };
   nextId += 1;
   campaigns.push(campaign);
+  if (status === "scheduled") Object.assign(campaign, scheduleArtifacts(campaign));
   return campaign;
 }
 
-const codeFor = (themeId: ThemeId, startsAt: string): string => `${themeId.replace(/_/g, "").toUpperCase().slice(0, 10)}${startsAt.slice(2, 4)}`;
-
 function seed(): void {
   const year = new Date().getUTCFullYear();
-  const take = (themeId: ThemeId, y: number, status: CampaignDto["status"]): CampaignDto => {
+  const take = (themeId: ThemeId, y: number, status: StoredCampaign["status"]): StoredCampaign => {
     const p = presetFor(themeId, y);
     return makeCampaign(themeId, { startsAt: p.startsAt, endsAt: p.endsAt }, status);
   };
@@ -188,8 +257,9 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
   const base = "/storefront";
   const ok = <T,>(data: T): { success: true; data: T } => ({ success: true, data });
   const fail = (error: string, message?: string): { success: false; error: string; message?: string } => (message === undefined ? { success: false, error } : { success: false, error, message });
-  const canRead = (c: never): boolean => meOf(c).permissions.includes("operations.manage");
-  const isSuper = (c: never): boolean => meOf(c).role === "super_admin";
+  // Mêmes permissions que le serveur : lire et régler l'affichage = storefront.manage ; écrire chez Apple et Stripe = storefront.stores.
+  const canManage = (c: never): boolean => meOf(c).permissions.includes("storefront.manage");
+  const canWriteStores = (c: never): boolean => meOf(c).permissions.includes("storefront.stores");
   const json = async (c: { req: { json: () => Promise<unknown> } }): Promise<Body> => {
     try {
       const body = await c.req.json();
@@ -198,17 +268,18 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
       return {};
     }
   };
-  const productOf = (id: string): ProductDto | undefined => products.find((p) => p.productId === id);
+  const productById = (id: string): ProductDto | undefined => products.find((p) => p.productId === id);
   const replaceProduct = (next: ProductDto): void => {
     const index = products.findIndex((p) => p.productId === next.productId);
     if (index >= 0) products[index] = next;
   };
+  const stamped = (): string => new Date().toISOString();
 
-  api.get(`${base}/products`, (c) => (canRead(c as never) ? c.json(ok({ products: [...products].sort((a, b) => a.sortOrder - b.sortOrder) })) : c.json(fail("forbidden"), 403)));
+  api.get(`${base}/products`, (c) => (canManage(c as never) ? c.json(ok({ products: [...products].sort((a, b) => a.sortOrder - b.sortOrder) })) : c.json(fail("forbidden"), 403)));
 
   api.patch(`${base}/products/:id`, async (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
-    const product = productOf(c.req.param("id"));
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
+    const product = productById(c.req.param("id"));
     if (product === undefined) return c.json(fail("product_not_found"), 404);
     const body = await json(c);
     const next: ProductDto = {
@@ -217,65 +288,83 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
       ...(typeof body["featured"] === "boolean" ? { featured: body["featured"] } : {}),
       ...(typeof body["sortOrder"] === "number" ? { sortOrder: body["sortOrder"] } : {}),
       ...("highlight" in body ? { highlight: body["highlight"] as LocalizedText | null } : {}),
+      updatedAt: stamped(),
+      updatedBy: meOf(c as never).email,
     };
     replaceProduct(next);
-    return c.json(ok(next));
+    return c.json(ok(displayOf(next)));
   });
 
   api.get(`${base}/products/:id/apple-price-points`, (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
-    if (productOf(c.req.param("id")) === undefined) return c.json(fail("product_not_found"), 404);
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
+    const productId = c.req.param("id");
+    if (productById(productId) === undefined) return c.json(fail("product_not_found"), 404);
     const territory = c.req.query("territory") ?? "FRA";
-    const points: PricePointDto[] = TIERS.map((tier) => ({ id: `pp-${territory}-${Math.round(tier * 100)}`, customerPrice: tier.toFixed(2), currency: FACTORS[territory]?.currency ?? "EUR" }));
-    return c.json(ok({ territory, pricePoints: points }));
+    const points: PricePointDto[] = TIERS.map((tier) => ({ id: `pp-${territory}-${Math.round(tier * 100)}`, territory, customerPrice: tier.toFixed(2), proceeds: (tier * 0.85).toFixed(2) }));
+    return c.json(ok({ productId, territory, pricePoints: points }));
   });
 
   api.post(`${base}/products/:id/apple-price`, async (c) => {
-    if (!isSuper(c as never)) return c.json(fail("forbidden", "Changer un prix est réservé aux super-administrateurs."), 403);
-    const product = productOf(c.req.param("id"));
+    if (!canWriteStores(c as never)) return c.json(fail("forbidden", "Changer un prix est réservé aux super-administrateurs."), 403);
+    const product = productById(c.req.param("id"));
     if (product === undefined) return c.json(fail("product_not_found"), 404);
     const body = await json(c);
     const match = /^pp-FRA-(\d+)$/.exec(String(body["pricePointId"] ?? ""));
     const startDate = String(body["startDate"] ?? "");
-    if (match === null) return c.json(fail("price_point_not_found"), 404);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || startDate < new Date().toISOString().slice(0, 10)) return c.json(fail("invalid_price", "La date d'effet ne peut pas être dans le passé."), 400);
+    if (match === null) return c.json(fail("store_error", "apple: price point not found"), 502);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || startDate < new Date().toISOString().slice(0, 10)) return c.json(fail("invalid_price_change", "startDate cannot be in the past"), 400);
     const newFrance = Number(match[1]) / 100;
-    const changes: ApplePriceChangeDto[] = product.applePrices.map((price) => ({ territory: price.territory, currency: price.currency, from: price.amount, to: price.territory === "FRA" ? newFrance.toFixed(2) : convert(newFrance, price.territory) }));
+    const current = product.prices.apple.status === "ok" ? product.prices.apple.items : [];
+    const changes: ApplePlanDto["changes"] = current.map((price) => ({ territory: price.territory, from: price.customerPrice, to: price.territory === "FRA" ? newFrance.toFixed(2) : convert(newFrance, price.territory), pricePointId: `pp-${price.territory}-${Math.round((price.territory === "FRA" ? newFrance : Number(convert(newFrance, price.territory))) * 100)}` }));
     const dryRun = body["dryRun"] !== false; // vrai par défaut, comme le serveur
     if (!dryRun) {
-      replaceProduct({ ...product, applePrices: product.applePrices.map((price) => ({ ...price, amount: changes.find((change) => change.territory === price.territory)?.to ?? price.amount })) });
+      replaceProduct({ ...product, prices: { ...product.prices, apple: { status: "ok", items: current.map((price) => ({ ...price, customerPrice: changes.find((change) => change.territory === price.territory)?.to ?? price.customerPrice })) } } });
     }
-    return c.json(ok({ dryRun, startDate, preserveCurrentPrice: body["preserveCurrentPrice"] !== false, changes }));
+    return c.json(ok({ dryRun, plan: { productId: product.productId, startDate, preserveCurrentPrice: body["preserveCurrentPrice"] !== false, changes } }));
   });
 
   api.post(`${base}/products/:id/web-price`, async (c) => {
-    if (!isSuper(c as never)) return c.json(fail("forbidden", "Changer un prix est réservé aux super-administrateurs."), 403);
-    const product = productOf(c.req.param("id"));
+    if (!canWriteStores(c as never)) return c.json(fail("forbidden", "Changer un prix est réservé aux super-administrateurs."), 403);
+    const product = productById(c.req.param("id"));
     if (product === undefined) return c.json(fail("product_not_found"), 404);
-    if (product.web === null) return c.json(fail("invalid_price", "Ce produit n'est pas vendu sur le site."), 409);
     const body = await json(c);
     const cents = body["amountCents"];
     const currency = body["currency"];
-    if (typeof cents !== "number" || !Number.isInteger(cents) || cents <= 0 || typeof currency !== "string" || currency.length !== 3) return c.json(fail("invalid_price"), 400);
-    const web = { priceId: `price_example_${Math.random().toString(36).slice(2, 10)}`, amountCents: cents, currency };
-    replaceProduct({ ...product, web });
-    return c.json(ok(web));
+    if (typeof cents !== "number" || !Number.isInteger(cents) || cents < 50 || cents > 1_000_000 || typeof currency !== "string" || !/^[A-Za-z]{3}$/.test(currency)) return c.json(fail("invalid_body", "amountCents ou currency invalide"), 400);
+    const price: WebPriceDto = { priceId: `price_example_${Math.random().toString(36).slice(2, 10)}`, amountCents: cents, currency: currency.toUpperCase() };
+    const next: ProductDto = { ...product, stripePriceId: price.priceId, effectiveStripePriceId: price.priceId, prices: { ...product.prices, web: { status: "ok", items: [price] } }, updatedAt: stamped(), updatedBy: meOf(c as never).email };
+    replaceProduct(next);
+    return c.json(ok({ price, previousPriceId: product.effectiveStripePriceId, product: displayOf(next) }));
   });
 
+  const overlapsRange = (a: { readonly startsAt: string; readonly endsAt: string }, b: { readonly startsAt: string; readonly endsAt: string }): boolean => Date.parse(a.startsAt) < Date.parse(b.endsAt) && Date.parse(b.startsAt) < Date.parse(a.endsAt);
+
   api.get(`${base}/campaigns/presets`, (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
-    const year = Number(c.req.query("year") ?? new Date().getUTCFullYear());
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
+    const rawYear = c.req.query("year");
+    if (rawYear === undefined || !/^\d{4}$/.test(rawYear)) return c.json(fail("invalid_query", "year: de 2020 à 2100"), 400);
+    const year = Number(rawYear);
     const presets = THEMES.map((theme) => presetFor(theme.id, year));
-    const withConflicts = presets.map((preset) => ({ ...preset, conflictsWith: presets.filter((other) => other.themeId !== preset.themeId && overlaps({ key: 0, ...preset }, { key: 1, ...other })).map((other) => other.themeId) }));
-    return c.json(ok({ year, presets: withConflicts.sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)) }));
+    const full = presets.map((preset): PresetDto => {
+      const overlapping = campaigns.filter((campaign) => campaign.status !== "cancelled" && overlapsRange(campaign, preset));
+      return {
+        ...preset,
+        existing: overlapping.filter((campaign) => campaign.themeId === preset.themeId).map((campaign) => ({ id: campaign.id, name: campaign.name, status: viewOf(campaign).status })),
+        conflicts: overlapping.filter((campaign) => campaign.status === "scheduled").map((campaign) => ({ id: campaign.id, name: campaign.name })),
+        overlapsThemes: presets.filter((other) => other.themeId !== preset.themeId && overlapsRange(preset, other)).map((other) => other.themeId),
+      };
+    });
+    return c.json(ok({ year, presets: full.sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)) }));
   });
 
   api.get(`${base}/campaigns`, (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
-    const year = Number(c.req.query("year") ?? new Date().getUTCFullYear());
-    const from = Date.UTC(year, 0, 1) - HOUR;
-    const to = Date.UTC(year + 1, 0, 1) - HOUR;
-    return c.json(ok({ year, campaigns: campaigns.filter((campaign) => Date.parse(campaign.startsAt) < to && Date.parse(campaign.endsAt) > from) }));
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
+    const rawYear = c.req.query("year");
+    const year = rawYear === undefined ? null : Number(rawYear);
+    if (year !== null && !(Number.isInteger(year) && year >= 2020 && year <= 2100)) return c.json(fail("invalid_query", "year: de 2020 à 2100"), 400);
+    const from = year === null ? -Infinity : Date.UTC(year, 0, 1) - HOUR;
+    const to = year === null ? Infinity : Date.UTC(year + 1, 0, 1) - HOUR;
+    return c.json(ok({ campaigns: campaigns.filter((campaign) => Date.parse(campaign.startsAt) < to && Date.parse(campaign.endsAt) > from).map(viewOf) }));
   });
 
   const validate = (input: Partial<CampaignInput>): string | null => {
@@ -286,66 +375,70 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
       if (length > 45 * DAY) return "Une campagne dure 45 jours au plus.";
     }
     for (const target of input.targets ?? []) {
-      if (productOf(target.productId) === undefined) return `Produit inconnu : ${target.productId}.`;
+      if (productById(target.productId) === undefined) return `Produit inconnu : ${target.productId}.`;
       if (!Number.isInteger(target.discountPercent) || target.discountPercent < 5 || target.discountPercent > 90) return "Remise entre 5 et 90 %.";
     }
     return null;
   };
 
   api.post(`${base}/campaigns`, async (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
     const body = (await json(c)) as unknown as CampaignInput;
     const problem = validate(body);
     if (problem !== null || typeof body.name !== "string" || body.name.trim() === "") return c.json(fail("invalid_campaign", problem ?? "Nom obligatoire."), 400);
     const created = makeCampaign(body.themeId, body, "draft");
-    Object.assign(created, { createdBy: meOf(c as never).email, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-    return c.json(ok(created), 201);
+    Object.assign(created, { createdBy: meOf(c as never).email, createdAt: stamped(), updatedAt: stamped() });
+    return c.json(ok(viewOf(created)), 201);
   });
 
   const indexOf = (id: string): number => campaigns.findIndex((campaign) => campaign.id === Number(id));
 
   api.patch(`${base}/campaigns/:id`, async (c) => {
-    if (!canRead(c as never)) return c.json(fail("forbidden"), 403);
+    if (!canManage(c as never)) return c.json(fail("forbidden"), 403);
     const index = indexOf(c.req.param("id"));
     const current = campaigns[index];
     if (current === undefined) return c.json(fail("campaign_not_found"), 404);
     const body = (await json(c)) as Partial<CampaignInput>;
-    const live = current.status === "scheduled" && Date.parse(current.startsAt) <= now() && now() < Date.parse(current.endsAt);
+    const shown = viewOf(current).status;
     const keys = Object.keys(body);
-    const started = Date.parse(current.startsAt) <= now();
-    const endsEarlier = live && keys.length === 1 && keys[0] === "endsAt" && Date.parse(body.endsAt ?? "") < Date.parse(current.endsAt);
-    const contentOnly = current.status === "scheduled" && !started && keys.every((key) => ["name", "texts", "changeAppIcon"].includes(key));
-    if (current.status !== "draft" && !endsEarlier && !contentOnly) return c.json(fail("campaign_locked"), 409);
-    const next: CampaignDto = { ...current, ...body, updatedAt: new Date().toISOString() };
+    const endsEarlier = shown === "live" && keys.length === 1 && keys[0] === "endsAt" && Date.parse(body.endsAt ?? "") < Date.parse(current.endsAt);
+    const contentOnly = shown === "scheduled" && keys.every((key) => ["name", "texts", "changeAppIcon"].includes(key));
+    if (shown !== "draft" && !endsEarlier && !contentOnly) return c.json(fail("campaign_not_editable", `A ${shown} campaign cannot be edited that way`), 409);
+    const next: StoredCampaign = { ...current, ...body, updatedAt: stamped() };
     const problem = validate(next);
     if (problem !== null) return c.json(fail("invalid_campaign", problem), 400);
     campaigns[index] = next;
-    return c.json(ok(next));
+    return c.json(ok(viewOf(next)));
   });
 
   api.post(`${base}/campaigns/:id/publish`, (c) => {
-    if (!isSuper(c as never)) return c.json(fail("forbidden", "Programmer une campagne est réservé aux super-administrateurs."), 403);
+    if (!canWriteStores(c as never)) return c.json(fail("forbidden", "Programmer une campagne est réservé aux super-administrateurs."), 403);
     const index = indexOf(c.req.param("id"));
     const current = campaigns[index];
     if (current === undefined) return c.json(fail("campaign_not_found"), 404);
-    if (current.status !== "draft") return c.json(fail("campaign_locked"), 409);
-    if (current.name.includes("sans clés")) return c.json(fail("store_not_configured"), 503);
-    if (current.name.includes("erreur Apple")) return c.json(fail("apple_error", "ENTITY_ERROR.ATTRIBUTE.INVALID: the offer code is not valid for this subscription"), 502);
-    const clash = campaigns.find((other) => other.id !== current.id && other.status === "scheduled" && overlaps({ key: 0, ...current }, { key: 1, ...other }));
+    if (current.status !== "draft") return c.json(fail("campaign_wrong_state", `Only a draft can be published (this one is ${viewOf(current).status})`), 409);
+    if (current.name.includes("sans clés")) return c.json(fail("store_not_configured", "The apple store is not configured on this server"), 503);
+    if (current.name.includes("erreur Apple")) {
+      const reason = "ENTITY_ERROR.ATTRIBUTE.INVALID: the offer code is not valid for this subscription";
+      campaigns[index] = { ...current, apple: { codes: current.apple.codes, error: reason } };
+      return c.json(fail("store_error", `apple: ${reason}`), 502);
+    }
+    const clash = campaigns.find((other) => other.id !== current.id && other.status === "scheduled" && overlapsRange(current, other));
     if (clash !== undefined) return c.json(fail("campaign_overlap", `Chevauche « ${clash.name} ».`), 409);
-    const code = codeFor(current.themeId, current.startsAt);
-    const next: CampaignDto = { ...current, status: "scheduled", apple: { offerCodes: current.targets.map((_, i) => `${code}${i === 0 ? "" : i + 1}`), error: null }, stripe: current.targets.length === 0 ? null : { couponId: `coupon_example_${current.id}`, promotionCode: code }, updatedAt: new Date().toISOString() };
+    const next: StoredCampaign = { ...current, status: "scheduled", ...scheduleArtifacts(current), updatedAt: stamped() };
     campaigns[index] = next;
-    return c.json(ok(next));
+    return c.json(ok(viewOf(next)));
   });
 
   api.post(`${base}/campaigns/:id/cancel`, (c) => {
-    if (!isSuper(c as never)) return c.json(fail("forbidden", "Annuler une campagne est réservé aux super-administrateurs."), 403);
+    if (!canWriteStores(c as never)) return c.json(fail("forbidden", "Annuler une campagne est réservé aux super-administrateurs."), 403);
     const index = indexOf(c.req.param("id"));
     const current = campaigns[index];
     if (current === undefined) return c.json(fail("campaign_not_found"), 404);
-    const next: CampaignDto = { ...current, status: "cancelled", updatedAt: new Date().toISOString() };
+    const shown = viewOf(current).status;
+    if (shown === "ended" || shown === "cancelled") return c.json(fail("campaign_wrong_state", `A ${shown} campaign cannot be cancelled`), 409);
+    const next: StoredCampaign = { ...current, status: "cancelled", updatedAt: stamped() };
     campaigns[index] = next;
-    return c.json(ok(next));
+    return c.json(ok(viewOf(next)));
   });
 }

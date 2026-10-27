@@ -1,6 +1,7 @@
 // Changement de prix : formats, comparaison pays par pays et explication en clair avant confirmation. Fonctions pures.
 import { parisToday } from "./paris-time";
-import type { ApplePriceChangeDto, ApplePricePlanDto, ProductDto, StorePriceDto } from "./types";
+import { applePrices } from "./product-view";
+import type { ApplePlanDto, ApplePriceChangeDto, ProductDto, StorePriceDto } from "./types";
 
 export const TERRITORY_NAMES: Readonly<Record<string, string>> = { FRA: "France", USA: "États-Unis", GBR: "Royaume-Uni", ISR: "Israël", CAN: "Canada" };
 export const territoryName = (code: string): string => TERRITORY_NAMES[code] ?? code;
@@ -12,14 +13,14 @@ export function formatMoney(amount: string | number, currency: string): string {
   try {
     return new Intl.NumberFormat("fr-FR", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).format(value);
   } catch {
-    return `${value.toFixed(2)} ${currency}`;
+    return `${value.toFixed(2)} ${currency}`.trim();
   }
 }
 
 export const formatCents = (cents: number, currency: string): string => formatMoney(cents / 100, currency);
 
-export function applePrice(product: Pick<ProductDto, "applePrices">, territory: string): StorePriceDto | undefined {
-  return product.applePrices.find((price) => price.territory === territory);
+export function applePrice(product: Pick<ProductDto, "prices">, territory: string): StorePriceDto | undefined {
+  return applePrices(product).find((price) => price.territory === territory);
 }
 
 export type Direction = "up" | "down" | "same";
@@ -40,24 +41,25 @@ export interface ChangeLine {
   readonly direction: Direction;
 }
 
-export function changeLines(changes: readonly ApplePriceChangeDto[]): readonly ChangeLine[] {
+/** `currencyOf` : devise d'un pays (le serveur donne les montants du plan sans devise ; elle se lit sur les prix actuels du produit). */
+export function changeLines(changes: readonly ApplePriceChangeDto[], currencyOf: (territory: string) => string | null): readonly ChangeLine[] {
   return changes.map((change) => ({
     territory: change.territory,
     country: territoryName(change.territory),
-    before: change.from === null ? "—" : formatMoney(change.from, change.currency),
-    after: formatMoney(change.to, change.currency),
+    before: change.from === null ? "—" : formatMoney(change.from, currencyOf(change.territory) ?? ""),
+    after: formatMoney(change.to, currencyOf(change.territory) ?? ""),
     direction: direction(change.from, change.to),
   }));
 }
 
 /** Sens global du changement, jugé sur la France (prix de base) ; « same » si rien ne bouge. */
-export function planDirection(plan: Pick<ApplePricePlanDto, "changes">): Direction {
+export function planDirection(plan: Pick<ApplePlanDto, "changes">): Direction {
   const base = plan.changes.find((change) => change.territory === "FRA") ?? plan.changes[0];
   return base === undefined ? "same" : direction(base.from, base.to);
 }
 
 /** Les phrases à montrer avant « Confirmer », selon le sens du changement et le choix de conserver le prix des abonnés. */
-export function explainApplePlan(plan: Pick<ApplePricePlanDto, "changes" | "preserveCurrentPrice" | "startDate">, isSubscription: boolean): readonly string[] {
+export function explainApplePlan(plan: Pick<ApplePlanDto, "changes" | "preserveCurrentPrice" | "startDate">, isSubscription: boolean): readonly string[] {
   const sens = planDirection(plan);
   const lines: string[] = [];
   if (sens === "same") lines.push("Ce palier est le prix actuel : rien ne change.");

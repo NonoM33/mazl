@@ -97,7 +97,13 @@ Textes et `highlight` dans la langue de `Accept-Language` (fr par défaut, repli
 `appIcon` est null hors campagne ou si `change_app_icon` est faux. `iosOfferCode` n'est
 présent que si le code a bien été créé chez Apple.
 
-## 5. API du back-office (`/api/admin/storefront/...`, session staff, cf. matching-admin)
+## 5. API du back-office (`/api/backoffice/storefront/...`, session staff)
+
+Les formes exactes des requêtes et des réponses sont celles de `src/features/storefront/presentation/schemas.ts`
+(source de vérité, exportée dans `docs/api/storefront-openapi.json`). La console les importe en types seulement et
+`tests/unit/console-storefront-contract.test.ts` valide chaque réponse de sa maquette contre ces schémas. Droits :
+`storefront.manage` (administrateur et super-administrateur) pour lire et régler l'affichage, `storefront.stores`
+(super-administrateur) pour tout ce qui écrit chez Apple et Stripe.
 
 | route | rôle | effet |
 |---|---|---|

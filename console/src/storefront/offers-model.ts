@@ -1,9 +1,15 @@
 // Tableau des offres : ordre, accroches. Fonctions pures.
-import { LANGS, type Lang, type LocalizedText, type ProductDto, type ProductKind } from "./types";
+import { creditKind } from "./product-view";
+import { LANGS, type Lang, type LocalizedText, type ProductDto } from "./types";
 
 export const HIGHLIGHT_MAX = 40;
 
-export const KIND_LABELS: Readonly<Record<ProductKind, string>> = { subscription: "Abonnement mazl+", boost: "Boost", superlikes: "Super likes" };
+/** Le serveur ne distingue que « subscription » et « credits » ; Boost et Super Likes se lisent dans l'identifiant. */
+export function kindLabel(product: Pick<ProductDto, "productId" | "kind">): string {
+  if (product.kind === "subscription") return "Abonnement mazl+";
+  const kind = creditKind(product.productId);
+  return kind === "boost" ? "Boost" : kind === "superlikes" ? "Super likes" : "Achat à l'unité";
+}
 
 export interface OfferGroup {
   readonly id: "subscriptions" | "consumables";
@@ -55,7 +61,7 @@ export function applyOrder(products: readonly ProductDto[], patches: readonly Or
 
 export const emptyHighlight = (): Record<Lang, string> => ({ fr: "", en: "", he: "", es: "", ru: "" });
 
-export function highlightDraft(highlight: LocalizedText | null): Record<Lang, string> {
+export function highlightDraft(highlight: ProductDto["highlight"]): Record<Lang, string> {
   return { ...emptyHighlight(), ...(highlight ?? {}) };
 }
 
