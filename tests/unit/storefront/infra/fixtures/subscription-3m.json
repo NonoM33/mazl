@@ -1,0 +1,32 @@
+{
+ "data": [
+  {
+   "type": "subscriptions",
+   "id": "6826538779",
+   "attributes": {
+    "name": "mazl+ 3 mois",
+    "productId": "com.mazl.app.plus.3m",
+    "familySharable": false,
+    "state": "MISSING_METADATA",
+    "subscriptionPeriod": "THREE_MONTHS",
+    "reviewNote": null,
+    "groupLevel": 3,
+    "multiSeatStatus": "ENABLED",
+    "marketSettings": [
+     "APP_STORE",
+     "APPLE_BUSINESS",
+     "APPLE_SCHOOL"
+    ]
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 1,
+   "limit": 200
+  }
+ }
+}

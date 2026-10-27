@@ -1,0 +1,159 @@
+{
+ "data": [
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJBRkciLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "31.5",
+    "proceedsYear2": "38.24"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "AFG"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJBR08iLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "31.5",
+    "proceedsYear2": "38.24"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "AGO"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJDQU4iLCJwIjoiMTAzNTcifQ",
+   "attributes": {
+    "customerPrice": "59.99",
+    "proceeds": "41.99",
+    "proceedsYear2": "50.99"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "CAN"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJHQlIiLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "26.09",
+    "proceedsYear2": "31.77"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "GBR"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJJU1IiLCJwIjoiMTAzMzIifQ",
+   "attributes": {
+    "customerPrice": "129.9",
+    "proceeds": "90.93",
+    "proceedsYear2": "110.42"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "ISR"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJVU0EiLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "31.5",
+    "proceedsYear2": "38.24"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "USA"
+     }
+    }
+   }
+  }
+ ],
+ "included": [
+  {
+   "type": "territories",
+   "id": "AFG",
+   "attributes": {
+    "currency": "USD"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "AGO",
+   "attributes": {
+    "currency": "USD"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "CAN",
+   "attributes": {
+    "currency": "CAD"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "GBR",
+   "attributes": {
+    "currency": "GBP"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "ISR",
+   "attributes": {
+    "currency": "ILS"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "USA",
+   "attributes": {
+    "currency": "USD"
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 6,
+   "limit": 200
+  }
+ }
+}

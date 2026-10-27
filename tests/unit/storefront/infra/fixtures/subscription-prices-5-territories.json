@@ -1,0 +1,210 @@
+{
+ "data": [
+  {
+   "type": "subscriptionPrices",
+   "id": "eyJhIjoiNjgyNjUzODc3OSIsImMiOiJDQSIsImQiOjAsInAiOiIwIn0",
+   "attributes": {
+    "startDate": null,
+    "preserved": false,
+    "planType": "UPFRONT"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "CAN"
+     }
+    },
+    "subscriptionPricePoint": {
+     "data": {
+      "type": "subscriptionPricePoints",
+      "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJDQU4iLCJwIjoiMTAzMjcifQ"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPrices",
+   "id": "eyJhIjoiNjgyNjUzODc3OSIsImMiOiJGUiIsImQiOjAsInAiOiIwIn0",
+   "attributes": {
+    "startDate": null,
+    "preserved": false,
+    "planType": "UPFRONT"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "FRA"
+     }
+    },
+    "subscriptionPricePoint": {
+     "data": {
+      "type": "subscriptionPricePoints",
+      "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDIifQ"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPrices",
+   "id": "eyJhIjoiNjgyNjUzODc3OSIsImMiOiJHQiIsImQiOjAsInAiOiIwIn0",
+   "attributes": {
+    "startDate": null,
+    "preserved": false,
+    "planType": "UPFRONT"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "GBR"
+     }
+    },
+    "subscriptionPricePoint": {
+     "data": {
+      "type": "subscriptionPricePoints",
+      "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJHQlIiLCJwIjoiMTAyNzcifQ"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPrices",
+   "id": "eyJhIjoiNjgyNjUzODc3OSIsImMiOiJJTCIsImQiOjAsInAiOiIwIn0",
+   "attributes": {
+    "startDate": null,
+    "preserved": false,
+    "planType": "UPFRONT"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "ISR"
+     }
+    },
+    "subscriptionPricePoint": {
+     "data": {
+      "type": "subscriptionPricePoints",
+      "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJJU1IiLCJwIjoiMTAzMjEifQ"
+     }
+    }
+   }
+  },
+  {
+   "type": "subscriptionPrices",
+   "id": "eyJhIjoiNjgyNjUzODc3OSIsImMiOiJVUyIsImQiOjAsInAiOiIwIn0",
+   "attributes": {
+    "startDate": null,
+    "preserved": false,
+    "planType": "UPFRONT"
+   },
+   "relationships": {
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "USA"
+     }
+    },
+    "subscriptionPricePoint": {
+     "data": {
+      "type": "subscriptionPricePoints",
+      "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJVU0EiLCJwIjoiMTAzMjcifQ"
+     }
+    }
+   }
+  }
+ ],
+ "included": [
+  {
+   "type": "territories",
+   "id": "CAN",
+   "attributes": {
+    "currency": "CAD"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJDQU4iLCJwIjoiMTAzMjcifQ",
+   "attributes": {
+    "customerPrice": "49.99",
+    "proceeds": "34.99",
+    "proceedsYear2": "42.49"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "FRA",
+   "attributes": {
+    "currency": "EUR"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "26.24",
+    "proceedsYear2": "31.87"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "GBR",
+   "attributes": {
+    "currency": "GBP"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJHQlIiLCJwIjoiMTAyNzcifQ",
+   "attributes": {
+    "customerPrice": "39.99",
+    "proceeds": "23.19",
+    "proceedsYear2": "28.24"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "ISR",
+   "attributes": {
+    "currency": "ILS"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJJU1IiLCJwIjoiMTAzMjEifQ",
+   "attributes": {
+    "customerPrice": "119.9",
+    "proceeds": "83.93",
+    "proceedsYear2": "101.92"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "USA",
+   "attributes": {
+    "currency": "USD"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJVU0EiLCJwIjoiMTAzMjcifQ",
+   "attributes": {
+    "customerPrice": "49.99",
+    "proceeds": "35.0",
+    "proceedsYear2": "42.49"
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 5,
+   "limit": 200
+  }
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "data": [
+  {
+   "type": "inAppPurchasePrices",
+   "id": "eyJzIjoiNjgyNjU0MjMyMCIsInQiOiJGUkEiLCJwIjoiMTAxMDEiLCJzZCI6MC4wLCJlZCI6MC4wfQ",
+   "attributes": {
+    "startDate": null,
+    "endDate": null,
+    "manual": true
+   },
+   "relationships": {
+    "inAppPurchasePricePoint": {
+     "data": {
+      "type": "inAppPurchasePricePoints",
+      "id": "eyJzIjoiNjgyNjU0MjMyMCIsInQiOiJGUkEiLCJwIjoiMTAxMDEifQ"
+     }
+    },
+    "territory": {
+     "data": {
+      "type": "territories",
+      "id": "FRA"
+     }
+    }
+   }
+  }
+ ],
+ "included": [
+  {
+   "type": "inAppPurchasePricePoints",
+   "id": "eyJzIjoiNjgyNjU0MjMyMCIsInQiOiJGUkEiLCJwIjoiMTAxMDEifQ",
+   "attributes": {
+    "customerPrice": "7.99",
+    "proceeds": "4.66"
+   }
+  },
+  {
+   "type": "territories",
+   "id": "FRA",
+   "attributes": {
+    "currency": "EUR"
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 1,
+   "limit": 200
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "data": [],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 0,
+   "limit": 200
+  }
+ }
+}
