@@ -1,5 +1,7 @@
 import type { Hono } from "hono";
 import type { AppVariables } from "../../../shared/http/middleware";
+import { createHash } from "node:crypto";
+import { maxAgeFor, parseExpiry } from "../domain/signed-url";
 import { verifyPhotoSignature } from "../application/photo-signer";
 import type { PhotoService } from "../application/photo-service";
 
@@ -16,13 +18,17 @@ export function registerMediaRoutes(app: Hono<{ Variables: AppVariables }>, phot
     try {
       const bytes = await photos.serve(photoId);
       if (bytes === null) return c.json({ error: "Not found" }, 404);
-      return new Response(bytes, {
-        headers: {
-          "Content-Type": "image/jpeg",
-          "Cache-Control": "private, max-age=3600",
-          "X-Content-Type-Options": "nosniff",
-        },
-      });
+      const etag = `"${createHash("sha256").update(bytes).digest("hex").slice(0, 32)}"`;
+      // A photo id never changes content (a replacement is a new id), so the bytes
+      // stay valid for as long as the signed URL does.
+      const maxAge = maxAgeFor(parseExpiry(c.req.query("exp")) ?? 0, Date.now());
+      const headers = {
+        "Cache-Control": `private, max-age=${maxAge}, immutable`,
+        ETag: etag,
+        "X-Content-Type-Options": "nosniff",
+      };
+      if (c.req.header("if-none-match") === etag) return new Response(null, { status: 304, headers });
+      return new Response(bytes, { headers: { ...headers, "Content-Type": "image/jpeg" } });
     } catch (error: unknown) {
       console.error("Serve photo error:", error instanceof Error ? error.name : "unknown");
       return c.json({ error: "Not found" }, 404);
