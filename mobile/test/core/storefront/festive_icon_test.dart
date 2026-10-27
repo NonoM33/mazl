@@ -13,9 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // other name is a MissingPluginException, as on a device.
 
 class _FakeIconChannel {
-  _FakeIconChannel({this.supported = true, this.current});
+  _FakeIconChannel();
 
-  bool supported;
+  bool supported = true;
   String? current;
   PlatformException? refusal;
   final List<String> calls = [];

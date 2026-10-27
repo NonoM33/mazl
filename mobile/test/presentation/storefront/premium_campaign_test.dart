@@ -13,8 +13,8 @@ import 'storefront_fixtures.dart';
 // featuring, and the campaign template. The prices are the fallback plans
 // (the store has no product here): 19,99 / 44,99 / 69,99 / 99,99 EUR.
 
-const _3m = 'com.mazl.app.plus.3m';
-const _12m = 'com.mazl.app.plus.12m';
+const threeMonths = 'com.mazl.app.plus.3m';
+const twelveMonths = 'com.mazl.app.plus.12m';
 
 Future<List<Uri>> _pump(
   WidgetTester tester, {
@@ -87,14 +87,14 @@ void main() {
       'data': {
         'products': [
           {
-            'productId': _12m,
+            'productId': twelveMonths,
             'visible': true,
             'sortOrder': 0,
             'featured': true,
             'highlight': 'Le plus choisi',
           },
           {
-            'productId': _3m,
+            'productId': threeMonths,
             'visible': true,
             'sortOrder': 1,
             'featured': false,
@@ -162,9 +162,9 @@ void main() {
           'products': [
             for (final id in [
               'com.mazl.app.plus.1m',
-              _3m,
+              threeMonths,
               'com.mazl.app.plus.6m',
-              _12m,
+              twelveMonths,
             ])
               {'productId': id, 'visible': false},
           ],
@@ -224,12 +224,12 @@ void main() {
           'valentine',
           targets: [
             {
-              'productId': _3m,
+              'productId': threeMonths,
               'discountPercent': 30,
               'iosOfferCode': 'TROISMOIS',
             },
             {
-              'productId': _12m,
+              'productId': twelveMonths,
               'discountPercent': 20,
               'iosOfferCode': 'DOUZEMOIS',
             },
@@ -253,7 +253,7 @@ void main() {
         storefront: storefrontWithCampaign(
           'valentine',
           targets: [
-            {'productId': _3m, 'discountPercent': 30},
+            {'productId': threeMonths, 'discountPercent': 30},
           ],
         ),
       );
