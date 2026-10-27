@@ -1,0 +1,16 @@
+{
+  "$comment": "Seasonal themes bundled in the app (icon + template). Single source for server, console and app; a theme added here needs an app update (its icon ships in the bundle). Dates: Europe/Paris; Jewish holidays begin at sundown, so their window starts the day before. window = [days before the event day, days after its LAST day].",
+  "themes": [
+    { "id": "valentine",    "glyph": "heart",       "accent": "#E5484D", "rule": { "type": "fixed", "month": 2, "day": 14 },                "window": [7, 0] },
+    { "id": "tu_bav",       "glyph": "two_hearts",  "accent": "#D6409F", "rule": { "type": "hebrew", "month": "av", "day": 15 },           "window": [5, 0] },
+    { "id": "rosh_hashana", "glyph": "pomegranate", "accent": "#C2410C", "rule": { "type": "hebrew", "month": "tishrei", "day": 1, "days": 2 }, "window": [7, 0] },
+    { "id": "hanukkah",     "glyph": "flame",       "accent": "#E8A400", "rule": { "type": "hebrew", "month": "kislev", "day": 25, "days": 8 }, "window": [2, 0] },
+    { "id": "christmas",    "glyph": "fir",         "accent": "#1F8A4C", "rule": { "type": "fixed", "month": 12, "day": 25 },               "window": [10, 1] },
+    { "id": "new_year",     "glyph": "sparkle",     "accent": "#E8A400", "rule": { "type": "fixed", "month": 1, "day": 1 },                 "window": [4, 2] },
+    { "id": "purim",        "glyph": "mask",        "accent": "#8E4EC6", "rule": { "type": "hebrew", "month": "adar", "day": 14 },          "window": [3, 0] },
+    { "id": "passover",     "glyph": "matzah",      "accent": "#2747F5", "rule": { "type": "hebrew", "month": "nisan", "day": 15, "days": 7 }, "window": [5, 0] },
+    { "id": "mothers_day",  "glyph": "flower",      "accent": "#D6409F", "rule": { "type": "fr_mothers_day" },                             "window": [6, 0] },
+    { "id": "summer",       "glyph": "sun",         "accent": "#E8A400", "rule": { "type": "fixed", "month": 7, "day": 1, "days": 14 },     "window": [0, 0] },
+    { "id": "black_friday", "glyph": "bolt",        "accent": "#0B0B0F", "rule": { "type": "black_friday", "days": 4 },                    "window": [0, 0] }
+  ]
+}
