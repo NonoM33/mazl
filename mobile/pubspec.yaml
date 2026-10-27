@@ -115,6 +115,7 @@ flutter:
     - assets/images/backgrounds/
     - assets/images/placeholders/
     - assets/duo_tutorial/
+    - assets/storefront/glyphs/
 
   fonts:
     - family: Geist
