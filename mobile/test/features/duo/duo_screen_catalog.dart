@@ -350,12 +350,13 @@ final List<DuoScreen> duoScreens = [
     primary: () => _action('Commencer notre aventure'),
   ),
   // The five tabs of the couple space and the pages opened over them.
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/today',
     feature: 'couple',
     file: 'couple/screens/couple_today_screen.dart',
     path: '/couple/today',
     session: DuoSession.couple,
+    primary: () => _action('Répondre'),
   ),
   const DuoScreen(
     id: '/couple/agenda',
