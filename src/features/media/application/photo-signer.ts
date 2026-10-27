@@ -1,5 +1,5 @@
 import { hmacBase64Url, safeEqual } from "../../../shared/crypto/signer";
-import { expiryFor, isExpired, parseExpiry, photoSigningMessage } from "../domain/signed-url";
+import { isExpired, parseExpiry, photoSigningMessage, sliceExpiryFor } from "../domain/signed-url";
 
 function baseUrl(): string {
   return (process.env.PUBLIC_BASE_URL ?? "").replace(/\/+$/, "");
@@ -10,7 +10,7 @@ function signature(photoId: number, exp: number): string {
 }
 
 export function signPhotoUrl(photoId: number, nowMs: number = Date.now()): string {
-  const exp = expiryFor(nowMs);
+  const exp = sliceExpiryFor(nowMs);
   return `${baseUrl()}/media/photos/${photoId}?exp=${exp}&sig=${signature(photoId, exp)}`;
 }
 

@@ -58,6 +58,9 @@ class _ConversationsScreenState extends State<ConversationsScreen>
         _conversations = cachedConversations;
         _isLoading = false;
       });
+      if (_prefetchService.conversationsNeedRefresh) {
+        await _loadConversations(isRefresh: true);
+      }
     } else {
       // Load from API if no cached data
       await _loadConversations();

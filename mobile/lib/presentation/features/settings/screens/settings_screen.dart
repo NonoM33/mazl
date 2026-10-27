@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/photo_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -88,6 +88,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _loadUserProfile() async {
+    // Last known answer first, the server's behind it.
+    final known = ApiService.peekCurrentUser();
+    if (known != null && mounted && _userProfile == null) {
+      setState(() => _userProfile = known);
+    }
     final response = await _apiService.getCurrentUser();
     if (response.success && response.data != null && mounted) {
       final profile = response.data!.profile;
@@ -1221,7 +1226,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       radius: 40,
                       backgroundColor: AppColors.primary.withValues(alpha: 0.2),
                       backgroundImage: userPicture != null
-                          ? CachedNetworkImageProvider(userPicture)
+                          ? mazlImageProvider(userPicture, cacheWidth: 192)
                           : null,
                       child: userPicture == null
                           ? Icon(

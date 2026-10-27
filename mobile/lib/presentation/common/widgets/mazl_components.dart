@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -91,11 +91,9 @@ class ProfilePhoto extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: hasUrl
-          ? CachedNetworkImage(
-              imageUrl: url!,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => ColoredBox(color: tint),
-              errorWidget: (_, __, ___) => fallback,
+          ? MazlNetworkImage(
+              url: url!,
+              errorBuilder: (_) => fallback,
             )
           : fallback,
     );

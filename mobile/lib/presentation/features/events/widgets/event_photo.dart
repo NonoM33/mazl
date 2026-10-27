@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/images/mazl_network_image.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../widgets/loading_thread.dart';
 
@@ -83,16 +83,11 @@ class EventPhoto extends StatelessWidget {
         errorBuilder: (context, error, stack) => _fallback(),
       );
     }
-    final fade = MazlMotion.reduced(context)
-        ? Duration.zero
-        : MazlMotion.eventPhotoFade;
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-      fadeInDuration: fade,
-      fadeOutDuration: fade,
-      placeholder: (context, url) => _placeholder(context),
-      errorWidget: (context, url, error) => _fallback(),
+    return MazlNetworkImage(
+      url: url,
+      fadeDuration: MazlMotion.eventPhotoFade,
+      placeholder: _placeholder,
+      errorBuilder: (_) => _fallback(),
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -367,10 +367,9 @@ class _DailyPickCard extends StatelessWidget {
             children: [
               // Photo
               if (imageUrl != null)
-                CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+                MazlNetworkImage(
+                  url: imageUrl,
+                  placeholder: (context) => Container(
                     color: AppColors.primary.withValues(alpha: 0.3),
                     child: const Center(
                       child: CircularProgressIndicator(color: Colors.white),
