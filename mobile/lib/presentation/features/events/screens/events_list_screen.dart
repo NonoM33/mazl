@@ -13,6 +13,7 @@ import '../../../widgets/skeletons.dart';
 import '../l10n/event_texts.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 class EventsListScreen extends StatefulWidget {
   const EventsListScreen({super.key});
@@ -328,7 +329,7 @@ class _EventsListScreenState extends State<EventsListScreen>
 
     return Stack(
       children: [
-        RefreshIndicator(
+        StarRefresh(
           onRefresh: () => _loadEvents(isRefresh: true),
           child: AnimatedOpacity(
             opacity: _isFilterLoading ? 0.5 : 1.0,

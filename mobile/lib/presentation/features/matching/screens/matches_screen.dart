@@ -12,6 +12,7 @@ import '../../../common/widgets/mazl_components.dart';
 import '../../../widgets/skeletons.dart';
 import '../../likes/widgets/like_widgets.dart';
 import '../widgets/avatar_ring.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// Nombre maximal de likes aperçus sur l'écran des matchs.
 const int _likesPreviewCount = 4;
@@ -170,7 +171,7 @@ class _MatchesScreenState extends State<MatchesScreen>
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
+        child: StarRefresh(
           onRefresh: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),

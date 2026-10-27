@@ -15,6 +15,7 @@ import '../../matching/widgets/match_sheet.dart';
 import '../widgets/like_widgets.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
+import '../../../common/widgets/star_refresh/star_refresh.dart';
 
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
@@ -200,7 +201,7 @@ class _LikesScreenState extends State<LikesScreen> {
   Widget _scrollable(List<Widget> Function(FoldCut? cut) children) {
     final bottom = MediaQuery.paddingOf(context).bottom;
     return FoldCutBuilder(
-      builder: (context, cut) => RefreshIndicator(
+      builder: (context, cut) => StarRefresh(
         onRefresh: _loadLikes,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
