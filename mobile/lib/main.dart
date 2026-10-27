@@ -24,6 +24,8 @@ import 'presentation/features/verification/providers/verification_providers.dart
 import 'core/services/auth_service.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/store/subscription_service.dart';
+import 'core/di/providers/storefront_providers.dart';
+import 'core/storefront/festive_icon.dart';
 
 void main() {
   // Avant tout autre appel : hors debug, la console du téléphone ne reçoit
@@ -59,6 +61,7 @@ Future<void> _start() async {
   // Chaque étape est protégée : si l'une échoue (réseau, StoreKit, push),
   // l'app s'ouvre quand même au lieu de rester sur un écran blanc.
   AppLanguage? savedLanguage;
+  var festiveIconEnabled = true;
   await runStartupSteps(
     [
       // Sans DSN fourni au build (--dart-define=SENTRY_DSN=...), rien n'est
@@ -74,6 +77,10 @@ Future<void> _start() async {
         savedLanguage = await loadSavedLanguage(
           SharedPreferencesLanguageStore(),
         );
+      }),
+      StartupStep('icone des fetes', () async {
+        festiveIconEnabled = await SharedPreferencesFestiveIconSettingStore()
+            .read();
       }),
       // Upright until the hinge is known; OrientationPolicy then lets the
       // foldable iPhone turn sideways (tent pose).
@@ -98,6 +105,7 @@ Future<void> _start() async {
     ProviderScope(
       overrides: [
         savedLanguageProvider.overrideWithValue(savedLanguage),
+        savedFestiveIconEnabledProvider.overrideWithValue(festiveIconEnabled),
         // The identity flow (level 2) reuses the level-1 API client and selfie capture.
         identityVerificationApiProvider.overrideWith(
           (ref) => ref.watch(verificationApiProvider),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../di/providers/storefront_providers.dart';
 import 'app_guard.dart';
 import 'detail_screens.dart';
 import '../layout/adaptive_detail.dart';
@@ -184,7 +185,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const PremiumScreen(),
+          child: Consumer(
+            builder: (context, ref, _) =>
+                PremiumScreen(storefront: ref.watch(storefrontProvider)),
+          ),
           transitionsBuilder: slideUpTransition,
         ),
       ),

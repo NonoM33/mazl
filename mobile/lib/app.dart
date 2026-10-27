@@ -12,6 +12,7 @@ import 'core/router/app_router.dart';
 import 'core/services/websocket_service.dart';
 import 'presentation/features/couple/widgets/couple_flow_host.dart';
 import 'presentation/features/privacy/widgets/analytics_host.dart';
+import 'presentation/features/storefront/widgets/storefront_host.dart';
 import 'core/layout/fold_channel.dart';
 import 'core/layout/fold_state.dart';
 import 'core/layout/orientation_policy.dart';
@@ -70,19 +71,21 @@ class MazlApp extends ConsumerWidget {
             child: SideSafeArea(
               child: ReduceMotionScope(
                 child: DismissKeyboardOnTap(
-                  child: AnalyticsHost(
-                    router: router,
-                    navigatorKey: rootNavigatorKey,
-                    child: CoupleFlowHost(
-                      service: couple,
+                  child: StorefrontHost(
+                    child: AnalyticsHost(
                       router: router,
                       navigatorKey: rootNavigatorKey,
-                      realtime: socket.events,
-                      auth: auth,
-                      isAuthenticated: () => auth.isAuthenticated,
-                      onSignedIn: socket.connect,
-                      onSignedOut: socket.disconnect,
-                      child: child ?? const SizedBox.shrink(),
+                      child: CoupleFlowHost(
+                        service: couple,
+                        router: router,
+                        navigatorKey: rootNavigatorKey,
+                        realtime: socket.events,
+                        auth: auth,
+                        isAuthenticated: () => auth.isAuthenticated,
+                        onSignedIn: socket.connect,
+                        onSignedOut: socket.disconnect,
+                        child: child ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 ),

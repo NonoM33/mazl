@@ -10,6 +10,7 @@ import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/store/subscription_models.dart';
 import '../../../../core/services/store/subscription_service.dart';
+import '../../../../core/storefront/storefront_models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../l10n/l10n.dart';
@@ -17,11 +18,30 @@ import '../../../common/widgets/mazl_components.dart';
 import '../l10n/plan_price.dart';
 import '../l10n/plus_text.dart';
 import '../widgets/plus_widgets.dart';
+import '../../storefront/widgets/campaign_hero.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
 
 /// L'offre mazl+ : avantages, choix de la formule, achat.
 class PremiumScreen extends StatefulWidget {
-  const PremiumScreen({super.key, this.loadPlans, this.service});
+  const PremiumScreen({
+    super.key,
+    this.loadPlans,
+    this.service,
+    this.storefront,
+    this.openUrl,
+    this.assetBundle,
+  });
+
+  /// What the server wants shown (order, hidden plans, hooks, campaign);
+  /// null or empty: the plans as the store gives them, no campaign.
+  final Storefront? storefront;
+
+  /// Opens an address outside the app (the Apple offer code page),
+  /// replaceable in the tests.
+  final Future<void> Function(Uri uri)? openUrl;
+
+  /// Where the campaign drawing is read, replaceable in the tests.
+  final AssetBundle? assetBundle;
 
   /// Source des formules du store, remplaçable dans les tests.
   /// Par défaut : les formules du service d'abonnement.
@@ -38,7 +58,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   late final SubscriptionService _subscriptions =
       widget.service ?? SubscriptionService();
   List<SubscriptionPlan> _storePlans = const [];
-  int _selectedPlanIndex = 1; // 3 mois, la formule mise en avant
+  String? _selectedProductId; // null : la formule par défaut (voir _selected)
   bool _isLoading = true;
   bool _isPurchasing = false;
 
@@ -72,7 +92,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   /// Les formules du store ; à défaut (App Store Connect pas configuré, store
   /// injoignable), les formules de secours en euros.
-  List<_PlanOffer> get _plans => _storePlans.isEmpty
+  List<_PlanOffer> get _basePlans => _storePlans.isEmpty
       ? _fallbackPlans
       : [
           for (final plan in _storePlans)
@@ -83,6 +103,42 @@ class _PremiumScreenState extends State<PremiumScreen> {
               storePlan: plan,
             ),
         ];
+
+  /// Les formules dans l'ordre voulu par le serveur, sans celles qu'il
+  /// masque. Une formule qu'il ne cite pas reste visible, après les autres.
+  /// Jamais une liste vide : si le serveur masquait tout, on garde tout.
+  List<_PlanOffer> get _plans {
+    final base = _basePlans;
+    final store = widget.storefront;
+    if (store == null || store.products.isEmpty) return base;
+    final indexed = [for (var i = 0; i < base.length; i++) (i, base[i])]
+      ..removeWhere((e) => store.productFor(e.$2.productId)?.visible == false);
+    if (indexed.isEmpty) return base;
+    indexed.sort((a, b) {
+      final left = store.productFor(a.$2.productId);
+      final right = store.productFor(b.$2.productId);
+      if (left == null || right == null) {
+        if (left == null && right == null) return a.$1.compareTo(b.$1);
+        return left == null ? 1 : -1;
+      }
+      final byOrder = left.sortOrder.compareTo(right.sortOrder);
+      return byOrder != 0 ? byOrder : a.$1.compareTo(b.$1);
+    });
+    return [for (final e in indexed) e.$2];
+  }
+
+  /// La formule cochée : le choix du membre s'il est encore proposé, sinon
+  /// celle que le serveur met en avant, sinon 3 mois, sinon la première.
+  _PlanOffer _selected(List<_PlanOffer> plans) {
+    for (final plan in plans) {
+      if (plan.productId == _selectedProductId) return plan;
+    }
+    final store = widget.storefront;
+    for (final plan in plans) {
+      if (store?.productFor(plan.productId)?.featured == true) return plan;
+    }
+    return plans.firstWhere((p) => p.months == 3, orElse: () => plans.first);
+  }
 
   /// L'économie d'une formule longue par rapport au prix du mois seul, en
   /// pourcents entiers ; null s'il n'y en a pas.
@@ -107,7 +163,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _handlePurchase() async {
     final plans = _plans;
     if (plans.isEmpty) return;
-    final selectedPlan = plans[_selectedPlanIndex.clamp(0, plans.length - 1)];
+    final selectedPlan = _selected(plans);
 
     final storePlan = selectedPlan.storePlan;
     if (storePlan != null) {
@@ -166,9 +222,35 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
   }
 
+  /// The button of the campaign: the Apple offer code of the chosen plan when
+  /// the server created one, the usual purchase otherwise.
+  Future<void> _handleCampaignAction() async {
+    final campaign = widget.storefront?.campaign;
+    final plans = _plans;
+    final offer = campaign?.offerFor(
+      plans.isEmpty ? null : _selected(plans).productId,
+    );
+    final uri = offer?.redeemUri;
+    if (uri == null) return _handlePurchase();
+    trackEvent(context, AnalyticsEvent.purchaseStarted(offer!.productId));
+    await (widget.openUrl ?? _launchExternally)(uri);
+  }
+
+  Future<void> _launchExternally(Uri uri) =>
+      launchUrl(uri, mode: LaunchMode.externalApplication);
+
   Widget _pitch(AppLocalizations l10n) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      if (widget.storefront?.campaign case final campaign?) ...[
+        CampaignHero(
+          campaign: campaign,
+          busy: _isPurchasing,
+          assetBundle: widget.assetBundle,
+          onAction: _handleCampaignAction,
+        ),
+        const SizedBox(height: 24),
+      ],
       const PlusWord(size: 72),
       const SizedBox(height: 16),
       Text(
@@ -196,9 +278,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
       for (var i = 0; i < plans.length; i++) ...[
         _PlanRow(
           plan: plans[i],
-          savingsPercent: _savingsPercent(plans, plans[i]),
+          savingsPercent: _savingsPercent(_basePlans, plans[i]),
+          highlight: widget.storefront
+              ?.productFor(plans[i].productId)
+              ?.highlight,
+          discount: widget.storefront?.campaign?.targetFor(plans[i].productId),
+          accent: widget.storefront?.campaign?.accent,
           selected: i == selected,
-          onTap: () => setState(() => _selectedPlanIndex = i),
+          onTap: () => setState(() => _selectedProductId = plans[i].productId),
         ),
         if (i < plans.length - 1) const SizedBox(height: 10),
       ],
@@ -263,10 +350,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
     child: Row(
       children: [
-        BarNavigation(
-          buttons: [close(l10n)],
-          inline: close(l10n),
-        ),
+        BarNavigation(buttons: [close(l10n)], inline: close(l10n)),
         const Spacer(),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
@@ -336,7 +420,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final plans = _plans;
-    final selected = _selectedPlanIndex.clamp(0, plans.length - 1);
+    final chosen = _selected(plans);
+    final selected = plans.indexWhere((p) => p.productId == chosen.productId);
 
     return Scaffold(
       body: SafeArea(
@@ -433,12 +518,22 @@ class _PlanRow extends StatelessWidget {
   const _PlanRow({
     required this.plan,
     required this.savingsPercent,
+    required this.highlight,
+    required this.discount,
+    required this.accent,
     required this.selected,
     required this.onTap,
   });
 
   final _PlanOffer plan;
   final int? savingsPercent;
+
+  /// The server's hook under the plan (« Le plus choisi »).
+  final String? highlight;
+
+  /// The campaign's discount on this plan, and its accent.
+  final CampaignTarget? discount;
+  final Color? accent;
   final bool selected;
   final VoidCallback onTap;
 
@@ -459,15 +554,18 @@ class _PlanRow extends StatelessWidget {
       months: plan.months,
       currencyCode: plan.currencyCode,
     );
-    final percent = savingsPercent;
+    final percent = discount?.discountPercent ?? savingsPercent;
     final saving = percent == null ? null : l10n.plusPlanSavings(percent);
+    final spoken = saving == null
+        ? l10n.plusPlanSemantics(duration, price, perMonth)
+        : l10n.plusPlanSemanticsSaving(duration, price, perMonth, saving);
     return Semantics(
       button: true,
       selected: selected,
       inMutuallyExclusiveGroup: true,
-      label: saving == null
-          ? l10n.plusPlanSemantics(duration, price, perMonth)
-          : l10n.plusPlanSemanticsSaving(duration, price, perMonth, saving),
+      label: highlight == null
+          ? spoken
+          : l10n.storefrontPlanSemanticsHighlight(spoken, highlight!),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
@@ -521,10 +619,27 @@ class _PlanRow extends StatelessWidget {
                             color: scheme.onSurfaceVariant,
                           ),
                         ),
+                        if (highlight != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            highlight!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  if (saving != null) ...[
+                  if (discount != null && accent != null) ...[
+                    DiscountBadge(
+                      percent: discount!.discountPercent,
+                      accent: accent!,
+                    ),
+                    const SizedBox(width: 10),
+                  ] else if (saving != null) ...[
                     Container(
                       height: 26,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -628,6 +743,11 @@ class _PlanOffer {
   /// La formule du store derrière cette ligne ; null pour les formules de
   /// secours, affichées quand le store ne répond pas.
   final SubscriptionPlan? storePlan;
+
+  /// L'identifiant du produit, aussi pour une formule de secours
+  /// (`com.mazl.app.plus.<n>m`).
+  String get productId =>
+      storePlan?.productId ?? 'com.mazl.app.plus.${months}m';
 }
 
 /// Les formules affichées avant la réponse du store (ou sans store), en euros :
