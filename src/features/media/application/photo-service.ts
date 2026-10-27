@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { PhotoFaceChecker } from "../../verification/application/ports";
 import { PictureImportError } from "../domain/errors";
 import { classifyStoredUrl, newPhotoKey, parseGoogleAvatar } from "../domain/stored-photo";
+import { createBlurCache, type BlurCache } from "./blur-cache";
 import type {
   ImageProcessor,
   PhotoRepository,
@@ -10,6 +11,8 @@ import type {
   StoredPhoto,
 } from "./ports";
 
+const BLUR_CACHE_ENTRIES = 500;
+const BLUR_CACHE_TTL_MS = 10 * 60 * 1000;
 const IMPORT_TIMEOUT_MS = 5000;
 const IMPORT_MAX_BYTES = 10 * 1024 * 1024;
 
@@ -19,6 +22,8 @@ export interface PhotoServiceDeps {
   readonly repository: PhotoRepository;
   readonly fetcher: RemoteImageFetcher;
   readonly faceChecker: PhotoFaceChecker;
+  readonly blurCache?: BlurCache;
+  readonly now?: () => number;
 }
 
 export interface PhotoService {
@@ -27,6 +32,8 @@ export interface PhotoService {
   remove(userId: number, photoId: number): Promise<void>;
   // Sanitised JPEG bytes of a stored photo, or null when there is none.
   serve(photoId: number): Promise<Uint8Array | null>;
+  // The 48 px blurred variant of a stored photo (cached), or null when there is none.
+  serveBlurred(photoId: number): Promise<Uint8Array | null>;
   // GDPR erasure: runs [deletion] (which removes the rows), then deletes the
   // user's photo files. If [deletion] throws, no file is touched.
   eraseUserPhotos<T>(userId: number, deletion: () => Promise<T>): Promise<T>;
@@ -43,6 +50,8 @@ function storageKeyOf(url: string): string | null {
 
 export function createPhotoService(deps: PhotoServiceDeps): PhotoService {
   const { processor, storage, repository, fetcher, faceChecker } = deps;
+  const blurCache = deps.blurCache ?? createBlurCache({ maxEntries: BLUR_CACHE_ENTRIES, ttlMs: BLUR_CACHE_TTL_MS });
+  const now = deps.now ?? Date.now;
 
   async function checkFace(userId: number, photoId: number, bytes: Uint8Array): Promise<void> {
     try {
@@ -93,6 +102,21 @@ export function createPhotoService(deps: PhotoServiceDeps): PhotoService {
     return classifyStoredUrl(url) === "legacy" ? processor.toProfileJpeg(bytes) : bytes;
   }
 
+  // The row is read every time (a deleted or erased photo stops being served at
+  // once); only the work of decoding and blurring is cached.
+  async function serveBlurred(photoId: number): Promise<Uint8Array | null> {
+    const url = await repository.findKey(photoId);
+    const key = url === null ? null : storageKeyOf(url);
+    if (key === null || url === null) return null;
+    const cached = blurCache.get(`${photoId}:${url}`, now());
+    if (cached !== null) return cached;
+    const bytes = await storage.read(key);
+    if (bytes === null) return null;
+    const blurred = await processor.toBlurredJpeg(bytes);
+    blurCache.set(`${photoId}:${url}`, blurred, now());
+    return blurred;
+  }
+
   async function eraseUserPhotos<T>(userId: number, deletion: () => Promise<T>): Promise<T> {
     const keys = (await repository.listUserKeys(userId))
       .map(storageKeyOf)
@@ -109,5 +133,5 @@ export function createPhotoService(deps: PhotoServiceDeps): PhotoService {
     return result;
   }
 
-  return { upload, importOauthPicture, remove, serve, eraseUserPhotos };
+  return { upload, importOauthPicture, remove, serve, serveBlurred, eraseUserPhotos };
 }

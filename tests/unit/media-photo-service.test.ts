@@ -29,6 +29,9 @@ function harness(options: { storedUrl?: string | null; picture?: string | null; 
       if (options.processorFails) throw new PhotoRejectedError("undecodable");
       return PROCESSED;
     },
+    async toBlurredJpeg() {
+      return PROCESSED;
+    },
   };
   const storage: PhotoStorage = {
     async save(key, bytes) { saved.set(key, bytes); },

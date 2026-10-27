@@ -1,19 +1,42 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { teaserOf } from "../../src/features/likes-visibility/domain/teaser";
 import { registerLikesVisibility } from "../../src/features/likes-visibility/likes-visibility.module";
 import type { AppVariables } from "../../src/shared/http/middleware";
+import { resetKeyCacheForTests } from "../../src/shared/crypto/keys";
 
 // « Voir qui vous a aimé » is a mazl+ benefit (CGV §2.1). Without mazl+, the
 // received likes must not carry what identifies the person: a blur drawn by
 // the client hides nothing from someone reading the response.
 
+const previousKey = process.env.MEDIA_SIGNING_KEY;
+beforeAll(() => {
+  process.env.MEDIA_SIGNING_KEY = Buffer.alloc(32, 7).toString("base64");
+  resetKeyCacheForTests();
+});
+afterAll(() => {
+  if (previousKey === undefined) delete process.env.MEDIA_SIGNING_KEY;
+  else process.env.MEDIA_SIGNING_KEY = previousKey;
+  resetKeyCacheForTests();
+});
+
 const like = { user_id: 41, display_name: "Jonas", picture: "https://example.com/media/photos/9?exp=1&sig=x", age: 34, is_verified: true, liked_at: "2026-10-24T10:00:00.000Z" };
 
 describe("teaser of a received like", () => {
-  test("keeps the first name, the badge and the date, drops photo, id and age", () => {
-    expect(teaserOf(like)).toEqual({ display_name: "Jonas", is_verified: true, liked_at: "2026-10-24T10:00:00.000Z" });
+  test("keeps the first name, the badge, the date and the blurred photo, drops photo, id and age", () => {
+    expect(teaserOf(like, () => "https://example.com/blur")).toEqual({
+      display_name: "Jonas",
+      is_verified: true,
+      liked_at: "2026-10-24T10:00:00.000Z",
+      is_super_like: false,
+      blurredPhotoUrl: "https://example.com/blur",
+    });
+  });
+
+  test("a Super Like is marked, a missing photo gives no blurred url", () => {
+    const teaser = teaserOf({ ...like, is_super_like: true }, () => null);
+    expect([teaser.is_super_like, teaser.blurredPhotoUrl]).toEqual([true, null]);
   });
 });
 
@@ -30,8 +53,13 @@ describe("GET /api/likes/received", () => {
   test("without mazl+, the response has no photo, id nor age, and keeps the count", async () => {
     const body = (await (await appWith(false).request("/api/likes/received")).json()) as { count: number; likes: Record<string, unknown>[] };
     expect(body.count).toBe(1);
-    expect(body.likes[0]).toEqual({ display_name: "Jonas", is_verified: true, liked_at: like.liked_at });
+    const [teaser] = body.likes;
+    expect(Object.keys(teaser ?? {}).sort()).toEqual(["blurredPhotoUrl", "display_name", "is_super_like", "is_verified", "liked_at"]);
+    // The photo of the like was /media/photos/9: only its blurred variant is handed out.
+    expect(String(teaser?.blurredPhotoUrl)).toMatch(/^\/media\/photos\/9\/blur\?exp=\d+&sig=[\w-]+$/);
     expect(JSON.stringify(body)).not.toContain("example.com");
+    expect(JSON.stringify(body)).not.toMatch(/user_id|"picture"|"age"/);
+    expect(JSON.stringify(body)).not.toMatch(/\/media\/photos\/9\?/);
   });
 
   test("with mazl+, the response is untouched", async () => {
