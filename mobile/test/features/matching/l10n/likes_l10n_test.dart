@@ -52,52 +52,61 @@ Future<void> _pump(WidgetTester tester, ApiService api, L10nCase c) async {
 }
 
 const _en = Locale('en');
-const _frenchFree = [
-  'ILS VOUS ONT AIMÉ · 10+',
-  '10+ personnes attendent votre réponse.',
-];
+const _frenchFree = ['12 personnes vous ont aimé', 'Quelqu\'un'];
 
 void main() {
-  testWidgets('English free member sees the banded count', (tester) async {
+  testWidgets('English free member sees the real count', (tester) async {
     await _pump(tester, _free(12), l10nCases.first);
     expect(find.text('Likes'), findsOneWidget);
-    expect(find.text('THEY LIKED YOU · 10+'), findsOneWidget);
-    expect(find.text('10+ people are waiting for your reply.'), findsOneWidget);
+    expect(find.text('12 people liked you'), findsOneWidget);
+    expect(find.text('Someone'), findsWidgets);
     expect(find.text('See who liked you with mazl+'), findsOneWidget);
     expect(find.byType(MazlPlusPill), findsOneWidget);
   });
 
-  testWidgets('one like waiting is singular in every language', (tester) async {
+  testWidgets('one like is singular, and not rounded up', (tester) async {
     await _pump(tester, _free(1), l10nCases.first);
-    expect(find.text('1 person is waiting for your reply.'), findsOneWidget);
+    expect(find.text('1 person liked you'), findsOneWidget);
   });
 
-  testWidgets('Russian picks the plural form from the real count', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      _free(3),
-      const L10nCase(Locale('ru'), Brightness.light),
-    );
-    expect(find.text('3 человека ждут Вашего ответа.'), findsOneWidget);
-  });
+  // A word per number: the plural form comes from the REAL count.
+  for (final (count, text) in [
+    (1, '1 человек Вас лайкнул'),
+    (3, '3 человека Вас лайкнули'),
+    (12, '12 человек Вас лайкнули'),
+    (21, '21 человек Вас лайкнул'),
+  ]) {
+    testWidgets('Russian $count: $text', (tester) async {
+      await _pump(
+        tester,
+        _free(count),
+        const L10nCase(Locale('ru'), Brightness.light),
+      );
+      expect(find.text(text), findsOneWidget);
+    });
+  }
 
-  testWidgets('Russian band « 10+ » takes the many form', (tester) async {
-    await _pump(
-      tester,
-      _free(12),
-      const L10nCase(Locale('ru'), Brightness.light),
-    );
-    expect(find.text('10+ человек ждут Вашего ответа.'), findsOneWidget);
-  });
+  for (final (count, text) in [
+    (1, 'אדם אחד אהב אותך'),
+    (2, 'שני אנשים אהבו אותך'),
+    (12, '12 אנשים אהבו אותך'),
+  ]) {
+    testWidgets('Hebrew $count: $text', (tester) async {
+      await _pump(
+        tester,
+        _free(count),
+        const L10nCase(Locale('he'), Brightness.light),
+      );
+      expect(find.text(text), findsOneWidget);
+    });
+  }
 
   testWidgets('French stays word for word', (tester) async {
     await pumpLocalized(tester, LikesScreen(apiService: _free(12)));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    expect(find.text('ILS VOUS ONT AIMÉ · 10+'), findsOneWidget);
-    expect(find.text('10+ personnes attendent votre réponse.'), findsOneWidget);
+    expect(find.text('12 personnes vous ont aimé'), findsOneWidget);
+    expect(find.text('Quelqu\'un'), findsWidgets);
   });
 
   testWidgets('the brand stays glued to its plus in Hebrew', (tester) async {
@@ -127,24 +136,11 @@ void main() {
       await _pump(tester, _free(12), c);
       expectNoFrench(_frenchFree);
       expect(find.bySemanticsLabel('Profil masqué'), findsNothing);
+      expect(find.textContaining('Jeanne'), findsNothing);
       expect(find.bySemanticsLabel('Retour'), findsNothing);
       expectDirection(tester, find.byType(MazlPlusPill), c);
       expect(tester.takeException(), isNull);
       semantics.dispose();
-    });
-
-    testWidgets('the mazl+ sheet in ${c.name}', (tester) async {
-      await _pump(tester, _free(12), c);
-      await tester.tap(find.byType(LockedLikeTile).first);
-      await tester.pumpAndSettle();
-      expectNoFrench([
-        'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.',
-        'Voir les offres',
-        'Plus tard',
-      ]);
-      expect(find.byType(FilledButton), findsNothing);
-      expect(find.byType(ElevatedButton), findsOneWidget);
-      expect(tester.takeException(), isNull);
     });
 
     testWidgets('the like preview sheet in ${c.name}', (tester) async {
@@ -200,20 +196,6 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-
-  testWidgets('English mazl+ sheet', (tester) async {
-    await _pump(tester, _free(12), l10nCases.first);
-    await tester.tap(find.byType(LockedLikeTile).first);
-    await tester.pumpAndSettle();
-    expect(
-      find.text(
-        'See who liked you and match right away with the people you like.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('See plans'), findsOneWidget);
-    expect(find.text('Later'), findsOneWidget);
-  });
 
   testWidgets('English like preview sheet', (tester) async {
     await _pump(tester, _premium(), l10nCases.first);
