@@ -47,6 +47,9 @@ export const ATTEMPT_KEYS = ["status", "created_at"] as const;
 export const WAITLIST_KEYS = ["status", "created_at", "confirmed_at", "verification_status", "verification_requested_at", "documents_submitted_at", "verified_at"] as const;
 export const DOCUMENT_KEYS = ["type", "status", "created_at", "reviewed_at", "purged_at"] as const;
 
+export const PREMIUM_SETTINGS_KEYS = ["passport_city", "passport_latitude", "passport_longitude", "incognito", "send_read_receipts", "updated_at"] as const;
+export const BOOST_SCHEDULE_KEYS = ["run_at", "created_at"] as const;
+
 export interface ExportCredits {
   readonly balances: readonly JsonRecord[];
   readonly purchases: readonly JsonRecord[];
@@ -71,6 +74,9 @@ export interface ExportSections {
   readonly eventAlerts: readonly JsonRecord[];
   readonly consents: readonly JsonRecord[];
   readonly discoverFilters: JsonRecord | null;
+  // Passport, discreet mode, read receipts (mazl+), and the Boost the member programmed.
+  readonly premiumSettings: JsonRecord | null;
+  readonly boostSchedule: JsonRecord | null;
   readonly consentHistory: readonly JsonRecord[];
   readonly webSessions: readonly JsonRecord[];
   readonly withdrawalWaivers: readonly JsonRecord[];
@@ -119,6 +125,8 @@ export function buildExportDocument(sections: ExportSections, generatedAt: Date)
     event_alerts: sections.eventAlerts,
     consents: { current: sections.consents, history: sections.consentHistory },
     discover_filters: pick(sections.discoverFilters, DISCOVER_FILTER_KEYS),
+    premium_settings: pick(sections.premiumSettings, PREMIUM_SETTINGS_KEYS),
+    boost_schedule: pick(sections.boostSchedule, BOOST_SCHEDULE_KEYS),
     web_sessions: sections.webSessions.map((row) => pick(row, WEB_SESSION_KEYS)),
     withdrawal_waivers: sections.withdrawalWaivers,
     // The phones that receive pushes, not their APNs tokens.
