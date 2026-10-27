@@ -63,6 +63,16 @@ abstract final class DemoPhotos {
     return const [];
   }
 
+  /// What the server sends a member without mazl+: a 48 px copy, blurred so
+  /// that nobody can be recognised. `null` for a profile without photo.
+  static String? blurred(int userId) {
+    final woman = _womenRank[userId];
+    if (woman != null) return '${_url(_women[woman], w: 48, h: 48)}&blur=40';
+    final man = _menRank[userId];
+    if (man != null) return '${_url(_men[man], w: 48, h: 48)}&blur=40';
+    return null;
+  }
+
   /// Vignette (avatar des conversations, matchs, likes, couple) : le même
   /// visage que la photo principale.
   static String? avatar(int userId) {

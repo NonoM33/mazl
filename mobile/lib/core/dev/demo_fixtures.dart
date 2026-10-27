@@ -431,12 +431,19 @@ abstract final class DemoFixtures {
     ];
   }
 
+  /// Who liked the demo member, in the order of the list.
+  static List<Map<String, dynamic>> _likers() => [
+    ..._likeProfiles(),
+    profileById(matchOnLikeUserId)!,
+  ];
+
+  /// `GET /api/likes/received` for a SUBSCRIBER: the complete form, plus the
+  /// Super Like and its word. The demo member has no subscription, so the
+  /// routes serve [likesReceivedPreview]; this form stays for the tests and
+  /// for a subscriber demo.
   static Map<String, dynamic> likesReceived() {
     final likes = [
-      for (final (i, p) in [
-        ..._likeProfiles(),
-        profileById(matchOnLikeUserId)!,
-      ].indexed)
+      for (final (i, p) in _likers().indexed)
         {
           'user_id': p['user_id'],
           'display_name': p['display_name'],
@@ -445,12 +452,39 @@ abstract final class DemoFixtures {
           'is_verified': p['is_verified'],
           'liked_at': isoAgo(Duration(hours: 2 + i * 7)),
           'distance': p['distance'],
+          'is_super_like': i == 1,
+          'note': i == 1 ? 'Ton profil m\'a fait sourire.' : null,
         },
     ];
     return {
       'success': true,
       'count': likes.length,
       'is_premium': true,
+      'likes': likes,
+    };
+  }
+
+  /// `GET /api/likes/received` for a member WITHOUT mazl+, as the server
+  /// answers: no identity (no id, no photo, no age), a tiny blurred copy of the
+  /// photo or `null` (every third like has none, to show the gradient), the
+  /// real count. The first name is sent for the web client; the app ignores it.
+  static Map<String, dynamic> likesReceivedPreview() {
+    final likes = [
+      for (final (i, p) in _likers().indexed)
+        {
+          'display_name': p['display_name'],
+          'is_verified': p['is_verified'],
+          'liked_at': isoAgo(Duration(hours: 2 + i * 7)),
+          'blurredPhotoUrl': i % 3 == 2
+              ? null
+              : DemoPhotos.blurred(p['user_id'] as int),
+          'is_super_like': i == 1,
+        },
+    ];
+    return {
+      'success': true,
+      'count': likes.length,
+      'is_premium': false,
       'likes': likes,
     };
   }

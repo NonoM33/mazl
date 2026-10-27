@@ -169,11 +169,30 @@ final List<DuoScreen> duoScreens = [
     file: 'matching/screens/daily_picks_screen.dart',
     path: '/daily-picks',
   ),
+  const DuoScreen(
+    id: '/passport',
+    feature: 'passport',
+    file: 'passport/screens/passport_screen.dart',
+    path: '/passport',
+  ),
   DuoScreen(
     id: '/boost',
     feature: 'boost',
     file: 'boost/screens/boost_screen.dart',
     path: '/boost',
+    primary: () => _action('Activer le Boost'),
+  ),
+  // The best time card of the demo (a Saturday evening), then scheduled.
+  DuoScreen(
+    id: '/boost > schedule the Boost at the best time',
+    feature: 'boost',
+    file: 'boost/screens/boost_screen.dart',
+    path: '/boost',
+    open: (tester) async {
+      expect(find.textContaining('après Shabbat'), findsOneWidget);
+      await _tapText(tester, 'Programmer pour ce moment');
+      expect(find.textContaining('Programmé pour samedi'), findsOneWidget);
+    },
     primary: () => _action('Activer le Boost'),
   ),
   // chat
@@ -188,6 +207,17 @@ final List<DuoScreen> duoScreens = [
     feature: 'chat',
     file: 'chat/screens/chat_screen.dart',
     path: '/chat/101',
+    primary: _composer,
+  ),
+  // The demo gives my last message a read_at: « Lu à… » under it, in every pose.
+  DuoScreen(
+    id: '/chat/:conversationId > « Lu à » under my last message',
+    feature: 'chat',
+    file: 'chat/screens/chat_screen.dart',
+    path: '/chat/101',
+    open: (tester) async {
+      expect(find.textContaining('Lu à '), findsOneWidget);
+    },
     primary: _composer,
   ),
   DuoScreen(

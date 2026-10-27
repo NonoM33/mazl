@@ -382,14 +382,14 @@ abstract final class DemoRoutes {
     DemoRoute(
       'GET',
       '/api/likes/received',
-      (r, m) => _json(DemoFixtures.likesReceived()),
+      (r, m) => _json(DemoFixtures.likesReceivedPreview()),
     ),
     DemoRoute(
       'GET',
       '/api/likes/received/count',
       (r, m) => _json({
         'success': true,
-        'count': DemoFixtures.likesReceived()['count'] as int,
+        'count': DemoFixtures.likesReceivedPreview()['count'] as int,
       }),
     ),
     DemoRoute('GET', '/api/boost/status', (r, m) => _json(_boost())),
