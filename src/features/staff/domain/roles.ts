@@ -36,6 +36,8 @@ export const PERMISSIONS = [
   "storefront.manage",
   // What writes to the stores (Apple, Stripe): prices, publishing and cancelling a campaign.
   "storefront.stores",
+  // The couples' concierge: read the requests, answer, book, assign.
+  "concierge.manage",
   // Events, campaigns, subscriptions: the historical console screens.
   "operations.manage",
 ] as const;

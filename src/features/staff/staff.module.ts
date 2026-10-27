@@ -26,6 +26,7 @@ export interface StaffModuleOptions {
 }
 
 export interface StaffModule {
+  readonly directory: StaffDirectory;
   readonly requirePermission: RequirePermission;
   // Authenticated staff member, no permission, no second-factor requirement.
   readonly authenticate: MiddlewareHandler<{ Variables: StaffVariables }>;
@@ -78,6 +79,7 @@ export function createStaffModule(options: StaffModuleOptions): StaffModule {
   const authenticate = createAuthenticate(guardDeps);
 
   return {
+    directory,
     requirePermission,
     authenticate,
     mfaRequired,
