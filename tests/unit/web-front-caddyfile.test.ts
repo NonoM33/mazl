@@ -79,11 +79,16 @@ describe("cache rules", () => {
     const immutable = new RegExp(pattern ?? "");
     const paths = [
       "index-azgcf9mr.js", "index-ftknadgb.css", "favicon-x6de2fnb.svg", "logo-12345678.png", "font-abcdefgh.woff2", "font-abcdefgh.woff",
-      "fonts/Geist-400.ttf", "fonts/x/y.woff2", "index.html", "index.js", "index-AZGCF9MR.js", "index-short.js", "index-azgcf9mr.js.gz", "messages/12", "",
+      "fonts/Geist-400.ttf", "fonts/x/y.woff2", "photos/lea-1494790108377.webp", "photographs/a.webp", "index.html", "index.js", "index-AZGCF9MR.js", "index-short.js", "index-azgcf9mr.js.gz", "messages/12", "",
     ];
     for (const path of paths) {
       expect([path, immutable.test(`/${path}`)]).toEqual([path, cacheControlFor(path) === IMMUTABLE]);
     }
+  });
+
+  test("the showcase photos are cached a year, like the fonts", () => {
+    expect(cacheControlFor("photos/lea-1494790108377.webp")).toBe(IMMUTABLE);
+    expect(cacheControlFor("photographs/a.webp")).not.toBe(IMMUTABLE);
   });
 
   test("a missing hashed file or font is a 404 that is never cached (not the page, not immutable)", () => {

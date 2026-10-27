@@ -9,7 +9,9 @@ export const IMMUTABLE = "public, max-age=31536000, immutable";
 // Written without lookbehind or flags so Go's RE2 (Caddy) reads it as well.
 export const HASHED_ASSET = /-[a-z0-9]{8}\.(?:js|css|svg|png|woff2?)$/;
 export const FONTS_DIRECTORY = "fonts/";
+// Showcase photos: each file name carries its source photo id, so a new photo is a new name.
+export const PHOTOS_DIRECTORY = "photos/";
 
 export function cacheControlFor(relativePath: string): string {
-  return HASHED_ASSET.test(relativePath) || relativePath.startsWith(FONTS_DIRECTORY) ? IMMUTABLE : NO_STORE;
+  return HASHED_ASSET.test(relativePath) || relativePath.startsWith(FONTS_DIRECTORY) || relativePath.startsWith(PHOTOS_DIRECTORY) ? IMMUTABLE : NO_STORE;
 }

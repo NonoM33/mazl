@@ -19,10 +19,13 @@
   --tekhelet-dark: #1a35c9;
   --gold: #f2b544;
   --candle: #f4f1ea;
+  --divider: #ededf0;
+  --icon-on-ink: #9a9aa5;
   --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.5, 1);
   --nav-h: 52px;
-  --wrap: 1180px;
+  --wrap: 1200px;
   --gutter: clamp(20px, 5vw, 56px);
 }

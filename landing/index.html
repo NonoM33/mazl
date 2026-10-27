@@ -4,8 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>MAZL — Trouvez votre mazal.</title>
-    <meta name="description" content="MAZL est l’application de rencontre de la communauté juive, pour des relations sérieuses et le mariage. Profils vérifiés, compatibilité qui comprend votre pratique, mode chabbat." />
-    <meta name="theme-color" content="#0B0B0F" />
+    <meta name="description" content="MAZL est l’application de rencontre de la communauté juive, pour des relations sérieuses et le mariage. Profils vérifiés, compatibilité qui comprend votre pratique, horaires de chabbat." />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="color-scheme" content="light" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MAZL" />
@@ -19,6 +20,27 @@
     <link rel="stylesheet" href="./src/styles/main.css" />
   </head>
   <body>
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z" fill="currentColor" /></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M15.4 8.6l-1.9 4.9-4.9 1.9 1.9-4.9z" fill="currentColor" /></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 5h14a1.6 1.6 0 0 1 1.6 1.6v8.3A1.6 1.6 0 0 1 19 16.5h-8.6L6 20v-3.5H5a1.6 1.6 0 0 1-1.6-1.6V6.6A1.6 1.6 0 0 1 5 5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></symbol>
+      <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M5 20c.9-3.7 3.7-5.6 7-5.6s6.1 1.9 7 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" /><circle cx="12" cy="12" r="1.7" fill="currentColor" /><circle cx="18.5" cy="12" r="1.7" fill="currentColor" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><circle cx="15" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="9" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8" /></symbol>
+      <symbol id="i-chip" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8 9.5h3v5H8zM14 10h3M14 14h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-face" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="M9.5 14.5c1.4 1.2 3.6 1.2 5 0M9.5 9.5v1M14.5 9.5v1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4.5M6 5h10.5l-2 4 2 4H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" /></symbol>
+      <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M3.5 19.5c.7-3.2 2.9-5 5.5-5s4.8 1.8 5.5 5M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.8c1.6.7 2.6 2.3 3 4.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-apple" viewBox="0 0 24 24"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-2.99-.79-1.54.02-2.96.9-3.75 2.27-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.4-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.09 1.76-.96 2.79 1.02.08 2.06-.52 2.69-1.27z" fill="currentColor" /></symbol>
+    </svg>
+
     <a class="skip" href="#contenu">Aller au contenu</a>
 
     <header class="nav" id="nav">
@@ -29,220 +51,318 @@
           <a href="#compatibilite">Compatibilité</a>
           <a href="#chabbat">Chabbat</a>
           <a href="#couple">Couple</a>
-          <a href="#ordinateur">Ordinateur</a>
-          <a href="#securite">Sécurité</a>
+          <a href="#questions">Questions</a>
         </nav>
         <div class="nav__actions">
           <a class="nav__login" href="/app">Se connecter</a>
-          <a class="btn btn--small btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger</a>
+          <a class="btn btn--small btn--ink" href="{{APP_STORE_URL}}" rel="noopener">Télécharger</a>
         </div>
       </div>
     </header>
 
     <main id="contenu">
+      <!-- Accueil : le titre, puis l'app elle-même, et la famille qui commente déjà. -->
       <section class="hero" id="accueil" data-hero>
-        <div class="hero__stage">
-          <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
-          <div class="hero__shade" aria-hidden="true"></div>
-          <div class="hero__copy">
-            <p class="eyebrow eyebrow--on-ink" data-reveal>L’application de rencontre de la communauté juive</p>
-            <h1 class="hero__title" data-reveal style="--d: 80ms">Trouvez votre&nbsp;mazal<span class="dot">.</span></h1>
-            <p class="hero__lead" data-reveal style="--d: 180ms">Pour des relations sérieuses.<br />Votre mère sera ravie. Vous aussi, promis.</p>
-            <div class="hero__actions" data-reveal style="--d: 280ms">
-              <a class="btn btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger sur l’App&nbsp;Store</a>
-              <a class="btn btn--ghost-ink" href="/app">Ouvrir MAZL sur ordinateur</a>
-            </div>
-          </div>
-          <p class="hero__caption">Deux parcours. <em>Un seul fil.</em></p>
-          <p class="hero__scroll eyebrow eyebrow--on-ink" aria-hidden="true">Défiler <span class="hero__scroll-quip">(oui, on fait durer le suspense)</span></p>
-        </div>
-      </section>
-
-      <section class="section section--paper" id="verification" aria-labelledby="t-verification">
-        <div class="wrap split">
-          <div class="split__text">
-            <p class="eyebrow" data-reveal>01 — Vérification</p>
-            <h2 class="display" id="t-verification" data-reveal style="--d: 60ms">Des profils vérifiés. Vraiment<span class="dot">.</span></h2>
-            <p class="lead" data-reveal style="--d: 120ms">Un badge vous dit quand la personne qui vous écrit est bien celle des photos. Pas son cousin. Pas une photo de&nbsp;2014.</p>
-            <ol class="steps">
-              <li class="step" data-reveal style="--d: 140ms">
-                <span class="step__n" aria-hidden="true">1</span>
-                <div>
-                  <h3>Un selfie en direct</h3>
-                  <p>La vérification faciale confirme que le visage devant l’écran est bien celui du profil.</p>
-                </div>
-              </li>
-              <li class="step" data-reveal style="--d: 220ms">
-                <span class="step__n" aria-hidden="true">2</span>
-                <div>
-                  <h3>La puce NFC de votre pièce d’identité</h3>
-                  <p>Votre téléphone lit la puce de votre passeport ou de votre carte d’identité&nbsp;: l’identité est établie, pas seulement déclarée.</p>
-                </div>
-              </li>
-            </ol>
-            <p class="quip" data-reveal style="--d: 300ms">Nous vérifions les passeports pour que vous n’ayez pas à mener l’enquête.</p>
-          </div>
-          <div class="split__visual phone-stage" data-phone-stage>
-            <canvas class="phone-stage__canvas" data-phone-canvas role="img" aria-label="Un téléphone affichant un profil marqué «&nbsp;Vérifié&nbsp;»"></canvas>
+        <div class="hero__copy">
+          <p class="eyebrow" data-reveal>(L’application de rencontre de la communauté juive)</p>
+          <h1 class="hero__title" data-reveal style="--d: 80ms">Trouvez votre&nbsp;mazal<span class="dot">.</span></h1>
+          <p class="hero__lead" data-reveal style="--d: 180ms">Pour des relations sérieuses.<br />Votre mère sera ravie. <span class="nowrap">Vous aussi, promis.</span></p>
+          <div class="actions" data-reveal style="--d: 260ms">
+            <a class="btn btn--ink btn--store" href="{{APP_STORE_URL}}" rel="noopener"><svg aria-hidden="true"><use href="#i-apple" /></svg>Télécharger sur l’App&nbsp;Store</a>
+            <a class="btn btn--ghost" href="/app">Ouvrir sur ordinateur</a>
           </div>
         </div>
-      </section>
 
-      <section class="section section--mist" id="compatibilite" aria-labelledby="t-compat">
-        <div class="wrap">
-          <div class="center">
-            <p class="eyebrow" data-reveal>02 — Compatibilité</p>
-            <h2 class="display" id="t-compat" data-reveal style="--d: 60ms">Une compatibilité qui comprend votre pratique<span class="dot">.</span></h2>
-            <p class="lead lead--center" data-reveal style="--d: 120ms">Courant, cashrout, chabbat, intention&nbsp;: ce qui compte vraiment pour vous entre dans la balance, pas seulement l’âge et la ville.</p>
-          </div>
-          <div class="chip-groups">
-            <p class="quip quip--center" data-reveal>Laïque ou Habad, on ne juge pas. On rapproche.</p>
-            <div class="chip-group" data-chips>
-              <p class="mono-label">Courant</p>
-              <ul class="chips">
-                <li class="chip">Laïque</li>
-                <li class="chip">Libéral</li>
-                <li class="chip">Traditionaliste</li>
-                <li class="chip">Massorti</li>
-                <li class="chip">Orthodoxe moderne</li>
-                <li class="chip">Orthodoxe</li>
-                <li class="chip">Habad</li>
-              </ul>
-            </div>
-            <div class="chip-group" data-chips>
-              <p class="mono-label">Cashrout &amp; chabbat</p>
-              <ul class="chips">
-                <li class="chip">Cashrout</li>
-                <li class="chip">Chabbat</li>
-              </ul>
-            </div>
-            <div class="chip-group" data-chips>
-              <p class="mono-label">Intention</p>
-              <ul class="chips">
-                <li class="chip chip--accent">Mariage</li>
-                <li class="chip chip--accent">Relation sérieuse</li>
-              </ul>
-            </div>
-          </div>
-          <p class="quip quip--center" data-reveal>Notre algorithme ne connaît pas votre tante. Mais il sait si vous préférez une table cacher à la maison.</p>
-          <div class="cards cards--two">
-            <article class="card" data-reveal>
-              <h3>Réciproque</h3>
-              <p>Une personne ne vous est proposée que si l’intérêt est probable des deux côtés. Moins de profils sans suite, plus de rencontres qui ont une chance d’aboutir.</p>
-            </article>
-            <article class="card" data-reveal style="--d: 100ms">
-              <h3>Explicable</h3>
-              <p>Vous voyez pourquoi une personne vous est proposée. Pas de boîte noire, ni de tante qui décide à votre place&nbsp;: la compatibilité se lit, se comprend et se discute.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section section--shabbat" id="chabbat" aria-labelledby="t-chabbat" data-shabbat>
-        <canvas class="shabbat__canvas" data-flame-canvas aria-hidden="true"></canvas>
-        <div class="wrap shabbat__inner">
-          <p class="eyebrow eyebrow--gold" data-reveal>03 — Mode chabbat</p>
-          <h2 class="display display--shabbat" id="t-chabbat" data-reveal style="--d: 60ms">Chabbat chalom<span class="dot dot--gold">.</span></h2>
-          <p class="lead lead--shabbat" data-reveal style="--d: 120ms">MAZL calcule pour votre ville l’heure d’allumage des bougies et celle de havdala, puis vous les montre sur un écran de repos aux couleurs de la bougie. Vous retrouvez la table, vos proches et le repos.</p>
-          <p class="quip quip--shabbat" data-reveal style="--d: 200ms">L’heure de l’allumage, on s’en occupe. Les bougies, c’est vous.</p>
-        </div>
-      </section>
-
-      <section class="section section--paper" id="couple" aria-labelledby="t-couple">
-        <div class="wrap">
-          <div class="center">
-            <p class="eyebrow" data-reveal>04 — Du premier message au couple</p>
-            <h2 class="display" id="t-couple" data-reveal style="--d: 60ms">Votre histoire ne s’arrête pas au premier échange<span class="dot">.</span></h2>
-          </div>
-          <ol class="journey" data-progress>
-            <li class="journey__item" data-reveal>
-              <span class="journey__node" aria-hidden="true"></span>
-              <h3>Un premier message</h3>
-              <p>Une conversation sincère avec quelqu’un dont l’identité est vérifiée.</p>
-            </li>
-            <li class="journey__item" data-reveal style="--d: 120ms">
-              <span class="journey__node" aria-hidden="true"></span>
-              <h3>Un premier café</h3>
-              <p>Les événements de la communauté vous offrent l’occasion de vous retrouver autour de la même table.</p>
-            </li>
-            <li class="journey__item" data-reveal style="--d: 240ms">
-              <span class="journey__node" aria-hidden="true"></span>
-              <h3>Un premier dîner chez les parents <span class="nowrap">(courage)</span></h3>
-              <p>Puis, mazal tov. Et MAZL passe en mode couple&nbsp;: des activités, un calendrier et des événements à deux.</p>
-            </li>
-          </ol>
-          <p class="quip quip--center" data-reveal>On ne vous lâche pas comme ça.</p>
-        </div>
-      </section>
-
-      <section class="section section--mist" id="ordinateur" aria-labelledby="t-ordi">
-        <div class="wrap split split--reverse">
-          <div class="split__text">
-            <p class="eyebrow" data-reveal>05 — MAZL sur ordinateur</p>
-            <h2 class="display" id="t-ordi" data-reveal style="--d: 60ms">Aussi sur grand écran<span class="dot">.</span></h2>
-            <p class="lead" data-reveal style="--d: 120ms">Vos conversations sur grand écran. Pour quand le téléphone est trop petit pour tout ce que vous avez à vous dire.</p>
-            <p class="lead lead--small" data-reveal style="--d: 180ms">Pour vous connecter, ouvrez MAZL sur votre téléphone et scannez le QR code affiché à l’écran.</p>
-            <a class="btn btn--ink" href="/app" data-reveal style="--d: 240ms">Ouvrir MAZL sur ordinateur</a>
-          </div>
-          <div class="split__visual" data-reveal style="--d: 100ms">
-            <div class="browser" aria-hidden="true">
-              <div class="browser__bar"><i></i><i></i><i></i><span>mazl.app/app</span></div>
-              <div class="browser__body">
-                <div class="browser__rail"><b></b><b></b><b></b><b></b></div>
-                <div class="browser__list"><u></u><u></u><u></u><u></u><u></u></div>
-                <div class="browser__chat">
-                  <div class="bubble bubble--in"></div>
-                  <div class="bubble bubble--out"></div>
-                  <div class="bubble bubble--in bubble--short"></div>
-                  <div class="qr"><div class="qr__grid" data-qr></div><p>Scannez depuis l’app</p></div>
+        <div class="hero__stage" role="img" aria-label="L’écran Découvrir de MAZL : le profil vérifié de Léa, 29 ans, massorti, entouré de notifications de la famille qui s’impatiente.">
+          <div class="hero__device" aria-hidden="true">
+            <div class="device">
+              <div class="device__island"></div>
+              <div class="device__screen">
+                <div class="status"><b>9:41</b><i class="status__icons"><i></i><i></i><i></i></i></div>
+                <div class="screen is-active">
+                  <div class="app-bar"><b class="app-bar__title">Découvrir</b><span class="round-icon"><svg><use href="#i-sliders" /></svg></span></div>
+                  <div class="pcard">
+                    <div class="pcard__photo photo photo--lea">
+                      <span class="pill pill--verified"><svg><use href="#i-check" /></svg>Vérifiée</span>
+                      <div class="pcard__id"><b>Léa, 29</b><span>Paris 11e · à 2 km</span></div>
+                    </div>
+                    <div class="pcard__chips"><span class="chip">Massorti</span><span class="chip">Cachère à la maison</span><span class="chip chip--accent">Mariage</span></div>
+                  </div>
+                  <div class="pactions"><span class="pactions__pass"><svg><use href="#i-x" /></svg></span><span class="pactions__like"><svg><use href="#i-heart" /></svg></span></div>
+                  <div class="tabbar"><span class="is-on"><svg><use href="#i-compass" /></svg></span><span><svg><use href="#i-heart" /></svg></span><span><svg><use href="#i-chat" /></svg></span><span><svg><use href="#i-person" /></svg></span></div>
                 </div>
               </div>
             </div>
           </div>
+
+          <div class="notif notif--a" aria-hidden="true"><span class="notif__icon notif__icon--person">M</span><div><p class="notif__head"><b>Maman</b><span>maintenant</span></p><p>Alors&nbsp;? Elle est vérifiée, au moins&nbsp;?</p></div></div>
+          <div class="notif notif--b" aria-hidden="true"><span class="notif__icon notif__icon--app">m<i></i></span><div><p class="notif__head"><b>MAZL</b><span>maintenant</span></p><p>C’est un match avec Léa. Respirez.</p></div></div>
+          <div class="notif notif--c" aria-hidden="true"><span class="notif__icon notif__icon--person">H</span><div><p class="notif__head"><b>Tante Hélène</b><span>il y a 2 min</span></p><p>Mets la photo en chemise bleue. Fais-moi confiance.</p></div></div>
+          <div class="notif notif--d" aria-hidden="true"><span class="notif__icon notif__icon--app">m<i></i></span><div><p class="notif__head"><b>Léa</b><span>il y a 1 min</span></p><p>Chabbat chalom&nbsp;! Tu fais quoi vendredi soir&nbsp;?</p></div></div>
         </div>
       </section>
 
-      <section class="section section--paper" id="securite" aria-labelledby="t-securite">
+      <!-- Bandeau : ce que vous ne trouverez pas sur MAZL. -->
+      <div class="ticker" aria-label="Sur MAZL : pas de photo de 2014, pas son cousin, pas de boîte noire, pas de tante qui décide à votre place.">
+        <div class="ticker__track" aria-hidden="true">
+          <p>Pas de photo de 2014<span class="dot">.</span> Pas son cousin<span class="dot">.</span> Pas de boîte noire<span class="dot">.</span> Pas de tante qui décide à votre place<span class="dot">.</span> Pas d’interrogatoire au premier message<span class="dot">.</span> Juste votre mazal<span class="dot">.</span></p>
+          <p>Pas de photo de 2014<span class="dot">.</span> Pas son cousin<span class="dot">.</span> Pas de boîte noire<span class="dot">.</span> Pas de tante qui décide à votre place<span class="dot">.</span> Pas d’interrogatoire au premier message<span class="dot">.</span> Juste votre mazal<span class="dot">.</span></p>
+        </div>
+      </div>
+
+      <section class="statement" aria-labelledby="t-statement">
         <div class="wrap">
-          <div class="center">
-            <p class="eyebrow" data-reveal>06 — Sécurité &amp; vie privée</p>
-            <h2 class="display" id="t-securite" data-reveal style="--d: 60ms">Le respect, d’abord<span class="dot">.</span></h2>
-            <p class="lead lead--center" data-reveal style="--d: 120ms">Une communauté se construit sur la confiance. Chaque détail de MAZL est pensé pour la protéger.</p>
+          <p class="eyebrow" data-reveal>(En deux mots)</p>
+          <h2 class="statement__text" id="t-statement" data-words>Une app de rencontre sérieuse, attentive et un peu curieuse. Comme votre mère. Sauf que nous, on vérifie les passeports<span class="dot">.</span></h2>
+        </div>
+      </section>
+
+      <!-- Le récit : le téléphone reste à l'écran et change de page au fil des étapes. -->
+      <section class="story" aria-label="MAZL, étape par étape" data-story>
+        <div class="wrap story__grid">
+          <div class="story__steps">
+            <article class="step" id="verification" data-step="0" aria-labelledby="t-verification">
+              <p class="eyebrow">01 — Vérification</p>
+              <h2 class="display" id="t-verification">Des profils vérifiés. Vraiment<span class="dot">.</span></h2>
+              <p class="lead">Un badge vous dit quand la personne qui vous écrit est bien celle des photos. Pas son cousin. Pas une photo de&nbsp;2014.</p>
+              <ul class="ticks">
+                <li><span class="ticks__icon"><svg aria-hidden="true"><use href="#i-face" /></svg></span><div><h3>Un selfie en direct</h3><p>La vérification faciale confirme que le visage devant l’écran est bien celui du profil.</p></div></li>
+                <li><span class="ticks__icon"><svg aria-hidden="true"><use href="#i-chip" /></svg></span><div><h3>La puce NFC de votre pièce d’identité</h3><p>Votre téléphone lit la puce de votre passeport ou de votre carte d’identité&nbsp;: l’identité est établie, pas seulement déclarée. Ni la puce ni vos selfies ne sont conservés.</p></div></li>
+              </ul>
+              <p class="quip">Nous vérifions les passeports pour que vous n’ayez pas à mener l’enquête.</p>
+              <div class="step__device" data-step-device></div>
+            </article>
+
+            <article class="step" id="compatibilite" data-step="1" aria-labelledby="t-compat">
+              <p class="eyebrow">02 — Compatibilité</p>
+              <h2 class="display" id="t-compat">Une compatibilité qui comprend votre pratique<span class="dot">.</span></h2>
+              <p class="lead">Courant, cashrout, chabbat, intention&nbsp;: ce qui compte vraiment pour vous entre dans la balance, pas seulement l’âge et la ville.</p>
+              <ul class="chips" aria-label="Courants">
+                <li class="chip">Laïque</li><li class="chip">Libéral</li><li class="chip">Traditionaliste</li><li class="chip">Massorti</li><li class="chip">Orthodoxe moderne</li><li class="chip">Orthodoxe</li><li class="chip">Habad</li>
+              </ul>
+              <dl class="pair">
+                <div><dt>Réciproque</dt><dd>Une personne ne vous est proposée que si l’intérêt est probable des deux côtés.</dd></div>
+                <div><dt>Explicable</dt><dd>Vous voyez pourquoi elle vous est proposée. Pas de boîte noire, ni de tante qui décide à votre place.</dd></div>
+              </dl>
+              <p class="quip">Notre algorithme ne connaît pas votre tante. Mais il sait si vous préférez une table cacher à la maison.</p>
+              <div class="step__device" data-step-device></div>
+            </article>
+
+            <article class="step" id="messages" data-step="2" aria-labelledby="t-messages">
+              <p class="eyebrow">03 — Conversations</p>
+              <h2 class="display" id="t-messages">Des conversations, pas des interrogatoires<span class="dot">.</span></h2>
+              <p class="lead">Vous écrivez à votre rythme, à quelqu’un dont l’intention est la même que la vôtre. Et si quelqu’un dépasse les bornes, vous signalez ou bloquez en un geste.</p>
+              <p class="quip">Premier message conseillé&nbsp;: «&nbsp;Chabbat chalom&nbsp;». Déconseillé&nbsp;: «&nbsp;Et ta mère, elle fait quoi&nbsp;?&nbsp;»</p>
+              <div class="step__device" data-step-device></div>
+            </article>
+
+            <article class="step" id="couple" data-step="3" aria-labelledby="t-couple">
+              <p class="eyebrow">04 — Du premier message au couple</p>
+              <h2 class="display" id="t-couple">Votre histoire ne s’arrête pas au premier message<span class="dot">.</span></h2>
+              <ol class="journey">
+                <li><b>Un premier message.</b> Sincère, avec quelqu’un de vérifié.</li>
+                <li><b>Un premier café.</b> Puis un deuxième, c’est bon signe.</li>
+                <li><b>Un premier dîner chez les parents</b> <span class="nowrap">(courage).</span></li>
+              </ol>
+              <p class="lead">Puis, mazal tov. Et MAZL passe en mode couple&nbsp;: des activités, un calendrier et une question du jour, à deux.</p>
+              <p class="quip">On ne vous lâche pas comme ça.</p>
+              <div class="step__device" data-step-device></div>
+            </article>
           </div>
-          <div class="cards cards--three">
-            <article class="card card--outline" data-reveal>
+
+          <div class="story__stage" aria-hidden="true">
+            <div class="story__sticky">
+              <div class="device" data-story-device>
+                <div class="device__island"></div>
+                <div class="device__screen">
+                  <div class="status"><b>9:41</b><i class="status__icons"><i></i><i></i><i></i></i></div>
+
+                  <div class="screen is-active" data-screen="0">
+                    <div class="app-bar"><span class="round-icon"><svg><use href="#i-back" /></svg></span><b class="app-bar__title app-bar__title--center">Vérification</b><span class="round-icon round-icon--ghost"></span></div>
+                    <div class="verify">
+                      <div class="verify__seal"><span class="verify__ring"></span><span class="verify__ring verify__ring--2"></span><svg><use href="#i-check" /></svg></div>
+                      <b class="verify__title">Identité confirmée</b>
+                      <p class="verify__sub">Votre profil porte maintenant le badge.</p>
+                      <ul class="verify__list">
+                        <li><span><svg><use href="#i-face" /></svg></span>Selfie en direct<svg class="verify__ok"><use href="#i-check" /></svg></li>
+                        <li><span><svg><use href="#i-chip" /></svg></span>Puce du passeport<svg class="verify__ok"><use href="#i-check" /></svg></li>
+                      </ul>
+                      <p class="verify__note">(Puce lue. Rien de conservé.)</p>
+                      <span class="pill pill--verified pill--big"><svg><use href="#i-check" /></svg>Profil vérifié</span>
+                    </div>
+                  </div>
+
+                  <div class="screen" data-screen="1">
+                    <div class="app-bar"><span class="round-icon"><svg><use href="#i-back" /></svg></span><b class="app-bar__title app-bar__title--center">Léa, 29</b><span class="round-icon"><svg><use href="#i-more" /></svg></span></div>
+                    <div class="why">
+                      <div class="why__photo photo photo--lea"><span class="pill pill--verified"><svg><use href="#i-check" /></svg>Vérifiée</span></div>
+                      <p class="why__label">(Pourquoi Léa&nbsp;?)</p>
+                      <ul class="why__list">
+                        <li><i></i>Massorti, comme vous</li>
+                        <li><i></i>Cachère à la maison, des deux côtés</li>
+                        <li><i></i>Chabbat en famille</li>
+                        <li><i></i>Mariage&nbsp;: même intention</li>
+                      </ul>
+                      <div class="why__meter"><span>Intérêt réciproque probable</span><b><i></i></b></div>
+                      <div class="pactions pactions--inline"><span class="pactions__pass"><svg><use href="#i-x" /></svg></span><span class="pactions__like"><svg><use href="#i-heart" /></svg></span></div>
+                    </div>
+                  </div>
+
+                  <div class="screen" data-screen="2">
+                    <div class="app-bar app-bar--chat"><span class="round-icon round-icon--bare"><svg><use href="#i-back" /></svg></span><span class="avatar photo photo--lea-face"></span><b class="app-bar__title app-bar__title--small">Léa</b><span class="round-icon round-icon--bare"><svg><use href="#i-more" /></svg></span></div>
+                    <div class="chat">
+                      <p class="chat__day">Hier</p>
+                      <p class="bubble bubble--out">Chabbat chalom&nbsp;! Comment s’est passée ta semaine&nbsp;?</p>
+                      <p class="chat__time chat__time--out">18:05</p>
+                      <p class="chat__day">Aujourd’hui</p>
+                      <p class="bubble bubble--in">Longue. Ma mère m’a demandé trois fois si tu étais vérifié.</p>
+                      <p class="bubble bubble--out">Dis-lui que oui. Passeport à puce, s’il vous plaît.</p>
+                      <p class="chat__time chat__time--out">Vu à 10:26</p>
+                      <p class="bubble bubble--in">Elle demande aussi si tu manges bien.</p>
+                      <p class="chat__typing"><i></i><i></i><i></i></p>
+                    </div>
+                    <div class="composer"><svg><use href="#i-plus" /></svg><span>Message</span><svg><use href="#i-mic" /></svg></div>
+                  </div>
+
+                  <div class="screen" data-screen="3">
+                    <div class="app-bar"><b class="app-bar__title">Vous deux</b><span class="couple-dots"><span class="avatar photo photo--david-face"></span><span class="avatar photo photo--lea-face"></span></span></div>
+                    <div class="couple">
+                      <p class="couple__since">(Ensemble depuis 3 mois. Mazal tov.)</p>
+                      <div class="tile tile--accent"><p class="tile__label">Question du jour</p><p class="tile__q">Qui a choisi le restaurant la dernière fois&nbsp;?</p><p class="tile__a"><span>Moi</span><span>Toi</span><span>Ta mère</span></p></div>
+                      <div class="tile"><span class="tile__icon"><svg><use href="#i-calendar" /></svg></span><div><p class="tile__title">Dîner chez les parents</p><p class="tile__sub">Dimanche · 13 h · courage</p></div></div>
+                      <div class="tile"><span class="tile__icon"><svg><use href="#i-heart" /></svg></span><div><p class="tile__title">Activités à deux</p><p class="tile__sub">Atelier cuisine · Expo · Balade</p></div></div>
+                      <div class="tile"><span class="tile__icon"><svg><use href="#i-chat" /></svg></span><div><p class="tile__title">Premier message</p><p class="tile__sub">Il y a 94 jours · «&nbsp;Chabbat chalom&nbsp;!&nbsp;»</p></div></div>
+                    </div>
+                    <div class="tabbar"><span><svg><use href="#i-compass" /></svg></span><span class="is-on"><svg><use href="#i-heart" /></svg></span><span><svg><use href="#i-chat" /></svg></span><span><svg><use href="#i-person" /></svg></span></div>
+                  </div>
+                </div>
+              </div>
+              <ol class="story__dots"><li class="is-on"></li><li></li><li></li><li></li></ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chabbat : la seule section à la bougie, comme l'écran de repos de l'app. -->
+      <section class="shabbat" id="chabbat" aria-labelledby="t-chabbat">
+        <div class="wrap shabbat__inner">
+          <div class="candles" aria-hidden="true">
+            <span class="candle"><i class="flame"></i></span>
+            <span class="candle"><i class="flame flame--late"></i></span>
+          </div>
+          <p class="eyebrow eyebrow--gold" data-reveal>05 — Chabbat</p>
+          <h2 class="display display--shabbat" id="t-chabbat" data-reveal style="--d: 60ms">Chabbat chalom<span class="dot dot--gold">.</span></h2>
+          <p class="lead lead--shabbat" data-reveal style="--d: 120ms">MAZL calcule pour votre ville l’heure d’allumage des bougies et celle de havdala, puis vous les montre sur un écran de repos aux couleurs de la bougie.</p>
+          <div class="times" data-reveal style="--d: 200ms">
+            <p class="times__where">Paris · vendredi <span>(exemple)</span></p>
+            <div class="times__row">
+              <div><span>Allumage</span><b>17:04</b></div>
+              <div><span>Havdala</span><b>18:14</b></div>
+            </div>
+          </div>
+          <p class="quip quip--shabbat" data-reveal style="--d: 260ms">L’heure de l’allumage, on s’en occupe. Les bougies, c’est vous.</p>
+        </div>
+      </section>
+
+      <!-- Tout le reste, en grille. -->
+      <section class="section" id="confiance" aria-labelledby="t-confiance">
+        <div class="wrap">
+          <div class="section__head">
+            <p class="eyebrow" data-reveal>06 — Sécurité, vie privée et le reste</p>
+            <h2 class="display" id="t-confiance" data-reveal style="--d: 60ms">Le respect d’abord. Le reste suit<span class="dot">.</span></h2>
+          </div>
+          <div class="bento">
+            <article class="tile-xl tile-xl--wide tile-xl--mist" id="ordinateur" data-reveal>
+              <div class="tile-xl__text">
+                <p class="mono-label">Sur ordinateur</p>
+                <h3>Aussi sur grand écran.</h3>
+                <p>Pour quand le téléphone est trop petit pour tout ce que vous avez à vous dire. Ouvrez MAZL sur votre téléphone et scannez le QR code affiché à l’écran.</p>
+                <a class="link" href="/app">Ouvrir MAZL sur ordinateur <span aria-hidden="true">→</span></a>
+              </div>
+              <div class="browser" aria-hidden="true">
+                <div class="browser__bar"><i></i><i></i><i></i><span>mazl.app/app</span></div>
+                <div class="browser__body">
+                  <div class="browser__list"><u></u><u></u><u></u><u></u></div>
+                  <div class="browser__pane">
+                    <div class="qr"><div class="qr__grid" data-qr></div></div>
+                    <p>Scannez depuis l’app</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="tile-xl" data-reveal style="--d: 80ms">
+              <span class="tile-xl__icon"><svg aria-hidden="true"><use href="#i-people" /></svg></span>
               <h3>Une modération humaine</h3>
               <p>Des personnes, pas des robots, examinent chaque signalement.</p>
             </article>
-            <article class="card card--outline" data-reveal style="--d: 100ms">
+            <article class="tile-xl" data-reveal>
+              <span class="tile-xl__icon"><svg aria-hidden="true"><use href="#i-flag" /></svg></span>
               <h3>Signaler et bloquer</h3>
               <p>En un geste, vous signalez un comportement ou vous bloquez un profil. Vous gardez la main.</p>
             </article>
-            <article class="card card--outline" data-reveal style="--d: 200ms">
+            <article class="tile-xl" data-reveal style="--d: 80ms">
+              <span class="tile-xl__icon"><svg aria-hidden="true"><use href="#i-lock" /></svg></span>
               <h3>Votre pratique reste privée</h3>
               <p>Vos données de pratique religieuse sont protégées et ne sont utilisées qu’avec votre consentement explicite.</p>
             </article>
+            <article class="tile-xl tile-xl--ink" data-reveal style="--d: 160ms">
+              <span class="tile-xl__dot" aria-hidden="true"></span>
+              <p class="mono-label mono-label--on-ink">Bientôt</p>
+              <h3>Les événements de la communauté.</h3>
+              <p>Un premier café, mais à plusieurs. Dans l’app, touchez «&nbsp;Me prévenir&nbsp;» et on vous fait signe.</p>
+            </article>
           </div>
-          <p class="quip quip--center" data-reveal>Les seules surprises qu’on aime, ce sont les bonnes.</p>
         </div>
       </section>
 
-      <section class="outro" id="telecharger" aria-labelledby="t-final" data-outro>
-        <div class="outro__stage">
-          <canvas class="outro__canvas" data-outro-canvas aria-hidden="true"></canvas>
-          <div class="outro__line">
-            <h2 class="display display--xl" id="t-final">Votre mazal vous attend<span class="dot">.</span></h2>
-            <p class="outro__sub">Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
+      <!-- Les questions de la famille, avec de vraies réponses. -->
+      <section class="section section--mist" id="questions" aria-labelledby="t-questions">
+        <div class="wrap faq">
+          <div class="faq__head">
+            <p class="eyebrow" data-reveal>07 — Questions</p>
+            <h2 class="display" id="t-questions" data-reveal style="--d: 60ms">Les questions que votre mère va poser<span class="dot">.</span></h2>
+            <p class="lead" data-reveal style="--d: 120ms">Autant y répondre tout de suite.</p>
           </div>
-          <p class="outro__word" aria-hidden="true" data-outro-word>mazl<span>.</span></p>
-          <div class="outro__actions">
-            <div class="hero__actions hero__actions--center">
-              <a class="btn btn--accent" href="{{APP_STORE_URL}}" rel="noopener">Télécharger sur l’App&nbsp;Store</a>
-              <a class="btn btn--ghost-ink" href="/app">Se connecter</a>
-            </div>
-            <p class="outro__note">Gratuit à télécharger. Votre tante a vérifié.</p>
+          <div class="faq__list">
+            <details data-reveal>
+              <summary>«&nbsp;C’est sérieux, au moins&nbsp;?&nbsp;»</summary>
+              <p>Oui. MAZL est pensé pour les relations sérieuses et le mariage&nbsp;: chacun indique son intention, et elle compte dans les personnes qui vous sont proposées.</p>
+            </details>
+            <details data-reveal>
+              <summary>«&nbsp;Et comment tu sais que c’est bien lui&nbsp;?&nbsp;»</summary>
+              <p>Grâce au badge. Il s’obtient avec un selfie en direct et la lecture de la puce du passeport ou de la carte d’identité. La vérification est facultative, et le badge vous dit qui l’a faite.</p>
+            </details>
+            <details data-reveal>
+              <summary>«&nbsp;Et vous avez des choses en commun&nbsp;?&nbsp;»</summary>
+              <p>Chacun indique, s’il le souhaite, son courant, son rapport à la cashrout et au chabbat. Ce sont des données sensibles&nbsp;: elles ne servent qu’avec votre consentement explicite, et vous pouvez le retirer.</p>
+            </details>
+            <details data-reveal>
+              <summary>«&nbsp;Et le vendredi soir, tu fais quoi&nbsp;?&nbsp;»</summary>
+              <p>MAZL vous donne les horaires d’allumage des bougies et de havdala de votre ville, sur un écran de repos. La suite de la soirée vous appartient.</p>
+            </details>
+            <details data-reveal>
+              <summary>«&nbsp;Ça coûte combien, ton application&nbsp;?&nbsp;»</summary>
+              <p>MAZL est gratuit à télécharger. Un abonnement facultatif ajoute notamment des filtres avancés.</p>
+            </details>
+            <details data-reveal>
+              <summary>«&nbsp;Je peux regarder sur l’ordinateur&nbsp;?&nbsp;»</summary>
+              <p>Vous, oui&nbsp;: ouvrez <a class="link" href="/app">mazl.app/app</a> et scannez le QR code avec l’app. Votre mère, elle, attendra que vous lui racontiez.</p>
+            </details>
           </div>
         </div>
+      </section>
+
+      <section class="outro" id="telecharger" aria-labelledby="t-final">
+        <div class="wrap outro__inner">
+          <h2 class="display display--xl" id="t-final" data-reveal>Votre mazal vous attend<span class="dot">.</span></h2>
+          <p class="outro__sub" data-reveal style="--d: 100ms">Il se demande peut-être déjà pourquoi vous n’êtes pas encore là.</p>
+          <div class="actions actions--center" data-reveal style="--d: 180ms">
+            <a class="btn btn--ink btn--store" href="{{APP_STORE_URL}}" rel="noopener"><svg aria-hidden="true"><use href="#i-apple" /></svg>Télécharger sur l’App&nbsp;Store</a>
+            <a class="btn btn--ghost" href="/app">Se connecter</a>
+          </div>
+          <p class="outro__note" data-reveal style="--d: 240ms">(Gratuit à télécharger. Votre tante a vérifié.)</p>
+        </div>
+        <p class="outro__word" aria-hidden="true" data-outro-word>mazl<span>.</span></p>
       </section>
     </main>
 

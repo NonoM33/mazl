@@ -1,4 +1,4 @@
-import { FONTS_DIRECTORY, HASHED_ASSET, IMMUTABLE, NO_STORE } from "../../src/features/web-app/cache-rules";
+import { FONTS_DIRECTORY, HASHED_ASSET, IMMUTABLE, NO_STORE, PHOTOS_DIRECTORY } from "../../src/features/web-app/cache-rules";
 import { mediaOriginFor, webSecurityHeaders } from "../../src/features/web-app/security-headers";
 import { API_HOST_ONLY, LANDING_PREFIX, LEGAL_PAGES, LEGAL_REDIRECTS, PROXIED_PREFIXES, SITE_STATIC_FILES, wwwHost } from "../../src/features/web-app/site-rules";
 import type { FrontConfig } from "./config";
@@ -82,12 +82,12 @@ function proxyBlock(config: FrontConfig): string[] {
   ];
 }
 
-// Hashed files and fonts under a root: cached a year when they exist, a 404 that
+// Hashed files, fonts and photos under a root: cached a year when they exist, a 404 that
 // is never cached when they do not (never the page, which would be cached as JS).
 function immutableFiles(scope: string): string[] {
-  const fonts = FONTS_DIRECTORY.replace(/\/$/, "");
+  const directories = [FONTS_DIRECTORY, PHOTOS_DIRECTORY].map((directory) => directory.replace(/\/$/, "")).join("|");
   return [
-    `@${scope}Immutable path_regexp ${scope}Immutable ${HASHED_ASSET.source}|^/${fonts}/`,
+    `@${scope}Immutable path_regexp ${scope}Immutable ${HASHED_ASSET.source}|^/(?:${directories})/`,
     `handle @${scope}Immutable {`,
     `\t@${scope}Present file`,
     `\thandle @${scope}Present {`,

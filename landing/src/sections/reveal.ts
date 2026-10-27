@@ -1,10 +1,7 @@
 // Content appears as it enters the viewport. Without IntersectionObserver, or
 // with reduced motion, everything is shown at once (the CSS also shows it).
 export function setupReveal(animate: boolean): void {
-  const targets = document.querySelectorAll<HTMLElement>("[data-reveal], [data-chips]");
-  for (const group of document.querySelectorAll<HTMLElement>("[data-chips]")) {
-    group.querySelectorAll<HTMLElement>(".chip").forEach((chip, index) => chip.style.setProperty("--i", String(index)));
-  }
+  const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
   if (!animate || !("IntersectionObserver" in window)) {
     for (const target of targets) target.classList.add("is-in");
     return;

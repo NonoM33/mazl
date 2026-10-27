@@ -68,9 +68,23 @@ describe("showcase build", () => {
     expect(html.match(/<h2[\s>]/g)?.length ?? 0).toBeGreaterThanOrEqual(6);
   });
 
-  test("the main script stays under 250 kB gzipped, three.js included", async () => {
+  test("the page stays light: no 3D engine, the stylesheet carries no inlined image", async () => {
     const script = files.find((f) => /^index-[a-z0-9]{8}\.js$/.test(f)) ?? "";
-    expect(Bun.file(join(dist, `${script}.gz`)).size).toBeLessThan(250 * 1024);
+    const style = files.find((f) => /^index-[a-z0-9]{8}\.css$/.test(f)) ?? "";
+    expect(Bun.file(join(dist, `${script}.gz`)).size).toBeLessThan(20 * 1024);
+    expect(Bun.file(join(dist, `${style}.gz`)).size).toBeLessThan(20 * 1024);
+    expect(await Bun.file(join(dist, style)).text()).not.toContain("data:image");
+  });
+
+  test("every photo the stylesheet asks for is a local file under /l/photos/, named after its source", async () => {
+    const style = files.find((f) => /^index-[a-z0-9]{8}\.css$/.test(f)) ?? "";
+    const photos = [...(await Bun.file(join(dist, style)).text()).matchAll(/url\("?([^")]+\.webp)"?\)/g)].map((match) => match[1] ?? "");
+    expect(photos.length).toBeGreaterThanOrEqual(3);
+    for (const photo of photos) {
+      expect(photo).toMatch(/^\/l\/photos\/[a-z-]+-\d{13}\.webp$/);
+      expect([photo, await Bun.file(join(dist, photo.slice(3))).exists()]).toEqual([photo, true]);
+    }
+    expect(await readdir(join(dist, "photos"))).not.toContain("SOURCES.md");
   });
 
   test("the precompressed copies are really gzip", async () => {
