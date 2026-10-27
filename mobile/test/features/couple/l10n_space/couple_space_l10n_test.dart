@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_space_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_space_sheets.dart';
 
 import '../../../helpers/l10n_helpers.dart';
 import '../../../mocks/couple_backend_shapes.dart';
 import '../../../mocks/fake_couple_transport.dart';
+import '../us_daily_fakes.dart';
 import 'text_fit.dart';
 
 /// 360 px de large comme le plus petit téléphone, mais assez haut pour que
@@ -49,7 +49,8 @@ FakeCoupleTransport _filledSpace() => FakeCoupleTransport()
     ok({
       'dates': [dateRow()],
     }),
-  );
+  )
+  ..dailyRoutesAbsent();
 
 FakeCoupleTransport _emptySpace() => FakeCoupleTransport()
   ..reply(
@@ -58,7 +59,8 @@ FakeCoupleTransport _emptySpace() => FakeCoupleTransport()
   )
   ..reply('GET /api/couple/memories', ok({'memories': []}))
   ..reply('GET /api/couple/bucket-list', ok({'items': []}))
-  ..reply('GET /api/couple/dates', ok({'dates': []}));
+  ..reply('GET /api/couple/dates', ok({'dates': []}))
+  ..dailyRoutesAbsent();
 
 Future<void> _pumpSpace(
   WidgetTester tester,
@@ -68,7 +70,7 @@ Future<void> _pumpSpace(
 }) async {
   await pumpLocalized(
     tester,
-    CoupleSpaceScreen(apiService: CoupleApiService(transport: transport)),
+    usScreen(transport),
     locale: locale,
     brightness: brightness,
     size: _tallPhone,
@@ -86,7 +88,7 @@ void main() {
     ) async {
       await _pumpSpace(tester, _filledSpace());
 
-      expect(find.text('Our space'), findsOneWidget);
+      expect(find.text('The two of us'), findsOneWidget);
       expect(find.text('QUICK ACTIONS'), findsOneWidget);
       expect(find.text('OUR MEMORIES'), findsOneWidget);
       expect(find.text('IMPORTANT DATES'), findsOneWidget);
@@ -127,13 +129,13 @@ void main() {
     testWidgets('en hébreu : de droite à gauche', (tester) async {
       await _pumpSpace(tester, _filledSpace(), locale: const Locale('he'));
 
-      expect(find.text('המרחב שלנו'), findsOneWidget);
+      expect(find.text('שנינו'), findsOneWidget);
       expect(
-        textDirectionAt(tester, find.text('המרחב שלנו')),
+        textDirectionAt(tester, find.text('שנינו')),
         TextDirection.rtl,
       );
       // La roue des réglages passe de l'autre côté du titre.
-      final title = tester.getCenter(find.text('המרחב שלנו'));
+      final title = tester.getCenter(find.text('שנינו'));
       final settings = tester.getCenter(find.byIcon(LucideIcons.settings));
       expect(settings.dx, lessThan(title.dx));
     });

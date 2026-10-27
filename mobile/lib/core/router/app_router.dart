@@ -39,13 +39,19 @@ import '../../presentation/features/verification/identity/identity_flow_screen.d
 import '../../presentation/features/premium/screens/premium_screen.dart';
 import '../../presentation/features/premium/screens/subscription_screen.dart';
 import '../../presentation/features/couple/screens/couple_mode_setup_screen.dart';
-import '../../presentation/features/couple/screens/jewish_calendar_screen.dart';
 import '../../presentation/features/couple/screens/mazel_tov_screen.dart';
-import '../../presentation/features/couple/screens/couple_activities_feed_screen.dart';
+import '../../presentation/features/couple/screens/couple_agenda_screen.dart';
+import '../../presentation/features/couple/screens/couple_checkin_screen.dart';
+import '../../presentation/features/couple/screens/couple_concierge_screen.dart';
+import '../../presentation/features/couple/screens/couple_concierge_thread_screen.dart';
+import '../../presentation/features/couple/screens/couple_outings_screen.dart';
+import '../../presentation/features/couple/screens/couple_premium_screen.dart';
+import '../../presentation/features/couple/screens/couple_question_history_screen.dart';
+import '../../presentation/features/couple/screens/couple_question_screen.dart';
+import '../../presentation/features/couple/screens/couple_today_screen.dart';
 import '../../presentation/features/couple/screens/couple_activity_detail_screen.dart';
-import '../../presentation/features/couple/screens/couple_events_screen.dart';
 import '../../presentation/features/couple/screens/couple_event_detail_screen.dart';
-import '../../presentation/features/couple/screens/couple_space_screen.dart';
+import '../../presentation/features/couple/screens/couple_us_screen.dart';
 import '../../presentation/features/couple/screens/saved_activities_screen.dart';
 import '../../presentation/features/likes/screens/likes_screen.dart';
 import '../../presentation/features/boost/screens/boost_screen.dart';
@@ -70,15 +76,17 @@ final GlobalKey<NavigatorState> _shellNavigatorKeyEvents =
 final GlobalKey<NavigatorState> _shellNavigatorKeyProfile =
     GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
-/// Shell navigator keys for couple mode tabs
-final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleDashboard =
-    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleDashboard');
-final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleChat =
-    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleChat');
-final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleEvents =
-    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleEvents');
-final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleProfile =
-    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleProfile');
+/// Shell navigator keys for the five tabs of the couple space
+final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleToday =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleToday');
+final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleAgenda =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleAgenda');
+final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleOutings =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleOutings');
+final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleConcierge =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleConcierge');
+final GlobalKey<NavigatorState> _shellNavigatorKeyCoupleUs =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoupleUs');
 
 /// Provider for the GoRouter instance
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -303,111 +311,161 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Couple Mode Navigation Shell with Bottom Navigation
+      // Pages of the couple space opened over its tabs.
+      GoRoute(
+        path: RoutePaths.coupleQuestion,
+        name: RouteNames.coupleQuestion,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CoupleQuestionScreen(),
+          transitionsBuilder: slideLeftTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleQuestions,
+        name: RouteNames.coupleQuestions,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CoupleQuestionHistoryScreen(),
+          transitionsBuilder: slideLeftTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleCheckin,
+        name: RouteNames.coupleCheckin,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CoupleCheckinScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.couplePremium,
+        name: RouteNames.couplePremium,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CouplePremiumScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleSavedActivities,
+        name: RouteNames.coupleSavedActivities,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SavedActivitiesScreen(),
+          transitionsBuilder: slideLeftTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleActivityDetail,
+        name: RouteNames.coupleActivityDetail,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final activityId = state.pathParameters['activityId']!;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: CoupleActivityDetailScreen(activityId: activityId),
+            transitionsBuilder: slideUpTransition,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.coupleEventDetail,
+        name: RouteNames.coupleEventDetail,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final eventId = state.pathParameters['eventId']!;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: CoupleEventDetailScreen(eventId: eventId),
+            transitionsBuilder: slideUpTransition,
+          );
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.coupleUsSettings,
+        name: RouteNames.coupleUsSettings,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SettingsScreen(),
+          transitionsBuilder: slideLeftTransition,
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.coupleConciergeRequest,
+        name: RouteNames.coupleConciergeRequest,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final requestId = int.tryParse(state.pathParameters['requestId']!);
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: ConciergeThreadScreen(requestId: requestId ?? 0),
+            transitionsBuilder: slideLeftTransition,
+          );
+        },
+      ),
+
+      // The couple space: five tabs (today, agenda, outings, concierge, us).
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state, navigationShell) {
           return CoupleNavigationScreen(navigationShell: navigationShell);
         },
         branches: [
-          // Activities Feed Tab (swipable activities)
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorKeyCoupleDashboard,
+            navigatorKey: _shellNavigatorKeyCoupleToday,
             routes: [
               GoRoute(
-                path: '/couple/activities',
-                name: 'coupleActivities',
-                builder: (context, state) => const CoupleActivitiesFeedScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'saved',
-                    name: 'coupleSavedActivities',
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) => CustomTransitionPage(
-                      key: state.pageKey,
-                      child: const SavedActivitiesScreen(),
-                      transitionsBuilder: slideLeftTransition,
-                    ),
-                  ),
-                  GoRoute(
-                    path: ':activityId',
-                    name: 'coupleActivityDetail',
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) {
-                      final activityId = state.pathParameters['activityId']!;
-                      return CustomTransitionPage(
-                        key: state.pageKey,
-                        child: CoupleActivityDetailScreen(
-                          activityId: activityId,
-                        ),
-                        transitionsBuilder: slideUpTransition,
-                      );
-                    },
-                  ),
-                ],
+                path: RoutePaths.coupleToday,
+                name: RouteNames.coupleToday,
+                builder: (context, state) => const CoupleTodayScreen(),
               ),
             ],
           ),
-
-          // Calendar Tab (Jewish calendar + couple dates)
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorKeyCoupleChat,
+            navigatorKey: _shellNavigatorKeyCoupleAgenda,
             routes: [
               GoRoute(
-                path: '/couple/calendar',
-                name: 'coupleCalendar',
-                builder: (context, state) => const JewishCalendarScreen(),
+                path: RoutePaths.coupleAgenda,
+                name: RouteNames.coupleAgenda,
+                builder: (context, state) => const CoupleAgendaScreen(),
               ),
             ],
           ),
-
-          // Couple Events Tab
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorKeyCoupleEvents,
+            navigatorKey: _shellNavigatorKeyCoupleOutings,
             routes: [
               GoRoute(
-                path: '/couple/events',
-                name: 'coupleEvents',
-                builder: (context, state) => const CoupleEventsScreen(),
-                routes: [
-                  GoRoute(
-                    path: ':eventId',
-                    name: 'coupleEventDetail',
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) {
-                      final eventId = state.pathParameters['eventId']!;
-                      return CustomTransitionPage(
-                        key: state.pageKey,
-                        child: CoupleEventDetailScreen(eventId: eventId),
-                        transitionsBuilder: slideUpTransition,
-                      );
-                    },
-                  ),
-                ],
+                path: RoutePaths.coupleOutings,
+                name: RouteNames.coupleOutings,
+                builder: (context, state) => const CoupleOutingsScreen(),
               ),
             ],
           ),
-
-          // Our Space Tab (couple profile, memories, bucket list, stats)
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorKeyCoupleProfile,
+            navigatorKey: _shellNavigatorKeyCoupleConcierge,
             routes: [
               GoRoute(
-                path: '/couple/space',
-                name: 'coupleSpace',
-                builder: (context, state) => const CoupleSpaceScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'settings',
-                    name: 'coupleSettings',
-                    parentNavigatorKey: _rootNavigatorKey,
-                    pageBuilder: (context, state) => CustomTransitionPage(
-                      key: state.pageKey,
-                      child: const SettingsScreen(),
-                      transitionsBuilder: slideLeftTransition,
-                    ),
-                  ),
-                ],
+                path: RoutePaths.coupleConcierge,
+                name: RouteNames.coupleConcierge,
+                builder: (context, state) => const CoupleConciergeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorKeyCoupleUs,
+            routes: [
+              GoRoute(
+                path: RoutePaths.coupleUs,
+                name: RouteNames.coupleUs,
+                builder: (context, state) => const CoupleUsScreen(),
               ),
             ],
           ),

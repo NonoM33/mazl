@@ -992,8 +992,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget _buildCoupleModeCard(BuildContext context) {
     return SettingsCoupleCard(
       service: _coupleService,
-      onOpenSpace: () => context.push(RoutePaths.coupleActivities),
-      onOpenCalendar: () => context.push(RoutePaths.jewishCalendar),
+      onOpenSpace: () => context.push(RoutePaths.coupleToday),
+      onOpenCalendar: () => context.push(RoutePaths.coupleAgenda),
       onActivate: () => context.push(RoutePaths.coupleSetup),
       onLeave: _handleDeactivateCoupleMode,
       onCancelRequest: _handleCancelCoupleRequest,

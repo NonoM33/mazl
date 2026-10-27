@@ -1,0 +1,11 @@
+{
+  "coupleTabToday": "היום",
+  "coupleTabAgenda": "יומן",
+  "coupleTabOutings": "יציאות",
+  "coupleTabConcierge": "קונסיירז׳",
+  "coupleTabUs": "שנינו",
+  "coupleFailSubscriptionRequired": "הפעולה הזו כלולה ב-MAZL Couple.",
+  "coupleFailRateLimited": "הגעתם למגבלת ההודעות היומית עם העוזר. חזרו מחר.",
+  "coupleFailAlreadyDone": "כבר ענית החודש.",
+  "coupleFailRouteMissing": "הפעולה הזו עדיין לא זמינה."
+}

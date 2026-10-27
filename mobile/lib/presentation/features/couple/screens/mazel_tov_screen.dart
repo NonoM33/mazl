@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
@@ -369,7 +370,7 @@ class _MazelTovScreenState extends State<MazelTovScreen> {
       partnerName: widget.partnerName,
       partnerPicture: widget.partnerPicture,
       myPicture: widget.myPicture,
-      onContinue: () => context.go('/couple/activities'),
+      onContinue: () => context.go(RoutePaths.coupleToday),
     );
   }
 }

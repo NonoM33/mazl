@@ -1100,6 +1100,768 @@ abstract class AppLocalizations {
   /// **'Impossible d\'ouvrir {target} pour le moment.'**
   String linkOpenError(String target);
 
+  /// Gros titre de l'onglet Agenda de l'espace couple, sous le mois.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agenda à deux'**
+  String get coupleAgendaTitle;
+
+  /// Légende de la grille du mois : point plein = date importante du couple. Court, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date importante'**
+  String get coupleAgendaLegendDate;
+
+  /// Légende de la grille du mois : point en anneau = fête juive. Court, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fête'**
+  String get coupleAgendaLegendHoliday;
+
+  /// Légende de la grille du mois : point d'encre = jour d'un rituel activé. Court, une ligne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rituel'**
+  String get coupleAgendaLegendRitual;
+
+  /// Bouton principal de l'agenda du couple : ajoute une date importante (anniversaire, rencontre...).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un moment'**
+  String get coupleAgendaAddMoment;
+
+  /// Sous la grille : le jour touché ne contient rien (ni date, ni fête, ni rituel).
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ce jour-là'**
+  String get coupleAgendaNothing;
+
+  /// Titre de section (en capitales) : la liste des rituels du couple avec leur interrupteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos rituels'**
+  String get coupleAgendaRitualsLabel;
+
+  /// Titre de section (en capitales) : les dates importantes du couple (anniversaires...).
+  ///
+  /// In fr, this message translates to:
+  /// **'Dates importantes'**
+  String get coupleAgendaDatesLabel;
+
+  /// Aucun rituel n'existe encore pour ce couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de rituel'**
+  String get coupleAgendaRitualsEmptyTitle;
+
+  /// Explique ce qu'est un rituel de couple, sous « Pas encore de rituel ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rendez-vous régulier à deux, comme Shabbat ou une soirée sans écran.'**
+  String get coupleAgendaRitualsEmptyLine;
+
+  /// Bouton : ouvre le formulaire de création d'un rituel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un rituel'**
+  String get coupleAgendaAddRitual;
+
+  /// Les rituels n'ont pas pu être chargés (les dates, elles, ont pu l'être). {reason} est la cause, déjà rédigée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rituels indisponibles. {reason}'**
+  String coupleAgendaRitualsFailed(String reason);
+
+  /// Les dates importantes n'ont pas pu être chargées (les rituels, eux, ont pu l'être). {reason} est la cause, déjà rédigée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dates indisponibles. {reason}'**
+  String coupleAgendaDatesFailed(String reason);
+
+  /// Début de la ligne d'un rituel hebdomadaire. {day} vaut sun, mon, tue, wed, thu, fri ou sat. Écrire l'accord de chaque jour (russe : un/une).
+  ///
+  /// In fr, this message translates to:
+  /// **'{day, select, sun{Chaque dimanche} mon{Chaque lundi} tue{Chaque mardi} wed{Chaque mercredi} thu{Chaque jeudi} fri{Chaque vendredi} sat{Chaque samedi} other{Chaque semaine}}'**
+  String coupleAgendaWeekly(String day);
+
+  /// Début de la ligne d'un rituel sans jour de la semaine fixé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans jour fixe'**
+  String get coupleAgendaNoDay;
+
+  /// Ajoute l'heure à la ligne d'un rituel : {when} = « Chaque mardi », {time} = l'heure déjà mise en forme (20:00).
+  ///
+  /// In fr, this message translates to:
+  /// **'{when} à {time}'**
+  String coupleAgendaAtTime(String when, String time);
+
+  /// Rappel du rituel, en heures entières (le rappel est un push réservé à MAZL Couple).
+  ///
+  /// In fr, this message translates to:
+  /// **'rappel {count, plural, =1{une heure} other{{count} heures}} avant'**
+  String coupleAgendaRemindHours(int count);
+
+  /// Rappel du rituel, en minutes (moins d'une heure ou pas un nombre entier d'heures).
+  ///
+  /// In fr, this message translates to:
+  /// **'rappel {count, plural, one{{count} minute} other{{count} minutes}} avant'**
+  String coupleAgendaRemindMinutes(int count);
+
+  /// Rappel de Shabbat, en heures entières, avant l'allumage des bougies.
+  ///
+  /// In fr, this message translates to:
+  /// **'rappel {count, plural, =1{une heure} other{{count} heures}} avant les bougies'**
+  String coupleAgendaRemindHoursCandles(int count);
+
+  /// Rappel de Shabbat, en minutes, avant l'allumage des bougies.
+  ///
+  /// In fr, this message translates to:
+  /// **'rappel {count, plural, one{{count} minute} other{{count} minutes}} avant les bougies'**
+  String coupleAgendaRemindMinutesCandles(int count);
+
+  /// Fin de la ligne d'un rituel dont le rappel est à zéro minute.
+  ///
+  /// In fr, this message translates to:
+  /// **'sans rappel'**
+  String get coupleAgendaNoReminder;
+
+  /// Ligne de précision d'un rituel : {when} (Chaque vendredi) puis {reminder} (rappel une heure avant les bougies).
+  ///
+  /// In fr, this message translates to:
+  /// **'{when} · {reminder}'**
+  String coupleAgendaRitualMeta(String when, String reminder);
+
+  /// Lecteur d'écran : nom d'un rituel suivi de sa ligne de précision, sur l'interrupteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title}, {meta}'**
+  String coupleAgendaRitualSemantics(String title, String meta);
+
+  /// Message flottant : l'interrupteur d'un rituel n'a pas pu être changé (il revient à son état). {reason} est la cause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification impossible. {reason}'**
+  String coupleAgendaToggleFailed(String reason);
+
+  /// Ligne discrète sous les rituels : les rappels (push) sont réservés à l'abonnement MAZL Couple ; touchée, elle ouvre la page d'abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rappels font partie de MAZL Couple'**
+  String get coupleAgendaRemindersPremium;
+
+  /// Aucune date importante n'est enregistrée pour ce couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune date importante'**
+  String get coupleAgendaDatesEmptyTitle;
+
+  /// Invite à ajouter une date, sous « Aucune date importante ». Cite le bouton « Ajouter un moment ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez un anniversaire ou une date qui compte avec « Ajouter un moment ».'**
+  String get coupleAgendaDatesEmptyLine;
+
+  /// Ligne sous le titre d'une date importante : {date} (9 novembre) puis {relative} (dans 12 jours).
+  ///
+  /// In fr, this message translates to:
+  /// **'{date} · {relative}'**
+  String coupleAgendaDateWhen(String date, String relative);
+
+  /// Délai avant la prochaine occurrence d'une date importante.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aujourd\'hui} =1{demain} other{dans {count} jours}}'**
+  String coupleAgendaDaysUntil(int count);
+
+  /// Rappel d'une date importante, en jours avant la date (push réservé à MAZL Couple).
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel {count, plural, one{{count} jour} other{{count} jours}} avant'**
+  String coupleAgendaDateReminder(int count);
+
+  /// Titre de la carte de la date la plus proche : {title} (Un an de votre rencontre) puis {date} (9 novembre).
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} · {date}'**
+  String coupleAgendaDateTitle(String title, String date);
+
+  /// Phrase de la carte de la date la plus proche, avant le bouton vers la conciergerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'La conciergerie peut vous aider à préparer ce moment.'**
+  String get coupleAgendaConciergeLine;
+
+  /// Bouton contour de la carte de la date la plus proche : ouvre la conciergerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer avec la conciergerie'**
+  String get coupleAgendaPrepare;
+
+  /// Titre du formulaire de création d'un rituel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau rituel'**
+  String get coupleAgendaAddRitualTitle;
+
+  /// Champ du formulaire d'un rituel : son nom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du rituel'**
+  String get coupleAgendaRitualFieldTitle;
+
+  /// Intitulé du choix du jour de la semaine, dans le formulaire d'un rituel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour de la semaine'**
+  String get coupleAgendaRitualFieldDay;
+
+  /// Intitulé du choix facultatif de l'heure, dans le formulaire d'un rituel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure (facultatif)'**
+  String get coupleAgendaRitualFieldTime;
+
+  /// Bouton du formulaire d'un rituel : choisir une heure (aucune heure choisie).
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une heure'**
+  String get coupleAgendaRitualPickTime;
+
+  /// Bouton du formulaire d'un rituel : retirer l'heure choisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer l\'heure'**
+  String get coupleAgendaRitualClearTime;
+
+  /// Lecteur d'écran : un jour de la grille. {date} (6 novembre) puis {marks} : ce qu'il contient, déjà rédigé (Rituel).
+  ///
+  /// In fr, this message translates to:
+  /// **'{date}, {marks}'**
+  String coupleAgendaDaySemantics(String date, String marks);
+
+  /// Titre de la page du bilan mensuel du couple (barre du haut).
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan du couple'**
+  String get coupleCheckinTitle;
+
+  /// Étiquette en capitales au-dessus du titre du bilan. {month} est le nom du mois en toutes lettres, dans la langue (ex. novembre). Le texte sera mis en capitales par l'application.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan · {month}'**
+  String coupleCheckinEyebrow(String month);
+
+  /// Gros titre de la page du bilan mensuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça va entre vous ?'**
+  String get coupleCheckinHeading;
+
+  /// Explication sous le titre du bilan : chacun répond seul, les réponses ne sont pas montrées à l'autre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux minutes, chacun de son côté. Vos réponses restent entre vous deux.'**
+  String get coupleCheckinIntro;
+
+  /// Première question du bilan, notée de 1 à 5 : la qualité de la conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'On se parle vraiment'**
+  String get coupleCheckinTalk;
+
+  /// Deuxième question du bilan, notée de 1 à 5 : le temps passé à deux.
+  ///
+  /// In fr, this message translates to:
+  /// **'On passe assez de temps à deux'**
+  String get coupleCheckinTime;
+
+  /// Troisième question du bilan, notée de 1 à 5 : la proximité ressentie.
+  ///
+  /// In fr, this message translates to:
+  /// **'On se sent proches'**
+  String get coupleCheckinClose;
+
+  /// Extrémité basse de l'échelle de 1 à 5 d'une question du bilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas du tout'**
+  String get coupleCheckinScaleLow;
+
+  /// Extrémité haute de l'échelle de 1 à 5 d'une question du bilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout à fait'**
+  String get coupleCheckinScaleHigh;
+
+  /// Description accessible d'une note de l'échelle du bilan. {question} est le texte de la question, {n} la note de 1 à 5.
+  ///
+  /// In fr, this message translates to:
+  /// **'{question} : {n} sur 5'**
+  String coupleCheckinScoreLabel(String question, int n);
+
+  /// Bouton qui envoie les trois notes du bilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get coupleCheckinSend;
+
+  /// Message d'erreur quand le bilan n'a pas pu être envoyé : les notes restent choisies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre bilan n\'est pas parti. Vos notes sont gardées, vous pouvez réessayer.'**
+  String get coupleCheckinSendFailed;
+
+  /// Titre de l'état vide du bilan : le serveur ne propose pas encore de bilan (fonction pas encore déployée).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bilan arrive bientôt'**
+  String get coupleCheckinEmptyTitle;
+
+  /// Phrase sous le titre de l'état vide du bilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fois par mois, deux minutes pour prendre des nouvelles de votre couple.'**
+  String get coupleCheckinEmptyLine;
+
+  /// Gros titre de la page du bilan une fois les trois notes envoyées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci, c\'est envoyé'**
+  String get coupleCheckinDoneHeading;
+
+  /// Phrase du bilan quand on a répondu mais pas le partenaire. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de {name} : vous verrez la synthèse ensemble.'**
+  String coupleCheckinWaiting(String name);
+
+  /// Synthèse du bilan : sur combien des trois thèmes les deux notes sont proches (écart d'un point au plus). {count} va de 0 à 3.
+  ///
+  /// In fr, this message translates to:
+  /// **'En phase sur {count, plural, one{{count} point} other{{count} points}} sur 3'**
+  String coupleCheckinAligned(int count);
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous parlez davantage. Gardez ce rythme, même cinq minutes par jour.'**
+  String get coupleCheckinAttentionTalkUp;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les échanges ont baissé. Un moment sans téléphone pour vous parler, cette semaine ?'**
+  String get coupleCheckinAttentionTalkDown;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se parler vraiment reste le point à soigner. Posez-vous ensemble la question du jour.'**
+  String get coupleCheckinAttentionTalkSame;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se parler vraiment est le point à soigner ce mois-ci. Commencez par la question du jour.'**
+  String get coupleCheckinAttentionTalkNone;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous passez plus de temps à deux. Prévoyez dès maintenant la prochaine sortie.'**
+  String get coupleCheckinAttentionTimeUp;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le temps à deux a baissé. Une soirée sans écran cette semaine ?'**
+  String get coupleCheckinAttentionTimeDown;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le temps à deux reste à renforcer. Bloquez une soirée dans l\'agenda.'**
+  String get coupleCheckinAttentionTimeSame;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le temps à deux est le point à soigner. Bloquez une soirée dans l\'agenda.'**
+  String get coupleCheckinAttentionTimeNone;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous sentez plus proches. Dites-vous ce qui a changé.'**
+  String get coupleCheckinAttentionCloseUp;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous sentez moins proches. Prenez un moment pour vous dire ce qui compte pour vous.'**
+  String get coupleCheckinAttentionCloseDown;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'La proximité reste à cultiver. Un petit geste attentionné aujourd\'hui ?'**
+  String get coupleCheckinAttentionCloseSame;
+
+  /// Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical.
+  ///
+  /// In fr, this message translates to:
+  /// **'La proximité est le point à cultiver. Un petit geste attentionné aujourd\'hui ?'**
+  String get coupleCheckinAttentionCloseNone;
+
+  /// Étiquette en capitales au-dessus du titre de la conciergerie : rappelle que le service est inclus dans l'abonnement MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclus dans MAZL Couple'**
+  String get coupleConciergeEyebrow;
+
+  /// Gros titre de l'écran de la conciergerie du couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre conciergerie'**
+  String get coupleConciergeTitle;
+
+  /// Phrase sous le titre de la conciergerie : l'assistant automatique propose des idées tout de suite, l'équipe MAZL réserve et confirme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez, on s\'occupe du reste. L\'assistant prépare des idées tout de suite, l\'équipe MAZL réserve et confirme.'**
+  String get coupleConciergeIntro;
+
+  /// Demande rapide de la conciergerie : réserver une table au restaurant. Bouton de 56 pt de haut, une à deux lignes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserver une table'**
+  String get coupleConciergeQuickTable;
+
+  /// Demande rapide de la conciergerie : organiser une surprise pour le ou la partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organiser une surprise'**
+  String get coupleConciergeQuickSurprise;
+
+  /// Demande rapide de la conciergerie : trouver un cadeau.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouver un cadeau'**
+  String get coupleConciergeQuickGift;
+
+  /// Demande rapide de la conciergerie : planifier un week-end à deux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Planifier un week-end'**
+  String get coupleConciergeQuickWeekend;
+
+  /// Début de phrase placé dans le champ de saisie quand le membre touche « Réserver une table » ; il le complète. Sans point final ni espace final.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je voudrais réserver une table pour deux'**
+  String get coupleConciergeStartTable;
+
+  /// Début de phrase placé dans le champ de saisie quand le membre touche « Organiser une surprise » ; il le complète (la suite est le prénom ou l'occasion). Sans espace final.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je voudrais organiser une surprise pour'**
+  String get coupleConciergeStartSurprise;
+
+  /// Début de phrase placé dans le champ de saisie quand le membre touche « Trouver un cadeau » ; il le complète. Sans espace final.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je cherche un cadeau pour'**
+  String get coupleConciergeStartGift;
+
+  /// Début de phrase placé dans le champ de saisie quand le membre touche « Planifier un week-end » ; il le complète (la suite est un lieu). Sans espace final.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je voudrais planifier un week-end à'**
+  String get coupleConciergeStartWeekend;
+
+  /// Étiquette en capitales de la liste des demandes de conciergerie encore ouvertes.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get coupleConciergeInProgress;
+
+  /// Étiquette en capitales de la liste des demandes terminées ou annulées, affichées plus discrètement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminées'**
+  String get coupleConciergeClosedSection;
+
+  /// Étiquette d'une demande de conciergerie close (terminée).
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminée'**
+  String get coupleConciergeStatusClosed;
+
+  /// Étiquette d'une demande de conciergerie annulée par le couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulée'**
+  String get coupleConciergeStatusCancelled;
+
+  /// Phrase affichée à la place de la liste quand le couple n'a encore aucune demande de conciergerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune demande pour l\'instant. Écrivez-nous ce que vous imaginez.'**
+  String get coupleConciergeNoRequests;
+
+  /// Échéance d'une demande dont la date souhaitée tombe dans la semaine : « Avant jeudi ». {day} est le nom du jour de la semaine, déjà écrit dans la langue du membre (jamais décliné).
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant {day}'**
+  String coupleConciergeBefore(String day);
+
+  /// Date souhaitée d'une demande plus éloignée : « Pour le 9 novembre ». {date} est la date déjà mise en forme (jour et mois).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour le {date}'**
+  String coupleConciergeOnDate(String date);
+
+  /// Première étape de la barre de progression d'une demande : la demande est reçue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande reçue'**
+  String get coupleConciergeStep1;
+
+  /// Deuxième étape de la barre de progression d'une demande : le couple a choisi une idée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée choisie'**
+  String get coupleConciergeStep2;
+
+  /// Troisième étape de la barre de progression d'une demande : l'équipe MAZL a réservé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé par l\'équipe'**
+  String get coupleConciergeStep3;
+
+  /// Description lue par VoiceOver de la barre de progression d'une demande. {step} vaut 1, 2 ou 3 ; {label} est le nom de l'étape atteinte.
+  ///
+  /// In fr, this message translates to:
+  /// **'étape {step} sur 3 : {label}'**
+  String coupleConciergeStepSemantics(int step, String label);
+
+  /// Mention de vie privée obligatoire (contrat §0.4), toujours visible sous le champ de saisie : ce que lit l'assistant automatique puis l'équipe. Ne pas reformuler le sens.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos demandes sont lues par un assistant automatique puis par l\'équipe MAZL.'**
+  String get coupleConciergePrivacy;
+
+  /// Texte indicatif du champ de saisie de la conciergerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez à la conciergerie…'**
+  String get coupleConciergeComposerHint;
+
+  /// Libellé accessible du bouton rond d'envoi d'un message à la conciergerie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get coupleConciergeSend;
+
+  /// Libellé accessible de l'indicateur « … » affiché pendant que l'assistant prépare sa réponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'assistant prépare une réponse'**
+  String get coupleConciergeWaiting;
+
+  /// Étiquette en capitales au-dessus d'un message de l'assistant automatique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assistant'**
+  String get coupleConciergeRoleAssistant;
+
+  /// Étiquette en capitales au-dessus d'un message de l'équipe MAZL.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équipe MAZL'**
+  String get coupleConciergeRoleTeam;
+
+  /// Nom affiché au-dessus d'un message de l'autre membre du couple quand son prénom est inconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre partenaire'**
+  String get coupleConciergePartnerFallback;
+
+  /// Étiquette en capitales au-dessus du titre d'une demande ouverte, et titre de la page d'une conversation avant son chargement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre demande'**
+  String get coupleConciergeThreadEyebrow;
+
+  /// Étiquette en capitales de la conversation quand aucune demande n'est ouverte : le prochain message crée une demande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle demande'**
+  String get coupleConciergeNewEyebrow;
+
+  /// Phrase affichée quand aucune demande n'est ouverte, au-dessus du champ de saisie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dites-nous ce que vous imaginez, ou choisissez une demande rapide.'**
+  String get coupleConciergeNewLine;
+
+  /// Étiquette en capitales et libellé accessible du groupe des idées proposées par l'assistant (une seule peut être choisie).
+  ///
+  /// In fr, this message translates to:
+  /// **'Idées proposées'**
+  String get coupleConciergeOptionsLabel;
+
+  /// Pastille sur l'idée que le couple a retenue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisie'**
+  String get coupleConciergeChosen;
+
+  /// Bouton qui valide l'idée cochée : l'équipe MAZL réserve. Désactivé tant qu'aucune idée n'est cochée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, réservez'**
+  String get coupleConciergeBook;
+
+  /// Bouton qui demande une autre idée à l'assistant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre idée'**
+  String get coupleConciergeOtherIdea;
+
+  /// Message envoyé à l'assistant quand le membre touche « Autre idée ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Pouvez-vous me proposer une autre idée ?'**
+  String get coupleConciergeOtherIdeaMessage;
+
+  /// Action discrète qui annule la demande ouverte (une confirmation suit).
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la demande'**
+  String get coupleConciergeCancel;
+
+  /// Titre de la confirmation d'annulation d'une demande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler cette demande ?'**
+  String get coupleConciergeCancelTitle;
+
+  /// Explication de la confirmation d'annulation d'une demande.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'équipe MAZL ne s\'en occupera plus.'**
+  String get coupleConciergeCancelBody;
+
+  /// Bouton qui confirme l'annulation de la demande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, annuler'**
+  String get coupleConciergeCancelConfirm;
+
+  /// Bouton qui renonce à annuler la demande.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder la demande'**
+  String get coupleConciergeKeep;
+
+  /// Phrase affichée à la place du champ de saisie quand la demande est terminée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette demande est terminée.'**
+  String get coupleConciergeNoteClosed;
+
+  /// Phrase affichée à la place du champ de saisie quand la demande est annulée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette demande est annulée.'**
+  String get coupleConciergeNoteCancelled;
+
+  /// Phrase sous une demande que l'équipe MAZL n'a pas encore traitée (l'assistant n'a pas répondu) : l'équipe répond elle-même.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'équipe MAZL a reçu votre demande et vous répond ici.'**
+  String get coupleConciergeNoteFresh;
+
+  /// Phrase sous une demande dont le couple a choisi une idée : l'équipe réserve.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'équipe MAZL réserve votre idée et vous confirme ici.'**
+  String get coupleConciergeNoteChosen;
+
+  /// Phrase sous une demande que l'équipe a réservée.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est réservé : les détails sont dans la conversation.'**
+  String get coupleConciergeNoteBooked;
+
+  /// Bouton de l'écran d'appel à l'abonnement de la conciergerie : ouvre la page MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir MAZL Couple'**
+  String get coupleConciergeDiscover;
+
+  /// Phrase de l'écran d'appel à l'abonnement de la conciergerie, sous le titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un service qui s\'occupe de tout, pour vous deux. L\'assistant prépare des idées, l\'équipe MAZL réserve et confirme.'**
+  String get coupleConciergePaywallLine;
+
+  /// Onglet de la barre de l'espace couple : la page du jour. Libellé court, une ligne sous l'icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get coupleTabToday;
+
+  /// Onglet de la barre de l'espace couple : l'agenda du couple (dates, rituels, fêtes). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agenda'**
+  String get coupleTabAgenda;
+
+  /// Onglet de la barre de l'espace couple : les sorties à deux. Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorties'**
+  String get coupleTabOutings;
+
+  /// Onglet de la barre de l'espace couple : la conciergerie (service de réservation et d'idées). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conciergerie'**
+  String get coupleTabConcierge;
+
+  /// Onglet de la barre de l'espace couple : « Nous deux » (question du jour, bilan, souvenirs, réglages du couple). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous deux'**
+  String get coupleTabUs;
+
+  /// Erreur : la fonction demandée est réservée aux couples abonnés à MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonction fait partie de MAZL Couple.'**
+  String get coupleFailSubscriptionRequired;
+
+  /// Erreur : le couple a atteint la limite de messages du jour avec l'assistant de la conciergerie (20 par jour).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez atteint la limite de messages du jour avec l\'assistant. Revenez demain.'**
+  String get coupleFailRateLimited;
+
+  /// Erreur : le bilan du mois a déjà été rempli par ce membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà répondu ce mois-ci.'**
+  String get coupleFailAlreadyDone;
+
+  /// Erreur : cette fonction n'existe pas encore sur le serveur (version plus ancienne).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonction n\'est pas encore disponible.'**
+  String get coupleFailRouteMissing;
+
   /// Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte.
   ///
   /// In fr, this message translates to:
@@ -1274,71 +2036,17 @@ abstract class AppLocalizations {
   /// **'Partenaire MAZL'**
   String get coupleFeedPartnerMazl;
 
-  /// Pastille d'accent sur la carte : réduction de {percent} % chez un partenaire de MAZL.
-  ///
-  /// In fr, this message translates to:
-  /// **'-{percent} % Partenaire MAZL'**
-  String coupleFeedPartnerDiscountMazl(int percent);
-
   /// Pastille d'accent sur la fiche détail : réduction de {percent} % chez un partenaire.
   ///
   /// In fr, this message translates to:
   /// **'-{percent} % Partenaire'**
   String coupleFeedPartnerDiscount(int percent);
 
-  /// Grand titre de l'écran du fil d'activités à deux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Activités'**
-  String get coupleFeedActivitiesTitle;
-
   /// Titre de l'écran des activités enregistrées et info-bulle du bouton qui y mène.
   ///
   /// In fr, this message translates to:
   /// **'Activités sauvegardées'**
   String get coupleFeedSavedTitle;
-
-  /// Titre de l'état vide du fil d'activités.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucune activité pour le moment'**
-  String get coupleFeedActivitiesEmptyTitle;
-
-  /// Phrase sous le titre de l'état vide du fil d'activités.
-  ///
-  /// In fr, this message translates to:
-  /// **'De nouvelles idées arrivent bientôt.'**
-  String get coupleFeedActivitiesEmptyLine;
-
-  /// Bouton de l'état vide : recharger le fil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Actualiser'**
-  String get coupleFeedRefresh;
-
-  /// Info-bulle du bouton rond « i » qui ouvre la fiche détail d'une activité.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir le détail'**
-  String get coupleFeedSeeDetail;
-
-  /// Message en bas d'écran après avoir glissé une activité vers le haut. Une ligne ; {title} peut être long.
-  ///
-  /// In fr, this message translates to:
-  /// **'{title} sauvegardé'**
-  String coupleFeedActivitySavedSnack(String title);
-
-  /// Erreur : la sauvegarde d'une activité du fil a échoué ; la carte revient.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de sauvegarder « {title} ». Réessayez.'**
-  String coupleFeedActivitySaveCardError(String title);
-
-  /// Erreur : le passage d'une activité du fil a échoué ; la carte revient.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de passer « {title} ». Réessayez.'**
-  String coupleFeedActivityPassCardError(String title);
 
   /// Titre de l'écran quand l'activité n'existe plus.
   ///
@@ -1490,48 +2198,6 @@ abstract class AppLocalizations {
   /// **'Découvrir des activités'**
   String get coupleFeedSavedEmptyAction;
 
-  /// Grand titre de l'écran des événements pour couples.
-  ///
-  /// In fr, this message translates to:
-  /// **'Événements'**
-  String get coupleFeedEventsTitle;
-
-  /// Premier onglet de l'écran des événements : les événements à venir. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'À venir'**
-  String get coupleFeedEventsUpcoming;
-
-  /// Second onglet : les événements où le couple est inscrit, avec leur nombre {count} entre parenthèses. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inscrits ({count})'**
-  String coupleFeedEventsRegisteredTab(int count);
-
-  /// Titre de l'état vide de l'onglet des événements à venir.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucun événement disponible'**
-  String get coupleFeedEventsEmptyAll;
-
-  /// Titre de l'état vide de l'onglet des inscriptions.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous n\'êtes inscrit à aucun événement'**
-  String get coupleFeedEventsEmptyRegistered;
-
-  /// Bouton de l'état vide des inscriptions : revenir aux événements à venir.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrir les événements'**
-  String get coupleFeedEventsDiscover;
-
-  /// Message vert après l'inscription depuis la liste ; {title} est le nom de l'événement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inscrits à \"{title}\"'**
-  String coupleFeedEventRegisteredSnack(String title);
-
   /// Message vert après l'inscription depuis la fiche d'un événement ; {title} est son nom.
   ///
   /// In fr, this message translates to:
@@ -1550,30 +2216,6 @@ abstract class AppLocalizations {
   /// **'Impossible d\'annuler l\'inscription. Réessayez.'**
   String get coupleFeedEventCancelError;
 
-  /// Titre de la boîte de dialogue qui demande d'annuler une inscription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler l\'inscription ?'**
-  String get coupleFeedEventCancelTitle;
-
-  /// Corps de la boîte de dialogue d'annulation d'inscription ; {title} est le nom de l'événement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voulez-vous vraiment annuler votre inscription à \"{title}\" ?'**
-  String coupleFeedEventCancelBody(String title);
-
-  /// Bouton de la boîte de dialogue d'annulation : garder l'inscription. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non'**
-  String get coupleFeedEventCancelNo;
-
-  /// Bouton rouge de la boîte de dialogue d'annulation : confirmer l'annulation. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui, annuler'**
-  String get coupleFeedEventCancelYes;
-
   /// Message en bas d'écran après l'annulation d'une inscription.
   ///
   /// In fr, this message translates to:
@@ -1585,12 +2227,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Complet'**
   String get coupleFeedEventFull;
-
-  /// Nombre de places restantes, sur une carte d'événement, à côté d'une icône. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} place} other{{count} places}}'**
-  String coupleFeedEventSpots(int count);
 
   /// Nombre de places restantes, sur la fiche d'un événement, à droite du prix.
   ///
@@ -1652,35 +2288,455 @@ abstract class AppLocalizations {
   /// **'Chargement impossible'**
   String get coupleFeedLoadFailedTitle;
 
-  /// Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône.
+  /// Eyebrow au-dessus du titre de l'onglet Sorties quand aucune ville n'est connue. Rendu en capitales mono par l'interface.
   ///
   /// In fr, this message translates to:
-  /// **'Activités'**
-  String get coupleSpaceTabActivities;
+  /// **'Près de chez vous'**
+  String get coupleOutingsEyebrow;
 
-  /// Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône.
+  /// Eyebrow au-dessus du titre de l'onglet Sorties, avec la ville de la sortie mise en avant. Rendu en capitales mono par l'interface.
   ///
   /// In fr, this message translates to:
-  /// **'Calendrier'**
-  String get coupleSpaceTabCalendar;
+  /// **'Près de chez vous · {city}'**
+  String coupleOutingsEyebrowCity(String city);
 
-  /// Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône.
+  /// Gros titre de l'onglet Sorties de l'espace couple.
   ///
   /// In fr, this message translates to:
-  /// **'Événements'**
-  String get coupleSpaceTabEvents;
+  /// **'Sorties à deux'**
+  String get coupleOutingsTitle;
 
-  /// Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône.
+  /// Info-bulle et libellé d'accessibilité du bouton marque-page qui ouvre la liste des activités sauvegardées.
   ///
   /// In fr, this message translates to:
-  /// **'Notre espace'**
-  String get coupleSpaceTabSpace;
+  /// **'Sauvegardées'**
+  String get coupleOutingsSavedTooltip;
 
-  /// Titre de l'écran « Notre espace » (l'espace privé du couple).
+  /// Pilule de filtre : sorties de ce soir. Libellé court.
   ///
   /// In fr, this message translates to:
-  /// **'Notre espace'**
-  String get coupleSpaceTitle;
+  /// **'Ce soir'**
+  String get coupleOutingsFilterTonight;
+
+  /// Pilule de filtre : sorties du week-end. Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce week-end'**
+  String get coupleOutingsFilterWeek;
+
+  /// Pilule de filtre : sorties casher. Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casher'**
+  String get coupleOutingsFilterKosher;
+
+  /// Pilule de filtre : sorties à moins de 50 euros par couple. Libellé court ; garder le montant tel quel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moins de 50 €'**
+  String get coupleOutingsFilterCheap;
+
+  /// Pilule de filtre : évènements organisés par MAZL pour les couples. Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements MAZL'**
+  String get coupleOutingsFilterMazl;
+
+  /// Pastille sur la sortie mise en avant quand c'est un évènement organisé par MAZL pour les couples.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement MAZL couples'**
+  String get coupleOutingsEventBadge;
+
+  /// Bouton de la sortie mise en avant quand c'est un évènement : ouvre sa fiche pour s'inscrire en couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserver pour nous deux'**
+  String get coupleOutingsBookForUs;
+
+  /// Bouton de la sortie mise en avant quand c'est une activité : ouvre sa fiche.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get coupleOutingsView;
+
+  /// Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité non sauvegardée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarder'**
+  String get coupleOutingsSave;
+
+  /// Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité déjà sauvegardée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer des sauvegardes'**
+  String get coupleOutingsUnsave;
+
+  /// Prix d'une sortie dans la ligne d'informations de la sortie mise en avant.
+  ///
+  /// In fr, this message translates to:
+  /// **'{price} par couple'**
+  String coupleOutingsPerCouple(String price);
+
+  /// Prix d'une sortie gratuite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit'**
+  String get coupleOutingsFree;
+
+  /// Séparateur entre les éléments d'une ligne d'informations (date, ville, prix). Garder les espaces autour du point médian.
+  ///
+  /// In fr, this message translates to:
+  /// **' · '**
+  String get coupleOutingsMetaSeparator;
+
+  /// Petit titre de section (capitales mono) au-dessus de la grille des sorties proposées.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection pour vous deux'**
+  String get coupleOutingsPicksLabel;
+
+  /// Note en bas de l'onglet Sorties : explique sur quoi les idées proposées s'appuient. Cacherout = règles alimentaires casher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les idées tiennent compte de votre cacherout, de vos goûts sauvegardés et de vos dates à venir.'**
+  String get coupleOutingsNote;
+
+  /// Titre de l'état vide quand le filtre choisi ne donne aucune sortie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien pour ce filtre'**
+  String get coupleOutingsEmptyFilterTitle;
+
+  /// Phrase de l'état vide quand le filtre choisi ne donne aucune sortie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayez un autre filtre ou regardez toutes les sorties.'**
+  String get coupleOutingsEmptyFilterLine;
+
+  /// Bouton de l'état vide : retire le filtre et montre toutes les sorties.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout voir'**
+  String get coupleOutingsShowAll;
+
+  /// Titre de l'état vide quand aucune sortie n'existe, sans filtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de sortie pour le moment'**
+  String get coupleOutingsEmptyTitle;
+
+  /// Phrase de l'état vide quand aucune sortie n'existe, sans filtre.
+  ///
+  /// In fr, this message translates to:
+  /// **'De nouvelles idées arrivent bientôt.'**
+  String get coupleOutingsEmptyLine;
+
+  /// Message flottant quand l'ajout ou le retrait d'une activité sauvegardée a échoué ; l'écran revient à son état d'avant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de modifier vos sauvegardes. Réessayez.'**
+  String get coupleOutingsSaveFailed;
+
+  /// Mot qui suit le mot-symbole « mazl. » en haut de la page d'abonnement : « mazl. couple ». Reste en minuscules.
+  ///
+  /// In fr, this message translates to:
+  /// **'couple'**
+  String get couplePremiumWordmarkSuffix;
+
+  /// Grand titre de la page d'abonnement MAZL Couple (« le » = l'amour du couple).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plus dur, c\'est de le garder.'**
+  String get couplePremiumHeadline;
+
+  /// Phrase d'introduction de la page d'abonnement MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous êtes trouvés. MAZL Couple vous aide au quotidien : vos rituels, vos sorties, et une conciergerie qui s\'occupe du reste.'**
+  String get couplePremiumIntro;
+
+  /// Premier avantage de MAZL Couple : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conciergerie'**
+  String get couplePremiumPerkConciergeTitle;
+
+  /// Premier avantage de MAZL Couple : explication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservations, surprises, cadeaux : demandez, on s\'en occupe'**
+  String get couplePremiumPerkConciergeMeta;
+
+  /// Deuxième avantage de MAZL Couple : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos rituels et vos dates'**
+  String get couplePremiumPerkRitualsTitle;
+
+  /// Deuxième avantage de MAZL Couple : explication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat, anniversaires, fêtes : rappelés à temps, à deux'**
+  String get couplePremiumPerkRitualsMeta;
+
+  /// Troisième avantage de MAZL Couple : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorties choisies pour vous'**
+  String get couplePremiumPerkOutingsTitle;
+
+  /// Troisième avantage de MAZL Couple : explication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casher, près de chez vous, et les événements MAZL couples'**
+  String get couplePremiumPerkOutingsMeta;
+
+  /// Quatrième avantage de MAZL Couple : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'La question du jour'**
+  String get couplePremiumPerkQuestionTitle;
+
+  /// Quatrième avantage de MAZL Couple : explication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une question par jour pour continuer à se découvrir'**
+  String get couplePremiumPerkQuestionMeta;
+
+  /// Cinquième avantage de MAZL Couple : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bilan du couple'**
+  String get couplePremiumPerkCheckinTitle;
+
+  /// Cinquième avantage de MAZL Couple : explication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça va entre vous, et des conseillers si besoin'**
+  String get couplePremiumPerkCheckinMeta;
+
+  /// Petit titre en capitales de la carte de prix de l'abonnement couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour vous deux'**
+  String get couplePremiumFor;
+
+  /// Unité qui suit le prix de l'abonnement couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'par mois'**
+  String get couplePremiumPerMonth;
+
+  /// Explication sur la carte de prix : un seul des deux membres paie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un seul abonnement : l\'autre en profite aussitôt, sans rien payer.'**
+  String get couplePremiumShared;
+
+  /// Note sous le prix : mazl+ est inclus. En hébreu, « mazl+ » est suivi de U+200E.
+  ///
+  /// In fr, this message translates to:
+  /// **'mazl+ est inclus pour vous deux tant que l\'abonnement couple est actif.'**
+  String get couplePremiumIncludesPlus;
+
+  /// Phrase à la place du prix quand le magasin d'applications n'est pas disponible ou ne connaît pas le produit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le prix s\'affiche dès que l\'App Store répond.'**
+  String get couplePremiumPriceLater;
+
+  /// Bouton principal d'achat de l'abonnement couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'abonner pour nous deux'**
+  String get couplePremiumSubscribe;
+
+  /// Bouton texte pour restaurer un abonnement déjà acheté.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer un achat'**
+  String get couplePremiumRestore;
+
+  /// Mention légale sous les boutons de l'abonnement couple (renouvellement, résiliation, prix).
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement automatique chaque mois, résiliable à tout moment dans les réglages de l\'App Store. Le prix affiché vient d\'Apple, dans votre devise.'**
+  String get couplePremiumLegal;
+
+  /// Confirmation flottante après un achat réussi de l'abonnement couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL Couple est actif pour vous deux.'**
+  String get couplePremiumWelcome;
+
+  /// Titre de la page d'abonnement quand le couple est déjà abonné.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL Couple est actif'**
+  String get couplePremiumActiveTitle;
+
+  /// Qui paie l'abonnement couple : le membre lui-même.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payé par vous'**
+  String get couplePremiumPaidByMe;
+
+  /// Qui paie l'abonnement couple : le partenaire. {partner} = prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Payé par {partner}'**
+  String couplePremiumPaidByPartner(String partner);
+
+  /// Date de renouvellement de l'abonnement couple. {date} = date en toutes lettres, déjà dans la langue du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvelé le {date}'**
+  String couplePremiumRenews(String date);
+
+  /// Bouton qui ouvre la gestion de l'abonnement dans l'App Store (visible seulement pour le membre qui paie).
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer l\'abonnement'**
+  String get couplePremiumManage;
+
+  /// Message d'erreur flottant quand la gestion de l'abonnement ne s'ouvre pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir les réglages de l\'App Store.'**
+  String get couplePremiumManageFailed;
+
+  /// Message d'erreur flottant quand un lien (conditions, confidentialité) ne s'ouvre pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir ce lien.'**
+  String get couplePremiumLinkFailed;
+
+  /// Titre de la page de la question du jour du couple (barre du haut) et début de l'étiquette en capitales au-dessus de la question.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question du jour'**
+  String get coupleQuestionTitle;
+
+  /// Étiquette en capitales au-dessus de la question du jour. {day} est le numéro du jour du couple (nombre de jours ensemble). Le texte sera mis en capitales par l'application.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question du jour · {day}'**
+  String coupleQuestionEyebrow(int day);
+
+  /// Titre de l'état vide de la question du jour : le serveur n'en propose pas encore (fonction pas encore déployée) ou le couple n'est pas formé.
+  ///
+  /// In fr, this message translates to:
+  /// **'La question du jour arrive bientôt'**
+  String get coupleQuestionEmptyTitle;
+
+  /// Phrase sous le titre de l'état vide de la question du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque jour, une question à se poser à deux. Revenez un peu plus tard.'**
+  String get coupleQuestionEmptyLine;
+
+  /// Nom affiché pour le partenaire quand son prénom est inconnu, en début de phrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre partenaire'**
+  String get coupleQuestionPartnerFallback;
+
+  /// Bloc verrouillé de la question du jour, quand on sait que le partenaire a déjà répondu mais pas encore soi. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a répondu'**
+  String coupleQuestionPartnerAnsweredTitle(String name);
+
+  /// Phrase du bloc verrouillé : la réponse du partenaire n'est lisible qu'après avoir répondu soi-même.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondez à votre tour pour lire sa réponse.'**
+  String get coupleQuestionPartnerAnsweredLine;
+
+  /// Bloc verrouillé de la question du jour, quand on sait que le partenaire n'a pas encore répondu. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n\'a pas encore répondu'**
+  String coupleQuestionPartnerPendingTitle(String name);
+
+  /// Phrase du bloc verrouillé : on lit la réponse de l'autre quand chacun a répondu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous lirez sa réponse quand vous aurez chacun répondu.'**
+  String get coupleQuestionPartnerPendingLine;
+
+  /// Bloc verrouillé de la question du jour quand on ignore si le partenaire a répondu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sa réponse est masquée'**
+  String get coupleQuestionHiddenTitle;
+
+  /// Phrase du bloc verrouillé : la réponse du partenaire s'affiche après la sienne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle s\'affichera dès que vous aurez répondu.'**
+  String get coupleQuestionHiddenLine;
+
+  /// Étiquette du champ de réponse, et titre de la carte qui montre sa propre réponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre réponse'**
+  String get coupleQuestionYourAnswer;
+
+  /// Texte indicatif dans le champ de réponse de la question du jour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrivez ce qui vous vient…'**
+  String get coupleQuestionHint;
+
+  /// Compteur discret sous le champ de réponse, affiché quand on approche de la limite. {count} caractères écrits sur {max}.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} / {max}'**
+  String coupleQuestionCounter(int count, int max);
+
+  /// Bouton qui envoie la réponse à la question du jour. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer à {name}'**
+  String coupleQuestionSendTo(String name);
+
+  /// Bouton qui envoie la réponse à la question du jour quand le prénom du partenaire est inconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get coupleQuestionSend;
+
+  /// Description accessible du bouton d'envoi pendant l'envoi de la réponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoi en cours'**
+  String get coupleQuestionSending;
+
+  /// Message d'erreur quand la réponse à la question du jour n'a pas pu être envoyée : le texte reste dans le champ.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre réponse n\'est pas partie. Elle reste dans le champ, vous pouvez réessayer.'**
+  String get coupleQuestionSendFailed;
+
+  /// Titre de la carte qui montre la réponse du partenaire, une fois qu'on a répondu. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse de {name}'**
+  String coupleQuestionPartnerAnswerTitle(String name);
+
+  /// Carte de la question du jour quand on a répondu mais pas le partenaire. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n\'a pas encore répondu. Revenez lire sa réponse plus tard.'**
+  String coupleQuestionPartnerWaiting(String name);
+
+  /// Lien en bas de la question du jour vers la liste des réponses des jours précédents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos réponses précédentes'**
+  String get coupleQuestionHistory;
 
   /// Info-bulle du bouton rond en haut de « Notre espace » qui ouvre les réglages du mode couple.
   ///
@@ -1699,12 +2755,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre Moitié'**
   String get coupleSpacePartnerFallback;
-
-  /// En-tête du couple : depuis combien de jours le couple est ensemble. {count} est toujours au moins 1.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ensemble depuis {count, plural, one{{count} jour} other{{count} jours}}'**
-  String coupleSpaceTogetherSince(int count);
 
   /// En-tête du couple quand la date de début est inconnue ou aujourd'hui.
   ///
@@ -2120,24 +3170,6 @@ abstract class AppLocalizations {
   /// **'Réponse inattendue du serveur.'**
   String get coupleSpaceFailUnexpected;
 
-  /// Grand titre de l'écran du calendrier juif.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calendrier'**
-  String get coupleSpaceCalendarTitle;
-
-  /// Titre de la liste d'idées d'activités à deux pour le Shabbat de la semaine.
-  ///
-  /// In fr, this message translates to:
-  /// **'Idées pour ce Shabbat'**
-  String get coupleSpaceCalendarShabbatIdeas;
-
-  /// Titre de la liste des prochaines fêtes juives.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prochaines fêtes'**
-  String get coupleSpaceCalendarUpcoming;
-
   /// Info-bulle du bouton rond qui affiche le mois précédent du calendrier.
   ///
   /// In fr, this message translates to:
@@ -2150,39 +3182,371 @@ abstract class AppLocalizations {
   /// **'Mois suivant'**
   String get coupleSpaceCalendarNextMonth;
 
-  /// Étiquette en capitales sur la carte d'une fête qui a lieu en ce moment. Très court, une ligne.
+  /// Petit titre en capitales au-dessus du bonjour de l'écran Aujourd'hui du couple. {days} = nombre de jours ensemble.
   ///
   /// In fr, this message translates to:
-  /// **'En cours'**
-  String get coupleSpaceCalendarOngoing;
+  /// **'MAZL Couple · jour {days}'**
+  String coupleTodayEyebrow(int days);
 
-  /// Étiquette en capitales sur la carte d'une fête dans {count} jours au plus (« J-3 » = dans 3 jours). Très court, une ligne.
+  /// Gros titre de l'écran Aujourd'hui, sur deux lignes (le retour à la ligne est voulu). {me} = prénom du membre, {partner} = prénom du partenaire.
   ///
   /// In fr, this message translates to:
-  /// **'J-{count}'**
-  String coupleSpaceCalendarCountdown(int count);
+  /// **'Bonjour {me}\net {partner}.'**
+  String coupleTodayTitle(String me, String partner);
 
-  /// Petit titre au-dessus des idées d'activités à deux, sur la carte d'une fête.
+  /// Gros titre de l'écran Aujourd'hui quand le prénom du membre est inconnu, sur deux lignes. {partner} = prénom du partenaire.
   ///
   /// In fr, this message translates to:
-  /// **'Idées en couple'**
-  String get coupleSpaceCalendarIdeas;
+  /// **'Bonjour,\nvous et {partner}.'**
+  String coupleTodayTitleNoName(String partner);
 
-  /// Dates d'une fête sur plusieurs jours dans le même mois : du {startDay} au {endDay}, {month} est le mois abrégé (ex. « avr. »). Garder l'ordre habituel de la langue.
+  /// Petit titre en capitales de la carte de la question du jour.
   ///
   /// In fr, this message translates to:
-  /// **'{startDay} – {endDay} {month}'**
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  );
+  /// **'Question du jour'**
+  String get coupleTodayQuestionLabel;
 
-  /// Dates d'une fête sur plusieurs jours à cheval sur deux mois : {start} et {end} sont déjà des dates courtes (ex. « 28 mars », « 4 avr. »).
+  /// Ligne d'état de la question du jour : le partenaire a répondu, pas encore le membre. {partner} = prénom du partenaire.
   ///
   /// In fr, this message translates to:
-  /// **'{start} – {end}'**
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end);
+  /// **'{partner} a répondu · à vous'**
+  String coupleTodayQuestionPartnerAnswered(String partner);
+
+  /// Ligne d'état de la question du jour : le membre a répondu, pas le partenaire. {partner} = prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez répondu · en attente de {partner}'**
+  String coupleTodayQuestionMineAnswered(String partner);
+
+  /// Ligne d'état de la question du jour quand personne n'a encore répondu. {partner} = prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de {partner}'**
+  String coupleTodayQuestionWaiting(String partner);
+
+  /// Ligne d'état de la question du jour quand les deux membres ont répondu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez répondu tous les deux'**
+  String get coupleTodayQuestionBoth;
+
+  /// Bouton de la carte de la question du jour : aller répondre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondre'**
+  String get coupleTodayAnswer;
+
+  /// Bouton de la carte de la question du jour quand le membre a déjà répondu : voir les réponses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get coupleTodayView;
+
+  /// Titre de la carte Shabbat de l'écran Aujourd'hui, affichée le vendredi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat ensemble ce soir'**
+  String get coupleTodayShabbatTonight;
+
+  /// Titre de la carte Shabbat de l'écran Aujourd'hui, affichée les autres jours de la semaine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Shabbat ensemble vendredi'**
+  String get coupleTodayShabbatFriday;
+
+  /// Heure d'allumage des bougies. {hour} = heure sur 24 h, {minute} = minutes sur deux chiffres. En français « 17 h 21 », ailleurs « 17:21 ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{hour} h {minute}'**
+  String coupleTodayClock(String hour, String minute);
+
+  /// Sous-titre de la carte Shabbat. {time} = heure d'allumage des bougies, déjà écrite dans la langue du membre ; la ville est fixée à Paris.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allumage des bougies à {time} · Paris'**
+  String coupleTodayShabbatCandles(String time);
+
+  /// Info-bulle du bouton rond (chevron) de la carte Shabbat, qui mène à l'agenda du couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir l\'agenda'**
+  String get coupleTodayShabbatAgenda;
+
+  /// Petit titre en capitales de la liste des prochaines échéances du couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get coupleTodayUpcomingLabel;
+
+  /// Phrase affichée quand la liste « À venir » est vide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de prévu dans les 45 prochains jours. Ajoutez une date ou un rituel dans l\'agenda.'**
+  String get coupleTodayUpcomingEmpty;
+
+  /// Sous-titre d'une échéance qui a lieu aujourd'hui (quand le serveur n'envoie pas de sous-titre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get coupleTodayDaysToday;
+
+  /// Sous-titre d'une échéance qui a lieu demain (quand le serveur n'envoie pas de sous-titre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Demain'**
+  String get coupleTodayDaysTomorrow;
+
+  /// Sous-titre d'une échéance dans plusieurs jours (quand le serveur n'envoie pas de sous-titre). {count} = nombre de jours, au moins 2.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{Dans {count} jour} other{Dans {count} jours}}'**
+  String coupleTodayDaysAhead(int count);
+
+  /// Petit titre en capitales de la carte d'idée de sortie, quand elle a une date. {weekday} = jour de la semaine en toutes lettres, déjà dans la langue du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée pour {weekday}'**
+  String coupleTodayIdeaFor(String weekday);
+
+  /// Petit titre en capitales de la carte d'idée de sortie, quand elle n'a pas de date.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une idée pour vous'**
+  String get coupleTodayIdeaGeneric;
+
+  /// Question au-dessus des quatre pastilles d'humeur du couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment ça va entre vous ?'**
+  String get coupleTodayMoodQuestion;
+
+  /// Pastille d'humeur : tout va très bien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très bien'**
+  String get coupleTodayMoodGreat;
+
+  /// Pastille d'humeur : ça va bien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien'**
+  String get coupleTodayMoodGood;
+
+  /// Pastille d'humeur : moyen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bof'**
+  String get coupleTodayMoodMeh;
+
+  /// Pastille d'humeur : le membre veut parler avec son partenaire (le partenaire est prévenu par une notification douce, sans texte).
+  ///
+  /// In fr, this message translates to:
+  /// **'On doit parler'**
+  String get coupleTodayMoodTalk;
+
+  /// Phrase douce affichée après « On doit parler » : le partenaire est prévenu sans qu'aucun texte libre ne lui soit envoyé. {partner} = prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous avons prévenu {partner}, sans un mot.'**
+  String coupleTodayMoodTalkNotice(String partner);
+
+  /// Message d'erreur flottant quand l'humeur du couple n'a pas pu être enregistrée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer votre humeur. Réessayez.'**
+  String get coupleTodayMoodFailed;
+
+  /// Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bilan de {month} vous attend'**
+  String coupleTodayCheckinDue(String month);
+
+  /// Ligne discrète en bas de l'écran Aujourd'hui, pour un couple non abonné : mène à la page de l'abonnement MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir MAZL Couple'**
+  String get coupleTodayPremiumLine;
+
+  /// En-tête du couple (« Nous deux ») : le numéro du jour depuis la formation du couple. {count} est toujours au moins 1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour {count}'**
+  String coupleUsDay(int count);
+
+  /// Étiquette qui désigne le membre lui-même devant sa propre réponse (question du jour, historique des réponses).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous'**
+  String get coupleUsYouLabel;
+
+  /// Petit titre (capitales en mono) de la carte de la question du jour, sur « Nous deux ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Question du jour'**
+  String get coupleUsQuestionLabel;
+
+  /// Carte de la question du jour : le partenaire a déjà répondu, c'est au tour du membre. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a répondu · à vous'**
+  String coupleUsQuestionPartnerAnswered(String name);
+
+  /// Carte de la question du jour : le membre n'a pas encore répondu (on ne sait pas si l'autre l'a fait).
+  ///
+  /// In fr, this message translates to:
+  /// **'À vous de répondre'**
+  String get coupleUsQuestionYourTurn;
+
+  /// Carte de la question du jour : les deux ont répondu, les deux réponses sont visibles dans la carte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez répondu'**
+  String get coupleUsQuestionYouAnswered;
+
+  /// Carte de la question du jour ou du bilan : le membre a fait sa part, on attend l'autre. {name} est le prénom du partenaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de {name}'**
+  String coupleUsWaitingFor(String name);
+
+  /// Bouton de la carte de la question du jour quand le membre n'a pas répondu. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondre'**
+  String get coupleUsAnswerButton;
+
+  /// Bouton de la carte de la question du jour quand le membre a déjà répondu : ouvre la question. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get coupleUsSeeButton;
+
+  /// Ligne sous la carte de la question du jour qui ouvre l'historique des réponses du couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l\'historique des réponses'**
+  String get coupleUsHistoryLink;
+
+  /// Petit titre (capitales en mono) de la carte du bilan mensuel du couple, sur « Nous deux ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan'**
+  String get coupleUsCheckinLabel;
+
+  /// Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bilan de {month} vous attend'**
+  String coupleUsCheckinDue(String month);
+
+  /// Bouton de la carte du bilan : ouvre le bilan du mois à remplir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire le bilan'**
+  String get coupleUsCheckinStart;
+
+  /// Carte du bilan, quand les deux ont répondu : sur combien des 3 thèmes (parler, temps, proximité) les notes sont proches. {count} va de 0 à 3. Pluriel : « point » / « points ».
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{En phase sur {count} point sur 3} other{En phase sur {count} points sur 3}}'**
+  String coupleUsCheckinAligned(int count);
+
+  /// Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se parler). Ne donne jamais la note de l'autre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le thème à soigner ce mois-ci : se parler.'**
+  String get coupleUsCheckinLowestTalk;
+
+  /// Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (le temps à deux).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le thème à soigner ce mois-ci : le temps à deux.'**
+  String get coupleUsCheckinLowestTime;
+
+  /// Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se sentir proches).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le thème à soigner ce mois-ci : se sentir proches.'**
+  String get coupleUsCheckinLowestClose;
+
+  /// Titre de section (capitales en mono) des réglages du couple : statut de la relation et abonnement MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages du couple'**
+  String get coupleUsSettingsLabel;
+
+  /// Pilule du statut de la relation : le couple est ensemble. Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'En couple'**
+  String get coupleUsStatusInRelationship;
+
+  /// Pilule du statut de la relation : fiancés (pluriel, le couple). Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiancés'**
+  String get coupleUsStatusEngaged;
+
+  /// Pilule du statut de la relation : mariés (pluriel, le couple). Court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mariés'**
+  String get coupleUsStatusMarried;
+
+  /// Titre de la ligne d'abonnement dans les réglages du couple. Nom du produit, à ne pas traduire.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAZL Couple'**
+  String get coupleUsPremiumTitle;
+
+  /// Ligne MAZL Couple, abonnement actif payé par le membre lui-même.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif · payé par vous'**
+  String get coupleUsPremiumActiveByYou;
+
+  /// Ligne MAZL Couple, abonnement actif payé par le partenaire. {name} est son prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif · payé par {name}'**
+  String coupleUsPremiumActiveByPartner(String name);
+
+  /// Ligne MAZL Couple, abonnement actif sans payeur connu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actif'**
+  String get coupleUsPremiumActive;
+
+  /// Ligne MAZL Couple quand le couple n'est pas abonné : invite à découvrir l'offre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir MAZL Couple'**
+  String get coupleUsPremiumDiscover;
+
+  /// Titre de la page d'historique des questions du jour (page empilée).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos réponses'**
+  String get coupleUsHistoryTitle;
+
+  /// Historique des réponses vide : titre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de réponses'**
+  String get coupleUsHistoryEmptyTitle;
+
+  /// Historique des réponses vide : une phrase qui dit quoi faire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondez à la question du jour : vos réponses, et celles de l\'autre, s\'afficheront ici.'**
+  String get coupleUsHistoryEmptyLine;
+
+  /// Historique : le partenaire n'a pas répondu à cette question. {name} est son prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n\'a pas répondu'**
+  String coupleUsHistoryNoPartnerAnswer(String name);
 
   /// Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères.
   ///
@@ -2604,35 +3968,11 @@ abstract class AppLocalizations {
   /// **'Indiquez ce que vous recherchez'**
   String get genreLookingForRequired;
 
-  /// Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce Shabbat'**
-  String get jewishCalendarShabbatTitle;
-
-  /// Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Parashat {name}'**
-  String jewishCalendarParashat(String name);
-
   /// Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.
   ///
   /// In fr, this message translates to:
   /// **'{first} {second}'**
   String jewishCalendarParshaPair(String first, String second);
-
-  /// Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Allumage'**
-  String get jewishCalendarCandleLighting;
-
-  /// Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Havdala'**
-  String get jewishCalendarHavdalah;
 
   /// Petite étiquette (capitales) d'une idée d'activité du Shabbat ou d'une fête : il s'agit de préparer quelque chose.
   ///

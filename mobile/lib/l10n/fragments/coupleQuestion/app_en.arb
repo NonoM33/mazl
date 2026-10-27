@@ -1,0 +1,23 @@
+{
+  "coupleQuestionTitle": "Question of the day",
+  "coupleQuestionEyebrow": "Question of the day · {day}",
+  "coupleQuestionEmptyTitle": "The question of the day is coming soon",
+  "coupleQuestionEmptyLine": "Every day, a question to ask each other. Come back a little later.",
+  "coupleQuestionPartnerFallback": "Your partner",
+  "coupleQuestionPartnerAnsweredTitle": "{name} has answered",
+  "coupleQuestionPartnerAnsweredLine": "Answer in turn to read the answer.",
+  "coupleQuestionPartnerPendingTitle": "{name} hasn't answered yet",
+  "coupleQuestionPartnerPendingLine": "You will read the answer once you have both answered.",
+  "coupleQuestionHiddenTitle": "The answer is hidden",
+  "coupleQuestionHiddenLine": "It will show as soon as you have answered.",
+  "coupleQuestionYourAnswer": "Your answer",
+  "coupleQuestionHint": "Write whatever comes to mind…",
+  "coupleQuestionCounter": "{count} / {max}",
+  "coupleQuestionSendTo": "Send to {name}",
+  "coupleQuestionSend": "Send",
+  "coupleQuestionSending": "Sending",
+  "coupleQuestionSendFailed": "Your answer wasn't sent. It stays in the field, so you can try again.",
+  "coupleQuestionPartnerAnswerTitle": "{name}'s answer",
+  "coupleQuestionPartnerWaiting": "{name} hasn't answered yet. Come back later to read the answer.",
+  "coupleQuestionHistory": "Your previous answers"
+}

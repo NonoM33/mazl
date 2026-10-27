@@ -1,13 +1,7 @@
 {
-  "coupleSpaceTabActivities": "Активности",
-  "coupleSpaceTabCalendar": "Календарь",
-  "coupleSpaceTabEvents": "Мероприятия",
-  "coupleSpaceTabSpace": "Наше место",
-  "coupleSpaceTitle": "Наше место",
   "coupleSpaceSettingsTooltip": "Настройки",
   "coupleSpaceYou": "Вы",
   "coupleSpacePartnerFallback": "Ваша половинка",
-  "coupleSpaceTogetherSince": "Вместе уже {count, plural, one{{count} день} few{{count} дня} many{{count} дней} other{{count} дня}}",
   "coupleSpaceStoryBegins": "Ваша история начинается",
   "coupleSpaceStatSavedActivities": "Сохранённые\nзанятия",
   "coupleSpaceStatUpcomingEvents": "Ближайшие\nсобытия",
@@ -77,14 +71,6 @@
   "coupleSpaceFailEventFull": "Все места на мероприятие заняты.",
   "coupleSpaceFailServer": "Сервер не смог ответить. Попробуйте ещё раз.",
   "coupleSpaceFailUnexpected": "Неожиданный ответ сервера.",
-  "coupleSpaceCalendarTitle": "Календарь",
-  "coupleSpaceCalendarShabbatIdeas": "Идеи на этот Шаббат",
-  "coupleSpaceCalendarUpcoming": "Ближайшие праздники",
   "coupleSpaceCalendarPrevMonth": "Предыдущий месяц",
-  "coupleSpaceCalendarNextMonth": "Следующий месяц",
-  "coupleSpaceCalendarOngoing": "Идёт сейчас",
-  "coupleSpaceCalendarCountdown": "Через {count} дн.",
-  "coupleSpaceCalendarIdeas": "Идеи для пары",
-  "coupleSpaceCalendarRangeSameMonth": "{startDay} – {endDay} {month}",
-  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}"
+  "coupleSpaceCalendarNextMonth": "Следующий месяц"
 }

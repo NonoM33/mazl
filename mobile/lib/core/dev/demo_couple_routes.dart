@@ -1,3 +1,4 @@
+import 'demo_couple_daily_routes.dart';
 import 'demo_couple_state.dart';
 import 'demo_fixtures.dart';
 import 'demo_routes.dart';
@@ -44,9 +45,10 @@ abstract final class DemoCoupleRoutes {
   static int _int(DemoRequest r, String key, int fallback) =>
       int.tryParse(r.query[key] ?? '') ?? fallback;
 
-  static Map<String, dynamic> _couplePayload() => {
+  static Map<String, dynamic> _couplePayload(DateTime now) => {
     'couple': _state.couple,
     'milestones': <Object>[],
+    if (_state.inCouple) 'premium': DemoCoupleDailyRoutes.premiumPayload(now),
   };
 
   // --- Demandes et couple ---
@@ -146,14 +148,14 @@ abstract final class DemoCoupleRoutes {
   }
 
   static final List<DemoRoute> routes = [
+    // L'espace quotidien d'abord : ses chemins (`/api/couple/today`…) ne
+    // doivent pas être pris pour `/api/couple/(\\d+)`.
+    ...DemoCoupleDailyRoutes.routes,
     DemoRoute('POST', '/api/couple', (r, m) {
       _tick();
       return _fail(403, 'couple_request_required');
     }),
-    DemoRoute('GET', '/api/couple', (r, m) {
-      _tick();
-      return _ok(_couplePayload());
-    }),
+    DemoRoute('GET', '/api/couple', (r, m) => _ok(_couplePayload(_tick()))),
     DemoRoute('POST', '/api/couple/request', _open(_sendRequest)),
     DemoRoute('GET', '/api/couple/requests', (r, m) {
       _tick();

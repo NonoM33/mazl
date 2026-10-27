@@ -727,6 +727,653 @@
       }
     }
   },
+  "coupleAgendaTitle": "Agenda à deux",
+  "@coupleAgendaTitle": {
+    "description": "Gros titre de l'onglet Agenda de l'espace couple, sous le mois."
+  },
+  "coupleAgendaLegendDate": "Date importante",
+  "@coupleAgendaLegendDate": {
+    "description": "Légende de la grille du mois : point plein = date importante du couple. Court, une ligne."
+  },
+  "coupleAgendaLegendHoliday": "Fête",
+  "@coupleAgendaLegendHoliday": {
+    "description": "Légende de la grille du mois : point en anneau = fête juive. Court, une ligne."
+  },
+  "coupleAgendaLegendRitual": "Rituel",
+  "@coupleAgendaLegendRitual": {
+    "description": "Légende de la grille du mois : point d'encre = jour d'un rituel activé. Court, une ligne."
+  },
+  "coupleAgendaAddMoment": "Ajouter un moment",
+  "@coupleAgendaAddMoment": {
+    "description": "Bouton principal de l'agenda du couple : ajoute une date importante (anniversaire, rencontre...)."
+  },
+  "coupleAgendaNothing": "Rien ce jour-là",
+  "@coupleAgendaNothing": {
+    "description": "Sous la grille : le jour touché ne contient rien (ni date, ni fête, ni rituel)."
+  },
+  "coupleAgendaRitualsLabel": "Vos rituels",
+  "@coupleAgendaRitualsLabel": {
+    "description": "Titre de section (en capitales) : la liste des rituels du couple avec leur interrupteur."
+  },
+  "coupleAgendaDatesLabel": "Dates importantes",
+  "@coupleAgendaDatesLabel": {
+    "description": "Titre de section (en capitales) : les dates importantes du couple (anniversaires...)."
+  },
+  "coupleAgendaRitualsEmptyTitle": "Pas encore de rituel",
+  "@coupleAgendaRitualsEmptyTitle": {
+    "description": "Aucun rituel n'existe encore pour ce couple."
+  },
+  "coupleAgendaRitualsEmptyLine": "Un rendez-vous régulier à deux, comme Shabbat ou une soirée sans écran.",
+  "@coupleAgendaRitualsEmptyLine": {
+    "description": "Explique ce qu'est un rituel de couple, sous « Pas encore de rituel »."
+  },
+  "coupleAgendaAddRitual": "Ajouter un rituel",
+  "@coupleAgendaAddRitual": {
+    "description": "Bouton : ouvre le formulaire de création d'un rituel."
+  },
+  "coupleAgendaRitualsFailed": "Rituels indisponibles. {reason}",
+  "@coupleAgendaRitualsFailed": {
+    "description": "Les rituels n'ont pas pu être chargés (les dates, elles, ont pu l'être). {reason} est la cause, déjà rédigée.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaDatesFailed": "Dates indisponibles. {reason}",
+  "@coupleAgendaDatesFailed": {
+    "description": "Les dates importantes n'ont pas pu être chargées (les rituels, eux, ont pu l'être). {reason} est la cause, déjà rédigée.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaWeekly": "{day, select, sun{Chaque dimanche} mon{Chaque lundi} tue{Chaque mardi} wed{Chaque mercredi} thu{Chaque jeudi} fri{Chaque vendredi} sat{Chaque samedi} other{Chaque semaine}}",
+  "@coupleAgendaWeekly": {
+    "description": "Début de la ligne d'un rituel hebdomadaire. {day} vaut sun, mon, tue, wed, thu, fri ou sat. Écrire l'accord de chaque jour (russe : un/une).",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaNoDay": "Sans jour fixe",
+  "@coupleAgendaNoDay": {
+    "description": "Début de la ligne d'un rituel sans jour de la semaine fixé."
+  },
+  "coupleAgendaAtTime": "{when} à {time}",
+  "@coupleAgendaAtTime": {
+    "description": "Ajoute l'heure à la ligne d'un rituel : {when} = « Chaque mardi », {time} = l'heure déjà mise en forme (20:00).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRemindHours": "rappel {count, plural, =1{une heure} other{{count} heures}} avant",
+  "@coupleAgendaRemindHours": {
+    "description": "Rappel du rituel, en heures entières (le rappel est un push réservé à MAZL Couple).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindMinutes": "rappel {count, plural, one{{count} minute} other{{count} minutes}} avant",
+  "@coupleAgendaRemindMinutes": {
+    "description": "Rappel du rituel, en minutes (moins d'une heure ou pas un nombre entier d'heures).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindHoursCandles": "rappel {count, plural, =1{une heure} other{{count} heures}} avant les bougies",
+  "@coupleAgendaRemindHoursCandles": {
+    "description": "Rappel de Shabbat, en heures entières, avant l'allumage des bougies.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaRemindMinutesCandles": "rappel {count, plural, one{{count} minute} other{{count} minutes}} avant les bougies",
+  "@coupleAgendaRemindMinutesCandles": {
+    "description": "Rappel de Shabbat, en minutes, avant l'allumage des bougies.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaNoReminder": "sans rappel",
+  "@coupleAgendaNoReminder": {
+    "description": "Fin de la ligne d'un rituel dont le rappel est à zéro minute."
+  },
+  "coupleAgendaRitualMeta": "{when} · {reminder}",
+  "@coupleAgendaRitualMeta": {
+    "description": "Ligne de précision d'un rituel : {when} (Chaque vendredi) puis {reminder} (rappel une heure avant les bougies).",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "reminder": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRitualSemantics": "{title}, {meta}",
+  "@coupleAgendaRitualSemantics": {
+    "description": "Lecteur d'écran : nom d'un rituel suivi de sa ligne de précision, sur l'interrupteur.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaToggleFailed": "Modification impossible. {reason}",
+  "@coupleAgendaToggleFailed": {
+    "description": "Message flottant : l'interrupteur d'un rituel n'a pas pu être changé (il revient à son état). {reason} est la cause.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaRemindersPremium": "Les rappels font partie de MAZL Couple",
+  "@coupleAgendaRemindersPremium": {
+    "description": "Ligne discrète sous les rituels : les rappels (push) sont réservés à l'abonnement MAZL Couple ; touchée, elle ouvre la page d'abonnement."
+  },
+  "coupleAgendaDatesEmptyTitle": "Aucune date importante",
+  "@coupleAgendaDatesEmptyTitle": {
+    "description": "Aucune date importante n'est enregistrée pour ce couple."
+  },
+  "coupleAgendaDatesEmptyLine": "Ajoutez un anniversaire ou une date qui compte avec « Ajouter un moment ».",
+  "@coupleAgendaDatesEmptyLine": {
+    "description": "Invite à ajouter une date, sous « Aucune date importante ». Cite le bouton « Ajouter un moment »."
+  },
+  "coupleAgendaDateWhen": "{date} · {relative}",
+  "@coupleAgendaDateWhen": {
+    "description": "Ligne sous le titre d'une date importante : {date} (9 novembre) puis {relative} (dans 12 jours).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaDaysUntil": "{count, plural, =0{aujourd'hui} =1{demain} other{dans {count} jours}}",
+  "@coupleAgendaDaysUntil": {
+    "description": "Délai avant la prochaine occurrence d'une date importante.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaDateReminder": "Rappel {count, plural, one{{count} jour} other{{count} jours}} avant",
+  "@coupleAgendaDateReminder": {
+    "description": "Rappel d'une date importante, en jours avant la date (push réservé à MAZL Couple).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleAgendaDateTitle": "{title} · {date}",
+  "@coupleAgendaDateTitle": {
+    "description": "Titre de la carte de la date la plus proche : {title} (Un an de votre rencontre) puis {date} (9 novembre).",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleAgendaConciergeLine": "La conciergerie peut vous aider à préparer ce moment.",
+  "@coupleAgendaConciergeLine": {
+    "description": "Phrase de la carte de la date la plus proche, avant le bouton vers la conciergerie."
+  },
+  "coupleAgendaPrepare": "Préparer avec la conciergerie",
+  "@coupleAgendaPrepare": {
+    "description": "Bouton contour de la carte de la date la plus proche : ouvre la conciergerie."
+  },
+  "coupleAgendaAddRitualTitle": "Nouveau rituel",
+  "@coupleAgendaAddRitualTitle": {
+    "description": "Titre du formulaire de création d'un rituel."
+  },
+  "coupleAgendaRitualFieldTitle": "Nom du rituel",
+  "@coupleAgendaRitualFieldTitle": {
+    "description": "Champ du formulaire d'un rituel : son nom."
+  },
+  "coupleAgendaRitualFieldDay": "Jour de la semaine",
+  "@coupleAgendaRitualFieldDay": {
+    "description": "Intitulé du choix du jour de la semaine, dans le formulaire d'un rituel."
+  },
+  "coupleAgendaRitualFieldTime": "Heure (facultatif)",
+  "@coupleAgendaRitualFieldTime": {
+    "description": "Intitulé du choix facultatif de l'heure, dans le formulaire d'un rituel."
+  },
+  "coupleAgendaRitualPickTime": "Choisir une heure",
+  "@coupleAgendaRitualPickTime": {
+    "description": "Bouton du formulaire d'un rituel : choisir une heure (aucune heure choisie)."
+  },
+  "coupleAgendaRitualClearTime": "Retirer l'heure",
+  "@coupleAgendaRitualClearTime": {
+    "description": "Bouton du formulaire d'un rituel : retirer l'heure choisie."
+  },
+  "coupleAgendaDaySemantics": "{date}, {marks}",
+  "@coupleAgendaDaySemantics": {
+    "description": "Lecteur d'écran : un jour de la grille. {date} (6 novembre) puis {marks} : ce qu'il contient, déjà rédigé (Rituel).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "marks": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleCheckinTitle": "Bilan du couple",
+  "@coupleCheckinTitle": {
+    "description": "Titre de la page du bilan mensuel du couple (barre du haut)."
+  },
+  "coupleCheckinEyebrow": "Bilan · {month}",
+  "@coupleCheckinEyebrow": {
+    "description": "Étiquette en capitales au-dessus du titre du bilan. {month} est le nom du mois en toutes lettres, dans la langue (ex. novembre). Le texte sera mis en capitales par l'application.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleCheckinHeading": "Comment ça va entre vous ?",
+  "@coupleCheckinHeading": {
+    "description": "Gros titre de la page du bilan mensuel."
+  },
+  "coupleCheckinIntro": "Deux minutes, chacun de son côté. Vos réponses restent entre vous deux.",
+  "@coupleCheckinIntro": {
+    "description": "Explication sous le titre du bilan : chacun répond seul, les réponses ne sont pas montrées à l'autre."
+  },
+  "coupleCheckinTalk": "On se parle vraiment",
+  "@coupleCheckinTalk": {
+    "description": "Première question du bilan, notée de 1 à 5 : la qualité de la conversation."
+  },
+  "coupleCheckinTime": "On passe assez de temps à deux",
+  "@coupleCheckinTime": {
+    "description": "Deuxième question du bilan, notée de 1 à 5 : le temps passé à deux."
+  },
+  "coupleCheckinClose": "On se sent proches",
+  "@coupleCheckinClose": {
+    "description": "Troisième question du bilan, notée de 1 à 5 : la proximité ressentie."
+  },
+  "coupleCheckinScaleLow": "Pas du tout",
+  "@coupleCheckinScaleLow": {
+    "description": "Extrémité basse de l'échelle de 1 à 5 d'une question du bilan."
+  },
+  "coupleCheckinScaleHigh": "Tout à fait",
+  "@coupleCheckinScaleHigh": {
+    "description": "Extrémité haute de l'échelle de 1 à 5 d'une question du bilan."
+  },
+  "coupleCheckinScoreLabel": "{question} : {n} sur 5",
+  "@coupleCheckinScoreLabel": {
+    "description": "Description accessible d'une note de l'échelle du bilan. {question} est le texte de la question, {n} la note de 1 à 5.",
+    "placeholders": {
+      "question": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleCheckinSend": "Envoyer",
+  "@coupleCheckinSend": {
+    "description": "Bouton qui envoie les trois notes du bilan."
+  },
+  "coupleCheckinSendFailed": "Votre bilan n'est pas parti. Vos notes sont gardées, vous pouvez réessayer.",
+  "@coupleCheckinSendFailed": {
+    "description": "Message d'erreur quand le bilan n'a pas pu être envoyé : les notes restent choisies."
+  },
+  "coupleCheckinEmptyTitle": "Le bilan arrive bientôt",
+  "@coupleCheckinEmptyTitle": {
+    "description": "Titre de l'état vide du bilan : le serveur ne propose pas encore de bilan (fonction pas encore déployée)."
+  },
+  "coupleCheckinEmptyLine": "Une fois par mois, deux minutes pour prendre des nouvelles de votre couple.",
+  "@coupleCheckinEmptyLine": {
+    "description": "Phrase sous le titre de l'état vide du bilan."
+  },
+  "coupleCheckinDoneHeading": "Merci, c'est envoyé",
+  "@coupleCheckinDoneHeading": {
+    "description": "Gros titre de la page du bilan une fois les trois notes envoyées."
+  },
+  "coupleCheckinWaiting": "En attente de {name} : vous verrez la synthèse ensemble.",
+  "@coupleCheckinWaiting": {
+    "description": "Phrase du bilan quand on a répondu mais pas le partenaire. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleCheckinAligned": "En phase sur {count, plural, one{{count} point} other{{count} points}} sur 3",
+  "@coupleCheckinAligned": {
+    "description": "Synthèse du bilan : sur combien des trois thèmes les deux notes sont proches (écart d'un point au plus). {count} va de 0 à 3.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleCheckinAttentionTalkUp": "Vous vous parlez davantage. Gardez ce rythme, même cinq minutes par jour.",
+  "@coupleCheckinAttentionTalkUp": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTalkDown": "Les échanges ont baissé. Un moment sans téléphone pour vous parler, cette semaine ?",
+  "@coupleCheckinAttentionTalkDown": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTalkSame": "Se parler vraiment reste le point à soigner. Posez-vous ensemble la question du jour.",
+  "@coupleCheckinAttentionTalkSame": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTalkNone": "Se parler vraiment est le point à soigner ce mois-ci. Commencez par la question du jour.",
+  "@coupleCheckinAttentionTalkNone": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la conversation, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTimeUp": "Vous passez plus de temps à deux. Prévoyez dès maintenant la prochaine sortie.",
+  "@coupleCheckinAttentionTimeUp": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTimeDown": "Le temps à deux a baissé. Une soirée sans écran cette semaine ?",
+  "@coupleCheckinAttentionTimeDown": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTimeSame": "Le temps à deux reste à renforcer. Bloquez une soirée dans l'agenda.",
+  "@coupleCheckinAttentionTimeSame": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionTimeNone": "Le temps à deux est le point à soigner. Bloquez une soirée dans l'agenda.",
+  "@coupleCheckinAttentionTimeNone": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = le temps à deux, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionCloseUp": "Vous vous sentez plus proches. Dites-vous ce qui a changé.",
+  "@coupleCheckinAttentionCloseUp": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance en hausse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionCloseDown": "Vous vous sentez moins proches. Prenez un moment pour vous dire ce qui compte pour vous.",
+  "@coupleCheckinAttentionCloseDown": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance en baisse par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionCloseSame": "La proximité reste à cultiver. Un petit geste attentionné aujourd'hui ?",
+  "@coupleCheckinAttentionCloseSame": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance stable par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleCheckinAttentionCloseNone": "La proximité est le point à cultiver. Un petit geste attentionné aujourd'hui ?",
+  "@coupleCheckinAttentionCloseNone": {
+    "description": "Phrase d'attention de la synthèse du bilan : thème le plus bas = la proximité, tendance inconnue par rapport au mois précédent. Bienveillante, brève, sans conseil médical."
+  },
+  "coupleConciergeEyebrow": "Inclus dans MAZL Couple",
+  "@coupleConciergeEyebrow": {
+    "description": "Étiquette en capitales au-dessus du titre de la conciergerie : rappelle que le service est inclus dans l'abonnement MAZL Couple."
+  },
+  "coupleConciergeTitle": "Votre conciergerie",
+  "@coupleConciergeTitle": {
+    "description": "Gros titre de l'écran de la conciergerie du couple."
+  },
+  "coupleConciergeIntro": "Demandez, on s'occupe du reste. L'assistant prépare des idées tout de suite, l'équipe MAZL réserve et confirme.",
+  "@coupleConciergeIntro": {
+    "description": "Phrase sous le titre de la conciergerie : l'assistant automatique propose des idées tout de suite, l'équipe MAZL réserve et confirme."
+  },
+  "coupleConciergeQuickTable": "Réserver une table",
+  "@coupleConciergeQuickTable": {
+    "description": "Demande rapide de la conciergerie : réserver une table au restaurant. Bouton de 56 pt de haut, une à deux lignes."
+  },
+  "coupleConciergeQuickSurprise": "Organiser une surprise",
+  "@coupleConciergeQuickSurprise": {
+    "description": "Demande rapide de la conciergerie : organiser une surprise pour le ou la partenaire."
+  },
+  "coupleConciergeQuickGift": "Trouver un cadeau",
+  "@coupleConciergeQuickGift": {
+    "description": "Demande rapide de la conciergerie : trouver un cadeau."
+  },
+  "coupleConciergeQuickWeekend": "Planifier un week-end",
+  "@coupleConciergeQuickWeekend": {
+    "description": "Demande rapide de la conciergerie : planifier un week-end à deux."
+  },
+  "coupleConciergeStartTable": "Je voudrais réserver une table pour deux",
+  "@coupleConciergeStartTable": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Réserver une table » ; il le complète. Sans point final ni espace final."
+  },
+  "coupleConciergeStartSurprise": "Je voudrais organiser une surprise pour",
+  "@coupleConciergeStartSurprise": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Organiser une surprise » ; il le complète (la suite est le prénom ou l'occasion). Sans espace final."
+  },
+  "coupleConciergeStartGift": "Je cherche un cadeau pour",
+  "@coupleConciergeStartGift": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Trouver un cadeau » ; il le complète. Sans espace final."
+  },
+  "coupleConciergeStartWeekend": "Je voudrais planifier un week-end à",
+  "@coupleConciergeStartWeekend": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Planifier un week-end » ; il le complète (la suite est un lieu). Sans espace final."
+  },
+  "coupleConciergeInProgress": "En cours",
+  "@coupleConciergeInProgress": {
+    "description": "Étiquette en capitales de la liste des demandes de conciergerie encore ouvertes."
+  },
+  "coupleConciergeClosedSection": "Terminées",
+  "@coupleConciergeClosedSection": {
+    "description": "Étiquette en capitales de la liste des demandes terminées ou annulées, affichées plus discrètement."
+  },
+  "coupleConciergeStatusClosed": "Terminée",
+  "@coupleConciergeStatusClosed": {
+    "description": "Étiquette d'une demande de conciergerie close (terminée)."
+  },
+  "coupleConciergeStatusCancelled": "Annulée",
+  "@coupleConciergeStatusCancelled": {
+    "description": "Étiquette d'une demande de conciergerie annulée par le couple."
+  },
+  "coupleConciergeNoRequests": "Aucune demande pour l'instant. Écrivez-nous ce que vous imaginez.",
+  "@coupleConciergeNoRequests": {
+    "description": "Phrase affichée à la place de la liste quand le couple n'a encore aucune demande de conciergerie."
+  },
+  "coupleConciergeBefore": "Avant {day}",
+  "@coupleConciergeBefore": {
+    "description": "Échéance d'une demande dont la date souhaitée tombe dans la semaine : « Avant jeudi ». {day} est le nom du jour de la semaine, déjà écrit dans la langue du membre (jamais décliné).",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergeOnDate": "Pour le {date}",
+  "@coupleConciergeOnDate": {
+    "description": "Date souhaitée d'une demande plus éloignée : « Pour le 9 novembre ». {date} est la date déjà mise en forme (jour et mois).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergeStep1": "Demande reçue",
+  "@coupleConciergeStep1": {
+    "description": "Première étape de la barre de progression d'une demande : la demande est reçue."
+  },
+  "coupleConciergeStep2": "Idée choisie",
+  "@coupleConciergeStep2": {
+    "description": "Deuxième étape de la barre de progression d'une demande : le couple a choisi une idée."
+  },
+  "coupleConciergeStep3": "Réservé par l'équipe",
+  "@coupleConciergeStep3": {
+    "description": "Troisième étape de la barre de progression d'une demande : l'équipe MAZL a réservé."
+  },
+  "coupleConciergeStepSemantics": "étape {step} sur 3 : {label}",
+  "@coupleConciergeStepSemantics": {
+    "description": "Description lue par VoiceOver de la barre de progression d'une demande. {step} vaut 1, 2 ou 3 ; {label} est le nom de l'étape atteinte.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergePrivacy": "Vos demandes sont lues par un assistant automatique puis par l'équipe MAZL.",
+  "@coupleConciergePrivacy": {
+    "description": "Mention de vie privée obligatoire (contrat §0.4), toujours visible sous le champ de saisie : ce que lit l'assistant automatique puis l'équipe. Ne pas reformuler le sens."
+  },
+  "coupleConciergeComposerHint": "Demandez à la conciergerie…",
+  "@coupleConciergeComposerHint": {
+    "description": "Texte indicatif du champ de saisie de la conciergerie."
+  },
+  "coupleConciergeSend": "Envoyer",
+  "@coupleConciergeSend": {
+    "description": "Libellé accessible du bouton rond d'envoi d'un message à la conciergerie."
+  },
+  "coupleConciergeWaiting": "L'assistant prépare une réponse",
+  "@coupleConciergeWaiting": {
+    "description": "Libellé accessible de l'indicateur « … » affiché pendant que l'assistant prépare sa réponse."
+  },
+  "coupleConciergeRoleAssistant": "Assistant",
+  "@coupleConciergeRoleAssistant": {
+    "description": "Étiquette en capitales au-dessus d'un message de l'assistant automatique."
+  },
+  "coupleConciergeRoleTeam": "Équipe MAZL",
+  "@coupleConciergeRoleTeam": {
+    "description": "Étiquette en capitales au-dessus d'un message de l'équipe MAZL."
+  },
+  "coupleConciergePartnerFallback": "Votre partenaire",
+  "@coupleConciergePartnerFallback": {
+    "description": "Nom affiché au-dessus d'un message de l'autre membre du couple quand son prénom est inconnu."
+  },
+  "coupleConciergeThreadEyebrow": "Votre demande",
+  "@coupleConciergeThreadEyebrow": {
+    "description": "Étiquette en capitales au-dessus du titre d'une demande ouverte, et titre de la page d'une conversation avant son chargement."
+  },
+  "coupleConciergeNewEyebrow": "Nouvelle demande",
+  "@coupleConciergeNewEyebrow": {
+    "description": "Étiquette en capitales de la conversation quand aucune demande n'est ouverte : le prochain message crée une demande."
+  },
+  "coupleConciergeNewLine": "Dites-nous ce que vous imaginez, ou choisissez une demande rapide.",
+  "@coupleConciergeNewLine": {
+    "description": "Phrase affichée quand aucune demande n'est ouverte, au-dessus du champ de saisie."
+  },
+  "coupleConciergeOptionsLabel": "Idées proposées",
+  "@coupleConciergeOptionsLabel": {
+    "description": "Étiquette en capitales et libellé accessible du groupe des idées proposées par l'assistant (une seule peut être choisie)."
+  },
+  "coupleConciergeChosen": "Choisie",
+  "@coupleConciergeChosen": {
+    "description": "Pastille sur l'idée que le couple a retenue."
+  },
+  "coupleConciergeBook": "Oui, réservez",
+  "@coupleConciergeBook": {
+    "description": "Bouton qui valide l'idée cochée : l'équipe MAZL réserve. Désactivé tant qu'aucune idée n'est cochée."
+  },
+  "coupleConciergeOtherIdea": "Autre idée",
+  "@coupleConciergeOtherIdea": {
+    "description": "Bouton qui demande une autre idée à l'assistant."
+  },
+  "coupleConciergeOtherIdeaMessage": "Pouvez-vous me proposer une autre idée ?",
+  "@coupleConciergeOtherIdeaMessage": {
+    "description": "Message envoyé à l'assistant quand le membre touche « Autre idée »."
+  },
+  "coupleConciergeCancel": "Annuler la demande",
+  "@coupleConciergeCancel": {
+    "description": "Action discrète qui annule la demande ouverte (une confirmation suit)."
+  },
+  "coupleConciergeCancelTitle": "Annuler cette demande ?",
+  "@coupleConciergeCancelTitle": {
+    "description": "Titre de la confirmation d'annulation d'une demande."
+  },
+  "coupleConciergeCancelBody": "L'équipe MAZL ne s'en occupera plus.",
+  "@coupleConciergeCancelBody": {
+    "description": "Explication de la confirmation d'annulation d'une demande."
+  },
+  "coupleConciergeCancelConfirm": "Oui, annuler",
+  "@coupleConciergeCancelConfirm": {
+    "description": "Bouton qui confirme l'annulation de la demande."
+  },
+  "coupleConciergeKeep": "Garder la demande",
+  "@coupleConciergeKeep": {
+    "description": "Bouton qui renonce à annuler la demande."
+  },
+  "coupleConciergeNoteClosed": "Cette demande est terminée.",
+  "@coupleConciergeNoteClosed": {
+    "description": "Phrase affichée à la place du champ de saisie quand la demande est terminée."
+  },
+  "coupleConciergeNoteCancelled": "Cette demande est annulée.",
+  "@coupleConciergeNoteCancelled": {
+    "description": "Phrase affichée à la place du champ de saisie quand la demande est annulée."
+  },
+  "coupleConciergeNoteFresh": "L'équipe MAZL a reçu votre demande et vous répond ici.",
+  "@coupleConciergeNoteFresh": {
+    "description": "Phrase sous une demande que l'équipe MAZL n'a pas encore traitée (l'assistant n'a pas répondu) : l'équipe répond elle-même."
+  },
+  "coupleConciergeNoteChosen": "L'équipe MAZL réserve votre idée et vous confirme ici.",
+  "@coupleConciergeNoteChosen": {
+    "description": "Phrase sous une demande dont le couple a choisi une idée : l'équipe réserve."
+  },
+  "coupleConciergeNoteBooked": "C'est réservé : les détails sont dans la conversation.",
+  "@coupleConciergeNoteBooked": {
+    "description": "Phrase sous une demande que l'équipe a réservée."
+  },
+  "coupleConciergeDiscover": "Découvrir MAZL Couple",
+  "@coupleConciergeDiscover": {
+    "description": "Bouton de l'écran d'appel à l'abonnement de la conciergerie : ouvre la page MAZL Couple."
+  },
+  "coupleConciergePaywallLine": "Un service qui s'occupe de tout, pour vous deux. L'assistant prépare des idées, l'équipe MAZL réserve et confirme.",
+  "@coupleConciergePaywallLine": {
+    "description": "Phrase de l'écran d'appel à l'abonnement de la conciergerie, sous le titre."
+  },
+  "coupleTabToday": "Aujourd'hui",
+  "@coupleTabToday": {
+    "description": "Onglet de la barre de l'espace couple : la page du jour. Libellé court, une ligne sous l'icône."
+  },
+  "coupleTabAgenda": "Agenda",
+  "@coupleTabAgenda": {
+    "description": "Onglet de la barre de l'espace couple : l'agenda du couple (dates, rituels, fêtes). Libellé court."
+  },
+  "coupleTabOutings": "Sorties",
+  "@coupleTabOutings": {
+    "description": "Onglet de la barre de l'espace couple : les sorties à deux. Libellé court."
+  },
+  "coupleTabConcierge": "Conciergerie",
+  "@coupleTabConcierge": {
+    "description": "Onglet de la barre de l'espace couple : la conciergerie (service de réservation et d'idées). Libellé court."
+  },
+  "coupleTabUs": "Nous deux",
+  "@coupleTabUs": {
+    "description": "Onglet de la barre de l'espace couple : « Nous deux » (question du jour, bilan, souvenirs, réglages du couple). Libellé court."
+  },
+  "coupleFailSubscriptionRequired": "Cette fonction fait partie de MAZL Couple.",
+  "@coupleFailSubscriptionRequired": {
+    "description": "Erreur : la fonction demandée est réservée aux couples abonnés à MAZL Couple."
+  },
+  "coupleFailRateLimited": "Vous avez atteint la limite de messages du jour avec l'assistant. Revenez demain.",
+  "@coupleFailRateLimited": {
+    "description": "Erreur : le couple a atteint la limite de messages du jour avec l'assistant de la conciergerie (20 par jour)."
+  },
+  "coupleFailAlreadyDone": "Vous avez déjà répondu ce mois-ci.",
+  "@coupleFailAlreadyDone": {
+    "description": "Erreur : le bilan du mois a déjà été rempli par ce membre."
+  },
+  "coupleFailRouteMissing": "Cette fonction n'est pas encore disponible.",
+  "@coupleFailRouteMissing": {
+    "description": "Erreur : cette fonction n'existe pas encore sur le serveur (version plus ancienne)."
+  },
   "coupleFeedCategoryWellness": "Bien-être",
   "@coupleFeedCategoryWellness": {
     "description": "Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte."
@@ -875,15 +1522,6 @@
   "@coupleFeedPartnerMazl": {
     "description": "Pastille d'accent : l'activité vient d'un partenaire de MAZL."
   },
-  "coupleFeedPartnerDiscountMazl": "-{percent} % Partenaire MAZL",
-  "@coupleFeedPartnerDiscountMazl": {
-    "description": "Pastille d'accent sur la carte : réduction de {percent} % chez un partenaire de MAZL.",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "coupleFeedPartnerDiscount": "-{percent} % Partenaire",
   "@coupleFeedPartnerDiscount": {
     "description": "Pastille d'accent sur la fiche détail : réduction de {percent} % chez un partenaire.",
@@ -893,56 +1531,9 @@
       }
     }
   },
-  "coupleFeedActivitiesTitle": "Activités",
-  "@coupleFeedActivitiesTitle": {
-    "description": "Grand titre de l'écran du fil d'activités à deux."
-  },
   "coupleFeedSavedTitle": "Activités sauvegardées",
   "@coupleFeedSavedTitle": {
     "description": "Titre de l'écran des activités enregistrées et info-bulle du bouton qui y mène."
-  },
-  "coupleFeedActivitiesEmptyTitle": "Aucune activité pour le moment",
-  "@coupleFeedActivitiesEmptyTitle": {
-    "description": "Titre de l'état vide du fil d'activités."
-  },
-  "coupleFeedActivitiesEmptyLine": "De nouvelles idées arrivent bientôt.",
-  "@coupleFeedActivitiesEmptyLine": {
-    "description": "Phrase sous le titre de l'état vide du fil d'activités."
-  },
-  "coupleFeedRefresh": "Actualiser",
-  "@coupleFeedRefresh": {
-    "description": "Bouton de l'état vide : recharger le fil."
-  },
-  "coupleFeedSeeDetail": "Voir le détail",
-  "@coupleFeedSeeDetail": {
-    "description": "Info-bulle du bouton rond « i » qui ouvre la fiche détail d'une activité."
-  },
-  "coupleFeedActivitySavedSnack": "{title} sauvegardé",
-  "@coupleFeedActivitySavedSnack": {
-    "description": "Message en bas d'écran après avoir glissé une activité vers le haut. Une ligne ; {title} peut être long.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedActivitySaveCardError": "Impossible de sauvegarder « {title} ». Réessayez.",
-  "@coupleFeedActivitySaveCardError": {
-    "description": "Erreur : la sauvegarde d'une activité du fil a échoué ; la carte revient.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedActivityPassCardError": "Impossible de passer « {title} ». Réessayez.",
-  "@coupleFeedActivityPassCardError": {
-    "description": "Erreur : le passage d'une activité du fil a échoué ; la carte revient.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
   },
   "coupleFeedActivityNotFoundTitle": "Activité introuvable",
   "@coupleFeedActivityNotFoundTitle": {
@@ -1064,45 +1655,6 @@
   "@coupleFeedSavedEmptyAction": {
     "description": "Bouton de l'état vide : retourner au fil d'activités."
   },
-  "coupleFeedEventsTitle": "Événements",
-  "@coupleFeedEventsTitle": {
-    "description": "Grand titre de l'écran des événements pour couples."
-  },
-  "coupleFeedEventsUpcoming": "À venir",
-  "@coupleFeedEventsUpcoming": {
-    "description": "Premier onglet de l'écran des événements : les événements à venir. Court."
-  },
-  "coupleFeedEventsRegisteredTab": "Inscrits ({count})",
-  "@coupleFeedEventsRegisteredTab": {
-    "description": "Second onglet : les événements où le couple est inscrit, avec leur nombre {count} entre parenthèses. Court.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "coupleFeedEventsEmptyAll": "Aucun événement disponible",
-  "@coupleFeedEventsEmptyAll": {
-    "description": "Titre de l'état vide de l'onglet des événements à venir."
-  },
-  "coupleFeedEventsEmptyRegistered": "Vous n'êtes inscrit à aucun événement",
-  "@coupleFeedEventsEmptyRegistered": {
-    "description": "Titre de l'état vide de l'onglet des inscriptions."
-  },
-  "coupleFeedEventsDiscover": "Découvrir les événements",
-  "@coupleFeedEventsDiscover": {
-    "description": "Bouton de l'état vide des inscriptions : revenir aux événements à venir."
-  },
-  "coupleFeedEventRegisteredSnack": "Inscrits à \"{title}\"",
-  "@coupleFeedEventRegisteredSnack": {
-    "description": "Message vert après l'inscription depuis la liste ; {title} est le nom de l'événement.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
   "coupleFeedEventRegisteredSnackDetail": "Inscrits à « {title} »",
   "@coupleFeedEventRegisteredSnackDetail": {
     "description": "Message vert après l'inscription depuis la fiche d'un événement ; {title} est son nom.",
@@ -1120,27 +1672,6 @@
   "@coupleFeedEventCancelError": {
     "description": "Erreur : l'annulation d'une inscription a échoué."
   },
-  "coupleFeedEventCancelTitle": "Annuler l'inscription ?",
-  "@coupleFeedEventCancelTitle": {
-    "description": "Titre de la boîte de dialogue qui demande d'annuler une inscription."
-  },
-  "coupleFeedEventCancelBody": "Voulez-vous vraiment annuler votre inscription à \"{title}\" ?",
-  "@coupleFeedEventCancelBody": {
-    "description": "Corps de la boîte de dialogue d'annulation d'inscription ; {title} est le nom de l'événement.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedEventCancelNo": "Non",
-  "@coupleFeedEventCancelNo": {
-    "description": "Bouton de la boîte de dialogue d'annulation : garder l'inscription. Très court."
-  },
-  "coupleFeedEventCancelYes": "Oui, annuler",
-  "@coupleFeedEventCancelYes": {
-    "description": "Bouton rouge de la boîte de dialogue d'annulation : confirmer l'annulation. Court."
-  },
   "coupleFeedEventCancelled": "Inscription annulée",
   "@coupleFeedEventCancelled": {
     "description": "Message en bas d'écran après l'annulation d'une inscription."
@@ -1148,16 +1679,6 @@
   "coupleFeedEventFull": "Complet",
   "@coupleFeedEventFull": {
     "description": "Texte rouge et libellé de bouton : l'événement n'a plus de place. Court."
-  },
-  "coupleFeedEventSpots": "{count, plural, one{{count} place} other{{count} places}}",
-  "@coupleFeedEventSpots": {
-    "description": "Nombre de places restantes, sur une carte d'événement, à côté d'une icône. Très court.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
   },
   "coupleFeedEventSpotsLeft": "{count, plural, one{{count} place restante} other{{count} places restantes}}",
   "@coupleFeedEventSpotsLeft": {
@@ -1205,25 +1726,363 @@
   "@coupleFeedLoadFailedTitle": {
     "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
   },
-  "coupleSpaceTabActivities": "Activités",
-  "@coupleSpaceTabActivities": {
-    "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
+  "coupleOutingsEyebrow": "Près de chez vous",
+  "@coupleOutingsEyebrow": {
+    "description": "Eyebrow au-dessus du titre de l'onglet Sorties quand aucune ville n'est connue. Rendu en capitales mono par l'interface."
   },
-  "coupleSpaceTabCalendar": "Calendrier",
-  "@coupleSpaceTabCalendar": {
-    "description": "Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône."
+  "coupleOutingsEyebrowCity": "Près de chez vous · {city}",
+  "@coupleOutingsEyebrowCity": {
+    "description": "Eyebrow au-dessus du titre de l'onglet Sorties, avec la ville de la sortie mise en avant. Rendu en capitales mono par l'interface.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
   },
-  "coupleSpaceTabEvents": "Événements",
-  "@coupleSpaceTabEvents": {
-    "description": "Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône."
+  "coupleOutingsTitle": "Sorties à deux",
+  "@coupleOutingsTitle": {
+    "description": "Gros titre de l'onglet Sorties de l'espace couple."
   },
-  "coupleSpaceTabSpace": "Notre espace",
-  "@coupleSpaceTabSpace": {
-    "description": "Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône."
+  "coupleOutingsSavedTooltip": "Sauvegardées",
+  "@coupleOutingsSavedTooltip": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page qui ouvre la liste des activités sauvegardées."
   },
-  "coupleSpaceTitle": "Notre espace",
-  "@coupleSpaceTitle": {
-    "description": "Titre de l'écran « Notre espace » (l'espace privé du couple)."
+  "coupleOutingsFilterTonight": "Ce soir",
+  "@coupleOutingsFilterTonight": {
+    "description": "Pilule de filtre : sorties de ce soir. Libellé court."
+  },
+  "coupleOutingsFilterWeek": "Ce week-end",
+  "@coupleOutingsFilterWeek": {
+    "description": "Pilule de filtre : sorties du week-end. Libellé court."
+  },
+  "coupleOutingsFilterKosher": "Casher",
+  "@coupleOutingsFilterKosher": {
+    "description": "Pilule de filtre : sorties casher. Libellé court."
+  },
+  "coupleOutingsFilterCheap": "Moins de 50 €",
+  "@coupleOutingsFilterCheap": {
+    "description": "Pilule de filtre : sorties à moins de 50 euros par couple. Libellé court ; garder le montant tel quel."
+  },
+  "coupleOutingsFilterMazl": "Événements MAZL",
+  "@coupleOutingsFilterMazl": {
+    "description": "Pilule de filtre : évènements organisés par MAZL pour les couples. Libellé court."
+  },
+  "coupleOutingsEventBadge": "Événement MAZL couples",
+  "@coupleOutingsEventBadge": {
+    "description": "Pastille sur la sortie mise en avant quand c'est un évènement organisé par MAZL pour les couples."
+  },
+  "coupleOutingsBookForUs": "Réserver pour nous deux",
+  "@coupleOutingsBookForUs": {
+    "description": "Bouton de la sortie mise en avant quand c'est un évènement : ouvre sa fiche pour s'inscrire en couple."
+  },
+  "coupleOutingsView": "Voir",
+  "@coupleOutingsView": {
+    "description": "Bouton de la sortie mise en avant quand c'est une activité : ouvre sa fiche."
+  },
+  "coupleOutingsSave": "Sauvegarder",
+  "@coupleOutingsSave": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité non sauvegardée."
+  },
+  "coupleOutingsUnsave": "Retirer des sauvegardes",
+  "@coupleOutingsUnsave": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité déjà sauvegardée."
+  },
+  "coupleOutingsPerCouple": "{price} par couple",
+  "@coupleOutingsPerCouple": {
+    "description": "Prix d'une sortie dans la ligne d'informations de la sortie mise en avant.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleOutingsFree": "Gratuit",
+  "@coupleOutingsFree": {
+    "description": "Prix d'une sortie gratuite."
+  },
+  "coupleOutingsMetaSeparator": " · ",
+  "@coupleOutingsMetaSeparator": {
+    "description": "Séparateur entre les éléments d'une ligne d'informations (date, ville, prix). Garder les espaces autour du point médian."
+  },
+  "coupleOutingsPicksLabel": "Sélection pour vous deux",
+  "@coupleOutingsPicksLabel": {
+    "description": "Petit titre de section (capitales mono) au-dessus de la grille des sorties proposées."
+  },
+  "coupleOutingsNote": "Les idées tiennent compte de votre cacherout, de vos goûts sauvegardés et de vos dates à venir.",
+  "@coupleOutingsNote": {
+    "description": "Note en bas de l'onglet Sorties : explique sur quoi les idées proposées s'appuient. Cacherout = règles alimentaires casher."
+  },
+  "coupleOutingsEmptyFilterTitle": "Rien pour ce filtre",
+  "@coupleOutingsEmptyFilterTitle": {
+    "description": "Titre de l'état vide quand le filtre choisi ne donne aucune sortie."
+  },
+  "coupleOutingsEmptyFilterLine": "Essayez un autre filtre ou regardez toutes les sorties.",
+  "@coupleOutingsEmptyFilterLine": {
+    "description": "Phrase de l'état vide quand le filtre choisi ne donne aucune sortie."
+  },
+  "coupleOutingsShowAll": "Tout voir",
+  "@coupleOutingsShowAll": {
+    "description": "Bouton de l'état vide : retire le filtre et montre toutes les sorties."
+  },
+  "coupleOutingsEmptyTitle": "Pas de sortie pour le moment",
+  "@coupleOutingsEmptyTitle": {
+    "description": "Titre de l'état vide quand aucune sortie n'existe, sans filtre."
+  },
+  "coupleOutingsEmptyLine": "De nouvelles idées arrivent bientôt.",
+  "@coupleOutingsEmptyLine": {
+    "description": "Phrase de l'état vide quand aucune sortie n'existe, sans filtre."
+  },
+  "coupleOutingsSaveFailed": "Impossible de modifier vos sauvegardes. Réessayez.",
+  "@coupleOutingsSaveFailed": {
+    "description": "Message flottant quand l'ajout ou le retrait d'une activité sauvegardée a échoué ; l'écran revient à son état d'avant."
+  },
+  "couplePremiumWordmarkSuffix": "couple",
+  "@couplePremiumWordmarkSuffix": {
+    "description": "Mot qui suit le mot-symbole « mazl. » en haut de la page d'abonnement : « mazl. couple ». Reste en minuscules."
+  },
+  "couplePremiumHeadline": "Le plus dur, c'est de le garder.",
+  "@couplePremiumHeadline": {
+    "description": "Grand titre de la page d'abonnement MAZL Couple (« le » = l'amour du couple)."
+  },
+  "couplePremiumIntro": "Vous vous êtes trouvés. MAZL Couple vous aide au quotidien : vos rituels, vos sorties, et une conciergerie qui s'occupe du reste.",
+  "@couplePremiumIntro": {
+    "description": "Phrase d'introduction de la page d'abonnement MAZL Couple."
+  },
+  "couplePremiumPerkConciergeTitle": "Conciergerie",
+  "@couplePremiumPerkConciergeTitle": {
+    "description": "Premier avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkConciergeMeta": "Réservations, surprises, cadeaux : demandez, on s'en occupe",
+  "@couplePremiumPerkConciergeMeta": {
+    "description": "Premier avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkRitualsTitle": "Vos rituels et vos dates",
+  "@couplePremiumPerkRitualsTitle": {
+    "description": "Deuxième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkRitualsMeta": "Shabbat, anniversaires, fêtes : rappelés à temps, à deux",
+  "@couplePremiumPerkRitualsMeta": {
+    "description": "Deuxième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkOutingsTitle": "Sorties choisies pour vous",
+  "@couplePremiumPerkOutingsTitle": {
+    "description": "Troisième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkOutingsMeta": "Casher, près de chez vous, et les événements MAZL couples",
+  "@couplePremiumPerkOutingsMeta": {
+    "description": "Troisième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkQuestionTitle": "La question du jour",
+  "@couplePremiumPerkQuestionTitle": {
+    "description": "Quatrième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkQuestionMeta": "Une question par jour pour continuer à se découvrir",
+  "@couplePremiumPerkQuestionMeta": {
+    "description": "Quatrième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkCheckinTitle": "Le bilan du couple",
+  "@couplePremiumPerkCheckinTitle": {
+    "description": "Cinquième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkCheckinMeta": "Comment ça va entre vous, et des conseillers si besoin",
+  "@couplePremiumPerkCheckinMeta": {
+    "description": "Cinquième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumFor": "Pour vous deux",
+  "@couplePremiumFor": {
+    "description": "Petit titre en capitales de la carte de prix de l'abonnement couple."
+  },
+  "couplePremiumPerMonth": "par mois",
+  "@couplePremiumPerMonth": {
+    "description": "Unité qui suit le prix de l'abonnement couple."
+  },
+  "couplePremiumShared": "Un seul abonnement : l'autre en profite aussitôt, sans rien payer.",
+  "@couplePremiumShared": {
+    "description": "Explication sur la carte de prix : un seul des deux membres paie."
+  },
+  "couplePremiumIncludesPlus": "mazl+ est inclus pour vous deux tant que l'abonnement couple est actif.",
+  "@couplePremiumIncludesPlus": {
+    "description": "Note sous le prix : mazl+ est inclus. En hébreu, « mazl+ » est suivi de U+200E."
+  },
+  "couplePremiumPriceLater": "Le prix s'affiche dès que l'App Store répond.",
+  "@couplePremiumPriceLater": {
+    "description": "Phrase à la place du prix quand le magasin d'applications n'est pas disponible ou ne connaît pas le produit."
+  },
+  "couplePremiumSubscribe": "S'abonner pour nous deux",
+  "@couplePremiumSubscribe": {
+    "description": "Bouton principal d'achat de l'abonnement couple."
+  },
+  "couplePremiumRestore": "Restaurer un achat",
+  "@couplePremiumRestore": {
+    "description": "Bouton texte pour restaurer un abonnement déjà acheté."
+  },
+  "couplePremiumLegal": "Renouvellement automatique chaque mois, résiliable à tout moment dans les réglages de l'App Store. Le prix affiché vient d'Apple, dans votre devise.",
+  "@couplePremiumLegal": {
+    "description": "Mention légale sous les boutons de l'abonnement couple (renouvellement, résiliation, prix)."
+  },
+  "couplePremiumWelcome": "MAZL Couple est actif pour vous deux.",
+  "@couplePremiumWelcome": {
+    "description": "Confirmation flottante après un achat réussi de l'abonnement couple."
+  },
+  "couplePremiumActiveTitle": "MAZL Couple est actif",
+  "@couplePremiumActiveTitle": {
+    "description": "Titre de la page d'abonnement quand le couple est déjà abonné."
+  },
+  "couplePremiumPaidByMe": "Payé par vous",
+  "@couplePremiumPaidByMe": {
+    "description": "Qui paie l'abonnement couple : le membre lui-même."
+  },
+  "couplePremiumPaidByPartner": "Payé par {partner}",
+  "@couplePremiumPaidByPartner": {
+    "description": "Qui paie l'abonnement couple : le partenaire. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "couplePremiumRenews": "Renouvelé le {date}",
+  "@couplePremiumRenews": {
+    "description": "Date de renouvellement de l'abonnement couple. {date} = date en toutes lettres, déjà dans la langue du membre.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "couplePremiumManage": "Gérer l'abonnement",
+  "@couplePremiumManage": {
+    "description": "Bouton qui ouvre la gestion de l'abonnement dans l'App Store (visible seulement pour le membre qui paie)."
+  },
+  "couplePremiumManageFailed": "Impossible d'ouvrir les réglages de l'App Store.",
+  "@couplePremiumManageFailed": {
+    "description": "Message d'erreur flottant quand la gestion de l'abonnement ne s'ouvre pas."
+  },
+  "couplePremiumLinkFailed": "Impossible d'ouvrir ce lien.",
+  "@couplePremiumLinkFailed": {
+    "description": "Message d'erreur flottant quand un lien (conditions, confidentialité) ne s'ouvre pas."
+  },
+  "coupleQuestionTitle": "Question du jour",
+  "@coupleQuestionTitle": {
+    "description": "Titre de la page de la question du jour du couple (barre du haut) et début de l'étiquette en capitales au-dessus de la question."
+  },
+  "coupleQuestionEyebrow": "Question du jour · {day}",
+  "@coupleQuestionEyebrow": {
+    "description": "Étiquette en capitales au-dessus de la question du jour. {day} est le numéro du jour du couple (nombre de jours ensemble). Le texte sera mis en capitales par l'application.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleQuestionEmptyTitle": "La question du jour arrive bientôt",
+  "@coupleQuestionEmptyTitle": {
+    "description": "Titre de l'état vide de la question du jour : le serveur n'en propose pas encore (fonction pas encore déployée) ou le couple n'est pas formé."
+  },
+  "coupleQuestionEmptyLine": "Chaque jour, une question à se poser à deux. Revenez un peu plus tard.",
+  "@coupleQuestionEmptyLine": {
+    "description": "Phrase sous le titre de l'état vide de la question du jour."
+  },
+  "coupleQuestionPartnerFallback": "Votre partenaire",
+  "@coupleQuestionPartnerFallback": {
+    "description": "Nom affiché pour le partenaire quand son prénom est inconnu, en début de phrase."
+  },
+  "coupleQuestionPartnerAnsweredTitle": "{name} a répondu",
+  "@coupleQuestionPartnerAnsweredTitle": {
+    "description": "Bloc verrouillé de la question du jour, quand on sait que le partenaire a déjà répondu mais pas encore soi. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerAnsweredLine": "Répondez à votre tour pour lire sa réponse.",
+  "@coupleQuestionPartnerAnsweredLine": {
+    "description": "Phrase du bloc verrouillé : la réponse du partenaire n'est lisible qu'après avoir répondu soi-même."
+  },
+  "coupleQuestionPartnerPendingTitle": "{name} n'a pas encore répondu",
+  "@coupleQuestionPartnerPendingTitle": {
+    "description": "Bloc verrouillé de la question du jour, quand on sait que le partenaire n'a pas encore répondu. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerPendingLine": "Vous lirez sa réponse quand vous aurez chacun répondu.",
+  "@coupleQuestionPartnerPendingLine": {
+    "description": "Phrase du bloc verrouillé : on lit la réponse de l'autre quand chacun a répondu."
+  },
+  "coupleQuestionHiddenTitle": "Sa réponse est masquée",
+  "@coupleQuestionHiddenTitle": {
+    "description": "Bloc verrouillé de la question du jour quand on ignore si le partenaire a répondu."
+  },
+  "coupleQuestionHiddenLine": "Elle s'affichera dès que vous aurez répondu.",
+  "@coupleQuestionHiddenLine": {
+    "description": "Phrase du bloc verrouillé : la réponse du partenaire s'affiche après la sienne."
+  },
+  "coupleQuestionYourAnswer": "Votre réponse",
+  "@coupleQuestionYourAnswer": {
+    "description": "Étiquette du champ de réponse, et titre de la carte qui montre sa propre réponse."
+  },
+  "coupleQuestionHint": "Écrivez ce qui vous vient…",
+  "@coupleQuestionHint": {
+    "description": "Texte indicatif dans le champ de réponse de la question du jour."
+  },
+  "coupleQuestionCounter": "{count} / {max}",
+  "@coupleQuestionCounter": {
+    "description": "Compteur discret sous le champ de réponse, affiché quand on approche de la limite. {count} caractères écrits sur {max}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleQuestionSendTo": "Envoyer à {name}",
+  "@coupleQuestionSendTo": {
+    "description": "Bouton qui envoie la réponse à la question du jour. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionSend": "Envoyer",
+  "@coupleQuestionSend": {
+    "description": "Bouton qui envoie la réponse à la question du jour quand le prénom du partenaire est inconnu."
+  },
+  "coupleQuestionSending": "Envoi en cours",
+  "@coupleQuestionSending": {
+    "description": "Description accessible du bouton d'envoi pendant l'envoi de la réponse."
+  },
+  "coupleQuestionSendFailed": "Votre réponse n'est pas partie. Elle reste dans le champ, vous pouvez réessayer.",
+  "@coupleQuestionSendFailed": {
+    "description": "Message d'erreur quand la réponse à la question du jour n'a pas pu être envoyée : le texte reste dans le champ."
+  },
+  "coupleQuestionPartnerAnswerTitle": "Réponse de {name}",
+  "@coupleQuestionPartnerAnswerTitle": {
+    "description": "Titre de la carte qui montre la réponse du partenaire, une fois qu'on a répondu. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionPartnerWaiting": "{name} n'a pas encore répondu. Revenez lire sa réponse plus tard.",
+  "@coupleQuestionPartnerWaiting": {
+    "description": "Carte de la question du jour quand on a répondu mais pas le partenaire. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleQuestionHistory": "Vos réponses précédentes",
+  "@coupleQuestionHistory": {
+    "description": "Lien en bas de la question du jour vers la liste des réponses des jours précédents."
   },
   "coupleSpaceSettingsTooltip": "Réglages",
   "@coupleSpaceSettingsTooltip": {
@@ -1236,15 +2095,6 @@
   "coupleSpacePartnerFallback": "Votre Moitié",
   "@coupleSpacePartnerFallback": {
     "description": "Nom affiché pour le partenaire quand son nom est inconnu, dans l'en-tête du couple. « Votre Moitié » = l'autre moitié, avec tendresse."
-  },
-  "coupleSpaceTogetherSince": "Ensemble depuis {count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceTogetherSince": {
-    "description": "En-tête du couple : depuis combien de jours le couple est ensemble. {count} est toujours au moins 1.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "coupleSpaceStoryBegins": "Votre histoire commence",
   "@coupleSpaceStoryBegins": {
@@ -1560,18 +2410,6 @@
   "@coupleSpaceFailUnexpected": {
     "description": "Erreur : la réponse du serveur n'a pas la forme attendue."
   },
-  "coupleSpaceCalendarTitle": "Calendrier",
-  "@coupleSpaceCalendarTitle": {
-    "description": "Grand titre de l'écran du calendrier juif."
-  },
-  "coupleSpaceCalendarShabbatIdeas": "Idées pour ce Shabbat",
-  "@coupleSpaceCalendarShabbatIdeas": {
-    "description": "Titre de la liste d'idées d'activités à deux pour le Shabbat de la semaine."
-  },
-  "coupleSpaceCalendarUpcoming": "Prochaines fêtes",
-  "@coupleSpaceCalendarUpcoming": {
-    "description": "Titre de la liste des prochaines fêtes juives."
-  },
   "coupleSpaceCalendarPrevMonth": "Mois précédent",
   "@coupleSpaceCalendarPrevMonth": {
     "description": "Info-bulle du bouton rond qui affiche le mois précédent du calendrier."
@@ -1580,47 +2418,353 @@
   "@coupleSpaceCalendarNextMonth": {
     "description": "Info-bulle du bouton rond qui affiche le mois suivant du calendrier."
   },
-  "coupleSpaceCalendarOngoing": "En cours",
-  "@coupleSpaceCalendarOngoing": {
-    "description": "Étiquette en capitales sur la carte d'une fête qui a lieu en ce moment. Très court, une ligne."
+  "coupleTodayEyebrow": "MAZL Couple · jour {days}",
+  "@coupleTodayEyebrow": {
+    "description": "Petit titre en capitales au-dessus du bonjour de l'écran Aujourd'hui du couple. {days} = nombre de jours ensemble.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
-  "coupleSpaceCalendarCountdown": "J-{count}",
-  "@coupleSpaceCalendarCountdown": {
-    "description": "Étiquette en capitales sur la carte d'une fête dans {count} jours au plus (« J-3 » = dans 3 jours). Très court, une ligne.",
+  "coupleTodayTitle": "Bonjour {me}\net {partner}.",
+  "@coupleTodayTitle": {
+    "description": "Gros titre de l'écran Aujourd'hui, sur deux lignes (le retour à la ligne est voulu). {me} = prénom du membre, {partner} = prénom du partenaire.",
+    "placeholders": {
+      "me": {
+        "type": "String"
+      },
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayTitleNoName": "Bonjour,\nvous et {partner}.",
+  "@coupleTodayTitleNoName": {
+    "description": "Gros titre de l'écran Aujourd'hui quand le prénom du membre est inconnu, sur deux lignes. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionLabel": "Question du jour",
+  "@coupleTodayQuestionLabel": {
+    "description": "Petit titre en capitales de la carte de la question du jour."
+  },
+  "coupleTodayQuestionPartnerAnswered": "{partner} a répondu · à vous",
+  "@coupleTodayQuestionPartnerAnswered": {
+    "description": "Ligne d'état de la question du jour : le partenaire a répondu, pas encore le membre. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionMineAnswered": "Vous avez répondu · en attente de {partner}",
+  "@coupleTodayQuestionMineAnswered": {
+    "description": "Ligne d'état de la question du jour : le membre a répondu, pas le partenaire. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionWaiting": "En attente de {partner}",
+  "@coupleTodayQuestionWaiting": {
+    "description": "Ligne d'état de la question du jour quand personne n'a encore répondu. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionBoth": "Vous avez répondu tous les deux",
+  "@coupleTodayQuestionBoth": {
+    "description": "Ligne d'état de la question du jour quand les deux membres ont répondu."
+  },
+  "coupleTodayAnswer": "Répondre",
+  "@coupleTodayAnswer": {
+    "description": "Bouton de la carte de la question du jour : aller répondre."
+  },
+  "coupleTodayView": "Voir",
+  "@coupleTodayView": {
+    "description": "Bouton de la carte de la question du jour quand le membre a déjà répondu : voir les réponses."
+  },
+  "coupleTodayShabbatTonight": "Shabbat ensemble ce soir",
+  "@coupleTodayShabbatTonight": {
+    "description": "Titre de la carte Shabbat de l'écran Aujourd'hui, affichée le vendredi."
+  },
+  "coupleTodayShabbatFriday": "Shabbat ensemble vendredi",
+  "@coupleTodayShabbatFriday": {
+    "description": "Titre de la carte Shabbat de l'écran Aujourd'hui, affichée les autres jours de la semaine."
+  },
+  "coupleTodayClock": "{hour} h {minute}",
+  "@coupleTodayClock": {
+    "description": "Heure d'allumage des bougies. {hour} = heure sur 24 h, {minute} = minutes sur deux chiffres. En français « 17 h 21 », ailleurs « 17:21 ».",
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayShabbatCandles": "Allumage des bougies à {time} · Paris",
+  "@coupleTodayShabbatCandles": {
+    "description": "Sous-titre de la carte Shabbat. {time} = heure d'allumage des bougies, déjà écrite dans la langue du membre ; la ville est fixée à Paris.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayShabbatAgenda": "Ouvrir l'agenda",
+  "@coupleTodayShabbatAgenda": {
+    "description": "Info-bulle du bouton rond (chevron) de la carte Shabbat, qui mène à l'agenda du couple."
+  },
+  "coupleTodayUpcomingLabel": "À venir",
+  "@coupleTodayUpcomingLabel": {
+    "description": "Petit titre en capitales de la liste des prochaines échéances du couple."
+  },
+  "coupleTodayUpcomingEmpty": "Rien de prévu dans les 45 prochains jours. Ajoutez une date ou un rituel dans l'agenda.",
+  "@coupleTodayUpcomingEmpty": {
+    "description": "Phrase affichée quand la liste « À venir » est vide."
+  },
+  "coupleTodayDaysToday": "Aujourd'hui",
+  "@coupleTodayDaysToday": {
+    "description": "Sous-titre d'une échéance qui a lieu aujourd'hui (quand le serveur n'envoie pas de sous-titre)."
+  },
+  "coupleTodayDaysTomorrow": "Demain",
+  "@coupleTodayDaysTomorrow": {
+    "description": "Sous-titre d'une échéance qui a lieu demain (quand le serveur n'envoie pas de sous-titre)."
+  },
+  "coupleTodayDaysAhead": "{count, plural, one{Dans {count} jour} other{Dans {count} jours}}",
+  "@coupleTodayDaysAhead": {
+    "description": "Sous-titre d'une échéance dans plusieurs jours (quand le serveur n'envoie pas de sous-titre). {count} = nombre de jours, au moins 2.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "coupleSpaceCalendarIdeas": "Idées en couple",
-  "@coupleSpaceCalendarIdeas": {
-    "description": "Petit titre au-dessus des idées d'activités à deux, sur la carte d'une fête."
-  },
-  "coupleSpaceCalendarRangeSameMonth": "{startDay} – {endDay} {month}",
-  "@coupleSpaceCalendarRangeSameMonth": {
-    "description": "Dates d'une fête sur plusieurs jours dans le même mois : du {startDay} au {endDay}, {month} est le mois abrégé (ex. « avr. »). Garder l'ordre habituel de la langue.",
+  "coupleTodayIdeaFor": "Idée pour {weekday}",
+  "@coupleTodayIdeaFor": {
+    "description": "Petit titre en capitales de la carte d'idée de sortie, quand elle a une date. {weekday} = jour de la semaine en toutes lettres, déjà dans la langue du membre.",
     "placeholders": {
-      "startDay": {
+      "weekday": {
         "type": "String"
-      },
-      "endDay": {
+      }
+    }
+  },
+  "coupleTodayIdeaGeneric": "Une idée pour vous",
+  "@coupleTodayIdeaGeneric": {
+    "description": "Petit titre en capitales de la carte d'idée de sortie, quand elle n'a pas de date."
+  },
+  "coupleTodayMoodQuestion": "Comment ça va entre vous ?",
+  "@coupleTodayMoodQuestion": {
+    "description": "Question au-dessus des quatre pastilles d'humeur du couple."
+  },
+  "coupleTodayMoodGreat": "Très bien",
+  "@coupleTodayMoodGreat": {
+    "description": "Pastille d'humeur : tout va très bien."
+  },
+  "coupleTodayMoodGood": "Bien",
+  "@coupleTodayMoodGood": {
+    "description": "Pastille d'humeur : ça va bien."
+  },
+  "coupleTodayMoodMeh": "Bof",
+  "@coupleTodayMoodMeh": {
+    "description": "Pastille d'humeur : moyen."
+  },
+  "coupleTodayMoodTalk": "On doit parler",
+  "@coupleTodayMoodTalk": {
+    "description": "Pastille d'humeur : le membre veut parler avec son partenaire (le partenaire est prévenu par une notification douce, sans texte)."
+  },
+  "coupleTodayMoodTalkNotice": "Nous avons prévenu {partner}, sans un mot.",
+  "@coupleTodayMoodTalkNotice": {
+    "description": "Phrase douce affichée après « On doit parler » : le partenaire est prévenu sans qu'aucun texte libre ne lui soit envoyé. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
         "type": "String"
-      },
+      }
+    }
+  },
+  "coupleTodayMoodFailed": "Impossible d'enregistrer votre humeur. Réessayez.",
+  "@coupleTodayMoodFailed": {
+    "description": "Message d'erreur flottant quand l'humeur du couple n'a pas pu être enregistrée."
+  },
+  "coupleTodayCheckinDue": "Le bilan de {month} vous attend",
+  "@coupleTodayCheckinDue": {
+    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre.",
+    "placeholders": {
       "month": {
         "type": "String"
       }
     }
   },
-  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}",
-  "@coupleSpaceCalendarRangeOtherMonth": {
-    "description": "Dates d'une fête sur plusieurs jours à cheval sur deux mois : {start} et {end} sont déjà des dates courtes (ex. « 28 mars », « 4 avr. »).",
+  "coupleTodayPremiumLine": "Découvrir MAZL Couple",
+  "@coupleTodayPremiumLine": {
+    "description": "Ligne discrète en bas de l'écran Aujourd'hui, pour un couple non abonné : mène à la page de l'abonnement MAZL Couple."
+  },
+  "coupleUsDay": "Jour {count}",
+  "@coupleUsDay": {
+    "description": "En-tête du couple (« Nous deux ») : le numéro du jour depuis la formation du couple. {count} est toujours au moins 1.",
     "placeholders": {
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleUsYouLabel": "Vous",
+  "@coupleUsYouLabel": {
+    "description": "Étiquette qui désigne le membre lui-même devant sa propre réponse (question du jour, historique des réponses)."
+  },
+  "coupleUsQuestionLabel": "Question du jour",
+  "@coupleUsQuestionLabel": {
+    "description": "Petit titre (capitales en mono) de la carte de la question du jour, sur « Nous deux »."
+  },
+  "coupleUsQuestionPartnerAnswered": "{name} a répondu · à vous",
+  "@coupleUsQuestionPartnerAnswered": {
+    "description": "Carte de la question du jour : le partenaire a déjà répondu, c'est au tour du membre. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsQuestionYourTurn": "À vous de répondre",
+  "@coupleUsQuestionYourTurn": {
+    "description": "Carte de la question du jour : le membre n'a pas encore répondu (on ne sait pas si l'autre l'a fait)."
+  },
+  "coupleUsQuestionYouAnswered": "Vous avez répondu",
+  "@coupleUsQuestionYouAnswered": {
+    "description": "Carte de la question du jour : les deux ont répondu, les deux réponses sont visibles dans la carte."
+  },
+  "coupleUsWaitingFor": "En attente de {name}",
+  "@coupleUsWaitingFor": {
+    "description": "Carte de la question du jour ou du bilan : le membre a fait sa part, on attend l'autre. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsAnswerButton": "Répondre",
+  "@coupleUsAnswerButton": {
+    "description": "Bouton de la carte de la question du jour quand le membre n'a pas répondu. Court."
+  },
+  "coupleUsSeeButton": "Voir",
+  "@coupleUsSeeButton": {
+    "description": "Bouton de la carte de la question du jour quand le membre a déjà répondu : ouvre la question. Court."
+  },
+  "coupleUsHistoryLink": "Voir l'historique des réponses",
+  "@coupleUsHistoryLink": {
+    "description": "Ligne sous la carte de la question du jour qui ouvre l'historique des réponses du couple."
+  },
+  "coupleUsCheckinLabel": "Bilan",
+  "@coupleUsCheckinLabel": {
+    "description": "Petit titre (capitales en mono) de la carte du bilan mensuel du couple, sur « Nous deux »."
+  },
+  "coupleUsCheckinDue": "Le bilan de {month} vous attend",
+  "@coupleUsCheckinDue": {
+    "description": "Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).",
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "novembre"
+      }
+    }
+  },
+  "coupleUsCheckinStart": "Faire le bilan",
+  "@coupleUsCheckinStart": {
+    "description": "Bouton de la carte du bilan : ouvre le bilan du mois à remplir."
+  },
+  "coupleUsCheckinAligned": "{count, plural, one{En phase sur {count} point sur 3} other{En phase sur {count} points sur 3}}",
+  "@coupleUsCheckinAligned": {
+    "description": "Carte du bilan, quand les deux ont répondu : sur combien des 3 thèmes (parler, temps, proximité) les notes sont proches. {count} va de 0 à 3. Pluriel : « point » / « points ».",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleUsCheckinLowestTalk": "Le thème à soigner ce mois-ci : se parler.",
+  "@coupleUsCheckinLowestTalk": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se parler). Ne donne jamais la note de l'autre."
+  },
+  "coupleUsCheckinLowestTime": "Le thème à soigner ce mois-ci : le temps à deux.",
+  "@coupleUsCheckinLowestTime": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (le temps à deux)."
+  },
+  "coupleUsCheckinLowestClose": "Le thème à soigner ce mois-ci : se sentir proches.",
+  "@coupleUsCheckinLowestClose": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se sentir proches)."
+  },
+  "coupleUsSettingsLabel": "Réglages du couple",
+  "@coupleUsSettingsLabel": {
+    "description": "Titre de section (capitales en mono) des réglages du couple : statut de la relation et abonnement MAZL Couple."
+  },
+  "coupleUsStatusInRelationship": "En couple",
+  "@coupleUsStatusInRelationship": {
+    "description": "Pilule du statut de la relation : le couple est ensemble. Court."
+  },
+  "coupleUsStatusEngaged": "Fiancés",
+  "@coupleUsStatusEngaged": {
+    "description": "Pilule du statut de la relation : fiancés (pluriel, le couple). Court."
+  },
+  "coupleUsStatusMarried": "Mariés",
+  "@coupleUsStatusMarried": {
+    "description": "Pilule du statut de la relation : mariés (pluriel, le couple). Court."
+  },
+  "coupleUsPremiumTitle": "MAZL Couple",
+  "@coupleUsPremiumTitle": {
+    "description": "Titre de la ligne d'abonnement dans les réglages du couple. Nom du produit, à ne pas traduire."
+  },
+  "coupleUsPremiumActiveByYou": "Actif · payé par vous",
+  "@coupleUsPremiumActiveByYou": {
+    "description": "Ligne MAZL Couple, abonnement actif payé par le membre lui-même."
+  },
+  "coupleUsPremiumActiveByPartner": "Actif · payé par {name}",
+  "@coupleUsPremiumActiveByPartner": {
+    "description": "Ligne MAZL Couple, abonnement actif payé par le partenaire. {name} est son prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsPremiumActive": "Actif",
+  "@coupleUsPremiumActive": {
+    "description": "Ligne MAZL Couple, abonnement actif sans payeur connu."
+  },
+  "coupleUsPremiumDiscover": "Découvrir MAZL Couple",
+  "@coupleUsPremiumDiscover": {
+    "description": "Ligne MAZL Couple quand le couple n'est pas abonné : invite à découvrir l'offre."
+  },
+  "coupleUsHistoryTitle": "Vos réponses",
+  "@coupleUsHistoryTitle": {
+    "description": "Titre de la page d'historique des questions du jour (page empilée)."
+  },
+  "coupleUsHistoryEmptyTitle": "Pas encore de réponses",
+  "@coupleUsHistoryEmptyTitle": {
+    "description": "Historique des réponses vide : titre."
+  },
+  "coupleUsHistoryEmptyLine": "Répondez à la question du jour : vos réponses, et celles de l'autre, s'afficheront ici.",
+  "@coupleUsHistoryEmptyLine": {
+    "description": "Historique des réponses vide : une phrase qui dit quoi faire."
+  },
+  "coupleUsHistoryNoPartnerAnswer": "{name} n'a pas répondu",
+  "@coupleUsHistoryNoPartnerAnswer": {
+    "description": "Historique : le partenaire n'a pas répondu à cette question. {name} est son prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
       }
     }
   },
@@ -1980,19 +3124,6 @@
   "@genreLookingForRequired": {
     "description": "Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit."
   },
-  "jewishCalendarShabbatTitle": "Ce Shabbat",
-  "@jewishCalendarShabbatTitle": {
-    "description": "Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif."
-  },
-  "jewishCalendarParashat": "Parashat {name}",
-  "@jewishCalendarParashat": {
-    "description": "Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "jewishCalendarParshaPair": "{first} {second}",
   "@jewishCalendarParshaPair": {
     "description": "Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.",
@@ -2004,14 +3135,6 @@
         "type": "String"
       }
     }
-  },
-  "jewishCalendarCandleLighting": "Allumage",
-  "@jewishCalendarCandleLighting": {
-    "description": "Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères."
-  },
-  "jewishCalendarHavdalah": "Havdala",
-  "@jewishCalendarHavdalah": {
-    "description": "Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères."
   },
   "jewishCalendarCategoryPreparation": "Préparation",
   "@jewishCalendarCategoryPreparation": {

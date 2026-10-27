@@ -312,6 +312,30 @@ class ApiService implements CoupleApi {
     return response;
   }
 
+  /// PATCH request
+  Future<http.Response> _patch(String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
+    debugPrint('API PATCH: $url');
+    return _watched(
+      (client) => client.patch(url, headers: _headers, body: jsonEncode(body)),
+    );
+  }
+
+  /// Authenticated request of any verb, the raw response: for the callers
+  /// that read the status themselves (the couple content routes).
+  Future<http.Response> sendRaw(
+    String method,
+    String endpoint, [
+    Map<String, dynamic> body = const {},
+  ]) => switch (method) {
+    'GET' => _get(endpoint),
+    'POST' => _post(endpoint, body),
+    'PUT' => _put(endpoint, body),
+    'PATCH' => _patch(endpoint, body),
+    'DELETE' => _delete(endpoint),
+    _ => throw ArgumentError.value(method, 'method'),
+  };
+
   /// Public POST request (returns parsed JSON)
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     final response = await _post(endpoint, body);
@@ -1055,6 +1079,33 @@ class ApiService implements CoupleApi {
 
       if (response.statusCode != 200) {
         return ApiResponse.httpFailure(response, 'Failed to archive conversations');
+      }
+
+      final data = jsonDecode(response.body);
+      if (data['success'] != true) {
+        return ApiResponse.failure(data['error'] ?? 'Unknown error');
+      }
+
+      return ApiResponse.success(null);
+    } catch (e) {
+      debugPrint('API Error: $e');
+      return _networkFailure(e);
+    }
+  }
+
+  /// Changes the relationship status of the couple (either member).
+  @override
+  Future<ApiResponse<void>> updateCoupleStatus(
+    int coupleId,
+    String relationshipStatus,
+  ) async {
+    try {
+      final response = await _patch('/api/couple/$coupleId/status', {
+        'relationshipStatus': relationshipStatus,
+      });
+
+      if (response.statusCode != 200) {
+        return _coupleFailure(response, 'Failed to update the couple status');
       }
 
       final data = jsonDecode(response.body);

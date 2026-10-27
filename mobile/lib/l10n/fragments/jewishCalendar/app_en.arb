@@ -1,9 +1,5 @@
 {
-  "jewishCalendarShabbatTitle": "This Shabbat",
-  "jewishCalendarParashat": "Parashat {name}",
   "jewishCalendarParshaPair": "{first} – {second}",
-  "jewishCalendarCandleLighting": "Candle lighting",
-  "jewishCalendarHavdalah": "Havdalah",
   "jewishCalendarCategoryPreparation": "Preparation",
   "jewishCalendarCategorySpiritual": "Spiritual",
   "jewishCalendarCategoryRelaxation": "Relaxation",

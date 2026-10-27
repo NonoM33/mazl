@@ -211,6 +211,28 @@ class SubscriptionService extends ChangeNotifier {
     }
   }
 
+  /// La formule MAZL Couple telle que le store la vend (prix dans la devise du
+  /// membre), ou null si le store est indisponible ou ne la connaît pas.
+  Future<SubscriptionPlan?> loadCouplePlan() async {
+    try {
+      if (!await _store.isAvailable()) return null;
+      final response = await _store.queryProductDetails({kCoupleProductId});
+      final error = response.error;
+      if (error != null) {
+        debugPrint('Subscription: produit couple en erreur - ${error.message}');
+      }
+      for (final product in response.productDetails) {
+        if (product.id == kCoupleProductId) {
+          return SubscriptionPlan.fromProduct(product, 1);
+        }
+      }
+      return null;
+    } on Exception catch (error) {
+      debugPrint('Subscription: produit couple indisponible - $error');
+      return null;
+    }
+  }
+
   /// Prix de la formule active tel que le store l'affiche, ou null.
   Future<String?> activePlanPrice() async {
     final sub = _subscription;

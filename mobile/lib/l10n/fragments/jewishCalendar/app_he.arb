@@ -1,9 +1,5 @@
 {
-  "jewishCalendarShabbatTitle": "השבת הזו",
-  "jewishCalendarParashat": "פרשת {name}",
   "jewishCalendarParshaPair": "{first}־{second}",
-  "jewishCalendarCandleLighting": "הדלקת נרות",
-  "jewishCalendarHavdalah": "הבדלה",
   "jewishCalendarCategoryPreparation": "הכנות",
   "jewishCalendarCategorySpiritual": "רוחניות",
   "jewishCalendarCategoryRelaxation": "רגיעה",

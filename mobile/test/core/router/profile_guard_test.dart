@@ -16,7 +16,7 @@ void main() {
     '/boost',
     '/filters',
     '/premium',
-    '/couple/activities',
+    '/couple/today',
   ];
   const stayReachable = [
     '/profile/setup',
@@ -85,7 +85,7 @@ void main() {
 
     test('the profile guard comes before the couple guard', () {
       expect(redirect('/discover', incomplete: true, inCouple: true), '/profile/setup');
-      expect(redirect('/discover', inCouple: true), '/couple/activities');
+      expect(redirect('/discover', inCouple: true), '/couple/today');
     });
   });
 }

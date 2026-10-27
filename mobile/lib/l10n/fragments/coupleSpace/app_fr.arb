@@ -1,24 +1,4 @@
 {
-  "coupleSpaceTabActivities": "Activités",
-  "@coupleSpaceTabActivities": {
-    "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabCalendar": "Calendrier",
-  "@coupleSpaceTabCalendar": {
-    "description": "Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabEvents": "Événements",
-  "@coupleSpaceTabEvents": {
-    "description": "Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabSpace": "Notre espace",
-  "@coupleSpaceTabSpace": {
-    "description": "Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTitle": "Notre espace",
-  "@coupleSpaceTitle": {
-    "description": "Titre de l'écran « Notre espace » (l'espace privé du couple)."
-  },
   "coupleSpaceSettingsTooltip": "Réglages",
   "@coupleSpaceSettingsTooltip": {
     "description": "Info-bulle du bouton rond en haut de « Notre espace » qui ouvre les réglages du mode couple."
@@ -30,15 +10,6 @@
   "coupleSpacePartnerFallback": "Votre Moitié",
   "@coupleSpacePartnerFallback": {
     "description": "Nom affiché pour le partenaire quand son nom est inconnu, dans l'en-tête du couple. « Votre Moitié » = l'autre moitié, avec tendresse."
-  },
-  "coupleSpaceTogetherSince": "Ensemble depuis {count, plural, one{{count} jour} other{{count} jours}}",
-  "@coupleSpaceTogetherSince": {
-    "description": "En-tête du couple : depuis combien de jours le couple est ensemble. {count} est toujours au moins 1.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "coupleSpaceStoryBegins": "Votre histoire commence",
   "@coupleSpaceStoryBegins": {
@@ -354,18 +325,6 @@
   "@coupleSpaceFailUnexpected": {
     "description": "Erreur : la réponse du serveur n'a pas la forme attendue."
   },
-  "coupleSpaceCalendarTitle": "Calendrier",
-  "@coupleSpaceCalendarTitle": {
-    "description": "Grand titre de l'écran du calendrier juif."
-  },
-  "coupleSpaceCalendarShabbatIdeas": "Idées pour ce Shabbat",
-  "@coupleSpaceCalendarShabbatIdeas": {
-    "description": "Titre de la liste d'idées d'activités à deux pour le Shabbat de la semaine."
-  },
-  "coupleSpaceCalendarUpcoming": "Prochaines fêtes",
-  "@coupleSpaceCalendarUpcoming": {
-    "description": "Titre de la liste des prochaines fêtes juives."
-  },
   "coupleSpaceCalendarPrevMonth": "Mois précédent",
   "@coupleSpaceCalendarPrevMonth": {
     "description": "Info-bulle du bouton rond qui affiche le mois précédent du calendrier."
@@ -373,49 +332,5 @@
   "coupleSpaceCalendarNextMonth": "Mois suivant",
   "@coupleSpaceCalendarNextMonth": {
     "description": "Info-bulle du bouton rond qui affiche le mois suivant du calendrier."
-  },
-  "coupleSpaceCalendarOngoing": "En cours",
-  "@coupleSpaceCalendarOngoing": {
-    "description": "Étiquette en capitales sur la carte d'une fête qui a lieu en ce moment. Très court, une ligne."
-  },
-  "coupleSpaceCalendarCountdown": "J-{count}",
-  "@coupleSpaceCalendarCountdown": {
-    "description": "Étiquette en capitales sur la carte d'une fête dans {count} jours au plus (« J-3 » = dans 3 jours). Très court, une ligne.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "coupleSpaceCalendarIdeas": "Idées en couple",
-  "@coupleSpaceCalendarIdeas": {
-    "description": "Petit titre au-dessus des idées d'activités à deux, sur la carte d'une fête."
-  },
-  "coupleSpaceCalendarRangeSameMonth": "{startDay} – {endDay} {month}",
-  "@coupleSpaceCalendarRangeSameMonth": {
-    "description": "Dates d'une fête sur plusieurs jours dans le même mois : du {startDay} au {endDay}, {month} est le mois abrégé (ex. « avr. »). Garder l'ordre habituel de la langue.",
-    "placeholders": {
-      "startDay": {
-        "type": "String"
-      },
-      "endDay": {
-        "type": "String"
-      },
-      "month": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}",
-  "@coupleSpaceCalendarRangeOtherMonth": {
-    "description": "Dates d'une fête sur plusieurs jours à cheval sur deux mois : {start} et {end} sont déjà des dates courtes (ex. « 28 mars », « 4 avr. »).",
-    "placeholders": {
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
-      }
-    }
   }
 }
