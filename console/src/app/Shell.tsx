@@ -15,6 +15,8 @@ const ICONS: Readonly<Record<SectionId, IconName>> = {
   verification: "shield",
   autorites: "building",
   algorithme: "sliders",
+  offres: "tag",
+  campagnes: "calendar",
   audit: "log",
   equipe: "team",
   transparence: "chart",

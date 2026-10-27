@@ -7,10 +7,11 @@ interface DrawerProps {
   readonly onClose: () => void;
   readonly children: ReactNode;
   readonly wide?: boolean;
+  readonly extraWide?: boolean;
 }
 
 /** Panneau latéral non modal : Échap le ferme, le focus y entre à l'ouverture. */
-export function Drawer({ title, eyebrow, onClose, children, wide = false }: DrawerProps): ReactElement {
+export function Drawer({ title, eyebrow, onClose, children, wide = false, extraWide = false }: DrawerProps): ReactElement {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -23,7 +24,7 @@ export function Drawer({ title, eyebrow, onClose, children, wide = false }: Draw
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <aside ref={ref} className={`drawer${wide ? " drawer-wide" : ""}`} role="dialog" aria-label={title} tabIndex={-1}>
+    <aside ref={ref} className={`drawer${wide ? " drawer-wide" : ""}${extraWide ? " drawer-xwide" : ""}`} role="dialog" aria-label={title} tabIndex={-1}>
       <header className="drawer-head">
         <div>
           {eyebrow !== undefined ? <p className="eyebrow">{eyebrow}</p> : null}

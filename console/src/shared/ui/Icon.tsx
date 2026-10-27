@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 export type IconName =
   | "dashboard" | "flag" | "users" | "scale" | "shield" | "building" | "sliders" | "log" | "team" | "chart"
   | "logout" | "close" | "search" | "copy" | "check" | "alert" | "lock" | "eye" | "eye-off" | "message"
-  | "clock" | "user" | "refresh" | "arrow-right" | "chevron-right" | "inbox" | "info";
+  | "clock" | "user" | "refresh" | "arrow-right" | "chevron-right" | "inbox" | "info" | "tag" | "calendar" | "arrow-up" | "arrow-down" | "grip" | "plus" | "wand";
 
 const PATHS: Readonly<Record<IconName, ReactElement>> = {
   dashboard: <><rect x="3.5" y="3.5" width="7" height="8" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="5" rx="1.5" /><rect x="13.5" y="11.5" width="7" height="9" rx="1.5" /><rect x="3.5" y="14.5" width="7" height="6" rx="1.5" /></>,
@@ -32,6 +32,13 @@ const PATHS: Readonly<Record<IconName, ReactElement>> = {
   "arrow-right": <><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></>,
   "chevron-right": <><path d="M9 6l6 6-6 6" /></>,
   inbox: <><path d="M3.5 13l2.5-7.5h12L20.5 13" /><path d="M3.5 13v5.5h17V13h-5l-1 2.5h-5L8.5 13z" /></>,
+  tag: <><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7a1 1 0 0 1 .7.3l7.3 7.3a1 1 0 0 1 0 1.4l-7.7 7.7a1 1 0 0 1-1.4 0L3.8 12.9a1 1 0 0 1-.3-.7z" /><circle cx="8" cy="8" r="1.3" /></>,
+  calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path d="M3.5 10h17" /><path d="M8 3v4M16 3v4" /></>,
+  "arrow-up": <><path d="M12 19V5" /><path d="M6 11l6-6 6 6" /></>,
+  "arrow-down": <><path d="M12 5v14" /><path d="M6 13l6 6 6-6" /></>,
+  grip: <><circle cx="9" cy="6.5" r="1.1" /><circle cx="15" cy="6.5" r="1.1" /><circle cx="9" cy="12" r="1.1" /><circle cx="15" cy="12" r="1.1" /><circle cx="9" cy="17.5" r="1.1" /><circle cx="15" cy="17.5" r="1.1" /></>,
+  plus: <><path d="M12 5v14M5 12h14" /></>,
+  wand: <><path d="M5 19L16 8" /><path d="M14 6l4 4" /><path d="M18 3v3M16.500 4.500h3M6 4v2M5 5h2" /></>,
   info: <><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5" /><path d="M12 8v.1" /></>,
 };
 
