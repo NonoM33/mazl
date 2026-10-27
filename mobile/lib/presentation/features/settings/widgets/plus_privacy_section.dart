@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'incognito_switch.dart';
 import 'read_receipts_switch.dart';
 
 /// The mazl+ related privacy rows of the settings screen: the read receipts
@@ -10,6 +11,6 @@ class PlusPrivacySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(children: [ReadReceiptsSwitch()]);
+    return const Column(children: [ReadReceiptsSwitch(), IncognitoSwitch()]);
   }
 }
