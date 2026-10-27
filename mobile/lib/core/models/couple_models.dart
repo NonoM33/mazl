@@ -102,6 +102,16 @@ extension RelationshipStatusExtension on RelationshipStatus {
     }
   }
 
+  /// The value `PATCH /api/couple/:id/status` accepts, `null` for a status a
+  /// couple cannot have (`single`).
+  String? get serverValue => switch (this) {
+    RelationshipStatus.single => null,
+    RelationshipStatus.dating => 'dating',
+    RelationshipStatus.inRelationship => 'in_relationship',
+    RelationshipStatus.engaged => 'engaged',
+    RelationshipStatus.married => 'married',
+  };
+
   bool get isInCouple {
     return this == RelationshipStatus.inRelationship ||
         this == RelationshipStatus.engaged ||

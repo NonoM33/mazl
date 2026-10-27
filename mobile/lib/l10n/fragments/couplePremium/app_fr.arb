@@ -1,0 +1,128 @@
+{
+  "couplePremiumWordmarkSuffix": "couple",
+  "@couplePremiumWordmarkSuffix": {
+    "description": "Mot qui suit le mot-symbole « mazl. » en haut de la page d'abonnement : « mazl. couple ». Reste en minuscules."
+  },
+  "couplePremiumHeadline": "Le plus dur, c'est de le garder.",
+  "@couplePremiumHeadline": {
+    "description": "Grand titre de la page d'abonnement MAZL Couple (« le » = l'amour du couple)."
+  },
+  "couplePremiumIntro": "Vous vous êtes trouvés. MAZL Couple vous aide au quotidien : vos rituels, vos sorties, et une conciergerie qui s'occupe du reste.",
+  "@couplePremiumIntro": {
+    "description": "Phrase d'introduction de la page d'abonnement MAZL Couple."
+  },
+  "couplePremiumPerkConciergeTitle": "Conciergerie",
+  "@couplePremiumPerkConciergeTitle": {
+    "description": "Premier avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkConciergeMeta": "Réservations, surprises, cadeaux : demandez, on s'en occupe",
+  "@couplePremiumPerkConciergeMeta": {
+    "description": "Premier avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkRitualsTitle": "Vos rituels et vos dates",
+  "@couplePremiumPerkRitualsTitle": {
+    "description": "Deuxième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkRitualsMeta": "Shabbat, anniversaires, fêtes : rappelés à temps, à deux",
+  "@couplePremiumPerkRitualsMeta": {
+    "description": "Deuxième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkOutingsTitle": "Sorties choisies pour vous",
+  "@couplePremiumPerkOutingsTitle": {
+    "description": "Troisième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkOutingsMeta": "Casher, près de chez vous, et les événements MAZL couples",
+  "@couplePremiumPerkOutingsMeta": {
+    "description": "Troisième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkQuestionTitle": "La question du jour",
+  "@couplePremiumPerkQuestionTitle": {
+    "description": "Quatrième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkQuestionMeta": "Une question par jour pour continuer à se découvrir",
+  "@couplePremiumPerkQuestionMeta": {
+    "description": "Quatrième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumPerkCheckinTitle": "Le bilan du couple",
+  "@couplePremiumPerkCheckinTitle": {
+    "description": "Cinquième avantage de MAZL Couple : titre."
+  },
+  "couplePremiumPerkCheckinMeta": "Comment ça va entre vous, et des conseillers si besoin",
+  "@couplePremiumPerkCheckinMeta": {
+    "description": "Cinquième avantage de MAZL Couple : explication."
+  },
+  "couplePremiumFor": "Pour vous deux",
+  "@couplePremiumFor": {
+    "description": "Petit titre en capitales de la carte de prix de l'abonnement couple."
+  },
+  "couplePremiumPerMonth": "par mois",
+  "@couplePremiumPerMonth": {
+    "description": "Unité qui suit le prix de l'abonnement couple."
+  },
+  "couplePremiumShared": "Un seul abonnement : l'autre en profite aussitôt, sans rien payer.",
+  "@couplePremiumShared": {
+    "description": "Explication sur la carte de prix : un seul des deux membres paie."
+  },
+  "couplePremiumIncludesPlus": "mazl+ est inclus pour vous deux tant que l'abonnement couple est actif.",
+  "@couplePremiumIncludesPlus": {
+    "description": "Note sous le prix : mazl+ est inclus. En hébreu, « mazl+ » est suivi de U+200E."
+  },
+  "couplePremiumPriceLater": "Le prix s'affiche dès que l'App Store répond.",
+  "@couplePremiumPriceLater": {
+    "description": "Phrase à la place du prix quand le magasin d'applications n'est pas disponible ou ne connaît pas le produit."
+  },
+  "couplePremiumSubscribe": "S'abonner pour nous deux",
+  "@couplePremiumSubscribe": {
+    "description": "Bouton principal d'achat de l'abonnement couple."
+  },
+  "couplePremiumRestore": "Restaurer un achat",
+  "@couplePremiumRestore": {
+    "description": "Bouton texte pour restaurer un abonnement déjà acheté."
+  },
+  "couplePremiumLegal": "Renouvellement automatique chaque mois, résiliable à tout moment dans les réglages de l'App Store. Le prix affiché vient d'Apple, dans votre devise.",
+  "@couplePremiumLegal": {
+    "description": "Mention légale sous les boutons de l'abonnement couple (renouvellement, résiliation, prix)."
+  },
+  "couplePremiumWelcome": "MAZL Couple est actif pour vous deux.",
+  "@couplePremiumWelcome": {
+    "description": "Confirmation flottante après un achat réussi de l'abonnement couple."
+  },
+  "couplePremiumActiveTitle": "MAZL Couple est actif",
+  "@couplePremiumActiveTitle": {
+    "description": "Titre de la page d'abonnement quand le couple est déjà abonné."
+  },
+  "couplePremiumPaidByMe": "Payé par vous",
+  "@couplePremiumPaidByMe": {
+    "description": "Qui paie l'abonnement couple : le membre lui-même."
+  },
+  "couplePremiumPaidByPartner": "Payé par {partner}",
+  "@couplePremiumPaidByPartner": {
+    "description": "Qui paie l'abonnement couple : le partenaire. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "couplePremiumRenews": "Renouvelé le {date}",
+  "@couplePremiumRenews": {
+    "description": "Date de renouvellement de l'abonnement couple. {date} = date en toutes lettres, déjà dans la langue du membre.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "couplePremiumManage": "Gérer l'abonnement",
+  "@couplePremiumManage": {
+    "description": "Bouton qui ouvre la gestion de l'abonnement dans l'App Store (visible seulement pour le membre qui paie)."
+  },
+  "couplePremiumManageFailed": "Impossible d'ouvrir les réglages de l'App Store.",
+  "@couplePremiumManageFailed": {
+    "description": "Message d'erreur flottant quand la gestion de l'abonnement ne s'ouvre pas."
+  },
+  "couplePremiumLinkFailed": "Impossible d'ouvrir ce lien.",
+  "@couplePremiumLinkFailed": {
+    "description": "Message d'erreur flottant quand un lien (conditions, confidentialité) ne s'ouvre pas."
+  }
+}

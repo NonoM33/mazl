@@ -9,6 +9,8 @@ import { createMatchingModule } from "./features/matching/matching.module";
 import type { AppStorePricing, WebPricing } from "./features/storefront/application/ports";
 import { createStorefrontModule } from "./features/storefront/storefront.module";
 import type { StaffVariables } from "./features/staff/application/ports";
+import type { CoupleSpace } from "./features/couple/couple-space.module";
+import { roleGrants } from "./features/staff/domain/roles";
 import { createStaffModule } from "./features/staff/staff.module";
 import type { AccountEnforcement } from "./features/trust-safety/application/ports";
 import { createTrustSafetyModule } from "./features/trust-safety/trust-safety.module";
@@ -29,6 +31,8 @@ export interface BackofficeDeps {
   // Adapters to the stores; absent, the storefront answers "store_not_configured".
   readonly appStore?: AppStorePricing;
   readonly webPricing?: WebPricing;
+  // The couples' concierge: its staff routes are registered under /api/backoffice/concierge.
+  readonly coupleSpace?: CoupleSpace;
 }
 
 function accountEnforcement(sql: Sql, closeConnections: (userId: number) => void): AccountEnforcement {
@@ -79,6 +83,12 @@ export function createBackoffice(deps: BackofficeDeps) {
     trustSafety.register(api);
     matching.registerAdminRoutes(api);
     storefront.registerAdminRoutes(api);
+    deps.coupleSpace?.registerStaffRoutes(api, {
+      requirePermission: staff.requirePermission,
+      audit: audit.audit,
+      listStaffEmails: async () => (await staff.directory.list()).filter((member) => member.active && roleGrants(member.role, "concierge.manage")).map((member) => member.email),
+      exposeOpenApi: development,
+    });
     app.route("/", api);
     storefront.registerPublicRoutes(app);
     registerConsoleRoutes(app, { build: () => buildConsole({ development }), development });

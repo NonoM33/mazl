@@ -54,10 +54,10 @@ afterAll(async () => {
 });
 
 describe("the schema", () => {
-  test("the catalogue starts with the eight products of the web offers, in order", async () => {
+  test("the catalogue starts with the nine products of the web offers, in order", async () => {
     const rows = await db<{ product_id: string }[]>`SELECT product_id FROM storefront_products ORDER BY sort_order`;
     expect(rows.map((r) => r.product_id)).toEqual([
-      "com.mazl.app.plus.1m", PLUS_3M, "com.mazl.app.plus.6m", "com.mazl.app.plus.12m",
+      "com.mazl.app.plus.1m", PLUS_3M, "com.mazl.app.plus.6m", "com.mazl.app.plus.12m", "com.mazl.app.couple.1m",
       "com.mazl.app.boost.1", "com.mazl.app.boost.3", "com.mazl.app.superlikes.5", "com.mazl.app.superlikes.15",
     ]);
   });

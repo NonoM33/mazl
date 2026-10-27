@@ -63,6 +63,31 @@ abstract final class DemoPhotos {
     return const [];
   }
 
+  /// Photos libres (Unsplash) des sorties du couple en démo, dans l'ordre :
+  /// dîner aux chandelles, spa, poterie, bord de l'eau, musée, campagne, puis
+  /// les évènements (dîner de Shabbat, dégustation de vins, brunch). Chaque
+  /// photo montre le titre de sa sortie. Un identifiant qui ne répond plus
+  /// donne le fond teinté de l'écran, jamais une erreur.
+  static const _outings = <String>[
+    '1758705477547-1070b9fac15d',
+    '1620733723572-11c53f73a416',
+    '1595351298020-038700609878',
+    '1783627940385-3c472ff8dfcc',
+    '1518998053901-5348d3961a04',
+    '1769096575502-b8cf9d03d596',
+    '1680079033073-860e3b9c2094',
+    '1765850258962-61c55ba2be3b',
+    '1624462965565-9b3682640389',
+  ];
+
+  /// Photo d'une sortie ([key] : l'identifiant d'une activité, ou
+  /// `1000 + identifiant` pour un évènement). Un rang par sortie, sans
+  /// doublon : les évènements passent après les six activités.
+  static String outing(int key) {
+    final rank = key >= 1000 ? 5 + (key - 1000) : key - 1;
+    return _url(_outings[rank.abs() % _outings.length], w: 800, h: 600);
+  }
+
   /// Vignette (avatar des conversations, matchs, likes, couple) : le même
   /// visage que la photo principale.
   static String? avatar(int userId) {

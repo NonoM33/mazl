@@ -1,0 +1,162 @@
+{
+  "coupleUsDay": "Jour {count}",
+  "@coupleUsDay": {
+    "description": "En-tête du couple (« Nous deux ») : le numéro du jour depuis la formation du couple. {count} est toujours au moins 1.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleUsYouLabel": "Vous",
+  "@coupleUsYouLabel": {
+    "description": "Étiquette qui désigne le membre lui-même devant sa propre réponse (question du jour, historique des réponses)."
+  },
+  "coupleUsQuestionLabel": "Question du jour",
+  "@coupleUsQuestionLabel": {
+    "description": "Petit titre (capitales en mono) de la carte de la question du jour, sur « Nous deux »."
+  },
+  "coupleUsQuestionPartnerAnswered": "{name} a répondu · à vous",
+  "@coupleUsQuestionPartnerAnswered": {
+    "description": "Carte de la question du jour : le partenaire a déjà répondu, c'est au tour du membre. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsQuestionYourTurn": "À vous de répondre",
+  "@coupleUsQuestionYourTurn": {
+    "description": "Carte de la question du jour : le membre n'a pas encore répondu (on ne sait pas si l'autre l'a fait)."
+  },
+  "coupleUsQuestionYouAnswered": "Vous avez répondu",
+  "@coupleUsQuestionYouAnswered": {
+    "description": "Carte de la question du jour : les deux ont répondu, les deux réponses sont visibles dans la carte."
+  },
+  "coupleUsWaitingFor": "En attente de {name}",
+  "@coupleUsWaitingFor": {
+    "description": "Carte de la question du jour ou du bilan : le membre a fait sa part, on attend l'autre. {name} est le prénom du partenaire.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsAnswerButton": "Répondre",
+  "@coupleUsAnswerButton": {
+    "description": "Bouton de la carte de la question du jour quand le membre n'a pas répondu. Court."
+  },
+  "coupleUsSeeButton": "Voir",
+  "@coupleUsSeeButton": {
+    "description": "Bouton de la carte de la question du jour quand le membre a déjà répondu : ouvre la question. Court."
+  },
+  "coupleUsHistoryLink": "Voir l'historique des réponses",
+  "@coupleUsHistoryLink": {
+    "description": "Ligne sous la carte de la question du jour qui ouvre l'historique des réponses du couple."
+  },
+  "coupleUsCheckinLabel": "Bilan",
+  "@coupleUsCheckinLabel": {
+    "description": "Petit titre (capitales en mono) de la carte du bilan mensuel du couple, sur « Nous deux »."
+  },
+  "coupleUsCheckinDue": "Votre bilan du mois vous attend",
+  "@coupleUsCheckinDue": {
+    "description": "Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).",
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "novembre"
+      }
+    }
+  },
+  "coupleUsCheckinStart": "Faire le bilan",
+  "@coupleUsCheckinStart": {
+    "description": "Bouton de la carte du bilan : ouvre le bilan du mois à remplir."
+  },
+  "coupleUsCheckinAligned": "{count, plural, one{En phase sur {count} point sur 3} other{En phase sur {count} points sur 3}}",
+  "@coupleUsCheckinAligned": {
+    "description": "Carte du bilan, quand les deux ont répondu : sur combien des 3 thèmes (parler, temps, proximité) les notes sont proches. {count} va de 0 à 3. Pluriel : « point » / « points ».",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleUsCheckinLowestTalk": "Le thème à soigner ce mois-ci : se parler.",
+  "@coupleUsCheckinLowestTalk": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se parler). Ne donne jamais la note de l'autre."
+  },
+  "coupleUsCheckinLowestTime": "Le thème à soigner ce mois-ci : le temps à deux.",
+  "@coupleUsCheckinLowestTime": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (le temps à deux)."
+  },
+  "coupleUsCheckinLowestClose": "Le thème à soigner ce mois-ci : se sentir proches.",
+  "@coupleUsCheckinLowestClose": {
+    "description": "Carte du bilan : phrase douce sur le thème où le couple est le moins en phase (se sentir proches)."
+  },
+  "coupleUsSettingsLabel": "Réglages du couple",
+  "@coupleUsSettingsLabel": {
+    "description": "Titre de section (capitales en mono) des réglages du couple : statut de la relation et abonnement MAZL Couple."
+  },
+  "coupleUsStatusInRelationship": "En couple",
+  "@coupleUsStatusInRelationship": {
+    "description": "Pilule du statut de la relation : le couple est ensemble. Court."
+  },
+  "coupleUsStatusEngaged": "Fiancés",
+  "@coupleUsStatusEngaged": {
+    "description": "Pilule du statut de la relation : fiancés (pluriel, le couple). Court."
+  },
+  "coupleUsStatusMarried": "Mariés",
+  "@coupleUsStatusMarried": {
+    "description": "Pilule du statut de la relation : mariés (pluriel, le couple). Court."
+  },
+  "coupleUsPremiumTitle": "MAZL Couple",
+  "@coupleUsPremiumTitle": {
+    "description": "Titre de la ligne d'abonnement dans les réglages du couple. Nom du produit, à ne pas traduire."
+  },
+  "coupleUsPremiumActiveByYou": "Actif · payé par vous",
+  "@coupleUsPremiumActiveByYou": {
+    "description": "Ligne MAZL Couple, abonnement actif payé par le membre lui-même."
+  },
+  "coupleUsPremiumActiveByPartner": "Actif · payé par {name}",
+  "@coupleUsPremiumActiveByPartner": {
+    "description": "Ligne MAZL Couple, abonnement actif payé par le partenaire. {name} est son prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  },
+  "coupleUsPremiumActive": "Actif",
+  "@coupleUsPremiumActive": {
+    "description": "Ligne MAZL Couple, abonnement actif sans payeur connu."
+  },
+  "coupleUsPremiumDiscover": "Découvrir MAZL Couple",
+  "@coupleUsPremiumDiscover": {
+    "description": "Ligne MAZL Couple quand le couple n'est pas abonné : invite à découvrir l'offre."
+  },
+  "coupleUsHistoryTitle": "Vos réponses",
+  "@coupleUsHistoryTitle": {
+    "description": "Titre de la page d'historique des questions du jour (page empilée)."
+  },
+  "coupleUsHistoryEmptyTitle": "Pas encore de réponses",
+  "@coupleUsHistoryEmptyTitle": {
+    "description": "Historique des réponses vide : titre."
+  },
+  "coupleUsHistoryEmptyLine": "Répondez à la question du jour : vos réponses, et celles de l'autre, s'afficheront ici.",
+  "@coupleUsHistoryEmptyLine": {
+    "description": "Historique des réponses vide : une phrase qui dit quoi faire."
+  },
+  "coupleUsHistoryNoPartnerAnswer": "{name} n'a pas répondu",
+  "@coupleUsHistoryNoPartnerAnswer": {
+    "description": "Historique : le partenaire n'a pas répondu à cette question. {name} est son prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Noémie"
+      }
+    }
+  }
+}

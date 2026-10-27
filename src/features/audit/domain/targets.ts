@@ -11,6 +11,7 @@ export const AUDIT_TARGET_TYPES = [
   "matching_params",
   "storefront_product",
   "storefront_campaign",
+  "concierge_request",
   "staff",
   "photo",
   "system",

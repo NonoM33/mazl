@@ -1,0 +1,192 @@
+{
+  "coupleTodayEyebrow": "MAZL Couple · jour {days}",
+  "@coupleTodayEyebrow": {
+    "description": "Petit titre en capitales au-dessus du bonjour de l'écran Aujourd'hui du couple. {days} = nombre de jours ensemble.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleTodayTitle": "Bonjour {me}\net {partner}.",
+  "@coupleTodayTitle": {
+    "description": "Gros titre de l'écran Aujourd'hui, sur deux lignes (le retour à la ligne est voulu). {me} = prénom du membre, {partner} = prénom du partenaire.",
+    "placeholders": {
+      "me": {
+        "type": "String"
+      },
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayTitleNoName": "Bonjour,\nvous et {partner}.",
+  "@coupleTodayTitleNoName": {
+    "description": "Gros titre de l'écran Aujourd'hui quand le prénom du membre est inconnu, sur deux lignes. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionLabel": "Question du jour",
+  "@coupleTodayQuestionLabel": {
+    "description": "Petit titre en capitales de la carte de la question du jour."
+  },
+  "coupleTodayQuestionPartnerAnswered": "{partner} a répondu · à vous",
+  "@coupleTodayQuestionPartnerAnswered": {
+    "description": "Ligne d'état de la question du jour : le partenaire a répondu, pas encore le membre. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionMineAnswered": "Vous avez répondu · en attente de {partner}",
+  "@coupleTodayQuestionMineAnswered": {
+    "description": "Ligne d'état de la question du jour : le membre a répondu, pas le partenaire. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionWaiting": "En attente de {partner}",
+  "@coupleTodayQuestionWaiting": {
+    "description": "Ligne d'état de la question du jour quand personne n'a encore répondu. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayQuestionBoth": "Vous avez répondu tous les deux",
+  "@coupleTodayQuestionBoth": {
+    "description": "Ligne d'état de la question du jour quand les deux membres ont répondu."
+  },
+  "coupleTodayAnswer": "Répondre",
+  "@coupleTodayAnswer": {
+    "description": "Bouton de la carte de la question du jour : aller répondre."
+  },
+  "coupleTodayView": "Voir",
+  "@coupleTodayView": {
+    "description": "Bouton de la carte de la question du jour quand le membre a déjà répondu : voir les réponses."
+  },
+  "coupleTodayShabbatTonight": "Shabbat ensemble ce soir",
+  "@coupleTodayShabbatTonight": {
+    "description": "Titre de la carte Shabbat de l'écran Aujourd'hui, affichée le vendredi."
+  },
+  "coupleTodayShabbatFriday": "Shabbat ensemble vendredi",
+  "@coupleTodayShabbatFriday": {
+    "description": "Titre de la carte Shabbat de l'écran Aujourd'hui, affichée les autres jours de la semaine."
+  },
+  "coupleTodayClock": "{hour} h {minute}",
+  "@coupleTodayClock": {
+    "description": "Heure d'allumage des bougies. {hour} = heure sur 24 h, {minute} = minutes sur deux chiffres. En français « 17 h 21 », ailleurs « 17:21 ».",
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayShabbatCandles": "Allumage des bougies à {time} · Paris",
+  "@coupleTodayShabbatCandles": {
+    "description": "Sous-titre de la carte Shabbat. {time} = heure d'allumage des bougies, déjà écrite dans la langue du membre ; la ville est fixée à Paris.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayShabbatAgenda": "Ouvrir l'agenda",
+  "@coupleTodayShabbatAgenda": {
+    "description": "Info-bulle du bouton rond (chevron) de la carte Shabbat, qui mène à l'agenda du couple."
+  },
+  "coupleTodayUpcomingLabel": "À venir",
+  "@coupleTodayUpcomingLabel": {
+    "description": "Petit titre en capitales de la liste des prochaines échéances du couple."
+  },
+  "coupleTodayUpcomingEmpty": "Rien de prévu dans les 45 prochains jours. Ajoutez une date ou un rituel dans l'agenda.",
+  "@coupleTodayUpcomingEmpty": {
+    "description": "Phrase affichée quand la liste « À venir » est vide."
+  },
+  "coupleTodayDaysToday": "Aujourd'hui",
+  "@coupleTodayDaysToday": {
+    "description": "Sous-titre d'une échéance qui a lieu aujourd'hui (quand le serveur n'envoie pas de sous-titre)."
+  },
+  "coupleTodayDaysTomorrow": "Demain",
+  "@coupleTodayDaysTomorrow": {
+    "description": "Sous-titre d'une échéance qui a lieu demain (quand le serveur n'envoie pas de sous-titre)."
+  },
+  "coupleTodayDaysAhead": "{count, plural, one{Dans {count} jour} other{Dans {count} jours}}",
+  "@coupleTodayDaysAhead": {
+    "description": "Sous-titre d'une échéance dans plusieurs jours (quand le serveur n'envoie pas de sous-titre). {count} = nombre de jours, au moins 2.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coupleTodayIdeaFor": "Idée pour {weekday}",
+  "@coupleTodayIdeaFor": {
+    "description": "Petit titre en capitales de la carte d'idée de sortie, quand elle a une date. {weekday} = jour de la semaine en toutes lettres, déjà dans la langue du membre.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayIdeaGeneric": "Une idée pour vous",
+  "@coupleTodayIdeaGeneric": {
+    "description": "Petit titre en capitales de la carte d'idée de sortie, quand elle n'a pas de date."
+  },
+  "coupleTodayMoodQuestion": "Comment ça va entre vous ?",
+  "@coupleTodayMoodQuestion": {
+    "description": "Question au-dessus des quatre pastilles d'humeur du couple."
+  },
+  "coupleTodayMoodGreat": "Très bien",
+  "@coupleTodayMoodGreat": {
+    "description": "Pastille d'humeur : tout va très bien."
+  },
+  "coupleTodayMoodGood": "Bien",
+  "@coupleTodayMoodGood": {
+    "description": "Pastille d'humeur : ça va bien."
+  },
+  "coupleTodayMoodMeh": "Bof",
+  "@coupleTodayMoodMeh": {
+    "description": "Pastille d'humeur : moyen."
+  },
+  "coupleTodayMoodTalk": "On doit parler",
+  "@coupleTodayMoodTalk": {
+    "description": "Pastille d'humeur : le membre veut parler avec son partenaire (le partenaire est prévenu par une notification douce, sans texte)."
+  },
+  "coupleTodayMoodTalkNotice": "Nous avons prévenu {partner}, sans un mot.",
+  "@coupleTodayMoodTalkNotice": {
+    "description": "Phrase douce affichée après « On doit parler » : le partenaire est prévenu sans qu'aucun texte libre ne lui soit envoyé. {partner} = prénom du partenaire.",
+    "placeholders": {
+      "partner": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayMoodFailed": "Impossible d'enregistrer votre humeur. Réessayez.",
+  "@coupleTodayMoodFailed": {
+    "description": "Message d'erreur flottant quand l'humeur du couple n'a pas pu être enregistrée."
+  },
+  "coupleTodayCheckinDue": "Votre bilan du mois vous attend",
+  "@coupleTodayCheckinDue": {
+    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre ; le français ne l’affiche pas (« de octobre » sans élision).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleTodayPremiumLine": "Découvrir MAZL Couple",
+  "@coupleTodayPremiumLine": {
+    "description": "Ligne discrète en bas de l'écran Aujourd'hui, pour un couple non abonné : mène à la page de l'abonnement MAZL Couple."
+  }
+}

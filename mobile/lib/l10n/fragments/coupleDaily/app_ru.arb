@@ -1,0 +1,11 @@
+{
+  "coupleTabToday": "Сегодня",
+  "coupleTabAgenda": "Планы",
+  "coupleTabOutings": "Выходы",
+  "coupleTabConcierge": "Консьерж",
+  "coupleTabUs": "Мы вдвоём",
+  "coupleFailSubscriptionRequired": "Эта функция входит в MAZL Couple.",
+  "coupleFailRateLimited": "Вы достигли дневного лимита сообщений помощнику. Возвращайтесь завтра.",
+  "coupleFailAlreadyDone": "Вы уже ответили в этом месяце.",
+  "coupleFailRouteMissing": "Эта функция пока недоступна."
+}

@@ -1,13 +1,7 @@
 {
-  "coupleSpaceTabActivities": "Activities",
-  "coupleSpaceTabCalendar": "Calendar",
-  "coupleSpaceTabEvents": "Events",
-  "coupleSpaceTabSpace": "Our space",
-  "coupleSpaceTitle": "Our space",
   "coupleSpaceSettingsTooltip": "Settings",
   "coupleSpaceYou": "You",
   "coupleSpacePartnerFallback": "Your other half",
-  "coupleSpaceTogetherSince": "Together for {count, plural, one{{count} day} other{{count} days}}",
   "coupleSpaceStoryBegins": "Your story begins",
   "coupleSpaceStatSavedActivities": "Saved\nactivities",
   "coupleSpaceStatUpcomingEvents": "Upcoming\nevents",
@@ -77,14 +71,6 @@
   "coupleSpaceFailEventFull": "This event is full.",
   "coupleSpaceFailServer": "The server couldn't answer. Please try again.",
   "coupleSpaceFailUnexpected": "Unexpected response from the server.",
-  "coupleSpaceCalendarTitle": "Calendar",
-  "coupleSpaceCalendarShabbatIdeas": "Ideas for this Shabbat",
-  "coupleSpaceCalendarUpcoming": "Upcoming holidays",
   "coupleSpaceCalendarPrevMonth": "Previous month",
-  "coupleSpaceCalendarNextMonth": "Next month",
-  "coupleSpaceCalendarOngoing": "Ongoing",
-  "coupleSpaceCalendarCountdown": "In {count}d",
-  "coupleSpaceCalendarIdeas": "Couple ideas",
-  "coupleSpaceCalendarRangeSameMonth": "{month} {startDay} – {endDay}",
-  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}"
+  "coupleSpaceCalendarNextMonth": "Next month"
 }

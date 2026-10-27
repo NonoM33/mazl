@@ -15,7 +15,7 @@ class VerticalBarGeometry {
   const VerticalBarGeometry({
     required this.side,
     required this.strip,
-    required this.controlsTop,
+    required this.controls,
   });
 
   /// Room left above the app's controls, below the system elements.
@@ -34,16 +34,10 @@ class VerticalBarGeometry {
   /// The whole column, in window coordinates.
   final Rect strip;
 
-  /// Where the app's controls may start: below every system element.
-  final double controlsTop;
-
-  /// The part of the column the app's controls may use.
-  Rect get controls => Rect.fromLTRB(
-    strip.left,
-    controlsTop,
-    strip.right,
-    strip.bottom - bottomMargin,
-  );
+  /// The part of the column the app's controls may use: its largest stretch
+  /// free of system elements. The island is at the top of the column in most
+  /// poses, at its BOTTOM when the closed device lies the other way.
+  final Rect controls;
 
   /// The vertical bar of a window of [size] with [viewPadding], as the system
   /// reports it in [fold]; on iOS without a report, a one-sided column
@@ -65,14 +59,43 @@ class VerticalBarGeometry {
         ? Rect.fromLTWH(0, 0, width, size.height)
         : Rect.fromLTWH(size.width - width, 0, width, size.height);
     final inStrip = fold.occlusions.where((rect) => rect.overlaps(strip));
-    final reserved = inStrip.isEmpty
-        ? fallbackReservedTop
-        : inStrip.map((rect) => rect.bottom).reduce((a, b) => a > b ? a : b);
+    final occupied = inStrip.isEmpty
+        ? [Rect.fromLTWH(strip.left, 0, width, fallbackReservedTop)]
+        : inStrip.toList();
+    final (top, bottom) = _largestFreeStretch(occupied, size.height);
     return VerticalBarGeometry(
       side: side,
       strip: strip,
-      controlsTop: reserved + gap,
+      controls: Rect.fromLTRB(strip.left, top, strip.right, bottom),
     );
+  }
+
+  /// The tallest vertical stretch of a column [height] tall left by the
+  /// [occupied] system elements: [gap] away from each of them, [bottomMargin]
+  /// away from the screen's edges.
+  static (double, double) _largestFreeStretch(
+    List<Rect> occupied,
+    double height,
+  ) {
+    final sorted = [...occupied]..sort((a, b) => a.top.compareTo(b.top));
+    var best = (0.0, 0.0);
+    var start = 0.0;
+    var startsAtEdge = true;
+    void consider(double end, {required bool endsAtEdge}) {
+      final top = start + (startsAtEdge ? bottomMargin : gap);
+      final bottom = end - (endsAtEdge ? bottomMargin : gap);
+      if (bottom - top > best.$2 - best.$1) best = (top, bottom);
+    }
+
+    for (final rect in sorted) {
+      if (rect.top > start) consider(rect.top, endsAtEdge: false);
+      if (rect.bottom > start) {
+        start = rect.bottom;
+        startsAtEdge = false;
+      }
+    }
+    if (start < height) consider(height, endsAtEdge: true);
+    return best;
   }
 
   static VerticalBarSide? _guessSide(
@@ -95,10 +118,10 @@ class VerticalBarGeometry {
       other is VerticalBarGeometry &&
       other.side == side &&
       other.strip == strip &&
-      other.controlsTop == controlsTop;
+      other.controls == controls;
 
   @override
-  int get hashCode => Object.hash(side, strip, controlsTop);
+  int get hashCode => Object.hash(side, strip, controls);
 }
 
 /// What a screen puts in the vertical bar, and who put it there.

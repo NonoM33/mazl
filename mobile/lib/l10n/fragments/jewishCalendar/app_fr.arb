@@ -1,17 +1,4 @@
 {
-  "jewishCalendarShabbatTitle": "Ce Shabbat",
-  "@jewishCalendarShabbatTitle": {
-    "description": "Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif."
-  },
-  "jewishCalendarParashat": "Parashat {name}",
-  "@jewishCalendarParashat": {
-    "description": "Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "jewishCalendarParshaPair": "{first} {second}",
   "@jewishCalendarParshaPair": {
     "description": "Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.",
@@ -23,14 +10,6 @@
         "type": "String"
       }
     }
-  },
-  "jewishCalendarCandleLighting": "Allumage",
-  "@jewishCalendarCandleLighting": {
-    "description": "Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères."
-  },
-  "jewishCalendarHavdalah": "Havdala",
-  "@jewishCalendarHavdalah": {
-    "description": "Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères."
   },
   "jewishCalendarCategoryPreparation": "Préparation",
   "@jewishCalendarCategoryPreparation": {

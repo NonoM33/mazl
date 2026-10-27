@@ -1,0 +1,11 @@
+{
+  "coupleTabToday": "Hoy",
+  "coupleTabAgenda": "Agenda",
+  "coupleTabOutings": "Salidas",
+  "coupleTabConcierge": "Conserjería",
+  "coupleTabUs": "Nosotros",
+  "coupleFailSubscriptionRequired": "Esta función forma parte de MAZL Couple.",
+  "coupleFailRateLimited": "Han alcanzado el límite de mensajes de hoy con el asistente. Vuelvan mañana.",
+  "coupleFailAlreadyDone": "Ya respondiste este mes.",
+  "coupleFailRouteMissing": "Esta función aún no está disponible."
+}

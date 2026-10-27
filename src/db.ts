@@ -3,12 +3,15 @@ import { applyTestProfiles } from "./features/fixtures/test-profiles";
 import { ensureReviewAccount } from "./features/auth/review/review-account";
 import { readReviewLoginConfig } from "./features/auth/review/review-login";
 import { applyTestEvents } from "./features/fixtures/test-events";
+import { applyTestCoupleOutings } from "./features/fixtures/couple-outings";
 import { createCreditTables, eraseCredits } from "./features/credits/infra/schema";
 import { badgeColumns, primaryPhotoColumns } from "./features/media/infra/sql-fragments";
 import { publicPhotoUrls, withPublicPicture } from "./features/media/application/photo-urls";
 import { publicPicturesFor } from "./features/media/infra/public-pictures";
 import { isProfileComplete } from "./features/profile/domain/profile-completeness";
 import { isDevelopmentEnvironment } from "./shared/runtime/development-environment";
+import { ensureCoupleSpaceSchema } from "./features/couple/infra/schema";
+import { seedDefaultRituals } from "./features/couple/infra/pg-rituals";
 import { COUPLE_ACTIVITY_SEEDS, COUPLE_EVENT_SEEDS } from "./features/fixtures/couple-catalogue";
 
 // Production must name its database: a silent fallback to the local
@@ -774,6 +777,9 @@ export async function initDb() {
       UNIQUE(couple_id, achievement_type)
     )
   `;
+
+  // Daily couple space: rituals, reminders, moods, check-ins, concierge
+  await ensureCoupleSpaceSchema(sql);
 
   // ============ PERFORMANCE INDEXES ============
   // Hot paths: swipe exclusion, conversation messages, match lookups,
@@ -1918,6 +1924,8 @@ export async function seedTestProfilesIfRequested(flag = process.env.SEED_TEST_P
   console.log(`Test profiles ready: ${plan.members.length} member(s), ${plan.admins.length} administrator account(s)`);
   const events = await applyTestEvents(sql);
   console.log(`Test events ready: ${events.length} coming soon event(s)`);
+  const outings = await applyTestCoupleOutings(sql);
+  console.log(`Test couple outings ready: ${outings.length} (activities and events)`);
 }
 
 // ============ SEED FAKE PROFILES ============
@@ -2634,7 +2642,9 @@ export async function createCouple(
     RETURNING *
   `;
 
-  return result[0];
+  const couple = result[0];
+  if (couple) await seedDefaultRituals(executor, Number(couple.id));
+  return couple;
 }
 
 export async function getCouple(userId: number) {
@@ -3096,93 +3106,7 @@ export async function archiveConversationsExceptPartner(
   return { archived };
 }
 
-// Daily questions for couples
-const DAILY_QUESTIONS = [
-  { question: "Quel est ton moment prefere de la semaine ensemble ?", category: "Connection" },
-  { question: "Si on pouvait voyager n'importe ou, ou irais-tu ?", category: "Reves" },
-  { question: "Qu'est-ce qui t'a fait sourire aujourd'hui ?", category: "Quotidien" },
-  { question: "Comment aimerais-tu celebrer notre prochain Shabbat ?", category: "Judaisme" },
-  { question: "Quel trait de caractere admires-tu le plus chez moi ?", category: "Appreciation" },
-  { question: "Qu'est-ce qui te manque le plus quand on n'est pas ensemble ?", category: "Connection" },
-  { question: "Si tu pouvais apprendre une nouvelle competence, ce serait quoi ?", category: "Reves" },
-  { question: "Quel est ton souvenir prefere de notre relation ?", category: "Souvenirs" },
-  { question: "Comment te sens-tu aujourd'hui sur une echelle de 1 a 10 ?", category: "Bien-etre" },
-  { question: "Quelle est la chose la plus importante dans un couple selon toi ?", category: "Valeurs" },
-];
-
-export async function getDailyQuestion(coupleId: number) {
-  // Check if there's already a question for today
-  const existing = await sql`
-    SELECT * FROM couple_questions
-    WHERE couple_id = ${coupleId}
-      AND asked_at = CURRENT_DATE
-  `;
-
-  if (existing.length > 0) {
-    return existing[0];
-  }
-
-  // Pick a random question
-  const randomIndex = Math.floor(Math.random() * DAILY_QUESTIONS.length);
-  const questionData = DAILY_QUESTIONS[randomIndex];
-  if (!questionData) throw new Error("No daily question available");
-
-  // Create new question for today
-  const result = await sql`
-    INSERT INTO couple_questions (couple_id, question, category, asked_at)
-    VALUES (${coupleId}, ${questionData.question}, ${questionData.category}, CURRENT_DATE)
-    RETURNING *
-  `;
-
-  return result[0];
-}
-
-// Records one member's answer. The question must belong to the couple named in
-// the call, otherwise another couple's answer could be overwritten by id.
-// Returns false when nothing was written (unknown couple, outsider, or a
-// question that is not this couple's).
-export async function answerDailyQuestion(
-  coupleId: number,
-  questionId: number,
-  userId: number,
-  answer: string
-): Promise<boolean> {
-  const couple = await sql<{ user1_id: number; user2_id: number }[]>`
-    SELECT user1_id, user2_id FROM couples WHERE id = ${coupleId}
-  `;
-  const members = couple[0];
-  if (!members) return false;
-
-  if (members.user1_id === userId) {
-    const updated = await sql`
-      UPDATE couple_questions
-      SET user1_answer = ${answer}
-      WHERE id = ${questionId} AND couple_id = ${coupleId}
-      RETURNING id
-    `;
-    return updated.length > 0;
-  }
-  if (members.user2_id === userId) {
-    const updated = await sql`
-      UPDATE couple_questions
-      SET user2_answer = ${answer}
-      WHERE id = ${questionId} AND couple_id = ${coupleId}
-      RETURNING id
-    `;
-    return updated.length > 0;
-  }
-  return false;
-}
-
-export async function getCoupleQuestionHistory(coupleId: number, limit = 30) {
-  const questions = await sql`
-    SELECT * FROM couple_questions
-    WHERE couple_id = ${coupleId}
-    ORDER BY asked_at DESC
-    LIMIT ${limit}
-  `;
-  return questions;
-}
+// The daily question lives in src/features/couple (question bank, PgDailyQuestions).
 
 // Milestones
 export async function recordMilestone(coupleId: number, milestoneType: string) {

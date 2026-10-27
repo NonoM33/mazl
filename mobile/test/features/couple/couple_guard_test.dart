@@ -19,22 +19,42 @@ void main() {
     '/filters',
     '/daily-picks',
   ];
+
+  // The five tabs and the pages opened over them.
   const coupleRoutes = [
-    '/couple/activities',
+    '/couple/today',
+    '/couple/agenda',
+    '/couple/outings',
+    '/couple/concierge',
+    '/couple/concierge/4',
+    '/couple/us',
+    '/couple/us/settings',
+    '/couple/question',
+    '/couple/questions',
+    '/couple/checkin',
+    '/couple/premium',
     '/couple/activities/saved',
     '/couple/activities/4',
-    '/couple/calendar',
-    '/couple/events',
     '/couple/events/2',
-    '/couple/space',
-    '/couple/space/settings',
     '/couple/mazel-tov',
   ];
 
+  // The places of the couple space before the five tabs.
+  const legacyRoutes = {
+    '/couple/activities': '/couple/outings',
+    '/couple/calendar': '/couple/agenda',
+    '/couple/events': '/couple/outings',
+    '/couple/space': '/couple/us',
+    '/couple/space/settings': '/couple/us/settings',
+  };
+
   group('en couple', () {
     for (final route in datingRoutes) {
-      test('$route -> /couple/activities', () {
-        expect(coupleRedirect(location: route, inCouple: true), '/couple/activities');
+      test('$route -> /couple/today', () {
+        expect(
+          coupleRedirect(location: route, inCouple: true),
+          '/couple/today',
+        );
       });
     }
 
@@ -44,26 +64,72 @@ void main() {
       });
     }
 
+    for (final entry in legacyRoutes.entries) {
+      test('l\'ancienne route ${entry.key} -> ${entry.value}', () {
+        expect(
+          coupleRedirect(location: entry.key, inCouple: true),
+          entry.value,
+        );
+      });
+
+      test('${entry.key}/ (barre finale) mène au même endroit', () {
+        expect(
+          coupleRedirect(location: '${entry.key}/', inCouple: true),
+          entry.value,
+        );
+      });
+    }
+
+    test('une page ouverte depuis une ancienne route garde la sienne', () {
+      // « /couple/activities/4 » est une activité, pas l'ancienne liste.
+      expect(
+        coupleRedirect(location: '/couple/activities/4', inCouple: true),
+        isNull,
+      );
+      expect(
+        coupleRedirect(location: '/couple/events/2', inCouple: true),
+        isNull,
+      );
+    });
+
     test('l\'écran d\'activation n\'a plus lieu d\'être', () {
-      expect(coupleRedirect(location: '/couple/setup', inCouple: true), '/couple/activities');
+      expect(
+        coupleRedirect(location: '/couple/setup', inCouple: true),
+        '/couple/today',
+      );
     });
 
     test('les écrans communs restent accessibles', () {
-      for (final route in ['/premium', '/subscription', '/success-stories', '/verification/identity']) {
-        expect(coupleRedirect(location: route, inCouple: true), isNull, reason: route);
+      for (final route in [
+        '/premium',
+        '/subscription',
+        '/success-stories',
+        '/verification/identity',
+      ]) {
+        expect(
+          coupleRedirect(location: route, inCouple: true),
+          isNull,
+          reason: route,
+        );
       }
     });
   });
 
   group('hors couple', () {
-    for (final route in coupleRoutes) {
+    for (final route in [...coupleRoutes, ...legacyRoutes.keys]) {
       test('$route -> /discover', () {
-        expect(coupleRedirect(location: route, inCouple: false), '/discover');
+        expect(
+          coupleRedirect(location: route, inCouple: false),
+          '/discover',
+        );
       });
     }
 
     test('/couple/setup reste accessible', () {
-      expect(coupleRedirect(location: '/couple/setup', inCouple: false), isNull);
+      expect(
+        coupleRedirect(location: '/couple/setup', inCouple: false),
+        isNull,
+      );
     });
 
     for (final route in datingRoutes) {

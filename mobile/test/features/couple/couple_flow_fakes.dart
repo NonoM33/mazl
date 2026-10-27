@@ -48,6 +48,10 @@ Map<String, dynamic> contractReceivedRequest({int id = 91, int requesterId = 45}
 /// A fake server behind the real [CoupleApi] methods.
 class FakeCoupleApi implements CoupleApi {
   Map<String, dynamic>? couple;
+
+  /// `premium` as `GET /api/couple` renders it (ESPACE-COUPLE.md §1); null =
+  /// a server that does not send it yet.
+  Map<String, dynamic>? premium;
   List<Map<String, dynamic>> sent = [];
   List<Map<String, dynamic>> received = [];
 
@@ -111,7 +115,12 @@ class FakeCoupleApi implements CoupleApi {
     calls.add('couple');
     getCoupleCount++;
     if (unreachable) return ApiResponse.failure('offline', ApiErrorKind.network);
-    return ApiResponse.success({'success': true, 'couple': couple, 'milestones': []});
+    return ApiResponse.success({
+      'success': true,
+      'couple': couple,
+      'milestones': [],
+      if (premium != null) 'premium': premium,
+    });
   }
 
   @override
@@ -121,6 +130,25 @@ class FakeCoupleApi implements CoupleApi {
   }) async {
     calls.add('archive:$partnerUserId');
     archiveMessages.add(message);
+    return ApiResponse.success(null);
+  }
+
+  /// When set, the status update fails with this server error.
+  String? statusError;
+  final List<String> statuses = [];
+
+  @override
+  Future<ApiResponse<void>> updateCoupleStatus(
+    int coupleId,
+    String relationshipStatus,
+  ) async {
+    calls.add('status:$coupleId:$relationshipStatus');
+    if (statusError != null) {
+      return ApiResponse.failure(statusError!, ApiErrorKind.server);
+    }
+    statuses.add(relationshipStatus);
+    final current = couple;
+    if (current != null) couple = {...current, 'status': relationshipStatus};
     return ApiResponse.success(null);
   }
 

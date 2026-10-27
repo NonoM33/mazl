@@ -6,9 +6,13 @@ import 'package:mazl/core/services/push_destination.dart';
 //
 //   new_match        conversation_id présent -> /chat/<id>, sinon /matches
 //   new_message      -> /chat/<conversation_id>
-//   couple_request   -> /couple/space
-//   couple_question  -> /couple/space
-//   couple_accepted  -> /couple/space (complément du coordinateur, sans autre champ)
+//   couple_request   -> /couple/today
+//   couple_accepted  -> /couple/today (complément du coordinateur, sans autre champ)
+// et docs/couple/ESPACE-COUPLE.md §8 :
+//   couple_reminder  -> /couple/agenda
+//   couple_question  -> /couple/us
+//   couple_concierge -> /couple/concierge
+//   couple_mood      -> /couple/today
 //   new_like         -> /likes
 //   super_like       -> /likes
 //   boost_ended      -> /boost
@@ -138,20 +142,32 @@ void main() {
   });
 
   group('couple', () {
-    test('une demande de couple ouvre l\'espace couple', () {
-      expect(pushDestination({'type': 'couple_request'}), '/couple/space');
+    test('une demande de couple ouvre le jour du couple', () {
+      expect(pushDestination({'type': 'couple_request'}), '/couple/today');
     });
 
-    test('la question du jour ouvre l\'espace couple', () {
-      expect(pushDestination({'type': 'couple_question'}), '/couple/space');
+    test('une demande acceptée ouvre le jour du couple', () {
+      expect(pushDestination({'type': 'couple_accepted'}), '/couple/today');
     });
 
-    test(
-      'une demande acceptée ouvre l\'espace couple (ajout au contrat §1)',
-      () {
-        expect(pushDestination({'type': 'couple_accepted'}), '/couple/space');
-      },
-    );
+    test('un rappel ouvre l\'agenda', () {
+      expect(pushDestination({'type': 'couple_reminder'}), '/couple/agenda');
+    });
+
+    test('la question du jour ouvre « Nous deux »', () {
+      expect(pushDestination({'type': 'couple_question'}), '/couple/us');
+    });
+
+    test('un message de la conciergerie ouvre la conciergerie', () {
+      expect(
+        pushDestination({'type': 'couple_concierge'}),
+        '/couple/concierge',
+      );
+    });
+
+    test('« on doit parler » ouvre Aujourd\'hui, où l\'humeur se voit', () {
+      expect(pushDestination({'type': 'couple_mood'}), '/couple/today');
+    });
   });
 
   group('anciens et inconnus : aucune navigation, aucun plantage', () {
@@ -177,7 +193,7 @@ void main() {
           'eventId': 3,
           'extra': {'a': 1},
         }),
-        '/couple/space',
+        '/couple/us',
       );
     });
   });

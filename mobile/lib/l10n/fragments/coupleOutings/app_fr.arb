@@ -1,0 +1,112 @@
+{
+  "coupleOutingsEyebrow": "Près de chez vous",
+  "@coupleOutingsEyebrow": {
+    "description": "Eyebrow au-dessus du titre de l'onglet Sorties quand aucune ville n'est connue. Rendu en capitales mono par l'interface."
+  },
+  "coupleOutingsEyebrowCity": "Près de chez vous · {city}",
+  "@coupleOutingsEyebrowCity": {
+    "description": "Eyebrow au-dessus du titre de l'onglet Sorties, avec la ville de la sortie mise en avant. Rendu en capitales mono par l'interface.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleOutingsTitle": "Sorties à deux",
+  "@coupleOutingsTitle": {
+    "description": "Gros titre de l'onglet Sorties de l'espace couple."
+  },
+  "coupleOutingsSavedTooltip": "Sauvegardées",
+  "@coupleOutingsSavedTooltip": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page qui ouvre la liste des activités sauvegardées."
+  },
+  "coupleOutingsFilterTonight": "Ce soir",
+  "@coupleOutingsFilterTonight": {
+    "description": "Pilule de filtre : sorties de ce soir. Libellé court."
+  },
+  "coupleOutingsFilterWeek": "Ce week-end",
+  "@coupleOutingsFilterWeek": {
+    "description": "Pilule de filtre : sorties du week-end. Libellé court."
+  },
+  "coupleOutingsFilterKosher": "Casher",
+  "@coupleOutingsFilterKosher": {
+    "description": "Pilule de filtre : sorties casher. Libellé court."
+  },
+  "coupleOutingsFilterCheap": "Moins de 50 €",
+  "@coupleOutingsFilterCheap": {
+    "description": "Pilule de filtre : sorties à moins de 50 euros par couple. Libellé court ; garder le montant tel quel."
+  },
+  "coupleOutingsFilterMazl": "Événements MAZL",
+  "@coupleOutingsFilterMazl": {
+    "description": "Pilule de filtre : évènements organisés par MAZL pour les couples. Libellé court."
+  },
+  "coupleOutingsEventBadge": "Événement MAZL couples",
+  "@coupleOutingsEventBadge": {
+    "description": "Pastille sur la sortie mise en avant quand c'est un évènement organisé par MAZL pour les couples."
+  },
+  "coupleOutingsBookForUs": "Réserver pour nous deux",
+  "@coupleOutingsBookForUs": {
+    "description": "Bouton de la sortie mise en avant quand c'est un évènement : ouvre sa fiche pour s'inscrire en couple."
+  },
+  "coupleOutingsView": "Voir",
+  "@coupleOutingsView": {
+    "description": "Bouton de la sortie mise en avant quand c'est une activité : ouvre sa fiche."
+  },
+  "coupleOutingsSave": "Sauvegarder",
+  "@coupleOutingsSave": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité non sauvegardée."
+  },
+  "coupleOutingsUnsave": "Retirer des sauvegardes",
+  "@coupleOutingsUnsave": {
+    "description": "Info-bulle et libellé d'accessibilité du bouton marque-page d'une activité déjà sauvegardée."
+  },
+  "coupleOutingsPerCouple": "{price} par couple",
+  "@coupleOutingsPerCouple": {
+    "description": "Prix d'une sortie dans la ligne d'informations de la sortie mise en avant.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleOutingsFree": "Gratuit",
+  "@coupleOutingsFree": {
+    "description": "Prix d'une sortie gratuite."
+  },
+  "coupleOutingsMetaSeparator": " · ",
+  "@coupleOutingsMetaSeparator": {
+    "description": "Séparateur entre les éléments d'une ligne d'informations (date, ville, prix). Garder les espaces autour du point médian."
+  },
+  "coupleOutingsPicksLabel": "Sélection pour vous deux",
+  "@coupleOutingsPicksLabel": {
+    "description": "Petit titre de section (capitales mono) au-dessus de la grille des sorties proposées."
+  },
+  "coupleOutingsNote": "Les idées tiennent compte de votre cacherout, de vos goûts sauvegardés et de vos dates à venir.",
+  "@coupleOutingsNote": {
+    "description": "Note en bas de l'onglet Sorties : explique sur quoi les idées proposées s'appuient. Cacherout = règles alimentaires casher."
+  },
+  "coupleOutingsEmptyFilterTitle": "Rien pour ce filtre",
+  "@coupleOutingsEmptyFilterTitle": {
+    "description": "Titre de l'état vide quand le filtre choisi ne donne aucune sortie."
+  },
+  "coupleOutingsEmptyFilterLine": "Essayez un autre filtre ou regardez toutes les sorties.",
+  "@coupleOutingsEmptyFilterLine": {
+    "description": "Phrase de l'état vide quand le filtre choisi ne donne aucune sortie."
+  },
+  "coupleOutingsShowAll": "Tout voir",
+  "@coupleOutingsShowAll": {
+    "description": "Bouton de l'état vide : retire le filtre et montre toutes les sorties."
+  },
+  "coupleOutingsEmptyTitle": "Pas de sortie pour le moment",
+  "@coupleOutingsEmptyTitle": {
+    "description": "Titre de l'état vide quand aucune sortie n'existe, sans filtre."
+  },
+  "coupleOutingsEmptyLine": "De nouvelles idées arrivent bientôt.",
+  "@coupleOutingsEmptyLine": {
+    "description": "Phrase de l'état vide quand aucune sortie n'existe, sans filtre."
+  },
+  "coupleOutingsSaveFailed": "Impossible de modifier vos sauvegardes. Réessayez.",
+  "@coupleOutingsSaveFailed": {
+    "description": "Message flottant quand l'ajout ou le retrait d'une activité sauvegardée a échoué ; l'écran revient à son état d'avant."
+  }
+}

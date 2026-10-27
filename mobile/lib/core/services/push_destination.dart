@@ -7,9 +7,11 @@ import '../router/route_names.dart';
 /// |-------------------|----------------------------------------------------|
 /// | `new_match`       | `/chat/<conversation_id>`, else `/matches`         |
 /// | `new_message`     | `/chat/<conversation_id>`, else `/chat`            |
-/// | `couple_request`  | `/couple/space`                                    |
-/// | `couple_question` | `/couple/space`                                    |
-/// | `couple_accepted` | `/couple/space`                                    |
+/// | `couple_request`  | `/couple/today`                                    |
+/// | `couple_accepted` | `/couple/today`                                    |
+/// | `couple_reminder` | `/couple/agenda`                                   |
+/// | `couple_question` | `/couple/us`                                       |
+/// | `couple_concierge`| `/couple/concierge`                                |
 /// | `new_like`        | `/likes`                                           |
 /// | `super_like`      | `/likes`                                           |
 /// | `boost_ended`     | `/boost`                                           |
@@ -32,8 +34,14 @@ String? pushDestination(Map<String, dynamic> data) {
       return conversation == null
           ? RoutePaths.chat
           : _conversationPath(conversation);
-    case 'couple_request' || 'couple_question' || 'couple_accepted':
-      return RoutePaths.coupleSpace;
+    case 'couple_request' || 'couple_accepted' || 'couple_mood':
+      return RoutePaths.coupleToday;
+    case 'couple_reminder':
+      return RoutePaths.coupleAgenda;
+    case 'couple_question':
+      return RoutePaths.coupleUs;
+    case 'couple_concierge':
+      return RoutePaths.coupleConcierge;
     case 'new_like' || 'super_like':
       return RoutePaths.likes;
     case 'boost_ended':

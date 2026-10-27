@@ -4,8 +4,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
 import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
-import 'package:mazl/presentation/common/widgets/mazl_components.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_activities_feed_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_activity_detail_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_event_detail_screen.dart';
 import 'package:mazl/presentation/features/couple/screens/mazel_tov_screen.dart';
@@ -77,10 +75,6 @@ void _onSecondPage(WidgetTester tester, Finder finder, {bool rtl = false}) {
   }
 }
 
-/// The round button of the deck that carries [icon] (the discs that appear
-/// while a card is thrown carry the same icons).
-Finder _button(IconData icon) => find.widgetWithIcon(RoundIconButton, icon);
-
 void _nothingInTheCurve(WidgetTester tester, DuoPose pose) {
   expect(foldCrossingProblems(tester, pose), isEmpty);
   expectFitsDuoPose(tester, pose, 'couple');
@@ -95,76 +89,6 @@ CoupleApiService _api(void Function(FakeCoupleTransport) setUp) {
 void main() {
   setUpAll(loadAppFonts);
   setUp(() => SharedPreferences.setMockInitialValues({}));
-
-  group('activities feed', () {
-    const feed = 'GET /api/couple/activities?limit=50&offset=0';
-    CoupleApiService api() => _api((t) {
-      t.reply(
-        feed,
-        ok({
-          'activities': [
-            activityRow(id: 1, title: 'Spa en duo'),
-            activityRow(id: 2, title: 'Atelier poterie'),
-          ],
-        }),
-      );
-      t.reply('POST /api/couple/activities/1/pass', ok({}));
-    });
-
-    testWidgets('book: the card on the first page, the title, the categories '
-        'and the buttons on the other', (tester) async {
-      await _pump(
-        tester,
-        DuoPose.halfOpenBook,
-        CoupleActivitiesFeedScreen(apiService: api()),
-      );
-      final l10n = _l10n();
-      _onFirstPage(tester, find.text('Spa en duo'));
-      _onFirstPage(tester, find.textContaining('Moment de détente'));
-      _onSecondPage(tester, find.text(l10n.coupleFeedActivitiesTitle));
-      _onSecondPage(tester, find.text(l10n.coupleFeedFilterAll));
-      _onSecondPage(tester, _button(LucideIcons.x));
-      _onSecondPage(tester, _button(LucideIcons.info).last);
-      _nothingInTheCurve(tester, DuoPose.halfOpenBook);
-    });
-
-    testWidgets('folding keeps the card on top: the one thrown stays gone', (
-      tester,
-    ) async {
-      final pose = await _pump(
-        tester,
-        DuoPose.halfOpenBook,
-        CoupleActivitiesFeedScreen(apiService: api()),
-      );
-      expect(find.text('Spa en duo'), findsOneWidget);
-      await tester.tap(_button(LucideIcons.x));
-      await tester.pumpAndSettle();
-      expect(find.text('Atelier poterie'), findsOneWidget);
-      expect(find.text('Spa en duo'), findsNothing);
-
-      for (final next in [DuoPose.openPortrait, DuoPose.halfOpenBook]) {
-        await pose.moveTo(tester, next);
-        await tester.pumpAndSettle();
-        expect(find.text('Atelier poterie'), findsOneWidget, reason: '$next');
-        expect(find.text('Spa en duo'), findsNothing, reason: '$next');
-      }
-    });
-
-    testWidgets('book: with nothing to show, the message and its button '
-        'stay on the first page', (tester) async {
-      await _pump(
-        tester,
-        DuoPose.halfOpenBook,
-        CoupleActivitiesFeedScreen(
-          apiService: _api((t) => t.reply(feed, ok({'activities': []}))),
-        ),
-      );
-      final l10n = _l10n();
-      _onFirstPage(tester, find.text(l10n.coupleFeedActivitiesEmptyTitle));
-      _onFirstPage(tester, find.text(l10n.coupleFeedRefresh));
-      _nothingInTheCurve(tester, DuoPose.halfOpenBook);
-    });
-  });
 
   group('activity detail', () {
     CoupleApiService api() => _api((t) {

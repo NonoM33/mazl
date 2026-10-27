@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../motion/mazl_motion.dart';
 import '../theme/app_colors.dart';
@@ -31,42 +32,71 @@ class MazlNetworkImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dpr = MediaQuery.devicePixelRatioOf(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final logical = constraints.hasBoundedWidth
-            ? constraints.maxWidth
-            : (constraints.hasBoundedHeight ? constraints.maxHeight : null);
-        final width = logical == null || !logical.isFinite
-            ? null
-            : bucketedPixels(logical, dpr);
-        final key = photoCacheKey(url);
-        final fade = MazlMotion.reduced(context) ? Duration.zero : fadeDuration;
-        return Image(
-          image: mazlImageProvider(url, cacheWidth: width),
-          fit: fit,
-          gaplessPlayback: true,
-          // A photo that cannot load ends on the flat tint, never on a spinner.
-          errorBuilder: (context, error, stack) =>
-              errorBuilder?.call(context) ?? _PhotoPlaceholder(cacheKey: key),
-          frameBuilder: (context, child, frame, synchronous) {
-            if (frame == null) {
-              return placeholder?.call(context) ??
-                  _PhotoPlaceholder(cacheKey: key);
-            }
-            return _ShownImage(
-              cacheKey: key,
-              synchronous: synchronous,
-              fade: fade,
-              placeholder:
-                  placeholder?.call(context) ??
-                  _PhotoPlaceholder(cacheKey: key),
-              child: child,
-            );
-          },
-        );
-      },
+    return _NoNaturalSize(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final logical = constraints.hasBoundedWidth
+              ? constraints.maxWidth
+              : (constraints.hasBoundedHeight ? constraints.maxHeight : null);
+          final width = logical == null || !logical.isFinite
+              ? null
+              : bucketedPixels(logical, dpr);
+          final key = photoCacheKey(url);
+          final fade = MazlMotion.reduced(context)
+              ? Duration.zero
+              : fadeDuration;
+          return Image(
+            image: mazlImageProvider(url, cacheWidth: width),
+            fit: fit,
+            gaplessPlayback: true,
+            // A photo that cannot load ends on the flat tint, never on a spinner.
+            errorBuilder: (context, error, stack) =>
+                errorBuilder?.call(context) ?? _PhotoPlaceholder(cacheKey: key),
+            frameBuilder: (context, child, frame, synchronous) {
+              if (frame == null) {
+                return placeholder?.call(context) ??
+                    _PhotoPlaceholder(cacheKey: key);
+              }
+              return _ShownImage(
+                cacheKey: key,
+                synchronous: synchronous,
+                fade: fade,
+                placeholder:
+                    placeholder?.call(context) ??
+                    _PhotoPlaceholder(cacheKey: key),
+                child: child,
+              );
+            },
+          );
+        },
+      ),
     );
   }
+}
+
+/// A photo not loaded yet has no natural size: it answers zero when a parent
+/// such as IntrinsicHeight asks, instead of reaching the LayoutBuilder, which
+/// cannot answer and breaks the layout.
+class _NoNaturalSize extends SingleChildRenderObjectWidget {
+  const _NoNaturalSize({required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderNoNaturalSize();
+}
+
+class _RenderNoNaturalSize extends RenderProxyBox {
+  @override
+  double computeMinIntrinsicWidth(double height) => 0;
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => 0;
+
+  @override
+  double computeMinIntrinsicHeight(double width) => 0;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => 0;
 }
 
 /// Décide UNE fois, à la première image, s'il y a un fondu : une reconstruction

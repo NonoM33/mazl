@@ -569,6 +569,522 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get coupleAgendaTitle => 'Календарь пары';
+
+  @override
+  String get coupleAgendaLegendDate => 'Важная дата';
+
+  @override
+  String get coupleAgendaLegendHoliday => 'Праздник';
+
+  @override
+  String get coupleAgendaLegendRitual => 'Ритуал';
+
+  @override
+  String get coupleAgendaAddMoment => 'Добавить событие';
+
+  @override
+  String get coupleAgendaNothing => 'В этот день ничего нет';
+
+  @override
+  String get coupleAgendaRitualsLabel => 'Ваши ритуалы';
+
+  @override
+  String get coupleAgendaDatesLabel => 'Важные даты';
+
+  @override
+  String get coupleAgendaRitualsEmptyTitle => 'Ритуалов пока нет';
+
+  @override
+  String get coupleAgendaRitualsEmptyLine =>
+      'Регулярная встреча вдвоём, например Шаббат или вечер без экранов.';
+
+  @override
+  String get coupleAgendaAddRitual => 'Добавить ритуал';
+
+  @override
+  String coupleAgendaRitualsFailed(String reason) {
+    return 'Ритуалы недоступны. $reason';
+  }
+
+  @override
+  String coupleAgendaDatesFailed(String reason) {
+    return 'Даты недоступны. $reason';
+  }
+
+  @override
+  String coupleAgendaWeekly(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'sun': 'Каждое воскресенье',
+      'mon': 'Каждый понедельник',
+      'tue': 'Каждый вторник',
+      'wed': 'Каждую среду',
+      'thu': 'Каждый четверг',
+      'fri': 'Каждую пятницу',
+      'sat': 'Каждую субботу',
+      'other': 'Каждую неделю',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get coupleAgendaNoDay => 'Без фиксированного дня';
+
+  @override
+  String coupleAgendaAtTime(String when, String time) {
+    return '$when в $time';
+  }
+
+  @override
+  String coupleAgendaRemindHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count часа',
+      many: '$count часов',
+      few: '$count часа',
+      one: '$count час',
+    );
+    return 'напоминание за $_temp0';
+  }
+
+  @override
+  String coupleAgendaRemindMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count минуты',
+      many: '$count минут',
+      few: '$count минуты',
+      one: '$count минуту',
+    );
+    return 'напоминание за $_temp0';
+  }
+
+  @override
+  String coupleAgendaRemindHoursCandles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count часа',
+      many: '$count часов',
+      few: '$count часа',
+      one: '$count час',
+    );
+    return 'напоминание за $_temp0 до свечей';
+  }
+
+  @override
+  String coupleAgendaRemindMinutesCandles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count минуты',
+      many: '$count минут',
+      few: '$count минуты',
+      one: '$count минуту',
+    );
+    return 'напоминание за $_temp0 до свечей';
+  }
+
+  @override
+  String get coupleAgendaNoReminder => 'без напоминания';
+
+  @override
+  String coupleAgendaRitualMeta(String when, String reminder) {
+    return '$when · $reminder';
+  }
+
+  @override
+  String coupleAgendaRitualSemantics(String title, String meta) {
+    return '$title, $meta';
+  }
+
+  @override
+  String coupleAgendaToggleFailed(String reason) {
+    return 'Не удалось изменить. $reason';
+  }
+
+  @override
+  String get coupleAgendaRemindersPremium => 'Напоминания входят в MAZL Couple';
+
+  @override
+  String get coupleAgendaDatesEmptyTitle => 'Важных дат пока нет';
+
+  @override
+  String get coupleAgendaDatesEmptyLine =>
+      'Добавьте годовщину или важную дату через «Добавить событие».';
+
+  @override
+  String coupleAgendaDateWhen(String date, String relative) {
+    return '$date · $relative';
+  }
+
+  @override
+  String coupleAgendaDaysUntil(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'через $count дня',
+      many: 'через $count дней',
+      few: 'через $count дня',
+      one: 'через $count день',
+      zero: 'сегодня',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coupleAgendaDateReminder(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня',
+      many: '$count дней',
+      few: '$count дня',
+      one: '$count день',
+    );
+    return 'Напоминание за $_temp0';
+  }
+
+  @override
+  String coupleAgendaDateTitle(String title, String date) {
+    return '$title · $date';
+  }
+
+  @override
+  String get coupleAgendaConciergeLine =>
+      'Консьерж поможет подготовить этот момент.';
+
+  @override
+  String get coupleAgendaPrepare => 'Подготовить с консьержем';
+
+  @override
+  String get coupleAgendaAddRitualTitle => 'Новый ритуал';
+
+  @override
+  String get coupleAgendaRitualFieldTitle => 'Название ритуала';
+
+  @override
+  String get coupleAgendaRitualFieldDay => 'День недели';
+
+  @override
+  String get coupleAgendaRitualFieldTime => 'Время (по желанию)';
+
+  @override
+  String get coupleAgendaRitualPickTime => 'Выбрать время';
+
+  @override
+  String get coupleAgendaRitualClearTime => 'Убрать время';
+
+  @override
+  String coupleAgendaDaySemantics(String date, String marks) {
+    return '$date, $marks';
+  }
+
+  @override
+  String get coupleCheckinTitle => 'Итоги месяца для пары';
+
+  @override
+  String coupleCheckinEyebrow(String month) {
+    return 'Итоги: $month';
+  }
+
+  @override
+  String get coupleCheckinHeading => 'Как у вас дела?';
+
+  @override
+  String get coupleCheckinIntro =>
+      'Две минуты, каждый сам по себе. Ваши ответы остаются между вами двумя.';
+
+  @override
+  String get coupleCheckinTalk => 'Мы по-настоящему разговариваем';
+
+  @override
+  String get coupleCheckinTime => 'Мы проводим достаточно времени вдвоём';
+
+  @override
+  String get coupleCheckinClose => 'Мы чувствуем близость';
+
+  @override
+  String get coupleCheckinScaleLow => 'Совсем нет';
+
+  @override
+  String get coupleCheckinScaleHigh => 'Полностью';
+
+  @override
+  String coupleCheckinScoreLabel(String question, int n) {
+    return '$question: $n из 5';
+  }
+
+  @override
+  String get coupleCheckinSend => 'Отправить';
+
+  @override
+  String get coupleCheckinSendFailed =>
+      'Итоги не отправлены. Ваши оценки сохранены, можно попробовать снова.';
+
+  @override
+  String get coupleCheckinEmptyTitle => 'Итоги скоро появятся';
+
+  @override
+  String get coupleCheckinEmptyLine =>
+      'Раз в месяц — две минуты, чтобы узнать, как дела у вашей пары.';
+
+  @override
+  String get coupleCheckinDoneHeading => 'Спасибо, отправлено';
+
+  @override
+  String coupleCheckinWaiting(String name) {
+    return 'Ждём ответа: $name. Итоги вы увидите вместе.';
+  }
+
+  @override
+  String coupleCheckinAligned(int count) {
+    return 'Совпадение по $count из 3 пунктов';
+  }
+
+  @override
+  String get coupleCheckinAttentionTalkUp =>
+      'Вы стали больше разговаривать. Сохраняйте этот ритм, пусть даже по пять минут в день.';
+
+  @override
+  String get coupleCheckinAttentionTalkDown =>
+      'Разговоров стало меньше. Может, на этой неделе поговорите без телефона?';
+
+  @override
+  String get coupleCheckinAttentionTalkSame =>
+      'По-настоящему разговаривать — по-прежнему то, о чём стоит позаботиться. Ответьте вместе на вопрос дня.';
+
+  @override
+  String get coupleCheckinAttentionTalkNone =>
+      'По-настоящему разговаривать — то, о чём стоит позаботиться в этом месяце. Начните с вопроса дня.';
+
+  @override
+  String get coupleCheckinAttentionTimeUp =>
+      'Вы проводите больше времени вдвоём. Запланируйте следующую вылазку уже сейчас.';
+
+  @override
+  String get coupleCheckinAttentionTimeDown =>
+      'Времени вдвоём стало меньше. Может, на этой неделе устроите вечер без экранов?';
+
+  @override
+  String get coupleCheckinAttentionTimeSame =>
+      'Времени вдвоём по-прежнему стоит добавить. Отметьте вечер в календаре.';
+
+  @override
+  String get coupleCheckinAttentionTimeNone =>
+      'Время вдвоём — то, о чём стоит позаботиться. Отметьте вечер в календаре.';
+
+  @override
+  String get coupleCheckinAttentionCloseUp =>
+      'Вы стали ближе. Расскажите друг другу, что изменилось.';
+
+  @override
+  String get coupleCheckinAttentionCloseDown =>
+      'Вы стали чувствовать себя менее близкими. Найдите минуту и скажите друг другу, что для вас важно.';
+
+  @override
+  String get coupleCheckinAttentionCloseSame =>
+      'Близость по-прежнему нужно беречь. Может, сегодня сделаете друг другу что-то приятное?';
+
+  @override
+  String get coupleCheckinAttentionCloseNone =>
+      'Близость — то, что стоит беречь. Может, сегодня сделаете друг другу что-то приятное?';
+
+  @override
+  String get coupleConciergeEyebrow => 'Входит в MAZL Couple';
+
+  @override
+  String get coupleConciergeTitle => 'Ваш консьерж-сервис';
+
+  @override
+  String get coupleConciergeIntro =>
+      'Просто попросите — об остальном позаботимся мы. Ассистент сразу подготовит идеи, а команда MAZL забронирует и подтвердит.';
+
+  @override
+  String get coupleConciergeQuickTable => 'Забронировать столик';
+
+  @override
+  String get coupleConciergeQuickSurprise => 'Организовать сюрприз';
+
+  @override
+  String get coupleConciergeQuickGift => 'Найти подарок';
+
+  @override
+  String get coupleConciergeQuickWeekend => 'Спланировать выходные';
+
+  @override
+  String get coupleConciergeStartTable => 'Хочу забронировать столик на двоих';
+
+  @override
+  String get coupleConciergeStartSurprise => 'Хочу организовать сюрприз для';
+
+  @override
+  String get coupleConciergeStartGift => 'Ищу подарок для';
+
+  @override
+  String get coupleConciergeStartWeekend => 'Хочу спланировать выходные в';
+
+  @override
+  String get coupleConciergeInProgress => 'В работе';
+
+  @override
+  String get coupleConciergeClosedSection => 'Завершённые';
+
+  @override
+  String get coupleConciergeStatusClosed => 'Завершена';
+
+  @override
+  String get coupleConciergeStatusCancelled => 'Отменена';
+
+  @override
+  String get coupleConciergeNoRequests =>
+      'Пока нет запросов. Напишите, что вы задумали.';
+
+  @override
+  String coupleConciergeBefore(String day) {
+    return 'Срок: $day';
+  }
+
+  @override
+  String coupleConciergeOnDate(String date) {
+    return 'На $date';
+  }
+
+  @override
+  String get coupleConciergeStep1 => 'Запрос получен';
+
+  @override
+  String get coupleConciergeStep2 => 'Идея выбрана';
+
+  @override
+  String get coupleConciergeStep3 => 'Забронировано командой';
+
+  @override
+  String coupleConciergeStepSemantics(int step, String label) {
+    return 'шаг $step из 3: $label';
+  }
+
+  @override
+  String get coupleConciergePrivacy =>
+      'Ваши запросы читает автоматический ассистент, а затем команда MAZL.';
+
+  @override
+  String get coupleConciergeComposerHint => 'Попросите консьержа…';
+
+  @override
+  String get coupleConciergeSend => 'Отправить';
+
+  @override
+  String get coupleConciergeWaiting => 'Ассистент готовит ответ';
+
+  @override
+  String get coupleConciergeRoleAssistant => 'Ассистент';
+
+  @override
+  String get coupleConciergeRoleTeam => 'Команда MAZL';
+
+  @override
+  String get coupleConciergePartnerFallback => 'Ваш партнёр';
+
+  @override
+  String get coupleConciergeThreadEyebrow => 'Ваш запрос';
+
+  @override
+  String get coupleConciergeNewEyebrow => 'Новый запрос';
+
+  @override
+  String get coupleConciergeNewLine =>
+      'Расскажите, что вы задумали, или выберите быстрый запрос.';
+
+  @override
+  String get coupleConciergeOptionsLabel => 'Предложенные идеи';
+
+  @override
+  String get coupleConciergeChosen => 'Выбрана';
+
+  @override
+  String get coupleConciergeBook => 'Да, бронируйте';
+
+  @override
+  String get coupleConciergeOtherIdea => 'Другая идея';
+
+  @override
+  String get coupleConciergeOtherIdeaMessage =>
+      'Можете предложить другую идею?';
+
+  @override
+  String get coupleConciergeCancel => 'Отменить запрос';
+
+  @override
+  String get coupleConciergeCancelTitle => 'Отменить этот запрос?';
+
+  @override
+  String get coupleConciergeCancelBody =>
+      'Команда MAZL больше не будет им заниматься.';
+
+  @override
+  String get coupleConciergeCancelConfirm => 'Да, отменить';
+
+  @override
+  String get coupleConciergeKeep => 'Оставить запрос';
+
+  @override
+  String get coupleConciergeNoteClosed => 'Этот запрос завершён.';
+
+  @override
+  String get coupleConciergeNoteCancelled => 'Этот запрос отменён.';
+
+  @override
+  String get coupleConciergeNoteFresh =>
+      'Команда MAZL получила ваш запрос и ответит здесь.';
+
+  @override
+  String get coupleConciergeNoteChosen =>
+      'Команда MAZL бронирует выбранную идею и подтвердит здесь.';
+
+  @override
+  String get coupleConciergeNoteBooked =>
+      'Забронировано: подробности в переписке.';
+
+  @override
+  String get coupleConciergeDiscover => 'Узнать о MAZL Couple';
+
+  @override
+  String get coupleConciergePaywallLine =>
+      'Сервис, который обо всём позаботится, для вас двоих. Ассистент готовит идеи, команда MAZL бронирует и подтверждает.';
+
+  @override
+  String get coupleTabToday => 'Сегодня';
+
+  @override
+  String get coupleTabAgenda => 'Планы';
+
+  @override
+  String get coupleTabOutings => 'Выходы';
+
+  @override
+  String get coupleTabConcierge => 'Консьерж';
+
+  @override
+  String get coupleTabUs => 'Мы вдвоём';
+
+  @override
+  String get coupleFailSubscriptionRequired =>
+      'Эта функция входит в MAZL Couple.';
+
+  @override
+  String get coupleFailRateLimited =>
+      'Вы достигли дневного лимита сообщений помощнику. Возвращайтесь завтра.';
+
+  @override
+  String get coupleFailAlreadyDone => 'Вы уже ответили в этом месяце.';
+
+  @override
+  String get coupleFailRouteMissing => 'Эта функция пока недоступна.';
+
+  @override
   String get coupleFeedCategoryWellness => 'Велнес';
 
   @override
@@ -678,47 +1194,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleFeedPartnerMazl => 'Партнёр MAZL';
 
   @override
-  String coupleFeedPartnerDiscountMazl(int percent) {
-    return 'Скидка $percent % · Партнёр MAZL';
-  }
-
-  @override
   String coupleFeedPartnerDiscount(int percent) {
     return 'Скидка $percent % · Партнёр';
   }
 
   @override
-  String get coupleFeedActivitiesTitle => 'Занятия';
-
-  @override
   String get coupleFeedSavedTitle => 'Сохранённые занятия';
-
-  @override
-  String get coupleFeedActivitiesEmptyTitle => 'Пока нет занятий';
-
-  @override
-  String get coupleFeedActivitiesEmptyLine => 'Скоро появятся новые идеи.';
-
-  @override
-  String get coupleFeedRefresh => 'Обновить';
-
-  @override
-  String get coupleFeedSeeDetail => 'Подробнее';
-
-  @override
-  String coupleFeedActivitySavedSnack(String title) {
-    return 'Сохранено: $title';
-  }
-
-  @override
-  String coupleFeedActivitySaveCardError(String title) {
-    return 'Не удалось сохранить «$title». Попробуйте ещё раз.';
-  }
-
-  @override
-  String coupleFeedActivityPassCardError(String title) {
-    return 'Не удалось пропустить «$title». Попробуйте ещё раз.';
-  }
 
   @override
   String get coupleFeedActivityNotFoundTitle => 'Занятие не найдено';
@@ -807,36 +1288,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleFeedSavedEmptyAction => 'Найти занятия';
 
   @override
-  String get coupleFeedEventsTitle => 'События';
-
-  @override
-  String get coupleFeedEventsUpcoming => 'Скоро';
-
-  @override
-  String coupleFeedEventsRegisteredTab(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    return 'Записаны ($countString)';
-  }
-
-  @override
-  String get coupleFeedEventsEmptyAll => 'Нет доступных событий';
-
-  @override
-  String get coupleFeedEventsEmptyRegistered =>
-      'Вы не записаны ни на одно событие';
-
-  @override
-  String get coupleFeedEventsDiscover => 'Посмотреть события';
-
-  @override
-  String coupleFeedEventRegisteredSnack(String title) {
-    return 'Вы записаны на «$title»';
-  }
-
-  @override
   String coupleFeedEventRegisteredSnackDetail(String title) {
     return 'Вы записаны на «$title»';
   }
@@ -850,41 +1301,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось отменить запись. Попробуйте ещё раз.';
 
   @override
-  String get coupleFeedEventCancelTitle => 'Отменить запись?';
-
-  @override
-  String coupleFeedEventCancelBody(String title) {
-    return 'Вы действительно хотите отменить запись на «$title»?';
-  }
-
-  @override
-  String get coupleFeedEventCancelNo => 'Нет';
-
-  @override
-  String get coupleFeedEventCancelYes => 'Да, отменить';
-
-  @override
   String get coupleFeedEventCancelled => 'Запись отменена';
 
   @override
   String get coupleFeedEventFull => 'Мест нет';
-
-  @override
-  String coupleFeedEventSpots(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString места',
-      many: '$countString мест',
-      few: '$countString места',
-      one: '$countString место',
-    );
-    return '$_temp0';
-  }
 
   @override
   String coupleFeedEventSpotsLeft(int count) {
@@ -931,19 +1351,271 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleFeedLoadFailedTitle => 'Не удалось загрузить';
 
   @override
-  String get coupleSpaceTabActivities => 'Активности';
+  String get coupleOutingsEyebrow => 'Рядом с вами';
 
   @override
-  String get coupleSpaceTabCalendar => 'Календарь';
+  String coupleOutingsEyebrowCity(String city) {
+    return 'Рядом с вами · $city';
+  }
 
   @override
-  String get coupleSpaceTabEvents => 'Мероприятия';
+  String get coupleOutingsTitle => 'Выходы вдвоём';
 
   @override
-  String get coupleSpaceTabSpace => 'Наше место';
+  String get coupleOutingsSavedTooltip => 'Сохранённые';
 
   @override
-  String get coupleSpaceTitle => 'Наше место';
+  String get coupleOutingsFilterTonight => 'Сегодня вечером';
+
+  @override
+  String get coupleOutingsFilterWeek => 'В эти выходные';
+
+  @override
+  String get coupleOutingsFilterKosher => 'Кошерное';
+
+  @override
+  String get coupleOutingsFilterCheap => 'До 50 €';
+
+  @override
+  String get coupleOutingsFilterMazl => 'События MAZL';
+
+  @override
+  String get coupleOutingsEventBadge => 'Событие MAZL для пар';
+
+  @override
+  String get coupleOutingsBookForUs => 'Забронировать для нас двоих';
+
+  @override
+  String get coupleOutingsView => 'Смотреть';
+
+  @override
+  String get coupleOutingsSave => 'Сохранить';
+
+  @override
+  String get coupleOutingsUnsave => 'Убрать из сохранённых';
+
+  @override
+  String coupleOutingsPerCouple(String price) {
+    return '$price за пару';
+  }
+
+  @override
+  String get coupleOutingsFree => 'Бесплатно';
+
+  @override
+  String get coupleOutingsMetaSeparator => ' · ';
+
+  @override
+  String get coupleOutingsPicksLabel => 'Подобрано для вас двоих';
+
+  @override
+  String get coupleOutingsNote =>
+      'Идеи учитывают ваш кашрут, сохранённые предпочтения и ближайшие даты.';
+
+  @override
+  String get coupleOutingsEmptyFilterTitle => 'Ничего по этому фильтру';
+
+  @override
+  String get coupleOutingsEmptyFilterLine =>
+      'Попробуйте другой фильтр или посмотрите все выходы.';
+
+  @override
+  String get coupleOutingsShowAll => 'Показать все';
+
+  @override
+  String get coupleOutingsEmptyTitle => 'Пока нет выходов';
+
+  @override
+  String get coupleOutingsEmptyLine => 'Скоро появятся новые идеи.';
+
+  @override
+  String get coupleOutingsSaveFailed =>
+      'Не удалось обновить сохранённое. Повторите попытку.';
+
+  @override
+  String get couplePremiumWordmarkSuffix => 'couple';
+
+  @override
+  String get couplePremiumHeadline => 'Самое трудное — сберечь это.';
+
+  @override
+  String get couplePremiumIntro =>
+      'Вы нашли друг друга. MAZL Couple помогает каждый день: ваши ритуалы, ваши выходы и консьерж-сервис, который берёт на себя остальное.';
+
+  @override
+  String get couplePremiumPerkConciergeTitle => 'Консьерж';
+
+  @override
+  String get couplePremiumPerkConciergeMeta =>
+      'Бронирования, сюрпризы, подарки: попросите, и мы всё сделаем';
+
+  @override
+  String get couplePremiumPerkRitualsTitle => 'Ваши ритуалы и даты';
+
+  @override
+  String get couplePremiumPerkRitualsMeta =>
+      'Шаббат, годовщины, праздники: напоминания вовремя, вам обоим';
+
+  @override
+  String get couplePremiumPerkOutingsTitle => 'Выходы, подобранные для вас';
+
+  @override
+  String get couplePremiumPerkOutingsMeta =>
+      'Кошерно, рядом с домом и события MAZL для пар';
+
+  @override
+  String get couplePremiumPerkQuestionTitle => 'Вопрос дня';
+
+  @override
+  String get couplePremiumPerkQuestionMeta =>
+      'Один вопрос в день, чтобы продолжать узнавать друг друга';
+
+  @override
+  String get couplePremiumPerkCheckinTitle => 'Итоги пары';
+
+  @override
+  String get couplePremiumPerkCheckinMeta =>
+      'Как у вас дела, и советники, если нужно';
+
+  @override
+  String get couplePremiumFor => 'Для вас двоих';
+
+  @override
+  String get couplePremiumPerMonth => 'в месяц';
+
+  @override
+  String get couplePremiumShared =>
+      'Одна подписка: второй сразу получает все возможности, ничего не платя.';
+
+  @override
+  String get couplePremiumIncludesPlus =>
+      'mazl+ включён для вас обоих, пока действует подписка для пары.';
+
+  @override
+  String get couplePremiumPriceLater =>
+      'Цена появится, как только ответит App Store.';
+
+  @override
+  String get couplePremiumSubscribe => 'Подписаться для нас обоих';
+
+  @override
+  String get couplePremiumRestore => 'Восстановить покупку';
+
+  @override
+  String get couplePremiumLegal =>
+      'Автоматическое продление каждый месяц, отменить можно в любой момент в настройках App Store. Цена указана Apple, в вашей валюте.';
+
+  @override
+  String get couplePremiumWelcome =>
+      'MAZL Couple теперь активен для вас обоих.';
+
+  @override
+  String get couplePremiumActiveTitle => 'MAZL Couple активен';
+
+  @override
+  String get couplePremiumPaidByMe => 'Оплачено вами';
+
+  @override
+  String couplePremiumPaidByPartner(String partner) {
+    return 'Оплачено: $partner';
+  }
+
+  @override
+  String couplePremiumRenews(String date) {
+    return 'Продлевается $date';
+  }
+
+  @override
+  String get couplePremiumManage => 'Управлять подпиской';
+
+  @override
+  String get couplePremiumManageFailed =>
+      'Не удалось открыть настройки App Store.';
+
+  @override
+  String get couplePremiumLinkFailed => 'Не удалось открыть эту ссылку.';
+
+  @override
+  String get coupleQuestionTitle => 'Вопрос дня';
+
+  @override
+  String coupleQuestionEyebrow(int day) {
+    return 'Вопрос дня · $day';
+  }
+
+  @override
+  String get coupleQuestionEmptyTitle => 'Вопрос дня скоро появится';
+
+  @override
+  String get coupleQuestionEmptyLine =>
+      'Каждый день — вопрос, который вы задаёте друг другу. Загляните чуть позже.';
+
+  @override
+  String get coupleQuestionPartnerFallback => 'Ваш партнёр';
+
+  @override
+  String coupleQuestionPartnerAnsweredTitle(String name) {
+    return '$name уже ответил(а)';
+  }
+
+  @override
+  String get coupleQuestionPartnerAnsweredLine =>
+      'Ответьте сами, чтобы прочитать ответ.';
+
+  @override
+  String coupleQuestionPartnerPendingTitle(String name) {
+    return '$name ещё не ответил(а)';
+  }
+
+  @override
+  String get coupleQuestionPartnerPendingLine =>
+      'Вы прочитаете ответ, когда ответите оба.';
+
+  @override
+  String get coupleQuestionHiddenTitle => 'Ответ скрыт';
+
+  @override
+  String get coupleQuestionHiddenLine =>
+      'Она появится, как только вы ответите.';
+
+  @override
+  String get coupleQuestionYourAnswer => 'Ваш ответ';
+
+  @override
+  String get coupleQuestionHint => 'Напишите, что приходит в голову…';
+
+  @override
+  String coupleQuestionCounter(int count, int max) {
+    return '$count / $max';
+  }
+
+  @override
+  String coupleQuestionSendTo(String name) {
+    return 'Отправить: $name';
+  }
+
+  @override
+  String get coupleQuestionSend => 'Отправить';
+
+  @override
+  String get coupleQuestionSending => 'Отправка';
+
+  @override
+  String get coupleQuestionSendFailed =>
+      'Ответ не отправлен. Он остался в поле, можно попробовать снова.';
+
+  @override
+  String coupleQuestionPartnerAnswerTitle(String name) {
+    return 'Ответ: $name';
+  }
+
+  @override
+  String coupleQuestionPartnerWaiting(String name) {
+    return '$name ещё не ответил(а). Загляните позже, чтобы прочитать ответ.';
+  }
+
+  @override
+  String get coupleQuestionHistory => 'Ваши прошлые ответы';
 
   @override
   String get coupleSpaceSettingsTooltip => 'Настройки';
@@ -953,19 +1625,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get coupleSpacePartnerFallback => 'Ваша половинка';
-
-  @override
-  String coupleSpaceTogetherSince(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count дня',
-      many: '$count дней',
-      few: '$count дня',
-      one: '$count день',
-    );
-    return 'Вместе уже $_temp0';
-  }
 
   @override
   String get coupleSpaceStoryBegins => 'Ваша история начинается';
@@ -1205,43 +1864,252 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleSpaceFailUnexpected => 'Неожиданный ответ сервера.';
 
   @override
-  String get coupleSpaceCalendarTitle => 'Календарь';
-
-  @override
-  String get coupleSpaceCalendarShabbatIdeas => 'Идеи на этот Шаббат';
-
-  @override
-  String get coupleSpaceCalendarUpcoming => 'Ближайшие праздники';
-
-  @override
   String get coupleSpaceCalendarPrevMonth => 'Предыдущий месяц';
 
   @override
   String get coupleSpaceCalendarNextMonth => 'Следующий месяц';
 
   @override
-  String get coupleSpaceCalendarOngoing => 'Идёт сейчас';
-
-  @override
-  String coupleSpaceCalendarCountdown(int count) {
-    return 'Через $count дн.';
+  String coupleTodayEyebrow(int days) {
+    return 'MAZL Couple · день $days';
   }
 
   @override
-  String get coupleSpaceCalendarIdeas => 'Идеи для пары';
-
-  @override
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  ) {
-    return '$startDay – $endDay $month';
+  String coupleTodayTitle(String me, String partner) {
+    return 'Здравствуйте, $me\nи $partner.';
   }
 
   @override
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end) {
-    return '$start – $end';
+  String coupleTodayTitleNoName(String partner) {
+    return 'Здравствуйте,\nВы и $partner.';
+  }
+
+  @override
+  String get coupleTodayQuestionLabel => 'Вопрос дня';
+
+  @override
+  String coupleTodayQuestionPartnerAnswered(String partner) {
+    return 'Ответ от $partner уже есть · теперь Вы';
+  }
+
+  @override
+  String coupleTodayQuestionMineAnswered(String partner) {
+    return 'Вы ответили · ждём ответа от $partner';
+  }
+
+  @override
+  String coupleTodayQuestionWaiting(String partner) {
+    return 'Ждём ответа от $partner';
+  }
+
+  @override
+  String get coupleTodayQuestionBoth => 'Вы оба ответили';
+
+  @override
+  String get coupleTodayAnswer => 'Ответить';
+
+  @override
+  String get coupleTodayView => 'Открыть';
+
+  @override
+  String get coupleTodayShabbatTonight => 'Шаббат вместе сегодня вечером';
+
+  @override
+  String get coupleTodayShabbatFriday => 'Шаббат вместе в пятницу';
+
+  @override
+  String coupleTodayClock(String hour, String minute) {
+    return '$hour:$minute';
+  }
+
+  @override
+  String coupleTodayShabbatCandles(String time) {
+    return 'Зажигание свечей в $time · Париж';
+  }
+
+  @override
+  String get coupleTodayShabbatAgenda => 'Открыть календарь';
+
+  @override
+  String get coupleTodayUpcomingLabel => 'Скоро';
+
+  @override
+  String get coupleTodayUpcomingEmpty =>
+      'На ближайшие 45 дней ничего не запланировано. Добавьте дату или ритуал в календаре.';
+
+  @override
+  String get coupleTodayDaysToday => 'Сегодня';
+
+  @override
+  String get coupleTodayDaysTomorrow => 'Завтра';
+
+  @override
+  String coupleTodayDaysAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Через $count дня',
+      many: 'Через $count дней',
+      few: 'Через $count дня',
+      one: 'Через $count день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coupleTodayIdeaFor(String weekday) {
+    return 'Идея · $weekday';
+  }
+
+  @override
+  String get coupleTodayIdeaGeneric => 'Идея для вас';
+
+  @override
+  String get coupleTodayMoodQuestion => 'Как дела между вами?';
+
+  @override
+  String get coupleTodayMoodGreat => 'Отлично';
+
+  @override
+  String get coupleTodayMoodGood => 'Хорошо';
+
+  @override
+  String get coupleTodayMoodMeh => 'Так себе';
+
+  @override
+  String get coupleTodayMoodTalk => 'Нам нужно поговорить';
+
+  @override
+  String coupleTodayMoodTalkNotice(String partner) {
+    return 'Мы предупредили $partner, без лишних слов.';
+  }
+
+  @override
+  String get coupleTodayMoodFailed =>
+      'Не удалось сохранить ваше настроение. Попробуйте ещё раз.';
+
+  @override
+  String coupleTodayCheckinDue(String month) {
+    return 'Итоги за $month ждут вас';
+  }
+
+  @override
+  String get coupleTodayPremiumLine => 'Узнайте о MAZL Couple';
+
+  @override
+  String coupleUsDay(int count) {
+    return 'День $count';
+  }
+
+  @override
+  String get coupleUsYouLabel => 'Вы';
+
+  @override
+  String get coupleUsQuestionLabel => 'Вопрос дня';
+
+  @override
+  String coupleUsQuestionPartnerAnswered(String name) {
+    return '$name уже ответил(а) · ваша очередь';
+  }
+
+  @override
+  String get coupleUsQuestionYourTurn => 'Ваша очередь отвечать';
+
+  @override
+  String get coupleUsQuestionYouAnswered => 'Вы ответили';
+
+  @override
+  String coupleUsWaitingFor(String name) {
+    return 'Ждём ответа: $name';
+  }
+
+  @override
+  String get coupleUsAnswerButton => 'Ответить';
+
+  @override
+  String get coupleUsSeeButton => 'Открыть';
+
+  @override
+  String get coupleUsHistoryLink => 'История ответов';
+
+  @override
+  String get coupleUsCheckinLabel => 'Итоги';
+
+  @override
+  String coupleUsCheckinDue(String month) {
+    return 'Итоги за $month ждут вас';
+  }
+
+  @override
+  String get coupleUsCheckinStart => 'Заполнить итоги';
+
+  @override
+  String coupleUsCheckinAligned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Вы совпали по $count пункта из 3',
+      many: 'Вы совпали по $count пунктам из 3',
+      few: 'Вы совпали по $count пунктам из 3',
+      one: 'Вы совпали по $count пункту из 3',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get coupleUsCheckinLowestTalk =>
+      'Над чем стоит поработать в этом месяце: разговоры.';
+
+  @override
+  String get coupleUsCheckinLowestTime =>
+      'Над чем стоит поработать в этом месяце: время вместе.';
+
+  @override
+  String get coupleUsCheckinLowestClose =>
+      'Над чем стоит поработать в этом месяце: близость.';
+
+  @override
+  String get coupleUsSettingsLabel => 'Настройки пары';
+
+  @override
+  String get coupleUsStatusInRelationship => 'В паре';
+
+  @override
+  String get coupleUsStatusEngaged => 'Помолвлены';
+
+  @override
+  String get coupleUsStatusMarried => 'В браке';
+
+  @override
+  String get coupleUsPremiumTitle => 'MAZL Couple';
+
+  @override
+  String get coupleUsPremiumActiveByYou => 'Активно · оплатили вы';
+
+  @override
+  String coupleUsPremiumActiveByPartner(String name) {
+    return 'Активно · оплатил(а) $name';
+  }
+
+  @override
+  String get coupleUsPremiumActive => 'Активно';
+
+  @override
+  String get coupleUsPremiumDiscover => 'Узнать о MAZL Couple';
+
+  @override
+  String get coupleUsHistoryTitle => 'Ваши ответы';
+
+  @override
+  String get coupleUsHistoryEmptyTitle => 'Ответов пока нет';
+
+  @override
+  String get coupleUsHistoryEmptyLine =>
+      'Ответьте на вопрос дня: здесь появятся ваши ответы и ответы второй половинки.';
+
+  @override
+  String coupleUsHistoryNoPartnerAnswer(String name) {
+    return '$name не ответил(а)';
   }
 
   @override
@@ -1499,23 +2367,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override
-  String get jewishCalendarShabbatTitle => 'Этот Шаббат';
-
-  @override
-  String jewishCalendarParashat(String name) {
-    return 'Недельная глава: $name';
-  }
-
-  @override
   String jewishCalendarParshaPair(String first, String second) {
     return '$first – $second';
   }
-
-  @override
-  String get jewishCalendarCandleLighting => 'Зажигание свечей';
-
-  @override
-  String get jewishCalendarHavdalah => 'Гавдала';
 
   @override
   String get jewishCalendarCategoryPreparation => 'Подготовка';

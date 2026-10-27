@@ -88,20 +88,11 @@ const _allowed = <String, _Allowed>{
     'branche explicite sombre/clair du trait de separation',
     [('color: dark ? AppColors.dividerDark : AppColors.hairline,', 1)],
   ),
-  'lib/presentation/features/couple/screens/couple_activities_feed_screen.dart':
-      _Allowed(
-        'icone du geste « passer » posee sur un disque papier de la pioche',
-        [('color: AppColors.muted,', 1)],
-      ),
-  'lib/presentation/features/couple/screens/couple_events_screen.dart':
-      _Allowed('texte blanc sur bouton d erreur', [
-        ('foregroundColor: Colors.white,', 1),
-      ]),
   'lib/presentation/features/couple/screens/couple_mode_setup_screen.dart':
       _Allowed('trait de separation avec branche explicite sombre/clair', [
         (': AppColors.hairline;', 1),
       ]),
-  'lib/presentation/features/couple/screens/couple_space_screen.dart': _Allowed(
+  'lib/presentation/features/couple/widgets/us_space_tiles.dart': _Allowed(
     'souvenirs sur teinte pastel de photo avec texte encre (paire fixe), texte blanc sur photo',
     [
       ('Icon(_icon, size: 28, color: AppColors.textTertiaryLight),', 1),

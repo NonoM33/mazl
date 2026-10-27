@@ -25,7 +25,6 @@ const _gestureFiles = <String>[
 // shared deck, and must not animate on their own.
 const _wiringFiles = <String>[
   'lib/presentation/features/matching/screens/discover_screen.dart',
-  'lib/presentation/features/couple/screens/couple_activities_feed_screen.dart',
 ];
 
 String _code(String path) => File(path)

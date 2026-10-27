@@ -1,0 +1,23 @@
+{
+  "coupleQuestionTitle": "Вопрос дня",
+  "coupleQuestionEyebrow": "Вопрос дня · {day}",
+  "coupleQuestionEmptyTitle": "Вопрос дня скоро появится",
+  "coupleQuestionEmptyLine": "Каждый день — вопрос, который вы задаёте друг другу. Загляните чуть позже.",
+  "coupleQuestionPartnerFallback": "Ваш партнёр",
+  "coupleQuestionPartnerAnsweredTitle": "{name} уже ответил(а)",
+  "coupleQuestionPartnerAnsweredLine": "Ответьте сами, чтобы прочитать ответ.",
+  "coupleQuestionPartnerPendingTitle": "{name} ещё не ответил(а)",
+  "coupleQuestionPartnerPendingLine": "Вы прочитаете ответ, когда ответите оба.",
+  "coupleQuestionHiddenTitle": "Ответ скрыт",
+  "coupleQuestionHiddenLine": "Она появится, как только вы ответите.",
+  "coupleQuestionYourAnswer": "Ваш ответ",
+  "coupleQuestionHint": "Напишите, что приходит в голову…",
+  "coupleQuestionCounter": "{count} / {max}",
+  "coupleQuestionSendTo": "Отправить: {name}",
+  "coupleQuestionSend": "Отправить",
+  "coupleQuestionSending": "Отправка",
+  "coupleQuestionSendFailed": "Ответ не отправлен. Он остался в поле, можно попробовать снова.",
+  "coupleQuestionPartnerAnswerTitle": "Ответ: {name}",
+  "coupleQuestionPartnerWaiting": "{name} ещё не ответил(а). Загляните позже, чтобы прочитать ответ.",
+  "coupleQuestionHistory": "Ваши прошлые ответы"
+}

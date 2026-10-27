@@ -47,13 +47,13 @@ GoRouter _router(
     routes: [
       GoRoute(path: '/discover', builder: (_, __) => const Scaffold(body: Text('PAGE DECOUVRIR'))),
       GoRoute(
-        path: '/couple/activities',
-        builder: (_, __) => const Scaffold(body: Text('PAGE ACTIVITES')),
+        path: '/couple/today',
+        builder: (_, __) => const Scaffold(body: Text('PAGE AUJOURDHUI')),
       ),
       GoRoute(
         path: '/couple/mazel-tov',
         // Stand-in for MazelTovScreen (its layout needs the app's fonts; the
-        // real one ends with the same context.go('/couple/activities')).
+        // real one ends with the same context.go('/couple/today')).
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return Scaffold(
@@ -61,7 +61,7 @@ GoRouter _router(
               children: [
                 Text('Mazel Tov ${extra?['partnerName']}'),
                 TextButton(
-                  onPressed: () => context.go('/couple/activities'),
+                  onPressed: () => context.go('/couple/today'),
                   child: const Text('Commencer notre aventure'),
                 ),
               ],
@@ -69,7 +69,7 @@ GoRouter _router(
           );
         },
       ),
-      GoRoute(path: '/couple/space/settings', builder: (_, __) => const SettingsScreen()),
+      GoRoute(path: '/couple/us/settings', builder: (_, __) => const SettingsScreen()),
     ],
   );
 }
@@ -241,7 +241,7 @@ void main() {
 
     tearDown(() => realtime.close());
 
-    testWidgets('le destinataire accepte : Mazel Tov puis /couple/activities', (tester) async {
+    testWidgets('le destinataire accepte : Mazel Tov puis /couple/today', (tester) async {
       api.acceptedCouple = contractCouple();
       await pumpApp(tester, initial: '/discover');
 
@@ -263,7 +263,7 @@ void main() {
       await tester.tap(find.text('Commencer notre aventure'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
 
-      expect(find.text('PAGE ACTIVITES'), findsOneWidget);
+      expect(find.text('PAGE AUJOURDHUI'), findsOneWidget);
       expect(find.text('PAGE DECOUVRIR'), findsNothing);
     });
 
@@ -281,7 +281,7 @@ void main() {
       expect(api.calls, contains('archive:45'));
       await tester.tap(find.text('Commencer notre aventure'));
       await _pumpFor(tester, const Duration(milliseconds: 600));
-      expect(find.text('PAGE ACTIVITES'), findsOneWidget);
+      expect(find.text('PAGE AUJOURDHUI'), findsOneWidget);
     });
 
     testWidgets('couple:rejected : message court, plus d\'attente', (tester) async {
@@ -300,14 +300,14 @@ void main() {
       api.couple = contractCouple();
       await service.initialize();
       await pumpApp(tester, initial: '/discover');
-      expect(find.text('PAGE ACTIVITES'), findsOneWidget);
+      expect(find.text('PAGE AUJOURDHUI'), findsOneWidget);
     });
 
     testWidgets('couple:ended : retour aux rencontres avec un message', (tester) async {
       api.couple = contractCouple();
       await service.initialize();
-      await pumpApp(tester, initial: '/couple/activities');
-      expect(find.text('PAGE ACTIVITES'), findsOneWidget);
+      await pumpApp(tester, initial: '/couple/today');
+      expect(find.text('PAGE AUJOURDHUI'), findsOneWidget);
 
       realtime.add(CoupleRealtimeEvent(type: 'couple:ended', payload: {'couple_id': 12}));
       await _pumpFor(tester, const Duration(milliseconds: 400));
@@ -330,7 +330,7 @@ void main() {
       CoupleService.instanceForTesting = service;
       navigatorKey = GlobalKey<NavigatorState>();
       realtime = StreamController<ChatEvent>.broadcast();
-      final router = _router(service, navigatorKey, initial: '/couple/space/settings');
+      final router = _router(service, navigatorKey, initial: '/couple/us/settings');
       await tester.pumpWidget(_app(router, service, navigatorKey, realtime.stream));
       await _pumpFor(tester, const Duration(milliseconds: 500));
     }
