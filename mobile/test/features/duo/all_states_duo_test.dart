@@ -229,6 +229,21 @@ Map<String, Object?> _verificationBody({
       : null,
 };
 
+Map<String, Object?> _premiumSettingsBody({
+  bool isPlus = true,
+  bool passport = false,
+}) => {
+  'success': true,
+  'data': {
+    'is_plus': isPlus,
+    'passport': passport
+        ? {'city': 'Tel Aviv', 'latitude': 32.0853, 'longitude': 34.7818}
+        : null,
+    'incognito': false,
+    'send_read_receipts': true,
+  },
+};
+
 const Map<String, Object> _thirdLikeOfferDone = {
   'purchase_moment.third_like_done': true,
 };
@@ -558,6 +573,33 @@ final List<_State> _states = [
     _Answer.never,
     _p('/api/matches'),
   ),
+  // passport (mazl+): the settings come from the server
+  _State(
+    'passport: error',
+    '/passport',
+    _Answer.error,
+    _p('/api/premium/settings'),
+  ),
+  _State(
+    'passport: loading',
+    '/passport',
+    _Answer.never,
+    _p('/api/premium/settings'),
+  ),
+  _State(
+    'passport: free member',
+    '/passport',
+    _Answer.body,
+    _p('/api/premium/settings'),
+    body: _premiumSettingsBody(isPlus: false),
+  ),
+  _State(
+    'passport: active',
+    '/passport',
+    _Answer.body,
+    _p('/api/premium/settings'),
+    body: _premiumSettingsBody(passport: true),
+  ),
   // filters, verification, boost, premium
   _State(
     'filters: error',
@@ -707,6 +749,9 @@ const Map<String, String> _witness = {
   'verification: level 1 only': 'Vérification en cours',
   'verification: both levels': 'Profil entièrement vérifié',
   'verification: limit reached': 'Limite atteinte',
+  'passport: error': 'Impossible de charger votre passeport.',
+  'passport: free member': 'Le passeport est réservé aux abonnés mazl+.',
+  'passport: active': 'Votre passeport : Tel-Aviv',
   'boost: error': 'Réessayer',
   'boost: best time not measured yet': 'Pas encore assez de données',
   'boost: best time Boost scheduled': 'Programmé pour',
