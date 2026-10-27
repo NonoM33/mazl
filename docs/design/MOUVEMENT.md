@@ -202,6 +202,21 @@ Depuis le 2026-10-27, les boutons « aimer » (carte de Découvrir, « aimer en 
 - **Haptique** : aucune, comme pour tous les boutons.
 - **Animations réduites** : ni disque partiel ni rebond, un fondu de 150 ms.
 
+## 7quinquies. Le compteur de likes qui roule
+
+Depuis le 2026-10-27, quand le nombre de likes reçus change à l'écran, les chiffres qui changent
+roulent vers leur nouvelle valeur (`RollingCount`) : vers le haut quand il monte, vers le bas quand il
+descend, en 420 ms (`rollingCount`, `rollingCountCurve`). Les chiffres sont tabulaires et ceux qui ne
+changent pas restent immobiles.
+- **Où** : Matchs (« Ils vous ont aimé · N », « voir les N autres ») et Likes (libellé, phrase « N
+  personnes… », tranches « 10+ » dont seuls les chiffres roulent).
+- **Traductions** : la phrase traduite reste entière ; seul le nombre y est remplacé pendant le
+  roulement. Une phrase qui écrit le nombre en toutes lettres ne roule pas.
+- **Premier affichage** : rien ne roule.
+- **Lecteur d'écran** : il lit le nombre final une seule fois.
+- **Récompense** : pas de rebond, pas d'haptique.
+- **Animations réduites** : le nouveau nombre apparaît d'un coup.
+
 ## 8. Ce que les tests doivent prouver
 
 - Chaque geste (paquet de Découvrir, paquet du couple, visionneuse, réponse glissée) lit ses valeurs

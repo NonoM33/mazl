@@ -16,6 +16,7 @@ import '../widgets/like_widgets.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
 import '../../../common/widgets/star_refresh/star_refresh.dart';
+import '../../../common/widgets/rolling_count/rolling_count.dart';
 
 /// Screen showing users who have liked the current user
 /// Free users see blurred photos, premium users see clear photos
@@ -171,12 +172,13 @@ class _LikesScreenState extends State<LikesScreen> {
         Text(l10n.likesTitle, style: Theme.of(context).textTheme.displaySmall),
         if (band != null) ...[
           const SizedBox(height: 12),
-          SectionLabel(l10n.likesSection(band.label)),
+          SectionLabel(l10n.likesSection(band.label), count: band.plural),
         ],
         if (data != null && band != null && !data.isPremium) ...[
           const SizedBox(height: 8),
-          Text(
-            l10n.likesWaiting(band.plural, band.label),
+          RollingCount(
+            value: band.plural,
+            sentence: l10n.likesWaiting(band.plural, band.label),
             style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
           ),
         ],

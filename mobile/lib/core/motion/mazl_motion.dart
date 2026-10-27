@@ -218,6 +218,14 @@ abstract final class MazlMotion {
   /// so a button that outlives its card never stays filled.
   static const likeFillRelease = Duration(milliseconds: 200);
 
+  // --- Rolling count (likes) -----------------------------------------------
+
+  /// A digit that changes rolls vertically to its new value, like a
+  /// mechanical counter (up when the number grows, down when it shrinks).
+  /// Under reduced motion the new number simply appears.
+  static const rollingCount = Duration(milliseconds: 420);
+  static const rollingCountCurve = Curves.easeOutCubic;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.

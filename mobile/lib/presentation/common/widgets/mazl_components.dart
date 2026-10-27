@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import 'like_fill/like_fill.dart';
+import 'rolling_count/rolling_count.dart';
 
 /// Le mot-symbole « mazl. », point en tekhelet.
 class MazlWordmark extends StatelessWidget {
@@ -36,15 +37,23 @@ class MazlWordmark extends StatelessWidget {
 
 /// Étiquette de section en Geist Mono capitales.
 class SectionLabel extends StatelessWidget {
-  const SectionLabel(this.text, {super.key, this.color});
+  const SectionLabel(this.text, {super.key, this.color, this.count});
 
   final String text;
   final Color? color;
 
+  /// The number inside [text], when it is a live count: its digits roll as it
+  /// changes instead of jumping.
+  final int? count;
+
   @override
   Widget build(BuildContext context) {
     final muted = color ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    return Text(text.toUpperCase(), style: AppTypography.eyebrow(muted));
+    final style = AppTypography.eyebrow(muted);
+    final shown = text.toUpperCase();
+    final live = count;
+    if (live == null) return Text(shown, style: style);
+    return RollingCount(value: live, sentence: shown, style: style);
   }
 }
 
