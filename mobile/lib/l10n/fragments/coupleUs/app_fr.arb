@@ -60,7 +60,7 @@
   "@coupleUsCheckinLabel": {
     "description": "Petit titre (capitales en mono) de la carte du bilan mensuel du couple, sur « Nous deux »."
   },
-  "coupleUsCheckinDue": "Le bilan de {month} vous attend",
+  "coupleUsCheckinDue": "Votre bilan du mois vous attend",
   "@coupleUsCheckinDue": {
     "description": "Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).",
     "placeholders": {

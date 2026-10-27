@@ -1988,7 +1988,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String coupleTodayCheckinDue(String month) {
-    return 'Le bilan de $month vous attend';
+    return 'Votre bilan du mois vous attend';
   }
 
   @override
@@ -2035,7 +2035,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String coupleUsCheckinDue(String month) {
-    return 'Le bilan de $month vous attend';
+    return 'Votre bilan du mois vous attend';
   }
 
   @override

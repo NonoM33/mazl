@@ -425,9 +425,9 @@ void main() {
         tester,
         (t) => t.reply('GET /api/couple/today', _today(checkinDue: true)),
       );
-      expect(find.text('Le bilan de novembre vous attend'), findsOneWidget);
+      expect(find.text('Votre bilan du mois vous attend'), findsOneWidget);
 
-      await tester.tap(find.text('Le bilan de novembre vous attend'));
+      await tester.tap(find.text('Votre bilan du mois vous attend'));
       await _settle(tester);
       expect(find.text('page /couple/checkin'), findsOneWidget);
     });

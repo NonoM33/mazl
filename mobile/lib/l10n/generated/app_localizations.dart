@@ -3356,10 +3356,10 @@ abstract class AppLocalizations {
   /// **'Impossible d\'enregistrer votre humeur. Réessayez.'**
   String get coupleTodayMoodFailed;
 
-  /// Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre.
+  /// Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre ; le français ne l’affiche pas (« de octobre » sans élision).
   ///
   /// In fr, this message translates to:
-  /// **'Le bilan de {month} vous attend'**
+  /// **'Votre bilan du mois vous attend'**
   String coupleTodayCheckinDue(String month);
 
   /// Ligne discrète en bas de l'écran Aujourd'hui, pour un couple non abonné : mène à la page de l'abonnement MAZL Couple.
@@ -3437,7 +3437,7 @@ abstract class AppLocalizations {
   /// Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).
   ///
   /// In fr, this message translates to:
-  /// **'Le bilan de {month} vous attend'**
+  /// **'Votre bilan du mois vous attend'**
   String coupleUsCheckinDue(String month);
 
   /// Bouton de la carte du bilan : ouvre le bilan du mois à remplir.

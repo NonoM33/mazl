@@ -315,7 +315,7 @@ void main() {
     ) async {
       await _pump(tester, setUp: (t) => daily(t, checkin()));
 
-      expect(find.text('Le bilan de novembre vous attend'), findsOneWidget);
+      expect(find.text('Votre bilan du mois vous attend'), findsOneWidget);
       await tester.tap(find.text('Faire le bilan'));
       await _settle(tester);
       expect(find.text('page /couple/checkin'), findsOneWidget);
@@ -572,7 +572,7 @@ void main() {
           find.textContaining('& Myriam'),
           find.text(_question),
           find.text('Répondre'),
-          find.text('Le bilan de novembre vous attend'),
+          find.text('Votre bilan du mois vous attend'),
           find.text('Faire le bilan'),
         ]) {
           expect(rect(tester, left).right, lessThanOrEqualTo(fold.left + 0.5));
@@ -607,7 +607,7 @@ void main() {
         expect(rect(tester, above).bottom, lessThanOrEqualTo(fold.top + 0.5));
       }
       for (final below in [
-        find.text('Le bilan de novembre vous attend'),
+        find.text('Votre bilan du mois vous attend'),
         find.byKey(const Key('couple-stat-0')),
       ]) {
         expect(

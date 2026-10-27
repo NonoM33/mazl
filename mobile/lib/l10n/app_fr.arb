@@ -2595,9 +2595,9 @@
   "@coupleTodayMoodFailed": {
     "description": "Message d'erreur flottant quand l'humeur du couple n'a pas pu être enregistrée."
   },
-  "coupleTodayCheckinDue": "Le bilan de {month} vous attend",
+  "coupleTodayCheckinDue": "Votre bilan du mois vous attend",
   "@coupleTodayCheckinDue": {
-    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre.",
+    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre ; le français ne l’affiche pas (« de octobre » sans élision).",
     "placeholders": {
       "month": {
         "type": "String"
@@ -2669,7 +2669,7 @@
   "@coupleUsCheckinLabel": {
     "description": "Petit titre (capitales en mono) de la carte du bilan mensuel du couple, sur « Nous deux »."
   },
-  "coupleUsCheckinDue": "Le bilan de {month} vous attend",
+  "coupleUsCheckinDue": "Votre bilan du mois vous attend",
   "@coupleUsCheckinDue": {
     "description": "Carte du bilan : le bilan du mois n'est pas encore rempli par le membre. {month} est le nom du mois, en minuscules (novembre).",
     "placeholders": {

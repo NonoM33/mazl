@@ -176,9 +176,9 @@
   "@coupleTodayMoodFailed": {
     "description": "Message d'erreur flottant quand l'humeur du couple n'a pas pu être enregistrée."
   },
-  "coupleTodayCheckinDue": "Le bilan de {month} vous attend",
+  "coupleTodayCheckinDue": "Votre bilan du mois vous attend",
   "@coupleTodayCheckinDue": {
-    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre.",
+    "description": "Ligne discrète qui mène au bilan mensuel du couple. {month} = nom du mois, déjà dans la langue du membre ; le français ne l’affiche pas (« de octobre » sans élision).",
     "placeholders": {
       "month": {
         "type": "String"
