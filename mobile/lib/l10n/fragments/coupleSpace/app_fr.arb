@@ -1,20 +1,4 @@
 {
-  "coupleSpaceTabActivities": "Activités",
-  "@coupleSpaceTabActivities": {
-    "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabCalendar": "Calendrier",
-  "@coupleSpaceTabCalendar": {
-    "description": "Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabEvents": "Événements",
-  "@coupleSpaceTabEvents": {
-    "description": "Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabSpace": "Notre espace",
-  "@coupleSpaceTabSpace": {
-    "description": "Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône."
-  },
   "coupleSpaceTitle": "Notre espace",
   "@coupleSpaceTitle": {
     "description": "Titre de l'écran « Notre espace » (l'espace privé du couple)."

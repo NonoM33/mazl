@@ -29,6 +29,11 @@ extension CoupleFailureLabel on CoupleFailure {
   String label(AppLocalizations l10n) => switch (kind) {
     CoupleFailureKind.network => l10n.errorNetwork,
     CoupleFailureKind.notFound => l10n.errorNotFound,
+    CoupleFailureKind.routeMissing => l10n.coupleFailRouteMissing,
+    CoupleFailureKind.subscriptionRequired =>
+      l10n.coupleFailSubscriptionRequired,
+    CoupleFailureKind.rateLimited => l10n.coupleFailRateLimited,
+    CoupleFailureKind.alreadyDone => l10n.coupleFailAlreadyDone,
     CoupleFailureKind.notInCouple => l10n.coupleSpaceFailNotInCouple,
     CoupleFailureKind.full => l10n.coupleSpaceFailEventFull,
     CoupleFailureKind.server => l10n.coupleSpaceFailServer,

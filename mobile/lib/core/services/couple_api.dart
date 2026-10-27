@@ -31,4 +31,11 @@ abstract class CoupleApi {
 
   /// `DELETE /api/couple/:coupleId` (either member, ends it for both).
   Future<ApiResponse<void>> endCouple(int coupleId);
+
+  /// `PATCH /api/couple/:coupleId/status` `{ relationshipStatus }`
+  /// (`dating`, `in_relationship`, `engaged`, `married`).
+  Future<ApiResponse<void>> updateCoupleStatus(
+    int coupleId,
+    String relationshipStatus,
+  );
 }

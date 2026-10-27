@@ -727,6 +727,42 @@
       }
     }
   },
+  "coupleTabToday": "Aujourd'hui",
+  "@coupleTabToday": {
+    "description": "Onglet de la barre de l'espace couple : la page du jour. Libellé court, une ligne sous l'icône."
+  },
+  "coupleTabAgenda": "Agenda",
+  "@coupleTabAgenda": {
+    "description": "Onglet de la barre de l'espace couple : l'agenda du couple (dates, rituels, fêtes). Libellé court."
+  },
+  "coupleTabOutings": "Sorties",
+  "@coupleTabOutings": {
+    "description": "Onglet de la barre de l'espace couple : les sorties à deux. Libellé court."
+  },
+  "coupleTabConcierge": "Conciergerie",
+  "@coupleTabConcierge": {
+    "description": "Onglet de la barre de l'espace couple : la conciergerie (service de réservation et d'idées). Libellé court."
+  },
+  "coupleTabUs": "Nous deux",
+  "@coupleTabUs": {
+    "description": "Onglet de la barre de l'espace couple : « Nous deux » (question du jour, bilan, souvenirs, réglages du couple). Libellé court."
+  },
+  "coupleFailSubscriptionRequired": "Cette fonction fait partie de MAZL Couple.",
+  "@coupleFailSubscriptionRequired": {
+    "description": "Erreur : la fonction demandée est réservée aux couples abonnés à MAZL Couple."
+  },
+  "coupleFailRateLimited": "Vous avez atteint la limite de messages du jour avec l'assistant. Revenez demain.",
+  "@coupleFailRateLimited": {
+    "description": "Erreur : le couple a atteint la limite de messages du jour avec l'assistant de la conciergerie (20 par jour)."
+  },
+  "coupleFailAlreadyDone": "Vous avez déjà répondu ce mois-ci.",
+  "@coupleFailAlreadyDone": {
+    "description": "Erreur : le bilan du mois a déjà été rempli par ce membre."
+  },
+  "coupleFailRouteMissing": "Cette fonction n'est pas encore disponible.",
+  "@coupleFailRouteMissing": {
+    "description": "Erreur : cette fonction n'existe pas encore sur le serveur (version plus ancienne)."
+  },
   "coupleFeedCategoryWellness": "Bien-être",
   "@coupleFeedCategoryWellness": {
     "description": "Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte."
@@ -1204,22 +1240,6 @@
   "coupleFeedLoadFailedTitle": "Chargement impossible",
   "@coupleFeedLoadFailedTitle": {
     "description": "Titre de l'écran d'erreur quand le contenu à deux n'a pas pu être chargé."
-  },
-  "coupleSpaceTabActivities": "Activités",
-  "@coupleSpaceTabActivities": {
-    "description": "Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabCalendar": "Calendrier",
-  "@coupleSpaceTabCalendar": {
-    "description": "Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabEvents": "Événements",
-  "@coupleSpaceTabEvents": {
-    "description": "Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône."
-  },
-  "coupleSpaceTabSpace": "Notre espace",
-  "@coupleSpaceTabSpace": {
-    "description": "Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône."
   },
   "coupleSpaceTitle": "Notre espace",
   "@coupleSpaceTitle": {

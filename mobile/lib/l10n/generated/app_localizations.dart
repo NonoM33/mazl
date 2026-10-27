@@ -1100,6 +1100,60 @@ abstract class AppLocalizations {
   /// **'Impossible d\'ouvrir {target} pour le moment.'**
   String linkOpenError(String target);
 
+  /// Onglet de la barre de l'espace couple : la page du jour. Libellé court, une ligne sous l'icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get coupleTabToday;
+
+  /// Onglet de la barre de l'espace couple : l'agenda du couple (dates, rituels, fêtes). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agenda'**
+  String get coupleTabAgenda;
+
+  /// Onglet de la barre de l'espace couple : les sorties à deux. Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorties'**
+  String get coupleTabOutings;
+
+  /// Onglet de la barre de l'espace couple : la conciergerie (service de réservation et d'idées). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conciergerie'**
+  String get coupleTabConcierge;
+
+  /// Onglet de la barre de l'espace couple : « Nous deux » (question du jour, bilan, souvenirs, réglages du couple). Libellé court.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous deux'**
+  String get coupleTabUs;
+
+  /// Erreur : la fonction demandée est réservée aux couples abonnés à MAZL Couple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonction fait partie de MAZL Couple.'**
+  String get coupleFailSubscriptionRequired;
+
+  /// Erreur : le couple a atteint la limite de messages du jour avec l'assistant de la conciergerie (20 par jour).
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez atteint la limite de messages du jour avec l\'assistant. Revenez demain.'**
+  String get coupleFailRateLimited;
+
+  /// Erreur : le bilan du mois a déjà été rempli par ce membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà répondu ce mois-ci.'**
+  String get coupleFailAlreadyDone;
+
+  /// Erreur : cette fonction n'existe pas encore sur le serveur (version plus ancienne).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette fonction n\'est pas encore disponible.'**
+  String get coupleFailRouteMissing;
+
   /// Catégorie d'activité : détente, spa, bien-être. Puce de filtre et étiquette de carte.
   ///
   /// In fr, this message translates to:
@@ -1651,30 +1705,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Chargement impossible'**
   String get coupleFeedLoadFailedTitle;
-
-  /// Onglet de la barre du bas de l'espace couple : les activités à deux. Libellé court, une ligne sous l'icône.
-  ///
-  /// In fr, this message translates to:
-  /// **'Activités'**
-  String get coupleSpaceTabActivities;
-
-  /// Onglet de la barre du bas de l'espace couple : le calendrier juif. Libellé court, une ligne sous l'icône.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calendrier'**
-  String get coupleSpaceTabCalendar;
-
-  /// Onglet de la barre du bas de l'espace couple : les événements proposés aux couples. Libellé court, une ligne sous l'icône.
-  ///
-  /// In fr, this message translates to:
-  /// **'Événements'**
-  String get coupleSpaceTabEvents;
-
-  /// Onglet de la barre du bas de l'espace couple : l'espace privé du couple (souvenirs, bucket list, dates). Libellé court, une ligne sous l'icône.
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre espace'**
-  String get coupleSpaceTabSpace;
 
   /// Titre de l'écran « Notre espace » (l'espace privé du couple).
   ///

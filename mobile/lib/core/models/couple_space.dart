@@ -94,6 +94,8 @@ class CoupleDate {
     required this.type,
     this.date,
     this.notes,
+    this.isRecurring = true,
+    this.remindDaysBefore,
   });
 
   final int id;
@@ -101,6 +103,10 @@ class CoupleDate {
   final String type;
   final DateTime? date;
   final String? notes;
+  final bool isRecurring;
+
+  /// How many days before the date both members are reminded (MAZL Couple).
+  final int? remindDaysBefore;
 
   factory CoupleDate.fromJson(Map<String, dynamic> json) => CoupleDate(
     id: parseLooseInt(json['id']) ?? 0,
@@ -108,6 +114,8 @@ class CoupleDate {
     type: json['type']?.toString() ?? '',
     date: parseLooseDate(json['date']),
     notes: _text(json['notes']),
+    isRecurring: json['is_recurring'] != false,
+    remindDaysBefore: parseLooseInt(json['remind_days_before']),
   );
 }
 

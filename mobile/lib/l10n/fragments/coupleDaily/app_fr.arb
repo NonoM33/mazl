@@ -1,0 +1,38 @@
+{
+  "coupleTabToday": "Aujourd'hui",
+  "@coupleTabToday": {
+    "description": "Onglet de la barre de l'espace couple : la page du jour. Libellé court, une ligne sous l'icône."
+  },
+  "coupleTabAgenda": "Agenda",
+  "@coupleTabAgenda": {
+    "description": "Onglet de la barre de l'espace couple : l'agenda du couple (dates, rituels, fêtes). Libellé court."
+  },
+  "coupleTabOutings": "Sorties",
+  "@coupleTabOutings": {
+    "description": "Onglet de la barre de l'espace couple : les sorties à deux. Libellé court."
+  },
+  "coupleTabConcierge": "Conciergerie",
+  "@coupleTabConcierge": {
+    "description": "Onglet de la barre de l'espace couple : la conciergerie (service de réservation et d'idées). Libellé court."
+  },
+  "coupleTabUs": "Nous deux",
+  "@coupleTabUs": {
+    "description": "Onglet de la barre de l'espace couple : « Nous deux » (question du jour, bilan, souvenirs, réglages du couple). Libellé court."
+  },
+  "coupleFailSubscriptionRequired": "Cette fonction fait partie de MAZL Couple.",
+  "@coupleFailSubscriptionRequired": {
+    "description": "Erreur : la fonction demandée est réservée aux couples abonnés à MAZL Couple."
+  },
+  "coupleFailRateLimited": "Vous avez atteint la limite de messages du jour avec l'assistant. Revenez demain.",
+  "@coupleFailRateLimited": {
+    "description": "Erreur : le couple a atteint la limite de messages du jour avec l'assistant de la conciergerie (20 par jour)."
+  },
+  "coupleFailAlreadyDone": "Vous avez déjà répondu ce mois-ci.",
+  "@coupleFailAlreadyDone": {
+    "description": "Erreur : le bilan du mois a déjà été rempli par ce membre."
+  },
+  "coupleFailRouteMissing": "Cette fonction n'est pas encore disponible.",
+  "@coupleFailRouteMissing": {
+    "description": "Erreur : cette fonction n'existe pas encore sur le serveur (version plus ancienne)."
+  }
+}

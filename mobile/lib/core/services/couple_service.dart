@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/couple_daily.dart';
 import '../models/couple_models.dart';
 import 'api_service.dart';
 import 'couple_api.dart';
@@ -66,20 +67,21 @@ class CoupleService extends ChangeNotifier {
   @visibleForTesting
   static set instanceForTesting(CoupleService service) => _instance = service;
   CoupleService._internal()
-      : _api = ApiService(),
-        _pollInterval = const Duration(seconds: 10);
+    : _api = ApiService(),
+      _pollInterval = const Duration(seconds: 10);
 
   /// A service wired to a fake [CoupleApi]; never use it in production code.
   @visibleForTesting
   CoupleService.forTesting({
     required CoupleApi api,
     Duration pollInterval = const Duration(seconds: 10),
-  })  : _api = api,
-        _pollInterval = pollInterval;
+  }) : _api = api,
+       _pollInterval = pollInterval;
 
   static const _coupleDataKey = 'couple_data';
   static const _coupleModeEnabledKey = 'couple_mode_enabled';
   static const _pendingRequestKey = 'couple_pending_request';
+  static const _premiumKey = 'couple_premium';
 
   final CoupleApi _api;
   final Duration _pollInterval;
@@ -94,11 +96,13 @@ class CoupleService extends ChangeNotifier {
   /// demo has no realtime channel (no WebSocket), so it re-reads faster: its
   /// fictitious partner accepts 3 s after the request.
   @visibleForTesting
-  Duration get pollInterval => DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
+  Duration get pollInterval =>
+      DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
   final StreamController<CoupleFlowEvent> _events =
       StreamController<CoupleFlowEvent>.broadcast();
 
   CoupleData? _coupleData;
+  CouplePremium _premium = CouplePremium.inactive;
   bool _isCoupleModeEnabled = false;
   CoupleRequest? _pendingRequest;
   CoupleRequest? _receivedRequest;
@@ -110,6 +114,10 @@ class CoupleService extends ChangeNotifier {
   bool get isCoupleModeEnabled => _isCoupleModeEnabled;
   CoupleData? get coupleData => _coupleData;
   bool get hasPartner => _coupleData?.partnerId != null;
+
+  /// What the couple's MAZL Couple subscription gives, as the last read of
+  /// `GET /api/couple` said (inactive until a server says otherwise).
+  CouplePremium get premium => _premium;
 
   /// The request this member sent and that nobody answered yet.
   CoupleRequest? get pendingRequest => _pendingRequest;
@@ -136,11 +144,20 @@ class CoupleService extends ChangeNotifier {
         _coupleData = null;
       }
     }
+    final premiumJson = prefs.getString(_premiumKey);
+    if (premiumJson != null) {
+      try {
+        _premium = CouplePremium.fromJson(jsonDecode(premiumJson));
+      } on FormatException {
+        _premium = CouplePremium.inactive;
+      }
+    }
     final pendingJson = prefs.getString(_pendingRequestKey);
     if (pendingJson != null) {
       try {
-        _pendingRequest =
-            CoupleRequest.fromJson(jsonDecode(pendingJson) as Map<String, dynamic>);
+        _pendingRequest = CoupleRequest.fromJson(
+          jsonDecode(pendingJson) as Map<String, dynamic>,
+        );
       } catch (e) {
         _pendingRequest = null;
       }
@@ -155,6 +172,7 @@ class CoupleService extends ChangeNotifier {
     _stopPolling();
     _isCoupleModeEnabled = false;
     _coupleData = null;
+    _premium = CouplePremium.inactive;
     _pendingRequest = null;
     _receivedRequest = null;
     notifyListeners();
@@ -163,7 +181,9 @@ class CoupleService extends ChangeNotifier {
     try {
       await _clearData();
     } on Exception catch (e) {
-      debugPrint('CoupleService: could not clear the couple cache: ${e.runtimeType}');
+      debugPrint(
+        'CoupleService: could not clear the couple cache: ${e.runtimeType}',
+      );
     }
   }
 
@@ -183,7 +203,9 @@ class CoupleService extends ChangeNotifier {
   /// Re-reads the couple then the requests. Calls overlap safely: a second
   /// call while one is in flight waits for that one.
   Future<void> refresh() {
-    return _refreshing ??= _refreshOnce().whenComplete(() => _refreshing = null);
+    return _refreshing ??= _refreshOnce().whenComplete(
+      () => _refreshing = null,
+    );
   }
 
   Future<void> _refreshOnce() async {
@@ -202,8 +224,10 @@ class CoupleService extends ChangeNotifier {
       final raw = response.data!['couple'];
       if (raw is Map<String, dynamic>) {
         final couple = CoupleData.fromServer(raw);
-        final formedFromMyRequest = !_isCoupleModeEnabled && _pendingRequest != null;
+        final formedFromMyRequest =
+            !_isCoupleModeEnabled && _pendingRequest != null;
         await _enterCouple(couple);
+        await _setPremium(CouplePremium.fromJson(response.data!['premium']));
         if (formedFromMyRequest) {
           await _archiveOtherConversations();
           _events.add(CoupleFormed(couple, asRequester: true));
@@ -247,7 +271,9 @@ class CoupleService extends ChangeNotifier {
       await _setRequests(pending: pending, received: incoming);
 
       if (pending == null && previousPending != null && coupleKnown) {
-        _events.add(CoupleRequestDeclined(partnerName: previousPending.targetName));
+        _events.add(
+          CoupleRequestDeclined(partnerName: previousPending.targetName),
+        );
       }
       if (incoming != null && incoming.id != previousIncomingId) {
         _events.add(CoupleRequestReceived(incoming));
@@ -387,7 +413,8 @@ class CoupleService extends ChangeNotifier {
           return;
         }
         final couple = CoupleData.fromServer(raw);
-        if (_isCoupleModeEnabled && _coupleData?.coupleId == couple.coupleId) return;
+        if (_isCoupleModeEnabled && _coupleData?.coupleId == couple.coupleId)
+          return;
         await _enterCouple(couple);
         await _archiveOtherConversations();
         _events.add(CoupleFormed(couple, asRequester: true));
@@ -420,7 +447,8 @@ class CoupleService extends ChangeNotifier {
           : CoupleRelation.coupleWithSomeoneElse;
     }
     if (_pendingRequest?.targetId == userId) return CoupleRelation.requestSent;
-    if (_receivedRequest?.requesterId == userId) return CoupleRelation.requestReceived;
+    if (_receivedRequest?.requesterId == userId)
+      return CoupleRelation.requestReceived;
     return CoupleRelation.none;
   }
 
@@ -438,10 +466,19 @@ class CoupleService extends ChangeNotifier {
     }
   }
 
-  /// Update relationship status
-  Future<void> updateStatus(RelationshipStatus status) async {
+  /// Changes the relationship status. The server first: on failure nothing
+  /// changes here.
+  Future<CoupleActionResult> updateStatus(RelationshipStatus status) async {
     final current = _coupleData;
-    if (current == null) return;
+    final coupleId = current?.coupleId;
+    final wire = status.serverValue;
+    if (current == null || coupleId == null || wire == null) {
+      return const CoupleActionResult.failure(CoupleActionFailure.notInCouple);
+    }
+    final response = await _api.updateCoupleStatus(coupleId, wire);
+    if (!response.success) {
+      return CoupleActionResult.failure(coupleFailureOf(response));
+    }
     _coupleData = CoupleData(
       coupleId: current.coupleId,
       partnerId: current.partnerId,
@@ -454,6 +491,7 @@ class CoupleService extends ChangeNotifier {
     );
     await _saveData();
     notifyListeners();
+    return const CoupleActionResult.ok();
   }
 
   // ===== Internals =====
@@ -506,7 +544,8 @@ class CoupleService extends ChangeNotifier {
   }
 
   void _updatePolling() {
-    final shouldPoll = _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
+    final shouldPoll =
+        _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
     if (shouldPoll && _pollTimer == null) {
       _pollTimer = Timer.periodic(pollInterval, (_) => refresh());
     } else if (!shouldPoll) {
@@ -528,8 +567,28 @@ class CoupleService extends ChangeNotifier {
     await prefs.remove(_pendingRequestKey);
   }
 
-  Future<void> _clearData() async {
+  Future<void> _setPremium(CouplePremium premium) async {
+    final changed =
+        premium.active != _premium.active ||
+        premium.paidBy != _premium.paidBy ||
+        premium.renewsAt != _premium.renewsAt;
+    _premium = premium;
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _premiumKey,
+      jsonEncode({
+        'active': premium.active,
+        'paidBy': premium.paidBy?.name,
+        'renewsAt': premium.renewsAt?.toIso8601String(),
+      }),
+    );
+    if (changed) notifyListeners();
+  }
+
+  Future<void> _clearData() async {
+    _premium = CouplePremium.inactive;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_premiumKey);
     await prefs.remove(_coupleDataKey);
     await prefs.remove(_pendingRequestKey);
     await prefs.setBool(_coupleModeEnabledKey, false);
@@ -572,7 +631,8 @@ class CoupleService extends ChangeNotifier {
       ),
       DailyQuestion(
         id: '5',
-        question: 'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
+        question:
+            'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
         category: 'Appréciation',
       ),
     ];

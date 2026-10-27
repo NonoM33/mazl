@@ -4,8 +4,8 @@
 /// Couple request status
 enum CoupleRequestStatus {
   none,
-  pending,    // Request sent, waiting for response
-  received,   // Request received from someone else
+  pending, // Request sent, waiting for response
+  received, // Request received from someone else
   accepted,
   rejected,
 }
@@ -40,16 +40,16 @@ class CoupleRequest {
 
   /// The shape [CoupleRequest.fromJson] reads back (local cache).
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'requester_id': requesterId,
-        'requester_name': requesterName,
-        'requester_picture': requesterPicture,
-        'target_id': targetId,
-        'target_name': targetName,
-        'target_picture': targetPicture,
-        'status': status.name,
-        'created_at': createdAt?.toIso8601String(),
-      };
+    'id': id,
+    'requester_id': requesterId,
+    'requester_name': requesterName,
+    'requester_picture': requesterPicture,
+    'target_id': targetId,
+    'target_name': targetName,
+    'target_picture': targetPicture,
+    'status': status.name,
+    'created_at': createdAt?.toIso8601String(),
+  };
 
   factory CoupleRequest.fromJson(Map<String, dynamic> json) {
     return CoupleRequest(
@@ -78,13 +78,7 @@ int? parseCoupleId(dynamic value) {
 }
 
 /// Relationship status for the user
-enum RelationshipStatus {
-  single,
-  dating,
-  inRelationship,
-  engaged,
-  married,
-}
+enum RelationshipStatus { single, dating, inRelationship, engaged, married }
 
 extension RelationshipStatusExtension on RelationshipStatus {
   String get emoji {
@@ -101,6 +95,16 @@ extension RelationshipStatusExtension on RelationshipStatus {
         return '';
     }
   }
+
+  /// The value `PATCH /api/couple/:id/status` accepts, `null` for a status a
+  /// couple cannot have (`single`).
+  String? get serverValue => switch (this) {
+    RelationshipStatus.single => null,
+    RelationshipStatus.dating => 'dating',
+    RelationshipStatus.inRelationship => 'in_relationship',
+    RelationshipStatus.engaged => 'engaged',
+    RelationshipStatus.married => 'married',
+  };
 
   bool get isInCouple {
     return this == RelationshipStatus.inRelationship ||
@@ -137,16 +141,16 @@ class CoupleData {
   /// Decodes the couple as the SERVER renders it (contract §1), seen from the
   /// caller: `GET /api/couple`, the acceptance response and `couple:accepted`.
   factory CoupleData.fromServer(Map<String, dynamic> json) => CoupleData(
-        coupleId: parseCoupleId(json['id']),
-        partnerId: parseCoupleId(json['partner_id']),
-        partnerName: json['partner_name'] as String?,
-        partnerPicture: json['partner_picture'] as String?,
-        relationshipStartDate:
-            DateTime.tryParse(json['started_at']?.toString() ?? ''),
-        metOnMazlDate:
-            DateTime.tryParse(json['met_on_mazl_at']?.toString() ?? ''),
-        status: _statusFromServer(json['status']),
-      );
+    coupleId: parseCoupleId(json['id']),
+    partnerId: parseCoupleId(json['partner_id']),
+    partnerName: json['partner_name'] as String?,
+    partnerPicture: json['partner_picture'] as String?,
+    relationshipStartDate: DateTime.tryParse(
+      json['started_at']?.toString() ?? '',
+    ),
+    metOnMazlDate: DateTime.tryParse(json['met_on_mazl_at']?.toString() ?? ''),
+    status: _statusFromServer(json['status']),
+  );
 
   static RelationshipStatus _statusFromServer(dynamic raw) {
     switch (raw) {
@@ -167,30 +171,30 @@ class CoupleData {
   }
 
   Map<String, dynamic> toJson() => {
-        'coupleId': coupleId,
-        'partnerId': partnerId,
-        'partnerName': partnerName,
-        'partnerPicture': partnerPicture,
-        'relationshipStartDate': relationshipStartDate?.toIso8601String(),
-        'metOnMazlDate': metOnMazlDate?.toIso8601String(),
-        'status': status.index,
-        'daysTogetherStreak': daysTogetherStreak,
-      };
+    'coupleId': coupleId,
+    'partnerId': partnerId,
+    'partnerName': partnerName,
+    'partnerPicture': partnerPicture,
+    'relationshipStartDate': relationshipStartDate?.toIso8601String(),
+    'metOnMazlDate': metOnMazlDate?.toIso8601String(),
+    'status': status.index,
+    'daysTogetherStreak': daysTogetherStreak,
+  };
 
   factory CoupleData.fromJson(Map<String, dynamic> json) => CoupleData(
-        coupleId: json['coupleId'],
-        partnerId: json['partnerId'],
-        partnerName: json['partnerName'],
-        partnerPicture: json['partnerPicture'],
-        relationshipStartDate: json['relationshipStartDate'] != null
-            ? DateTime.parse(json['relationshipStartDate'])
-            : null,
-        metOnMazlDate: json['metOnMazlDate'] != null
-            ? DateTime.parse(json['metOnMazlDate'])
-            : null,
-        status: RelationshipStatus.values[json['status'] ?? 0],
-        daysTogetherStreak: json['daysTogetherStreak'] ?? 0,
-      );
+    coupleId: json['coupleId'],
+    partnerId: json['partnerId'],
+    partnerName: json['partnerName'],
+    partnerPicture: json['partnerPicture'],
+    relationshipStartDate: json['relationshipStartDate'] != null
+        ? DateTime.parse(json['relationshipStartDate'])
+        : null,
+    metOnMazlDate: json['metOnMazlDate'] != null
+        ? DateTime.parse(json['metOnMazlDate'])
+        : null,
+    status: RelationshipStatus.values[json['status'] ?? 0],
+    daysTogetherStreak: json['daysTogetherStreak'] ?? 0,
+  );
 }
 
 /// Model for couple milestones

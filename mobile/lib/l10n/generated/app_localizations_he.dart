@@ -560,6 +560,35 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get coupleTabToday => 'היום';
+
+  @override
+  String get coupleTabAgenda => 'יומן';
+
+  @override
+  String get coupleTabOutings => 'יציאות';
+
+  @override
+  String get coupleTabConcierge => 'קונסיירז׳';
+
+  @override
+  String get coupleTabUs => 'שנינו';
+
+  @override
+  String get coupleFailSubscriptionRequired =>
+      'הפעולה הזו כלולה ב-MAZL Couple.';
+
+  @override
+  String get coupleFailRateLimited =>
+      'הגעתם למגבלת ההודעות היומית עם העוזר. חזרו מחר.';
+
+  @override
+  String get coupleFailAlreadyDone => 'כבר ענית החודש.';
+
+  @override
+  String get coupleFailRouteMissing => 'הפעולה הזו עדיין לא זמינה.';
+
+  @override
   String get coupleFeedCategoryWellness => 'רווחה';
 
   @override
@@ -914,18 +943,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get coupleFeedLoadFailedTitle => 'הטעינה נכשלה';
-
-  @override
-  String get coupleSpaceTabActivities => 'פעילויות';
-
-  @override
-  String get coupleSpaceTabCalendar => 'לוח שנה';
-
-  @override
-  String get coupleSpaceTabEvents => 'אירועים';
-
-  @override
-  String get coupleSpaceTabSpace => 'המרחב שלנו';
 
   @override
   String get coupleSpaceTitle => 'המרחב שלנו';

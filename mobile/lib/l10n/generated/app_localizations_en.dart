@@ -562,6 +562,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get coupleTabToday => 'Today';
+
+  @override
+  String get coupleTabAgenda => 'Agenda';
+
+  @override
+  String get coupleTabOutings => 'Outings';
+
+  @override
+  String get coupleTabConcierge => 'Concierge';
+
+  @override
+  String get coupleTabUs => 'The two of us';
+
+  @override
+  String get coupleFailSubscriptionRequired =>
+      'This feature is part of MAZL Couple.';
+
+  @override
+  String get coupleFailRateLimited =>
+      'You have reached today\'s limit of messages with the assistant. Come back tomorrow.';
+
+  @override
+  String get coupleFailAlreadyDone => 'You already answered this month.';
+
+  @override
+  String get coupleFailRouteMissing => 'This feature is not available yet.';
+
+  @override
   String get coupleFeedCategoryWellness => 'Wellness';
 
   @override
@@ -914,18 +943,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coupleFeedLoadFailedTitle => 'Couldn\'t load';
-
-  @override
-  String get coupleSpaceTabActivities => 'Activities';
-
-  @override
-  String get coupleSpaceTabCalendar => 'Calendar';
-
-  @override
-  String get coupleSpaceTabEvents => 'Events';
-
-  @override
-  String get coupleSpaceTabSpace => 'Our space';
 
   @override
   String get coupleSpaceTitle => 'Our space';

@@ -46,6 +46,10 @@ class FakeCoupleTransport implements CoupleTransport {
       _handle('POST', path, body);
 
   @override
+  Future<Map<String, dynamic>> patch(String path, Map<String, dynamic> body) =>
+      _handle('PATCH', path, body);
+
+  @override
   Future<Map<String, dynamic>> delete(String path) =>
       _handle('DELETE', path, {});
 }

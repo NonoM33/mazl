@@ -127,12 +127,7 @@ const _notUserFacing = <String, (String, List<String>)>{
   ),
   'lib/core/services/couple_api_service.dart': (
     'messages de FormatException (réponse inattendue), journal',
-    [
-      r'$key holds a non-object item',
-      r'$key is not a list',
-      r'$key is not an object',
-      'stats is not an object',
-    ],
+    ['stats is not an object'],
   ),
   'lib/core/chat/chat_api.dart': (
     'journal et en-tête HTTP',
