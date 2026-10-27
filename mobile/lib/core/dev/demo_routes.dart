@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'demo_chat_routes.dart';
 import 'demo_couple_routes.dart';
 import 'demo_fixtures.dart';
+import 'demo_money_routes.dart';
+import 'demo_premium_routes.dart';
 import 'demo_privacy_routes.dart';
 import 'demo_store.dart';
 
@@ -180,6 +182,8 @@ abstract final class DemoRoutes {
   }
 
   static DemoReply _swipe(DemoRequest r, RegExpMatch m) {
+    final refusedNote = DemoPremiumRoutes.checkNote(r.body);
+    if (refusedNote != null) return refusedNote;
     final superLike = r.body['action'] == 'super_like';
     if (superLike && !DemoStore.spendSuperLike()) {
       return DemoReply({
@@ -196,6 +200,7 @@ abstract final class DemoRoutes {
         DemoFixtures.profileById(DemoFixtures.matchOnLikeUserId)!,
       );
     }
+    DemoPremiumRoutes.recordSwipe(r.body, matched: matched);
     // Même réponse que le serveur (SwipeResult) : la clé est `match`.
     return _json({
       'success': true,
@@ -458,6 +463,8 @@ abstract final class DemoRoutes {
 
     // --- Mode couple (demo_couple_routes.dart) ---
     ...DemoPrivacyRoutes.routes,
+    ...DemoMoneyRoutes.routes,
+    ...DemoPremiumRoutes.routes,
     ...DemoCoupleRoutes.routes,
 
     // --- Messagerie : messages, médias, réactions (demo_chat_routes.dart) ---
