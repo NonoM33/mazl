@@ -101,6 +101,7 @@ import { API_HOST_STATIC_FILES, LEGAL_PAGES, LEGAL_REDIRECTS, createWebApp, crea
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
 import { createPremiumSettingsService, ensurePremiumSettingsSchema, registerPremiumSettings } from "./features/premium-settings/premium-settings.module";
+import { createSwipeUndoService, ensureSwipeUndoSchema, registerSwipeUndo } from "./features/swipe-undo/swipe-undo.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
 import { ANALYTICS, createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { createAnalyticsService, observeAnalytics, registerAnalytics, withMessageAnalytics } from "./features/analytics/analytics.module";
@@ -436,6 +437,7 @@ registerLikeAllowance(app, createLikeAllowanceService(sql));
 registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
 // mazl+ settings (passport, discreet mode, read receipts) and the rewind of the last swipe.
 registerPremiumSettings(app, createPremiumSettingsService(sql), requireAuth);
+registerSwipeUndo(app, createSwipeUndoService(sql), requireAuth);
 registerMatchingRoutes(app, { credits, feed: backoffice.feed, likes: push.likeListener });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
@@ -819,6 +821,7 @@ await ensureBillingWebSchema(sql);
 await ensurePrivacySchema(sql);
 await ensureLikeAllowanceSchema(sql);
 await ensurePremiumSettingsSchema(sql);
+await ensureSwipeUndoSchema(sql);
 await push.ensureSchema();
 push.followBoostEndings();
 startChatMaintenance(chat);
