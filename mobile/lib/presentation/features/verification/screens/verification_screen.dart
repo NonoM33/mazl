@@ -85,7 +85,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       return _fail(session.error);
     }
 
-    final frames = await ref.read(livenessCaptureProvider).capture(context, session.data!.challenges);
+    final frames = await ref
+        .read(livenessCaptureProvider)
+        .capture(context, session.data!.challenges);
     if (!mounted) return;
     if (frames == null) {
       final expired = !DateTime.now().isBefore(session.data!.expiresAt);
@@ -121,8 +123,14 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
         title: Text(context.l10n.verificationRemoveDialogTitle),
         content: Text(context.l10n.verificationRemoveDialogBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.l10n.commonCancel)),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(context.l10n.commonRemove)),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.commonCancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.l10n.commonRemove),
+          ),
         ],
       ),
     );
@@ -149,7 +157,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     // button is drawn above the navigator.
     Widget back() => RoundIconButton(
       // « back » points right in a right-to-left language
-      icon: Directionality.of(context) == TextDirection.rtl ? LucideIcons.arrowRight : LucideIcons.arrowLeft,
+      icon: Directionality.of(context) == TextDirection.rtl
+          ? LucideIcons.arrowRight
+          : LucideIcons.arrowLeft,
       tooltip: context.l10n.commonBack,
       onPressed: () => context.pop(),
     );
@@ -161,7 +171,10 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
               buttons: [back()],
               inline: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Align(alignment: AlignmentDirectional.centerStart, child: back()),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: back(),
+                ),
               ),
             ),
             Expanded(child: _body(context)),
@@ -188,7 +201,11 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       onVerify: _verifyIdentity,
     );
     final identityFirst = status.photo.verified && !status.identity.verified;
-    return [if (identityFirst) identity else photo, const SizedBox(height: 16), if (identityFirst) photo else identity];
+    return [
+      if (identityFirst) identity else photo,
+      const SizedBox(height: 16),
+      if (identityFirst) photo else identity,
+    ];
   }
 
   Widget _body(BuildContext context) {
@@ -196,11 +213,15 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     final l10n = context.l10n;
     final status = _status;
     if (status == null) {
-      return VerificationRetry(message: (_loadError ?? const _Reason(null)).text(l10n), onRetry: _loadStatus);
+      return VerificationRetry(
+        message: (_loadError ?? const _Reason(null)).text(l10n),
+        onRetry: _loadStatus,
+      );
     }
     final busy = _stage == _Stage.working;
     final overview = VerificationOverview(
-      verifiedLevels: (status.photo.verified ? 1 : 0) + (status.identity.verified ? 1 : 0),
+      verifiedLevels:
+          (status.photo.verified ? 1 : 0) + (status.identity.verified ? 1 : 0),
       busy: busy,
     );
     // Held like a book: the state of the profile on the page where the
@@ -208,20 +229,29 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     return FoldSpread(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       wideFrom: 560,
+      // The privacy note fills the page of the header instead of trailing
+      // under the cards (Renaud, 2026-10-27: the start page stood empty).
       start: [
         VerificationHeader(overview: overview),
+        const SizedBox(height: 24),
+        const VerificationPrivacyNote(),
         const SizedBox(height: 28),
       ],
       end: [
-        if (_problem != null) VerificationNotice(text: _problem!.text(l10n), error: true),
-        if (_mismatches > 0) VerificationNotice(text: l10n.verificationPhotosMismatch(_mismatches), error: false),
+        if (_problem != null)
+          VerificationNotice(text: _problem!.text(l10n), error: true),
+        if (_mismatches > 0)
+          VerificationNotice(
+            text: l10n.verificationPhotosMismatch(_mismatches),
+            error: false,
+          ),
         ..._levels(status, busy),
         if (status.photo.verified) ...[
           const SizedBox(height: 12),
-          RemoveVerificationButton(onPressed: busy ? null : _removeVerification),
+          RemoveVerificationButton(
+            onPressed: busy ? null : _removeVerification,
+          ),
         ],
-        const SizedBox(height: 20),
-        const VerificationPrivacyNote(),
       ],
     );
   }
