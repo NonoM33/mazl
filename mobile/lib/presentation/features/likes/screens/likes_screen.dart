@@ -42,8 +42,10 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   Future<void> _loadLikes() async {
+    // The last answer is shown at once; the server's replaces it behind.
+    _likesData ??= _apiService.peekReceivedLikes();
     setState(() {
-      _isLoading = true;
+      _isLoading = _likesData == null;
       _loadFailed = false;
     });
 
@@ -54,7 +56,7 @@ class _LikesScreenState extends State<LikesScreen> {
         _isLoading = false;
         if (result.success && result.data != null) {
           _likesData = result.data;
-        } else {
+        } else if (_likesData == null) {
           _loadFailed = true;
         }
       });

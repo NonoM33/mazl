@@ -63,6 +63,9 @@ class _EventsListScreenState extends State<EventsListScreen>
         _events = cachedEvents;
         _isInitialLoading = false;
       });
+      if (_prefetchService.eventsNeedRefresh) {
+        await _loadEvents(isRefresh: true);
+      }
     } else {
       // Load from API if no cached data
       await _loadEvents();

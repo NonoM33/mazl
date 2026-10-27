@@ -48,6 +48,7 @@ class _MatchesScreenState extends State<MatchesScreen>
   @override
   void initState() {
     super.initState();
+    _likesData = _apiService.peekReceivedLikes();
     _initializeData();
     _loadBannerDismissedState();
     _loadLikes();
@@ -81,6 +82,9 @@ class _MatchesScreenState extends State<MatchesScreen>
         _matches = cachedMatches;
         _isLoading = false;
       });
+      if (_prefetchService.matchesNeedRefresh) {
+        await _loadMatches(isRefresh: true);
+      }
     } else {
       // Load from API if no cached data
       await _loadMatches();

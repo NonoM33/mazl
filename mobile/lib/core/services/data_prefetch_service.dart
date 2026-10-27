@@ -1,11 +1,14 @@
 import 'package:flutter/foundation.dart';
+import '../cache/api_snapshots.dart';
 import 'api_service.dart';
 
 /// Service to prefetch and cache data for smooth navigation
 class DataPrefetchService {
   static final DataPrefetchService _instance = DataPrefetchService._internal();
   factory DataPrefetchService() => _instance;
-  DataPrefetchService._internal();
+  DataPrefetchService._internal() {
+    ApiSnapshots.instance.addListener(_onSnapshotChange);
+  }
 
   final ApiService _apiService = ApiService();
 
@@ -57,6 +60,91 @@ class DataPrefetchService {
   bool get hasEventsData => _events != null;
   bool get hasUserData => _currentUser != null;
 
+  /// Shows the last answers kept on this phone (previous launch included) at
+  /// once, marked as needing a refresh: screens display them and the next
+  /// `fetch…` reads the server again behind them.
+  Future<void> hydrate(String? userId) async {
+    await ApiSnapshots.instance.bindOwner(userId);
+    if (userId == null) return;
+    final snapshots = ApiSnapshots.instance;
+    final api = _apiService;
+    _discoverProfiles ??= api.peekDiscoverProfiles();
+    _matches ??= api.peekMatches();
+    _conversations ??= api.peekConversations();
+    _events ??= api.peekEvents();
+    _currentUser ??= api.peekCurrentUser();
+    // Loaded « at the time the snapshot was taken »: fresh if recent, else the
+    // first fetch refreshes it.
+    _discoverLoadedAt ??= snapshots.recordedAt(ApiService.discoverKey);
+    _matchesLoadedAt ??= snapshots.recordedAt(ApiService.matchesKey);
+    _conversationsLoadedAt ??= snapshots.recordedAt(
+      ApiService.conversationsKey,
+    );
+    _eventsLoadedAt ??= snapshots.recordedAt(ApiService.eventsKey);
+    _userLoadedAt ??= snapshots.recordedAt(ApiService.meKey);
+    for (final key in const [
+      ApiService.discoverKey,
+      ApiService.matchesKey,
+      ApiService.conversationsKey,
+      ApiService.eventsKey,
+      ApiService.meKey,
+    ]) {
+      if (!snapshots.isFresh(key, _cacheDuration)) _markStale(key);
+    }
+    _notifyListeners();
+  }
+
+  void _onSnapshotChange(SnapshotChange change) {
+    switch (change.kind) {
+      case SnapshotChangeKind.cleared:
+        clearAll();
+      case SnapshotChangeKind.markedStale:
+        change.keys.forEach(_markStale);
+      case SnapshotChangeKind.dropped:
+        for (final key in change.keys) {
+          if (key == ApiService.discoverKey) _discoverProfiles = null;
+          _markStale(key);
+        }
+    }
+  }
+
+  void _markStale(String key) {
+    switch (key) {
+      case ApiService.discoverKey:
+        _discoverLoadedAt = null;
+      case ApiService.matchesKey:
+        _matchesLoadedAt = null;
+      case ApiService.conversationsKey:
+        _conversationsLoadedAt = null;
+      case ApiService.eventsKey:
+        _eventsLoadedAt = null;
+      case ApiService.meKey:
+        _userLoadedAt = null;
+    }
+  }
+
+  /// A block or a couple change: the deck may hold people who must go.
+  void invalidateAfterRelationChange() {
+    _discoverProfiles = null;
+    _discoverLoadedAt = null;
+    _matchesLoadedAt = null;
+    _conversationsLoadedAt = null;
+  }
+
+  /// A swiped profile leaves the deck kept in memory.
+  void discardDiscoverProfile(int userId) {
+    _discoverProfiles = _discoverProfiles
+        ?.where((profile) => profile.id != userId)
+        .toList();
+  }
+
+  /// True when the data of a section is on screen-ready (maybe stale).
+  bool isStaleOrMissing(DateTime? loadedAt) => !_isCacheValid(loadedAt);
+  bool get discoverNeedsRefresh => !_isCacheValid(_discoverLoadedAt);
+  bool get matchesNeedRefresh => !_isCacheValid(_matchesLoadedAt);
+  bool get conversationsNeedRefresh => !_isCacheValid(_conversationsLoadedAt);
+  bool get eventsNeedRefresh => !_isCacheValid(_eventsLoadedAt);
+
   /// Check if cache is still valid
   bool _isCacheValid(DateTime? loadedAt) {
     if (loadedAt == null) return false;
@@ -83,8 +171,12 @@ class DataPrefetchService {
   }
 
   /// Fetch discover profiles
-  Future<List<Profile>?> fetchDiscoverProfiles({bool forceRefresh = false}) async {
-    if (!forceRefresh && _isCacheValid(_discoverLoadedAt) && _discoverProfiles != null) {
+  Future<List<Profile>?> fetchDiscoverProfiles({
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _isCacheValid(_discoverLoadedAt) &&
+        _discoverProfiles != null) {
       return _discoverProfiles;
     }
 
@@ -108,7 +200,9 @@ class DataPrefetchService {
   }
 
   /// Fetch matches
-  Future<List<Map<String, dynamic>>?> fetchMatches({bool forceRefresh = false}) async {
+  Future<List<Map<String, dynamic>>?> fetchMatches({
+    bool forceRefresh = false,
+  }) async {
     if (!forceRefresh && _isCacheValid(_matchesLoadedAt) && _matches != null) {
       return _matches;
     }
@@ -133,8 +227,12 @@ class DataPrefetchService {
   }
 
   /// Fetch conversations
-  Future<List<Conversation>?> fetchConversations({bool forceRefresh = false}) async {
-    if (!forceRefresh && _isCacheValid(_conversationsLoadedAt) && _conversations != null) {
+  Future<List<Conversation>?> fetchConversations({
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _isCacheValid(_conversationsLoadedAt) &&
+        _conversations != null) {
       return _conversations;
     }
 
@@ -158,7 +256,10 @@ class DataPrefetchService {
   }
 
   /// Fetch events
-  Future<List<Event>?> fetchEvents({bool forceRefresh = false, String? type}) async {
+  Future<List<Event>?> fetchEvents({
+    bool forceRefresh = false,
+    String? type,
+  }) async {
     // For filtered events, always fetch (but don't update main cache)
     if (type != null) {
       try {
@@ -235,7 +336,7 @@ class DataPrefetchService {
     _notifyListeners();
   }
 
-  /// Clear all cached data
+  /// Clear all cached data (sign-out, account change)
   void clearAll() {
     _discoverProfiles = null;
     _matches = null;
