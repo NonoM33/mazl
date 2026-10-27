@@ -3,6 +3,7 @@ import { discountedAmount } from "./campaign-form";
 import { PARIS, lastDayInstant } from "./paris-time";
 import { applePrice, formatMoney } from "./price-change";
 import { sortProducts } from "./offers-model";
+import { productLabel } from "./product-view";
 import type { CampaignTarget, Lang, ProductDto } from "./types";
 
 const UNTIL: Readonly<Record<Lang, string>> = { fr: "jusqu'au", en: "until", he: "עד", es: "hasta el", ru: "до" };
@@ -25,9 +26,9 @@ const DURATION_NAMES: Readonly<Record<Lang, Readonly<Record<number, string>>>> =
 };
 
 /** Nom affiché de l'offre dans la langue demandée (noms saisis dans App Store Connect) ; le nom français en repli. */
-export function offerName(product: Pick<ProductDto, "productId" | "label">, lang: Lang): string {
+export function offerName(product: Pick<ProductDto, "productId" | "kind" | "months">, lang: Lang): string {
   const months = MONTHS_BY_SUFFIX[product.productId.split(".").pop() ?? ""];
-  return months === undefined ? product.label : (DURATION_NAMES[lang][months] ?? product.label);
+  return months === undefined ? productLabel(product) : (DURATION_NAMES[lang][months] ?? productLabel(product));
 }
 
 export interface PaywallLine {
@@ -47,9 +48,9 @@ export function paywallLines(products: readonly ProductDto[], targets: readonly 
     .map((product) => {
       const france = applePrice(product, "FRA");
       const target = targets.find((candidate) => candidate.productId === product.productId);
-      const amount = france === undefined ? null : Number(france.amount);
-      const highlight = product.featured && product.highlight !== null ? (product.highlight[lang].trim() === "" ? product.highlight.fr : product.highlight[lang]) : null;
-      const base = france === undefined || amount === null ? "—" : formatMoney(france.amount, france.currency);
+      const amount = france === undefined ? null : Number(france.customerPrice);
+      const highlight = product.featured && product.highlight !== null ? ((product.highlight[lang] ?? "").trim() === "" ? product.highlight.fr : (product.highlight[lang] ?? product.highlight.fr)) : null;
+      const base = france === undefined || amount === null ? "—" : formatMoney(france.customerPrice, france.currency);
       if (target === undefined || france === undefined || amount === null) return { productId: product.productId, name: offerName(product, lang), highlight, price: base, oldPrice: null, badge: null };
       return {
         productId: product.productId,

@@ -2,17 +2,18 @@
 import type { ApiClient, ApiResult } from "../shared/api/client";
 import type {
   ApplePriceBody,
-  ApplePricePlanDto,
+  ApplePriceResultDto,
   CampaignDto,
   CampaignInput,
+  CampaignPatch,
   CampaignListDto,
   PresetListDto,
   PricePointsDto,
-  ProductDto,
+  ProductDisplayDto,
   ProductPatch,
   ProductsDto,
   WebPriceBody,
-  WebPriceDto,
+  WebPriceResultDto,
 } from "./types";
 
 /** Préfixe commun des routes de la vitrine. */
@@ -20,14 +21,14 @@ export const STOREFRONT_PATH = "/storefront";
 
 export interface StorefrontApi {
   products(): Promise<ApiResult<ProductsDto>>;
-  patchProduct(productId: string, patch: ProductPatch): Promise<ApiResult<ProductDto>>;
+  patchProduct(productId: string, patch: ProductPatch): Promise<ApiResult<ProductDisplayDto>>;
   applePricePoints(productId: string, territory: string): Promise<ApiResult<PricePointsDto>>;
-  applePrice(productId: string, body: ApplePriceBody): Promise<ApiResult<ApplePricePlanDto>>;
-  webPrice(productId: string, body: WebPriceBody): Promise<ApiResult<WebPriceDto>>;
+  applePrice(productId: string, body: ApplePriceBody): Promise<ApiResult<ApplePriceResultDto>>;
+  webPrice(productId: string, body: WebPriceBody): Promise<ApiResult<WebPriceResultDto>>;
   campaigns(year: number): Promise<ApiResult<CampaignListDto>>;
   presets(year: number): Promise<ApiResult<PresetListDto>>;
   createCampaign(input: CampaignInput): Promise<ApiResult<CampaignDto>>;
-  updateCampaign(id: number, input: Partial<CampaignInput>): Promise<ApiResult<CampaignDto>>;
+  updateCampaign(id: number, input: CampaignPatch): Promise<ApiResult<CampaignDto>>;
   publish(id: number): Promise<ApiResult<CampaignDto>>;
   cancel(id: number): Promise<ApiResult<CampaignDto>>;
 }

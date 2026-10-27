@@ -12,10 +12,12 @@ import { storefrontApi } from "./api";
 import { ApplePriceDialog } from "./ApplePriceDialog";
 import { storefrontErrorMessage } from "./errors";
 import { HighlightDialog } from "./HighlightDialog";
-import { applyOrder, groupProducts, KIND_LABELS, reorder, type OfferGroup } from "./offers-model";
+import { applyOrder, groupProducts, kindLabel, reorder, type OfferGroup } from "./offers-model";
 import { applePrice, formatCents, formatMoney } from "./price-change";
 import type { ProductDto } from "./types";
 import { WebPriceDialog } from "./WebPriceDialog";
+import { applePrices, productLabel, webPrice, webUnavailable } from "./product-view";
+import { sortOrderRequest } from "./request-bodies";
 
 type Dialog = { readonly kind: "apple" | "web" | "highlight"; readonly product: ProductDto };
 
@@ -46,8 +48,8 @@ interface RowProps {
 
 function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, onDialog, onDragStart, onDragEnd, onDropHere }: RowProps): ReactElement {
   const france = applePrice(product, "FRA");
-  const webUnavailable = product.web?.unavailable === true;
-  const others = product.applePrices.filter((price) => price.territory !== "FRA");
+  const web = webPrice(product);
+  const others = applePrices(product).filter((price) => price.territory !== "FRA");
   const allow = (event: DragEvent): void => event.preventDefault();
   return (
     <tr className={`offer-row${dragging ? " is-dragging" : ""}${product.visible ? "" : " is-hidden"}`} onDragOver={allow} onDrop={onDropHere} data-product={product.productId}>
@@ -56,10 +58,10 @@ function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, 
           <span className="grip" draggable onDragStart={onDragStart} onDragEnd={onDragEnd} title="Glisser pour changer l'ordre" aria-hidden="true">
             <Icon name="grip" size={16} />
           </span>
-          <button type="button" className="icon-btn icon-btn-s" aria-label={`Monter ${product.label}`} disabled={index === 0} onClick={() => onMove(index - 1)}>
+          <button type="button" className="icon-btn icon-btn-s" aria-label={`Monter ${productLabel(product)}`} disabled={index === 0} onClick={() => onMove(index - 1)}>
             <Icon name="arrow-up" size={15} />
           </button>
-          <button type="button" className="icon-btn icon-btn-s" aria-label={`Descendre ${product.label}`} disabled={index === count - 1} onClick={() => onMove(index + 1)}>
+          <button type="button" className="icon-btn icon-btn-s" aria-label={`Descendre ${productLabel(product)}`} disabled={index === count - 1} onClick={() => onMove(index + 1)}>
             <Icon name="arrow-down" size={15} />
           </button>
           <span className="order-rank" aria-hidden="true">
@@ -69,43 +71,43 @@ function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, 
       </td>
       <td>
         <span className="cell-stack">
-          <strong>{product.label}</strong>
+          <strong>{productLabel(product)}</strong>
           <span className="cell-sub mono">{product.productId.replace(/\./g, ".\u200B")}</span>
         </span>
       </td>
       <td>
-        <Switch checked={product.visible} label={`${product.label} : visible dans l'app`} onChange={(visible) => onPatch({ visible })} />
+        <Switch checked={product.visible} label={`${productLabel(product)} : visible dans l'app`} onChange={(visible) => onPatch({ visible })} />
       </td>
       <td>
         <label className="check check-plain">
-          <input type="checkbox" checked={product.featured} aria-label={`${product.label} : mise en avant`} onChange={(event) => onPatch({ featured: event.target.checked })} />
+          <input type="checkbox" checked={product.featured} aria-label={`${productLabel(product)} : mise en avant`} onChange={(event) => onPatch({ featured: event.target.checked })} />
         </label>
       </td>
       <td>
-        <button type="button" className="link-btn" aria-label={`Accroche de ${product.label}`} onClick={() => onDialog("highlight")}>
+        <button type="button" className="link-btn" aria-label={`Accroche de ${productLabel(product)}`} onClick={() => onDialog("highlight")}>
           {product.highlight === null ? <span className="muted">Ajouter une accroche</span> : <Badge tone="accent">{product.highlight.fr}</Badge>}
         </button>
       </td>
       <td>
         <span className="price-cell">
           <span className="cell-stack">
-            {france !== undefined ? <strong className="price-main">{formatMoney(france.amount, france.currency)}</strong> : <span className="muted">Prix indisponible</span>}
-            {others.length > 0 ? <span className="cell-sub">{others.map((price) => `${SHORT[price.territory] ?? price.territory} ${formatMoney(price.amount, price.currency)}`).join(" · ")}</span> : null}
+            {france !== undefined ? <strong className="price-main">{formatMoney(france.customerPrice, france.currency)}</strong> : <span className="muted">Prix indisponible</span>}
+            {others.length > 0 ? <span className="cell-sub">{others.map((price) => `${SHORT[price.territory] ?? price.territory} ${formatMoney(price.customerPrice, price.currency)}`).join(" · ")}</span> : null}
           </span>
-          <Button size="s" variant="secondary" disabled={!canWrite || france === undefined} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix Apple de ${product.label}`} onClick={() => onDialog("apple")}>
+          <Button size="s" variant="secondary" disabled={!canWrite || france === undefined} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix Apple de ${productLabel(product)}`} onClick={() => onDialog("apple")}>
             Changer
           </Button>
         </span>
       </td>
       <td>
-        {product.web === null ? (
+        {web === null && !webUnavailable(product) ? (
           <span className="muted">Non vendu sur le web</span>
-        ) : webUnavailable ? (
+        ) : web === null ? (
           <span className="muted">Prix indisponible</span>
         ) : (
           <span className="price-cell">
-            <strong className="price-main">{formatCents(product.web.amountCents, product.web.currency)}</strong>
-            <Button size="s" variant="secondary" disabled={!canWrite} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix web de ${product.label}`} onClick={() => onDialog("web")}>
+            <strong className="price-main">{formatCents(web.amountCents, web.currency)}</strong>
+            <Button size="s" variant="secondary" disabled={!canWrite} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix web de ${productLabel(product)}`} onClick={() => onDialog("web")}>
               Changer
             </Button>
           </span>
@@ -116,7 +118,7 @@ function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, 
 }
 
 function GroupCard({ group, canWrite, dragId, setDragId, onMove, onPatch, onDialog }: { readonly group: OfferGroup; readonly canWrite: boolean; readonly dragId: string | null; readonly setDragId: (id: string | null) => void; readonly onMove: (group: OfferGroup, productId: string, index: number) => void; readonly onPatch: (product: ProductDto, patch: { readonly visible?: boolean; readonly featured?: boolean }) => void; readonly onDialog: (dialog: Dialog) => void }): ReactElement {
-  const kinds = [...new Set(group.products.map((product) => KIND_LABELS[product.kind]))].join(", ");
+  const kinds = [...new Set(group.products.map((product) => kindLabel(product)))].join(", ");
   return (
     <section className="card offers-card" aria-labelledby={`g-${group.id}`}>
       <div className="card-head">
@@ -200,7 +202,7 @@ export function OffersScreen(): ReactElement {
       toast.notify(storefrontErrorMessage(result), "error");
       return;
     }
-    toast.notify(changes.visible !== undefined ? (changes.visible ? `« ${product.label} » est visible dans l'app.` : `« ${product.label} » est masqué dans l'app.`) : changes.featured === true ? `« ${product.label} » est mis en avant.` : `« ${product.label} » n'est plus mis en avant.`, "success");
+    toast.notify(changes.visible !== undefined ? (changes.visible ? `« ${productLabel(product)} » est visible dans l'app.` : `« ${productLabel(product)} » est masqué dans l'app.`) : changes.featured === true ? `« ${productLabel(product)} » est mis en avant.` : `« ${productLabel(product)} » n'est plus mis en avant.`, "success");
   };
 
   const move = async (group: OfferGroup, productId: string, targetIndex: number): Promise<void> => {
@@ -208,9 +210,10 @@ export function OffersScreen(): ReactElement {
     if (patches.length === 0) return;
     const before = products;
     setProducts((current) => applyOrder(current, patches));
-    const label = group.products.find((product) => product.productId === productId)?.label ?? "";
+    const moved = group.products.find((product) => product.productId === productId);
+    const label = moved === undefined ? "" : productLabel(moved);
     setAnnouncement(`${label} est maintenant en position ${targetIndex + 1} sur ${group.products.length}.`);
-    const results = await Promise.all(patches.map((change) => store.patchProduct(change.productId, { sortOrder: change.sortOrder })));
+    const results = await Promise.all(patches.map((change) => store.patchProduct(change.productId, sortOrderRequest(change.sortOrder))));
     const failed = results.find((result) => !result.ok);
     if (failed !== undefined && !failed.ok) {
       setProducts(before);

@@ -7,14 +7,16 @@ import { Select } from "../shared/ui/Select";
 import { useToast } from "../shared/ui/Toast";
 import { storefrontApi } from "./api";
 import { storefrontErrorMessage } from "./errors";
+import { productLabel, webPrice } from "./product-view";
 import { formatCents, validateWebPrice, WEB_CURRENCIES } from "./price-change";
 import type { ProductDto } from "./types";
+import { webPriceRequest } from "./request-bodies";
 
 /** Changer le prix web (Stripe) : un prix Stripe est immuable, un nouveau est créé. Confirmation avant tout envoi. */
 export function WebPriceDialog({ product, onClose, onDone }: { readonly product: ProductDto; readonly onClose: () => void; readonly onDone: () => void }): ReactElement {
   const { api } = useSession();
   const toast = useToast();
-  const web = product.web;
+  const web = webPrice(product);
   const [amountText, setAmountText] = useState(web === null ? "" : (web.amountCents / 100).toFixed(2).replace(".", ","));
   const [currency, setCurrency] = useState<string>(web?.currency ?? "EUR");
   const [error, setError] = useState<string | undefined>(undefined);
@@ -36,18 +38,18 @@ export function WebPriceDialog({ product, onClose, onDone }: { readonly product:
     if (pending === null) return;
     setBusy(true);
     setFailure(null);
-    const result = await storefrontApi(api).webPrice(product.productId, { amountCents: pending, currency });
+    const result = await storefrontApi(api).webPrice(product.productId, webPriceRequest(pending, currency));
     setBusy(false);
     if (!result.ok) {
       setFailure(storefrontErrorMessage(result));
       return;
     }
-    toast.notify(`Prix web de « ${product.label} » : ${formatCents(result.data.amountCents, result.data.currency)}.`, "success");
+    toast.notify(`Prix web de « ${productLabel(product)} » : ${formatCents(result.data.price.amountCents, result.data.price.currency)}.`, "success");
     onDone();
   };
 
   return (
-    <Modal title={`Prix web — ${product.label}`} onClose={onClose}>
+    <Modal title={`Prix web — ${productLabel(product)}`} onClose={onClose}>
       {pending === null ? (
         <div className="stack">
           <p className="modal-lead">Prix payé sur le site (Stripe){web !== null ? `, actuellement ${formatCents(web.amountCents, web.currency)}` : ""}. Rien n'est modifié avant la confirmation.</p>

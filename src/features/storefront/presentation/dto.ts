@@ -3,12 +3,45 @@ import { campaignStatus, type Campaign } from "../domain/campaign";
 import type { ProductDisplay } from "../domain/products";
 import type { ProductView } from "../application/catalog-service";
 import type { Preset } from "../application/campaign-service";
-import type { campaignDto, presetDto, productDisplayDto, productViewDto } from "./schemas";
+import type {
+  applePlanDto,
+  applePriceBody,
+  applePriceResultDto,
+  campaignBody,
+  campaignDto,
+  campaignListDto,
+  campaignPatchBody,
+  pricePointDto,
+  pricePointsDto,
+  presetDto,
+  presetListDto,
+  productDisplayDto,
+  productListDto,
+  productPatchBody,
+  productViewDto,
+  webPriceBody,
+  webPriceResultDto,
+} from "./schemas";
 
 export type CampaignDto = z.infer<typeof campaignDto>;
 export type PresetDto = z.infer<typeof presetDto>;
 export type ProductDisplayDto = z.infer<typeof productDisplayDto>;
 export type ProductViewDto = z.infer<typeof productViewDto>;
+export type ProductListDto = z.infer<typeof productListDto>;
+export type PricePointDto = z.infer<typeof pricePointDto>;
+export type PricePointsDto = z.infer<typeof pricePointsDto>;
+export type ApplePlanDto = z.infer<typeof applePlanDto>;
+export type ApplePriceResultDto = z.infer<typeof applePriceResultDto>;
+export type WebPriceResultDto = z.infer<typeof webPriceResultDto>;
+export type CampaignListDto = z.infer<typeof campaignListDto>;
+export type PresetListDto = z.infer<typeof presetListDto>;
+
+// Request bodies as a client writes them (defaults not yet applied).
+export type ProductPatchBody = z.input<typeof productPatchBody>;
+export type ApplePriceRequestBody = z.input<typeof applePriceBody>;
+export type WebPriceRequestBody = z.input<typeof webPriceBody>;
+export type CampaignRequestBody = z.input<typeof campaignBody>;
+export type CampaignPatchRequestBody = z.input<typeof campaignPatchBody>;
 
 export function toCampaignDto(campaign: Campaign, now: Date): CampaignDto {
   return {

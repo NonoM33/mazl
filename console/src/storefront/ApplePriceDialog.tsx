@@ -9,13 +9,15 @@ import { useToast } from "../shared/ui/Toast";
 import { useAsync } from "../shared/ui/use-async";
 import { storefrontApi } from "./api";
 import { storefrontErrorMessage } from "./errors";
+import { currencyOf, productLabel } from "./product-view";
 import { parisToday } from "./paris-time";
 import { applePrice, changeLines, explainApplePlan, formatMoney, validateStartDate } from "./price-change";
-import type { ApplePricePlanDto, PricePointsDto, ProductDto } from "./types";
+import type { ApplePlanDto, ApplePriceResultDto, PricePointsDto, ProductDto } from "./types";
+import { applePriceRequest } from "./request-bodies";
 
 const BASE_TERRITORY = "FRA";
 
-export function ChangeTable({ plan }: { readonly plan: ApplePricePlanDto }): ReactElement {
+export function ChangeTable({ plan, product }: { readonly plan: ApplePlanDto; readonly product: ProductDto }): ReactElement {
   return (
     <table className="table change-table">
       <caption className="sr-only">Prix actuel et nouveau prix, pays par pays</caption>
@@ -31,7 +33,7 @@ export function ChangeTable({ plan }: { readonly plan: ApplePricePlanDto }): Rea
         </tr>
       </thead>
       <tbody>
-        {changeLines(plan.changes).map((line) => (
+        {changeLines(plan.changes, (territory) => currencyOf(product, territory)).map((line) => (
           <tr key={line.territory}>
             <td>{line.country}</td>
             <td className="cell-right muted">{line.before}</td>
@@ -56,13 +58,14 @@ export function ApplePriceDialog({ product, onClose, onDone }: { readonly produc
   const [pricePointId, setPricePointId] = useState("");
   const [startDate, setStartDate] = useState(() => parisToday());
   const [preserve, setPreserve] = useState(true);
-  const [plan, setPlan] = useState<ApplePricePlanDto | null>(null);
+  const [plan, setPlan] = useState<ApplePlanDto | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ readonly point?: string; readonly date?: string }>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const current = applePrice(product, BASE_TERRITORY);
+  const baseCurrency = currencyOf(product, BASE_TERRITORY) ?? "EUR";
 
-  const call = async (dryRun: boolean): Promise<ApiResult<ApplePricePlanDto>> => store.applePrice(product.productId, { pricePointId, startDate, preserveCurrentPrice: preserve, dryRun });
+  const call = async (dryRun: boolean): Promise<ApiResult<ApplePriceResultDto>> => store.applePrice(product.productId, applePriceRequest({ pricePointId, startDate, preserveCurrentPrice: preserve, dryRun }));
 
   const preview = async (): Promise<void> => {
     const errors = { ...(pricePointId === "" ? { point: "Choisissez le nouveau palier de prix." } : {}), ...(validateStartDate(startDate) !== null ? { date: validateStartDate(startDate) ?? "" } : {}) };
@@ -73,7 +76,7 @@ export function ApplePriceDialog({ product, onClose, onDone }: { readonly produc
     const result = await call(true);
     setBusy(false);
     if (!result.ok) setFailure(storefrontErrorMessage(result));
-    else setPlan(result.data);
+    else setPlan(result.data.plan);
   };
 
   const confirm = async (): Promise<void> => {
@@ -85,18 +88,18 @@ export function ApplePriceDialog({ product, onClose, onDone }: { readonly produc
       setFailure(storefrontErrorMessage(result));
       return;
     }
-    toast.notify(`Prix Apple de « ${product.label} » : changement demandé pour le ${result.data.startDate}.`, "success");
+    toast.notify(`Prix Apple de « ${productLabel(product)} » : changement demandé pour le ${result.data.plan.startDate}.`, "success");
     onDone();
   };
 
-  const pointOptions = state.status === "ok" ? state.data.pricePoints.map((point) => ({ value: point.id, label: `${formatMoney(point.customerPrice, point.currency)}${current !== undefined && Number(current.amount) === Number(point.customerPrice) ? " (prix actuel)" : ""}` })) : [];
+  const pointOptions = state.status === "ok" ? state.data.pricePoints.map((point) => ({ value: point.id, label: `${formatMoney(point.customerPrice, baseCurrency)}${current !== undefined && Number(current.customerPrice) === Number(point.customerPrice) ? " (prix actuel)" : ""}` })) : [];
 
   return (
-    <Modal title={`Prix Apple — ${product.label}`} onClose={onClose} wide>
+    <Modal title={`Prix Apple — ${productLabel(product)}`} onClose={onClose} wide>
       {plan === null ? (
         <div className="stack">
           <p className="modal-lead">
-            Le prix de base est celui de la France{current !== undefined ? ` (actuellement ${formatMoney(current.amount, current.currency)})` : ""} ; les autres pays suivent la conversion d'Apple. Rien n'est modifié avant la confirmation.
+            Le prix de base est celui de la France{current !== undefined ? ` (actuellement ${formatMoney(current.customerPrice, current.currency)})` : ""} ; les autres pays suivent la conversion d'Apple. Rien n'est modifié avant la confirmation.
           </p>
           {state.status === "loading" ? <p className="muted">Chargement des paliers d'Apple…</p> : null}
           {state.status === "error" ? (
@@ -131,9 +134,9 @@ export function ApplePriceDialog({ product, onClose, onDone }: { readonly produc
       ) : (
         <div className="stack">
           <p className="modal-lead">
-            Voici ce qui va changer, pays par pays, pour « {product.label} ». C'est un aperçu : rien n'est encore envoyé à Apple.
+            Voici ce qui va changer, pays par pays, pour « {productLabel(product)} ». C'est un aperçu : rien n'est encore envoyé à Apple.
           </p>
-          <ChangeTable plan={plan} />
+          <ChangeTable plan={plan} product={product} />
           <div className="notice notice-info explain-list">
             {explainApplePlan(plan, isSubscription).map((line) => (
               <p key={line}>{line}</p>

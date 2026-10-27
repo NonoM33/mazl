@@ -6,14 +6,15 @@ type Failure = Extract<ApiResult<never>, { readonly ok: false }>;
 const KNOWN: Readonly<Record<string, string>> = {
   campaign_overlap: "Une autre campagne programmée occupe déjà une partie de ces dates. Deux campagnes programmées ne peuvent pas se chevaucher : changez les dates, ou annulez l'autre campagne.",
   store_not_configured: "Apple ou Stripe n'est pas encore relié à ce serveur (clés manquantes). Rien n'a été créé ; la campagne reste en brouillon.",
-  apple_error: "Apple a refusé la demande. Rien n'a été programmé : la campagne reste en brouillon.",
-  stripe_error: "Stripe a refusé la demande. La campagne reste en brouillon.",
-  campaign_locked: "Cette campagne est déjà programmée ou en cours : elle ne peut plus être modifiée, seulement raccourcie ou annulée.",
+  store_error: "Apple ou Stripe a refusé la demande ou n'a pas répondu. Ce qui avait déjà été créé est conservé et sera réutilisé au prochain essai.",
+  campaign_not_editable: "Cette campagne est déjà programmée, en cours ou terminée : elle ne peut plus être modifiée comme ça (seulement raccourcie ou annulée).",
+  campaign_wrong_state: "Cette action ne s'applique pas à l'état actuel de la campagne.",
   campaign_not_found: "Cette campagne n'existe plus.",
   product_not_found: "Ce produit n'existe plus dans le catalogue.",
   invalid_campaign: "Les informations de la campagne sont refusées par le serveur.",
-  invalid_price: "Ce prix est refusé par le serveur.",
-  price_point_not_found: "Ce palier de prix n'existe plus chez Apple.",
+  invalid_price_change: "Ce changement de prix est refusé par le serveur.",
+  invalid_body: "Une valeur envoyée est refusée par le serveur.",
+  invalid_query: "Un paramètre de la demande est refusé par le serveur.",
 };
 
 /** Message à afficher pour un échec d'API de la vitrine. Le détail renvoyé par le serveur est ajouté s'il apporte quelque chose. */

@@ -20,10 +20,12 @@ import { LangField } from "./LangFields";
 import { formatLastDay, formatParis, parisLocalToIso } from "./paris-time";
 import { PaywallPreview } from "./PaywallPreview";
 import { applePrice, formatMoney } from "./price-change";
+import { productLabel } from "./product-view";
 import { findOverlaps } from "./timeline";
 import { defaultTexts, LANG_LABELS } from "./theme-texts";
 import { THEMES, themeById } from "./themes";
 import { LANGS, type CampaignDto, type Lang, type ProductDto, type ThemeId } from "./types";
+import { campaignUpdateRequest, endEarlierRequest } from "./request-bodies";
 
 interface Props {
   /** Campagne existante, ou null pour une nouvelle. */
@@ -88,7 +90,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
       if (Date.parse(endsAt) >= Date.parse(campaign.endsAt)) return setErrors({ endsLocal: "Une campagne en cours ne peut qu'être raccourcie." });
       setErrors({});
       setBusy(true);
-      const result = await store.updateCampaign(campaign.id, { endsAt });
+      const result = await store.updateCampaign(campaign.id, endEarlierRequest(endsAt));
       setBusy(false);
       if (!result.ok) return fail(storefrontErrorMessage(result));
       toast.notify("Fin de campagne avancée.", "success");
@@ -101,8 +103,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
     }
     setErrors({});
     setBusy(true);
-    const body = mode === "partial" ? { name: checked.input.name, texts: checked.input.texts, changeAppIcon: checked.input.changeAppIcon } : checked.input;
-    const result = campaign === null ? await store.createCampaign(checked.input) : await store.updateCampaign(campaign.id, body);
+        const result = campaign === null ? await store.createCampaign(checked.input) : await store.updateCampaign(campaign.id, campaignUpdateRequest(mode === "partial" ? "partial" : "full", checked.input));
     setBusy(false);
     if (!result.ok) return fail(storefrontErrorMessage(result));
     toast.notify(campaign === null ? "Brouillon enregistré." : "Campagne enregistrée.", "success");
@@ -151,20 +152,25 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
           {mode === "locked" && campaign !== null ? <p className="notice notice-info">Cette campagne est {state === "cancelled" ? "annulée" : "terminée"} : elle ne se modifie plus.</p> : null}
           {mode === "partial" ? <p className="notice notice-info">Cette campagne est programmée : vous pouvez changer son nom, ses textes et l'icône. Les dates et les produits en remise sont verrouillés (codes déjà créés chez Apple et Stripe) : pour les changer, annulez la campagne puis créez-en une autre.</p> : null}
           {mode === "end-only" ? <p className="notice notice-info">Cette campagne est en cours : vous pouvez seulement avancer sa fin, ou l'annuler.</p> : null}
-          {campaign?.apple?.error !== undefined && campaign.apple.error !== null ? (
+          {campaign?.apple.error !== undefined && campaign.apple.error !== null ? (
             <p className="notice notice-error" role="alert">
               Dernière tentative chez Apple : {campaign.apple.error}
             </p>
           ) : null}
-          {campaign?.apple !== null && campaign?.apple !== undefined && campaign.apple.offerCodes.length > 0 ? (
+          {campaign !== null && campaign.apple.codes.length > 0 ? (
             <p className="notice notice-info">
-              Codes d'offre Apple : <span className="mono">{campaign.apple.offerCodes.join(", ")}</span>
-              {campaign.stripe !== null ? (
+              Codes d'offre Apple : <span className="mono">{campaign.apple.codes.map((code) => code.customCode).join(", ")}</span>
+              {campaign.stripe.promotions.length > 0 ? (
                 <>
                   {" "}
-                  · code promo Stripe : <span className="mono">{campaign.stripe.promotionCode}</span>
+                  · {campaign.stripe.promotions.length > 1 ? `${campaign.stripe.promotions.length} coupons Stripe` : "1 coupon Stripe"} appliqué{campaign.stripe.promotions.length > 1 ? "s" : ""} d'office au paiement sur le site
                 </>
               ) : null}
+            </p>
+          ) : null}
+          {campaign !== null && campaign.stripe.error !== null ? (
+            <p className="notice notice-error" role="alert">
+              Dernière tentative chez Stripe : {campaign.stripe.error}
             </p>
           ) : null}
           {clash.length > 0 ? (
@@ -235,10 +241,10 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
                     <label className="check check-plain target-name">
                       <input type="checkbox" checked={target.enabled} disabled={readOnly} onChange={(event) => set({ targets: form.targets.map((t) => (t.productId === target.productId ? { ...t, enabled: event.target.checked } : t)) })} />
                       <span className="cell-stack">
-                        <strong>{product.label}</strong>
+                        <strong>{productLabel(product)}</strong>
                         <span className="cell-sub">
-                          {france !== undefined ? formatMoney(france.amount, france.currency) : "prix indisponible"}
-                          {target.enabled && discount !== null && france !== undefined ? ` → ${formatMoney(discountedAmount(Number(france.amount), discount), france.currency)}` : ""}
+                          {france !== undefined ? formatMoney(france.customerPrice, france.currency) : "prix indisponible"}
+                          {target.enabled && discount !== null && france !== undefined ? ` → ${formatMoney(discountedAmount(Number(france.customerPrice), discount), france.currency)}` : ""}
                         </span>
                       </span>
                     </label>
@@ -246,7 +252,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
                       <input
                         className="input input-narrow"
                         inputMode="numeric"
-                        aria-label={`Remise sur ${product.label}, en pourcent`}
+                        aria-label={`Remise sur ${productLabel(product)}, en pourcent`}
                         aria-invalid={error !== undefined || undefined}
                         value={target.discountText}
                         disabled={readOnly || !target.enabled}

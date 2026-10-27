@@ -1,5 +1,6 @@
 // Ce que « Programmer » ou « Annuler » fait chez Apple, chez Stripe et dans l'app, dit en clair avant confirmation. Fonctions pures.
 import { formatParis, formatLastDay } from "./paris-time";
+import { productLabel, webPrice } from "./product-view";
 import type { CampaignInput, ProductDto } from "./types";
 
 export interface PublishSummary {
@@ -16,7 +17,12 @@ const byPercent = (targets: readonly { readonly productId: string; readonly disc
 
 export function publishSummary(campaign: Pick<CampaignInput, "themeId" | "startsAt" | "endsAt" | "targets" | "changeAppIcon">, products: readonly ProductDto[]): PublishSummary {
   const find = (productId: string): ProductDto | undefined => products.find((product) => product.productId === productId);
-  const label = (productId: string): string => find(productId)?.label ?? productId;
+  const found = (productId: string): ProductDto | undefined => find(productId);
+  const soldOnWeb = (product: ProductDto | undefined): boolean => product !== undefined && webPrice(product) !== null;
+  const label = (productId: string): string => {
+    const product = found(productId);
+    return product === undefined ? productId : productLabel(product);
+  };
   const until = formatLastDay(campaign.endsAt);
   const apple: string[] = [];
   const stripe: string[] = [];
@@ -28,7 +34,7 @@ export function publishSummary(campaign: Pick<CampaignInput, "themeId" | "starts
       apple.push(`${label(target.productId)} : un prix temporaire à −${target.discountPercent} % dans le calendrier de prix d'Apple, jusqu'au ${until} (sans effet tant que ce produit n'est pas validé chez Apple).`);
     }
   }
-  for (const [percent, ids] of byPercent(campaign.targets.filter((target) => find(target.productId)?.web != null))) {
+  for (const [percent, ids] of byPercent(campaign.targets.filter((target) => soldOnWeb(find(target.productId))))) {
     stripe.push(`Un coupon de −${percent} % valable jusqu'au ${until}, avec son code promo, appliqué d'office au paiement sur le site pour : ${ids.map(label).join(", ")}.`);
   }
   if (campaign.targets.length === 0) apple.push("Aucune remise ciblée : rien ne sera créé chez Apple.");

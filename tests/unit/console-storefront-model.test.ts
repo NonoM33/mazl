@@ -10,14 +10,27 @@ import { THEMES, isInverseTheme } from "../../console/src/storefront/themes";
 import { LANGS, THEME_IDS, type ProductDto } from "../../console/src/storefront/types";
 import themesFile from "../../docs/storefront/themes.json";
 
-const product = (productId: string, kind: ProductDto["kind"], sortOrder: number): ProductDto => ({ productId, kind, label: productId, visible: true, sortOrder, featured: false, highlight: null, applePrices: [], appleError: null, web: null });
+const product = (productId: string, kind: ProductDto["kind"], sortOrder: number): ProductDto => ({
+  productId,
+  kind,
+  months: kind === "subscription" ? Number(/plus\.(\d+)m$/.exec(productId)?.[1]) : null,
+  visible: true,
+  sortOrder,
+  featured: false,
+  highlight: null,
+  stripePriceId: null,
+  effectiveStripePriceId: null,
+  updatedAt: "2026-10-20T09:00:00.000Z",
+  updatedBy: null,
+  prices: { apple: { status: "ok", items: [] }, web: { status: "ok", items: [] } },
+});
 const PRODUCTS: readonly ProductDto[] = [
   product("com.mazl.app.plus.12m", "subscription", 0),
   product("com.mazl.app.plus.6m", "subscription", 1),
   product("com.mazl.app.plus.3m", "subscription", 2),
   product("com.mazl.app.plus.1m", "subscription", 3),
-  product("com.mazl.app.boost.1", "boost", 4),
-  product("com.mazl.app.superlikes.5", "superlikes", 5),
+  product("com.mazl.app.boost.1", "credits", 4),
+  product("com.mazl.app.superlikes.5", "credits", 5),
 ];
 
 describe("thèmes", () => {
@@ -89,7 +102,7 @@ describe("formulaire de campagne", () => {
   });
   test("réouverture d'une campagne : les remises enregistrées reviennent, les autres produits sont décochés", () => {
     const form = formFromCampaign(
-      { id: 1, status: "draft", apple: null, stripe: null, createdBy: "a@example.com", createdAt: "", updatedAt: "", themeId: "valentine", name: "N", startsAt: "2027-02-06T23:00:00Z", endsAt: "2027-02-14T23:00:00Z", texts: defaultTexts("valentine"), targets: [{ productId: "com.mazl.app.plus.3m", discountPercent: 25 }], changeAppIcon: false },
+      { id: 1, status: "draft", apple: { codes: [], error: null }, stripe: { promotions: [], error: null }, createdBy: "a@example.com", createdAt: "", updatedAt: "", themeId: "valentine", name: "N", startsAt: "2027-02-06T23:00:00Z", endsAt: "2027-02-14T23:00:00Z", texts: defaultTexts("valentine"), targets: [{ productId: "com.mazl.app.plus.3m", discountPercent: 25 }], changeAppIcon: false },
       PRODUCTS,
     );
     expect(form.targets.filter((target) => target.enabled)).toEqual([{ productId: "com.mazl.app.plus.3m", enabled: true, discountText: "25" }]);
@@ -103,14 +116,14 @@ describe("formulaire de campagne", () => {
 });
 
 describe("changement de prix Apple", () => {
-  const plan = (from: string, to: string, preserve: boolean): Parameters<typeof explainApplePlan>[0] => ({ preserveCurrentPrice: preserve, startDate: "2027-03-01", changes: [{ territory: "FRA", currency: "EUR", from, to }, { territory: "USA", currency: "USD", from: "49.99", to: "54.99" }] });
+  const plan = (from: string, to: string, preserve: boolean): Parameters<typeof explainApplePlan>[0] => ({ preserveCurrentPrice: preserve, startDate: "2027-03-01", changes: [{ territory: "FRA", from, to, pricePointId: "pp-FRA" }, { territory: "USA", from: "49.99", to: "54.99", pricePointId: "pp-USA" }] });
   test("sens du changement jugé sur la France", () => {
     expect(planDirection(plan("44.99", "49.99", true))).toBe("up");
     expect(planDirection(plan("44.99", "39.99", true))).toBe("down");
     expect(planDirection(plan("44.99", "44.99", true))).toBe("same");
   });
   test("pays par pays, avec le nom du pays et la devise", () => {
-    const lines = changeLines(plan("44.99", "49.99", true).changes);
+    const lines = changeLines(plan("44.99", "49.99", true).changes, (territory) => (territory === "FRA" ? "EUR" : "USD"));
     expect(lines[0]).toMatchObject({ country: "France", direction: "up" });
     expect(lines[0]?.before).toContain("44,99");
     expect(lines[1]?.after).toContain("54,99");
@@ -212,8 +225,8 @@ describe("erreurs du serveur", () => {
     expect(storefrontErrorMessage({ code: "store_not_configured", message: "", status: 503 })).toContain("clés manquantes");
   });
   test("une erreur Apple garde le détail renvoyé", () => {
-    const text = storefrontErrorMessage({ code: "apple_error", message: "ENTITY_ERROR: offer code already exists", status: 502 });
-    expect(text).toContain("Apple a refusé");
+    const text = storefrontErrorMessage({ code: "store_error", message: "apple: ENTITY_ERROR: offer code already exists", status: 502 });
+    expect(text).toContain("Apple ou Stripe a refusé");
     expect(text).toContain("offer code already exists");
   });
   test("un code inconnu renvoie le message du serveur", () => {
@@ -224,8 +237,8 @@ describe("erreurs du serveur", () => {
 describe("aperçu de l'écran mazl+", () => {
   const priced = (productId: string, months: number, amount: string, sortOrder: number, extra: Partial<ProductDto> = {}): ProductDto => ({
     ...product(productId, "subscription", sortOrder),
-    label: `mazl+ ${months} mois`,
-    applePrices: [{ territory: "FRA", currency: "EUR", amount }],
+    months,
+    prices: { apple: { status: "ok" as const, items: [{ territory: "FRA", currency: "EUR", customerPrice: amount }] }, web: { status: "ok" as const, items: [] } },
     ...extra,
   });
   const offers = [priced("com.mazl.app.plus.3m", 3, "44.99", 1, { featured: true, highlight: { fr: "Le plus choisi", en: "Most popular", he: "הנבחר ביותר", es: "El más elegido", ru: "Самый популярный" } }), priced("com.mazl.app.plus.12m", 12, "99.99", 0), priced("com.mazl.app.plus.1m", 1, "19.99", 2, { visible: false })];
@@ -260,11 +273,11 @@ describe("aperçu de l'écran mazl+", () => {
 });
 
 describe("ce que « Programmer » crée", () => {
-  const web = { priceId: "price_example", amountCents: 4499, currency: "EUR" };
+  const webPriced: ProductDto["prices"] = { apple: { status: "ok", items: [] }, web: { status: "ok", items: [{ priceId: "price_example", amountCents: 4499, currency: "EUR" }] } };
   const catalog: readonly ProductDto[] = [
-    { ...product("com.mazl.app.plus.3m", "subscription", 0), label: "mazl+ 3 mois", web },
-    { ...product("com.mazl.app.plus.1m", "subscription", 1), label: "mazl+ 1 mois", web },
-    { ...product("com.mazl.app.boost.1", "boost", 2), label: "1 Boost" },
+    { ...product("com.mazl.app.plus.3m", "subscription", 0), prices: webPriced },
+    { ...product("com.mazl.app.plus.1m", "subscription", 1), prices: webPriced },
+    product("com.mazl.app.boost.1", "credits", 2),
   ];
   const campaign = { themeId: "valentine" as const, startsAt: "2027-02-06T23:00:00Z", endsAt: "2027-02-14T23:00:00Z", changeAppIcon: true };
   test("un code d'offre Apple par abonnement, un coupon Stripe par remise distincte, jamais un changement du prix de base", () => {

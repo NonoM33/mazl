@@ -30,7 +30,7 @@ export function PresetsDialog({ year, products, existing, onClose, onDone }: { r
     const own = findOverlaps(presets.map((preset) => ({ key: preset.themeId, startsAt: preset.startsAt, endsAt: preset.endsAt })));
     const result = new Map<ThemeId, Set<ThemeId>>();
     for (const preset of presets) {
-      const set = new Set<ThemeId>([...preset.conflictsWith, ...((own.get(preset.themeId) ?? []) as ThemeId[])]);
+      const set = new Set<ThemeId>([...preset.overlapsThemes, ...((own.get(preset.themeId) ?? []) as ThemeId[])]);
       if (set.size > 0) result.set(preset.themeId, set);
     }
     return result;
