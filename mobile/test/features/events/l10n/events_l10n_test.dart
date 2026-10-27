@@ -286,7 +286,8 @@ void main() {
         ]) {
           expect(find.text(text), findsOneWidget, reason: text);
         }
-        expect(find.text('Shabbat Dinner'), findsOneWidget);
+        // Was « Shabbat Dinner » in the French app until 2026-10-27.
+        expect(find.text('Dîner de Shabbat'), findsOneWidget);
         expect(find.text('12 / 20 places'), findsOneWidget);
         expect(find.textContaining('par personne'), findsOneWidget);
         expect(find.textContaining('S\'inscrire - '), findsOneWidget);

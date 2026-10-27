@@ -2313,7 +2313,7 @@ abstract class AppLocalizations {
   /// Type d'événement : dîner de Shabbat. Badge de l'écran de détail.
   ///
   /// In fr, this message translates to:
-  /// **'Shabbat Dinner'**
+  /// **'Dîner de Shabbat'**
   String get eventsTypeShabbatDinner;
 
   /// Type d'événement : soirée de rencontres rapides (speed dating).

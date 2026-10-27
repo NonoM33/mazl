@@ -24,7 +24,9 @@ class ColumnAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => appBar.preferredSize;
 
   static bool fitsColumn(Widget action) =>
-      action is IconButton || action is PopupMenuButton;
+      action is IconButton ||
+      action is PopupMenuButton ||
+      action is ColumnAction;
 
   Widget? _leading(BuildContext context) {
     if (appBar.leading != null) return appBar.leading;
@@ -76,4 +78,16 @@ class ColumnAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+}
+
+/// Marks an icon action that goes to the vertical bar with the back button
+/// although it is not a bare [IconButton] (a Builder that reads its own box,
+/// like a share button).
+class ColumnAction extends StatelessWidget {
+  const ColumnAction({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
 }

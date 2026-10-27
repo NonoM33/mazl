@@ -394,14 +394,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   /// The share button. It reads its own box (not the page's) to tell the share
   /// sheet where to point: on a large screen iOS refuses a sheet without an
   /// origin, and the buttons of the vertical bar live above the navigator.
-  Widget _shareButton() => Builder(
-    builder: (buttonContext) => IconButton(
-      icon: const CircleAvatar(
-        backgroundColor: Colors.black38,
-        child: Icon(LucideIcons.share2, color: Colors.white),
+  Widget _shareButton() => ColumnAction(
+    child: Builder(
+      builder: (buttonContext) => IconButton(
+        icon: const CircleAvatar(
+          backgroundColor: Colors.black38,
+          child: Icon(LucideIcons.share2, color: Colors.white),
+        ),
+        tooltip: context.l10n.commonShare,
+        onPressed: () => _share(buttonContext),
       ),
-      tooltip: context.l10n.commonShare,
-      onPressed: () => _share(buttonContext),
     ),
   );
 

@@ -1314,7 +1314,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get eventsTypeShabbat => 'Shabbat';
 
   @override
-  String get eventsTypeShabbatDinner => 'Shabbat Dinner';
+  String get eventsTypeShabbatDinner => 'Dîner de Shabbat';
 
   @override
   String get eventsTypeSpeedDating => 'Speed Dating';

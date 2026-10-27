@@ -15,7 +15,7 @@
   "@eventsTypeShabbat": {
     "description": "Type d'événement : repas ou moment de Shabbat. Puce de filtre et badge d'une carte."
   },
-  "eventsTypeShabbatDinner": "Shabbat Dinner",
+  "eventsTypeShabbatDinner": "Dîner de Shabbat",
   "@eventsTypeShabbatDinner": {
     "description": "Type d'événement : dîner de Shabbat. Badge de l'écran de détail."
   },
