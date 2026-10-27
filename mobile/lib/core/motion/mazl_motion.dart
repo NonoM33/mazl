@@ -133,6 +133,36 @@ abstract final class MazlMotion {
   /// flies in with the Hero).
   static const viewerOpen = Duration(milliseconds: 200);
 
+  // --- Pull to refresh: the Star of David « Le trait » ----------------------
+  // Proposal approved by Renaud on 2026-10-27:
+  // docs/design/pull-refresh-proposition.html, variant A.
+
+  /// Pull that arms a refresh; a selection tick when the finger crosses it.
+  static const refreshThreshold = 64.0;
+
+  /// Gap the list keeps above it while the refresh runs.
+  static const refreshHold = 60.0;
+
+  /// The gap where the star fades in, from 0 to fully opaque.
+  static const refreshFadeInGap = 26.0;
+
+  /// One loading turn: the star turns a third (back to upright) and each
+  /// comet runs once around its triangle. Loading always ends on a whole
+  /// turn, and lasts at least [refreshMinCycles] of them.
+  static const refreshCycle = Duration(milliseconds: 800);
+  static const refreshMinCycles = 1;
+
+  /// The drawn triangles shrink into comets over the start of the loading.
+  static const refreshCometShrink = Duration(milliseconds: 300);
+
+  /// Length of each comet, as a share of its triangle.
+  static const refreshCometShare = 0.55;
+
+  /// The bloom once the refresh is done: the comets close, the star swells to
+  /// [refreshBloomScale] and fills with the accent, then the list goes back.
+  static const refreshBloom = Duration(milliseconds: 600);
+  static const refreshBloomScale = 1.4;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.
