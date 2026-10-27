@@ -51,6 +51,7 @@ abstract class RouteNames {
   static const boost = 'boost';
   static const filters = 'filters';
   static const dailyPicks = 'dailyPicks';
+  static const passport = 'passport';
 }
 
 /// Route paths for the application
@@ -114,6 +115,7 @@ abstract class RoutePaths {
   static const boost = '/boost';
   static const filters = '/filters';
   static const dailyPicks = '/daily-picks';
+  static const passport = '/passport';
 
   /// Helper to get match profile path
   static String matchProfilePath(String userId) => '/matches/profile/$userId';

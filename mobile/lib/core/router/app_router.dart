@@ -50,6 +50,7 @@ import '../../presentation/features/couple/screens/saved_activities_screen.dart'
 import '../../presentation/features/likes/screens/likes_screen.dart';
 import '../../presentation/features/boost/screens/boost_screen.dart';
 import '../../presentation/features/matching/screens/filters_screen.dart';
+import '../../presentation/features/passport/screens/passport_screen.dart';
 import '../../presentation/features/matching/screens/daily_picks_screen.dart';
 import '../../presentation/features/navigation/screens/couple_navigation_screen.dart';
 
@@ -270,6 +271,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const DailyPicksScreen(),
+          transitionsBuilder: slideUpTransition,
+        ),
+      ),
+
+      // Passport (mazl+): discover another city
+      GoRoute(
+        path: RoutePaths.passport,
+        name: RouteNames.passport,
+        parentNavigatorKey: _rootNavigatorKey,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PassportScreen(),
           transitionsBuilder: slideUpTransition,
         ),
       ),
