@@ -105,17 +105,31 @@ void main() {
     });
 
     testWidgets(
-      '« Vu à 20:47 » under the last read message of mine, nothing for the others',
+      '« Lu à 20:47 » under my LAST message when it has a read_at, nowhere else',
       (tester) async {
         await ChatHarness(
           initial: chatState([
-            msg(1, me, 'a', at: today(20, 40), readAt: today(20, 47)),
+            msg(1, me, 'a', at: today(20, 40), readAt: today(20, 46)),
+            msg(2, other, 'b', at: today(20, 48)),
+            msg(3, me, 'c', at: today(20, 50), readAt: today(20, 47)),
+          ]),
+        ).pump(tester);
+        expect(find.text('Lu à 20:47'), findsOneWidget);
+        expect(find.textContaining('Lu à'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'no « Lu à » when the server sent no read_at for my last message',
+      (tester) async {
+        await ChatHarness(
+          initial: chatState([
+            msg(1, me, 'a', at: today(20, 40), readAt: today(20, 46)),
             msg(2, other, 'b', at: today(20, 48)),
             msg(3, me, 'c', at: today(20, 50)),
           ]),
         ).pump(tester);
-        expect(find.text('Vu à 20:47'), findsOneWidget);
-        expect(find.textContaining('Vu à'), findsOneWidget);
+        expect(find.textContaining('Lu à'), findsNothing);
       },
     );
 

@@ -2,11 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mazl/core/premium/purchase_moments.dart';
+import 'package:mazl/core/router/route_names.dart';
 import 'package:mazl/core/services/api_service.dart';
+import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/presentation/features/likes/screens/likes_screen.dart';
+import 'package:mazl/presentation/features/likes/widgets/blurred_like_tile.dart';
 import 'package:mazl/presentation/features/likes/widgets/like_widgets.dart';
+import 'package:mazl/presentation/features/premium/widgets/purchase_moment_sheet.dart';
 import 'package:mazl/presentation/features/matching/screens/matches_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,6 +49,28 @@ const _subscriberBody = {
 
 const _freeBody = {
   'success': true,
+  'count': 12,
+  'is_premium': false,
+  'likes': [
+    {
+      'display_name': 'Jeanne Exemple',
+      'is_verified': true,
+      'liked_at': '2026-10-24T18:30:00.000Z',
+      'blurredPhotoUrl': 'https://example.com/media/photos/blur?exp=1&sig=x',
+      'is_super_like': true,
+    },
+    {
+      'display_name': 'Noa Exemple',
+      'is_verified': false,
+      'liked_at': '2026-10-23T09:00:00.000Z',
+      'blurredPhotoUrl': null,
+      'is_super_like': false,
+    },
+  ],
+};
+
+const _twoLikesBody = {
+  'success': true,
   'count': 2,
   'is_premium': false,
   'likes': [
@@ -50,11 +78,35 @@ const _freeBody = {
       'display_name': 'Jeanne Exemple',
       'is_verified': true,
       'liked_at': '2026-10-24T18:30:00.000Z',
+      'blurredPhotoUrl': null,
+      'is_super_like': false,
     },
     {
       'display_name': 'Noa Exemple',
       'is_verified': false,
       'liked_at': '2026-10-23T09:00:00.000Z',
+      'blurredPhotoUrl': null,
+      'is_super_like': false,
+    },
+  ],
+};
+
+/// A subscriber's like of the new server: the complete form, plus the Super
+/// Like and its word.
+const _subscriberSuperLikeBody = {
+  'success': true,
+  'count': 1,
+  'is_premium': true,
+  'likes': [
+    {
+      'user_id': 43,
+      'display_name': 'Léa Exemple',
+      'picture': 'https://example.com/lea.jpg',
+      'age': 27,
+      'is_verified': true,
+      'liked_at': '2026-10-25T08:00:00.000Z',
+      'is_super_like': true,
+      'note': 'Ton profil m\'a fait sourire.',
     },
   ],
 };
@@ -114,7 +166,11 @@ Future<void> _pumpMatches(WidgetTester tester, LikesData likes) async {
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    PurchaseMoments.resetForTest();
+    PremiumGate.resetForTest();
+  });
 
   group('le modèle lit is_premium à la racine de la réponse', () {
     test('un abonné : is_premium vrai, les likes complets', () async {
@@ -129,15 +185,71 @@ void main() {
       expect(data.likes.first.photoUrl, 'https://example.com/jeanne.jpg');
     });
 
-    test('sans mazl+ : is_premium faux, des aperçus sans id ni photo', () async {
+    test(
+      'sans mazl+ : le vrai nombre, des aperçus sans id ni photo nette',
+      () async {
+        final data = await _received(_freeBody);
+
+        expect(data.isPremium, isFalse);
+        // `count` is the real number of likes, not the length of the preview.
+        expect(data.count, 12);
+        expect(data.likes, hasLength(2));
+        expect(data.likes.first.photoUrl, isNull);
+        expect(data.likes.first.age, isNull);
+        expect(data.likes.first.userId, 0);
+      },
+    );
+
+    test('sans mazl+ : photo floue, Super Like, badge et date lus', () async {
       final data = await _received(_freeBody);
 
-      expect(data.isPremium, isFalse);
-      expect(data.count, 2);
-      expect(data.likes, hasLength(2));
-      expect(data.likes.first.displayName, 'Jeanne Exemple');
-      expect(data.likes.first.photoUrl, isNull);
-      expect(data.likes.first.age, isNull);
+      final first = data.likes.first;
+      expect(
+        first.blurredPhotoUrl,
+        'https://example.com/media/photos/blur?exp=1&sig=x',
+      );
+      expect(first.isSuperLike, isTrue);
+      expect(first.isVerified, isTrue);
+      expect(first.likedAt.toUtc(), DateTime.utc(2026, 10, 24, 18, 30));
+      expect(data.likes.last.blurredPhotoUrl, isNull);
+      expect(data.likes.last.isSuperLike, isFalse);
+    });
+
+    test('un abonné : le Super Like et son mot', () async {
+      final data = await _received(_subscriberSuperLikeBody);
+
+      expect(data.likes.single.isSuperLike, isTrue);
+      expect(data.likes.single.note, 'Ton profil m\'a fait sourire.');
+      expect(data.likes.single.blurredPhotoUrl, isNull);
+    });
+
+    test(
+      'un ancien serveur (sans les nouveaux champs) reste lisible',
+      () async {
+        final data = await _received(_subscriberBody);
+
+        expect(data.likes.first.isSuperLike, isFalse);
+        expect(data.likes.first.note, isNull);
+        expect(data.likes.first.blurredPhotoUrl, isNull);
+      },
+    );
+
+    test('une photo floue vide ou un mot vide valent « absent »', () async {
+      final data = await _received({
+        'success': true,
+        'count': 1,
+        'is_premium': false,
+        'likes': [
+          {
+            'liked_at': '2026-10-24T18:30:00.000Z',
+            'blurredPhotoUrl': '  ',
+            'note': '',
+          },
+        ],
+      });
+
+      expect(data.likes.single.blurredPhotoUrl, isNull);
+      expect(data.likes.single.note, isNull);
     });
 
     test('un serveur qui ne dit rien : on reste fermé', () async {
@@ -150,22 +262,24 @@ void main() {
       expect(data.isPremium, isFalse);
     });
 
-    test('is_premium dans un like ne compte pas : seule la racine fait foi',
-        () async {
-      final data = await _received({
-        'success': true,
-        'count': 1,
-        'likes': [
-          {
-            'display_name': 'Jeanne Exemple',
-            'is_premium': true,
-            'liked_at': '2026-10-24T18:30:00.000Z',
-          },
-        ],
-      });
+    test(
+      'is_premium dans un like ne compte pas : seule la racine fait foi',
+      () async {
+        final data = await _received({
+          'success': true,
+          'count': 1,
+          'likes': [
+            {
+              'display_name': 'Jeanne Exemple',
+              'is_premium': true,
+              'liked_at': '2026-10-24T18:30:00.000Z',
+            },
+          ],
+        });
 
-      expect(data.isPremium, isFalse);
-    });
+        expect(data.isPremium, isFalse);
+      },
+    );
   });
 
   group('l\'écran Likes', () {
@@ -179,26 +293,133 @@ void main() {
       expect(find.byType(MazlPlusPill), findsNothing);
     });
 
-    testWidgets('sans mazl+, que des tuiles verrouillées et l\'invitation', (
+    testWidgets(
+      'sans mazl+, que des tuiles floues, le vrai nombre et l\'invitation',
+      (tester) async {
+        await _pumpLikes(tester, await _received(_freeBody));
+
+        expect(find.byType(LikeCard), findsNothing);
+        expect(find.byType(LockedLikeTile), findsNothing);
+        expect(find.byType(BlurredLikeTile), findsNWidgets(2));
+        expect(find.text('12 personnes vous ont aimé'), findsOneWidget);
+        expect(find.textContaining('Jeanne'), findsNothing);
+        expect(find.textContaining('Noa'), findsNothing);
+        expect(find.byType(MazlPlusPill), findsOneWidget);
+      },
+    );
+
+    testWidgets('un abonné voit la marque Super Like et le mot', (
       tester,
     ) async {
-      await _pumpLikes(tester, await _received(_freeBody));
+      await _pumpLikes(tester, await _received(_subscriberSuperLikeBody));
 
-      expect(find.byType(LikeCard), findsNothing);
-      expect(find.byType(LockedLikeTile), findsNWidgets(2));
-      expect(find.byType(MazlPlusPill), findsOneWidget);
+      expect(find.byType(LikeCard), findsOneWidget);
+      expect(find.text('Super Like'), findsOneWidget);
+      expect(find.text('Ton profil m\'a fait sourire.'), findsOneWidget);
+    });
+
+    testWidgets(
+      'sans mazl+ et 3 likes ou plus : l\'offre du 3e like, une fois',
+      (tester) async {
+        await _pumpLikes(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PurchaseMomentSheet), findsOneWidget);
+        expect(find.text('Plusieurs personnes vous ont aimé.'), findsOneWidget);
+        await tester.tap(find.text('Plus tard'));
+        await tester.pumpAndSettle();
+
+        // Pulling to refresh does not bring it back.
+        await tester.fling(find.byType(ListView), const Offset(0, 400), 1000);
+        await tester.pumpAndSettle();
+        expect(find.byType(PurchaseMomentSheet), findsNothing);
+      },
+    );
+
+    testWidgets('sans mazl+ mais moins de 3 likes : pas d\'offre', (
+      tester,
+    ) async {
+      await _pumpLikes(tester, await _received(_twoLikesBody));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PurchaseMomentSheet), findsNothing);
+    });
+
+    testWidgets('un abonné n\'a jamais l\'offre', (tester) async {
+      await _pumpLikes(tester, await _received(_subscriberBody));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PurchaseMomentSheet), findsNothing);
+    });
+
+    testWidgets('un appui sur une tuile floue ouvre mazl+', (tester) async {
+      // The offer of the 3rd like was already made: it does not cover the grid.
+      SharedPreferences.setMockInitialValues({
+        'purchase_moment.third_like_done': true,
+      });
+      tester.view.physicalSize = const Size(390, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final likes = await _received(_freeBody);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => LikesScreen(apiService: _LikesApi(likes)),
+          ),
+          GoRoute(
+            path: RoutePaths.premium,
+            builder: (_, _) => const Scaffold(body: Text('page mazl+')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: kTestLocale,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.byType(BlurredLikeTile).first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('page mazl+'), findsOneWidget);
     });
   });
 
   group('l\'écran Matchs', () {
-    testWidgets('un abonné voit les cartes des likes, aucune tuile verrouillée',
-        (tester) async {
-      await _pumpMatches(tester, await _received(_subscriberBody));
+    testWidgets(
+      'sans mazl+ et 3 likes ou plus : l\'offre du 3e like, une fois',
+      (tester) async {
+        await _pumpMatches(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(LockedLikeTile), findsNothing);
-      expect(find.byType(LikeCard), findsNWidgets(2));
-      expect(find.byType(MazlPlusPill), findsNothing);
-    });
+        expect(find.byType(PurchaseMomentSheet), findsOneWidget);
+        await tester.tap(find.text('Plus tard'));
+        await tester.pumpAndSettle();
+
+        // Made here, so the Likes screen does not make it again.
+        await _pumpLikes(tester, await _received(_freeBody));
+        await tester.pumpAndSettle();
+        expect(find.byType(PurchaseMomentSheet), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'un abonné voit les cartes des likes, aucune tuile verrouillée',
+      (tester) async {
+        await _pumpMatches(tester, await _received(_subscriberBody));
+
+        expect(find.byType(LockedLikeTile), findsNothing);
+        expect(find.byType(LikeCard), findsNWidgets(2));
+        expect(find.byType(MazlPlusPill), findsNothing);
+      },
+    );
 
     testWidgets('sans mazl+, des tuiles verrouillées et l\'invitation', (
       tester,

@@ -38,6 +38,28 @@ String eventPriceText(Event event, String locale) =>
       decimalDigits: 0,
     ).format(event.price);
 
+/// Whether the event has a mazl+ rate that is really lower than its price
+/// (docs/premium/MONETISATION.md §10). A free event, a missing rate or a rate
+/// that is not lower shows nothing: a reduction is never made up.
+bool hasMemberReduction(Event event) {
+  final cents = event.memberPriceCents;
+  return event.price > 0 &&
+      cents != null &&
+      cents < (event.price * 100).round();
+}
+
+/// The mazl+ rate in the event's currency, « 8 € » or « 8,50 € » (cents only
+/// when there are some); null without a real reduction ([hasMemberReduction]).
+String? eventMemberPriceText(Event event, String locale) {
+  if (!hasMemberReduction(event)) return null;
+  final cents = event.memberPriceCents!;
+  return NumberFormat.simpleCurrency(
+    locale: locale,
+    name: event.currency,
+    decimalDigits: cents % 100 == 0 ? 0 : 2,
+  ).format(cents / 100);
+}
+
 final RegExp _clock = RegExp(r'^(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$');
 
 /// A time of day from the server (« 20:00:00 », « 19:30 ») the way the

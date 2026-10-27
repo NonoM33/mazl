@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/models/profile.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
+import 'package:mazl/core/premium/purchase_moments.dart';
+import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/matching/widgets/match_sheet.dart';
 import 'package:mazl/presentation/features/navigation/widgets/mazl_nav_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/l10n_helpers.dart';
 
 // Expected numbers come from the design canon (80 px photos, touching = centres
@@ -292,6 +295,65 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('?'), findsNWidgets(2));
       expect(find.text('Vous vous êtes plu.'), findsOneWidget);
+    });
+  });
+
+  group('the first match is a moment to offer mazl+', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      PurchaseMoments.resetForTest();
+      PremiumGate.resetForTest();
+    });
+
+    tearDown(() {
+      PurchaseMoments.resetForTest();
+      PremiumGate.resetForTest();
+    });
+
+    testWidgets('back to Discover after the first match: the offer, with a '
+        '« Plus tard »', (tester) async {
+      await _open(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer à découvrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Votre premier match.'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'Plus tard'), findsOneWidget);
+    });
+
+    testWidgets('the chat is the way on: no offer on the way', (tester) async {
+      await _open(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Envoyer un message'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Votre premier match.'), findsNothing);
+    });
+
+    testWidgets('a second match offers nothing', (tester) async {
+      await _open(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer à découvrir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Plus tard'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer à découvrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Votre premier match.'), findsNothing);
+    });
+
+    testWidgets('a subscriber is offered nothing', (tester) async {
+      PremiumGate.debugPremiumOverride = true;
+      await _open(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer à découvrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Votre premier match.'), findsNothing);
     });
   });
 }

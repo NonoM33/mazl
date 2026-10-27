@@ -29,7 +29,7 @@
   "chatMatchStart": "Match · {date}",
   "chatNewMessages": "{count, plural, =1{1 mensaje nuevo} other{{count} mensajes nuevos}}",
   "chatTypingSemantics": "Tu match está escribiendo",
-  "chatSeenAt": "Visto a las {time}",
+  "chatSeenAt": "Leído a las {time}",
   "chatFailedRetry": "Error · Reintentar",
   "chatMenuReply": "Responder",
   "chatMenuCopy": "Copiar",
@@ -92,5 +92,9 @@
   "chatErrorNotAuthor": "Solo el autor puede retirar un mensaje.",
   "chatErrorReactionUnavailable": "Reacción no disponible.",
   "chatErrorSendUnavailable": "No se puede enviar ahora.",
-  "chatErrorLoadFailed": "No se pudo cargar la conversación."
+  "chatErrorLoadFailed": "No se pudo cargar la conversación.",
+  "readReceiptsTitle": "Enviar confirmaciones de lectura",
+  "readReceiptsSubtitle": "Los miembros de mazl+ ven cuándo has leído su mensaje. Si lo desactivas, nadie lo ve.",
+  "readReceiptsLoadFailed": "Ajuste no disponible por ahora. Toca para reintentar.",
+  "readReceiptsSaveFailed": "No se pudo cambiar este ajuste. Inténtalo de nuevo."
 }

@@ -6,7 +6,7 @@ import { createSemaphore, SemaphoreFullError } from "../../src/features/chat/app
 import { ChatError } from "../../src/features/chat/domain/errors";
 import type { ChatImageProcessor, ProcessedImage } from "../../src/features/chat/application/ports";
 import type { FetchOutcome } from "../../src/features/chat/application/guarded-fetch";
-import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage } from "./chat-fakes";
+import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage, allowAllReceipts } from "./chat-fakes";
 
 // Security: link previews and image re-encoding are the two heavy things a user
 // can trigger by sending a message. Neither may run unbounded in parallel.
@@ -159,7 +159,7 @@ describe("link preview concurrency", () => {
     return createLinkPreviewService({
       fetcher: new FakeFetcher(responses), images: new FakeImages(), storage: new FakeStorage(), cache: new FakePreviewCache(),
       repository: repo, events: new RecordingEvents(), now: () => T0,
-      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}` }),
+      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}`, receipts: allowAllReceipts }),
       runInBackground: (job) => { jobs.push(job); },
     });
   }

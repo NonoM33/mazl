@@ -19,9 +19,11 @@ class LikesData {
     return LikesData(
       count: parseIntSafe(json['count']) ?? 0,
       isPremium: json['is_premium'] == true,
-      likes: (json['likes'] as List<dynamic>?)
-          ?.map((e) => LikeProfile.fromJson(e))
-          .toList() ?? [],
+      likes:
+          (json['likes'] as List<dynamic>?)
+              ?.map((e) => LikeProfile.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -44,6 +46,16 @@ class LikeProfile {
   final DateTime likedAt;
   final double? distance;
 
+  /// A member without mazl+ gets a signed URL of a tiny blurred copy of the
+  /// photo, never the photo: `null` when there is no usable photo.
+  final String? blurredPhotoUrl;
+
+  /// The like is a Super Like (known to everyone).
+  final bool isSuperLike;
+
+  /// The word that came with a Super Like (subscribers only).
+  final String? note;
+
   LikeProfile({
     required this.userId,
     this.displayName,
@@ -52,6 +64,9 @@ class LikeProfile {
     this.isVerified = false,
     required this.likedAt,
     this.distance,
+    this.blurredPhotoUrl,
+    this.isSuperLike = false,
+    this.note,
   });
 
   // Alias for picture
@@ -68,6 +83,12 @@ class LikeProfile {
           ? DateTime.parse(json['liked_at'])
           : DateTime.now(),
       distance: parseDoubleSafe(json['distance']),
+      blurredPhotoUrl: _nonEmpty(json['blurredPhotoUrl']),
+      isSuperLike: json['is_super_like'] == true,
+      note: _nonEmpty(json['note']),
     );
   }
 }
+
+String? _nonEmpty(Object? value) =>
+    value is String && value.trim().isNotEmpty ? value : null;

@@ -1,10 +1,13 @@
-import '../../../../core/images/mazl_network_image.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/images/mazl_network_image.dart';
 import '../../../../core/models/profile.dart';
 import '../../../../core/motion/mazl_motion.dart';
+import '../../../../core/premium/purchase_moments.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_sheet.dart';
@@ -23,9 +26,9 @@ Future<MatchSheetChoice?> showMatchSheet(
   required Profile matched,
   String? myPhotoUrl,
   String? myName,
-}) {
+}) async {
   final me = AuthService().currentUser;
-  return showMazlSheet<MatchSheetChoice>(
+  final choice = await showMazlSheet<MatchSheetChoice>(
     context,
     builder: (_) => MatchSheetContent(
       matched: matched,
@@ -33,6 +36,17 @@ Future<MatchSheetChoice?> showMatchSheet(
       myName: myName ?? me?.displayName,
     ),
   );
+  // The member's first match is a moment to offer mazl+ (once, and not on the
+  // way to the chat).
+  if (context.mounted) {
+    unawaited(
+      PurchaseMoments.afterMatchSheet(
+        context,
+        openedChat: choice == MatchSheetChoice.message,
+      ),
+    );
+  }
+  return choice;
 }
 
 /// Content of the sheet (the frame, handle and padding come from

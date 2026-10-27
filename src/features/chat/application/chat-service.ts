@@ -3,7 +3,7 @@ import { canToggleReaction, canUnsend, isAllowedReaction, isRetiredReaction, typ
 import { firstHttpUrl } from "../domain/url-extract";
 import type { ConversationMembers, MessageRecord, MessageView, ReactionView } from "../domain/types";
 import { messageEvent, readEvent, typingEvent, updatedEvent } from "./chat-events";
-import type { FileStorage, MessageNotifier, MessageRepository, NewMessage, RealtimeEvents } from "./ports";
+import { receiptKey, type FileStorage, type MessageNotifier, type MessageRepository, type NewMessage, type ReadReceiptVisibility, type RealtimeEvents } from "./ports";
 import type { MessagePresenter } from "./message-presenter";
 
 export const DEFAULT_PAGE_SIZE = 30;
@@ -31,6 +31,7 @@ export interface ChatServiceDeps {
   readonly storage: FileStorage;
   readonly previews: PreviewScheduler;
   readonly notifier: MessageNotifier;
+  readonly receipts: ReadReceiptVisibility;
   readonly now: () => Date;
 }
 
@@ -82,7 +83,7 @@ function toNewMessage(userId: number, conversationId: number, input: SendInput):
 }
 
 export function createChatService(deps: ChatServiceDeps): ChatService {
-  const { repository, presenter, events, storage, previews, notifier, now } = deps;
+  const { repository, presenter, events, storage, previews, notifier, receipts, now } = deps;
 
   async function memberOf(conversationId: number, userId: number): Promise<ConversationMembers> {
     const conversation = await repository.findConversationOf(conversationId, userId);
@@ -194,7 +195,13 @@ export function createChatService(deps: ChatServiceDeps): ChatService {
     if (await repository.isBlocked(userId, otherMember(conversation, userId))) return null;
     const outcome = await repository.markRead(conversationId, userId, upToId, now());
     if (outcome !== null) {
-      events.emit([userId, otherMember(conversation, userId)], readEvent({ conversationId, userId, ...outcome }));
+      // The read time is stored in any case; the author hears of it only if they
+      // may see receipts (mazl+ author, reader who keeps theirs on). The reader's
+      // own devices are told so that their unread marks clear.
+      const other = otherMember(conversation, userId);
+      const authors = await receipts.authorsWhoMaySee([{ conversationId, authorId: other }]);
+      const audience = authors.has(receiptKey(conversationId, other)) ? [userId, other] : [userId];
+      events.emit(audience, readEvent({ conversationId, userId, ...outcome }));
     }
     return outcome;
   }

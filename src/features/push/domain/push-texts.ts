@@ -41,6 +41,14 @@ export function boostEndedText(): PushText {
   return { title: "Votre Boost est terminé", message: "Votre profil n'est plus mis en avant. Vous pouvez relancer un Boost quand vous le souhaitez." };
 }
 
+export function scheduledBoostStartedText(): PushText {
+  return { title: "Votre Boost a démarré", message: "Votre profil est mis en avant pendant 30 minutes, à l'heure que vous aviez choisie." };
+}
+
+export function scheduledBoostMissedText(): PushText {
+  return { title: "Votre Boost programmé n'a pas démarré", message: "Il ne vous restait plus de Boost à cette heure. Rien ne vous a été débité." };
+}
+
 const EVENT_TITLE_MAX = 80;
 
 export function eventAvailableText(eventTitle: string): PushText {

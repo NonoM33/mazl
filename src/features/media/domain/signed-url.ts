@@ -7,6 +7,12 @@ export function photoSigningMessage(photoId: number, exp: number): string {
   return `photo:${photoId}:${exp}`;
 }
 
+// The blurred variant (docs/premium/MONETISATION.md section 1) has its own message:
+// a signature for the sharp photo never opens the blurred one, nor the reverse.
+export function blurSigningMessage(photoId: number, exp: number): string {
+  return `photo-blur:${photoId}:${exp}`;
+}
+
 export function expiryFor(nowMs: number): number {
   return Math.floor(nowMs / 1000) + PHOTO_URL_TTL_SECONDS;
 }

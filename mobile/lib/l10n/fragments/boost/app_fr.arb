@@ -89,5 +89,111 @@
   "boostUpsellBody": "Boostez sans limite avec mazl+",
   "@boostUpsellBody": {
     "description": "Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque."
+  },
+  "boostMoment": "{day} {hour}",
+  "@boostMoment": {
+    "description": "Boost programmé : un jour et une heure écrits ensemble, déjà mis en forme. {day} est le jour de la semaine (« samedi »), {hour} l'heure locale (« 21 h »).",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "samedi"
+      },
+      "hour": {
+        "type": "String",
+        "example": "21 h"
+      }
+    }
+  },
+  "boostBestTimeLine": "Meilleur moment : {moment}",
+  "@boostBestTimeLine": {
+    "description": "Écran Boost, carte du meilleur moment : le jour et l'heure où la ville du membre est la plus active. {moment} est déjà écrit (« samedi 21 h »).",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostBestTimeLineAfterShabbat": "Meilleur moment : {moment}, après Shabbat",
+  "@boostBestTimeLineAfterShabbat": {
+    "description": "Écran Boost, carte du meilleur moment, quand ce moment tombe un samedi à partir de 20 h (heure locale) : même phrase suivie de « après Shabbat ».",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostBestTimeBasis": "D'après l'affluence mesurée à {city}.",
+  "@boostBestTimeBasis": {
+    "description": "Écran Boost, sous le meilleur moment : d'où vient la suggestion. {city} est la ville du membre.",
+    "placeholders": {
+      "city": {
+        "type": "String",
+        "example": "Paris"
+      }
+    }
+  },
+  "boostBestTimeBasisNoCity": "D'après l'affluence mesurée dans votre ville.",
+  "@boostBestTimeBasisNoCity": {
+    "description": "Écran Boost, sous le meilleur moment, quand le serveur n'envoie pas le nom de la ville."
+  },
+  "boostBestTimeNoData": "Pas encore assez de données pour votre ville.",
+  "@boostBestTimeNoData": {
+    "description": "Écran Boost, carte du meilleur moment : le serveur n'a pas mesuré assez d'affluence dans la ville du membre ; aucun horaire n'est proposé."
+  },
+  "boostBestTimeLoadFailed": "Impossible de charger le meilleur moment.",
+  "@boostBestTimeLoadFailed": {
+    "description": "Écran Boost, carte du meilleur moment : la lecture a échoué ; un bouton Réessayer suit."
+  },
+  "boostScheduleAction": "Programmer pour ce moment",
+  "@boostScheduleAction": {
+    "description": "Écran Boost : bouton qui programme le Boost au meilleur moment."
+  },
+  "boostScheduleNote": "Un de vos Boosts sera utilisé à ce moment-là, et vous serez prévenu quand il démarre.",
+  "@boostScheduleNote": {
+    "description": "Écran Boost, sous le bouton de programmation : ce que coûte la programmation (un Boost) et qu'une notification prévient au démarrage."
+  },
+  "boostScheduledFor": "Programmé pour {moment}",
+  "@boostScheduledFor": {
+    "description": "Écran Boost : un Boost est programmé. {moment} est déjà écrit (« samedi 21 h »).",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostScheduleCancel": "Annuler la programmation",
+  "@boostScheduleCancel": {
+    "description": "Écran Boost : bouton qui annule le Boost programmé."
+  },
+  "boostScheduleCancelled": "Programmation annulée.",
+  "@boostScheduleCancelled": {
+    "description": "Écran Boost : message bref après l'annulation d'un Boost programmé."
+  },
+  "boostScheduledDone": "Boost programmé.",
+  "@boostScheduledDone": {
+    "description": "Écran Boost : message bref après la programmation d'un Boost."
+  },
+  "boostScheduleAlready": "Un Boost est déjà programmé.",
+  "@boostScheduleAlready": {
+    "description": "Écran Boost : le serveur refuse car un Boost est déjà programmé."
+  },
+  "boostScheduleInvalidTime": "Ce moment n'est plus possible : il doit être à venir, dans les 7 prochains jours.",
+  "@boostScheduleInvalidTime": {
+    "description": "Écran Boost : le serveur refuse l'horaire (passé ou à plus de 7 jours)."
+  },
+  "boostScheduleFailed": "Impossible de programmer le Boost. Réessayez.",
+  "@boostScheduleFailed": {
+    "description": "Écran Boost : la programmation a échoué (réseau ou serveur)."
+  },
+  "boostScheduleCancelFailed": "Impossible d'annuler la programmation. Réessayez.",
+  "@boostScheduleCancelFailed": {
+    "description": "Écran Boost : l'annulation de la programmation a échoué."
+  },
+  "boostBestTimeTitle": "Meilleur moment",
+  "@boostBestTimeTitle": {
+    "description": "Écran Boost, carte du meilleur moment : titre court, utilisé quand le serveur n'a pas encore assez de données pour proposer un horaire."
   }
 }

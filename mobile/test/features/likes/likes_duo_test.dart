@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/likes/screens/likes_screen.dart';
+import 'package:mazl/presentation/features/likes/widgets/blurred_like_tile.dart';
 import 'package:mazl/presentation/features/likes/widgets/like_widgets.dart';
 
 import '../../helpers/duo_poses.dart';
@@ -29,8 +30,13 @@ class _LikesApi implements ApiService {
               LikeProfile(
                 userId: i,
                 displayName: 'Jeanne$i',
-                age: 20 + i,
+                age: premium ? 20 + i : null,
                 likedAt: DateTime(2026, 10, 1),
+                // One in two has a blurred photo, the others the gradient.
+                blurredPhotoUrl: !premium && i.isOdd
+                    ? 'https://example.com/blur$i.jpg'
+                    : null,
+                isSuperLike: i == 2,
               ),
           ],
         ),
@@ -64,8 +70,8 @@ Future<void> _pump(
   await settleFold(tester);
 }
 
-List<Rect> _tiles(WidgetTester tester) => [
-  for (final tile in find.byType(LikeCard).evaluate())
+List<Rect> _tiles(WidgetTester tester, [Type type = LikeCard]) => [
+  for (final tile in find.byType(type).evaluate())
     tester.getRect(find.byWidget(tile.widget)),
 ];
 
@@ -106,6 +112,11 @@ void main() {
     tester,
   ) async {
     await _pump(tester, DuoPose.halfOpenBook, premium: false);
+    await tester.dragUntilVisible(
+      find.byType(MazlPlusPill),
+      find.byType(ListView),
+      const Offset(0, -150),
+    );
     final pill = tester.getRect(find.byType(MazlPlusPill).first);
     expect(pill.right, lessThanOrEqualTo(DuoPose.halfOpenBook.fold!.left));
   });
@@ -114,5 +125,40 @@ void main() {
     await _pump(tester, DuoPose.openLandscape);
     final columns = _tiles(tester).map((t) => t.left.round()).toSet();
     expect(columns.length, 2);
+  });
+
+  testWidgets(
+    'book, free member: blurred tiles on both pages, none on the fold',
+    (tester) async {
+      await _pump(tester, DuoPose.halfOpenBook, premium: false);
+      final fold = DuoPose.halfOpenBook.fold!;
+      final tiles = _tiles(tester, BlurredLikeTile);
+      expect(tiles, isNotEmpty);
+      for (final tile in tiles) {
+        expect(tile.overlaps(fold), isFalse, reason: '$tile crosses $fold');
+      }
+      expect(tiles.any((t) => t.right <= fold.left), isTrue);
+      expect(tiles.any((t) => t.left >= fold.right), isTrue);
+    },
+  );
+
+  testWidgets(
+    'book, free member: the real count heads the page, not on the fold',
+    (tester) async {
+      await _pump(tester, DuoPose.halfOpenBook, premium: false);
+      final headline = tester.getRect(find.text('6 personnes vous ont aimé'));
+      expect(
+        headline.right,
+        lessThanOrEqualTo(DuoPose.halfOpenBook.fold!.left),
+      );
+    },
+  );
+
+  testWidgets('free member: the first name never reaches the screen', (
+    tester,
+  ) async {
+    await _pump(tester, DuoPose.openLandscape, premium: false);
+    expect(find.textContaining('Jeanne'), findsNothing);
+    expect(find.text('Quelqu\'un'), findsWidgets);
   });
 }

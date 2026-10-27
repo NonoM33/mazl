@@ -4,7 +4,7 @@ import { createLinkPreviewService, CACHE_TTL_MS, type LinkPreviewService } from 
 import { createMessagePresenter } from "../../src/features/chat/application/message-presenter";
 import type { PinnedRequest, PinnedTransport } from "../../src/features/chat/application/fetch-ports";
 import type { MessageRecord } from "../../src/features/chat/domain/types";
-import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage, imageBytes } from "./chat-fakes";
+import { FakeFetcher, FakeImages, FakeMessageRepository, FakePreviewCache, FakeStorage, RecordingEvents, T0, htmlPage, imageBytes, allowAllReceipts } from "./chat-fakes";
 
 // Link previews, CONTRAT.md §0.5: what is fetched, what is kept, what is shown.
 
@@ -42,7 +42,7 @@ beforeEach(() => {
 function serviceWith(fetcher: FakeFetcher): LinkPreviewService {
   return createLinkPreviewService({
     fetcher, images, storage, cache, repository: repo, events, now: () => clock,
-    presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}` }),
+    presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}`, receipts: allowAllReceipts }),
     runInBackground: (job) => { jobs.push(job); },
   });
 }
@@ -220,7 +220,7 @@ describe("with the real guard in front (a hostile page)", () => {
     const fetcher = createGuardedFetcher({ resolver: { resolveAll: async () => ["93.184.216.34"] }, transport });
     const service = createLinkPreviewService({
       fetcher, images, storage, cache, repository: repo, events, now: () => clock,
-      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `u${id}` }),
+      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `u${id}`, receipts: allowAllReceipts }),
       runInBackground: (job) => { jobs.push(job); },
     });
     await service.run(await textMessage("https://evil.example/"));
@@ -233,7 +233,7 @@ describe("with the real guard in front (a hostile page)", () => {
     const fetcher = createGuardedFetcher({ resolver: { resolveAll: async () => ["127.0.0.1"] }, transport });
     const service = createLinkPreviewService({
       fetcher, images, storage, cache, repository: repo, events, now: () => clock,
-      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `u${id}` }),
+      presenter: createMessagePresenter({ repository: repo, signUrl: (id) => `u${id}`, receipts: allowAllReceipts }),
       runInBackground: (job) => { jobs.push(job); },
     });
     await service.run(await textMessage("http://looks-public.example/"));

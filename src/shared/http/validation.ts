@@ -59,6 +59,8 @@ export const swipeBodySchema = z
   .object({
     target_user_id: idSchema,
     action: z.enum(["like", "pass", "super_like"]),
+    // The word of a Super Like: checked by readNote (its own error codes).
+    note: z.unknown().optional(),
   })
   .passthrough();
 

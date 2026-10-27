@@ -3,7 +3,8 @@ import type { Sql } from "postgres";
 import { PgPlusStatus } from "../credits/infra/pg-plus-status";
 import type { PlusStatus } from "../credits/application/ports";
 import type { AppVariables } from "../../shared/http/middleware";
-import { teaserOf } from "./domain/teaser";
+import { photoIdOfSignedUrl, signBlurredPhotoUrl } from "../media/application/photo-signer";
+import { teaserOf, type BlurredUrlOf } from "./domain/teaser";
 
 // Wraps GET /api/likes/received without touching the matching routes (they
 // are rewritten on another branch): the answer gets `is_premium` at its root
@@ -17,10 +18,15 @@ export interface LikesVisibilityDeps {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
+const blurredUrlOf: BlurredUrlOf = (picture) => {
+  const photoId = photoIdOfSignedUrl(picture);
+  return photoId === null ? null : signBlurredPhotoUrl(photoId);
+};
+
 async function reshaped(response: Response, isPremium: boolean): Promise<Response> {
   const body: unknown = await response.clone().json().catch(() => null);
   if (!isRecord(body) || !Array.isArray(body.likes)) return response;
-  const likes = isPremium ? body.likes : body.likes.filter(isRecord).map(teaserOf);
+  const likes = isPremium ? body.likes : body.likes.filter(isRecord).map((like) => teaserOf(like, blurredUrlOf));
   const headers = new Headers(response.headers);
   headers.delete("content-length");
   return new Response(JSON.stringify({ ...body, is_premium: isPremium, likes }), { status: response.status, headers });

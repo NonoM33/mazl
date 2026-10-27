@@ -1,4 +1,5 @@
 import type { Hono } from "hono";
+import type { Sql } from "postgres";
 import type { AppVariables } from "../../shared/http/middleware";
 import type { ObjectStore } from "../../shared/storage/object-store";
 import type { MessageNotifier } from "./application/ports";
@@ -15,6 +16,7 @@ import { createPinnedHttpTransport } from "./infra/pinned-http-transport";
 import { createChatStorage } from "./infra/chat-storage";
 import { postgresMediaRepository } from "./infra/postgres-media-repository";
 import { postgresMessageRepository } from "./infra/postgres-message-repository";
+import { PgReadReceiptVisibility } from "./infra/pg-read-receipt-visibility";
 import { postgresPreviewCache } from "./infra/postgres-preview-cache";
 import { websocketEvents } from "./infra/realtime-events";
 import { sharpChatImages } from "./infra/sharp-chat-images";
@@ -39,10 +41,11 @@ export interface ChatModule {
 const IMAGE_CONCURRENCY = 3;
 const IMAGE_QUEUE = 24;
 
-export function createChatModule(options: { store: ObjectStore; notifier: MessageNotifier }): ChatModule {
+export function createChatModule(options: { store: ObjectStore; notifier: MessageNotifier; sql: Sql }): ChatModule {
   const storage = createChatStorage(options.store);
   const now = (): Date => new Date();
-  const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id) });
+  const receipts = new PgReadReceiptVisibility(options.sql);
+  const presenter = createMessagePresenter({ repository: postgresMessageRepository, signUrl: (id) => signChatMediaUrl(id), receipts });
   const limits = createChatLimits();
   const images = limitImageProcessing(sharpChatImages, createSemaphore({ permits: IMAGE_CONCURRENCY, maxQueue: IMAGE_QUEUE }));
 
@@ -61,7 +64,7 @@ export function createChatModule(options: { store: ObjectStore; notifier: Messag
   });
 
   const chat = createChatService({
-    repository: postgresMessageRepository, presenter, events: websocketEvents, storage, previews, notifier: options.notifier, now,
+    repository: postgresMessageRepository, presenter, events: websocketEvents, storage, previews, notifier: options.notifier, receipts, now,
   });
   const media = createChatMediaService({
     messages: postgresMessageRepository, media: postgresMediaRepository, storage, images, now,

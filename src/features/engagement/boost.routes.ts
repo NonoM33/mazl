@@ -24,7 +24,7 @@ export interface BoostRouteDeps {
   readonly boosts: BoostStore;
 }
 
-const BOOST_MINUTES = 30;
+export const BOOST_MINUTES = 30;
 
 // Keys are snake_case to match the mobile BoostStatus.fromJson parser.
 async function buildBoostStatus(deps: BoostRouteDeps, userId: number, credits: CreditsView) {

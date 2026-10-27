@@ -11,6 +11,9 @@ const _plan = <String, Set<String>>{
   'paywall_viewed': {'source'},
   'purchase_started': {'product_id'},
   'purchase_cancelled': {'product_id'},
+  'purchase_moment_shown': {'moment'},
+  'purchase_moment_accepted': {'moment'},
+  'purchase_moment_dismissed': {'moment'},
   'analytics_consent_granted': {},
 };
 
@@ -22,6 +25,9 @@ List<AnalyticsEvent?> _everyConstructor() => [
   AnalyticsEvent.paywallViewed('premium'),
   AnalyticsEvent.purchaseStarted('com.mazl.plus.monthly'),
   AnalyticsEvent.purchaseCancelled('com.mazl.plus.monthly'),
+  AnalyticsEvent.purchaseMomentShown('dailyLikeLimit'),
+  AnalyticsEvent.purchaseMomentAccepted('dailyLikeLimit'),
+  AnalyticsEvent.purchaseMomentDismissed('dailyLikeLimit'),
   AnalyticsEvent.analyticsConsentGranted(),
 ];
 
@@ -50,6 +56,10 @@ void main() {
       )!.properties,
       {'step': 3, 'step_name': 'photos'},
     );
+    expect(
+      AnalyticsEvent.purchaseMomentShown('thirdLikeReceived')!.properties,
+      {'moment': 'thirdLikeReceived'},
+    );
     expect(AnalyticsEvent.purchaseStarted('a.b_c1')!.properties, {
       'product_id': 'a.b_c1',
     });
@@ -71,6 +81,9 @@ void main() {
       test('screen "$bad"', () {
         expect(AnalyticsEvent.screenViewed(bad), isNull);
         expect(AnalyticsEvent.paywallViewed(bad), isNull);
+        expect(AnalyticsEvent.purchaseMomentShown(bad), isNull);
+        expect(AnalyticsEvent.purchaseMomentAccepted(bad), isNull);
+        expect(AnalyticsEvent.purchaseMomentDismissed(bad), isNull);
         expect(
           AnalyticsEvent.onboardingStepViewed(step: 1, stepName: bad),
           isNull,

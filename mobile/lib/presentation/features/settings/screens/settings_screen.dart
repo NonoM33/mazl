@@ -30,6 +30,7 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../l10n/delete_account_reason.dart';
 import '../widgets/language_picker_sheet.dart';
+import '../widgets/plus_privacy_section.dart';
 import '../../couple/l10n/couple_failure_label.dart';
 import '../widgets/settings_couple_card.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
@@ -1413,6 +1414,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: context.l10n.webSessionsTitle,
                 onTap: () => context.push(RoutePaths.computers),
               ),
+              const PlusPrivacySection(),
 
               // About
               _SectionHeader(title: l10n.settingsSectionAbout),

@@ -135,6 +135,8 @@ export async function initDb() {
       UNIQUE(user_id, target_user_id)
     )
   `;
+  // The word that goes with a Super Like (140 characters, docs/premium/MONETISATION.md section 5).
+  await sql`ALTER TABLE swipes ADD COLUMN IF NOT EXISTS note VARCHAR(140)`;
 
   // Matches table
   await sql`
@@ -240,6 +242,8 @@ export async function initDb() {
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `;
+  // The reduced rate of mazl+ members, in cents of `currency` (docs/premium/MONETISATION.md section 10).
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS member_price_cents INTEGER CHECK (member_price_cents IS NULL OR member_price_cents >= 0)`;
 
   // Event RSVPs table
   await sql`
@@ -1619,13 +1623,15 @@ export async function canSwipeOn(userId: number, targetUserId: number): Promise<
   return rows.length > 0;
 }
 
-export async function recordSwipe(userId: number, targetUserId: number, action: string) {
-  // Record the swipe
+export async function recordSwipe(userId: number, targetUserId: number, action: string, note: string | null = null) {
+  // Record the swipe. The word of a Super Like stays when the same Super Like
+  // is sent again without one (a replayed request); any other action drops it.
   await sql`
-    INSERT INTO swipes (user_id, target_user_id, action)
-    VALUES (${userId}, ${targetUserId}, ${action})
+    INSERT INTO swipes (user_id, target_user_id, action, note)
+    VALUES (${userId}, ${targetUserId}, ${action}, ${action === 'super_like' ? note : null})
     ON CONFLICT (user_id, target_user_id)
-    DO UPDATE SET action = ${action}, created_at = NOW()
+    DO UPDATE SET action = ${action}, created_at = NOW(),
+      note = CASE WHEN ${action} = 'super_like' THEN COALESCE(EXCLUDED.note, swipes.note) ELSE NULL END
   `;
 
   // Check for match if it's a like or super_like
@@ -1726,6 +1732,8 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
   is_verified: boolean | null;
   picture: string | null;
   liked_at: Date;
+  is_super_like: boolean;
+  note: string | null;
 }>> {
   const rows = await sql`
     SELECT
@@ -1736,7 +1744,9 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
       ${badgeColumns(sql)},
       u.picture,
       ${primaryPhotoColumns(sql)},
-      s.created_at AS liked_at
+      s.created_at AS liked_at,
+      (s.action = 'super_like') AS is_super_like,
+      s.note
     FROM swipes s
     JOIN users u ON u.id = s.user_id
     LEFT JOIN profiles p ON p.user_id = s.user_id
@@ -1765,6 +1775,8 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
     is_verified: boolean | null;
     picture: string | null;
     liked_at: Date;
+    is_super_like: boolean;
+    note: string | null;
   }>;
 }
 
@@ -2186,6 +2198,8 @@ export interface Event {
   image_url: string | null;
   organizer_id: number | null;
   is_published: boolean;
+  // Reduced rate of mazl+ members, in cents of `currency`; null = none.
+  member_price_cents: number | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -2207,9 +2221,10 @@ export async function createEvent(params: {
   imageUrl?: string;
   organizerId?: number;
   isPublished?: boolean;
+  memberPriceCents?: number | null;
 }) {
   const result = await sql`
-    INSERT INTO events (title, description, event_type, location, address, latitude, longitude, date, time, end_time, price, currency, max_attendees, image_url, organizer_id, is_published)
+    INSERT INTO events (title, description, event_type, location, address, latitude, longitude, date, time, end_time, price, currency, max_attendees, image_url, organizer_id, is_published, member_price_cents)
     VALUES (
       ${params.title},
       ${params.description ?? null},
@@ -2226,7 +2241,8 @@ export async function createEvent(params: {
       ${params.maxAttendees ?? null},
       ${params.imageUrl ?? null},
       ${params.organizerId ?? null},
-      ${params.isPublished ?? false}
+      ${params.isPublished ?? false},
+      ${params.memberPriceCents ?? null}
     )
     RETURNING *
   `;
@@ -2249,6 +2265,8 @@ export async function updateEvent(eventId: number, params: Partial<{
   maxAttendees: number;
   imageUrl: string;
   isPublished: boolean;
+  // undefined leaves the rate as it is, null removes it.
+  memberPriceCents: number | null;
 }>) {
   const result = await sql`
     UPDATE events SET
@@ -2267,6 +2285,7 @@ export async function updateEvent(eventId: number, params: Partial<{
       max_attendees = COALESCE(${params.maxAttendees ?? null}, max_attendees),
       image_url = COALESCE(${params.imageUrl ?? null}, image_url),
       is_published = COALESCE(${params.isPublished ?? null}, is_published),
+      member_price_cents = CASE WHEN ${params.memberPriceCents !== undefined} THEN ${params.memberPriceCents ?? null}::integer ELSE member_price_cents END,
       updated_at = NOW()
     WHERE id = ${eventId}
     RETURNING *
@@ -3734,6 +3753,7 @@ export async function duplicateEvent(eventId: number) {
     maxAttendees: e.max_attendees,
     imageUrl: e.image_url,
     isPublished: false,
+    memberPriceCents: e.member_price_cents ?? null,
   });
 
   // Copy photos

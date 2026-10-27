@@ -12,7 +12,9 @@ import {
   checkInAttendee,
   exportEventAttendees,
   duplicateEvent,
+  sql,
 } from "../../db";
+import { isReduction, readMemberPrice } from "../events/domain/member-price";
 import { assertAdmin } from "./admin.auth";
 import { toCsv } from "./admin.csv";
 import { parsePagination, parseRecordId } from "./admin.pagination";
@@ -55,6 +57,10 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
       if (!body.title || !body.date) {
         return c.json({ success: false, error: "Title and date required" }, 400);
       }
+      const memberPrice = readMemberPrice(body.memberPriceCents);
+      if (memberPrice.kind === "invalid" || (memberPrice.kind === "set" && !isReduction(memberPrice.cents, body.price ?? 0))) {
+        return c.json({ success: false, error: "member_price_invalid" }, 400);
+      }
 
       const event = await createEvent({
         title: body.title,
@@ -72,6 +78,7 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
         maxAttendees: body.maxAttendees,
         imageUrl: body.imageUrl,
         isPublished: body.isPublished ?? false,
+        ...(memberPrice.kind === "set" ? { memberPriceCents: memberPrice.cents } : {}),
       });
 
       return c.json({ success: true, event });
@@ -91,6 +98,15 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
       if (eventId === null) return c.json({ success: false, error: "Not found" }, 404);
       const body = await c.req.json();
 
+      const memberPrice = readMemberPrice(body.memberPriceCents);
+      if (memberPrice.kind === "invalid") return c.json({ success: false, error: "member_price_invalid" }, 400);
+      if (memberPrice.kind === "set") {
+        // Against the price this update leaves the event with.
+        const [stored] = await sql<{ price: string }[]>`SELECT price FROM events WHERE id = ${eventId}`;
+        if (stored === undefined) return c.json({ success: false, error: "Not found" }, 404);
+        if (!isReduction(memberPrice.cents, body.price ?? stored.price)) return c.json({ success: false, error: "member_price_invalid" }, 400);
+      }
+
       const event = await updateEvent(eventId, {
         title: body.title,
         description: body.description,
@@ -107,6 +123,8 @@ export function registerAdminEventsCrudRoutes(app: Hono<{ Variables: AppVariable
         maxAttendees: body.maxAttendees,
         imageUrl: body.imageUrl,
         isPublished: body.isPublished,
+        ...(memberPrice.kind === "set" ? { memberPriceCents: memberPrice.cents } : {}),
+        ...(memberPrice.kind === "remove" ? { memberPriceCents: null } : {}),
       });
 
       return c.json({ success: true, event });

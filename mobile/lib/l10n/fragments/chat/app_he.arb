@@ -92,5 +92,9 @@
   "chatErrorNotAuthor": "ניתן להסיר הודעה רק על ידי מי ששלח אותה.",
   "chatErrorReactionUnavailable": "התגובה אינה זמינה.",
   "chatErrorSendUnavailable": "לא ניתן לשלוח כרגע.",
-  "chatErrorLoadFailed": "לא ניתן לטעון את השיחה."
+  "chatErrorLoadFailed": "לא ניתן לטעון את השיחה.",
+  "readReceiptsTitle": "שליחת אישורי קריאה",
+  "readReceiptsSubtitle": "חברי mazl+‎ רואים מתי קראתם את ההודעה שלהם. כשההגדרה כבויה, אף אחד לא רואה.",
+  "readReceiptsLoadFailed": "ההגדרה אינה זמינה כרגע. הקישו כדי לנסות שוב.",
+  "readReceiptsSaveFailed": "לא ניתן לשנות את ההגדרה. נסו שוב."
 }

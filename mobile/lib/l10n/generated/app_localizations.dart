@@ -362,6 +362,114 @@ abstract class AppLocalizations {
   /// **'Boostez sans limite avec mazl+'**
   String get boostUpsellBody;
 
+  /// Boost programmé : un jour et une heure écrits ensemble, déjà mis en forme. {day} est le jour de la semaine (« samedi »), {hour} l'heure locale (« 21 h »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{day} {hour}'**
+  String boostMoment(String day, String hour);
+
+  /// Écran Boost, carte du meilleur moment : le jour et l'heure où la ville du membre est la plus active. {moment} est déjà écrit (« samedi 21 h »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur moment : {moment}'**
+  String boostBestTimeLine(String moment);
+
+  /// Écran Boost, carte du meilleur moment, quand ce moment tombe un samedi à partir de 20 h (heure locale) : même phrase suivie de « après Shabbat ».
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur moment : {moment}, après Shabbat'**
+  String boostBestTimeLineAfterShabbat(String moment);
+
+  /// Écran Boost, sous le meilleur moment : d'où vient la suggestion. {city} est la ville du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'après l\'affluence mesurée à {city}.'**
+  String boostBestTimeBasis(String city);
+
+  /// Écran Boost, sous le meilleur moment, quand le serveur n'envoie pas le nom de la ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'après l\'affluence mesurée dans votre ville.'**
+  String get boostBestTimeBasisNoCity;
+
+  /// Écran Boost, carte du meilleur moment : le serveur n'a pas mesuré assez d'affluence dans la ville du membre ; aucun horaire n'est proposé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore assez de données pour votre ville.'**
+  String get boostBestTimeNoData;
+
+  /// Écran Boost, carte du meilleur moment : la lecture a échoué ; un bouton Réessayer suit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger le meilleur moment.'**
+  String get boostBestTimeLoadFailed;
+
+  /// Écran Boost : bouton qui programme le Boost au meilleur moment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programmer pour ce moment'**
+  String get boostScheduleAction;
+
+  /// Écran Boost, sous le bouton de programmation : ce que coûte la programmation (un Boost) et qu'une notification prévient au démarrage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un de vos Boosts sera utilisé à ce moment-là, et vous serez prévenu quand il démarre.'**
+  String get boostScheduleNote;
+
+  /// Écran Boost : un Boost est programmé. {moment} est déjà écrit (« samedi 21 h »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Programmé pour {moment}'**
+  String boostScheduledFor(String moment);
+
+  /// Écran Boost : bouton qui annule le Boost programmé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la programmation'**
+  String get boostScheduleCancel;
+
+  /// Écran Boost : message bref après l'annulation d'un Boost programmé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programmation annulée.'**
+  String get boostScheduleCancelled;
+
+  /// Écran Boost : message bref après la programmation d'un Boost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost programmé.'**
+  String get boostScheduledDone;
+
+  /// Écran Boost : le serveur refuse car un Boost est déjà programmé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un Boost est déjà programmé.'**
+  String get boostScheduleAlready;
+
+  /// Écran Boost : le serveur refuse l'horaire (passé ou à plus de 7 jours).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce moment n\'est plus possible : il doit être à venir, dans les 7 prochains jours.'**
+  String get boostScheduleInvalidTime;
+
+  /// Écran Boost : la programmation a échoué (réseau ou serveur).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de programmer le Boost. Réessayez.'**
+  String get boostScheduleFailed;
+
+  /// Écran Boost : l'annulation de la programmation a échoué.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'annuler la programmation. Réessayez.'**
+  String get boostScheduleCancelFailed;
+
+  /// Écran Boost, carte du meilleur moment : titre court, utilisé quand le serveur n'a pas encore assez de données pour proposer un horaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur moment'**
+  String get boostBestTimeTitle;
+
   /// Conversations : titre de l'écran (grand titre, 40 px).
   ///
   /// In fr, this message translates to:
@@ -545,7 +653,7 @@ abstract class AppLocalizations {
   /// Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).
   ///
   /// In fr, this message translates to:
-  /// **'Vu à {time}'**
+  /// **'Lu à {time}'**
   String chatSeenAt(String time);
 
   /// Chat : sous une bulle dont l'envoi a échoué (rouge, 12 px) ; un toucher ouvre le choix réessayer ou supprimer.
@@ -925,6 +1033,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de charger la conversation.'**
   String get chatErrorLoadFailed;
+
+  /// Réglages, confidentialité : titre de l'interrupteur qui décide si les membres mazl+ voient l'heure à laquelle on a lu leurs messages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer les confirmations de lecture'**
+  String get readReceiptsTitle;
+
+  /// Réglages, confidentialité : sous-titre de l'interrupteur des confirmations de lecture (deux lignes). « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les membres mazl+ voient quand vous avez lu leur message. Désactivée, personne ne le voit.'**
+  String get readReceiptsSubtitle;
+
+  /// Réglages, confidentialité : sous-titre de la ligne des confirmations de lecture quand le serveur n'a pas répondu ; un appui relance la lecture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglage indisponible pour l\'instant. Touchez pour réessayer.'**
+  String get readReceiptsLoadFailed;
+
+  /// Message bref quand le serveur a refusé ou n'a pas reçu le changement des confirmations de lecture ; l'interrupteur revient à l'état du serveur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de modifier ce réglage. Réessayez.'**
+  String get readReceiptsSaveFailed;
 
   /// Bouton qui ferme une boîte de dialogue ou une feuille sans rien faire.
   ///
@@ -3548,6 +3680,282 @@ abstract class AppLocalizations {
   /// **'{name} n\'a pas répondu'**
   String coupleUsHistoryNoPartnerAnswer(String name);
 
+  /// Titre de l'écran du Passeport (fonction mazl+) et info-bulle du bouton de Découvrir qui l'ouvre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passeport'**
+  String get passportTitle;
+
+  /// Grand titre de l'écran du Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez une autre ville'**
+  String get passportHeadline;
+
+  /// Explication sous le titre du Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une ville pour voir ses profils dans Découvrir, avant un voyage ou une alyah. Votre ville affichée ne change pas ; les autres voient simplement que vous êtes de passage.'**
+  String get passportIntro;
+
+  /// Ville du passeport en cours. {city} est le nom de la ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre passeport : {city}'**
+  String passportCurrent(String city);
+
+  /// Message quand aucun passeport n'est actif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous découvrez votre propre ville.'**
+  String get passportInactive;
+
+  /// Bouton qui coupe le passeport et revient à la ville du membre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à ma ville'**
+  String get passportBackHome;
+
+  /// Libellé du champ de recherche d'une ville du Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une ville'**
+  String get passportSearchLabel;
+
+  /// Message quand la recherche d'une ville ne trouve rien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune ville trouvée.'**
+  String get passportSearchNone;
+
+  /// Titre de la liste des villes proposées du Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Villes suggérées'**
+  String get passportSuggestedTitle;
+
+  /// Titre de la liste des résultats de la recherche d'une ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats'**
+  String get passportResultsTitle;
+
+  /// Nom de la ville suggérée « Tel-Aviv » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tel-Aviv'**
+  String get passportCityTelAviv;
+
+  /// Nom de la ville suggérée « Jérusalem » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jérusalem'**
+  String get passportCityJerusalem;
+
+  /// Nom de la ville suggérée « New York » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'New York'**
+  String get passportCityNewYork;
+
+  /// Nom de la ville suggérée « Londres » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Londres'**
+  String get passportCityLondon;
+
+  /// Nom de la ville suggérée « Montréal » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montréal'**
+  String get passportCityMontreal;
+
+  /// Nom de la ville suggérée « Paris » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paris'**
+  String get passportCityParis;
+
+  /// Nom de la ville suggérée « Marseille » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marseille'**
+  String get passportCityMarseille;
+
+  /// Nom de la ville suggérée « Lyon » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lyon'**
+  String get passportCityLyon;
+
+  /// Nom de la ville suggérée « Nice » dans le Passeport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nice'**
+  String get passportCityNice;
+
+  /// Bandeau du Passeport pour un membre sans mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le passeport est réservé aux abonnés mazl+.'**
+  String get passportPlusOnly;
+
+  /// Bouton du Passeport qui ouvre la page mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir mazl+'**
+  String get passportSeePlus;
+
+  /// Message bref quand la ville du Passeport n'a pas pu être changée.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de changer de ville pour le moment.'**
+  String get passportSaveFailed;
+
+  /// Message de l'écran du Passeport quand ses réglages ne se chargent pas.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger votre passeport.'**
+  String get passportLoadFailed;
+
+  /// Message bref dans Découvrir après le choix d'une ville de passeport. {city} est la ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous découvrez maintenant {city}.'**
+  String passportActivated(String city);
+
+  /// Message bref dans Découvrir après le retour à sa propre ville.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous découvrez de nouveau votre ville.'**
+  String get passportDeactivated;
+
+  /// Titre du réglage Mode discret (mazl+) dans les Paramètres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode discret'**
+  String get plusPrivacyIncognitoTitle;
+
+  /// Explication du Mode discret : qui peut voir le membre dans Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seules les personnes que vous avez aimées vous voient dans Découvrir.'**
+  String get plusPrivacyIncognitoSubtitle;
+
+  /// Sous-titre d'un réglage mazl+ pour un membre sans abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé aux abonnés mazl+'**
+  String get plusPrivacyLocked;
+
+  /// Sous-titre d'un réglage mazl+ pendant que le serveur répond.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement…'**
+  String get plusPrivacyLoading;
+
+  /// Sous-titre d'un réglage mazl+ que le serveur n'a pas pu donner ; toucher réessaie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lire ce réglage. Touchez pour réessayer.'**
+  String get plusPrivacyLoadFailed;
+
+  /// Message bref quand un réglage mazl+ n'a pas pu être enregistré.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglage non modifié. Réessayez.'**
+  String get plusPrivacySaveFailed;
+
+  /// Titre de la feuille proposée à l'envoi d'un Super Like.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un mot avec votre Super Like ?'**
+  String get superLikeNoteTitle;
+
+  /// Explication sous le titre de la feuille du mot du Super Like.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facultatif : la personne le lira avec votre Super Like.'**
+  String get superLikeNoteBody;
+
+  /// Indication du champ du mot du Super Like.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre mot (140 caractères au plus)'**
+  String get superLikeNoteHint;
+
+  /// Compteur de caractères du mot du Super Like. {count} écrits sur {max}.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count}/{max}'**
+  String superLikeNoteCounter(int count, int max);
+
+  /// Bouton qui envoie le Super Like avec le mot écrit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer avec ce mot'**
+  String get superLikeNoteSend;
+
+  /// Bouton qui envoie le Super Like sans mot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer sans mot'**
+  String get superLikeNoteSendWithout;
+
+  /// Message bref quand le serveur refuse le mot d'un Super Like (trop long, lien, coordonnées).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce mot n\'a pas été accepté (140 caractères au plus, ni lien ni coordonnées). Le Super Like n\'est pas parti.'**
+  String get superLikeNoteRefused;
+
+  /// Marque sur la carte d'un membre qui utilise le Passeport. {city} est la ville visitée.
+  ///
+  /// In fr, this message translates to:
+  /// **'De passage à {city}'**
+  String discoverCardTraveling(String city);
+
+  /// Marque sur la carte d'un membre qui a envoyé un Super Like au membre connecté.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous a envoyé un Super Like'**
+  String get discoverCardSuperLiked;
+
+  /// Le mot d'un Super Like reçu, entre guillemets. {note} est le texte écrit par l'expéditeur.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {note} »'**
+  String discoverCardSuperLikeNote(String note);
+
+  /// Info-bulle du bouton qui annule le dernier choix dans Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le dernier choix'**
+  String get discoverUndo;
+
+  /// Message bref quand il n'y a rien à annuler dans Découvrir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien à annuler pour le moment.'**
+  String get discoverUndoNothing;
+
+  /// Message bref quand le serveur refuse d'annuler le dernier choix (Super Like, match formé, trop ancien).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce choix ne peut pas être annulé (Super Like, match déjà formé ou trop ancien).'**
+  String get discoverUndoNotPossible;
+
+  /// Message bref quand le retour arrière gratuit du jour est utilisé et que l'offre mazl+ n'est pas rouverte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre retour arrière gratuit du jour est utilisé. Avec mazl+, il est illimité.'**
+  String get discoverUndoLimit;
+
+  /// Message bref quand l'annulation du dernier choix échoue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'annuler pour le moment.'**
+  String get discoverUndoFailed;
+
   /// Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères.
   ///
   /// In fr, this message translates to:
@@ -3961,6 +4369,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de partager pour le moment.'**
   String get eventsShareError;
+
+  /// Événement payant, pour un abonné mazl+ : son tarif réduit. {price} est déjà écrit avec la devise (« 8 € »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tarif membre : {price}'**
+  String eventsMemberPrice(String price);
+
+  /// Événement payant, pour un membre sans mazl+ : ligne sobre qui indique le tarif réduit de l'abonnement ; un appui ouvre l'offre. « mazl+ » est un nom de marque ; {price} est déjà écrit avec la devise.
+  ///
+  /// In fr, this message translates to:
+  /// **'mazl+ : {price}'**
+  String eventsMemberPricePlus(String price);
+
+  /// Libellé lu par VoiceOver sur la ligne « mazl+ : 8 € » d'un événement payant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec mazl+, cet événement coûte {price}. Voir l\'offre.'**
+  String eventsMemberPricePlusHint(String price);
+
+  /// Libellé lu par VoiceOver sur le prix normal barré d'un événement payant, pour un abonné mazl+.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix normal : {price}'**
+  String eventsPriceRegular(String price);
 
   /// Message d'erreur bref (snackbar) à la dernière étape de la configuration du profil : le choix « Je recherche » (un homme ou une femme) est obligatoire, sans lui le fil Découvrir ne peut pas être construit.
   ///
@@ -4718,12 +5150,6 @@ abstract class AppLocalizations {
   /// **'Ils vous ont aimé · {count}'**
   String likesSection(String count);
 
-  /// Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}'**
-  String likesWaiting(int count, String label);
-
   /// Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase.
   ///
   /// In fr, this message translates to:
@@ -4753,18 +5179,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Découvrir des profils'**
   String get likesEmptyAction;
-
-  /// Texte de la feuille qui présente mazl+ quand on touche un like verrouillé.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.'**
-  String get likesPremiumBody;
-
-  /// Bouton de la feuille mazl+ : ouvre l'écran des offres.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir les offres'**
-  String get likesPremiumOffers;
 
   /// Libellé d'accessibilité d'une carte de like : ouvre l'aperçu. {title} est « Prénom, âge ».
   ///
@@ -4801,6 +5215,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{km} km'**
   String likesDistance(int km);
+
+  /// En-tête de l'écran Likes pour un membre sans abonnement. {count} est le VRAI nombre de likes reçus, jamais arrondi.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{{count} personne vous a aimé} other{{count} personnes vous ont aimé}}'**
+  String likesBlurredHeadline(int count);
+
+  /// Nom affiché à la place du prénom sur la tuile floue d'un like (membre sans abonnement).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelqu\'un'**
+  String get likesAnonymousName;
+
+  /// Libellé d'accessibilité d'une tuile de like floue. {ago} est l'ancienneté déjà écrite (« il y a 2 h »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelqu\'un vous a aimé, {ago}'**
+  String likesBlurredLabel(String ago);
+
+  /// Indication d'accessibilité d'une tuile de like floue : ouvre l'offre. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour découvrir mazl+'**
+  String get likesBlurredHint;
+
+  /// Mention sur la tuile d'un like qui est un Super Like (et libellé d'accessibilité).
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Like'**
+  String get likesSuperLikeBadge;
+
+  /// Ancienneté d'un like reçu il y a moins d'une minute.
+  ///
+  /// In fr, this message translates to:
+  /// **'À l\'instant'**
+  String get likesAgoJustNow;
+
+  /// Ancienneté d'un like : {count} minutes (1 à 59).
+  ///
+  /// In fr, this message translates to:
+  /// **'il y a {count} min'**
+  String likesAgoMinutes(int count);
+
+  /// Ancienneté d'un like : {count} heures (1 à 23).
+  ///
+  /// In fr, this message translates to:
+  /// **'il y a {count} h'**
+  String likesAgoHours(int count);
+
+  /// Ancienneté d'un like : {count} jours (1 ou plus).
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, one{il y a {count} jour} other{il y a {count} jours}}'**
+  String likesAgoDays(int count);
+
+  /// Libellé d'accessibilité du mot joint à un Super Like reçu (abonné). {name} est le prénom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de {name}'**
+  String likesNoteLabel(String name);
 
   /// Info-bulle du bouton en haut de Découvrir qui ouvre les sélections du jour.
   ///
@@ -5988,6 +6462,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Passer à mazl+. {detail}'**
   String plusSettingsSemanticsUpgrade(String detail);
+
+  /// Titre de l'offre mazl+ montrée quand un membre sans abonnement atteint trois likes reçus. Pas de chiffre : le nombre exact est dans l'écran Likes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs personnes vous ont aimé.'**
+  String get momentsThirdLikeTitle;
+
+  /// Texte de l'offre du troisième like reçu. « mazl+ » est un nom de marque, il reste écrit tel quel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec mazl+, vous voyez qui elles sont et vous pouvez leur répondre tout de suite.'**
+  String get momentsThirdLikeBody;
+
+  /// Titre de l'offre mazl+ montrée quand le retour arrière gratuit du jour est déjà utilisé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un retour arrière par jour.'**
+  String get momentsUndoTitle;
+
+  /// Texte de l'offre du retour arrière refusé. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà utilisé le vôtre aujourd\'hui. Avec mazl+, annulez autant de fois que vous le souhaitez.'**
+  String get momentsUndoBody;
+
+  /// Titre de l'offre mazl+ montrée quand un membre sans abonnement essaie d'activer le Passeport (choisir une autre ville pour Découvrir).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le Passeport est réservé à mazl+.'**
+  String get momentsPassportTitle;
+
+  /// Texte de l'offre du Passeport tenté sans abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez des profils dans une autre ville avant un voyage ou une alyah, sans changer la ville affichée sur votre profil.'**
+  String get momentsPassportBody;
+
+  /// Titre de l'offre mazl+ montrée après le premier match d'un membre sans abonnement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre premier match.'**
+  String get momentsFirstMatchTitle;
+
+  /// Texte de l'offre du premier match. « mazl+ » est un nom de marque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec mazl+, ne comptez plus vos likes et faites-vous remarquer avec des Super Likes chaque jour.'**
+  String get momentsFirstMatchBody;
+
+  /// Petite ligne sous les boutons de l'offre : rien n'est caché sur le prix ni sur la résiliation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le prix s\'affiche avant tout achat. Résiliable à tout moment.'**
+  String get momentsPriceNote;
 
   /// Carte affichée à la place des champs de pratique religieuse (profil, inscription) quand l'app n'a pas pu lire l'état de l'accord de l'article 9 du RGPD (réseau coupé). Un bouton « Réessayer » suit.
   ///

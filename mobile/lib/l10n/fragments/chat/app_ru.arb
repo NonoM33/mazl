@@ -29,7 +29,7 @@
   "chatMatchStart": "Мэтч · {date}",
   "chatNewMessages": "{count, plural, one{{count} новое сообщение} few{{count} новых сообщения} many{{count} новых сообщений} other{{count} нового сообщения}}",
   "chatTypingSemantics": "Ваш собеседник печатает",
-  "chatSeenAt": "Просмотрено в {time}",
+  "chatSeenAt": "Прочитано в {time}",
   "chatFailedRetry": "Не отправлено · Повторить",
   "chatMenuReply": "Ответить",
   "chatMenuCopy": "Копировать",
@@ -92,5 +92,9 @@
   "chatErrorNotAuthor": "Только автор может отозвать сообщение.",
   "chatErrorReactionUnavailable": "Реакция недоступна.",
   "chatErrorSendUnavailable": "Сейчас не удаётся отправить.",
-  "chatErrorLoadFailed": "Не удалось загрузить беседу."
+  "chatErrorLoadFailed": "Не удалось загрузить беседу.",
+  "readReceiptsTitle": "Отправлять уведомления о прочтении",
+  "readReceiptsSubtitle": "Участники mazl+ видят, когда вы прочли их сообщение. Если выключить, не увидит никто.",
+  "readReceiptsLoadFailed": "Настройка сейчас недоступна. Нажмите, чтобы повторить.",
+  "readReceiptsSaveFailed": "Не удалось изменить настройку. Попробуйте ещё раз."
 }

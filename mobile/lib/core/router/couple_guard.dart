@@ -12,6 +12,7 @@ const _datingRoots = <String>[
   RoutePaths.boost,
   RoutePaths.filters,
   RoutePaths.dailyPicks,
+  RoutePaths.passport,
 ];
 
 /// Where the places of the couple space before the five tabs lead now

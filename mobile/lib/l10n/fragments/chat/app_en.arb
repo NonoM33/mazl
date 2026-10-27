@@ -29,7 +29,7 @@
   "chatMatchStart": "Match · {date}",
   "chatNewMessages": "{count, plural, =1{1 new message} other{{count} new messages}}",
   "chatTypingSemantics": "Your match is typing",
-  "chatSeenAt": "Seen at {time}",
+  "chatSeenAt": "Read at {time}",
   "chatFailedRetry": "Failed · Try again",
   "chatMenuReply": "Reply",
   "chatMenuCopy": "Copy",
@@ -92,5 +92,9 @@
   "chatErrorNotAuthor": "Only the author can unsend a message.",
   "chatErrorReactionUnavailable": "Reaction unavailable.",
   "chatErrorSendUnavailable": "Can't send right now.",
-  "chatErrorLoadFailed": "Couldn't load the conversation."
+  "chatErrorLoadFailed": "Couldn't load the conversation.",
+  "readReceiptsTitle": "Send read receipts",
+  "readReceiptsSubtitle": "mazl+ members can see when you have read their message. Switched off, nobody can.",
+  "readReceiptsLoadFailed": "Setting unavailable right now. Tap to try again.",
+  "readReceiptsSaveFailed": "Couldn't change this setting. Please try again."
 }

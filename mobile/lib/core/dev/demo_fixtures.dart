@@ -83,34 +83,44 @@ abstract final class DemoFixtures {
 
   /// Profils de la découverte (8), pratiques et intentions variées.
   static List<Map<String, dynamic>> discoverProfiles() => [
-    _profile(
-      userId: matchOnLikeUserId,
-      name: 'Rachel',
-      age: 26,
-      city: 'Paris',
-      bio:
-          'Prof de piano, je donne des cours à Paris et je joue dans une chorale. Dîners du vendredi soir, longues marches au bord du canal : je cherche quelqu\'un de curieux et de tendre.',
-      denomination: 'Massorti',
-      kashrut: 'A la maison',
-      shabbat: 'Partiellement',
-      intention: 'serious',
-      verified: true,
-      distance: 3,
-    ),
-    _profile(
-      userId: 202,
-      name: 'Yaël',
-      age: 29,
-      city: 'Neuilly-sur-Seine',
-      bio:
-          'Avocate en droit des affaires, mais jamais loin d\'un sentier de randonnée. Ma challah du vendredi fait l\'unanimité, et je ne dis jamais non à un brunch.',
-      denomination: 'Orthodox',
-      kashrut: 'Strict',
-      shabbat: 'Observant',
-      intention: 'marriage',
-      verified: true,
-      distance: 6,
-    ),
+    {
+      // Un Super Like reçu, avec son mot (GET /api/discover).
+      ..._profile(
+        userId: matchOnLikeUserId,
+        name: 'Rachel',
+        age: 26,
+        city: 'Paris',
+        bio:
+            'Prof de piano, je donne des cours à Paris et je joue dans une chorale. Dîners du vendredi soir, longues marches au bord du canal : je cherche quelqu\'un de curieux et de tendre.',
+        denomination: 'Massorti',
+        kashrut: 'A la maison',
+        shabbat: 'Partiellement',
+        intention: 'serious',
+        verified: true,
+        distance: 3,
+      ),
+      'super_liked_you': true,
+      'super_like_note':
+          'Votre playlist de Shabbat m\'a donné envie de vous écrire.',
+    },
+    {
+      // Un membre de passage dans une autre ville (Passeport mazl+).
+      ..._profile(
+        userId: 202,
+        name: 'Yaël',
+        age: 29,
+        city: 'Neuilly-sur-Seine',
+        bio:
+            'Avocate en droit des affaires, mais jamais loin d\'un sentier de randonnée. Ma challah du vendredi fait l\'unanimité, et je ne dis jamais non à un brunch.',
+        denomination: 'Orthodox',
+        kashrut: 'Strict',
+        shabbat: 'Observant',
+        intention: 'marriage',
+        verified: true,
+        distance: 6,
+      ),
+      'traveling_city': 'Tel Aviv',
+    },
     _profile(
       userId: 203,
       name: 'David',
@@ -431,12 +441,19 @@ abstract final class DemoFixtures {
     ];
   }
 
+  /// Who liked the demo member, in the order of the list.
+  static List<Map<String, dynamic>> _likers() => [
+    ..._likeProfiles(),
+    profileById(matchOnLikeUserId)!,
+  ];
+
+  /// `GET /api/likes/received` for a SUBSCRIBER: the complete form, plus the
+  /// Super Like and its word. The demo member has no subscription, so the
+  /// routes serve [likesReceivedPreview]; this form stays for the tests and
+  /// for a subscriber demo.
   static Map<String, dynamic> likesReceived() {
     final likes = [
-      for (final (i, p) in [
-        ..._likeProfiles(),
-        profileById(matchOnLikeUserId)!,
-      ].indexed)
+      for (final (i, p) in _likers().indexed)
         {
           'user_id': p['user_id'],
           'display_name': p['display_name'],
@@ -445,12 +462,39 @@ abstract final class DemoFixtures {
           'is_verified': p['is_verified'],
           'liked_at': isoAgo(Duration(hours: 2 + i * 7)),
           'distance': p['distance'],
+          'is_super_like': i == 1,
+          'note': i == 1 ? 'Ton profil m\'a fait sourire.' : null,
         },
     ];
     return {
       'success': true,
       'count': likes.length,
       'is_premium': true,
+      'likes': likes,
+    };
+  }
+
+  /// `GET /api/likes/received` for a member WITHOUT mazl+, as the server
+  /// answers: no identity (no id, no photo, no age), a tiny blurred copy of the
+  /// photo or `null` (every third like has none, to show the gradient), the
+  /// real count. The first name is sent for the web client; the app ignores it.
+  static Map<String, dynamic> likesReceivedPreview() {
+    final likes = [
+      for (final (i, p) in _likers().indexed)
+        {
+          'display_name': p['display_name'],
+          'is_verified': p['is_verified'],
+          'liked_at': isoAgo(Duration(hours: 2 + i * 7)),
+          'blurredPhotoUrl': i % 3 == 2
+              ? null
+              : DemoPhotos.blurred(p['user_id'] as int),
+          'is_super_like': i == 1,
+        },
+    ];
+    return {
+      'success': true,
+      'count': likes.length,
+      'is_premium': false,
       'likes': likes,
     };
   }
@@ -472,6 +516,7 @@ abstract final class DemoFixtures {
       'time': '19:30',
       'end_time': '22:30',
       'price': 25,
+      'member_price_cents': 1800,
       'currency': 'EUR',
       'max_attendees': 40,
       'attendee_count': 0,
@@ -514,6 +559,7 @@ abstract final class DemoFixtures {
       'time': '20:00',
       'end_time': '01:00',
       'price': 15,
+      'member_price_cents': 1000,
       'currency': 'EUR',
       'max_attendees': 80,
       'attendee_count': 80,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/motion/mazl_motion.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mazl/core/motion/reduce_motion_scope.dart';
 import 'package:mazl/core/services/premium_gate.dart';
 import 'package:mazl/core/services/store/credits_service.dart';
@@ -264,6 +263,9 @@ void main() {
     await settle(tester);
     await tester.pump(const Duration(milliseconds: 500));
     await settle(tester);
+    // The Super Like that goes up asks for its optional word first.
+    await tester.tap(find.text('Envoyer sans mot'));
+    await settle(tester);
 
     expect(
       _store.boughtConsumables.single.productDetails.id,
@@ -300,6 +302,8 @@ void main() {
       api.refuseNextSuperLike = true;
 
       await dragSlowly(tester, _card(101), const Offset(0, -360));
+      await settle(tester);
+      await tester.tap(find.text('Envoyer sans mot'));
       await settle(tester);
 
       expect(api.swipes, ['101:super_like']);
@@ -422,6 +426,8 @@ void main() {
 
       await dragSlowly(tester, _card(101), const Offset(0, -360));
       await settle(tester);
+      await tester.tap(find.text('Envoyer sans mot'));
+      await settle(tester);
 
       // The count comes back from the server's answer, not from the app.
       expect(api.swipes, ['101:super_like']);
@@ -474,17 +480,6 @@ void main() {
 
     expect(api.swipes, ['101:like']);
     expect(_card(101), findsNothing);
-  });
-
-  testWidgets('there is no undo button, even for a subscriber', (tester) async {
-    PremiumGate.debugPremiumOverride = true;
-    final semantics = tester.ensureSemantics();
-    await _pumpDiscover(tester);
-
-    // Nothing is cancelled server side, so the offer does not promise it.
-    expect(find.bySemanticsLabel('Annuler'), findsNothing);
-    expect(find.byIcon(LucideIcons.rotateCcw), findsNothing);
-    semantics.dispose();
   });
 
   group('photo indicator', () {

@@ -42,8 +42,30 @@ export async function reencodeJpeg(bytes: Uint8Array, maxSide: number): Promise<
   }
 }
 
+export const BLUR_WIDTH_PX = 48;
+const BLUR_SIGMA = 2.5;
+const BLUR_JPEG_QUALITY = 45;
+
+// Downscaled FIRST (a face is a few pixels wide at 48 px), blurred after, then
+// compressed hard: the file is about 1 to 2 KB and holds no more detail than that.
+export async function blurredJpeg(bytes: Uint8Array): Promise<Buffer> {
+  try {
+    await assertRaster(bytes);
+    return await sharp(bytes, { failOn: "error", limitInputPixels: MAX_INPUT_PIXELS })
+      .rotate()
+      .resize({ width: BLUR_WIDTH_PX, withoutEnlargement: false })
+      .blur(BLUR_SIGMA)
+      .jpeg({ quality: BLUR_JPEG_QUALITY })
+      .toBuffer();
+  } catch (error: unknown) {
+    if (error instanceof PhotoRejectedError) throw error;
+    throw new PhotoRejectedError("undecodable");
+  }
+}
+
 export const sharpImageProcessor: ImageProcessor = {
   async toProfileJpeg(bytes: Uint8Array): Promise<Buffer> {
     return (await reencodeJpeg(bytes, MAX_SIDE_PX)).data;
   },
+  toBlurredJpeg: blurredJpeg,
 };

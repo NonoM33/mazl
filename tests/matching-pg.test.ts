@@ -169,7 +169,7 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
       const wanted = [ids.ok2!, ids.ok1!];
       const profiles = await new PgFeedHydrator(sql).profilesForFeed(wanted);
       expect(profiles.map((p) => p.user_id)).toEqual(wanted);
-      const expectedKeys = ["age", "bio", "denomination", "display_name", "gender", "id", "identity_verified", "is_verified", "kashrut_level", "location", "photo_verified", "photos", "picture", "shabbat_observance", "user_id", "verification_level"];
+      const expectedKeys = ["age", "bio", "denomination", "display_name", "gender", "id", "identity_verified", "is_verified", "kashrut_level", "location", "photo_verified", "photos", "picture", "shabbat_observance", "super_like_note", "super_liked_you", "traveling_city", "user_id", "verification_level"];
       expect(Object.keys(profiles[0]!).sort()).toEqual(expectedKeys);
       expect(await new PgFeedHydrator(sql).profilesForFeed([])).toEqual([]);
     });
@@ -181,7 +181,9 @@ describe.skipIf(url === undefined)("matching on Postgres", () => {
       const legacy = await getDiscoverProfiles(ids.viewer!, 50, 0);
       const wanted = (legacy as unknown as Array<{ user_id: number }>).map((p) => p.user_id);
       const hydrated = await new PgFeedHydrator(sql).profilesForFeed(wanted);
-      expect(JSON.parse(JSON.stringify(hydrated))).toEqual(JSON.parse(JSON.stringify(legacy)));
+      // What the legacy query knows nothing of: the Super Like received and the passport (mazl+).
+      const withoutPremiumFields = hydrated.map(({ super_liked_you: _a, super_like_note: _b, traveling_city: _c, ...rest }) => rest);
+      expect(JSON.parse(JSON.stringify(withoutPremiumFields))).toEqual(JSON.parse(JSON.stringify(legacy)));
     });
   });
 

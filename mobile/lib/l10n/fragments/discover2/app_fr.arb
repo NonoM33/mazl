@@ -1,0 +1,214 @@
+{
+  "passportTitle": "Passeport",
+  "@passportTitle": {
+    "description": "Titre de l'écran du Passeport (fonction mazl+) et info-bulle du bouton de Découvrir qui l'ouvre."
+  },
+  "passportHeadline": "Découvrez une autre ville",
+  "@passportHeadline": {
+    "description": "Grand titre de l'écran du Passeport."
+  },
+  "passportIntro": "Choisissez une ville pour voir ses profils dans Découvrir, avant un voyage ou une alyah. Votre ville affichée ne change pas ; les autres voient simplement que vous êtes de passage.",
+  "@passportIntro": {
+    "description": "Explication sous le titre du Passeport."
+  },
+  "passportCurrent": "Votre passeport : {city}",
+  "@passportCurrent": {
+    "description": "Ville du passeport en cours. {city} est le nom de la ville.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "passportInactive": "Vous découvrez votre propre ville.",
+  "@passportInactive": {
+    "description": "Message quand aucun passeport n'est actif."
+  },
+  "passportBackHome": "Revenir à ma ville",
+  "@passportBackHome": {
+    "description": "Bouton qui coupe le passeport et revient à la ville du membre."
+  },
+  "passportSearchLabel": "Rechercher une ville",
+  "@passportSearchLabel": {
+    "description": "Libellé du champ de recherche d'une ville du Passeport."
+  },
+  "passportSearchNone": "Aucune ville trouvée.",
+  "@passportSearchNone": {
+    "description": "Message quand la recherche d'une ville ne trouve rien."
+  },
+  "passportSuggestedTitle": "Villes suggérées",
+  "@passportSuggestedTitle": {
+    "description": "Titre de la liste des villes proposées du Passeport."
+  },
+  "passportResultsTitle": "Résultats",
+  "@passportResultsTitle": {
+    "description": "Titre de la liste des résultats de la recherche d'une ville."
+  },
+  "passportCityTelAviv": "Tel-Aviv",
+  "@passportCityTelAviv": {
+    "description": "Nom de la ville suggérée « Tel-Aviv » dans le Passeport."
+  },
+  "passportCityJerusalem": "Jérusalem",
+  "@passportCityJerusalem": {
+    "description": "Nom de la ville suggérée « Jérusalem » dans le Passeport."
+  },
+  "passportCityNewYork": "New York",
+  "@passportCityNewYork": {
+    "description": "Nom de la ville suggérée « New York » dans le Passeport."
+  },
+  "passportCityLondon": "Londres",
+  "@passportCityLondon": {
+    "description": "Nom de la ville suggérée « Londres » dans le Passeport."
+  },
+  "passportCityMontreal": "Montréal",
+  "@passportCityMontreal": {
+    "description": "Nom de la ville suggérée « Montréal » dans le Passeport."
+  },
+  "passportCityParis": "Paris",
+  "@passportCityParis": {
+    "description": "Nom de la ville suggérée « Paris » dans le Passeport."
+  },
+  "passportCityMarseille": "Marseille",
+  "@passportCityMarseille": {
+    "description": "Nom de la ville suggérée « Marseille » dans le Passeport."
+  },
+  "passportCityLyon": "Lyon",
+  "@passportCityLyon": {
+    "description": "Nom de la ville suggérée « Lyon » dans le Passeport."
+  },
+  "passportCityNice": "Nice",
+  "@passportCityNice": {
+    "description": "Nom de la ville suggérée « Nice » dans le Passeport."
+  },
+  "passportPlusOnly": "Le passeport est réservé aux abonnés mazl+.",
+  "@passportPlusOnly": {
+    "description": "Bandeau du Passeport pour un membre sans mazl+."
+  },
+  "passportSeePlus": "Découvrir mazl+",
+  "@passportSeePlus": {
+    "description": "Bouton du Passeport qui ouvre la page mazl+."
+  },
+  "passportSaveFailed": "Impossible de changer de ville pour le moment.",
+  "@passportSaveFailed": {
+    "description": "Message bref quand la ville du Passeport n'a pas pu être changée."
+  },
+  "passportLoadFailed": "Impossible de charger votre passeport.",
+  "@passportLoadFailed": {
+    "description": "Message de l'écran du Passeport quand ses réglages ne se chargent pas."
+  },
+  "passportActivated": "Vous découvrez maintenant {city}.",
+  "@passportActivated": {
+    "description": "Message bref dans Découvrir après le choix d'une ville de passeport. {city} est la ville.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "passportDeactivated": "Vous découvrez de nouveau votre ville.",
+  "@passportDeactivated": {
+    "description": "Message bref dans Découvrir après le retour à sa propre ville."
+  },
+  "plusPrivacyIncognitoTitle": "Mode discret",
+  "@plusPrivacyIncognitoTitle": {
+    "description": "Titre du réglage Mode discret (mazl+) dans les Paramètres."
+  },
+  "plusPrivacyIncognitoSubtitle": "Seules les personnes que vous avez aimées vous voient dans Découvrir.",
+  "@plusPrivacyIncognitoSubtitle": {
+    "description": "Explication du Mode discret : qui peut voir le membre dans Découvrir."
+  },
+  "plusPrivacyLocked": "Réservé aux abonnés mazl+",
+  "@plusPrivacyLocked": {
+    "description": "Sous-titre d'un réglage mazl+ pour un membre sans abonnement."
+  },
+  "plusPrivacyLoading": "Chargement…",
+  "@plusPrivacyLoading": {
+    "description": "Sous-titre d'un réglage mazl+ pendant que le serveur répond."
+  },
+  "plusPrivacyLoadFailed": "Impossible de lire ce réglage. Touchez pour réessayer.",
+  "@plusPrivacyLoadFailed": {
+    "description": "Sous-titre d'un réglage mazl+ que le serveur n'a pas pu donner ; toucher réessaie."
+  },
+  "plusPrivacySaveFailed": "Réglage non modifié. Réessayez.",
+  "@plusPrivacySaveFailed": {
+    "description": "Message bref quand un réglage mazl+ n'a pas pu être enregistré."
+  },
+  "superLikeNoteTitle": "Un mot avec votre Super Like ?",
+  "@superLikeNoteTitle": {
+    "description": "Titre de la feuille proposée à l'envoi d'un Super Like."
+  },
+  "superLikeNoteBody": "Facultatif : la personne le lira avec votre Super Like.",
+  "@superLikeNoteBody": {
+    "description": "Explication sous le titre de la feuille du mot du Super Like."
+  },
+  "superLikeNoteHint": "Votre mot (140 caractères au plus)",
+  "@superLikeNoteHint": {
+    "description": "Indication du champ du mot du Super Like."
+  },
+  "superLikeNoteCounter": "{count}/{max}",
+  "@superLikeNoteCounter": {
+    "description": "Compteur de caractères du mot du Super Like. {count} écrits sur {max}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "superLikeNoteSend": "Envoyer avec ce mot",
+  "@superLikeNoteSend": {
+    "description": "Bouton qui envoie le Super Like avec le mot écrit."
+  },
+  "superLikeNoteSendWithout": "Envoyer sans mot",
+  "@superLikeNoteSendWithout": {
+    "description": "Bouton qui envoie le Super Like sans mot."
+  },
+  "superLikeNoteRefused": "Ce mot n'a pas été accepté (140 caractères au plus, ni lien ni coordonnées). Le Super Like n'est pas parti.",
+  "@superLikeNoteRefused": {
+    "description": "Message bref quand le serveur refuse le mot d'un Super Like (trop long, lien, coordonnées)."
+  },
+  "discoverCardTraveling": "De passage à {city}",
+  "@discoverCardTraveling": {
+    "description": "Marque sur la carte d'un membre qui utilise le Passeport. {city} est la ville visitée.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverCardSuperLiked": "Vous a envoyé un Super Like",
+  "@discoverCardSuperLiked": {
+    "description": "Marque sur la carte d'un membre qui a envoyé un Super Like au membre connecté."
+  },
+  "discoverCardSuperLikeNote": "« {note} »",
+  "@discoverCardSuperLikeNote": {
+    "description": "Le mot d'un Super Like reçu, entre guillemets. {note} est le texte écrit par l'expéditeur.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverUndo": "Annuler le dernier choix",
+  "@discoverUndo": {
+    "description": "Info-bulle du bouton qui annule le dernier choix dans Découvrir."
+  },
+  "discoverUndoNothing": "Rien à annuler pour le moment.",
+  "@discoverUndoNothing": {
+    "description": "Message bref quand il n'y a rien à annuler dans Découvrir."
+  },
+  "discoverUndoNotPossible": "Ce choix ne peut pas être annulé (Super Like, match déjà formé ou trop ancien).",
+  "@discoverUndoNotPossible": {
+    "description": "Message bref quand le serveur refuse d'annuler le dernier choix (Super Like, match formé, trop ancien)."
+  },
+  "discoverUndoLimit": "Votre retour arrière gratuit du jour est utilisé. Avec mazl+, il est illimité.",
+  "@discoverUndoLimit": {
+    "description": "Message bref quand le retour arrière gratuit du jour est utilisé et que l'offre mazl+ n'est pas rouverte."
+  },
+  "discoverUndoFailed": "Impossible d'annuler pour le moment.",
+  "@discoverUndoFailed": {
+    "description": "Message bref quand l'annulation du dernier choix échoue."
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'app_colors.dart';
 import 'app_typography.dart';
@@ -22,6 +23,15 @@ class AppTheme {
     final buttonText = AppTypography.button;
 
     return ThemeData(
+      // Every back button shows the app's arrow, not the platform chevron,
+      // pointing the way the language reads.
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (context) => Icon(
+          Directionality.of(context) == TextDirection.rtl
+              ? LucideIcons.arrowRight
+              : LucideIcons.arrowLeft,
+        ),
+      ),
       useMaterial3: true,
       brightness: brightness,
       fontFamily: AppTypography.family,

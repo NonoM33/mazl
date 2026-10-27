@@ -89,6 +89,7 @@ describe("identity storage", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
     });
+    expect(r.status).toBe(200);
     adminToken = ((await r.json()) as { token: string }).token;
   });
 

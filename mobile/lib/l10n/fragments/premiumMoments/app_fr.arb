@@ -1,0 +1,38 @@
+{
+  "momentsThirdLikeTitle": "Plusieurs personnes vous ont aimé.",
+  "@momentsThirdLikeTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand un membre sans abonnement atteint trois likes reçus. Pas de chiffre : le nombre exact est dans l'écran Likes."
+  },
+  "momentsThirdLikeBody": "Avec mazl+, vous voyez qui elles sont et vous pouvez leur répondre tout de suite.",
+  "@momentsThirdLikeBody": {
+    "description": "Texte de l'offre du troisième like reçu. « mazl+ » est un nom de marque, il reste écrit tel quel."
+  },
+  "momentsUndoTitle": "Un retour arrière par jour.",
+  "@momentsUndoTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand le retour arrière gratuit du jour est déjà utilisé."
+  },
+  "momentsUndoBody": "Vous avez déjà utilisé le vôtre aujourd'hui. Avec mazl+, annulez autant de fois que vous le souhaitez.",
+  "@momentsUndoBody": {
+    "description": "Texte de l'offre du retour arrière refusé. « mazl+ » est un nom de marque."
+  },
+  "momentsPassportTitle": "Le Passeport est réservé à mazl+.",
+  "@momentsPassportTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand un membre sans abonnement essaie d'activer le Passeport (choisir une autre ville pour Découvrir)."
+  },
+  "momentsPassportBody": "Découvrez des profils dans une autre ville avant un voyage ou une alyah, sans changer la ville affichée sur votre profil.",
+  "@momentsPassportBody": {
+    "description": "Texte de l'offre du Passeport tenté sans abonnement."
+  },
+  "momentsFirstMatchTitle": "Votre premier match.",
+  "@momentsFirstMatchTitle": {
+    "description": "Titre de l'offre mazl+ montrée après le premier match d'un membre sans abonnement."
+  },
+  "momentsFirstMatchBody": "Avec mazl+, ne comptez plus vos likes et faites-vous remarquer avec des Super Likes chaque jour.",
+  "@momentsFirstMatchBody": {
+    "description": "Texte de l'offre du premier match. « mazl+ » est un nom de marque."
+  },
+  "momentsPriceNote": "Le prix s'affiche avant tout achat. Résiliable à tout moment.",
+  "@momentsPriceNote": {
+    "description": "Petite ligne sous les boutons de l'offre : rien n'est caché sur le prix ni sur la résiliation."
+  }
+}

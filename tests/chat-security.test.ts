@@ -1,4 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test";
+import { grantPlus } from "./media-helpers";
 import { BASE_URL, WS_URL, auth, connect, db, expectNone, json, makeMatch, makeUser, onlyRow, send, sendText, type Pair, type Socket } from "./chat-helpers";
 
 // Security of the chat, replayed as an attacker (or a blocked user) would do it,
@@ -145,6 +146,7 @@ describe("blocked pairs: typing and read", () => {
 
   test("reading works between people who are not blocked (control)", async () => {
     await setUp("secreadctl");
+    await grantPlus(pair.a.id);
     const message = await sendText(pair.a.token, pair.conversationId, "lis-moi");
     await alice.next("chat:message");
     await bob.next("chat:message");

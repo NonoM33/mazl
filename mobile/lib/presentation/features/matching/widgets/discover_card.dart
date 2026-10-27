@@ -14,6 +14,7 @@ import '../../profile/widgets/profile_view/profile_sections.dart';
 import '../../profile/widgets/profile_view/profile_view_content.dart'
     show lookingForLabel;
 import '../../profile/widgets/profile_view/profile_view_data.dart';
+import 'discover_member_notes.dart';
 
 /// Carte de découverte : la photo, puis le nom, la ville et les puces dessous.
 ///
@@ -405,6 +406,7 @@ class _DiscoverCardState extends State<DiscoverCard> {
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
           ],
+          DiscoverMemberNotes(profile: _profile, detailed: detailed),
           // In the detailed half the essentials below say the same.
           if (!detailed && tags.isNotEmpty) ...[
             const SizedBox(height: 12),

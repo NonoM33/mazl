@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { grantPlus } from "./media-helpers";
 import { BASE_URL, onlyRow, connect, db, expectNone, json, makeMatch, makeUser, send, sendText, type Pair, type Socket } from "./chat-helpers";
 
 // CONTRAT.md §3: every change of a conversation reaches BOTH members as a
@@ -106,7 +107,9 @@ describe("chat:typing", () => {
 });
 
 describe("chat:read", () => {
+  // The author is mazl+: only then is the reader's receipt pushed to them (docs/premium/MONETISATION.md section 4).
   test("PUT /read pushes up_to_id and read_at to both members; a repeat pushes nothing", async () => {
+    await grantPlus(pair.a.id);
     const m = await sendText(pair.a.token, pair.conversationId, "à lire");
     await alice.next("chat:message");
     await bob.next("chat:message");

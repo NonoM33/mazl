@@ -77,6 +77,10 @@ describe("test profiles at start-up", () => {
   let withFlag: ScratchDatabase;
   let withoutFlag: ScratchDatabase;
   let servers: RunningServer[] = [];
+  // The test files share one process: the administrator of these servers must
+  // not leak into the files that run after this one (their admin sign-in then
+  // failed with 401, 2026-10-27).
+  const previousAdminEmail = process.env.ADMIN_EMAIL;
 
   beforeAll(async () => {
     withFlag = await createScratchDatabase();
@@ -93,6 +97,8 @@ describe("test profiles at start-up", () => {
   }, 120_000);
 
   afterAll(async () => {
+    if (previousAdminEmail === undefined) delete process.env.ADMIN_EMAIL;
+    else process.env.ADMIN_EMAIL = previousAdminEmail;
     for (const server of servers) await server.stop();
     servers = [];
     await withFlag.drop();

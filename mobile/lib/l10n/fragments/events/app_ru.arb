@@ -50,5 +50,9 @@
   "eventsMapDone": "Готово",
   "eventsMapSemantics": "Карта района мероприятия",
   "eventsTimeRange": "{start} – {end}",
-  "eventsShareError": "Сейчас не удаётся поделиться."
+  "eventsShareError": "Сейчас не удаётся поделиться.",
+  "eventsMemberPrice": "Цена для участников: {price}",
+  "eventsMemberPricePlus": "mazl+: {price}",
+  "eventsMemberPricePlusHint": "С mazl+ это событие стоит {price}. Посмотреть предложение.",
+  "eventsPriceRegular": "Обычная цена: {price}"
 }

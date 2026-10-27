@@ -97,6 +97,9 @@ import { createWebSessionModule, ensureWebSessionSchema, registerWebSession } fr
 import { API_HOST_STATIC_FILES, LEGAL_PAGES, LEGAL_REDIRECTS, createWebApp, createWebsiteMoved, websiteServed } from "./features/web-app";
 import { registerMatchingRoutes } from "./features/matching/matching.routes";
 import { createLikeAllowanceService, ensureLikeAllowanceSchema, registerLikeAllowance } from "./features/like-allowance/like-allowance.module";
+import { createPremiumSettingsService, ensurePremiumSettingsSchema, registerPremiumSettings } from "./features/premium-settings/premium-settings.module";
+import { createSwipeUndoService, ensureSwipeUndoSchema, registerSwipeUndo } from "./features/swipe-undo/swipe-undo.module";
+import { createBoostTimingModule, ensureBoostTimingSchema } from "./features/boost-timing/boost-timing.module";
 import { createPlusStatus, registerLikesVisibility } from "./features/likes-visibility/likes-visibility.module";
 import { ANALYTICS, createPrivacyModule, ensurePrivacySchema, registerPrivacy } from "./features/privacy/privacy.module";
 import { createAnalyticsService, observeAnalytics, registerAnalytics, withMessageAnalytics } from "./features/analytics/analytics.module";
@@ -324,7 +327,7 @@ app.get("/api/count", async (c) => {
 const push = createPushModule({ sql });
 push.followMatches();
 push.registerRoutes(app);
-const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
+const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics), sql });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 
@@ -442,6 +445,14 @@ registerCredits(app, credits, requireAuth);
 registerLikeAllowance(app, createLikeAllowanceService(sql));
 // Without mazl+, received likes carry no photo, id nor age (docs/web/adr/W11).
 registerLikesVisibility(app, { authenticate: requireAuth, plusStatus: createPlusStatus(sql) });
+// Boost at the right moment (best hour of the city, programmed Boosts): counts the sessions
+// of GET /api/discover, so it is registered before the matching routes. Its sweep runs on the
+// minute task of the push module (see push.followBoostEndings below).
+const boostTiming = createBoostTimingModule({ sql, credits, notifier: { started: push.notifier.scheduledBoostStarted, notStarted: push.notifier.scheduledBoostMissed } });
+boostTiming.register(app, requireAuth);
+// mazl+ settings (passport, discreet mode, read receipts) and the rewind of the last swipe.
+registerPremiumSettings(app, createPremiumSettingsService(sql), requireAuth);
+registerSwipeUndo(app, createSwipeUndoService(sql), requireAuth);
 registerMatchingRoutes(app, { credits, feed: backoffice.feed, likes: push.likeListener });
 
 // ============ ENGAGEMENT (verification, boost, moderation) ============
@@ -824,8 +835,11 @@ await ensureAppleSignInSchema(sql);
 await ensureBillingWebSchema(sql);
 await ensurePrivacySchema(sql);
 await ensureLikeAllowanceSchema(sql);
+await ensurePremiumSettingsSchema(sql);
+await ensureSwipeUndoSchema(sql);
+await ensureBoostTimingSchema(sql);
 await push.ensureSchema();
-push.followBoostEndings();
+push.followBoostEndings(undefined, [() => boostTiming.service.runDue()]);
 coupleSpace.followReminders();
 startChatMaintenance(chat);
 const fuzzedAtBoot = await fuzzExistingLocations();
