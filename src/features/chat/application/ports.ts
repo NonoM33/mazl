@@ -143,3 +143,13 @@ export interface MessageNotifier {
 export interface RealtimeEvents {
   emit(userIds: readonly number[], event: { type: string; payload: unknown }): void;
 }
+
+// Who may see that a message was read (docs/premium/MONETISATION.md section 4):
+// the author of the message when they are a mazl+ member AND the member who
+// read it has not turned their receipts off. The server decides, per message.
+export interface ReadReceiptVisibility {
+  // The `${conversationId}:${authorId}` pairs, among those asked, whose author may see receipts.
+  authorsWhoMaySee(pairs: readonly { readonly conversationId: number; readonly authorId: number }[]): Promise<ReadonlySet<string>>;
+}
+
+export const receiptKey = (conversationId: number, authorId: number): string => `${conversationId}:${authorId}`;

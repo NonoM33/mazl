@@ -10,7 +10,7 @@ import type {
   ReplyView,
   VoiceView,
 } from "../domain/types";
-import type { MessageRepository } from "./ports";
+import { receiptKey, type MessageRepository, type ReadReceiptVisibility } from "./ports";
 
 // Turns stored rows into the shape of CONTRAT.md §1: media URLs signed, replies
 // summarised, reactions grouped, an unsent message emptied.
@@ -22,6 +22,8 @@ export interface MessagePresenter {
 export interface PresenterDeps {
   readonly repository: Pick<MessageRepository, "media" | "reactions" | "findByIds">;
   readonly signUrl: (mediaId: number) => string;
+  // Whose messages may show that they were read.
+  readonly receipts: ReadReceiptVisibility;
 }
 
 function groupBy<T>(items: readonly T[], keyOf: (item: T) => number): Map<number, T[]> {
@@ -46,7 +48,7 @@ function groupReactions(reactions: readonly ReactionRecord[]): ReactionView[] {
 }
 
 export function createMessagePresenter(deps: PresenterDeps): MessagePresenter {
-  const { repository, signUrl } = deps;
+  const { repository, signUrl, receipts } = deps;
 
   function photoOf(media: MediaRecord): PhotoView {
     return { id: media.id, kind: "photo", url: signUrl(media.id), width: media.width, height: media.height };
@@ -85,10 +87,12 @@ export function createMessagePresenter(deps: PresenterDeps): MessagePresenter {
     if (records.length === 0) return [];
     const ids = records.map((record) => record.id);
     const parentIds = [...new Set(records.flatMap((record) => (record.replyToId === null ? [] : [record.replyToId])))];
-    const [mediaRows, reactionRows, parentRows] = await Promise.all([
+    const pairs = [...new Map(records.map((record) => [receiptKey(record.conversationId, record.senderId), { conversationId: record.conversationId, authorId: record.senderId }])).values()];
+    const [mediaRows, reactionRows, parentRows, readable] = await Promise.all([
       repository.media(ids),
       repository.reactions(ids),
       parentIds.length > 0 ? repository.findByIds(parentIds) : Promise.resolve<MessageRecord[]>([]),
+      receipts.authorsWhoMaySee(pairs),
     ]);
     const mediaByMessage = groupBy(mediaRows, (media) => media.messageId ?? 0);
     const reactionsByMessage = groupBy(reactionRows, (reaction) => reaction.messageId);
@@ -99,6 +103,9 @@ export function createMessagePresenter(deps: PresenterDeps): MessagePresenter {
       const attached = unsent ? [] : (mediaByMessage.get(record.id) ?? []);
       const attachments = attached.filter((media) => media.role === "attachment");
       const voice = attachments.find((media) => media.kind === "voice");
+      // Without the right to see receipts, a message looks unread to its author
+      // (and to anyone else): « read » is a signal the server gives only to those who may have it.
+      const readAt = readable.has(receiptKey(record.conversationId, record.senderId)) ? record.readAt : null;
       return {
         id: record.id,
         conversation_id: record.conversationId,
@@ -112,9 +119,9 @@ export function createMessagePresenter(deps: PresenterDeps): MessagePresenter {
         reactions: unsent ? [] : groupReactions(reactionsByMessage.get(record.id) ?? []),
         link_preview: unsent ? null : linkPreviewOf(record, attached),
         created_at: record.createdAt.toISOString(),
-        read_at: record.readAt?.toISOString() ?? null,
+        read_at: readAt?.toISOString() ?? null,
         unsent,
-        is_read: record.readAt !== null,
+        is_read: readAt !== null,
       };
     });
   }

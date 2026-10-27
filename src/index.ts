@@ -328,7 +328,7 @@ app.get("/api/count", async (c) => {
 const push = createPushModule({ sql });
 push.followMatches();
 push.registerRoutes(app);
-const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics) });
+const chat = createChatModule({ store: objectStore, notifier: withMessageAnalytics(push.messageNotifier, analytics), sql });
 const documents = createDocumentsModule(objectStore);
 registerDocumentsRoutes(app, documents);
 

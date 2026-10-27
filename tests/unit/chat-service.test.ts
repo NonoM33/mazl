@@ -3,7 +3,7 @@ import { createChatService, type ChatService } from "../../src/features/chat/app
 import { createMessagePresenter } from "../../src/features/chat/application/message-presenter";
 import { ChatError } from "../../src/features/chat/domain/errors";
 import type { MessageRecord } from "../../src/features/chat/domain/types";
-import { FakeMessageRepository, FakeStorage, RecordingEvents, RecordingNotifier, T0 } from "./chat-fakes";
+import { FakeMessageRepository, FakeStorage, RecordingEvents, RecordingNotifier, T0, allowAllReceipts } from "./chat-fakes";
 
 // Expectations are CONTRAT.md §0-§3, written from the contract.
 
@@ -28,10 +28,10 @@ beforeEach(() => {
   notifier = new RecordingNotifier();
   scheduled = [];
   clock = new Date(T0.getTime() + 60_000);
-  const presenter = createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}` });
+  const presenter = createMessagePresenter({ repository: repo, signUrl: (id) => `https://signed.example/m/${id}`, receipts: allowAllReceipts });
   service = createChatService({
     repository: repo, presenter, events, storage, now: () => clock,
-    previews: { schedule: (m) => { scheduled.push(m); } }, notifier,
+    previews: { schedule: (m) => { scheduled.push(m); } }, notifier, receipts: allowAllReceipts,
   });
 });
 
