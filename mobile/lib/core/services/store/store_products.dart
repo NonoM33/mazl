@@ -14,6 +14,13 @@ const List<String> kSubscriptionProductIds = [
   'com.mazl.app.plus.12m',
 ];
 
+/// MAZL Couple : l'abonnement du couple (29,99 €/mois), du même groupe
+/// d'abonnements que mazl+, au niveau le plus haut. Un seul des deux paie, les
+/// deux en profitent (docs/couple/ESPACE-COUPLE.md §0.1). Il n'entre pas dans
+/// [kSubscriptionProductIds] : ses écrans ne vendent que mazl+, et l'écran
+/// MAZL Couple ne vend que lui.
+const String kCoupleProductId = 'com.mazl.app.couple.1m';
+
 final RegExp _productIdPattern = RegExp(r'^com\.mazl\.app\.plus\.(\d{1,2})m$');
 
 /// Durée en mois lue dans l'identifiant du produit, ou null si l'identifiant

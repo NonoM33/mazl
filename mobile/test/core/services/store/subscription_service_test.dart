@@ -103,6 +103,49 @@ void main() {
     });
   });
 
+  group('loadCouplePlan', () {
+    test('rend le produit MAZL Couple avec le prix du store', () async {
+      gateway.productResponse = ProductDetailsResponse(
+        productDetails: [
+          storeProduct(testProductId),
+          storeProduct('com.mazl.app.couple.1m', price: 29.99),
+        ],
+        notFoundIDs: const [],
+      );
+
+      final plan = await service.loadCouplePlan();
+
+      expect(plan?.productId, 'com.mazl.app.couple.1m');
+      expect(plan?.months, 1);
+      expect(plan?.price, 29.99);
+    });
+
+    test('le produit couple n\'entre pas dans les formules mazl+', () async {
+      gateway.productResponse = ProductDetailsResponse(
+        productDetails: [
+          storeProduct(testProductId),
+          storeProduct('com.mazl.app.couple.1m', price: 29.99),
+        ],
+        notFoundIDs: const [],
+      );
+
+      expect((await service.loadPlans()).map((p) => p.productId), [
+        testProductId,
+      ]);
+    });
+
+    test('inconnu du store, store indisponible ou en panne : null', () async {
+      gateway.productResponse = ProductDetailsResponse(
+        productDetails: [storeProduct(testProductId)],
+        notFoundIDs: const ['com.mazl.app.couple.1m'],
+      );
+      expect(await service.loadCouplePlan(), isNull);
+
+      gateway.available = false;
+      expect(await service.loadCouplePlan(), isNull);
+    });
+  });
+
   group('achat', () {
     test(
       'annulé par l\'utilisateur : PurchaseCancelled, rien n\'est jeté ni vérifié',

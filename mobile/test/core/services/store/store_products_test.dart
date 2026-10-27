@@ -43,6 +43,14 @@ void main() {
     );
   });
 
+  test('MAZL Couple est le produit Apple du contrat, hors des formules mazl+', () {
+    // docs/couple/ESPACE-COUPLE.md §0.1
+    expect(kCoupleProductId, 'com.mazl.app.couple.1m');
+    expect(kSubscriptionProductIds, isNot(contains(kCoupleProductId)));
+    expect(monthsFromProductId(kCoupleProductId), isNull);
+    expect(isConsumableProductId(kCoupleProductId), isFalse);
+  });
+
   test('seul iOS vend : la règle des abonnements, au même endroit', () {
     expect(canSellOn(TargetPlatform.iOS), isTrue);
     expect(canSellOn(TargetPlatform.android), isFalse);
