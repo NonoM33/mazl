@@ -1473,6 +1473,29 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось сохранить запрос. Попробуйте ещё раз.';
 
   @override
+  String get eventsMapOpenInMaps => 'Открыть в Картах';
+
+  @override
+  String get eventsMapArea => 'Примерный район';
+
+  @override
+  String get eventsMapExplore => 'Нажмите, чтобы изучить';
+
+  @override
+  String get eventsMapDone => 'Готово';
+
+  @override
+  String get eventsMapSemantics => 'Карта района мероприятия';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'Сейчас не удаётся поделиться.';
+
+  @override
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override

@@ -198,6 +198,44 @@ Widget slideUpTransition(
   ContentMaxWidth(child: child),
 );
 
+/// The page of an event: it fades in over the first part of the transition
+/// while the photo of the card flies to its header (the flight and the
+/// staggered texts are the page's own, from its route animation); going back
+/// is the same, reversed. Under reduced motion: a plain fade.
+Widget eventDetailMotion(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  if (MazlMotion.reduced(context)) {
+    return fadeMotion(context, animation, secondaryAnimation, child);
+  }
+  return FadeTransition(
+    opacity: CurvedAnimation(
+      parent: animation,
+      curve: const Interval(
+        0,
+        MazlMotion.eventPageFadeEnd,
+        curve: Curves.easeOut,
+      ),
+    ),
+    child: child,
+  );
+}
+
+Widget eventDetailTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) => eventDetailMotion(
+  context,
+  animation,
+  secondaryAnimation,
+  ContentMaxWidth(child: child),
+);
+
 Widget slideLeftTransition(
   BuildContext context,
   Animation<double> animation,

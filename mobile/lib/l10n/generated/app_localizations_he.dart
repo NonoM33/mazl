@@ -1448,6 +1448,29 @@ class AppLocalizationsHe extends AppLocalizations {
   String get eventsNotifyError => 'לא הצלחנו לשמור את הבקשה. נסו שוב.';
 
   @override
+  String get eventsMapOpenInMaps => 'פתיחה במפות';
+
+  @override
+  String get eventsMapArea => 'אזור משוער';
+
+  @override
+  String get eventsMapExplore => 'הקישו כדי לחקור';
+
+  @override
+  String get eventsMapDone => 'סיום';
+
+  @override
+  String get eventsMapSemantics => 'מפת סביבת האירוע';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'לא ניתן לשתף כרגע.';
+
+  @override
   String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
 
   @override

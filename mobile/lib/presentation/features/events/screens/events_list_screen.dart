@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +10,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../widgets/skeletons.dart';
 import '../l10n/event_texts.dart';
+import '../widgets/event_flight.dart';
+import '../widgets/event_photo.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
 
@@ -254,7 +255,10 @@ class _EventsListScreenState extends State<EventsListScreen>
     typeColor: _getTypeColor(event.eventType),
     typeIcon: _getTypeIcon(event.eventType),
     featured: featured,
-    onTap: () => context.go('/events/${event.id}'),
+    onTap: () {
+      EventFlights.prepare(event);
+      context.go('/events/${event.id}');
+    },
   );
 
   Widget _buildFlatList() => ListView.builder(
@@ -437,73 +441,24 @@ class _EventCard extends StatelessWidget {
             // Header with image or gradient + overlays
             Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: featured ? 220 : 140,
-                  decoration: BoxDecoration(
-                    gradient: event.imageUrl == null
-                        ? LinearGradient(
-                            colors: [
-                              typeColor,
-                              typeColor.withValues(alpha: 0.7),
-                            ],
-                            begin: AlignmentDirectional.topStart,
-                            end: AlignmentDirectional.bottomEnd,
-                          )
-                        : null,
+                EventFlightSource(
+                  eventId: event.id,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: featured ? 220 : 140,
+                    child: EventPhoto(
+                      imageUrl: event.imageUrl,
+                      typeColor: typeColor,
+                      typeIcon: typeIcon,
+                    ),
                   ),
-                  child: event.imageUrl != null
-                      ? CachedNetworkImage(
-                          imageUrl: event.imageUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  typeColor,
-                                  typeColor.withValues(alpha: 0.7),
-                                ],
-                              ),
-                            ),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white.withValues(alpha: 0.5),
-                                ),
-                                strokeWidth: 2,
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  typeColor,
-                                  typeColor.withValues(alpha: 0.7),
-                                ],
-                              ),
-                            ),
-                            child: Icon(
-                              typeIcon,
-                              size: 48,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Icon(
-                            typeIcon,
-                            size: 48,
-                            color: Colors.white54,
-                          ),
-                        ),
                 ),
                 // Gradient overlay for better text visibility
                 Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  height: 60,
+                  height: 90,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -689,7 +644,7 @@ class _EventCard extends StatelessWidget {
                           event.time != null
                               ? l10n.eventsDateAtTime(
                                   _formatDate(l10n, event.date),
-                                  event.time!,
+                                  eventClockText(event.time!, l10n.localeName),
                                 )
                               : _formatDate(l10n, event.date),
                           style: TextStyle(

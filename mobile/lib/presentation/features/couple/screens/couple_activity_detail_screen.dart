@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/models/couple_activity.dart';
+import '../../../../core/share/share_sheet.dart';
 import '../../../../core/services/couple_api_service.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
@@ -307,23 +307,35 @@ class _CoupleActivityDetailScreenState
     return [buttons[0], const SizedBox(width: 8), buttons[1]];
   }
 
+  Future<void> _share(BuildContext buttonContext) async {
+    final activity = _activity;
+    if (activity == null) return;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final shared = await ShareSheet.share(
+      buttonContext,
+      text: l10n.coupleFeedActivityShareText(activity.title),
+      subject: activity.title,
+    );
+    if (!shared && mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.eventsShareError)));
+    }
+  }
+
   /// Share and save, each on its own (the vertical bar stacks them).
   List<Widget> _visualButtons(CoupleActivity activity) {
     final l10n = context.l10n;
     return [
-      RoundIconButton(
-        icon: LucideIcons.share2,
-        tooltip: l10n.commonShare,
-        size: 40,
-        iconSize: 18,
-        onPressed: () {
-          final activity = _activity;
-          if (activity == null) return;
-          Share.share(
-            l10n.coupleFeedActivityShareText(activity.title),
-            subject: activity.title,
-          );
-        },
+      // The share sheet points at the button itself (large screens refuse it
+      // without an origin): the button reads its own box.
+      Builder(
+        builder: (buttonContext) => RoundIconButton(
+          icon: LucideIcons.share2,
+          tooltip: l10n.commonShare,
+          size: 40,
+          iconSize: 18,
+          onPressed: () => _share(buttonContext),
+        ),
       ),
       RoundIconButton(
         icon: _isSaved ? LucideIcons.bookMarked : LucideIcons.bookmark,

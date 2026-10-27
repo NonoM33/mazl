@@ -34,6 +34,9 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "FoldPosturePlugin") {
       FoldPosturePlugin.register(with: registrar)
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "EventMapPlugin") {
+      EventMapPlugin.register(with: registrar)
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AppIconPlugin") {
       AppIconPlugin.register(with: registrar)
     }

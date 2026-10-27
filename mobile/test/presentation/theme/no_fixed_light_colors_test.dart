@@ -154,20 +154,31 @@ const _allowed = <String, _Allowed>{
         ('color: i <= index ? AppColors.tekhelet : AppColors.hairline,', 1),
       ]),
   'lib/presentation/features/events/screens/event_detail_screen.dart': _Allowed(
-    'boutons ronds et icones blancs sur photo, ombre sous la barre du bas',
+    'titre, badge et boutons ronds blancs sur la photo (voile sombre), ombre sous la barre du bas',
     [
-      (
-        'child: Center(child: Icon(typeIcon, size: 80, color: Colors.white54)),',
-        1,
-      ),
-      ('backgroundColor: Colors.black26,', 2),
+      ('Icon(typeIcon, size: 16, color: Colors.white),', 1),
+      ('backgroundColor: Colors.black38,', 2),
       (
         'child: DirectionalIcon(LucideIcons.arrowLeft, color: Colors.white),',
         1,
       ),
       ('child: Icon(LucideIcons.share2, color: Colors.white),', 1),
-      ('color: Colors.white,', 1),
+      ('color: Colors.white,', 3),
       ('color: Colors.black.withValues(alpha: 0.05),', 1),
+    ],
+  ),
+  'lib/presentation/features/events/widgets/event_photo.dart': _Allowed(
+    'photo d evenement : voile sombre, icone et reflet blancs sur la couleur du type',
+    [
+      ('child: Icon(typeIcon, size: iconSize, color: Colors.white54),', 1),
+      ('final base = Color.alphaBlend(Colors.black26, typeColor);', 1),
+      ('final sheen = Color.alphaBlend(Colors.white24, typeColor);', 1),
+      ('child: const ColoredBox(color: Colors.white),', 1),
+      ('child: Icon(typeIcon, size: iconSize, color: Colors.white38),', 1),
+      ('Color(0x66000000),', 1),
+      ('Color(0x00000000),', 1),
+      ('Color(0x33000000),', 1),
+      ('Color(0xCC000000),', 1),
     ],
   ),
   'lib/presentation/features/events/screens/events_list_screen.dart': _Allowed(
@@ -177,8 +188,6 @@ const _allowed = <String, _Allowed>{
       ('? Colors.white', 2),
       ('valueColor: AlwaysStoppedAnimation<Color>(Colors.white),', 1),
       ('style: const TextStyle(color: Colors.white, fontSize: 12),', 1),
-      ('Colors.white.withValues(alpha: 0.5),', 1),
-      ('color: Colors.white54,', 2),
       ('Colors.black.withValues(alpha: 0.4),', 1),
       ('Icon(typeIcon, size: 14, color: Colors.white),', 1),
       ('color: Colors.white,', 3),
