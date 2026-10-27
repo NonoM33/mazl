@@ -14,7 +14,7 @@ import bolt from "./glyphs/bolt.svg" with { type: "text" };
 
 export const GLYPH_SVG: Readonly<Record<GlyphId, string>> = { heart, two_hearts, pomegranate, flame, fir, sparkle, mask, matzah, flower, sun, bolt };
 
-/** Contenu d'un SVG sans sa balise extérieure, pour le poser dans un autre SVG (icône d'app). */
-export function innerSvg(svg: string): string {
-  return svg.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+/** Le SVG complet, placé et dimensionné pour se nicher dans un autre SVG (icône d'app) : ses attributs (fill, stroke…) restent ceux du dessin. */
+export function nestedSvg(svg: string, x: number, y: number, size: number): string {
+  return svg.trim().replace(/<svg/, `<svg x="${x}" y="${y}" width="${size}" height="${size}"`);
 }

@@ -1,5 +1,5 @@
 // Textes proposés par thème (français d'abord) : le staff les relit et les modifie avant de programmer.
-import type { CampaignTexts, CampaignTextsByLang, Lang, ThemeId } from "./types";
+import type { CampaignTexts, FullTexts, Lang, ThemeId } from "./types";
 
 type Pair = readonly [title: string, subtitle: string];
 
@@ -91,7 +91,7 @@ const CTA: Readonly<Record<Lang, string>> = {
   ru: "Получить предложение",
 };
 
-export function defaultTexts(themeId: ThemeId): CampaignTextsByLang {
+export function defaultTexts(themeId: ThemeId): FullTexts {
   const build = (lang: Lang): CampaignTexts => {
     const [title, subtitle] = PAIRS[themeId][lang];
     return { title, subtitle, cta: CTA[lang] };

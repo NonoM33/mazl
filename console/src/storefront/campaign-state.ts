@@ -49,11 +49,15 @@ export function countdown(campaign: Schedulable, now: Date = new Date()): string
   }
 }
 
-/** Seule une campagne en brouillon se modifie librement ; une campagne en cours ne peut qu'être raccourcie. */
-export type Editability = "full" | "end-only" | "locked";
+/**
+ * Brouillon : tout se modifie. Programmée (pas commencée) : nom, textes et icône seulement, dates et produits sont verrouillés
+ * (il faut annuler puis recréer). En cours : on ne peut que avancer la fin. Terminée ou annulée : rien.
+ */
+export type Editability = "full" | "partial" | "end-only" | "locked";
 export function editability(campaign: Schedulable, now: Date = new Date()): Editability {
   const state = campaignState(campaign, now);
   if (state === "draft") return "full";
+  if (state === "scheduled") return "partial";
   if (state === "live") return "end-only";
   return "locked";
 }

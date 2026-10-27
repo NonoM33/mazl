@@ -63,6 +63,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
   const theme = themeById(form.themeId);
   const set = (changes: Partial<CampaignForm>): void => setForm((current) => (current === null ? current : { ...current, ...changes }));
   const readOnly = mode !== "full";
+  const contentLocked = mode === "end-only" || mode === "locked";
 
   const startsAt = parisLocalToIso(form.startsLocal);
   const endsAt = parisLocalToIso(form.endsLocal);
@@ -100,7 +101,8 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
     }
     setErrors({});
     setBusy(true);
-    const result = campaign === null ? await store.createCampaign(checked.input) : await store.updateCampaign(campaign.id, checked.input);
+    const body = mode === "partial" ? { name: checked.input.name, texts: checked.input.texts, changeAppIcon: checked.input.changeAppIcon } : checked.input;
+    const result = campaign === null ? await store.createCampaign(checked.input) : await store.updateCampaign(campaign.id, body);
     setBusy(false);
     if (!result.ok) return fail(storefrontErrorMessage(result));
     toast.notify(campaign === null ? "Brouillon enregistré." : "Campagne enregistrée.", "success");
@@ -146,7 +148,8 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
             <Badge tone={STATE_TONES[state]}>{STATE_LABELS[state]}</Badge>
             {campaign !== null && countdown(campaign, now) !== null ? <span className="muted">{countdown(campaign, now)}</span> : null}
           </div>
-          {mode === "locked" && campaign !== null ? <p className="notice notice-info">Cette campagne est {state === "cancelled" ? "annulée" : state === "ended" ? "terminée" : "programmée"} : elle ne se modifie plus. {state === "scheduled" ? "Pour changer les dates ou les remises, annulez-la et créez-en une autre." : ""}</p> : null}
+          {mode === "locked" && campaign !== null ? <p className="notice notice-info">Cette campagne est {state === "cancelled" ? "annulée" : "terminée"} : elle ne se modifie plus.</p> : null}
+          {mode === "partial" ? <p className="notice notice-info">Cette campagne est programmée : vous pouvez changer son nom, ses textes et l'icône. Les dates et les produits en remise sont verrouillés (codes déjà créés chez Apple et Stripe) : pour les changer, annulez la campagne puis créez-en une autre.</p> : null}
           {mode === "end-only" ? <p className="notice notice-info">Cette campagne est en cours : vous pouvez seulement avancer sa fin, ou l'annuler.</p> : null}
           {campaign?.apple?.error !== undefined && campaign.apple.error !== null ? (
             <p className="notice notice-error" role="alert">
@@ -175,14 +178,14 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
             <div className="stack editor-block">
               <Select label="Thème" value={form.themeId} options={THEMES.map((t) => ({ value: t.id, label: t.label }))} onChange={changeTheme} hint={readOnly ? undefined : "Le thème donne le glyphe, la couleur, l'icône de l'app et les textes de départ."} />
               <Field label="Nom interne" hint="Pour s'y retrouver dans la console ; les membres ne le voient pas." error={errors.name} counter={<span className={form.name.length > NAME_MAX ? "is-over" : undefined}>{form.name.length}&nbsp;/&nbsp;{NAME_MAX}</span>}>
-                {({ id, describedBy, invalid }) => <input id={id} className="input" value={form.name} disabled={readOnly} aria-describedby={describedBy} aria-invalid={invalid || undefined} onChange={(event) => set({ name: event.target.value })} />}
+                {({ id, describedBy, invalid }) => <input id={id} className="input" value={form.name} disabled={contentLocked} aria-describedby={describedBy} aria-invalid={invalid || undefined} onChange={(event) => set({ name: event.target.value })} />}
               </Field>
               <div className="grid-2 editor-dates">
                 <Field label="Début" error={errors.startsLocal} hint="Heure de Paris">
                   {({ id, describedBy, invalid }) => <input id={id} type="datetime-local" className="input" value={form.startsLocal} disabled={readOnly} aria-describedby={describedBy} aria-invalid={invalid || undefined} onChange={(event) => set({ startsLocal: event.target.value })} />}
                 </Field>
                 <Field label="Fin" error={errors.endsLocal ?? errors.range} hint={endsAt === null ? "Heure de Paris" : `Affichée « jusqu'au ${formatLastDay(endsAt)} » · heure de Paris`}>
-                  {({ id, describedBy, invalid }) => <input id={id} type="datetime-local" className="input" value={form.endsLocal} disabled={mode === "locked"} aria-describedby={describedBy} aria-invalid={invalid || undefined} onChange={(event) => set({ endsLocal: event.target.value })} />}
+                  {({ id, describedBy, invalid }) => <input id={id} type="datetime-local" className="input" value={form.endsLocal} disabled={mode !== "full" && mode !== "end-only"} aria-describedby={describedBy} aria-invalid={invalid || undefined} onChange={(event) => set({ endsLocal: event.target.value })} />}
                 </Field>
               </div>
               {startsAt !== null && endsAt !== null ? (
@@ -191,7 +194,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
                 </p>
               ) : null}
               <label className="check check-accent">
-                <input type="checkbox" checked={form.changeAppIcon} disabled={readOnly} onChange={(event) => set({ changeAppIcon: event.target.checked })} />
+                <input type="checkbox" checked={form.changeAppIcon} disabled={contentLocked} onChange={(event) => set({ changeAppIcon: event.target.checked })} />
                 <span>
                   Changer l'icône de l'app pendant la campagne
                   <span className="field-hint check-hint">iOS prévient chaque membre par une alerte système, et le changement n'a lieu que quand l'app est au premier plan.</span>
@@ -203,7 +206,7 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
           <section className="card" aria-labelledby="ed-texts">
             <div className="card-head">
               <h2 id="ed-texts">Textes de l'écran mazl+</h2>
-              {!readOnly ? (
+              {!contentLocked ? (
                 <Button size="s" variant="ghost" icon="wand" onClick={() => set({ texts: defaultTexts(form.themeId) })}>
                   Remettre ceux du thème
                 </Button>
@@ -211,9 +214,9 @@ export function CampaignEditor({ campaign, initial, products, others, onClose, o
             </div>
             <Tabs label="Langue des textes" prefix={PREFIX} tabs={LANGS.map((lang) => ({ id: lang, label: `${LANG_LABELS[lang]}${textErrorLangs.has(lang) ? " •" : ""}` }))} active={textLang} onSelect={(lang) => { setTextLang(lang); setPreviewLang(lang); }} />
             <div role="tabpanel" id={tabPanelId(PREFIX)} aria-labelledby={tabButtonId(PREFIX, textLang)} className="tabpanel stack editor-block">
-              <LangField label="Titre" lang={textLang} max={TITLE_MAX} value={form.texts[textLang].title} disabled={readOnly} onChange={(title) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], title } } })} error={errors.texts?.[textLang]} />
-              <LangField label="Sous-titre" lang={textLang} max={SUBTITLE_MAX} multiline value={form.texts[textLang].subtitle} disabled={readOnly} onChange={(subtitle) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], subtitle } } })} />
-              <LangField label="Bouton" lang={textLang} max={CTA_MAX} value={form.texts[textLang].cta} disabled={readOnly} onChange={(cta) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], cta } } })} hint={textLang === "fr" ? "Le français est obligatoire. Une langue laissée vide reprend le français." : undefined} />
+              <LangField label="Titre" lang={textLang} max={TITLE_MAX} value={form.texts[textLang].title} disabled={contentLocked} onChange={(title) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], title } } })} error={errors.texts?.[textLang]} />
+              <LangField label="Sous-titre" lang={textLang} max={SUBTITLE_MAX} multiline value={form.texts[textLang].subtitle} disabled={contentLocked} onChange={(subtitle) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], subtitle } } })} />
+              <LangField label="Bouton" lang={textLang} max={CTA_MAX} value={form.texts[textLang].cta} disabled={contentLocked} onChange={(cta) => set({ texts: { ...form.texts, [textLang]: { ...form.texts[textLang], cta } } })} hint={textLang === "fr" ? "Le français est obligatoire. Une langue laissée vide reprend le français." : undefined} />
             </div>
           </section>
 

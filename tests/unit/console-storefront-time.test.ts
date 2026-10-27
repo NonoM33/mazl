@@ -67,11 +67,12 @@ describe("état et compte à rebours", () => {
     expect(countdown(scheduled, new Date("2027-02-16T23:00:00Z"))).toBe("terminée depuis 2 j");
     expect(countdown({ status: "draft", ...dates })).toBeNull();
   });
-  test("seul un brouillon se modifie ; une campagne en cours ne se raccourcit que par sa fin", () => {
+  test("brouillon : tout ; programmée : nom, textes et icône ; en cours : la fin seulement ; terminée ou annulée : rien", () => {
     const at = new Date("2027-02-10T00:00:00Z");
     expect(editability({ status: "draft", ...dates }, at)).toBe("full");
     expect(editability({ status: "scheduled", ...dates }, at)).toBe("end-only");
-    expect(editability({ status: "scheduled", ...dates }, new Date("2027-02-01T00:00:00Z"))).toBe("locked");
+    expect(editability({ status: "scheduled", ...dates }, new Date("2027-02-01T00:00:00Z"))).toBe("partial");
+    expect(editability({ status: "scheduled", ...dates }, new Date("2027-02-20T00:00:00Z"))).toBe("locked");
     expect(editability({ status: "cancelled", ...dates }, at)).toBe("locked");
   });
 });

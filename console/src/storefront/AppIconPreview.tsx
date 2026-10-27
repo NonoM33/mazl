@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from "react";
-import { GLYPH_SVG, innerSvg } from "./glyphs";
+import { GLYPH_SVG, nestedSvg } from "./glyphs";
 import { isInverseTheme, themeById } from "./themes";
 import type { ThemeId } from "./types";
 
@@ -26,7 +26,7 @@ export function AppIconPreview({ themeId, size = 96, label }: { readonly themeId
       {theme === null ? (
         <circle cx="78" cy="66" r="5.5" fill={TEKHELET} />
       ) : (
-        <g transform="translate(66 47) scale(1.2)" color={theme.accent} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: innerSvg(GLYPH_SVG[theme.glyph]) }} />
+        <g color={theme.accent} dangerouslySetInnerHTML={{ __html: nestedSvg(GLYPH_SVG[theme.glyph], 66, 47, 29) }} />
       )}
     </svg>
   );

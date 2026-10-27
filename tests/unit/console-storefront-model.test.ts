@@ -69,12 +69,12 @@ describe("formulaire de campagne", () => {
     const missing = validateForm({ ...base(), startsLocal: "", endsLocal: "" });
     expect(missing.ok ? "" : missing.errors.startsLocal).not.toBe("");
   });
-  test("le français est obligatoire, une autre langue vide reprend le français, partielle est refusée", () => {
+  test("le français est obligatoire, une autre langue vide est omise de la requête, partielle est refusée", () => {
     const noFr = base();
     const frEmpty = validateForm({ ...noFr, texts: { ...noFr.texts, fr: { title: "", subtitle: "", cta: "" } } });
     expect(frEmpty.ok ? "" : frEmpty.errors.texts?.fr).toContain("obligatoire");
     const blankRu = validateForm({ ...noFr, texts: { ...noFr.texts, ru: { title: "", subtitle: "", cta: "" } } });
-    expect(blankRu.ok && blankRu.input.texts.ru).toEqual(noFr.texts.fr);
+    expect(blankRu.ok && Object.keys(blankRu.input.texts).sort()).toEqual(["en", "es", "fr", "he"]);
     const partialEs = validateForm({ ...noFr, texts: { ...noFr.texts, es: { title: "Hola", subtitle: "", cta: "" } } });
     expect(partialEs.ok ? "" : partialEs.errors.texts?.es).toContain("trois textes");
   });

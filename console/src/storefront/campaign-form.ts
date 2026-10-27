@@ -1,7 +1,7 @@
 // Formulaire d'une campagne : valeurs saisies → requête, avec vérification. Fonctions pures.
 import { defaultDiscount, defaultTexts } from "./theme-texts";
 import { daysBetween, isoToParisLocal, parisLocalToIso } from "./paris-time";
-import { LANGS, type CampaignDto, type CampaignInput, type CampaignTarget, type CampaignTextsByLang, type Lang, type ProductDto, type ThemeId } from "./types";
+import { LANGS, type CampaignDto, type CampaignInput, type CampaignTarget, type CampaignTexts, type FullTexts, type Lang, type ProductDto, type ThemeId } from "./types";
 
 export const NAME_MAX = 80;
 export const TITLE_MAX = 60;
@@ -24,7 +24,7 @@ export interface CampaignForm {
   /** Heure de Paris, format `datetime-local`. */
   readonly startsLocal: string;
   readonly endsLocal: string;
-  readonly texts: CampaignTextsByLang;
+  readonly texts: FullTexts;
   readonly targets: readonly TargetDraft[];
   readonly changeAppIcon: boolean;
 }
@@ -52,6 +52,13 @@ export function defaultTargets(products: readonly ProductDto[], themeId: ThemeId
     });
 }
 
+const EMPTY_TEXTS = { title: "", subtitle: "", cta: "" } as const;
+
+/** Une langue absente de la campagne s'affiche vide dans le formulaire (le français la remplace à l'affichage). */
+export function fullTexts(texts: CampaignInput["texts"]): FullTexts {
+  return { fr: texts.fr, en: texts.en ?? EMPTY_TEXTS, he: texts.he ?? EMPTY_TEXTS, es: texts.es ?? EMPTY_TEXTS, ru: texts.ru ?? EMPTY_TEXTS };
+}
+
 export function newForm(themeId: ThemeId, products: readonly ProductDto[], name: string, startsAt: string, endsAt: string): CampaignForm {
   return { themeId, name, startsLocal: isoToParisLocal(startsAt), endsLocal: isoToParisLocal(endsAt), texts: defaultTexts(themeId), targets: defaultTargets(products, themeId), changeAppIcon: true };
 }
@@ -62,7 +69,7 @@ export function formFromCampaign(campaign: CampaignDto, products: readonly Produ
     name: campaign.name,
     startsLocal: isoToParisLocal(campaign.startsAt),
     endsLocal: isoToParisLocal(campaign.endsAt),
-    texts: campaign.texts,
+    texts: fullTexts(campaign.texts),
     targets: defaultTargets(products, campaign.themeId, campaign.targets),
     changeAppIcon: campaign.changeAppIcon,
   };
@@ -114,8 +121,9 @@ export function validateForm(form: CampaignForm): FormResult {
   if (Object.keys(targetErrors).length > 0) errors.targets = targetErrors;
 
   if (Object.keys(errors).length > 0 || startsAt === null || endsAt === null) return { ok: false, errors };
-  const filledTexts = Object.fromEntries(LANGS.map((lang) => [lang, form.texts[lang].title.trim() === "" && form.texts[lang].subtitle.trim() === "" && form.texts[lang].cta.trim() === "" ? form.texts.fr : form.texts[lang]])) as CampaignTextsByLang;
-  const trimmed = Object.fromEntries(LANGS.map((lang) => [lang, { title: filledTexts[lang].title.trim(), subtitle: filledTexts[lang].subtitle.trim(), cta: filledTexts[lang].cta.trim() }])) as CampaignTextsByLang;
+  const clean = (lang: Lang): CampaignTexts => ({ title: form.texts[lang].title.trim(), subtitle: form.texts[lang].subtitle.trim(), cta: form.texts[lang].cta.trim() });
+  const isBlank = (lang: Lang): boolean => form.texts[lang].title.trim() === "" && form.texts[lang].subtitle.trim() === "" && form.texts[lang].cta.trim() === "";
+  const trimmed: CampaignInput["texts"] = { fr: clean("fr"), ...Object.fromEntries((["en", "he", "es", "ru"] as const).filter((lang) => !isBlank(lang)).map((lang) => [lang, clean(lang)])) };
   return { ok: true, input: { themeId: form.themeId, name, startsAt, endsAt, texts: trimmed, targets, changeAppIcon: form.changeAppIcon } };
 }
 

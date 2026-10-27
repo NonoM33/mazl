@@ -241,7 +241,7 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || startDate < new Date().toISOString().slice(0, 10)) return c.json(fail("invalid_price", "La date d'effet ne peut pas être dans le passé."), 400);
     const newFrance = Number(match[1]) / 100;
     const changes: ApplePriceChangeDto[] = product.applePrices.map((price) => ({ territory: price.territory, currency: price.currency, from: price.amount, to: price.territory === "FRA" ? newFrance.toFixed(2) : convert(newFrance, price.territory) }));
-    const dryRun = body["dryRun"] === true;
+    const dryRun = body["dryRun"] !== false; // vrai par défaut, comme le serveur
     if (!dryRun) {
       replaceProduct({ ...product, applePrices: product.applePrices.map((price) => ({ ...price, amount: changes.find((change) => change.territory === price.territory)?.to ?? price.amount })) });
     }
@@ -312,7 +312,10 @@ export function registerStorefrontMock(api: Hono, meOf: Guard): void {
     const body = (await json(c)) as Partial<CampaignInput>;
     const live = current.status === "scheduled" && Date.parse(current.startsAt) <= now() && now() < Date.parse(current.endsAt);
     const keys = Object.keys(body);
-    if (current.status !== "draft" && !(live && keys.length === 1 && keys[0] === "endsAt" && Date.parse(body.endsAt ?? "") < Date.parse(current.endsAt))) return c.json(fail("campaign_locked"), 409);
+    const started = Date.parse(current.startsAt) <= now();
+    const endsEarlier = live && keys.length === 1 && keys[0] === "endsAt" && Date.parse(body.endsAt ?? "") < Date.parse(current.endsAt);
+    const contentOnly = current.status === "scheduled" && !started && keys.every((key) => ["name", "texts", "changeAppIcon"].includes(key));
+    if (current.status !== "draft" && !endsEarlier && !contentOnly) return c.json(fail("campaign_locked"), 409);
     const next: CampaignDto = { ...current, ...body, updatedAt: new Date().toISOString() };
     const problem = validate(next);
     if (problem !== null) return c.json(fail("invalid_campaign", problem), 400);

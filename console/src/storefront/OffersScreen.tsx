@@ -46,6 +46,7 @@ interface RowProps {
 
 function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, onDialog, onDragStart, onDragEnd, onDropHere }: RowProps): ReactElement {
   const france = applePrice(product, "FRA");
+  const webUnavailable = product.web?.unavailable === true;
   const others = product.applePrices.filter((price) => price.territory !== "FRA");
   const allow = (event: DragEvent): void => event.preventDefault();
   return (
@@ -88,10 +89,10 @@ function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, 
       <td>
         <span className="price-cell">
           <span className="cell-stack">
-            {france !== undefined ? <strong className="price-main">{formatMoney(france.amount, france.currency)}</strong> : <span className="muted">{product.appleError ?? "Prix indisponible"}</span>}
+            {france !== undefined ? <strong className="price-main">{formatMoney(france.amount, france.currency)}</strong> : <span className="muted">Prix indisponible</span>}
             {others.length > 0 ? <span className="cell-sub">{others.map((price) => `${SHORT[price.territory] ?? price.territory} ${formatMoney(price.amount, price.currency)}`).join(" · ")}</span> : null}
           </span>
-          <Button size="s" variant="secondary" disabled={!canWrite} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix Apple de ${product.label}`} onClick={() => onDialog("apple")}>
+          <Button size="s" variant="secondary" disabled={!canWrite || france === undefined} title={canWrite ? undefined : SUPER_ADMIN_ONLY} aria-label={`Changer le prix Apple de ${product.label}`} onClick={() => onDialog("apple")}>
             Changer
           </Button>
         </span>
@@ -99,6 +100,8 @@ function OfferRow({ product, index, count, canWrite, dragging, onMove, onPatch, 
       <td>
         {product.web === null ? (
           <span className="muted">Non vendu sur le web</span>
+        ) : webUnavailable ? (
+          <span className="muted">Prix indisponible</span>
         ) : (
           <span className="price-cell">
             <strong className="price-main">{formatCents(product.web.amountCents, product.web.currency)}</strong>

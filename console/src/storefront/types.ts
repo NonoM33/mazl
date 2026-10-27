@@ -32,7 +32,7 @@ export interface ProductDto {
   readonly applePrices: readonly StorePriceDto[];
   readonly appleError: string | null;
   /** Prix web (Stripe) ; null tant que le produit n'est pas vendu sur le web. */
-  readonly web: { readonly priceId: string | null; readonly amountCents: number; readonly currency: string } | null;
+  readonly web: { readonly priceId: string | null; readonly amountCents: number; readonly currency: string; readonly unavailable?: boolean } | null;
 }
 
 export interface ProductsDto {
@@ -98,7 +98,11 @@ export interface CampaignTexts {
   readonly subtitle: string;
   readonly cta: string;
 }
-export type CampaignTextsByLang = Readonly<Record<Lang, CampaignTexts>>;
+/** Le français est obligatoire ; une langue absente retombe sur lui. */
+export type CampaignTextsByLang = Readonly<{ fr: CampaignTexts } & Partial<Record<Exclude<Lang, "fr">, CampaignTexts>>>;
+
+/** Textes saisis dans le formulaire : les cinq langues, vides si non renseignées. */
+export type FullTexts = Readonly<Record<Lang, CampaignTexts>>;
 
 export interface CampaignTarget {
   readonly productId: string;
