@@ -32,6 +32,10 @@ export const PERMISSIONS = [
   "audit.read",
   // Staff accounts and their roles.
   "staff.manage",
+  // Offers shown in the app and seasonal campaigns: display, drafts, schedule.
+  "storefront.manage",
+  // What writes to the stores (Apple, Stripe): prices, publishing and cancelling a campaign.
+  "storefront.stores",
   // Events, campaigns, subscriptions: the historical console screens.
   "operations.manage",
 ] as const;
@@ -48,7 +52,7 @@ const MODERATION: readonly Permission[] = [
 
 export const ROLE_PERMISSIONS: Readonly<Record<StaffRole, readonly Permission[]>> = {
   super_admin: PERMISSIONS,
-  admin: PERMISSIONS.filter((permission) => permission !== "staff.manage"),
+  admin: PERMISSIONS.filter((permission) => permission !== "staff.manage" && permission !== "storefront.stores"),
   moderator: MODERATION,
   verifier: ["dashboard.read", "members.read", "verification.review"],
   support: ["dashboard.read", "members.read", "reports.read"],

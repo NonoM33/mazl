@@ -1,7 +1,7 @@
 import { OFFERS, type Offer } from "../domain/offers";
 import { WITHDRAWAL_TEXT, WITHDRAWAL_VERSION } from "../domain/withdrawal";
 import type { Clock } from "./clock";
-import type { StripeGateway } from "./ports";
+import type { CheckoutOverrides, StripeGateway } from "./ports";
 import type { BillingSettings } from "./settings";
 
 export interface CatalogOffer {
@@ -52,6 +52,7 @@ export class CatalogService {
     private readonly gateway: StripeGateway,
     private readonly settings: BillingSettings,
     private readonly clock: Clock,
+    private readonly overrides?: CheckoutOverrides,
   ) {}
 
   async catalog(): Promise<CatalogView> {
@@ -64,7 +65,7 @@ export class CatalogService {
   }
 
   private async describeOffer(offer: Offer): Promise<CatalogOffer | undefined> {
-    const priceId = this.settings.prices[offer.id];
+    const priceId = (await this.overrides?.priceIdFor(offer.productId)) ?? this.settings.prices[offer.id];
     if (priceId === undefined) return undefined;
     const price = await this.gateway.retrievePrice(priceId);
     if (price.unitAmount === null) {

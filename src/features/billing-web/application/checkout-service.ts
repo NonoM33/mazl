@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { AlreadySubscribedError, NoCustomerError, OfferUnavailableError, WithdrawalWaiverRequiredError } from "../domain/errors";
 import type { Offer } from "../domain/offers";
 import { waiverConfirmation, WITHDRAWAL_TEXT, WITHDRAWAL_VERSION } from "../domain/withdrawal";
-import type { BillingRepository, StripeGateway } from "./ports";
+import type { BillingRepository, CheckoutOverrides, StripeGateway } from "./ports";
 import type { BillingSettings } from "./settings";
 
 export interface CheckoutRequest {
@@ -35,6 +35,7 @@ export class CheckoutService {
     private readonly gateway: StripeGateway,
     private readonly repository: BillingRepository,
     private readonly settings: BillingSettings,
+    private readonly overrides?: CheckoutOverrides,
   ) {}
 
   start(userId: number, request: CheckoutRequest): Promise<{ readonly url: string }> {
@@ -44,8 +45,9 @@ export class CheckoutService {
   private async startNow(userId: number, request: CheckoutRequest): Promise<{ readonly url: string }> {
     const { offer } = request;
     if (request.waiverAccepted !== true || request.waiverVersion !== WITHDRAWAL_VERSION) throw new WithdrawalWaiverRequiredError();
-    const priceId = this.settings.prices[offer.id];
+    const priceId = (await this.overrides?.priceIdFor(offer.productId)) ?? this.settings.prices[offer.id];
     if (priceId === undefined) throw new OfferUnavailableError(offer.id);
+    const promotionCodeId = await this.overrides?.promotionCodeFor(offer.productId);
     if (offer.kind === "subscription") await this.refuseSecondSubscription(userId);
     const customerId = await this.customerOf(userId);
     // A subscription checkout left open in another tab could still be paid.
@@ -66,6 +68,7 @@ export class CheckoutService {
       waiverConfirmation: waiverConfirmation(new Date()),
       successUrl: this.settings.successUrl,
       cancelUrl: this.settings.cancelUrl,
+      ...(promotionCodeId === undefined ? {} : { promotionCodeId }),
     });
     await this.repository.attachCheckoutSession(waiverId, session.id);
     return { url: session.url };

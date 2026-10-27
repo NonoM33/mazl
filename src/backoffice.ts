@@ -6,6 +6,8 @@ import { createGoogleVerifier } from "./features/auth/google-token";
 import { buildConsole } from "./features/console/console.bundle";
 import { registerConsoleRoutes } from "./features/console/console.routes";
 import { createMatchingModule } from "./features/matching/matching.module";
+import type { AppStorePricing, WebPricing } from "./features/storefront/application/ports";
+import { createStorefrontModule } from "./features/storefront/storefront.module";
 import type { StaffVariables } from "./features/staff/application/ports";
 import { createStaffModule } from "./features/staff/staff.module";
 import type { AccountEnforcement } from "./features/trust-safety/application/ports";
@@ -24,6 +26,9 @@ export interface BackofficeDeps {
   readonly env: Readonly<Record<string, string | undefined>>;
   // Closes the member's open sockets once their account is disabled.
   readonly closeConnections: (userId: number) => void;
+  // Adapters to the stores; absent, the storefront answers "store_not_configured".
+  readonly appStore?: AppStorePricing;
+  readonly webPricing?: WebPricing;
 }
 
 function accountEnforcement(sql: Sql, closeConnections: (userId: number) => void): AccountEnforcement {
@@ -58,6 +63,14 @@ export function createBackoffice(deps: BackofficeDeps) {
     enforcement: accountEnforcement(sql, deps.closeConnections),
   });
   const matching = createMatchingModule({ sql, audit: audit.audit, requirePermission: staff.requirePermission });
+  const storefront = createStorefrontModule({
+    sql,
+    audit: audit.audit,
+    requirePermission: staff.requirePermission,
+    env,
+    ...(deps.appStore === undefined ? {} : { appStore: deps.appStore }),
+    ...(deps.webPricing === undefined ? {} : { webPricing: deps.webPricing }),
+  });
 
   function register<E extends Env>(app: Hono<E>): void {
     const api = new Hono<{ Variables: StaffVariables }>();
@@ -65,7 +78,9 @@ export function createBackoffice(deps: BackofficeDeps) {
     audit.registerRoutes(api, staff.requirePermission);
     trustSafety.register(api);
     matching.registerAdminRoutes(api);
+    storefront.registerAdminRoutes(api);
     app.route("/", api);
+    storefront.registerPublicRoutes(app);
     registerConsoleRoutes(app, { build: () => buildConsole({ development }), development });
   }
 
@@ -75,6 +90,7 @@ export function createBackoffice(deps: BackofficeDeps) {
     await staff.ensureSchema();
     await trustSafety.ensureSchema();
     await matching.ensureSchema();
+    await storefront.ensureSchema();
   }
 
   return { register, ensureSchemas, feed: matching.feed, startSweeper: () => trustSafety.startSweeper() };

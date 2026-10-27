@@ -7,7 +7,7 @@ import { PgCreditsRepository } from "../credits/infra/pg-credits-repository";
 import { CatalogService } from "./application/catalog-service";
 import { CheckoutService, PortalService } from "./application/checkout-service";
 import { systemClock, type Clock } from "./application/clock";
-import type { BillingRepository, StripeGateway, WebhookVerifier } from "./application/ports";
+import type { BillingRepository, CheckoutOverrides, StripeGateway, WebhookVerifier } from "./application/ports";
 import { StatusService } from "./application/status-service";
 import { SubscriptionCancellation } from "./application/subscription-cancellation";
 import { SubscriptionSync } from "./application/subscription-sync";
@@ -29,6 +29,8 @@ export interface BillingWebOptions {
   readonly verifier?: WebhookVerifier;
   readonly repository?: BillingRepository;
   readonly clock?: Clock;
+  // Price and promotion decided in the back-office storefront; none: the environment variables.
+  readonly overrides?: CheckoutOverrides;
 }
 
 export interface BillingWebModule {
@@ -48,8 +50,8 @@ function buildServices(options: BillingWebOptions, config: BillingConfig): { ser
   const clock = options.clock ?? systemClock;
   const sync = new SubscriptionSync({ gateway, repository, settings: config.settings });
   const services: BillingServices = {
-    catalog: new CatalogService(gateway, config.settings, clock),
-    checkout: new CheckoutService(gateway, repository, config.settings),
+    catalog: new CatalogService(gateway, config.settings, clock, options.overrides),
+    checkout: new CheckoutService(gateway, repository, config.settings, options.overrides),
     portal: new PortalService(gateway, repository, config.settings),
     status: new StatusService(repository, sync, clock),
     webhook: new WebhookService({

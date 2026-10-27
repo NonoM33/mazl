@@ -9,6 +9,8 @@ export const AUDIT_TARGET_TYPES = [
   "verification",
   "authority_request",
   "matching_params",
+  "storefront_product",
+  "storefront_campaign",
   "staff",
   "photo",
   "system",

@@ -12,6 +12,8 @@ export type AuditTargetType =
   | "verification"
   | "authority_request"
   | "matching_params"
+  | "storefront_product"
+  | "storefront_campaign"
   | "staff"
   | "photo"
   | "system";
