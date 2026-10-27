@@ -1,0 +1,8 @@
+{
+  "storefrontCampaignUntil": "Hasta el {date}",
+  "storefrontDiscountBadge": "-{percent} %",
+  "storefrontCampaignDefaultCta": "Aprovecha la oferta",
+  "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
+  "settingsFestiveIconTitle": "Icono de las fiestas",
+  "settingsFestiveIconSubtitle": "El icono de la app cambia en las fiestas. iOS muestra un aviso cada vez que cambia."
+}

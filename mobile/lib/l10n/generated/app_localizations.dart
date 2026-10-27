@@ -6839,6 +6839,42 @@ abstract class AppLocalizations {
   /// **'Aucun abonnement trouvé.'**
   String get settingsRestoreNothing;
 
+  /// Dernier jour d'une offre de saison, sous son titre. {date} = date longue (« 14 février 2027 »).
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu\'au {date}'**
+  String storefrontCampaignUntil(String date);
+
+  /// Pastille de réduction d'une offre de saison sur une formule mazl+. {percent} est un nombre entier (10 à 90). Doit rester très court.
+  ///
+  /// In fr, this message translates to:
+  /// **'-{percent} %'**
+  String storefrontDiscountBadge(int percent);
+
+  /// Texte du bouton d'une offre de saison quand le serveur n'en donne pas. Ouvre le code d'offre de l'App Store ou lance l'achat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profiter de l\'offre'**
+  String get storefrontCampaignDefaultCta;
+
+  /// Phrase lue par le lecteur d'écran pour une formule mise en avant. {plan} = la phrase habituelle de la formule, {highlight} = l'accroche (« Le plus choisi »).
+  ///
+  /// In fr, this message translates to:
+  /// **'{plan}. {highlight}'**
+  String storefrontPlanSemanticsHighlight(String plan, String highlight);
+
+  /// Titre du réglage (interrupteur) qui autorise l'app à changer son icône pendant les fêtes (Saint-Valentin, Hanoucca, Noël...).
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône des fêtes'**
+  String get settingsFestiveIconTitle;
+
+  /// Explication sous le réglage « Icône des fêtes ». Dit que iOS montre sa propre alerte à chaque changement d'icône.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'icône de l\'app change à l\'approche des fêtes. iOS affiche une alerte à chaque changement.'**
+  String get settingsFestiveIconSubtitle;
+
   /// Page Vérification : petite étiquette au-dessus du grand titre.
   ///
   /// In fr, this message translates to:

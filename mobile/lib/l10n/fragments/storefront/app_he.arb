@@ -1,0 +1,8 @@
+{
+  "storefrontCampaignUntil": "עד {date}",
+  "storefrontDiscountBadge": "‎-{percent}%",
+  "storefrontCampaignDefaultCta": "למימוש ההצעה",
+  "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
+  "settingsFestiveIconTitle": "סמל החגים",
+  "settingsFestiveIconSubtitle": "סמל האפליקציה מתחלף סביב החגים. ‏iOS מציגה התראה בכל החלפה."
+}

@@ -1,0 +1,8 @@
+{
+  "storefrontCampaignUntil": "До {date}",
+  "storefrontDiscountBadge": "-{percent} %",
+  "storefrontCampaignDefaultCta": "Воспользоваться предложением",
+  "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
+  "settingsFestiveIconTitle": "Праздничный значок",
+  "settingsFestiveIconSubtitle": "Значок приложения меняется в праздники. При каждой смене iOS показывает уведомление."
+}
