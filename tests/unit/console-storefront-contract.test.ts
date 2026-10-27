@@ -222,11 +222,11 @@ describe("la console lit les droits comme le serveur les donne", () => {
     const wanted = permissionOf("storefrontListProducts");
     expect(wanted).toBe("storefront.manage");
     expect(permissionOf("storefrontListCampaigns")).toBe(wanted);
-    expect(SECTIONS.filter((section) => section.id === "offres" || section.id === "campagnes").map((section) => section.permission)).toEqual([wanted, wanted]);
+    expect(SECTIONS.filter((section) => section.id === "offres" || section.id === "campagnes").map((section) => String(section.permission))).toEqual([String(wanted), String(wanted)]);
   });
   test("écrire chez Apple et Stripe se décide sur la permission que le serveur exige, pas sur le nom du rôle", () => {
     const writes = ["storefrontApplePrice", "storefrontWebPrice", "storefrontPublishCampaign", "storefrontCancelCampaign"].map(permissionOf);
-    expect(new Set(writes)).toEqual(new Set(["storefront.stores"]));
+    expect([...new Set(writes)]).toEqual(["storefront.stores"]);
     expect(canWriteStorefront(meFor("super_admin"))).toBe(true);
     expect(canWriteStorefront(meFor("admin"))).toBe(false);
     expect(canWriteStorefront({ permissions: ["storefront.stores"] })).toBe(true);
