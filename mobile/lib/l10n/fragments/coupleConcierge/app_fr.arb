@@ -1,0 +1,216 @@
+{
+  "coupleConciergeEyebrow": "Inclus dans MAZL Couple",
+  "@coupleConciergeEyebrow": {
+    "description": "Étiquette en capitales au-dessus du titre de la conciergerie : rappelle que le service est inclus dans l'abonnement MAZL Couple."
+  },
+  "coupleConciergeTitle": "Votre conciergerie",
+  "@coupleConciergeTitle": {
+    "description": "Gros titre de l'écran de la conciergerie du couple."
+  },
+  "coupleConciergeIntro": "Demandez, on s'occupe du reste. L'assistant prépare des idées tout de suite, l'équipe MAZL réserve et confirme.",
+  "@coupleConciergeIntro": {
+    "description": "Phrase sous le titre de la conciergerie : l'assistant automatique propose des idées tout de suite, l'équipe MAZL réserve et confirme."
+  },
+  "coupleConciergeQuickTable": "Réserver une table",
+  "@coupleConciergeQuickTable": {
+    "description": "Demande rapide de la conciergerie : réserver une table au restaurant. Bouton de 56 pt de haut, une à deux lignes."
+  },
+  "coupleConciergeQuickSurprise": "Organiser une surprise",
+  "@coupleConciergeQuickSurprise": {
+    "description": "Demande rapide de la conciergerie : organiser une surprise pour le ou la partenaire."
+  },
+  "coupleConciergeQuickGift": "Trouver un cadeau",
+  "@coupleConciergeQuickGift": {
+    "description": "Demande rapide de la conciergerie : trouver un cadeau."
+  },
+  "coupleConciergeQuickWeekend": "Planifier un week-end",
+  "@coupleConciergeQuickWeekend": {
+    "description": "Demande rapide de la conciergerie : planifier un week-end à deux."
+  },
+  "coupleConciergeStartTable": "Je voudrais réserver une table pour deux",
+  "@coupleConciergeStartTable": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Réserver une table » ; il le complète. Sans point final ni espace final."
+  },
+  "coupleConciergeStartSurprise": "Je voudrais organiser une surprise pour",
+  "@coupleConciergeStartSurprise": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Organiser une surprise » ; il le complète (la suite est le prénom ou l'occasion). Sans espace final."
+  },
+  "coupleConciergeStartGift": "Je cherche un cadeau pour",
+  "@coupleConciergeStartGift": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Trouver un cadeau » ; il le complète. Sans espace final."
+  },
+  "coupleConciergeStartWeekend": "Je voudrais planifier un week-end à",
+  "@coupleConciergeStartWeekend": {
+    "description": "Début de phrase placé dans le champ de saisie quand le membre touche « Planifier un week-end » ; il le complète (la suite est un lieu). Sans espace final."
+  },
+  "coupleConciergeInProgress": "En cours",
+  "@coupleConciergeInProgress": {
+    "description": "Étiquette en capitales de la liste des demandes de conciergerie encore ouvertes."
+  },
+  "coupleConciergeClosedSection": "Terminées",
+  "@coupleConciergeClosedSection": {
+    "description": "Étiquette en capitales de la liste des demandes terminées ou annulées, affichées plus discrètement."
+  },
+  "coupleConciergeStatusClosed": "Terminée",
+  "@coupleConciergeStatusClosed": {
+    "description": "Étiquette d'une demande de conciergerie close (terminée)."
+  },
+  "coupleConciergeStatusCancelled": "Annulée",
+  "@coupleConciergeStatusCancelled": {
+    "description": "Étiquette d'une demande de conciergerie annulée par le couple."
+  },
+  "coupleConciergeNoRequests": "Aucune demande pour l'instant. Écrivez-nous ce que vous imaginez.",
+  "@coupleConciergeNoRequests": {
+    "description": "Phrase affichée à la place de la liste quand le couple n'a encore aucune demande de conciergerie."
+  },
+  "coupleConciergeBefore": "Avant {day}",
+  "@coupleConciergeBefore": {
+    "description": "Échéance d'une demande dont la date souhaitée tombe dans la semaine : « Avant jeudi ». {day} est le nom du jour de la semaine, déjà écrit dans la langue du membre (jamais décliné).",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergeOnDate": "Pour le {date}",
+  "@coupleConciergeOnDate": {
+    "description": "Date souhaitée d'une demande plus éloignée : « Pour le 9 novembre ». {date} est la date déjà mise en forme (jour et mois).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergeStep1": "Demande reçue",
+  "@coupleConciergeStep1": {
+    "description": "Première étape de la barre de progression d'une demande : la demande est reçue."
+  },
+  "coupleConciergeStep2": "Idée choisie",
+  "@coupleConciergeStep2": {
+    "description": "Deuxième étape de la barre de progression d'une demande : le couple a choisi une idée."
+  },
+  "coupleConciergeStep3": "Réservé par l'équipe",
+  "@coupleConciergeStep3": {
+    "description": "Troisième étape de la barre de progression d'une demande : l'équipe MAZL a réservé."
+  },
+  "coupleConciergeStepSemantics": "étape {step} sur 3 : {label}",
+  "@coupleConciergeStepSemantics": {
+    "description": "Description lue par VoiceOver de la barre de progression d'une demande. {step} vaut 1, 2 ou 3 ; {label} est le nom de l'étape atteinte.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "coupleConciergePrivacy": "Vos demandes sont lues par un assistant automatique puis par l'équipe MAZL.",
+  "@coupleConciergePrivacy": {
+    "description": "Mention de vie privée obligatoire (contrat §0.4), toujours visible sous le champ de saisie : ce que lit l'assistant automatique puis l'équipe. Ne pas reformuler le sens."
+  },
+  "coupleConciergeComposerHint": "Demandez à la conciergerie…",
+  "@coupleConciergeComposerHint": {
+    "description": "Texte indicatif du champ de saisie de la conciergerie."
+  },
+  "coupleConciergeSend": "Envoyer",
+  "@coupleConciergeSend": {
+    "description": "Libellé accessible du bouton rond d'envoi d'un message à la conciergerie."
+  },
+  "coupleConciergeWaiting": "L'assistant prépare une réponse",
+  "@coupleConciergeWaiting": {
+    "description": "Libellé accessible de l'indicateur « … » affiché pendant que l'assistant prépare sa réponse."
+  },
+  "coupleConciergeRoleAssistant": "Assistant",
+  "@coupleConciergeRoleAssistant": {
+    "description": "Étiquette en capitales au-dessus d'un message de l'assistant automatique."
+  },
+  "coupleConciergeRoleTeam": "Équipe MAZL",
+  "@coupleConciergeRoleTeam": {
+    "description": "Étiquette en capitales au-dessus d'un message de l'équipe MAZL."
+  },
+  "coupleConciergePartnerFallback": "Votre partenaire",
+  "@coupleConciergePartnerFallback": {
+    "description": "Nom affiché au-dessus d'un message de l'autre membre du couple quand son prénom est inconnu."
+  },
+  "coupleConciergeThreadEyebrow": "Votre demande",
+  "@coupleConciergeThreadEyebrow": {
+    "description": "Étiquette en capitales au-dessus du titre d'une demande ouverte, et titre de la page d'une conversation avant son chargement."
+  },
+  "coupleConciergeNewEyebrow": "Nouvelle demande",
+  "@coupleConciergeNewEyebrow": {
+    "description": "Étiquette en capitales de la conversation quand aucune demande n'est ouverte : le prochain message crée une demande."
+  },
+  "coupleConciergeNewLine": "Dites-nous ce que vous imaginez, ou choisissez une demande rapide.",
+  "@coupleConciergeNewLine": {
+    "description": "Phrase affichée quand aucune demande n'est ouverte, au-dessus du champ de saisie."
+  },
+  "coupleConciergeOptionsLabel": "Idées proposées",
+  "@coupleConciergeOptionsLabel": {
+    "description": "Étiquette en capitales et libellé accessible du groupe des idées proposées par l'assistant (une seule peut être choisie)."
+  },
+  "coupleConciergeChosen": "Choisie",
+  "@coupleConciergeChosen": {
+    "description": "Pastille sur l'idée que le couple a retenue."
+  },
+  "coupleConciergeBook": "Oui, réservez",
+  "@coupleConciergeBook": {
+    "description": "Bouton qui valide l'idée cochée : l'équipe MAZL réserve. Désactivé tant qu'aucune idée n'est cochée."
+  },
+  "coupleConciergeOtherIdea": "Autre idée",
+  "@coupleConciergeOtherIdea": {
+    "description": "Bouton qui demande une autre idée à l'assistant."
+  },
+  "coupleConciergeOtherIdeaMessage": "Pouvez-vous me proposer une autre idée ?",
+  "@coupleConciergeOtherIdeaMessage": {
+    "description": "Message envoyé à l'assistant quand le membre touche « Autre idée »."
+  },
+  "coupleConciergeCancel": "Annuler la demande",
+  "@coupleConciergeCancel": {
+    "description": "Action discrète qui annule la demande ouverte (une confirmation suit)."
+  },
+  "coupleConciergeCancelTitle": "Annuler cette demande ?",
+  "@coupleConciergeCancelTitle": {
+    "description": "Titre de la confirmation d'annulation d'une demande."
+  },
+  "coupleConciergeCancelBody": "L'équipe MAZL ne s'en occupera plus.",
+  "@coupleConciergeCancelBody": {
+    "description": "Explication de la confirmation d'annulation d'une demande."
+  },
+  "coupleConciergeCancelConfirm": "Oui, annuler",
+  "@coupleConciergeCancelConfirm": {
+    "description": "Bouton qui confirme l'annulation de la demande."
+  },
+  "coupleConciergeKeep": "Garder la demande",
+  "@coupleConciergeKeep": {
+    "description": "Bouton qui renonce à annuler la demande."
+  },
+  "coupleConciergeNoteClosed": "Cette demande est terminée.",
+  "@coupleConciergeNoteClosed": {
+    "description": "Phrase affichée à la place du champ de saisie quand la demande est terminée."
+  },
+  "coupleConciergeNoteCancelled": "Cette demande est annulée.",
+  "@coupleConciergeNoteCancelled": {
+    "description": "Phrase affichée à la place du champ de saisie quand la demande est annulée."
+  },
+  "coupleConciergeNoteFresh": "L'équipe MAZL a reçu votre demande et vous répond ici.",
+  "@coupleConciergeNoteFresh": {
+    "description": "Phrase sous une demande que l'équipe MAZL n'a pas encore traitée (l'assistant n'a pas répondu) : l'équipe répond elle-même."
+  },
+  "coupleConciergeNoteChosen": "L'équipe MAZL réserve votre idée et vous confirme ici.",
+  "@coupleConciergeNoteChosen": {
+    "description": "Phrase sous une demande dont le couple a choisi une idée : l'équipe réserve."
+  },
+  "coupleConciergeNoteBooked": "C'est réservé : les détails sont dans la conversation.",
+  "@coupleConciergeNoteBooked": {
+    "description": "Phrase sous une demande que l'équipe a réservée."
+  },
+  "coupleConciergeDiscover": "Découvrir MAZL Couple",
+  "@coupleConciergeDiscover": {
+    "description": "Bouton de l'écran d'appel à l'abonnement de la conciergerie : ouvre la page MAZL Couple."
+  },
+  "coupleConciergePaywallLine": "Un service qui s'occupe de tout, pour vous deux. L'assistant prépare des idées, l'équipe MAZL réserve et confirme.",
+  "@coupleConciergePaywallLine": {
+    "description": "Phrase de l'écran d'appel à l'abonnement de la conciergerie, sous le titre."
+  }
+}
