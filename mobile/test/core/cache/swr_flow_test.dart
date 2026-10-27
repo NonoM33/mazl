@@ -87,7 +87,7 @@ void main() {
 
         await ApiService().sendSwipe(targetUserId: 2, action: 'like');
 
-        final kept = ApiService().peekDiscoverProfiles()!;
+        final kept = ApiService.peekDiscoverProfiles()!;
         expect(kept.map((p) => p.id), [1, 3]);
         expect(DataPrefetchService().discoverProfiles!.map((p) => p.id), [
           1,
@@ -95,7 +95,7 @@ void main() {
         ]);
         expect(DataPrefetchService().matchesNeedRefresh, isTrue);
         expect(
-          ApiService().peekMatches(),
+          ApiService.peekMatches(),
           isNotNull,
           reason: 'still shown meanwhile',
         );
@@ -108,7 +108,7 @@ void main() {
     await withServer(() async {
       await DataPrefetchService().fetchDiscoverProfiles();
       await ApiService().blockUser(2);
-      expect(ApiService().peekDiscoverProfiles(), isNull);
+      expect(ApiService.peekDiscoverProfiles(), isNull);
       expect(DataPrefetchService().discoverProfiles, isNull);
     });
   });
@@ -134,7 +134,7 @@ void main() {
 
     expect(DataPrefetchService().matches, isNull);
     expect(DataPrefetchService().discoverProfiles, isNull);
-    expect(ApiService().peekMatches(), isNull);
+    expect(ApiService.peekMatches(), isNull);
     expect(
       (await SharedPreferences.getInstance()).getString(
         ApiSnapshots.preferencesKey,
@@ -151,6 +151,6 @@ void main() {
     await ApiSnapshots.instance.bindOwner('6');
     await DataPrefetchService().hydrate('6');
     expect(DataPrefetchService().matches, isNull);
-    expect(ApiService().peekMatches(), isNull);
+    expect(ApiService.peekMatches(), isNull);
   });
 }

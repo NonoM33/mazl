@@ -1,6 +1,9 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../motion/mazl_motion.dart';
+import '../theme/app_colors.dart';
 import 'photo_cache.dart';
 
 /// L'image réseau de toute l'app. Clé de cache stable (l'identifiant de la
@@ -42,18 +45,21 @@ class MazlNetworkImage extends StatelessWidget {
           image: mazlImageProvider(url, cacheWidth: width),
           fit: fit,
           gaplessPlayback: true,
-          errorBuilder: errorBuilder == null
-              ? null
-              : (context, error, stack) => errorBuilder!(context),
+          // A photo that cannot load ends on the flat tint, never on a spinner.
+          errorBuilder: (context, error, stack) =>
+              errorBuilder?.call(context) ?? _PhotoPlaceholder(cacheKey: key),
           frameBuilder: (context, child, frame, synchronous) {
             if (frame == null) {
-              return placeholder?.call(context) ?? const SizedBox.shrink();
+              return placeholder?.call(context) ??
+                  _PhotoPlaceholder(cacheKey: key);
             }
             return _ShownImage(
               cacheKey: key,
               synchronous: synchronous,
               fade: fade,
-              placeholder: placeholder?.call(context),
+              placeholder:
+                  placeholder?.call(context) ??
+                  _PhotoPlaceholder(cacheKey: key),
               child: child,
             );
           },
@@ -112,6 +118,62 @@ class _ShownImageState extends State<_ShownImage> {
               Opacity(opacity: opacity, child: child),
           child: widget.child,
         ),
+      ],
+    );
+  }
+}
+
+/// Ce qu'on voit avant la photo : sa vignette floutée si le cache l'a déjà, sinon
+/// l'aplat de la teinte de repli, choisie par l'identifiant de la photo.
+class _PhotoPlaceholder extends StatefulWidget {
+  const _PhotoPlaceholder({required this.cacheKey});
+
+  final String cacheKey;
+
+  @override
+  State<_PhotoPlaceholder> createState() => _PhotoPlaceholderState();
+}
+
+class _PhotoPlaceholderState extends State<_PhotoPlaceholder> {
+  ImageProvider<Object>? _thumbnail;
+
+  @override
+  void initState() {
+    super.initState();
+    cachedThumbnail(widget.cacheKey).then((thumbnail) {
+      if (mounted && thumbnail != null) setState(() => _thumbnail = thumbnail);
+    });
+  }
+
+  /// Le même identifiant donne toujours la même teinte (jetons photo-1 à 5).
+  Color get _tint {
+    final id = RegExp(r'/(\d+)$').firstMatch(widget.cacheKey)?.group(1);
+    final index = id == null ? widget.cacheKey.hashCode : int.parse(id);
+    return AppColors.photoTints[index.abs() % AppColors.photoTints.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbnail = _thumbnail;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: _tint),
+        if (thumbnail != null)
+          ClipRect(
+            child: ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(
+                sigmaX: 12,
+                sigmaY: 12,
+                tileMode: TileMode.clamp,
+              ),
+              child: Image(
+                image: thumbnail,
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.low,
+              ),
+            ),
+          ),
       ],
     );
   }

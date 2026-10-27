@@ -62,7 +62,6 @@ class ChatImage extends StatelessWidget {
       return MazlNetworkImage(
         url: address,
         fit: fit,
-        placeholder: (_) => placeholder,
         errorBuilder: (_) => const _Placeholder(null, broken: true),
       );
     }

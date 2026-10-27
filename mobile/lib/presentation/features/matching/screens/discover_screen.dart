@@ -145,13 +145,17 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   /// Loads the photos of the next cards before they are reached.
   void _warmUpPhotos(List<Profile> profiles) {
-    unawaited(
-      precachePhotos(
-        context,
-        [for (final p in profiles.take(6)) ...p.photos.take(p == profiles.first ? 3 : 1)],
-        logicalWidth: MediaQuery.sizeOf(context).width,
-      ),
-    );
+    // After the frame: this can be called from initState, before the screen
+    // may read its MediaQuery.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        precachePhotos(context, [
+          for (final p in profiles.take(6))
+            ...p.photos.take(p == profiles.first ? 3 : 1),
+        ], logicalWidth: MediaQuery.sizeOf(context).width),
+      );
+    });
   }
 
   Future<void> _loadProfiles({bool isRefresh = false}) async {
@@ -528,10 +532,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
 
     // Send swipe to backend
-    _apiService.sendSwipe(
-      targetUserId: profile.userId,
-      action: action,
-    ).then((response) {
+    _apiService.sendSwipe(targetUserId: profile.userId, action: action).then((
+      response,
+    ) {
       if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);

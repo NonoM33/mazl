@@ -344,11 +344,11 @@ class ApiService implements CoupleApi {
   static const String likesKey = '/api/likes/received';
   static const String profileKey = '/api/profile/';
 
-  ApiSnapshots get _snapshots => ApiSnapshots.instance;
+  static ApiSnapshots get _snapshots => ApiSnapshots.instance;
 
   /// The snapshot of [key], parsed by [parse]; null when there is none or it
   /// cannot be read any more (an old format is a miss, never an error).
-  T? _peek<T>(String key, T Function(Map<String, dynamic> data) parse) {
+  static T? _peek<T>(String key, T Function(Map<String, dynamic> data) parse) {
     final body = _snapshots.read(key);
     if (body == null) return null;
     try {
@@ -381,14 +381,14 @@ class ApiService implements CoupleApi {
       (data['events'] as List).map((e) => Event.fromJson(e)).toList();
 
   /// Last known answers; null when none was kept.
-  UserProfile? peekCurrentUser() => _peek(meKey, _userFrom);
-  List<Profile>? peekDiscoverProfiles() => _peek(discoverKey, _discoverFrom);
-  List<Map<String, dynamic>>? peekMatches() => _peek(matchesKey, _matchesFrom);
-  List<Conversation>? peekConversations() =>
+  static UserProfile? peekCurrentUser() => _peek(meKey, _userFrom);
+  static List<Profile>? peekDiscoverProfiles() => _peek(discoverKey, _discoverFrom);
+  static List<Map<String, dynamic>>? peekMatches() => _peek(matchesKey, _matchesFrom);
+  static List<Conversation>? peekConversations() =>
       _peek(conversationsKey, _conversationsFrom);
-  List<Event>? peekEvents() => _peek(eventsKey, _eventsFrom);
-  LikesData? peekReceivedLikes() => _peek(likesKey, LikesData.fromJson);
-  Profile? peekProfile(int userId) =>
+  static List<Event>? peekEvents() => _peek(eventsKey, _eventsFrom);
+  static LikesData? peekReceivedLikes() => _peek(likesKey, LikesData.fromJson);
+  static Profile? peekProfile(int userId) =>
       _peek('$profileKey$userId', (data) => Profile.fromJson(data['profile']));
 
   /// Takes a swiped profile out of the kept deck so that it never comes back

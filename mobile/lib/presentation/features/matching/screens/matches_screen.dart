@@ -48,7 +48,7 @@ class _MatchesScreenState extends State<MatchesScreen>
   @override
   void initState() {
     super.initState();
-    _likesData = _apiService.peekReceivedLikes();
+    _likesData = ApiService.peekReceivedLikes();
     _initializeData();
     _loadBannerDismissedState();
     _loadLikes();

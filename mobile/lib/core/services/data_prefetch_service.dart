@@ -67,12 +67,11 @@ class DataPrefetchService {
     await ApiSnapshots.instance.bindOwner(userId);
     if (userId == null) return;
     final snapshots = ApiSnapshots.instance;
-    final api = _apiService;
-    _discoverProfiles ??= api.peekDiscoverProfiles();
-    _matches ??= api.peekMatches();
-    _conversations ??= api.peekConversations();
-    _events ??= api.peekEvents();
-    _currentUser ??= api.peekCurrentUser();
+    _discoverProfiles ??= ApiService.peekDiscoverProfiles();
+    _matches ??= ApiService.peekMatches();
+    _conversations ??= ApiService.peekConversations();
+    _events ??= ApiService.peekEvents();
+    _currentUser ??= ApiService.peekCurrentUser();
     // Loaded « at the time the snapshot was taken »: fresh if recent, else the
     // first fetch refreshes it.
     _discoverLoadedAt ??= snapshots.recordedAt(ApiService.discoverKey);

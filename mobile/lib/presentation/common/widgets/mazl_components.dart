@@ -83,7 +83,6 @@ class ProfilePhoto extends StatelessWidget {
       child: hasUrl
           ? MazlNetworkImage(
               url: url!,
-              placeholder: (_) => ColoredBox(color: tint),
               errorBuilder: (_) => fallback,
             )
           : fallback,

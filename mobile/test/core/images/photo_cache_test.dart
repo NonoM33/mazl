@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/images/mazl_network_image.dart';
 import 'package:mazl/core/images/photo_cache.dart';
+import 'package:mazl/core/theme/app_colors.dart';
 
 /// Une image qui arrive après un délai, comme un chargement depuis le disque.
 class _SlowImage extends ImageProvider<_SlowImage> {
@@ -30,6 +32,19 @@ class _SlowImage extends ImageProvider<_SlowImage> {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+/// Une image qui n'arrive jamais : on regarde ce qu'il y a avant elle.
+class _PendingImage extends ImageProvider<_PendingImage> {
+  @override
+  Future<_PendingImage> obtainKey(ImageConfiguration configuration) =>
+      Future.value(this);
+
+  @override
+  ImageStreamCompleter loadImage(
+    _PendingImage key,
+    ImageDecoderCallback decode,
+  ) => OneFrameImageStreamCompleter(Completer<ImageInfo>().future);
 }
 
 void main() {
@@ -125,5 +140,115 @@ void main() {
       await mount(tester, 'https://x.example/media/photos/8?exp=1&sig=a');
       expect(find.byType(Opacity), findsOneWidget);
     });
+  });
+
+  group('placeholder before the photo', () {
+    late ui.Image pixel;
+
+    setUp(MazlImageSeen.clear);
+    tearDown(() {
+      debugImageProvider = null;
+      debugThumbnailLookup = null;
+    });
+
+    Future<void> mountPending(WidgetTester tester, String url) async {
+      debugImageProvider = (_, __) => _PendingImage();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SizedBox(
+            width: 120,
+            height: 120,
+            child: MazlNetworkImage(url: url),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets('a cached thumbnail is shown blurred', (tester) async {
+      pixel = (await tester.runAsync(
+        () => createTestImage(width: 4, height: 4),
+      ))!;
+      String? asked;
+      debugThumbnailLookup = (key) async {
+        asked = key;
+        return _SlowImage('thumb', pixel);
+      };
+      await mountPending(
+        tester,
+        'https://x.example/media/photos/7?exp=1&sig=a',
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(
+        asked,
+        'https://x.example/media/photos/7',
+        reason: 'same key as the photo',
+      );
+      expect(find.byType(ImageFiltered), findsOneWidget);
+    });
+
+    testWidgets('without a thumbnail: a flat tint chosen by the photo id', (
+      tester,
+    ) async {
+      debugThumbnailLookup = (_) async => null;
+      await mountPending(
+        tester,
+        'https://x.example/media/photos/7?exp=1&sig=a',
+      );
+
+      expect(find.byType(ImageFiltered), findsNothing);
+      final tint = tester
+          .widgetList<ColoredBox>(find.byType(ColoredBox))
+          .map((box) => box.color);
+      expect(
+        tint,
+        contains(AppColors.photoTints[7 % AppColors.photoTints.length]),
+      );
+
+      await tester.pumpWidget(const SizedBox());
+      await mountPending(
+        tester,
+        'https://x.example/media/photos/8?exp=1&sig=a',
+      );
+      final next = tester
+          .widgetList<ColoredBox>(find.byType(ColoredBox))
+          .map((box) => box.color);
+      expect(
+        next,
+        contains(AppColors.photoTints[8 % AppColors.photoTints.length]),
+      );
+    });
+
+    testWidgets(
+      'reduced motion: the photo replaces the placeholder with no fade',
+      (tester) async {
+        pixel = (await tester.runAsync(
+          () => createTestImage(width: 4, height: 4),
+        ))!;
+        MazlImageSeen.clear();
+        debugThumbnailLookup = (_) async => null;
+        debugImageProvider = (u, _) => _SlowImage(photoCacheKey(u), pixel);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MediaQuery(
+              data: const MediaQueryData(disableAnimations: true),
+              child: SizedBox(
+                width: 120,
+                height: 120,
+                child: MazlNetworkImage(
+                  url: 'https://x.example/media/photos/9?exp=1&sig=a',
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 30));
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(find.byType(Opacity), findsNothing);
+        expect(find.byType(Image), findsOneWidget);
+      },
+    );
   });
 }

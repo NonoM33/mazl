@@ -43,7 +43,7 @@ class _LikesScreenState extends State<LikesScreen> {
 
   Future<void> _loadLikes() async {
     // The last answer is shown at once; the server's replaces it behind.
-    _likesData ??= _apiService.peekReceivedLikes();
+    _likesData ??= ApiService.peekReceivedLikes();
     setState(() {
       _isLoading = _likesData == null;
       _loadFailed = false;

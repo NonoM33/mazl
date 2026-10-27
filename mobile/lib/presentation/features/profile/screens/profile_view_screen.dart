@@ -95,7 +95,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
   /// answer then replaces it without a loading screen.
   void _showKnownProfile() {
     if (_hasLoadedOnce) return;
-    final myKnown = _apiService.peekCurrentUser();
+    final myKnown = ApiService.peekCurrentUser();
     if (widget.isOwnProfile || widget.userId == null) {
       if (myKnown == null) return;
       setState(() {
@@ -106,7 +106,7 @@ class _ProfileViewScreenState extends ConsumerState<ProfileViewScreen> {
       return;
     }
     final userId = int.tryParse(widget.userId!);
-    final known = userId == null ? null : _apiService.peekProfile(userId);
+    final known = userId == null ? null : ApiService.peekProfile(userId);
     if (known == null) return;
     final myProfile = myKnown?.profile;
     setState(() {

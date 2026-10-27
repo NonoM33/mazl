@@ -248,7 +248,6 @@ class _MatchAvatar extends StatelessWidget {
             ? fallback
             : MazlNetworkImage(
                 url: url!,
-                placeholder: (_) => ColoredBox(color: scheme.surfaceContainer),
                 errorBuilder: (_) => fallback,
               ),
       ),

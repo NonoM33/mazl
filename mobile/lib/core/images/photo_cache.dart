@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Le cache disque des photos : 500 objets, 30 jours. Dédié, pour qu'il ne soit
 /// jamais vidé par un autre usage du cache par défaut.
@@ -28,6 +29,9 @@ class MazlPhotoCache {
   /// Vide le cache disque (déconnexion, changement de compte).
   static Future<void> clear() async {
     try {
+      // Sans dossier temporaire (test sans plugin), il n'y a rien à vider, et
+      // construire le gestionnaire échouerait hors de ce try.
+      if (_override == null && _manager == null) await getTemporaryDirectory();
       await manager.emptyCache();
     } on Object catch (error) {
       debugPrint('MazlPhotoCache: purge impossible ($error)');
@@ -112,5 +116,24 @@ Future<void> precachePhotos(
     } on Object catch (error) {
       debugPrint('precachePhotos: $error');
     }
+  }
+}
+
+/// Remplace la recherche de vignette dans les tests.
+@visibleForTesting
+Future<ImageProvider<Object>?> Function(String cacheKey)? debugThumbnailLookup;
+
+/// Une petite version de la photo [cacheKey] si le cache disque l'a déjà (vue
+/// plus tôt), sinon `null`.
+Future<ImageProvider<Object>?> cachedThumbnail(String cacheKey) async {
+  final override = debugThumbnailLookup;
+  if (override != null) return override(cacheKey);
+  try {
+    final info = await MazlPhotoCache.manager.getFileFromCache(cacheKey);
+    final file = info?.file;
+    if (file == null) return null;
+    return ResizeImage(FileImage(file), width: 32);
+  } on Object {
+    return null;
   }
 }

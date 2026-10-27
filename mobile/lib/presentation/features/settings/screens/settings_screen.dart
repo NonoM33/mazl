@@ -89,7 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _loadUserProfile() async {
     // Last known answer first, the server's behind it.
-    final known = _apiService.peekCurrentUser();
+    final known = ApiService.peekCurrentUser();
     if (known != null && mounted && _userProfile == null) {
       setState(() => _userProfile = known);
     }
