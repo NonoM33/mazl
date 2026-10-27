@@ -247,8 +247,7 @@ les autres mots s'écrivent sans apostrophe (Tou Beav, Tisha Beav, Chavouot).
 joyeuse) · Hanoucca saméa'h · Pourim saméa'h · 'Hag Pessa'h cacher vé saméa'h · Mazal tov !
 (un mariage, une naissance, une bonne nouvelle).
 
-Règle : **suivre l'app** (« Shabbat », « cacher », « cacherout »). La vitrine écrit encore
-« chabbat / cashrout » : c'est un écart connu, à ne pas reproduire.
+Règle : **suivre l'app** (« Shabbat », « cacher », « cacherout »), comme la vitrine et le site.
 
 ### Typographie française
 
