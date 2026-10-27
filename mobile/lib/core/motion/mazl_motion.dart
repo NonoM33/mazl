@@ -167,6 +167,16 @@ abstract final class MazlMotion {
   /// by up to this share of their size while the refresh runs.
   static const refreshFlameFlicker = 0.15;
 
+  // --- Typing thread (chat) --------------------------------------------------
+
+  /// One loop of the « … écrit » thread: it ripples, ties a knot at the
+  /// centre, then undoes it, and starts over seamlessly.
+  static const typingThreadCycle = Duration(milliseconds: 1800);
+
+  /// Where in the cycle (0 → 1) the knot is fully tied: the still frame shown
+  /// under reduced motion.
+  static const typingThreadKnotFormed = 0.5;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.

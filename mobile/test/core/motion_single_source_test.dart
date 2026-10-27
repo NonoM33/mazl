@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 const _gestureFiles = <String>[
   'lib/presentation/features/chat/widgets/swipe_to_reply.dart',
   'lib/presentation/features/chat/widgets/photo_viewer.dart',
+  'lib/presentation/features/chat/widgets/typing_indicator.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_pose.dart',
   'lib/presentation/common/widgets/swipe_deck/swipe_deck_physics.dart',
