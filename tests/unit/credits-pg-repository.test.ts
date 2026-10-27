@@ -274,7 +274,10 @@ describe("PgPlusStatus", () => {
     expect(has(call, "FROM subscriptions")).toBe(true);
     expect(has(call, "status = 'active'")).toBe(true);
     expect(has(call, "expires_at > (NOW() AT TIME ZONE 'UTC')")).toBe(true);
-    expect(call.values).toEqual([7]);
+    // MAZL Couple: the partner of an active couple who pays covers the member too.
+    expect(has(call, "FROM couples")).toBe(true);
+    expect(has(call, "plan_type = 'couple_monthly'")).toBe(true);
+    expect(call.values).toEqual([7, 7, 7]);
   });
 
   test("is free without such a row", async () => {
