@@ -1,0 +1,508 @@
+{
+ "data": [
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyNzcifQ",
+   "attributes": {
+    "customerPrice": "39.99",
+    "proceeds": "23.33",
+    "proceedsYear2": "28.33"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyNzgifQ",
+   "attributes": {
+    "customerPrice": "40.0",
+    "proceeds": "23.33",
+    "proceedsYear2": "28.33"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyNzkifQ",
+   "attributes": {
+    "customerPrice": "40.49",
+    "proceeds": "23.62",
+    "proceedsYear2": "28.68"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODAifQ",
+   "attributes": {
+    "customerPrice": "40.9",
+    "proceeds": "23.86",
+    "proceedsYear2": "28.97"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODEifQ",
+   "attributes": {
+    "customerPrice": "40.95",
+    "proceeds": "23.89",
+    "proceedsYear2": "29.01"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODIifQ",
+   "attributes": {
+    "customerPrice": "40.99",
+    "proceeds": "23.91",
+    "proceedsYear2": "29.03"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODMifQ",
+   "attributes": {
+    "customerPrice": "41.0",
+    "proceeds": "23.92",
+    "proceedsYear2": "29.04"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODQifQ",
+   "attributes": {
+    "customerPrice": "41.49",
+    "proceeds": "24.2",
+    "proceedsYear2": "29.39"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODUifQ",
+   "attributes": {
+    "customerPrice": "41.9",
+    "proceeds": "24.44",
+    "proceedsYear2": "29.68"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODYifQ",
+   "attributes": {
+    "customerPrice": "41.95",
+    "proceeds": "24.47",
+    "proceedsYear2": "29.71"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODcifQ",
+   "attributes": {
+    "customerPrice": "41.99",
+    "proceeds": "24.49",
+    "proceedsYear2": "29.74"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODgifQ",
+   "attributes": {
+    "customerPrice": "42.0",
+    "proceeds": "24.5",
+    "proceedsYear2": "29.75"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyODkifQ",
+   "attributes": {
+    "customerPrice": "42.49",
+    "proceeds": "24.79",
+    "proceedsYear2": "30.1"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTAifQ",
+   "attributes": {
+    "customerPrice": "42.9",
+    "proceeds": "25.03",
+    "proceedsYear2": "30.39"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTEifQ",
+   "attributes": {
+    "customerPrice": "42.95",
+    "proceeds": "25.05",
+    "proceedsYear2": "30.42"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTIifQ",
+   "attributes": {
+    "customerPrice": "42.99",
+    "proceeds": "25.08",
+    "proceedsYear2": "30.45"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTMifQ",
+   "attributes": {
+    "customerPrice": "43.0",
+    "proceeds": "25.08",
+    "proceedsYear2": "30.46"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTQifQ",
+   "attributes": {
+    "customerPrice": "43.49",
+    "proceeds": "25.37",
+    "proceedsYear2": "30.81"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTUifQ",
+   "attributes": {
+    "customerPrice": "43.9",
+    "proceeds": "25.61",
+    "proceedsYear2": "31.1"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTYifQ",
+   "attributes": {
+    "customerPrice": "43.95",
+    "proceeds": "25.64",
+    "proceedsYear2": "31.13"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTcifQ",
+   "attributes": {
+    "customerPrice": "43.99",
+    "proceeds": "25.66",
+    "proceedsYear2": "31.16"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTgifQ",
+   "attributes": {
+    "customerPrice": "44.0",
+    "proceeds": "25.67",
+    "proceedsYear2": "31.17"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAyOTkifQ",
+   "attributes": {
+    "customerPrice": "44.49",
+    "proceeds": "25.95",
+    "proceedsYear2": "31.51"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDAifQ",
+   "attributes": {
+    "customerPrice": "44.9",
+    "proceeds": "26.19",
+    "proceedsYear2": "31.8"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDEifQ",
+   "attributes": {
+    "customerPrice": "44.95",
+    "proceeds": "26.22",
+    "proceedsYear2": "31.84"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDIifQ",
+   "attributes": {
+    "customerPrice": "44.99",
+    "proceeds": "26.24",
+    "proceedsYear2": "31.87"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDMifQ",
+   "attributes": {
+    "customerPrice": "45.0",
+    "proceeds": "26.25",
+    "proceedsYear2": "31.88"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDQifQ",
+   "attributes": {
+    "customerPrice": "45.49",
+    "proceeds": "26.54",
+    "proceedsYear2": "32.22"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDUifQ",
+   "attributes": {
+    "customerPrice": "45.9",
+    "proceeds": "26.78",
+    "proceedsYear2": "32.51"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDYifQ",
+   "attributes": {
+    "customerPrice": "45.95",
+    "proceeds": "26.8",
+    "proceedsYear2": "32.55"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDcifQ",
+   "attributes": {
+    "customerPrice": "45.99",
+    "proceeds": "26.83",
+    "proceedsYear2": "32.58"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDgifQ",
+   "attributes": {
+    "customerPrice": "46.0",
+    "proceeds": "26.83",
+    "proceedsYear2": "32.58"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMDkifQ",
+   "attributes": {
+    "customerPrice": "46.49",
+    "proceeds": "27.12",
+    "proceedsYear2": "32.93"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTAifQ",
+   "attributes": {
+    "customerPrice": "46.9",
+    "proceeds": "27.36",
+    "proceedsYear2": "33.22"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTEifQ",
+   "attributes": {
+    "customerPrice": "46.95",
+    "proceeds": "27.39",
+    "proceedsYear2": "33.26"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTIifQ",
+   "attributes": {
+    "customerPrice": "46.99",
+    "proceeds": "27.41",
+    "proceedsYear2": "33.28"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTMifQ",
+   "attributes": {
+    "customerPrice": "47.0",
+    "proceeds": "27.42",
+    "proceedsYear2": "33.29"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTQifQ",
+   "attributes": {
+    "customerPrice": "47.49",
+    "proceeds": "27.7",
+    "proceedsYear2": "33.64"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTUifQ",
+   "attributes": {
+    "customerPrice": "47.9",
+    "proceeds": "27.94",
+    "proceedsYear2": "33.93"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTYifQ",
+   "attributes": {
+    "customerPrice": "47.95",
+    "proceeds": "27.97",
+    "proceedsYear2": "33.96"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTcifQ",
+   "attributes": {
+    "customerPrice": "47.99",
+    "proceeds": "27.99",
+    "proceedsYear2": "33.99"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTgifQ",
+   "attributes": {
+    "customerPrice": "48.0",
+    "proceeds": "28.0",
+    "proceedsYear2": "34.0"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMTkifQ",
+   "attributes": {
+    "customerPrice": "48.49",
+    "proceeds": "28.29",
+    "proceedsYear2": "34.35"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjAifQ",
+   "attributes": {
+    "customerPrice": "48.9",
+    "proceeds": "28.53",
+    "proceedsYear2": "34.64"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjEifQ",
+   "attributes": {
+    "customerPrice": "48.95",
+    "proceeds": "28.55",
+    "proceedsYear2": "34.67"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjIifQ",
+   "attributes": {
+    "customerPrice": "48.99",
+    "proceeds": "28.58",
+    "proceedsYear2": "34.7"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjMifQ",
+   "attributes": {
+    "customerPrice": "49.0",
+    "proceeds": "28.58",
+    "proceedsYear2": "34.71"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjQifQ",
+   "attributes": {
+    "customerPrice": "49.49",
+    "proceeds": "28.87",
+    "proceedsYear2": "35.06"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjUifQ",
+   "attributes": {
+    "customerPrice": "49.9",
+    "proceeds": "29.11",
+    "proceedsYear2": "35.35"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjYifQ",
+   "attributes": {
+    "customerPrice": "49.95",
+    "proceeds": "29.14",
+    "proceedsYear2": "35.38"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjcifQ",
+   "attributes": {
+    "customerPrice": "49.99",
+    "proceeds": "29.16",
+    "proceedsYear2": "35.41"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjgifQ",
+   "attributes": {
+    "customerPrice": "50.0",
+    "proceeds": "29.17",
+    "proceedsYear2": "35.42"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjkifQ",
+   "attributes": {
+    "customerPrice": "50.9",
+    "proceeds": "29.69",
+    "proceedsYear2": "36.05"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMzAifQ",
+   "attributes": {
+    "customerPrice": "50.99",
+    "proceeds": "29.74",
+    "proceedsYear2": "36.12"
+   }
+  },
+  {
+   "type": "subscriptionPricePoints",
+   "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMzEifQ",
+   "attributes": {
+    "customerPrice": "51.0",
+    "proceeds": "29.75",
+    "proceedsYear2": "36.13"
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 55,
+   "limit": 200
+  }
+ }
+}

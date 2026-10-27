@@ -1,0 +1,26 @@
+{
+ "data": [
+  {
+   "type": "inAppPurchases",
+   "id": "6826542320",
+   "attributes": {
+    "name": "1 Boost",
+    "productId": "com.mazl.app.boost.1",
+    "inAppPurchaseType": "CONSUMABLE",
+    "state": "MISSING_METADATA",
+    "reviewNote": null,
+    "familySharable": false,
+    "contentHosting": null
+   }
+  }
+ ],
+ "links": {
+  "self": "https://api.appstoreconnect.apple.com/…"
+ },
+ "meta": {
+  "paging": {
+   "total": 1,
+   "limit": 200
+  }
+ }
+}

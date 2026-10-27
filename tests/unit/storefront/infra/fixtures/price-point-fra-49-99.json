@@ -1,0 +1,28 @@
+{
+ "data": {
+  "type": "subscriptionPricePoints",
+  "id": "eyJzIjoiNjgyNjUzODc3OSIsInQiOiJGUkEiLCJwIjoiMTAzMjcifQ",
+  "attributes": {
+   "customerPrice": "49.99",
+   "proceeds": "29.16",
+   "proceedsYear2": "35.41"
+  },
+  "relationships": {
+   "territory": {
+    "data": {
+     "type": "territories",
+     "id": "FRA"
+    }
+   }
+  }
+ },
+ "included": [
+  {
+   "type": "territories",
+   "id": "FRA",
+   "attributes": {
+    "currency": "EUR"
+   }
+  }
+ ]
+}
