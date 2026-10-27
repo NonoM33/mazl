@@ -2036,71 +2036,17 @@ abstract class AppLocalizations {
   /// **'Partenaire MAZL'**
   String get coupleFeedPartnerMazl;
 
-  /// Pastille d'accent sur la carte : réduction de {percent} % chez un partenaire de MAZL.
-  ///
-  /// In fr, this message translates to:
-  /// **'-{percent} % Partenaire MAZL'**
-  String coupleFeedPartnerDiscountMazl(int percent);
-
   /// Pastille d'accent sur la fiche détail : réduction de {percent} % chez un partenaire.
   ///
   /// In fr, this message translates to:
   /// **'-{percent} % Partenaire'**
   String coupleFeedPartnerDiscount(int percent);
 
-  /// Grand titre de l'écran du fil d'activités à deux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Activités'**
-  String get coupleFeedActivitiesTitle;
-
   /// Titre de l'écran des activités enregistrées et info-bulle du bouton qui y mène.
   ///
   /// In fr, this message translates to:
   /// **'Activités sauvegardées'**
   String get coupleFeedSavedTitle;
-
-  /// Titre de l'état vide du fil d'activités.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucune activité pour le moment'**
-  String get coupleFeedActivitiesEmptyTitle;
-
-  /// Phrase sous le titre de l'état vide du fil d'activités.
-  ///
-  /// In fr, this message translates to:
-  /// **'De nouvelles idées arrivent bientôt.'**
-  String get coupleFeedActivitiesEmptyLine;
-
-  /// Bouton de l'état vide : recharger le fil.
-  ///
-  /// In fr, this message translates to:
-  /// **'Actualiser'**
-  String get coupleFeedRefresh;
-
-  /// Info-bulle du bouton rond « i » qui ouvre la fiche détail d'une activité.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voir le détail'**
-  String get coupleFeedSeeDetail;
-
-  /// Message en bas d'écran après avoir glissé une activité vers le haut. Une ligne ; {title} peut être long.
-  ///
-  /// In fr, this message translates to:
-  /// **'{title} sauvegardé'**
-  String coupleFeedActivitySavedSnack(String title);
-
-  /// Erreur : la sauvegarde d'une activité du fil a échoué ; la carte revient.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de sauvegarder « {title} ». Réessayez.'**
-  String coupleFeedActivitySaveCardError(String title);
-
-  /// Erreur : le passage d'une activité du fil a échoué ; la carte revient.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de passer « {title} ». Réessayez.'**
-  String coupleFeedActivityPassCardError(String title);
 
   /// Titre de l'écran quand l'activité n'existe plus.
   ///
@@ -2252,48 +2198,6 @@ abstract class AppLocalizations {
   /// **'Découvrir des activités'**
   String get coupleFeedSavedEmptyAction;
 
-  /// Grand titre de l'écran des événements pour couples.
-  ///
-  /// In fr, this message translates to:
-  /// **'Événements'**
-  String get coupleFeedEventsTitle;
-
-  /// Premier onglet de l'écran des événements : les événements à venir. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'À venir'**
-  String get coupleFeedEventsUpcoming;
-
-  /// Second onglet : les événements où le couple est inscrit, avec leur nombre {count} entre parenthèses. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inscrits ({count})'**
-  String coupleFeedEventsRegisteredTab(int count);
-
-  /// Titre de l'état vide de l'onglet des événements à venir.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucun événement disponible'**
-  String get coupleFeedEventsEmptyAll;
-
-  /// Titre de l'état vide de l'onglet des inscriptions.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vous n\'êtes inscrit à aucun événement'**
-  String get coupleFeedEventsEmptyRegistered;
-
-  /// Bouton de l'état vide des inscriptions : revenir aux événements à venir.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvrir les événements'**
-  String get coupleFeedEventsDiscover;
-
-  /// Message vert après l'inscription depuis la liste ; {title} est le nom de l'événement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Inscrits à \"{title}\"'**
-  String coupleFeedEventRegisteredSnack(String title);
-
   /// Message vert après l'inscription depuis la fiche d'un événement ; {title} est son nom.
   ///
   /// In fr, this message translates to:
@@ -2312,30 +2216,6 @@ abstract class AppLocalizations {
   /// **'Impossible d\'annuler l\'inscription. Réessayez.'**
   String get coupleFeedEventCancelError;
 
-  /// Titre de la boîte de dialogue qui demande d'annuler une inscription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler l\'inscription ?'**
-  String get coupleFeedEventCancelTitle;
-
-  /// Corps de la boîte de dialogue d'annulation d'inscription ; {title} est le nom de l'événement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Voulez-vous vraiment annuler votre inscription à \"{title}\" ?'**
-  String coupleFeedEventCancelBody(String title);
-
-  /// Bouton de la boîte de dialogue d'annulation : garder l'inscription. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non'**
-  String get coupleFeedEventCancelNo;
-
-  /// Bouton rouge de la boîte de dialogue d'annulation : confirmer l'annulation. Court.
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui, annuler'**
-  String get coupleFeedEventCancelYes;
-
   /// Message en bas d'écran après l'annulation d'une inscription.
   ///
   /// In fr, this message translates to:
@@ -2347,12 +2227,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Complet'**
   String get coupleFeedEventFull;
-
-  /// Nombre de places restantes, sur une carte d'événement, à côté d'une icône. Très court.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, one{{count} place} other{{count} places}}'**
-  String coupleFeedEventSpots(int count);
 
   /// Nombre de places restantes, sur la fiche d'un événement, à droite du prix.
   ///
@@ -2864,12 +2738,6 @@ abstract class AppLocalizations {
   /// **'Vos réponses précédentes'**
   String get coupleQuestionHistory;
 
-  /// Titre de l'écran « Notre espace » (l'espace privé du couple).
-  ///
-  /// In fr, this message translates to:
-  /// **'Notre espace'**
-  String get coupleSpaceTitle;
-
   /// Info-bulle du bouton rond en haut de « Notre espace » qui ouvre les réglages du mode couple.
   ///
   /// In fr, this message translates to:
@@ -2887,12 +2755,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre Moitié'**
   String get coupleSpacePartnerFallback;
-
-  /// En-tête du couple : depuis combien de jours le couple est ensemble. {count} est toujours au moins 1.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ensemble depuis {count, plural, one{{count} jour} other{{count} jours}}'**
-  String coupleSpaceTogetherSince(int count);
 
   /// En-tête du couple quand la date de début est inconnue ou aujourd'hui.
   ///
@@ -3308,24 +3170,6 @@ abstract class AppLocalizations {
   /// **'Réponse inattendue du serveur.'**
   String get coupleSpaceFailUnexpected;
 
-  /// Grand titre de l'écran du calendrier juif.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calendrier'**
-  String get coupleSpaceCalendarTitle;
-
-  /// Titre de la liste d'idées d'activités à deux pour le Shabbat de la semaine.
-  ///
-  /// In fr, this message translates to:
-  /// **'Idées pour ce Shabbat'**
-  String get coupleSpaceCalendarShabbatIdeas;
-
-  /// Titre de la liste des prochaines fêtes juives.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prochaines fêtes'**
-  String get coupleSpaceCalendarUpcoming;
-
   /// Info-bulle du bouton rond qui affiche le mois précédent du calendrier.
   ///
   /// In fr, this message translates to:
@@ -3337,40 +3181,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Mois suivant'**
   String get coupleSpaceCalendarNextMonth;
-
-  /// Étiquette en capitales sur la carte d'une fête qui a lieu en ce moment. Très court, une ligne.
-  ///
-  /// In fr, this message translates to:
-  /// **'En cours'**
-  String get coupleSpaceCalendarOngoing;
-
-  /// Étiquette en capitales sur la carte d'une fête dans {count} jours au plus (« J-3 » = dans 3 jours). Très court, une ligne.
-  ///
-  /// In fr, this message translates to:
-  /// **'J-{count}'**
-  String coupleSpaceCalendarCountdown(int count);
-
-  /// Petit titre au-dessus des idées d'activités à deux, sur la carte d'une fête.
-  ///
-  /// In fr, this message translates to:
-  /// **'Idées en couple'**
-  String get coupleSpaceCalendarIdeas;
-
-  /// Dates d'une fête sur plusieurs jours dans le même mois : du {startDay} au {endDay}, {month} est le mois abrégé (ex. « avr. »). Garder l'ordre habituel de la langue.
-  ///
-  /// In fr, this message translates to:
-  /// **'{startDay} – {endDay} {month}'**
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  );
-
-  /// Dates d'une fête sur plusieurs jours à cheval sur deux mois : {start} et {end} sont déjà des dates courtes (ex. « 28 mars », « 4 avr. »).
-  ///
-  /// In fr, this message translates to:
-  /// **'{start} – {end}'**
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end);
 
   /// Petit titre en capitales au-dessus du bonjour de l'écran Aujourd'hui du couple. {days} = nombre de jours ensemble.
   ///
@@ -4158,35 +3968,11 @@ abstract class AppLocalizations {
   /// **'Indiquez ce que vous recherchez'**
   String get genreLookingForRequired;
 
-  /// Petit titre (capitales) de la carte du Shabbat de la semaine, dans le calendrier juif.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce Shabbat'**
-  String get jewishCalendarShabbatTitle;
-
-  /// Titre de la carte du Shabbat : la lecture hebdomadaire de la Torah. {name} est le nom de la paracha déjà écrit (ex. « Bereshis »). « Parashat » = « paracha de ».
-  ///
-  /// In fr, this message translates to:
-  /// **'Parashat {name}'**
-  String jewishCalendarParashat(String name);
-
   /// Deux parachiot lues le même Shabbat (ex. « Vayakhel Pekudei »), {first} et {second} sont leurs noms déjà écrits.
   ///
   /// In fr, this message translates to:
   /// **'{first} {second}'**
   String jewishCalendarParshaPair(String first, String second);
-
-  /// Libellé au-dessus de l'heure d'allumage des bougies de Shabbat, sur la carte du Shabbat. Une ligne, environ 20 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Allumage'**
-  String get jewishCalendarCandleLighting;
-
-  /// Libellé au-dessus de l'heure de la havdala (fin du Shabbat) sur la carte du Shabbat. Une ligne, environ 20 caractères.
-  ///
-  /// In fr, this message translates to:
-  /// **'Havdala'**
-  String get jewishCalendarHavdalah;
 
   /// Petite étiquette (capitales) d'une idée d'activité du Shabbat ou d'une fête : il s'agit de préparer quelque chose.
   ///

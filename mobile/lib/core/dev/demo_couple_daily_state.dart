@@ -179,12 +179,17 @@ class DemoCoupleDailyState {
   final List<_ConciergeRequest> _requests = [];
   bool _seeded = false;
 
+  // Stable numbers (the first request is always 1): tests and the Duo crawl
+  // open it by its address.
+  int _nextRequestId = 1;
+  int _nextMessageId = 1;
+
   void _seed(DateTime now) {
     if (_seeded) return;
     _seeded = true;
     final request =
         _ConciergeRequest(
-            id: DemoStore.nextId(),
+            id: _nextRequestId++,
             title: 'Dîner surprise pour vos un an',
             wantedAt: now.add(const Duration(days: 12)),
             city: 'Paris 16e',
@@ -226,7 +231,7 @@ class DemoCoupleDailyState {
   ];
 
   Map<String, dynamic> _message(String role, String text, DateTime at) => {
-    'id': DemoStore.nextId(),
+    'id': _nextMessageId++,
     'role': role,
     'authorId': role == 'member' ? DemoFixtures.meId : null,
     'text': text,
@@ -250,7 +255,7 @@ class DemoCoupleDailyState {
     final text = '${body['text'] ?? ''}'.trim();
     final wanted = DateTime.tryParse('${body['wantedAt'] ?? ''}');
     final request = _ConciergeRequest(
-      id: DemoStore.nextId(),
+      id: _nextRequestId++,
       title: _titleOf(text, body['kind']),
       wantedAt: wanted,
       city: body['city'] as String?,

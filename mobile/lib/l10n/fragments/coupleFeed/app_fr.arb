@@ -147,15 +147,6 @@
   "@coupleFeedPartnerMazl": {
     "description": "Pastille d'accent : l'activité vient d'un partenaire de MAZL."
   },
-  "coupleFeedPartnerDiscountMazl": "-{percent} % Partenaire MAZL",
-  "@coupleFeedPartnerDiscountMazl": {
-    "description": "Pastille d'accent sur la carte : réduction de {percent} % chez un partenaire de MAZL.",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "coupleFeedPartnerDiscount": "-{percent} % Partenaire",
   "@coupleFeedPartnerDiscount": {
     "description": "Pastille d'accent sur la fiche détail : réduction de {percent} % chez un partenaire.",
@@ -165,56 +156,9 @@
       }
     }
   },
-  "coupleFeedActivitiesTitle": "Activités",
-  "@coupleFeedActivitiesTitle": {
-    "description": "Grand titre de l'écran du fil d'activités à deux."
-  },
   "coupleFeedSavedTitle": "Activités sauvegardées",
   "@coupleFeedSavedTitle": {
     "description": "Titre de l'écran des activités enregistrées et info-bulle du bouton qui y mène."
-  },
-  "coupleFeedActivitiesEmptyTitle": "Aucune activité pour le moment",
-  "@coupleFeedActivitiesEmptyTitle": {
-    "description": "Titre de l'état vide du fil d'activités."
-  },
-  "coupleFeedActivitiesEmptyLine": "De nouvelles idées arrivent bientôt.",
-  "@coupleFeedActivitiesEmptyLine": {
-    "description": "Phrase sous le titre de l'état vide du fil d'activités."
-  },
-  "coupleFeedRefresh": "Actualiser",
-  "@coupleFeedRefresh": {
-    "description": "Bouton de l'état vide : recharger le fil."
-  },
-  "coupleFeedSeeDetail": "Voir le détail",
-  "@coupleFeedSeeDetail": {
-    "description": "Info-bulle du bouton rond « i » qui ouvre la fiche détail d'une activité."
-  },
-  "coupleFeedActivitySavedSnack": "{title} sauvegardé",
-  "@coupleFeedActivitySavedSnack": {
-    "description": "Message en bas d'écran après avoir glissé une activité vers le haut. Une ligne ; {title} peut être long.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedActivitySaveCardError": "Impossible de sauvegarder « {title} ». Réessayez.",
-  "@coupleFeedActivitySaveCardError": {
-    "description": "Erreur : la sauvegarde d'une activité du fil a échoué ; la carte revient.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedActivityPassCardError": "Impossible de passer « {title} ». Réessayez.",
-  "@coupleFeedActivityPassCardError": {
-    "description": "Erreur : le passage d'une activité du fil a échoué ; la carte revient.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
   },
   "coupleFeedActivityNotFoundTitle": "Activité introuvable",
   "@coupleFeedActivityNotFoundTitle": {
@@ -336,45 +280,6 @@
   "@coupleFeedSavedEmptyAction": {
     "description": "Bouton de l'état vide : retourner au fil d'activités."
   },
-  "coupleFeedEventsTitle": "Événements",
-  "@coupleFeedEventsTitle": {
-    "description": "Grand titre de l'écran des événements pour couples."
-  },
-  "coupleFeedEventsUpcoming": "À venir",
-  "@coupleFeedEventsUpcoming": {
-    "description": "Premier onglet de l'écran des événements : les événements à venir. Court."
-  },
-  "coupleFeedEventsRegisteredTab": "Inscrits ({count})",
-  "@coupleFeedEventsRegisteredTab": {
-    "description": "Second onglet : les événements où le couple est inscrit, avec leur nombre {count} entre parenthèses. Court.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "coupleFeedEventsEmptyAll": "Aucun événement disponible",
-  "@coupleFeedEventsEmptyAll": {
-    "description": "Titre de l'état vide de l'onglet des événements à venir."
-  },
-  "coupleFeedEventsEmptyRegistered": "Vous n'êtes inscrit à aucun événement",
-  "@coupleFeedEventsEmptyRegistered": {
-    "description": "Titre de l'état vide de l'onglet des inscriptions."
-  },
-  "coupleFeedEventsDiscover": "Découvrir les événements",
-  "@coupleFeedEventsDiscover": {
-    "description": "Bouton de l'état vide des inscriptions : revenir aux événements à venir."
-  },
-  "coupleFeedEventRegisteredSnack": "Inscrits à \"{title}\"",
-  "@coupleFeedEventRegisteredSnack": {
-    "description": "Message vert après l'inscription depuis la liste ; {title} est le nom de l'événement.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
   "coupleFeedEventRegisteredSnackDetail": "Inscrits à « {title} »",
   "@coupleFeedEventRegisteredSnackDetail": {
     "description": "Message vert après l'inscription depuis la fiche d'un événement ; {title} est son nom.",
@@ -392,27 +297,6 @@
   "@coupleFeedEventCancelError": {
     "description": "Erreur : l'annulation d'une inscription a échoué."
   },
-  "coupleFeedEventCancelTitle": "Annuler l'inscription ?",
-  "@coupleFeedEventCancelTitle": {
-    "description": "Titre de la boîte de dialogue qui demande d'annuler une inscription."
-  },
-  "coupleFeedEventCancelBody": "Voulez-vous vraiment annuler votre inscription à \"{title}\" ?",
-  "@coupleFeedEventCancelBody": {
-    "description": "Corps de la boîte de dialogue d'annulation d'inscription ; {title} est le nom de l'événement.",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "coupleFeedEventCancelNo": "Non",
-  "@coupleFeedEventCancelNo": {
-    "description": "Bouton de la boîte de dialogue d'annulation : garder l'inscription. Très court."
-  },
-  "coupleFeedEventCancelYes": "Oui, annuler",
-  "@coupleFeedEventCancelYes": {
-    "description": "Bouton rouge de la boîte de dialogue d'annulation : confirmer l'annulation. Court."
-  },
   "coupleFeedEventCancelled": "Inscription annulée",
   "@coupleFeedEventCancelled": {
     "description": "Message en bas d'écran après l'annulation d'une inscription."
@@ -420,16 +304,6 @@
   "coupleFeedEventFull": "Complet",
   "@coupleFeedEventFull": {
     "description": "Texte rouge et libellé de bouton : l'événement n'a plus de place. Court."
-  },
-  "coupleFeedEventSpots": "{count, plural, one{{count} place} other{{count} places}}",
-  "@coupleFeedEventSpots": {
-    "description": "Nombre de places restantes, sur une carte d'événement, à côté d'une icône. Très court.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
   },
   "coupleFeedEventSpotsLeft": "{count, plural, one{{count} place restante} other{{count} places restantes}}",
   "@coupleFeedEventSpotsLeft": {

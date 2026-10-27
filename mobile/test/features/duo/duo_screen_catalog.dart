@@ -385,7 +385,7 @@ final List<DuoScreen> duoScreens = [
     id: '/couple/concierge/:requestId',
     feature: 'couple',
     file: 'couple/screens/couple_concierge_thread_screen.dart',
-    path: '/couple/concierge/9002',
+    path: '/couple/concierge/1',
     session: DuoSession.couple,
     primary: () => find.byType(EditableText),
   ),

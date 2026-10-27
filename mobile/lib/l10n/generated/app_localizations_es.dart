@@ -1188,47 +1188,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coupleFeedPartnerMazl => 'Socio MAZL';
 
   @override
-  String coupleFeedPartnerDiscountMazl(int percent) {
-    return '$percent % dto. · Socio MAZL';
-  }
-
-  @override
   String coupleFeedPartnerDiscount(int percent) {
     return '$percent % dto. · Socio';
   }
 
   @override
-  String get coupleFeedActivitiesTitle => 'Actividades';
-
-  @override
   String get coupleFeedSavedTitle => 'Actividades guardadas';
-
-  @override
-  String get coupleFeedActivitiesEmptyTitle => 'No hay actividades por ahora';
-
-  @override
-  String get coupleFeedActivitiesEmptyLine => 'Pronto llegarán nuevas ideas.';
-
-  @override
-  String get coupleFeedRefresh => 'Actualizar';
-
-  @override
-  String get coupleFeedSeeDetail => 'Ver detalles';
-
-  @override
-  String coupleFeedActivitySavedSnack(String title) {
-    return '$title guardado';
-  }
-
-  @override
-  String coupleFeedActivitySaveCardError(String title) {
-    return 'No se pudo guardar «$title». Inténtalo de nuevo.';
-  }
-
-  @override
-  String coupleFeedActivityPassCardError(String title) {
-    return 'No se pudo omitir «$title». Inténtalo de nuevo.';
-  }
 
   @override
   String get coupleFeedActivityNotFoundTitle => 'Actividad no encontrada';
@@ -1317,36 +1282,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coupleFeedSavedEmptyAction => 'Descubrir actividades';
 
   @override
-  String get coupleFeedEventsTitle => 'Eventos';
-
-  @override
-  String get coupleFeedEventsUpcoming => 'Próximos';
-
-  @override
-  String coupleFeedEventsRegisteredTab(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    return 'Inscritos ($countString)';
-  }
-
-  @override
-  String get coupleFeedEventsEmptyAll => 'No hay eventos disponibles';
-
-  @override
-  String get coupleFeedEventsEmptyRegistered =>
-      'No tienes ninguna inscripción a eventos';
-
-  @override
-  String get coupleFeedEventsDiscover => 'Descubrir eventos';
-
-  @override
-  String coupleFeedEventRegisteredSnack(String title) {
-    return 'Inscripción confirmada en \"$title\"';
-  }
-
-  @override
   String coupleFeedEventRegisteredSnackDetail(String title) {
     return 'Inscripción confirmada en «$title»';
   }
@@ -1360,39 +1295,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo cancelar la inscripción. Inténtalo de nuevo.';
 
   @override
-  String get coupleFeedEventCancelTitle => '¿Cancelar la inscripción?';
-
-  @override
-  String coupleFeedEventCancelBody(String title) {
-    return '¿Seguro que quieres cancelar tu inscripción en \"$title\"?';
-  }
-
-  @override
-  String get coupleFeedEventCancelNo => 'No';
-
-  @override
-  String get coupleFeedEventCancelYes => 'Sí, cancelar';
-
-  @override
   String get coupleFeedEventCancelled => 'Inscripción cancelada';
 
   @override
   String get coupleFeedEventFull => 'Completo';
-
-  @override
-  String coupleFeedEventSpots(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString plazas',
-      one: '1 plaza',
-    );
-    return '$_temp0';
-  }
 
   @override
   String coupleFeedEventSpotsLeft(int count) {
@@ -1703,9 +1609,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coupleQuestionHistory => 'Vuestras respuestas anteriores';
 
   @override
-  String get coupleSpaceTitle => 'Nuestro espacio';
-
-  @override
   String get coupleSpaceSettingsTooltip => 'Ajustes';
 
   @override
@@ -1713,17 +1616,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get coupleSpacePartnerFallback => 'Tu media naranja';
-
-  @override
-  String coupleSpaceTogetherSince(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count días',
-      one: '$count día',
-    );
-    return 'Juntos desde hace $_temp0';
-  }
 
   @override
   String get coupleSpaceStoryBegins => 'Vuestra historia empieza';
@@ -1965,44 +1857,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coupleSpaceFailUnexpected => 'Respuesta inesperada del servidor.';
 
   @override
-  String get coupleSpaceCalendarTitle => 'Calendario';
-
-  @override
-  String get coupleSpaceCalendarShabbatIdeas => 'Ideas para este Shabat';
-
-  @override
-  String get coupleSpaceCalendarUpcoming => 'Próximas fiestas';
-
-  @override
   String get coupleSpaceCalendarPrevMonth => 'Mes anterior';
 
   @override
   String get coupleSpaceCalendarNextMonth => 'Mes siguiente';
-
-  @override
-  String get coupleSpaceCalendarOngoing => 'En curso';
-
-  @override
-  String coupleSpaceCalendarCountdown(int count) {
-    return 'En $count d';
-  }
-
-  @override
-  String get coupleSpaceCalendarIdeas => 'Ideas en pareja';
-
-  @override
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  ) {
-    return '$startDay – $endDay $month';
-  }
-
-  @override
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end) {
-    return '$start – $end';
-  }
 
   @override
   String coupleTodayEyebrow(int days) {
@@ -2499,23 +2357,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get genreLookingForRequired => 'Indica a quién buscas';
 
   @override
-  String get jewishCalendarShabbatTitle => 'Este Shabat';
-
-  @override
-  String jewishCalendarParashat(String name) {
-    return 'Parashá $name';
-  }
-
-  @override
   String jewishCalendarParshaPair(String first, String second) {
     return '$first – $second';
   }
-
-  @override
-  String get jewishCalendarCandleLighting => 'Encendido de velas';
-
-  @override
-  String get jewishCalendarHavdalah => 'Havdalá';
 
   @override
   String get jewishCalendarCategoryPreparation => 'Preparación';

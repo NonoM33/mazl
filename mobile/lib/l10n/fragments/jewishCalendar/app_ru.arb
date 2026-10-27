@@ -1,9 +1,5 @@
 {
-  "jewishCalendarShabbatTitle": "Этот Шаббат",
-  "jewishCalendarParashat": "Недельная глава: {name}",
   "jewishCalendarParshaPair": "{first} – {second}",
-  "jewishCalendarCandleLighting": "Зажигание свечей",
-  "jewishCalendarHavdalah": "Гавдала",
   "jewishCalendarCategoryPreparation": "Подготовка",
   "jewishCalendarCategorySpiritual": "Духовное",
   "jewishCalendarCategoryRelaxation": "Отдых",

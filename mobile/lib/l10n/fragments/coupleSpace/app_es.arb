@@ -1,9 +1,7 @@
 {
-  "coupleSpaceTitle": "Nuestro espacio",
   "coupleSpaceSettingsTooltip": "Ajustes",
   "coupleSpaceYou": "Tú",
   "coupleSpacePartnerFallback": "Tu media naranja",
-  "coupleSpaceTogetherSince": "Juntos desde hace {count, plural, one{{count} día} other{{count} días}}",
   "coupleSpaceStoryBegins": "Vuestra historia empieza",
   "coupleSpaceStatSavedActivities": "Actividades\nguardadas",
   "coupleSpaceStatUpcomingEvents": "Eventos\npróximos",
@@ -73,14 +71,6 @@
   "coupleSpaceFailEventFull": "Este evento está completo.",
   "coupleSpaceFailServer": "El servidor no pudo responder. Inténtalo de nuevo.",
   "coupleSpaceFailUnexpected": "Respuesta inesperada del servidor.",
-  "coupleSpaceCalendarTitle": "Calendario",
-  "coupleSpaceCalendarShabbatIdeas": "Ideas para este Shabat",
-  "coupleSpaceCalendarUpcoming": "Próximas fiestas",
   "coupleSpaceCalendarPrevMonth": "Mes anterior",
-  "coupleSpaceCalendarNextMonth": "Mes siguiente",
-  "coupleSpaceCalendarOngoing": "En curso",
-  "coupleSpaceCalendarCountdown": "En {count} d",
-  "coupleSpaceCalendarIdeas": "Ideas en pareja",
-  "coupleSpaceCalendarRangeSameMonth": "{startDay} – {endDay} {month}",
-  "coupleSpaceCalendarRangeOtherMonth": "{start} – {end}"
+  "coupleSpaceCalendarNextMonth": "Mes siguiente"
 }

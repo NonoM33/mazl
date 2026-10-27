@@ -1194,47 +1194,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleFeedPartnerMazl => 'Партнёр MAZL';
 
   @override
-  String coupleFeedPartnerDiscountMazl(int percent) {
-    return 'Скидка $percent % · Партнёр MAZL';
-  }
-
-  @override
   String coupleFeedPartnerDiscount(int percent) {
     return 'Скидка $percent % · Партнёр';
   }
 
   @override
-  String get coupleFeedActivitiesTitle => 'Занятия';
-
-  @override
   String get coupleFeedSavedTitle => 'Сохранённые занятия';
-
-  @override
-  String get coupleFeedActivitiesEmptyTitle => 'Пока нет занятий';
-
-  @override
-  String get coupleFeedActivitiesEmptyLine => 'Скоро появятся новые идеи.';
-
-  @override
-  String get coupleFeedRefresh => 'Обновить';
-
-  @override
-  String get coupleFeedSeeDetail => 'Подробнее';
-
-  @override
-  String coupleFeedActivitySavedSnack(String title) {
-    return 'Сохранено: $title';
-  }
-
-  @override
-  String coupleFeedActivitySaveCardError(String title) {
-    return 'Не удалось сохранить «$title». Попробуйте ещё раз.';
-  }
-
-  @override
-  String coupleFeedActivityPassCardError(String title) {
-    return 'Не удалось пропустить «$title». Попробуйте ещё раз.';
-  }
 
   @override
   String get coupleFeedActivityNotFoundTitle => 'Занятие не найдено';
@@ -1323,36 +1288,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleFeedSavedEmptyAction => 'Найти занятия';
 
   @override
-  String get coupleFeedEventsTitle => 'События';
-
-  @override
-  String get coupleFeedEventsUpcoming => 'Скоро';
-
-  @override
-  String coupleFeedEventsRegisteredTab(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    return 'Записаны ($countString)';
-  }
-
-  @override
-  String get coupleFeedEventsEmptyAll => 'Нет доступных событий';
-
-  @override
-  String get coupleFeedEventsEmptyRegistered =>
-      'Вы не записаны ни на одно событие';
-
-  @override
-  String get coupleFeedEventsDiscover => 'Посмотреть события';
-
-  @override
-  String coupleFeedEventRegisteredSnack(String title) {
-    return 'Вы записаны на «$title»';
-  }
-
-  @override
   String coupleFeedEventRegisteredSnackDetail(String title) {
     return 'Вы записаны на «$title»';
   }
@@ -1366,41 +1301,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось отменить запись. Попробуйте ещё раз.';
 
   @override
-  String get coupleFeedEventCancelTitle => 'Отменить запись?';
-
-  @override
-  String coupleFeedEventCancelBody(String title) {
-    return 'Вы действительно хотите отменить запись на «$title»?';
-  }
-
-  @override
-  String get coupleFeedEventCancelNo => 'Нет';
-
-  @override
-  String get coupleFeedEventCancelYes => 'Да, отменить';
-
-  @override
   String get coupleFeedEventCancelled => 'Запись отменена';
 
   @override
   String get coupleFeedEventFull => 'Мест нет';
-
-  @override
-  String coupleFeedEventSpots(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString места',
-      many: '$countString мест',
-      few: '$countString места',
-      one: '$countString место',
-    );
-    return '$_temp0';
-  }
 
   @override
   String coupleFeedEventSpotsLeft(int count) {
@@ -1714,9 +1618,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleQuestionHistory => 'Ваши прошлые ответы';
 
   @override
-  String get coupleSpaceTitle => 'Наше место';
-
-  @override
   String get coupleSpaceSettingsTooltip => 'Настройки';
 
   @override
@@ -1724,19 +1625,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get coupleSpacePartnerFallback => 'Ваша половинка';
-
-  @override
-  String coupleSpaceTogetherSince(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count дня',
-      many: '$count дней',
-      few: '$count дня',
-      one: '$count день',
-    );
-    return 'Вместе уже $_temp0';
-  }
 
   @override
   String get coupleSpaceStoryBegins => 'Ваша история начинается';
@@ -1976,44 +1864,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coupleSpaceFailUnexpected => 'Неожиданный ответ сервера.';
 
   @override
-  String get coupleSpaceCalendarTitle => 'Календарь';
-
-  @override
-  String get coupleSpaceCalendarShabbatIdeas => 'Идеи на этот Шаббат';
-
-  @override
-  String get coupleSpaceCalendarUpcoming => 'Ближайшие праздники';
-
-  @override
   String get coupleSpaceCalendarPrevMonth => 'Предыдущий месяц';
 
   @override
   String get coupleSpaceCalendarNextMonth => 'Следующий месяц';
-
-  @override
-  String get coupleSpaceCalendarOngoing => 'Идёт сейчас';
-
-  @override
-  String coupleSpaceCalendarCountdown(int count) {
-    return 'Через $count дн.';
-  }
-
-  @override
-  String get coupleSpaceCalendarIdeas => 'Идеи для пары';
-
-  @override
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  ) {
-    return '$startDay – $endDay $month';
-  }
-
-  @override
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end) {
-    return '$start – $end';
-  }
 
   @override
   String coupleTodayEyebrow(int days) {
@@ -2513,23 +2367,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override
-  String get jewishCalendarShabbatTitle => 'Этот Шаббат';
-
-  @override
-  String jewishCalendarParashat(String name) {
-    return 'Недельная глава: $name';
-  }
-
-  @override
   String jewishCalendarParshaPair(String first, String second) {
     return '$first – $second';
   }
-
-  @override
-  String get jewishCalendarCandleLighting => 'Зажигание свечей';
-
-  @override
-  String get jewishCalendarHavdalah => 'Гавдала';
 
   @override
   String get jewishCalendarCategoryPreparation => 'Подготовка';

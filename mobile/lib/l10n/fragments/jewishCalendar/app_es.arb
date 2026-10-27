@@ -1,9 +1,5 @@
 {
-  "jewishCalendarShabbatTitle": "Este Shabat",
-  "jewishCalendarParashat": "Parashá {name}",
   "jewishCalendarParshaPair": "{first} – {second}",
-  "jewishCalendarCandleLighting": "Encendido de velas",
-  "jewishCalendarHavdalah": "Havdalá",
   "jewishCalendarCategoryPreparation": "Preparación",
   "jewishCalendarCategorySpiritual": "Espiritual",
   "jewishCalendarCategoryRelaxation": "Descanso",

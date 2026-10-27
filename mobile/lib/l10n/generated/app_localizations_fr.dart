@@ -1194,48 +1194,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coupleFeedPartnerMazl => 'Partenaire MAZL';
 
   @override
-  String coupleFeedPartnerDiscountMazl(int percent) {
-    return '-$percent % Partenaire MAZL';
-  }
-
-  @override
   String coupleFeedPartnerDiscount(int percent) {
     return '-$percent % Partenaire';
   }
 
   @override
-  String get coupleFeedActivitiesTitle => 'Activités';
-
-  @override
   String get coupleFeedSavedTitle => 'Activités sauvegardées';
-
-  @override
-  String get coupleFeedActivitiesEmptyTitle => 'Aucune activité pour le moment';
-
-  @override
-  String get coupleFeedActivitiesEmptyLine =>
-      'De nouvelles idées arrivent bientôt.';
-
-  @override
-  String get coupleFeedRefresh => 'Actualiser';
-
-  @override
-  String get coupleFeedSeeDetail => 'Voir le détail';
-
-  @override
-  String coupleFeedActivitySavedSnack(String title) {
-    return '$title sauvegardé';
-  }
-
-  @override
-  String coupleFeedActivitySaveCardError(String title) {
-    return 'Impossible de sauvegarder « $title ». Réessayez.';
-  }
-
-  @override
-  String coupleFeedActivityPassCardError(String title) {
-    return 'Impossible de passer « $title ». Réessayez.';
-  }
 
   @override
   String get coupleFeedActivityNotFoundTitle => 'Activité introuvable';
@@ -1324,36 +1288,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coupleFeedSavedEmptyAction => 'Découvrir des activités';
 
   @override
-  String get coupleFeedEventsTitle => 'Événements';
-
-  @override
-  String get coupleFeedEventsUpcoming => 'À venir';
-
-  @override
-  String coupleFeedEventsRegisteredTab(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    return 'Inscrits ($countString)';
-  }
-
-  @override
-  String get coupleFeedEventsEmptyAll => 'Aucun événement disponible';
-
-  @override
-  String get coupleFeedEventsEmptyRegistered =>
-      'Vous n\'êtes inscrit à aucun événement';
-
-  @override
-  String get coupleFeedEventsDiscover => 'Découvrir les événements';
-
-  @override
-  String coupleFeedEventRegisteredSnack(String title) {
-    return 'Inscrits à \"$title\"';
-  }
-
-  @override
   String coupleFeedEventRegisteredSnackDetail(String title) {
     return 'Inscrits à « $title »';
   }
@@ -1367,39 +1301,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible d\'annuler l\'inscription. Réessayez.';
 
   @override
-  String get coupleFeedEventCancelTitle => 'Annuler l\'inscription ?';
-
-  @override
-  String coupleFeedEventCancelBody(String title) {
-    return 'Voulez-vous vraiment annuler votre inscription à \"$title\" ?';
-  }
-
-  @override
-  String get coupleFeedEventCancelNo => 'Non';
-
-  @override
-  String get coupleFeedEventCancelYes => 'Oui, annuler';
-
-  @override
   String get coupleFeedEventCancelled => 'Inscription annulée';
 
   @override
   String get coupleFeedEventFull => 'Complet';
-
-  @override
-  String coupleFeedEventSpots(int count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString places',
-      one: '$countString place',
-    );
-    return '$_temp0';
-  }
 
   @override
   String coupleFeedEventSpotsLeft(int count) {
@@ -1710,9 +1615,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coupleQuestionHistory => 'Vos réponses précédentes';
 
   @override
-  String get coupleSpaceTitle => 'Notre espace';
-
-  @override
   String get coupleSpaceSettingsTooltip => 'Réglages';
 
   @override
@@ -1720,17 +1622,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get coupleSpacePartnerFallback => 'Votre Moitié';
-
-  @override
-  String coupleSpaceTogetherSince(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count jours',
-      one: '$count jour',
-    );
-    return 'Ensemble depuis $_temp0';
-  }
 
   @override
   String get coupleSpaceStoryBegins => 'Votre histoire commence';
@@ -1973,44 +1864,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coupleSpaceFailUnexpected => 'Réponse inattendue du serveur.';
 
   @override
-  String get coupleSpaceCalendarTitle => 'Calendrier';
-
-  @override
-  String get coupleSpaceCalendarShabbatIdeas => 'Idées pour ce Shabbat';
-
-  @override
-  String get coupleSpaceCalendarUpcoming => 'Prochaines fêtes';
-
-  @override
   String get coupleSpaceCalendarPrevMonth => 'Mois précédent';
 
   @override
   String get coupleSpaceCalendarNextMonth => 'Mois suivant';
-
-  @override
-  String get coupleSpaceCalendarOngoing => 'En cours';
-
-  @override
-  String coupleSpaceCalendarCountdown(int count) {
-    return 'J-$count';
-  }
-
-  @override
-  String get coupleSpaceCalendarIdeas => 'Idées en couple';
-
-  @override
-  String coupleSpaceCalendarRangeSameMonth(
-    String startDay,
-    String endDay,
-    String month,
-  ) {
-    return '$startDay – $endDay $month';
-  }
-
-  @override
-  String coupleSpaceCalendarRangeOtherMonth(String start, String end) {
-    return '$start – $end';
-  }
 
   @override
   String coupleTodayEyebrow(int days) {
@@ -2512,23 +2369,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
 
   @override
-  String get jewishCalendarShabbatTitle => 'Ce Shabbat';
-
-  @override
-  String jewishCalendarParashat(String name) {
-    return 'Parashat $name';
-  }
-
-  @override
   String jewishCalendarParshaPair(String first, String second) {
     return '$first $second';
   }
-
-  @override
-  String get jewishCalendarCandleLighting => 'Allumage';
-
-  @override
-  String get jewishCalendarHavdalah => 'Havdala';
 
   @override
   String get jewishCalendarCategoryPreparation => 'Préparation';
