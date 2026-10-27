@@ -239,6 +239,8 @@ export async function initDb() {
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `;
+  // The reduced rate of mazl+ members, in cents of `currency` (docs/premium/MONETISATION.md section 10).
+  await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS member_price_cents INTEGER CHECK (member_price_cents IS NULL OR member_price_cents >= 0)`;
 
   // Event RSVPs table
   await sql`
@@ -1726,10 +1728,10 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
   liked_at: Date;
   is_super_like: boolean;
   note: string | null;
-    SELECT
-      s.user_id AS user_id,
 }>> {
   const rows = await sql`
+    SELECT
+      s.user_id AS user_id,
       p.display_name,
       DATE_PART('year', AGE(p.birthdate)) AS age,
       p.location,
@@ -1767,10 +1769,10 @@ export async function getReceivedLikes(userId: number): Promise<Array<{
     is_verified: boolean | null;
     picture: string | null;
     liked_at: Date;
-  }>;
-}
     is_super_like: boolean;
     note: string | null;
+  }>;
+}
 
 export async function getReceivedLikesCount(userId: number): Promise<number> {
   const rows = await sql`
@@ -2188,6 +2190,8 @@ export interface Event {
   image_url: string | null;
   organizer_id: number | null;
   is_published: boolean;
+  // Reduced rate of mazl+ members, in cents of `currency`; null = none.
+  member_price_cents: number | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -2209,9 +2213,10 @@ export async function createEvent(params: {
   imageUrl?: string;
   organizerId?: number;
   isPublished?: boolean;
+  memberPriceCents?: number | null;
 }) {
   const result = await sql`
-    INSERT INTO events (title, description, event_type, location, address, latitude, longitude, date, time, end_time, price, currency, max_attendees, image_url, organizer_id, is_published)
+    INSERT INTO events (title, description, event_type, location, address, latitude, longitude, date, time, end_time, price, currency, max_attendees, image_url, organizer_id, is_published, member_price_cents)
     VALUES (
       ${params.title},
       ${params.description ?? null},
@@ -2228,7 +2233,8 @@ export async function createEvent(params: {
       ${params.maxAttendees ?? null},
       ${params.imageUrl ?? null},
       ${params.organizerId ?? null},
-      ${params.isPublished ?? false}
+      ${params.isPublished ?? false},
+      ${params.memberPriceCents ?? null}
     )
     RETURNING *
   `;
@@ -2251,6 +2257,8 @@ export async function updateEvent(eventId: number, params: Partial<{
   maxAttendees: number;
   imageUrl: string;
   isPublished: boolean;
+  // undefined leaves the rate as it is, null removes it.
+  memberPriceCents: number | null;
 }>) {
   const result = await sql`
     UPDATE events SET
@@ -2269,6 +2277,7 @@ export async function updateEvent(eventId: number, params: Partial<{
       max_attendees = COALESCE(${params.maxAttendees ?? null}, max_attendees),
       image_url = COALESCE(${params.imageUrl ?? null}, image_url),
       is_published = COALESCE(${params.isPublished ?? null}, is_published),
+      member_price_cents = CASE WHEN ${params.memberPriceCents !== undefined} THEN ${params.memberPriceCents ?? null}::integer ELSE member_price_cents END,
       updated_at = NOW()
     WHERE id = ${eventId}
     RETURNING *
@@ -3820,6 +3829,7 @@ export async function duplicateEvent(eventId: number) {
     maxAttendees: e.max_attendees,
     imageUrl: e.image_url,
     isPublished: false,
+    memberPriceCents: e.member_price_cents ?? null,
   });
 
   // Copy photos
