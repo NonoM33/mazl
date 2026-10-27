@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/layout/content_max_width.dart';
-import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/services/couple_service.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/couple/screens/couple_mode_setup_screen.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/duo_poses.dart';
 import '../../helpers/l10n_helpers.dart';
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import 'us_daily_fakes.dart';
 import '../duo/duo_geometry.dart';
 import 'couple_flow_fakes.dart';
 
@@ -110,6 +109,7 @@ FakeCoupleTransport _spaceTransport() {
       'memories': [memoryRow(id: 1, title: 'Notre premier voyage')],
     }),
   );
+  t.dailyRoutesAbsent();
   return t;
 }
 
@@ -124,45 +124,49 @@ void main() {
     }) => _pump(
       tester,
       DuoPose.halfOpenBook,
-      CoupleUsScreen(
-        apiService: CoupleApiService(transport: _spaceTransport()),
-      ),
+      usScreen(_spaceTransport()),
       locale: locale,
     );
 
-    testWidgets('book: the couple and its numbers on the first page, the '
+    testWidgets('book: the couple on the first page, the numbers, memories, '
         'actions, goals and dates on the other', (tester) async {
       await pumpSpace(tester);
       final l10n = _l10n();
       _onFirstPage(tester, find.text(l10n.coupleSpaceStoryBegins));
-      _onFirstPage(tester, find.byKey(const Key('couple-stat-0')));
-      _onFirstPage(tester, find.byKey(const Key('couple-stat-2')));
-      _onFirstPage(tester, find.text('Notre premier voyage'));
+      _onSecondPage(tester, find.byKey(const Key('couple-stat-0')));
+      _onSecondPage(tester, find.byKey(const Key('couple-stat-2')));
+      _onSecondPage(tester, find.text('Notre premier voyage'));
       _onSecondPage(tester, find.text(l10n.coupleSpaceQuickAddMemory));
+      // The page is long: the goals and the dates come into view as it
+      // scrolls, still on the second page and clear of the curve.
+      await tester.drag(find.byType(ListView).last, const Offset(0, -700));
+      await tester.pump();
       _onSecondPage(tester, find.text('Voir les aurores boréales'));
       _onSecondPage(tester, find.text('Notre anniversaire'));
-      _nothingInTheCurve(tester, DuoPose.halfOpenBook);
+      // The long page scrolls under the home indicator by design: whether
+      // its taps stay clear of it is the Duo crawl's job (it judges the part
+      // of a list that shows), so only the curve is checked here.
+      expect(foldCrossingProblems(tester, DuoPose.halfOpenBook), isEmpty);
     });
 
     testWidgets('book in Hebrew: the pages swap sides', (tester) async {
       await pumpSpace(tester, locale: const Locale('he'));
       final l10n = _l10n('he');
-      _onFirstPage(tester, find.byKey(const Key('couple-stat-0')), rtl: true);
+      _onFirstPage(tester, find.text(l10n.coupleSpaceStoryBegins), rtl: true);
+      _onSecondPage(tester, find.byKey(const Key('couple-stat-0')), rtl: true);
       _onSecondPage(
         tester,
         find.text(l10n.coupleSpaceQuickAddMemory),
         rtl: true,
       );
-      _nothingInTheCurve(tester, DuoPose.halfOpenBook);
+      expect(foldCrossingProblems(tester, DuoPose.halfOpenBook), isEmpty);
     });
 
     testWidgets('open portrait stays one column', (tester) async {
       await _pump(
         tester,
         DuoPose.openPortrait,
-        CoupleUsScreen(
-          apiService: CoupleApiService(transport: _spaceTransport()),
-        ),
+        usScreen(_spaceTransport()),
       );
       final stats = _rect(tester, find.byKey(const Key('couple-stat-0')));
       final actions = _rect(

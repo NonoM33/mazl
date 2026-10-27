@@ -389,12 +389,13 @@ final List<DuoScreen> duoScreens = [
     session: DuoSession.couple,
     primary: () => find.byType(EditableText),
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/us',
     feature: 'couple',
     file: 'couple/screens/couple_us_screen.dart',
     path: '/couple/us',
     session: DuoSession.couple,
+    primary: () => _action('Répondre'),
   ),
   const DuoScreen(
     id: '/couple/us/settings',

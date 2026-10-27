@@ -2,16 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mazl/core/services/couple_api_service.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
 import '../../helpers/l10n_helpers.dart';
+import 'us_daily_fakes.dart';
 
 Future<FakeCoupleTransport> _pump(
   WidgetTester tester,
-  Widget Function(CoupleApiService) screen, {
+  Widget Function(FakeCoupleTransport) screen, {
   required void Function(FakeCoupleTransport) setUp,
 }) async {
   tester.view.physicalSize = const Size(900, 2400);
@@ -25,7 +24,7 @@ Future<FakeCoupleTransport> _pump(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: kTestLocale,
-      home: screen(CoupleApiService(transport: transport)),
+      home: screen(transport),
     ),
   );
   await tester.pump();
@@ -35,7 +34,7 @@ Future<FakeCoupleTransport> _pump(
 
 void main() {
   group('couple space', () {
-    Widget screen(CoupleApiService api) => CoupleUsScreen(apiService: api);
+    Widget screen(FakeCoupleTransport t) => usScreen(t);
 
     void space(
       FakeCoupleTransport t, {
@@ -54,6 +53,7 @@ void main() {
       t.reply('GET /api/couple/bucket-list', ok({'items': bucket}));
       t.reply('GET /api/couple/dates', ok({'dates': dates}));
       t.reply('GET /api/couple/memories', ok({'memories': memories}));
+      t.dailyRoutesAbsent();
     }
 
     testWidgets('counters arriving as strings are displayed', (tester) async {

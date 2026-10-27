@@ -1,61 +1,108 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_spread.dart';
+import '../../../../core/models/couple_daily.dart';
 import '../../../../core/models/couple_space.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/couple_api_service.dart';
+import '../../../../core/services/couple_daily_api.dart';
 import '../../../../core/services/couple_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../common/widgets/mazl_components.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../common/widgets/directional_icon.dart';
+import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import '../l10n/couple_failure_label.dart';
+import '../widgets/couple_kit.dart';
 import '../widgets/couple_message_view.dart';
+import '../widgets/us_checkin_card.dart';
+import '../widgets/us_load.dart';
+import '../widgets/us_question_card.dart';
+import '../widgets/us_section_error.dart';
+import '../widgets/us_settings_section.dart';
+import '../widgets/us_space_tiles.dart';
 import 'couple_space_sheets.dart';
-import '../../../common/widgets/fold_pages.dart';
 
+/// « Nous deux », the fifth tab of the couple space: the couple, the
+/// question of the day, the monthly check-in, the memories, the goals and the
+/// dates, and the settings of the couple.
+///
+/// Every section loads on its own: a failing question never wipes the
+/// memories, and a route the server does not have yet gives an empty card or
+/// nothing, never an error.
 class CoupleUsScreen extends StatefulWidget {
-  const CoupleUsScreen({super.key, this.apiService});
+  const CoupleUsScreen({
+    super.key,
+    this.apiService,
+    this.dailyApi,
+    this.couple,
+  });
 
-  /// Injected by tests; the app uses the real service.
+  /// Injected by tests; the app uses the real services.
   final CoupleApiService? apiService;
+  final CoupleDailyApi? dailyApi;
+  final CoupleService? couple;
 
   @override
   State<CoupleUsScreen> createState() => _CoupleUsScreenState();
 }
 
+/// The four lists of the shared space, loaded together.
+class _Space {
+  const _Space({
+    required this.snapshot,
+    required this.memories,
+    required this.bucketList,
+    required this.dates,
+  });
+
+  final CoupleStatsSnapshot snapshot;
+  final List<CoupleMemory> memories;
+  final List<BucketListItem> bucketList;
+  final List<CoupleDate> dates;
+}
+
 class _CoupleUsScreenState extends State<CoupleUsScreen> {
   late final CoupleApiService _apiService =
       widget.apiService ?? CoupleApiService();
+  late final CoupleDailyApi _dailyApi =
+      widget.dailyApi ?? CoupleDailyApi.forApp();
+  late final CoupleService _couple = widget.couple ?? CoupleService();
 
-  CoupleStatsSnapshot _snapshot = const CoupleStatsSnapshot();
-  List<CoupleMemory> _memories = [];
-  List<BucketListItem> _bucketList = [];
-  List<CoupleDate> _dates = [];
-  bool _isLoading = true;
-  CoupleFailure? _failure;
+  UsLoad<_Space> _space = const UsLoading();
+  UsLoad<CoupleQuestion?> _question = const UsLoading();
+  UsLoad<CoupleCheckin?> _checkin = const UsLoading();
+
+  /// Whether the partner answered the question, as the day's summary says
+  /// (the fact only, never the words). Unknown until read.
+  bool? _partnerAnswered;
+
+  /// The status the member just chose, shown until the server answers.
+  RelationshipStatus? _pendingStatus;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadSpace();
+    _loadQuestion();
+    _loadCheckin();
   }
+
+  Future<void> _reloadAll() => Future.wait([
+    _loadSpace(quiet: true),
+    _loadQuestion(quiet: true),
+    _loadCheckin(quiet: true),
+  ]);
 
   /// Reads the four lists. [quiet] keeps the screen as it is while loading
   /// (after an add) and, on failure, keeps the old data and says so.
-  Future<void> _loadData({bool quiet = false}) async {
-    if (!quiet) {
-      setState(() {
-        _isLoading = true;
-        _failure = null;
-      });
-    }
+  Future<void> _loadSpace({bool quiet = false}) async {
+    if (!quiet) setState(() => _space = const UsLoading());
 
     final results = await Future.wait([
       _apiService.getStats(),
@@ -83,181 +130,366 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
           context,
           l10n.coupleSpaceRefreshFailed(failure.label(l10n)),
         );
+      } else {
+        setState(() => _space = UsFailed(failure));
       }
-      setState(() {
-        _isLoading = false;
-        if (!quiet) _failure = failure;
-      });
       return;
     }
 
-    setState(() {
-      _snapshot = stats.valueOrNull!;
-      _memories = memories.valueOrNull!;
-      _bucketList = bucket.valueOrNull!;
-      _dates = dates.valueOrNull!;
-      _isLoading = false;
-    });
+    setState(
+      () => _space = UsReady(
+        _Space(
+          snapshot: stats.valueOrNull!,
+          memories: memories.valueOrNull!,
+          bucketList: bucket.valueOrNull!,
+          dates: dates.valueOrNull!,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadQuestion({bool quiet = false}) async {
+    final coupleId = _couple.coupleData?.coupleId;
+    if (coupleId == null) {
+      setState(() => _question = const UsReady(null));
+      return;
+    }
+    if (!quiet) setState(() => _question = const UsLoading());
+
+    final result = await _dailyApi.getQuestion(coupleId);
+    if (!mounted) return;
+    switch (result) {
+      case CoupleOk(:final value):
+        final partnerAnswered = value != null && !value.answered
+            ? await _readPartnerAnswered()
+            : null;
+        if (!mounted) return;
+        setState(() {
+          _question = UsReady(value);
+          _partnerAnswered = partnerAnswered;
+        });
+      case CoupleFailed(:final failure):
+        if (!quiet) setState(() => _question = UsFailed(failure));
+    }
+  }
+
+  /// Only the fact that the partner answered (the day's summary), to tell the
+  /// member it is their turn. A failure here only means "unknown".
+  Future<bool?> _readPartnerAnswered() async {
+    final today = await _dailyApi.getToday();
+    return today.valueOrNull?.question?.partnerAnswered;
+  }
+
+  Future<void> _loadCheckin({bool quiet = false}) async {
+    if (!quiet) setState(() => _checkin = const UsLoading());
+    final result = await _dailyApi.getCheckin();
+    if (!mounted) return;
+    switch (result) {
+      case CoupleOk(:final value):
+        setState(() => _checkin = UsReady(value));
+      case CoupleFailed(:final failure):
+        if (!quiet) setState(() => _checkin = UsFailed(failure));
+    }
+  }
+
+  /// Opens a page and, on the way back, re-reads what it may have changed.
+  Future<void> _open(String path) async {
+    await context.push(path);
+    if (!mounted) return;
+    await Future.wait([_loadQuestion(quiet: true), _loadCheckin(quiet: true)]);
+  }
+
+  Future<void> _setStatus(RelationshipStatus status) async {
+    if (_pendingStatus != null) return;
+    if (status == _couple.coupleData?.status) return;
+    setState(() => _pendingStatus = status);
+    final result = await _couple.updateStatus(status);
+    if (!mounted) return;
+    setState(() => _pendingStatus = null);
+    if (!result.ok) {
+      final l10n = context.l10n;
+      showCoupleError(
+        context,
+        (result.failure ?? CoupleActionFailure.unknown).label(l10n),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    final top = MediaQuery.paddingOf(context).top;
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _buildTitleBar(),
-            Expanded(child: _buildBody()),
-          ],
+      body: ListenableBuilder(
+        listenable: _couple,
+        builder: (context, _) => RefreshIndicator(
+          onRefresh: _reloadAll,
+          child: FoldCutBuilder(
+            minPaneExtent: 240,
+            builder: (context, cut) {
+              // Held like a book: the couple, the question and the check-in
+              // are what the pair looks at (left), the rest what it does.
+              // Set down like a laptop only the couple and the question fit
+              // above the fold; the check-in goes below with the rest.
+              final laptop = cut?.axis == FoldSplitAxis.horizontal;
+              return FoldSpread(
+                laptopVolets: true,
+                padding: EdgeInsets.fromLTRB(24, top + 16, 24, bottom + 24),
+                start: [
+                  _buildTitleBar(),
+                  const SizedBox(height: 16),
+                  _buildCoupleHeader(),
+                  const SizedBox(height: 16),
+                  ..._buildQuestion(),
+                  if (!laptop) ..._buildCheckin(),
+                ],
+                end: [
+                  if (laptop) ..._buildCheckin(),
+                  ..._buildSpace(),
+                  _buildSettings(),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTitleBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              context.l10n.coupleSpaceTitle,
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            context.l10n.coupleTabUs,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
-          RoundIconButton(
-            icon: LucideIcons.settings,
-            tooltip: context.l10n.coupleSpaceSettingsTooltip,
-            onPressed: () => context.push(RoutePaths.coupleUsSettings),
-          ),
-        ],
-      ),
+        ),
+        RoundIconButton(
+          icon: LucideIcons.settings,
+          tooltip: context.l10n.coupleSpaceSettingsTooltip,
+          onPressed: () => context.push(RoutePaths.coupleUsSettings),
+        ),
+      ],
     );
   }
 
-  Widget _buildBody() {
-    if (_isLoading) return const FoldSpinner();
-    if (_failure != null) {
-      return CoupleMessageView.failure(_failure!, onRetry: _loadData);
-    }
-    final bottom = MediaQuery.paddingOf(context).bottom;
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      // Held like a book: the couple, its numbers and its memories to look at
-      // on the first page; the actions, the goals and the dates on the other.
-      child: FoldSpread(
-        padding: EdgeInsets.fromLTRB(24, 0, 24, bottom + 16),
-        start: [
-          _buildCoupleHeader(),
-          const SizedBox(height: 16),
-          _buildStatsSection(),
-          const SizedBox(height: 32),
-          _buildMemoriesSection(),
-          const SizedBox(height: 32),
-        ],
-        end: [
-          _buildQuickActions(),
-          const SizedBox(height: 32),
-          _buildBucketListSection(),
-          const SizedBox(height: 32),
-          _buildDatesSection(),
-        ],
-      ),
-    );
-  }
+  String get _partnerName =>
+      _couple.coupleData?.partnerName ??
+      context.l10n.coupleSpacePartnerFallback;
 
   Widget _buildCoupleHeader() {
     final scheme = Theme.of(context).colorScheme;
-    final couple = CoupleService().coupleData;
+    final couple = _couple.coupleData;
     final user = AuthService().currentUser;
     final l10n = context.l10n;
     final userName = user?.displayName ?? l10n.coupleSpaceYou;
-    final partnerName = couple?.partnerName ?? l10n.coupleSpacePartnerFallback;
     final daysTogether = couple?.daysTogether ?? 0;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
+    return CoupleCard(
+      padding: const EdgeInsets.all(16),
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox.square(
-                dimension: 72,
-                child: ProfilePhoto(url: user?.photoUrl, radius: 36),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  LucideIcons.heart,
-                  size: 16,
-                  color: scheme.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox.square(
-                dimension: 72,
-                child: ProfilePhoto(
-                  url: couple?.partnerPicture,
-                  seed: 1,
-                  radius: 36,
-                ),
-              ),
-            ],
+          SizedBox.square(
+            dimension: 52,
+            child: ProfilePhoto(url: user?.photoUrl, radius: 26),
           ),
-          const SizedBox(height: 16),
-          Text(
-            '$userName & $partnerName',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
+          const SizedBox(width: 8),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              LucideIcons.heart,
+              size: 12,
+              color: scheme.onPrimaryContainer,
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            daysTogether > 0
-                ? l10n.coupleSpaceTogetherSince(daysTogether)
-                : l10n.coupleSpaceStoryBegins,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          SizedBox.square(
+            dimension: 52,
+            child: ProfilePhoto(
+              url: couple?.partnerPicture,
+              seed: 1,
+              radius: 26,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$userName & $_partnerName',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  daysTogether > 0
+                      ? l10n.coupleUsDay(daysTogether)
+                      : l10n.coupleSpaceStoryBegins,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatsSection() {
-    final stats = _snapshot.stats;
+  List<Widget> _buildQuestion() {
+    final l10n = context.l10n;
+    switch (_question) {
+      case UsLoading():
+        return const [UsLoadingCard(), SizedBox(height: 16)];
+      case UsFailed(:final failure):
+        return [
+          UsSectionError(
+            title: l10n.coupleUsQuestionLabel,
+            line: failure.label(l10n),
+            onRetry: _loadQuestion,
+          ),
+          const SizedBox(height: 16),
+        ];
+      case UsReady(:final value):
+        if (value == null) return const [];
+        return [
+          UsQuestionCard(
+            question: value,
+            partnerName: _partnerName,
+            partnerAnswered: _partnerAnswered,
+            onOpen: () => _open(RoutePaths.coupleQuestion),
+          ),
+          _buildHistoryLink(),
+          const SizedBox(height: 16),
+        ];
+    }
+  }
+
+  Widget _buildHistoryLink() {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: () => context.push(RoutePaths.coupleQuestions),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinTapTarget),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.l10n.coupleUsHistoryLink,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            DirectionalIcon(
+              LucideIcons.chevronRight,
+              size: 18,
+              color: scheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildCheckin() {
+    final l10n = context.l10n;
+    switch (_checkin) {
+      case UsLoading():
+        return const [UsLoadingCard(), SizedBox(height: 16)];
+      case UsFailed(:final failure):
+        return [
+          UsSectionError(
+            title: l10n.coupleUsCheckinLabel,
+            line: failure.label(l10n),
+            onRetry: _loadCheckin,
+          ),
+          const SizedBox(height: 16),
+        ];
+      case UsReady(:final value):
+        if (value == null) return const [];
+        return [
+          UsCheckinCard(
+            checkin: value,
+            partnerName: _partnerName,
+            onOpen: () => _open(RoutePaths.coupleCheckin),
+          ),
+          const SizedBox(height: 32),
+        ];
+    }
+  }
+
+  List<Widget> _buildSpace() {
+    final l10n = context.l10n;
+    switch (_space) {
+      case UsLoading():
+        return const [UsLoadingCard(), SizedBox(height: 32)];
+      case UsFailed(:final failure):
+        return [
+          UsSectionError(
+            title: l10n.coupleSpaceLoadFailedTitle,
+            line: failure.label(l10n),
+            onRetry: _loadSpace,
+          ),
+          const SizedBox(height: 32),
+        ];
+      case UsReady(:final value):
+        return [
+          _buildStatsSection(value.snapshot),
+          const SizedBox(height: 32),
+          _buildQuickActions(),
+          const SizedBox(height: 32),
+          _buildMemoriesSection(value.memories),
+          const SizedBox(height: 32),
+          _buildBucketListSection(value.bucketList),
+          const SizedBox(height: 32),
+          _buildDatesSection(value.dates),
+          const SizedBox(height: 32),
+        ];
+    }
+  }
+
+  Widget _buildSettings() {
+    final couple = _couple.coupleData;
+    return UsSettingsSection(
+      status: _pendingStatus ?? couple?.status ?? RelationshipStatus.single,
+      premium: _couple.premium,
+      partnerName: _partnerName,
+      onStatus: _setStatus,
+      onPremium: () => context.push(RoutePaths.couplePremium),
+    );
+  }
+
+  Widget _buildStatsSection(CoupleStatsSnapshot snapshot) {
+    final stats = snapshot.stats;
     final l10n = context.l10n;
     return Row(
       children: [
-        _StatCard(
+        UsStatCard(
           key: const Key('couple-stat-0'),
           icon: LucideIcons.bookmark,
           value: '${stats.savedActivities}',
           label: l10n.coupleSpaceStatSavedActivities,
         ),
         const SizedBox(width: 12),
-        _StatCard(
+        UsStatCard(
           key: const Key('couple-stat-1'),
           icon: LucideIcons.calendar,
           value: '${stats.eventsRegistered}',
           label: l10n.coupleSpaceStatUpcomingEvents,
         ),
         const SizedBox(width: 12),
-        _StatCard(
+        UsStatCard(
           key: const Key('couple-stat-2'),
           icon: LucideIcons.camera,
           value: '${stats.memoriesCount}',
@@ -276,19 +508,19 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
         const SizedBox(height: 12),
         Row(
           children: [
-            _QuickActionButton(
+            UsQuickAction(
               icon: LucideIcons.camera,
               label: l10n.coupleSpaceQuickAddMemory,
               onTap: _showAddMemorySheet,
             ),
             const SizedBox(width: 12),
-            _QuickActionButton(
+            UsQuickAction(
               icon: LucideIcons.target,
               label: l10n.coupleSpaceQuickAddBucket,
               onTap: _showAddBucketItemSheet,
             ),
             const SizedBox(width: 12),
-            _QuickActionButton(
+            UsQuickAction(
               icon: LucideIcons.calendarPlus,
               label: l10n.coupleSpaceQuickAddDate,
               onTap: _showAddDateSheet,
@@ -299,15 +531,15 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
     );
   }
 
-  Widget _buildMemoriesSection() {
+  Widget _buildMemoriesSection(List<CoupleMemory> memories) {
     final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionLabel(l10n.coupleSpaceMemoriesTitle),
         const SizedBox(height: 12),
-        if (_memories.isEmpty)
-          _EmptyCard(
+        if (memories.isEmpty)
+          UsEmptyCard(
             icon: LucideIcons.camera,
             title: l10n.coupleSpaceMemoriesEmptyTitle,
             hint: l10n.coupleSpaceMemoriesEmptyHint,
@@ -317,42 +549,42 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
             height: 140,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _memories.take(10).length,
+              itemCount: memories.take(10).length,
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) =>
-                  _MemoryTile(memory: _memories[index], seed: index),
+                  UsMemoryTile(memory: memories[index], seed: index),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildBucketListSection() {
-    final pending = _bucketList.where((i) => !i.isCompleted).toList();
-    final completed = _bucketList.where((i) => i.isCompleted).toList();
+  Widget _buildBucketListSection(List<BucketListItem> bucketList) {
+    final pending = bucketList.where((i) => !i.isCompleted).toList();
+    final completed = bucketList.where((i) => i.isCompleted).toList();
     final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionLabel(
-          _bucketList.isEmpty
+          bucketList.isEmpty
               ? l10n.coupleSpaceBucketTitle
               : l10n.coupleSpaceBucketProgress(
                   completed.length,
-                  _bucketList.length,
+                  bucketList.length,
                 ),
         ),
         const SizedBox(height: 12),
-        if (_bucketList.isEmpty)
-          _EmptyCard(
+        if (bucketList.isEmpty)
+          UsEmptyCard(
             icon: LucideIcons.target,
             title: l10n.coupleSpaceBucketEmptyTitle,
             hint: l10n.coupleSpaceBucketEmptyHint,
           )
         else
           for (final item in pending.take(3))
-            _BucketListItem(
+            UsBucketItem(
               title: item.title,
               category: item.category,
               isCompleted: false,
@@ -362,7 +594,7 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
     );
   }
 
-  Widget _buildDatesSection() {
+  Widget _buildDatesSection(List<CoupleDate> dates) {
     final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,15 +609,15 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
           ],
         ),
         const SizedBox(height: 4),
-        if (_dates.isEmpty)
-          _EmptyCard(
+        if (dates.isEmpty)
+          UsEmptyCard(
             icon: LucideIcons.calendarHeart,
             title: l10n.coupleSpaceDatesEmptyTitle,
             hint: l10n.coupleSpaceDatesEmptyHint,
           )
         else
-          for (final date in _dates.take(3))
-            _DateItem(
+          for (final date in dates.take(3))
+            UsDateItem(
               title: date.title,
               date: _formatDate(date.date),
               type: date.type,
@@ -400,7 +632,7 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
       isScrollControlled: true,
       builder: builder,
     );
-    if (added == true && mounted) await _loadData(quiet: true);
+    if (added == true && mounted) await _loadSpace(quiet: true);
   }
 
   void _showAddMemorySheet() =>
@@ -425,7 +657,7 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        await _loadData(quiet: true);
+        await _loadSpace(quiet: true);
       case CoupleFailed():
         showCoupleError(context, l10n.coupleSpaceGoalFailed);
     }
@@ -434,365 +666,5 @@ class _CoupleUsScreenState extends State<CoupleUsScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     return DateFormat.yMMMd(context.l10n.localeName).format(date);
-  }
-}
-
-/// Une tuile de chiffre : brume, icône accent, chiffre en encre.
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    super.key,
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: scheme.primary, size: 22),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontFamily: AppTypography.family,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.8,
-                height: 1.1,
-                color: scheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.3,
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Un raccourci d'ajout : contour filet, icône accent, libellé encre.
-class _QuickActionButton extends StatelessWidget {
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: scheme.outline),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: scheme.primary, size: 22),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 1.3,
-                  fontWeight: FontWeight.w500,
-                  color: scheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// État vide : une carte brume, une icône grise, deux lignes.
-class _EmptyCard extends StatelessWidget {
-  const _EmptyCard({
-    required this.icon,
-    required this.title,
-    required this.hint,
-  });
-
-  final IconData icon;
-  final String title;
-  final String hint;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 28, color: scheme.onSurfaceVariant),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            hint,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Un souvenir : sa photo, ou une teinte neutre avec une icône et son titre.
-class _MemoryTile extends StatelessWidget {
-  const _MemoryTile({required this.memory, required this.seed});
-
-  final CoupleMemory memory;
-  final int seed;
-
-  IconData get _icon {
-    switch (memory.type) {
-      case 'photo':
-        return LucideIcons.camera;
-      case 'note':
-        return LucideIcons.fileText;
-      case 'milestone':
-        return LucideIcons.trophy;
-      case 'date':
-        return LucideIcons.calendarHeart;
-      default:
-        return LucideIcons.sparkles;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tint = AppColors.photoTints[seed % AppColors.photoTints.length];
-    final imageUrl = memory.imageUrl;
-    return Container(
-      width: 140,
-      decoration: BoxDecoration(
-        color: tint,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: imageUrl != null
-          ? CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-              width: 140,
-              height: 140,
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(_icon, size: 28, color: AppColors.textTertiaryLight),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    memory.title ?? '',
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.ink,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class _BucketListItem extends StatelessWidget {
-  const _BucketListItem({
-    required this.title,
-    required this.isCompleted,
-    required this.onComplete,
-    this.category,
-  });
-
-  final String title;
-  final String? category;
-  final bool isCompleted;
-  final VoidCallback onComplete;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 16, 4),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onComplete,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isCompleted ? AppColors.success : scheme.outline,
-                    width: 1.5,
-                  ),
-                  color: isCompleted ? AppColors.success : Colors.transparent,
-                ),
-                child: isCompleted
-                    ? const Icon(
-                        LucideIcons.check,
-                        size: 14,
-                        color: Colors.white,
-                      )
-                    : null,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-                  if (category != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      category!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DateItem extends StatelessWidget {
-  const _DateItem({
-    required this.title,
-    required this.date,
-    required this.type,
-  });
-
-  final String title;
-  final String date;
-  final String type;
-
-  IconData get _typeIcon {
-    switch (type) {
-      case 'anniversary':
-        return LucideIcons.heart;
-      case 'birthday':
-        return LucideIcons.cake;
-      case 'holiday':
-        return LucideIcons.moonStar;
-      default:
-        return LucideIcons.calendar;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          Icon(_typeIcon, size: 22, color: scheme.primary),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  date,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
