@@ -189,10 +189,16 @@ void main() {
       expect(find.text('Profiter de -30 %'), findsOneWidget);
     });
 
-    testWidgets('the badge is on the targeted plan only', (tester) async {
+    // On the simulator a bare « -30 % » sat next to the full StoreKit price,
+    // which reads as already discounted, and looked like the blue savings
+    // badges (-50 %, -33 %): the reduction only comes with the offer code.
+    testWidgets('the badge is on the targeted plan only, named as an offer', (
+      tester,
+    ) async {
       await _pump(tester, storefront: storefrontWithCampaign('valentine'));
-      expect(find.text('-30 %'), findsOneWidget);
-      final badge = tester.getCenter(find.text('-30 %')).dy;
+      expect(find.text('Offre -30 %'), findsOneWidget);
+      expect(find.text('-30 %'), findsNothing);
+      final badge = tester.getCenter(find.text('Offre -30 %')).dy;
       final row = tester.getRect(
         find.ancestor(of: find.text('3 mois'), matching: find.byType(InkWell)),
       );

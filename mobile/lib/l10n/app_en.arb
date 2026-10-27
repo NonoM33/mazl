@@ -1122,7 +1122,7 @@
   "settingsBlockedOn": "Blocked on {date}",
   "settingsRestoreNothing": "No subscription found.",
   "storefrontCampaignUntil": "Until {date}",
-  "storefrontDiscountBadge": "-{percent}%",
+  "storefrontDiscountBadge": "Offer -{percent}%",
   "storefrontCampaignDefaultCta": "Get the offer",
   "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
   "settingsFestiveIconTitle": "Holiday icon",

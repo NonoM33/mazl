@@ -8,7 +8,7 @@
       }
     }
   },
-  "storefrontDiscountBadge": "-{percent} %",
+  "storefrontDiscountBadge": "Offre -{percent} %",
   "@storefrontDiscountBadge": {
     "description": "Pastille de réduction d'une offre de saison sur une formule mazl+. {percent} est un nombre entier (10 à 90). Doit rester très court.",
     "placeholders": {

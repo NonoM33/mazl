@@ -6848,7 +6848,7 @@ abstract class AppLocalizations {
   /// Pastille de réduction d'une offre de saison sur une formule mazl+. {percent} est un nombre entier (10 à 90). Doit rester très court.
   ///
   /// In fr, this message translates to:
-  /// **'-{percent} %'**
+  /// **'Offre -{percent} %'**
   String storefrontDiscountBadge(int percent);
 
   /// Texte du bouton d'une offre de saison quand le serveur n'en donne pas. Ouvre le code d'offre de l'App Store ou lance l'achat.

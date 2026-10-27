@@ -1,6 +1,6 @@
 {
   "storefrontCampaignUntil": "עד {date}",
-  "storefrontDiscountBadge": "‎-{percent}%",
+  "storefrontDiscountBadge": "מבצע ‎-{percent}%",
   "storefrontCampaignDefaultCta": "למימוש ההצעה",
   "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
   "settingsFestiveIconTitle": "סמל החגים",

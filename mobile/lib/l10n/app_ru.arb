@@ -1122,7 +1122,7 @@
   "settingsBlockedOn": "Дата блокировки: {date}",
   "settingsRestoreNothing": "Подписка не найдена.",
   "storefrontCampaignUntil": "До {date}",
-  "storefrontDiscountBadge": "-{percent} %",
+  "storefrontDiscountBadge": "Акция -{percent} %",
   "storefrontCampaignDefaultCta": "Воспользоваться предложением",
   "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
   "settingsFestiveIconTitle": "Праздничный значок",

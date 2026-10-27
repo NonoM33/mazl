@@ -4006,7 +4006,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String storefrontDiscountBadge(int percent) {
-    return '-$percent %';
+    return 'Offre -$percent %';
   }
 
   @override

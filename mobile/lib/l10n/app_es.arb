@@ -1122,7 +1122,7 @@
   "settingsBlockedOn": "Bloqueado el {date}",
   "settingsRestoreNothing": "No se encontró ninguna suscripción.",
   "storefrontCampaignUntil": "Hasta el {date}",
-  "storefrontDiscountBadge": "-{percent} %",
+  "storefrontDiscountBadge": "Oferta -{percent} %",
   "storefrontCampaignDefaultCta": "Aprovecha la oferta",
   "storefrontPlanSemanticsHighlight": "{plan}. {highlight}",
   "settingsFestiveIconTitle": "Icono de las fiestas",
