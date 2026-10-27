@@ -19,6 +19,7 @@ class MazlNetworkImage extends StatelessWidget {
     this.placeholder,
     this.errorBuilder,
     this.fadeDuration = const Duration(milliseconds: 220),
+    this.filterQuality = FilterQuality.medium,
   });
 
   final String url;
@@ -28,6 +29,10 @@ class MazlNetworkImage extends StatelessWidget {
   final WidgetBuilder? placeholder;
   final WidgetBuilder? errorBuilder;
   final Duration fadeDuration;
+
+  /// How the photo is scaled: [FilterQuality.high] for a tiny copy shown large
+  /// (the 48 px blurred photo of a like), so it stays smooth.
+  final FilterQuality filterQuality;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +53,7 @@ class MazlNetworkImage extends StatelessWidget {
           return Image(
             image: mazlImageProvider(url, cacheWidth: width),
             fit: fit,
+            filterQuality: filterQuality,
             gaplessPlayback: true,
             // A photo that cannot load ends on the flat tint, never on a spinner.
             errorBuilder: (context, error, stack) =>

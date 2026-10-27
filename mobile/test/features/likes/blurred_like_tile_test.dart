@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mazl/core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -93,10 +93,16 @@ void main() {
   ) async {
     await _pump(tester, _like());
 
-    final image = tester.widget<CachedNetworkImage>(
-      find.byType(CachedNetworkImage),
+    final photo = tester.widget<MazlNetworkImage>(
+      find.byType(MazlNetworkImage),
     );
-    expect(image.imageUrl, 'https://example.com/blur.jpg');
+    expect(photo.url, 'https://example.com/blur.jpg');
+    final image = tester.widget<Image>(
+      find.descendant(
+        of: find.byType(MazlNetworkImage),
+        matching: find.byType(Image),
+      ),
+    );
     expect(image.filterQuality, FilterQuality.high);
     expect(image.fit, BoxFit.cover);
   });
@@ -106,7 +112,7 @@ void main() {
   ) async {
     await _pump(tester, _like(blurred: null));
 
-    expect(find.byType(CachedNetworkImage), findsNothing);
+    expect(find.byType(MazlNetworkImage), findsNothing);
     expect(find.byKey(BlurredLikeTile.fallbackKey), findsOneWidget);
     expect(find.text('Quelqu\'un'), findsOneWidget);
   });

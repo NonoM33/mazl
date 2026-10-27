@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -7,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../logic/like_age.dart';
 import 'super_like_mark.dart';
+import '../../../../core/images/mazl_network_image.dart';
 
 /// The tile of a received like for a member without mazl+ (contract of
 /// docs/premium/MONETISATION.md §1): a tiny blurred copy of the photo drawn
@@ -104,13 +104,11 @@ class _Backdrop extends StatelessWidget {
     final fallback = _GradientFallback(index: index);
     final photo = url;
     if (photo == null) return fallback;
-    return CachedNetworkImage(
-      imageUrl: photo,
-      fit: BoxFit.cover,
+    return MazlNetworkImage(
+      url: photo,
       filterQuality: FilterQuality.high,
-      fadeInDuration: const Duration(milliseconds: 150),
-      placeholder: (_, _) => fallback,
-      errorWidget: (_, _, _) => fallback,
+      placeholder: (_) => fallback,
+      errorBuilder: (_) => fallback,
     );
   }
 }
