@@ -187,6 +187,21 @@ estompé à ses extrémités et aux bords de sa course. Il n'apparaît que sur l
 (`LoadingThread`). Il n'y a qu'un fil par liste, donc un seul ticker. Animations réduites : ni fil, ni
 ticker. En pose livre, le squelette des événements tient dans la première page.
 
+## 7quater. Aimer : le cœur qui se remplit depuis le doigt
+
+Depuis le 2026-10-27, les boutons « aimer » (carte de Découvrir, « aimer en retour » des Likes, barre
+« J'aime » du profil) se remplissent depuis le point exact du toucher (`LikeFill`) :
+- **Pendant l'appui** : un disque grandit depuis le doigt, découpé à la forme du bouton, jusqu'à 65 % du
+  bouton (`likeFillPreview`, en 360 ms : `likeFillDuration`, `likeFillCurve`).
+- **Tap validé** : le disque couvre le bouton (`likeFillFinish`, 140 ms au plus), puis le rebond
+  commun (`popDuration`, `popScale`).
+- **Tap annulé** (le doigt sort) : le disque se vide (`likeFillCancel`) et rien n'est envoyé.
+- **Après le rebond** : le bouton revient au repos (`likeFillRelease`).
+- **Couleurs** : sur le bouton accent, le disque est un tekhelet plus profond et le cœur reste blanc. Sur
+  la barre encre du profil, le disque est tekhelet et le texte passe au blanc.
+- **Haptique** : aucune, comme pour tous les boutons.
+- **Animations réduites** : ni disque partiel ni rebond, un fondu de 150 ms.
+
 ## 8. Ce que les tests doivent prouver
 
 - Chaque geste (paquet de Découvrir, paquet du couple, visionneuse, réponse glissée) lit ses valeurs

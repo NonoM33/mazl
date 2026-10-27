@@ -194,6 +194,30 @@ abstract final class MazlMotion {
   /// so it never appears or vanishes abruptly.
   static const loadingThreadEdgeFade = 0.12;
 
+  // --- Like fill (heart buttons) -------------------------------------------
+
+  /// While the finger rests on a heart button, a disc grows from the exact
+  /// touch point toward [likeFillPreview] of the button over this time.
+  static const likeFillDuration = Duration(milliseconds: 360);
+  static const likeFillCurve = Curves.easeOut;
+
+  /// How far the disc gets before the tap is confirmed (0 = nothing, 1 =
+  /// the whole button): the lift of the finger takes it the rest of the way.
+  static const likeFillPreview = 0.65;
+
+  /// Time a confirmed tap needs to bring the disc from nothing to the whole
+  /// button; less when the disc is already part way (the common bounce
+  /// follows, see [popDuration] and [popScale]).
+  static const likeFillFinish = Duration(milliseconds: 140);
+
+  /// A cancelled tap (the finger slid out) empties the disc this fast, from
+  /// full; less when it is part way.
+  static const likeFillCancel = Duration(milliseconds: 160);
+
+  /// Once the bounce is over, the full button goes back to rest in this time,
+  /// so a button that outlives its card never stays filled.
+  static const likeFillRelease = Duration(milliseconds: 200);
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.

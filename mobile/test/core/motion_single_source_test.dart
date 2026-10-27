@@ -17,6 +17,7 @@ const _gestureFiles = <String>[
   'lib/presentation/common/widgets/star_refresh/star_frame.dart',
   'lib/presentation/common/widgets/star_refresh/hanukkiah_frame.dart',
   'lib/presentation/widgets/loading_thread.dart',
+  'lib/presentation/common/widgets/like_fill/like_fill.dart',
 ];
 
 // Screens that only wire a gesture widget: they reach MazlMotion through the

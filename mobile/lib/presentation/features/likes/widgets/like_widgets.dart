@@ -120,6 +120,7 @@ class LikeCard extends StatelessWidget {
                 icon: LucideIcons.heart,
                 tooltip: context.l10n.likesCardLike(name),
                 style: RoundButtonStyle.accent,
+                fillsFromTouch: true,
                 onPressed: onLike,
               ),
             ],
