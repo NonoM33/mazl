@@ -385,12 +385,13 @@ final List<DuoScreen> duoScreens = [
     path: '/couple/concierge/1',
     session: DuoSession.couple,
   ),
-  const DuoScreen(
+  DuoScreen(
     id: '/couple/us',
     feature: 'couple',
     file: 'couple/screens/couple_us_screen.dart',
     path: '/couple/us',
     session: DuoSession.couple,
+    primary: () => _action('Répondre'),
   ),
   const DuoScreen(
     id: '/couple/us/settings',

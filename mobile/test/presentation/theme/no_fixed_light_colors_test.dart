@@ -92,7 +92,7 @@ const _allowed = <String, _Allowed>{
       _Allowed('trait de separation avec branche explicite sombre/clair', [
         (': AppColors.hairline;', 1),
       ]),
-  'lib/presentation/features/couple/screens/couple_us_screen.dart': _Allowed(
+  'lib/presentation/features/couple/widgets/us_space_tiles.dart': _Allowed(
     'souvenirs sur teinte pastel de photo avec texte encre (paire fixe), texte blanc sur photo',
     [
       ('Icon(_icon, size: 28, color: AppColors.textTertiaryLight),', 1),

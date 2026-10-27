@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mazl/core/services/couple_api_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
-import 'package:mazl/presentation/features/couple/screens/couple_us_screen.dart';
 
 import '../../mocks/couple_backend_shapes.dart';
 import '../../mocks/fake_couple_transport.dart';
+import '../couple/us_daily_fakes.dart';
 import '../../helpers/l10n_helpers.dart';
 
 // Paid on 2026-10-23: « Notre espace » arrived with its own pink palette, an
@@ -66,6 +65,7 @@ FakeCoupleTransport _transport({bool filled = true}) {
           : [],
     }),
   );
+  t.dailyRoutesAbsent();
   return t;
 }
 
@@ -82,9 +82,7 @@ Future<void> _pumpSpace(
       supportedLocales: AppLocalizations.supportedLocales,
       locale: kTestLocale,
       theme: theme ?? AppTheme.lightTheme,
-      home: CoupleUsScreen(
-        apiService: CoupleApiService(transport: _transport(filled: filled)),
-      ),
+      home: usScreen(_transport(filled: filled)),
     ),
   );
   await tester.pump();
@@ -158,7 +156,7 @@ void main() {
               filled: filled,
             );
             expect(tester.takeException(), isNull);
-            expect(find.text('Notre espace'), findsOneWidget);
+            expect(find.text('Nous deux'), findsOneWidget);
             // Scroll to the very end: nothing may overflow down there either.
             await tester.drag(
               find.byType(ListView).first,
@@ -191,7 +189,7 @@ void main() {
       (tester) async {
         await _pumpSpace(tester, size: _phones['390x844']!);
         final scheme = Theme.of(
-          tester.element(find.text('Notre espace')),
+          tester.element(find.text('Nous deux')),
         ).colorScheme;
         final fills = [
           for (var i = 0; i < 3; i++) _fill(tester, Key('couple-stat-$i')),
@@ -205,7 +203,7 @@ void main() {
       await _pumpSpace(tester, size: _phones['390x844']!);
       final offenders = _allTexts(tester).where(_emoji.hasMatch).toList();
       expect(offenders, isEmpty);
-      expect(find.text('Notre espace'), findsOneWidget);
+      expect(find.text('Nous deux'), findsOneWidget);
     });
 
     testWidgets('la liste finit au-dessus de la barre d\'onglets', (
