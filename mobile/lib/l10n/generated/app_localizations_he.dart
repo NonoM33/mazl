@@ -1359,10 +1359,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get passportCityNice => 'ניס';
 
   @override
-  String get passportPlusOnly => 'הדרכון זמין למנויי mazl+.';
+  String get passportPlusOnly => 'הדרכון זמין למנויי mazl+‎.';
 
   @override
-  String get passportSeePlus => 'גלו את mazl+';
+  String get passportSeePlus => 'גלו את mazl+‎';
 
   @override
   String get passportSaveFailed => 'לא ניתן להחליף עיר כרגע.';
@@ -1386,7 +1386,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'רק אנשים שסימנתם בלייק יכולים לראות אתכם בגילוי.';
 
   @override
-  String get plusPrivacyLocked => 'למנויי mazl+ בלבד';
+  String get plusPrivacyLocked => 'למנויי mazl+‎ בלבד';
 
   @override
   String get plusPrivacyLoading => 'טוען…';
@@ -1448,7 +1448,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get discoverUndoLimit =>
-      'ניצלתם את הביטול החינמי של היום. עם mazl+ הוא ללא הגבלה.';
+      'ניצלתם את הביטול החינמי של היום. עם mazl+‎ הוא ללא הגבלה.';
 
   @override
   String get discoverUndoFailed => 'לא ניתן לבטל כרגע.';

@@ -22,10 +22,11 @@ import '../../support/store_fakes.dart';
 // card; half open the fold cuts it, the photo on the viewing half and the name,
 // the details and every action on the other one, out of the curve.
 
-/// The four buttons of the card, by icon: pass, like, super like, boost.
+/// The five buttons of the card, by icon: pass, like, undo, super like, boost.
 const _actionIcons = [
   LucideIcons.x,
   LucideIcons.heart,
+  LucideIcons.undo2,
   LucideIcons.star,
   LucideIcons.zap,
 ];

@@ -60,6 +60,25 @@ const _notUserFacing = <String, (String, List<String>)>{
     'en-tête HTTP',
     [r'Bearer $token'],
   ),
+  'lib/core/premium/premium_transport.dart': (
+    'en-tête HTTP',
+    [r'Bearer $jwt'],
+  ),
+  'lib/core/premium/passport_cities.dart': (
+    'nom de la ville envoyé au serveur et lu par les autres membres ; '
+        'l\'écran affiche le nom traduit (passportCity* dans les ARB)',
+    [
+      'Tel Aviv',
+      'Jerusalem',
+      'New York',
+      'London',
+      'Montreal',
+      'Paris',
+      'Marseille',
+      'Lyon',
+      'Nice',
+    ],
+  ),
   'lib/core/services/store/credit_models.dart': (
     'messages de FormatException (credits du serveur illisible), journal',
     [

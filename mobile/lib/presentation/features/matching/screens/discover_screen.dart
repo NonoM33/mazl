@@ -7,6 +7,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/likes/like_allowance.dart';
 import '../../../../core/likes/like_allowance_api.dart';
 import '../../../../core/models/swipe_result.dart';
+import '../../../../core/premium/purchase_moments.dart';
+import '../../../../core/premium/swipe_undo_api.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/data_prefetch_service.dart';
@@ -18,21 +20,47 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/l10n/api_error_text.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
+import '../../passport/l10n/passport_city_label.dart';
+import '../../passport/screens/passport_screen.dart';
 import '../../../widgets/skeletons.dart';
 import '../../chat/conversation_lookup.dart';
 import '../widgets/discover_card.dart';
 import '../widgets/match_sheet.dart';
+import '../widgets/super_like_note_sheet.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import '../../../common/widgets/fold_pages.dart';
 
+/// One pass, like or Super Like the deck let go, to take back with the server.
+class _ThrownCard {
+  _ThrownCard(this.index, this.sent);
+
+  final int index;
+
+  /// Whether the server recorded it (true once its answer was a success).
+  final Future<bool> sent;
+}
+
 class DiscoverScreen extends StatefulWidget {
-  const DiscoverScreen({super.key, this.apiService, this.likeAllowanceApi});
+  const DiscoverScreen({
+    super.key,
+    this.apiService,
+    this.likeAllowanceApi,
+    this.swipeUndoApi,
+    this.offerPlus,
+  });
 
   /// Injected by tests; the app uses the real service.
   final ApiService? apiService;
 
   /// Reads how many likes the server still lets the member send today.
   final LikeAllowanceApi? likeAllowanceApi;
+
+  /// Asks the server to take back the last pass or like.
+  final SwipeUndoApi? swipeUndoApi;
+
+  /// Shows the mazl+ offer for a moment; the app uses [PurchaseMoments.offer].
+  final Future<bool> Function(BuildContext context, PurchaseMoment moment)?
+  offerPlus;
 
   @override
   State<DiscoverScreen> createState() => _DiscoverScreenState();
@@ -45,7 +73,18 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   late final ApiService _apiService = widget.apiService ?? ApiService();
   late final LikeAllowanceApi _allowanceApi =
       widget.likeAllowanceApi ?? HttpLikeAllowanceApi.app();
+  late final SwipeUndoApi _undoApi = widget.swipeUndoApi ?? HttpSwipeUndoApi();
   final CreditsService _credits = CreditsService();
+
+  /// What the deck let go, oldest first: the undo button takes the last back.
+  final List<_ThrownCard> _thrown = [];
+  bool _undoing = false;
+
+  /// The word chosen for the Super Like that is leaving, read in [_onSwiped].
+  String? _pendingNote;
+
+  /// The member closed the word sheet: the card springs back and no gate opens.
+  bool _noteCancelled = false;
 
   /// The day's likes as the SERVER last said it; null until it has.
   LikeAllowance? _allowance;
@@ -105,6 +144,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (cachedProfiles != null && cachedProfiles.isNotEmpty) {
       setState(() {
         _profiles = cachedProfiles;
+        _thrown.clear();
         _deckGeneration++;
         _isLoading = false;
       });
@@ -128,6 +168,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     if (response.success && response.data != null) {
       setState(() {
         _profiles = response.data!;
+        _thrown.clear();
         _deckGeneration++;
         _isLoading = false;
       });
@@ -177,6 +218,12 @@ class _DiscoverScreenState extends State<DiscoverScreen>
           ),
           const SizedBox(width: 8),
           RoundIconButton(
+            icon: LucideIcons.globe,
+            tooltip: context.l10n.passportTitle,
+            onPressed: _openPassport,
+          ),
+          const SizedBox(width: 8),
+          RoundIconButton(
             icon: LucideIcons.slidersHorizontal,
             tooltip: context.l10n.matchingFilters,
             onPressed: _openFilters,
@@ -192,6 +239,23 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       // Reload profiles with new filters
       _loadProfiles(isRefresh: true);
     }
+  }
+
+  /// The Passeport (mazl+): another city for Discover. Back from it with a new
+  /// passport, the feed is read again for that city.
+  Future<void> _openPassport() async {
+    final change = await context.push<PassportChange>(RoutePaths.passport);
+    if (change == null || !mounted) return;
+    final l10n = context.l10n;
+    final passport = change.passport;
+    _showMessage(
+      passport == null
+          ? l10n.passportDeactivated
+          : l10n.passportActivated(
+              passportServerCityLabel(l10n, passport.city),
+            ),
+    );
+    await _loadProfiles(isRefresh: true);
   }
 
   Widget _buildBody() {
@@ -287,7 +351,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         onWillSwipe: _willSwipe,
         onRefused: _onRefused,
         onSwiped: _onSwiped,
-        onUndone: (index) => _undoneIndex = index,
+        onUndone: (index) {
+          _undoneIndex = index;
+          _thrown.removeWhere((card) => card.index == index);
+        },
         onEnd: _onDeckEnd,
         cardBuilder: (context, index, isTop) {
           final profile = _profiles[index];
@@ -312,6 +379,11 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   }
 
   List<Widget> _buildSecondaryActions({required bool followsSwipe}) {
+    final undo = DiscoverMiniAction(
+      icon: LucideIcons.undo2,
+      tooltip: context.l10n.discoverUndo,
+      onPressed: () => unawaited(_onUndoPressed()),
+    );
     final superLike = DiscoverMiniAction(
       icon: LucideIcons.star,
       tooltip: context.l10n.matchingDiscoverSuperLike,
@@ -320,6 +392,8 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       onPressed: () => _deck.swipe(SwipeDirection.up),
     );
     return [
+      // Undo: the server decides whether the last choice can be taken back.
+      undo,
       // Super Like
       if (followsSwipe)
         SwipeProgressScale(
@@ -399,7 +473,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
 
   /// Asked before the card moves: a like or a super like that is not allowed
   /// keeps the card, which springs back, and the gate opens in [_onRefused].
-  bool _willSwipe(int index, SwipeDirection direction) {
+  FutureOr<bool> _willSwipe(int index, SwipeDirection direction) {
     switch (direction) {
       case SwipeDirection.right:
         // Le serveur compte les likes du jour. Ici on ne refuse que ce qu'il a
@@ -408,7 +482,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         return _swipeFromDetail || !_likesKnownExhausted;
       case SwipeDirection.up:
         // Check if user has super likes remaining
-        return PremiumGate.remainingSuperLikes > 0;
+        if (PremiumGate.remainingSuperLikes <= 0) return false;
+        // From the profile page the Super Like is already sent there.
+        if (_swipeFromDetail) return true;
+        return _askSuperLikeNote();
       case SwipeDirection.left:
         return true;
     }
@@ -417,10 +494,33 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   /// The card is back in place: now the premium gate may open.
   void _onRefused(int index, SwipeDirection direction) {
     _swipeFromDetail = false;
+    if (_noteCancelled) {
+      // The member changed their mind in the word sheet: nothing to buy.
+      _noteCancelled = false;
+      return;
+    }
     if (direction == SwipeDirection.right) {
       unawaited(_offerPlusForLikes());
     } else if (direction == SwipeDirection.up) {
       unawaited(_offerSuperLikes());
+    }
+  }
+
+  /// Asks for the optional word of the Super Like. False (the sheet was
+  /// closed or cancelled) keeps the card and sends nothing.
+  Future<bool> _askSuperLikeNote() async {
+    _pendingNote = null;
+    final choice = await showSuperLikeNoteSheet(context);
+    if (!mounted) return false;
+    switch (choice) {
+      case null:
+        _noteCancelled = true;
+        return false;
+      case SendWithNote(:final note):
+        _pendingNote = note;
+        return true;
+      case SendWithoutNote():
+        return true;
     }
   }
 
@@ -446,7 +546,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   /// The server refused a Super Like the app thought it could send (HTTP 402):
   /// its balance has been read from the answer. The card is already gone, so
   /// once a pack is bought the Super Like is sent again to the same person.
-  Future<void> _offerSuperLikesAfterRefusal(Profile profile) async {
+  Future<void> _offerSuperLikesAfterRefusal(
+    Profile profile,
+    String? note,
+  ) async {
     if (!mounted) return;
     final bought = await PremiumGate.offerCredits(
       context,
@@ -456,6 +559,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     final response = await _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: 'super_like',
+      note: note,
     );
     if (mounted && response.success && response.data?['match'] == true) {
       unawaited(_showMatchDialog(profile));
@@ -477,30 +581,110 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       action = 'super_like';
     }
 
+    // The word of a Super Like leaves with it, whatever happens next.
+    final note = action == 'super_like' ? _pendingNote : null;
+    if (action == 'super_like') _pendingNote = null;
+
     // Skip API call if swipe came from detail page (already sent)
     if (_swipeFromDetail) {
       _swipeFromDetail = false;
+      _thrown.add(_ThrownCard(index, Future.value(true)));
       return;
     }
 
     // Send swipe to backend
-    _apiService.sendSwipe(
+    final sending = _apiService.sendSwipe(
       targetUserId: profile.userId,
       action: action,
-    ).then((response) {
+      note: note,
+    );
+    _thrown.add(
+      _ThrownCard(index, sending.then((response) => response.success)),
+    );
+    sending.then((response) {
       if (response.success && swipeMatched(response.data)) {
         // Show match animation
         _showMatchDialog(profile);
       } else if (response.isLikesExhausted) {
         unawaited(_onLikeRefusedByServer(index, profile, response));
       } else if (response.isCreditsExhausted) {
-        unawaited(_offerSuperLikesAfterRefusal(profile));
+        unawaited(_offerSuperLikesAfterRefusal(profile, note));
+      } else if (response.errorCode == 'invalid_note') {
+        unawaited(_onNoteRefusedByServer(index, profile));
       }
       if (response.success && action == 'like') {
         // Le reste du jour a baissé : on le relit, on ne le calcule pas.
         unawaited(_refreshAllowance());
       }
     });
+  }
+
+  /// The server refused the word of a Super Like (HTTP 400 `invalid_note`:
+  /// too long, a link, contact details). Nothing was sent or spent: the card
+  /// is put back so the member can write another one.
+  Future<void> _onNoteRefusedByServer(int index, Profile profile) async {
+    await _bringBack(index, profile);
+    if (mounted) _showMessage(context.l10n.superLikeNoteRefused);
+  }
+
+  /// Takes the last pass or like back: the SERVER decides, and the card only
+  /// comes back once it agreed (or when it never recorded the choice).
+  Future<void> _onUndoPressed() async {
+    if (_undoing) return;
+    if (_thrown.isEmpty) {
+      _showMessage(context.l10n.discoverUndoNothing);
+      return;
+    }
+    _undoing = true;
+    try {
+      final recorded = await _thrown.last.sent;
+      if (!mounted) return;
+      // A choice the server never received has nothing to take back there.
+      if (recorded) await _undoApi.undoLastSwipe();
+      if (!mounted) return;
+      await _restoreLastCard();
+    } on SwipeUndoException catch (error) {
+      if (mounted) await _onUndoRefused(error);
+    } finally {
+      _undoing = false;
+    }
+  }
+
+  /// The last card that left comes back on top. One try per frame for about a
+  /// second: the deck is busy while a card is being dragged or thrown.
+  Future<void> _restoreLastCard() async {
+    const attempts = 60;
+    for (var attempt = 0; attempt < attempts && mounted; attempt++) {
+      _undoneIndex = null;
+      await _deck.undo();
+      if (_undoneIndex != null) return;
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
+
+  Future<void> _onUndoRefused(SwipeUndoException error) async {
+    final l10n = context.l10n;
+    switch (error.kind) {
+      case SwipeUndoErrorKind.limitReached:
+        final offer = widget.offerPlus ?? PurchaseMoments.offer;
+        final shown = await offer(context, PurchaseMoment.undoRefused);
+        // The offer is made once a day: the other times, say why nothing moved.
+        if (!shown && mounted) _showMessage(l10n.discoverUndoLimit);
+      case SwipeUndoErrorKind.nothingToUndo:
+        _showMessage(l10n.discoverUndoNothing);
+      case SwipeUndoErrorKind.notPossible:
+        _showMessage(l10n.discoverUndoNotPossible);
+      case SwipeUndoErrorKind.sessionExpired:
+        _showMessage(l10n.errorSessionExpired);
+      case SwipeUndoErrorKind.server:
+        _showMessage(l10n.errorServer);
+      case SwipeUndoErrorKind.timeout:
+        _showMessage(l10n.errorTimeout);
+      case SwipeUndoErrorKind.network:
+        _showMessage(l10n.errorNetwork);
+      case SwipeUndoErrorKind.unknown:
+        _showMessage(l10n.discoverUndoFailed);
+    }
   }
 
   /// The server took no like (HTTP 402 `likes_exhausted`): the card the member
