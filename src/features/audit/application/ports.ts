@@ -14,6 +14,7 @@ export type AuditTargetType =
   | "matching_params"
   | "storefront_product"
   | "storefront_campaign"
+  | "concierge_request"
   | "staff"
   | "photo"
   | "system";

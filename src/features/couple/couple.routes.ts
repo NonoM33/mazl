@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppVariables } from "../../shared/http/middleware";
 import { registerCoupleCoreRoutes } from "./couple.core.routes";
 import { registerCoupleContentRoutes } from "./couple.content.routes";
+import type { CoupleSpace } from "./couple-space.module";
 
 // Presentation layer for the COUPLE feature. All `/api/couple/*` endpoints were
 // moved verbatim out of the monolith (src/index.ts) — same paths, behaviour,
@@ -20,7 +21,10 @@ import { registerCoupleContentRoutes } from "./couple.content.routes";
 //
 // IMPORTANT: this feature never imports from ../../index — realtime/auth/db
 // helpers all come from the shared modules and the db layer, avoiding a cycle.
-export function registerCoupleRoutes(app: Hono<{ Variables: AppVariables }>): void {
+// The space routes (today, rituals, outings, check-in, daily question, concierge)
+// come first: none of their paths is shadowed by a `:coupleId` route.
+export function registerCoupleRoutes(app: Hono<{ Variables: AppVariables }>, space: CoupleSpace): void {
+  space.registerMemberRoutes(app);
   registerCoupleCoreRoutes(app);
   registerCoupleContentRoutes(app);
 }

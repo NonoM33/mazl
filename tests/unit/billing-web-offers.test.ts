@@ -9,7 +9,7 @@ import { FakeGateway, SETTINGS } from "./support/billing-fakes";
 function gatewayWithPrices(overrides: Record<string, number | null> = {}): FakeGateway {
   const gateway = new FakeGateway();
   const amounts: Record<string, number | null> = {
-    price_plus_1m: 999, price_plus_3m: 2400, price_plus_6m: 4500, price_plus_12m: 7800,
+    price_plus_1m: 999, price_plus_3m: 2400, price_plus_6m: 4500, price_plus_12m: 7800, price_couple_1m: 2999,
     price_boost_1: 199, price_boost_3: 499, price_sl_5: 399, price_sl_15: 999, ...overrides,
   };
   for (const [id, unitAmount] of Object.entries(amounts)) {
@@ -19,13 +19,13 @@ function gatewayWithPrices(overrides: Record<string, number | null> = {}): FakeG
 }
 
 describe("offers", () => {
-  test("eight offers with the documented ids", () => {
-    expect(OFFERS.map((o) => o.id)).toEqual(["plus_1m", "plus_3m", "plus_6m", "plus_12m", "boost_1", "boost_3", "superlikes_5", "superlikes_15"]);
+  test("nine offers with the documented ids", () => {
+    expect(OFFERS.map((o) => o.id)).toEqual(["plus_1m", "plus_3m", "plus_6m", "plus_12m", "couple_1m", "boost_1", "boost_3", "superlikes_5", "superlikes_15"]);
   });
 
   test("subscription plans map to the App Store plan types and product ids", () => {
     const plus = OFFERS.filter((o) => o.kind === "subscription");
-    expect(plus.map((o) => o.planType)).toEqual(["monthly", "three_month", "six_month", "yearly"]);
+    expect(plus.map((o) => o.planType)).toEqual(["monthly", "three_month", "six_month", "yearly", "couple_monthly"]);
     for (const offer of plus) expect(planTypeForProduct(offer.productId)).toBe(offer.planType);
   });
 
@@ -39,7 +39,7 @@ describe("offers", () => {
 
   test("price variables are the ones of the ADR", () => {
     expect(OFFERS.map((o) => o.priceEnv)).toEqual([
-      "STRIPE_PRICE_PLUS_1M", "STRIPE_PRICE_PLUS_3M", "STRIPE_PRICE_PLUS_6M", "STRIPE_PRICE_PLUS_12M",
+      "STRIPE_PRICE_PLUS_1M", "STRIPE_PRICE_PLUS_3M", "STRIPE_PRICE_PLUS_6M", "STRIPE_PRICE_PLUS_12M", "STRIPE_PRICE_COUPLE_1M",
       "STRIPE_PRICE_BOOST_1", "STRIPE_PRICE_BOOST_3", "STRIPE_PRICE_SUPERLIKES_5", "STRIPE_PRICE_SUPERLIKES_15",
     ]);
   });

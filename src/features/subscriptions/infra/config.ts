@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { ProductPolicy } from "../domain/transaction";
 
 export const DEFAULT_BUNDLE_ID = "com.mazl.app";
-export const DEFAULT_PRODUCT_IDS = "com.mazl.app.plus.1m,com.mazl.app.plus.3m,com.mazl.app.plus.6m,com.mazl.app.plus.12m";
+export const DEFAULT_PRODUCT_IDS = "com.mazl.app.plus.1m,com.mazl.app.plus.3m,com.mazl.app.plus.6m,com.mazl.app.plus.12m,com.mazl.app.couple.1m";
 
 // APPLE_ALLOW_SANDBOX: true (default) keeps accepting Apple Sandbox transactions,
 // which App Review and TestFlight testers produce against the production server.

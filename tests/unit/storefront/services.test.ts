@@ -303,7 +303,7 @@ describe("catalogue", () => {
     stripe.fail = true;
     const dead = new CatalogService({ ...deps(), web: { ...stripe, currentPrice: () => Promise.reject(new Error("down")) } as unknown as FakeStripe });
     const products = await dead.listProducts();
-    expect(products).toHaveLength(8);
+    expect(products).toHaveLength(9);
     const plus3 = products.find((p) => p.productId === PLUS_3M)!;
     expect(plus3.prices.apple).toMatchObject({ status: "ok" });
     expect(plus3.prices.web).toEqual({ status: "unavailable", error: "store_error" });
@@ -331,7 +331,7 @@ describe("public storefront", () => {
     expect(view.appIcon).toBeNull();
     expect(view.nextChangeAt).toBeNull();
     expect(view.serverTime).toBe("2027-02-01T10:00:00.000Z");
-    expect(view.products.map((p) => p.productId)).toEqual(["com.mazl.app.plus.1m", PLUS_3M, "com.mazl.app.plus.6m", PLUS_12M, "com.mazl.app.boost.1", "com.mazl.app.boost.3", "com.mazl.app.superlikes.5", "com.mazl.app.superlikes.15"]);
+    expect(view.products.map((p) => p.productId)).toEqual(["com.mazl.app.plus.1m", PLUS_3M, "com.mazl.app.plus.6m", PLUS_12M, "com.mazl.app.couple.1m", "com.mazl.app.boost.1", "com.mazl.app.boost.3", "com.mazl.app.superlikes.5", "com.mazl.app.superlikes.15"]);
     expect(view.products.find((p) => p.productId === PLUS_3M)).toMatchObject({ featured: true, highlight: "Le plus choisi" });
     expect((await buildPublicStorefront(repository, NOW, "en")).products.find((p) => p.productId === PLUS_3M)?.highlight).toBe("Most popular");
     expect((await buildPublicStorefront(repository, NOW, "ru")).products.find((p) => p.productId === PLUS_3M)?.highlight).toBe("Le plus choisi");

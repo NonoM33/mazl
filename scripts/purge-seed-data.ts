@@ -53,6 +53,8 @@ function report(plan: SeedPurgePlan, verb: string): void {
   listCatalogue("events KEPT because real couples use them", plan.eventsKept, true);
   console.log(`Coming soon test events ${verb}: ${plan.testEvents.length}`);
   for (const event of plan.testEvents) console.log(`  - ${event.key} (${event.title})`);
+  console.log(`Test couple outings ${verb}: ${plan.testCoupleOutings.length}`);
+  for (const outing of plan.testCoupleOutings) console.log(`  - ${outing.key} (${outing.title})`);
 }
 
 const sql = postgres(databaseUrl, { max: 1, onnotice: () => undefined });

@@ -10,18 +10,17 @@ import {
   archiveConversationsExceptPartner,
   updateRelationshipStatus,
   deleteCouple,
-  getDailyQuestion,
-  answerDailyQuestion,
-  getCoupleQuestionHistory,
 } from "../../db";
+import { sql } from "../../db";
 import { requireAuth, type AppVariables } from "../../shared/http/middleware";
+import { NO_PREMIUM } from "./domain/premium";
+import { PgCouplePremium } from "./infra/pg-couple-premium";
 import { parseBody } from "../../shared/http/validation";
 import {
   archiveConversationsBodySchema,
   assertCoupleMembership,
   coupleRequestBodySchema,
   coupleRespondBodySchema,
-  dailyAnswerBodySchema,
   GENERIC_SERVER_ERROR,
   relationshipStatusBodySchema,
 } from "./couple.shared";
@@ -47,6 +46,7 @@ import {
 // `archive-conversations` routes stay registered BEFORE the parameterised
 // `/api/couple/:coupleId*` routes so the `:coupleId` param never captures them.
 export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>): void {
+  const premium = new PgCouplePremium(sql);
   // ============ COUPLE MODE ENDPOINTS ============
 
   // A couple is never created on one member's word alone (contract §0.1):
@@ -62,7 +62,7 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
 
       const couple = await getCoupleViewFor(userId);
       if (!couple) {
-        return c.json({ success: true, couple: null, milestones: [] });
+        return c.json({ success: true, couple: null, milestones: [], premium: NO_PREMIUM });
       }
 
       const daysTogether = couple.started_at
@@ -71,7 +71,8 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       await checkAndRecordMilestones(couple.id, daysTogether);
       const milestones = await getCoupleMilestones(couple.id);
 
-      return c.json({ success: true, couple, milestones });
+      // MAZL Couple (docs/couple/ESPACE-COUPLE.md section 1): computed from both members' subscriptions.
+      return c.json({ success: true, couple, milestones, premium: await premium.of(userId, couple.id, new Date()) });
     } catch (error: unknown) {
       console.error("Get couple error:", error);
       return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
@@ -305,72 +306,6 @@ export function registerCoupleCoreRoutes(app: Hono<{ Variables: AppVariables }>)
       return c.json({ success: true });
     } catch (error: unknown) {
       console.error("Delete couple error:", error);
-      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
-    }
-  });
-
-  // Get daily question
-  app.get("/api/couple/:coupleId/question", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const coupleId = parseInt(c.req.param("coupleId"));
-      if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ success: false, error: "Forbidden" }, 403);
-      }
-      const question = await getDailyQuestion(coupleId);
-
-      return c.json({ success: true, question });
-    } catch (error: unknown) {
-      console.error("Get daily question error:", error);
-      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
-    }
-  });
-
-  // Answer daily question
-  app.post("/api/couple/:coupleId/question/:questionId/answer", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const coupleId = parseInt(c.req.param("coupleId"));
-      if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ success: false, error: "Forbidden" }, 403);
-      }
-      const questionId = parseInt(c.req.param("questionId"));
-      if (!Number.isInteger(questionId)) {
-        return c.json({ success: false, error: "Question not found" }, 404);
-      }
-      const parsed = await parseBody(dailyAnswerBodySchema, c);
-      if (!parsed.ok) {
-        return c.json({ success: false, error: parsed.error }, 400);
-      }
-
-      const recorded = await answerDailyQuestion(coupleId, questionId, userId, parsed.data.answer);
-      if (!recorded) {
-        return c.json({ success: false, error: "Question not found" }, 404);
-      }
-
-      return c.json({ success: true });
-    } catch (error: unknown) {
-      console.error("Answer question error:", error);
-      return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
-    }
-  });
-
-  // Get question history
-  app.get("/api/couple/:coupleId/questions", requireAuth, async (c) => {
-    try {
-      const userId = c.get("userId");
-
-      const coupleId = parseInt(c.req.param("coupleId"));
-      if (!(await assertCoupleMembership(userId, coupleId))) {
-        return c.json({ success: false, error: "Forbidden" }, 403);
-      }
-      const questions = await getCoupleQuestionHistory(coupleId);
-
-      return c.json({ success: true, questions });
-    } catch (error: unknown) {
-      console.error("Get questions error:", error);
       return c.json({ success: false, error: GENERIC_SERVER_ERROR }, 500);
     }
   });

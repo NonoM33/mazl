@@ -90,6 +90,7 @@ function toWebPrice(price: Stripe.Price): WebPrice {
 
 // The name the customer reads on Stripe's checkout and receipts, never the technical id.
 export function stripeProductName(productId: string): string {
+  if (productId === "com.mazl.app.couple.1m") return "MAZL Couple";
   const plus = /^com\.mazl\.app\.plus\.(\d+)m$/.exec(productId);
   if (plus) return `mazl+ ${plus[1]} mois`;
   const pack = /^com\.mazl\.app\.(boost|superlikes)\.(\d+)$/.exec(productId);
