@@ -38,7 +38,7 @@ describe("screens across the site", () => {
       await page.clock.install({ time: new Date("2026-10-30T20:30:00+01:00") });
       await open(page, "/");
       await page.getByTestId("shabbat-screen").waitFor();
-      expect(await page.getByRole("heading", { name: "Chabbat Chalom" }).isVisible()).toBe(true);
+      expect(await page.getByRole("heading", { name: "Shabbat shalom" }).isVisible()).toBe(true);
       await capture(page, "25-pause-shabbat", theme);
       await page.getByRole("button", { name: "Continuer quand même" }).click();
       await page.getByRole("navigation", { name: "Navigation principale" }).waitFor();

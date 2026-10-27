@@ -12,7 +12,7 @@ const visible = (html: string): string =>
   html.replace(/&nbsp;|&#8239;| | /g, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 
 describe("the showcase promises only what the app does", () => {
-  test("chabbat: times for the member's city, not a paused app", async () => {
+  test("Shabbat: times for the member's city, not a paused app", async () => {
     const page = visible(await Bun.file(join(root, "landing", "index.html")).text());
     expect(page).not.toMatch(/se met en pause|met MAZL en pause|se repose|dans les CGU|vous attendront/i);
     expect(page).toMatch(/pour votre ville[^.]*allumage[^.]*havdala/i);

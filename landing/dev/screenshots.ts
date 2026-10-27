@@ -65,7 +65,7 @@ async function desktop(): Promise<void> {
   await settle(page, 2200);
   await page.screenshot({ path: join(out, "desktop-03-hero-fil.png") });
   const sections: readonly (readonly [string, string, number])[] = [
-    ["04-verification", "#verification", 60], ["05-compatibilite", "#compatibilite", 60], ["06-chabbat", "#chabbat", 0],
+    ["04-verification", "#verification", 60], ["05-compatibilite", "#compatibilite", 60], ["06-shabbat", "#shabbat", 0],
     ["07-couple", "#couple", 60], ["08-ordinateur", "#ordinateur", 60], ["09-securite", "#securite", 60], ["10-final", "#telecharger", 0],
   ];
   for (const [name, selector, offset] of sections) {
@@ -89,7 +89,7 @@ async function phone(): Promise<void> {
   await scrollHero(page, 1);
   await settle(page, 2200);
   await page.screenshot({ path: join(out, "iphone-02-hero-fil.png") });
-  for (const [name, selector, offset] of [["03-verification", "#verification", 60], ["04-compatibilite", "#compatibilite", 60], ["05-chabbat", "#chabbat", 0]] as const) {
+  for (const [name, selector, offset] of [["03-verification", "#verification", 60], ["04-compatibilite", "#compatibilite", 60], ["05-shabbat", "#shabbat", 0]] as const) {
     await scrollToSelector(page, selector, offset);
     await settle(page);
     await page.screenshot({ path: join(out, `iphone-${name}.png`) });
@@ -103,9 +103,9 @@ async function reduced(): Promise<void> {
   await page.goto(base, { waitUntil: "networkidle" });
   await settle(page, 1200);
   await page.screenshot({ path: join(out, "reduit-01-hero.png") });
-  await scrollToSelector(page, "#chabbat", 0);
+  await scrollToSelector(page, "#shabbat", 0);
   await settle(page, 800);
-  await page.screenshot({ path: join(out, "reduit-02-chabbat.png") });
+  await page.screenshot({ path: join(out, "reduit-02-shabbat.png") });
   await context.close();
 }
 

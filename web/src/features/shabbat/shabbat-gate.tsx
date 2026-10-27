@@ -44,7 +44,7 @@ export function ShabbatGate({ children }: { readonly children: ReactNode }) {
       <div className="stack gap-24" style={{ alignItems: "center", textAlign: "center", maxWidth: 520 }}>
         <Flame size={36} color="var(--shabbat-flame)" aria-hidden="true" />
         <p className="eyebrow" style={{ color: "#8e8b84" }}>{window_.holiday ? "Yom Tov" : "Shabbat"} · {place.name}</p>
-        <h1 className="display-s">{window_.holiday ? "Hag Saméah" : "Chabbat Chalom"}</h1>
+        <h1 className="display-s">{window_.holiday ? "’Hag saméa’h" : "Shabbat shalom"}</h1>
         <p className="body-l" style={{ color: "var(--shabbat-muted)" }}>
           MAZL fait une pause jusqu'à {DAY.format(window_.end)} {TIME.format(window_.end)}. Vos conversations vous attendent.
         </p>

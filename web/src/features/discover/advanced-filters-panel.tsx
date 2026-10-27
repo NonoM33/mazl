@@ -8,7 +8,7 @@ import type { PracticeKind } from "./practice";
 // Without mazl+ they stay visible but locked.
 
 const FIELDS: readonly { readonly kind: PracticeKind; readonly label: string }[] = [
-  { kind: "denomination", label: "Courant" }, { kind: "kashrut", label: "Cashrout" },
+  { kind: "denomination", label: "Courant" }, { kind: "kashrut", label: "Cacherout" },
   { kind: "shabbat", label: "Shabbat" }, { kind: "intention", label: "Intention" },
 ];
 

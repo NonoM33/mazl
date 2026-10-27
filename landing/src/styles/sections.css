@@ -63,7 +63,7 @@
   .pair { grid-template-columns: 1fr; }
 }
 
-/* Chabbat : encre et or, uniquement ici */
+/* Shabbat : encre et or, uniquement ici */
 .shabbat { position: relative; overflow: hidden; padding: clamp(110px, 16vh, 180px) 0; background: var(--ink); color: var(--candle); text-align: center; }
 .shabbat::before { content: ""; position: absolute; left: 50%; top: 0; width: 900px; height: 700px; transform: translate(-50%, -30%); background: radial-gradient(closest-side, rgba(242, 181, 68, 0.2), transparent); pointer-events: none; }
 .shabbat__inner { position: relative; display: flex; flex-direction: column; align-items: center; }

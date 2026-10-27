@@ -26,7 +26,7 @@ Nous pouvons modifier les CGU, notamment pour tenir compte de l'évolution du Se
 
 ## 3. Description du Service
 
-MAZL permet à des personnes majeures de créer un profil, de découvrir les profils d'autres membres, d'exprimer un intérêt (« Like », « Super Like »), d'échanger des messages (texte, photos, messages vocaux) lorsqu'un intérêt est réciproque (« match »), de consulter les horaires de chabbat de leur ville, de participer à des événements et, pour deux membres qui se sont choisis, d'utiliser un « mode couple » (article 10). Le Service est accessible dans l'Application et, après connexion, dans l'espace membre du Site.
+MAZL permet à des personnes majeures de créer un profil, de découvrir les profils d'autres membres, d'exprimer un intérêt (« Like », « Super Like »), d'échanger des messages (texte, photos, messages vocaux) lorsqu'un intérêt est réciproque (« match »), de consulter les horaires de Shabbat de leur ville, de participer à des événements et, pour deux membres qui se sont choisis, d'utiliser un « mode couple » (article 10). Le Service est accessible dans l'Application et, après connexion, dans l'espace membre du Site.
 
 MAZL s'adresse aux personnes qui se reconnaissent dans la communauté juive et qui cherchent une relation sérieuse. MAZL ne contrôle pas l'appartenance religieuse des membres, ne l'exige pas pour créer un compte et ne garantit pas l'exactitude des informations de pratique que chacun déclare.
 
@@ -166,7 +166,7 @@ L'équipe voit le prénom des deux membres, la durée du couple et la conversati
 La page « Découvrir » classe les profils de façon automatisée, et vous pouvez en comprendre les principaux paramètres :
 
 - **Vos filtres d'abord** : genre recherché, tranche d'âge et distance maximale. Un membre bloqué, déjà vu ou dont le compte est fermé ou restreint n'est jamais proposé.
-- **Puis la compatibilité**, à partir de ce que chacun a choisi de renseigner : courant, rapport à la cacherout et au chabbat, intention (relation recherchée), âge, distance, profil complet et vérification d'identité. La proposition tient compte des deux sens (ce que vous cherchez et ce que l'autre cherche).
+- **Puis la compatibilité**, à partir de ce que chacun a choisi de renseigner : courant, rapport à la cacherout et au Shabbat, intention (relation recherchée), âge, distance, profil complet et vérification d'identité. La proposition tient compte des deux sens (ce que vous cherchez et ce que l'autre cherche).
 - **Un peu de fraîcheur et de variété** : les profils récemment actifs et les nouveaux membres sont légèrement favorisés ; un profil qui reçoit déjà beaucoup de likes est légèrement atténué ; une petite part de chaque page est réservée à des profils plausibles hors du haut du classement.
 - **Le Boost** place votre profil en tête de pile pendant 30 minutes ; son effet est plafonné et il ne garantit aucun résultat.
 

@@ -46,7 +46,7 @@ function ConsentScreen({ text, version, onDecided }: { readonly text: string; re
           <h1 className="headline-m">Votre pratique religieuse, avec votre accord</h1>
         </div>
         <p className="body-m muted">
-          Courant, cashrout, Shabbat et intention aident à vous proposer des profils compatibles. Ce sont des données sensibles :
+          Courant, cacherout, Shabbat et intention aident à vous proposer des profils compatibles. Ce sont des données sensibles :
           MAZL ne les traite qu'avec votre accord explicite, distinct des conditions d'utilisation. Vous pouvez refuser et utiliser MAZL quand même.
         </p>
         <label className="checkbox">
