@@ -30,7 +30,7 @@ FROM oven/bun:1-alpine
 COPY --from=caddy /usr/bin/caddy /usr/bin/caddy
 COPY --from=client /app/web/dist /srv/app
 COPY --from=client /app/landing/dist /srv/landing
-COPY public/cgu.html public/cgv.html public/confidentialite.html public/style.css public/favicon.svg /srv/site/
+COPY public/cgu.html public/cgv.html public/confidentialite.html public/mentions-legales.html public/cookies.html public/style.css public/legal.css public/favicon.svg /srv/site/
 # The Caddyfile is rendered at start from the very modules the API serves the
 # website with, so headers, cache rules and host rules cannot drift.
 COPY web/front /opt/front/web/front

@@ -4,8 +4,9 @@
 // (docs/web/adr/W01-hebergement.md).
 
 // Legal pages: static, without any script, with their stylesheet and icon.
-export const LEGAL_PAGES = ["cgu", "cgv", "confidentialite"] as const;
-export const SITE_STATIC_FILES = ["style.css", "favicon.svg"] as const;
+export const LEGAL_PAGES = ["cgu", "cgv", "confidentialite", "mentions-legales", "cookies"] as const;
+// style.css: the document drop page and the old admin; legal.css: the legal pages (scripts/legal).
+export const SITE_STATIC_FILES = ["style.css", "legal.css", "favicon.svg"] as const;
 export const LEGAL_REDIRECTS: Readonly<Record<string, string>> = { "/terms": "/cgu", "/privacy": "/confidentialite" };
 
 // Pages with their own scripts and a looser CSP (the waitlist document link,

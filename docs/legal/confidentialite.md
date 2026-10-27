@@ -1,16 +1,22 @@
-# Politique de confidentialité de MAZL
+---
+slug: confidentialite
+title: Politique de confidentialité
+nav: Confidentialité
+description: Quelles données MAZL traite, pourquoi, combien de temps, avec qui, et comment exercer vos droits RGPD : pratique religieuse, vérification d'identité, géolocalisation, paiements, mesure d'audience.
+lead: Ce que nous savons de vous, pourquoi, pour combien de temps, et comment reprendre la main. Les données les plus sensibles ne sont traitées qu'avec votre consentement explicite.
+version: 2026-10-27
+status: projet
+---
 
-**Version du 26 octobre 2026** — projet soumis à validation juridique avant publication.
-
-> Documents liés : [Conditions générales d'utilisation](/cgu.html) · [Conditions générales de vente](/cgv.html)
+> **L'essentiel.** Votre position exacte n'est jamais conservée. Vos informations de pratique religieuse ne servent qu'avec votre accord explicite, retirable à tout moment. Les images de vérification ne sont pas gardées, ni le nom ni le numéro de votre pièce d'identité. Nous ne vendons pas vos données et n'affichons aucune publicité ciblée. Vous pouvez tout supprimer depuis l'Application.
 
 Cette politique explique quelles données personnelles MAZL traite, pourquoi, pendant combien de temps, avec qui nous les partageons et comment exercer vos droits, conformément au règlement (UE) 2016/679 (« RGPD ») et à la loi n° 78-17 du 6 janvier 1978 modifiée.
 
 ## 1. Responsable du traitement
 
-- Responsable du traitement : [À COMPLÉTER : raison sociale de l'éditeur], [À COMPLÉTER : forme juridique et capital], [À COMPLÉTER : SIREN / RCS], [À COMPLÉTER : adresse du siège].
-- Contact pour les données personnelles : [À COMPLÉTER : adresse e-mail dédiée aux demandes RGPD].
-- Délégué à la protection des données (DPO) : [À COMPLÉTER : coordonnées du DPO, ou mention « aucun DPO n'a été désigné » si l'éditeur n'y est pas tenu. Compte tenu du traitement à grande échelle de données sensibles, la désignation d'un DPO est à examiner avec le conseil de l'éditeur (article 37 du RGPD).]
+- Responsable du traitement : la société éditrice de MAZL, identifiée dans les [mentions légales](/mentions-legales) (raison sociale, forme juridique et capital, immatriculation, siège).
+- Contact pour les données personnelles : [À COMPLÉTER : adresse électronique dédiée aux demandes RGPD, par exemple privacy@mazl.app ; à défaut, l'adresse des mentions légales].
+- Délégué à la protection des données (DPO) : [À COMPLÉTER : coordonnées du DPO, ou mention « aucun DPO n'a été désigné » si l'éditeur n'y est pas tenu. Compte tenu du traitement à grande échelle de données sensibles (article 9), la désignation d'un DPO est à examiner avec le conseil de l'éditeur (article 37 du RGPD).]
 - Représentant dans l'Union : sans objet, le responsable est établi en France. [À COMPLÉTER : confirmer]
 
 ## 2. Données traitées
@@ -28,7 +34,7 @@ Prénom ou pseudo d'affichage (50 caractères maximum), date de naissance (âge)
 - Les informations de pratique religieuse (courant, cacherout, Shabbat) **révèlent vos convictions religieuses**. Par nature, l'usage d'un service de rencontre destiné à une communauté religieuse peut aussi révéler votre appartenance ; nous le traitons comme tel.
 - L'association de votre genre et du genre que vous recherchez permet d'**inférer votre orientation sexuelle**.
 
-Ces données ne sont traitées que sur la base de votre **consentement explicite** (article 9, paragraphe 2, a), recueilli sur le site web (case non pré-cochée, texte daté et versionné) avant leur saisie et distinct de l'acceptation des CGU. Chaque décision (accord ou retrait) est enregistrée avec sa date, la version du texte et le support utilisé (site ou application) ; l'historique est conservé pour pouvoir prouver le consentement. Elles sont facultatives dans la mesure où le Service le permet : vous pouvez les laisser vides ou les effacer depuis votre profil ; vous pouvez retirer votre consentement à tout moment (article 10), ce qui peut empêcher d'utiliser les fonctions de recherche qui en dépendent. **Le retrait efface** les informations de pratique religieuse de votre profil (courant, cacherout, Shabbat, intention) ; il est possible à tout moment dans les réglages du site. [À COMPLÉTER : l'écran de recueil existe sur le site web ; l'écran équivalent de l'application mobile reste à réaliser avant de pouvoir affirmer ce recueil pour les membres de l'application.]
+Ces données ne sont traitées que sur la base de votre **consentement explicite** (article 9, paragraphe 2, a), recueilli dans l'Application et sur le site web (case non pré-cochée, texte daté et versionné) avant leur saisie et distinct de l'acceptation des CGU. Chaque décision (accord ou retrait) est enregistrée avec sa date, la version du texte et le support utilisé (site ou application) ; l'historique est conservé pour pouvoir prouver le consentement. Elles sont facultatives dans la mesure où le Service le permet : vous pouvez les laisser vides ou les effacer depuis votre profil ; vous pouvez retirer votre consentement à tout moment (article 10), ce qui peut empêcher d'utiliser les fonctions de recherche qui en dépendent. **Le retrait efface** les informations de pratique religieuse de votre profil (courant, cacherout, Shabbat, intention) ; il est possible à tout moment dans les réglages de l'Application et du site. Le serveur ignore les informations de pratique religieuse tant que le consentement à la version en vigueur du texte n'est pas enregistré. [À COMPLÉTER : sort des informations de pratique saisies avant l'existence du recueil du consentement (nouvelle demande de consentement, puis effacement à défaut de réponse) : décision de l'éditeur à prendre et à documenter]
 
 ### 2.4 Localisation
 
@@ -53,19 +59,19 @@ Likes, Super Likes et « Passer » (swipes), matchs, messages (texte), photos et
 
 ### 2.7 Mode couple
 
-Demandes et statut de couple, date de début, statut de relation, et les contenus de l'espace commun (réponses aux questions du jour, souvenirs, dates, liste d'envies, jalons, activités sauvegardées et réservations). Ils sont visibles par les deux membres du couple.
+Demandes et statut de couple, date de début, statut de relation, et les contenus de l'espace commun (souvenirs, dates à retenir, rituels et rappels, liste d'envies, jalons, sorties sauvegardées et réservations). Ils sont visibles par les deux membres du couple. Font exception, par conception : la réponse à la question du jour (lisible par l'autre seulement après avoir répondu soi-même), les notes du bilan mensuel (chacun répond seul ; le couple ne voit qu'une synthèse quand les deux ont répondu, jamais la note de l'autre) et l'humeur du jour. L'équipe de MAZL ne voit pas ces réponses individuelles. Un membre dont l'abonnement MAZL Couple est actif et son partenaire reçoivent des notifications de rappel dont le titre ne contient ni nom ni détail intime.
 
 ### 2.8 Sécurité et modération
 
-Signalements (motif, précisions, message visé, auteur du signalement), blocages entre membres, sanctions et bannissements, notes internes de modération, journal d'actions des modérateurs, traces d'accès techniques (adresse IP, date, erreurs) utilisées pour la sécurité et le fonctionnement. Les journaux de fonctionnement n'enregistrent ni jeton, ni image, ni contenu de message.
+Signalements (motif, précisions, message visé, auteur du signalement), blocages entre membres, sanctions et bannissements avec leur exposé des motifs (référence, décision, faits, motif, voies de recours), contestations et leur décision, notes internes de modération, journal d'actions des modérateurs (chaîné pour détecter toute modification, sans contenu de message), traces d'accès techniques (adresse IP, date, erreurs) utilisées pour la sécurité et le fonctionnement. Les journaux de fonctionnement n'enregistrent ni jeton, ni image, ni contenu de message.
 
 ### 2.9 Achats
 
-Statut de l'abonnement mazl+ (formule, dates de début et d'expiration, statut), identifiants de transaction Apple, produits achetés, soldes et historique d'usage des Boosts et Super Likes. Pour un achat fait sur le site, nous conservons aussi votre identifiant client Stripe, l'identifiant de l'abonnement, l'historique de vos paiements et la preuve de votre renoncement au droit de rétractation (date, offre, version du texte). **Nous ne recevons ni votre numéro de carte, ni vos coordonnées bancaires** : ils restent chez Apple ou chez Stripe.
+Statut de l'abonnement mazl+ ou MAZL Couple (formule, dates de début et d'expiration, statut, et, pour MAZL Couple, le membre qui paie et la date de renouvellement), identifiants de transaction Apple, produits achetés, codes d'offre ou promotionnels utilisés, soldes et historique d'usage des Boosts et Super Likes. Pour un achat fait sur le site, nous conservons aussi votre identifiant client Stripe, l'identifiant de l'abonnement, l'historique de vos paiements et la preuve de votre renoncement au droit de rétractation (date, offre, version du texte). **Nous ne recevons ni votre numéro de carte, ni vos coordonnées bancaires** : ils restent chez Apple ou chez Stripe.
 
 ### 2.10 Notifications, e-mails et liste d'attente
 
-- **Notifications push** : l'identifiant technique de votre appareil (jeton de notification fourni par Apple) est conservé sur nos serveurs et transmis au service de notifications d'Apple (APNs), par notre propre serveur d'envoi, pour vous adresser les notifications (nouveau match, message, like, demande de couple, etc.). Vous pouvez les désactiver dans les réglages de votre téléphone.
+- **Notifications push** : l'identifiant technique de votre appareil (jeton de notification fourni par Apple) est conservé sur nos serveurs et transmis au service de notifications d'Apple (APNs), par notre propre serveur d'envoi, pour vous adresser les notifications (nouveau match, message, like, demande de couple, rappels et réponses de la conciergerie, etc.). Le serveur d'envoi est installé sur nos propres serveurs ; seul Apple reçoit le jeton et le contenu de la notification. Vous pouvez les désactiver dans les réglages de votre téléphone.
 - **E-mails** : e-mails de service (vérification, documents à renvoyer, profil vérifié) et, le cas échéant, e-mails d'information ou de campagne, envoyés via Resend. Chaque message d'information comporte un lien de désinscription ; la liste des adresses désinscrites est conservée pour respecter votre choix.
 - **Liste d'attente (site)** : adresse e-mail, système d'exploitation déclaré, état de la vérification et dates d'étapes.
 
@@ -82,6 +88,12 @@ Si vous l'acceptez, MAZL mesure l'utilisation de l'application et de l'espace me
 - **Consentement** : demandé après la connexion, avec « Accepter » et « Refuser » au même niveau ; rien n'est mesuré avant votre réponse (les écrans consultés juste avant sont gardés en mémoire de l'appareil, jamais enregistrés, et effacés si vous refusez). Votre choix est enregistré avec sa date et la version du texte. Vous pouvez le modifier à tout moment dans les réglages (application : Réglages › Mesure d'audience ; site : Réglages › Confidentialité) ; le retrait arrête la mesure immédiatement.
 - **Après la suppression de votre compte**, plus rien ne permet de relier ces mesures à vous.
 
+### 2.13 Conciergerie de MAZL Couple et assistant d'intelligence artificielle
+
+Avec MAZL Couple, vous pouvez confier à la conciergerie une demande (table, surprise, cadeau, week-end). Nous conservons la demande, la date souhaitée, la ville, vos contraintes, la conversation (vos messages, ceux de l'assistant et ceux de l'équipe), les idées proposées, celle que vous avez choisie et l'état de la demande. Les deux membres du couple voient et écrivent dans les mêmes demandes. L'équipe voit le prénom des deux membres, la durée du couple et la conversation, rien d'autre de leur profil.
+
+Une première réponse est rédigée par un **assistant automatique fondé sur l'intelligence artificielle**, fourni par Anthropic (article 6). **N'est transmis à l'assistant que** le texte de votre demande, la date souhaitée, la ville et vos contraintes (par exemple cacherout, budget) ; **jamais** votre nom complet, votre adresse électronique, votre téléphone, vos photos ni vos données de vérification. Vous êtes informé de cet usage dans l'écran de la conciergerie. L'assistant ne prend aucune décision à votre égard : il propose au plus trois idées, ne réserve rien et n'engage aucun paiement ; la réservation est confirmée par l'équipe. L'usage est limité à 20 messages par couple et par jour. Une contrainte comme la cacherout peut révéler vos convictions religieuses : elle ne part que si vous la saisissez vous-même dans votre demande, et repose sur votre consentement explicite à la saisir. [À COMPLÉTER : faire valider par le conseil de l'éditeur le fondement de cette transmission (article 9) et la durée de conservation des conversations de conciergerie]
+
 ## 3. Finalités et bases légales
 
 | Finalité | Données principales | Base légale |
@@ -92,7 +104,9 @@ Si vous l'acceptez, MAZL mesure l'utilisation de l'application et de l'espace me
 | Vérifier votre identité et votre majorité, empêcher les doublons et le retour des membres exclus | résultat de lecture de puce, empreinte HMAC du document, date de naissance | Consentement explicite pour la vérification ; intérêt légitime (art. 6.1.f) pour la prévention de la fraude et la protection des membres ; obligation de protéger les mineurs. [À COMPLÉTER : base à confirmer par le conseil de l'éditeur pour la conservation de l'empreinte d'un membre exclu] |
 | Géolocalisation dégradée pour la proximité | position floutée | Exécution du contrat ; consentement pour l'accès à la position de l'appareil |
 | Modération, signalements, lutte contre le harcèlement et les abus, sécurité des systèmes | signalements, blocages, sanctions, journaux | Intérêt légitime (art. 6.1.f) ; obligation légale (LCEN, règlement (UE) 2022/2065) |
-| Gérer les achats, abonnements et crédits, les remboursements et les révocations | données d'abonnement et de transactions | Exécution du contrat ; obligation légale |
+| Gérer les achats, abonnements (mazl+, MAZL Couple) et crédits, les offres et codes, les remboursements et les révocations ; conserver la preuve du renoncement au droit de rétractation | données d'abonnement et de transactions, preuve de renoncement | Exécution du contrat ; obligation légale ; intérêt légitime (preuve) |
+| Espace couple, rappels, conciergerie (assistant automatique puis équipe) | contenus du couple, demande de conciergerie | Exécution du contrat ; consentement explicite pour les informations de pratique que vous saisissez |
+| Signaler, motiver et contester les décisions de modération (règlement (UE) 2022/2065) | exposé des motifs, contestation, décision | Obligation légale |
 | Notifications push d'usage | identifiant d'appareil, identifiant de membre | Exécution du contrat (notifications de service) ; consentement (autorisation système) |
 | E-mails de service | adresse e-mail | Exécution du contrat |
 | Informations et campagnes commerciales | adresse e-mail | Consentement ou intérêt légitime selon la règle applicable à la prospection électronique ; opposition à tout moment. [À COMPLÉTER : régime retenu par l'éditeur] |
@@ -124,6 +138,9 @@ Nous ne vendons pas vos données et ne les utilisons pas pour de la publicité c
 | Adresse de la liste d'attente | Jusqu'à la suppression du compte correspondant ou à la désinscription ; l'adresse désinscrite est conservée dans la liste d'opposition |
 | Raison de départ anonyme | Sans limite de durée (non personnelle) |
 | Mesures d'audience pseudonymes (article 2.12) | 25 mois au plus à compter de leur collecte. Le retrait du consentement arrête la collecte ; la suppression du compte rompt tout lien avec vous. [À COMPLÉTER : purge automatique au-delà de 25 mois à mettre en place dans l'outil de mesure] |
+| Conversations et demandes de la conciergerie | [À COMPLÉTER : durée à fixer ; jusqu'à la suppression du compte à défaut] |
+| Exposés des motifs, contestations et décisions de modération concernant un compte | Effacés avec le compte, sauf obligation légale de conservation. [À COMPLÉTER : durée à fixer pour pouvoir répondre à une contestation de six mois et aux demandes des autorités] |
+| Preuve du renoncement au droit de rétractation (achat sur le site) | Conservée après la suppression du compte pour la durée de la prescription |
 | Historique de vos décisions de consentement (pratique religieuse, mesure d'audience) | Jusqu'à la suppression du compte, pour prouver le consentement |
 | Journaux techniques (adresse IP, erreurs) | [À COMPLÉTER : durée, 12 mois au plus recommandés pour les journaux de connexion exigés par la LCEN] |
 | Données exigées par la loi ou une réquisition judiciaire | Le temps exigé par la loi |
@@ -135,7 +152,7 @@ Lorsque vous supprimez votre compte, les sauvegardes techniques de la base de do
 Vos données sont accessibles :
 
 - aux **autres membres**, dans la limite de ce que vous publiez sur votre profil (prénom, âge, photos, ville approximative, bio, pratique religieuse si renseignée, badges de vérification) ; pas de coordonnées ni d'adresse e-mail ;
-- au **personnel habilité** de MAZL (modération, support, administration technique) dans la limite de ce qui est nécessaire ;
+- au **personnel habilité** de MAZL (modération, support, conciergerie, administration technique) dans la limite de ce qui est nécessaire, chaque accès à une conversation de modération étant motivé et journalisé ;
 - à nos **sous-traitants** (article 6) ;
 - aux **autorités** (judiciaires, administratives) sur réquisition ou obligation légale.
 
@@ -143,21 +160,23 @@ Vos données sont accessibles :
 
 | Prestataire | Rôle | Données concernées | Localisation / transfert |
 |---|---|---|---|
-| Hetzner Online GmbH (via la plateforme Coolify) | Hébergement des serveurs, de la base de données et des fichiers, y compris l'outil de mesure d'audience OpenPanel installé par MAZL | Toutes les données du Service | Allemagne / UE. [À COMPLÉTER : confirmer le centre de données] |
-| Resend | Envoi des e-mails de service et de campagnes | Adresse e-mail, nom, contenu du message | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
-| Google (Sign-In) | Authentification par compte Google ; polices Google Fonts du site | Identifiant, e-mail, nom, photo du compte ; adresse IP lors du chargement des polices | États-Unis / monde : [À COMPLÉTER : mécanisme de transfert] |
+| Hetzner Online GmbH (serveur géré par MAZL avec un logiciel de déploiement) | Hébergement des serveurs, de la base de données, des fichiers, du serveur d'envoi des notifications et de l'outil de mesure d'audience OpenPanel, ainsi que des sauvegardes quotidiennes | Toutes les données du Service | Société allemande ; serveur à Helsinki (Finlande), dans l'Union européenne. [À COMPLÉTER : confirmer le centre de données] |
+| Resend | Envoi des e-mails de service et de campagnes | Adresse électronique, nom, contenu du message | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
+| Anthropic | Assistant d'intelligence artificielle de la conciergerie de MAZL Couple (article 2.13) | Texte de la demande, date souhaitée, ville, contraintes saisies ; jamais le nom complet, l'e-mail, le téléphone, les photos ni les données de vérification | États-Unis : transfert encadré par [À COMPLÉTER : mécanisme et accord de traitement ; confirmer la durée de conservation chez le prestataire et l'absence de réutilisation des données pour entraîner des modèles] |
+| Google (connexion) | Authentification par compte Google, sur la page de connexion | Identifiant, e-mail, nom, photo du compte ; adresse IP lors du chargement du bouton de connexion | États-Unis / monde : [À COMPLÉTER : mécanisme de transfert] |
+| Google Fonts | Polices de la seule page d'envoi de documents (lien reçu par e-mail, hébergée sur api.mazl.app) | Adresse IP | États-Unis / monde. [À COMPLÉTER : héberger ces polices localement pour supprimer ce transfert] |
 | Apple (Sign in with Apple, App Store, notifications du serveur App Store, service de notifications push APNs) | Authentification ; vente et facturation ; vérification des transactions ; acheminement des notifications push | Identifiant Apple, adresse (éventuellement masquée), transactions ; jeton de notification de l'appareil et contenu de la notification | Apple, selon sa politique et ses mécanismes de transfert |
-| Stripe Payments Europe, Ltd (groupe Stripe) | Encaissement des paiements par carte sur le site, gestion des abonnements web, émission des factures, portail de gestion | Identifiant client Stripe, adresse e-mail, historique des paiements et des factures, identifiant de l'abonnement ; le numéro de carte est saisi chez Stripe et n'est jamais transmis à MAZL. Stripe agit pour MAZL comme sous-traitant et, pour ses propres obligations (lutte contre la fraude et le blanchiment, réglementation financière), comme responsable de traitement | Irlande / UE, avec des transferts possibles vers les États-Unis : encadrés par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
+| Stripe Payments Europe, Ltd (groupe Stripe) | Encaissement des paiements par carte sur le site, gestion des abonnements web, codes promotionnels, émission des factures, portail de gestion | Identifiant client Stripe, adresse e-mail, historique des paiements et des factures, identifiant de l'abonnement ; le numéro de carte est saisi chez Stripe et n'est jamais transmis à MAZL. Stripe agit pour MAZL comme sous-traitant et, pour ses propres obligations (lutte contre la fraude et le blanchiment, réglementation financière), comme responsable de traitement | Irlande / UE, avec des transferts possibles vers les États-Unis : encadrés par [À COMPLÉTER : mécanisme, par exemple clauses contractuelles types et/ou Data Privacy Framework] |
 | Institut national de l'information géographique et forestière (IGN) — Géoplateforme (data.geopf.fr) | Recherche de commune à la saisie de la ville | Texte saisi pour la recherche de commune, adresse IP | France |
 | Sites web que vous partagez dans un message | Aperçu de lien | Notre serveur consulte l'adresse partagée (le site visité voit l'adresse IP du serveur, pas la vôtre) | Variable |
 
-Les modèles de reconnaissance faciale et de lecture de puce s'exécutent sur nos propres serveurs : **aucune donnée biométrique, aucune image et aucune donnée de pièce d'identité n'est envoyée à un prestataire tiers de reconnaissance**. Les modèles utilisés (OpenCV Zoo) sont des logiciels libres exécutés en local.
+Les modèles de reconnaissance faciale et de lecture de puce s'exécutent sur nos propres serveurs : **aucune donnée biométrique, aucune image et aucune donnée de pièce d'identité n'est envoyée à un prestataire tiers de reconnaissance**. Les modèles utilisés (OpenCV Zoo) sont des logiciels libres exécutés en local. De même, l'outil de mesure d'audience est un logiciel libre installé sur nos serveurs : aucune donnée n'est transmise à son éditeur.
 
 Nous concluons avec nos sous-traitants les accords exigés par l'article 28 du RGPD. [À COMPLÉTER : liste à tenir à jour par l'éditeur ; confirmer la conclusion des accords de sous-traitance avec chacun]
 
 ## 7. Transferts hors de l'Union européenne
 
-Certains prestataires (Resend, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
+Certains prestataires (Resend, Anthropic, Google, Apple, Stripe) peuvent traiter des données aux États-Unis ou dans d'autres pays hors Union européenne. Ces transferts sont fondés sur une décision d'adéquation (cadre de protection des données UE-États-Unis, pour les entreprises certifiées) ou sur des clauses contractuelles types de la Commission européenne, complétées au besoin de mesures supplémentaires. [À COMPLÉTER : confirmer, prestataire par prestataire, la base retenue]. Vous pouvez en demander une copie à l'adresse indiquée à l'article 1.
 
 ## 8. Sécurité
 
@@ -180,13 +199,14 @@ Vous disposez des droits suivants : **accès** (copie de vos données), **rectif
 
 ## 11. Décisions automatisées
 
-La vérification de votre visage et de votre document est réalisée par un traitement automatisé (comparaison faciale, vérification de signature). Un échec ne vous exclut pas automatiquement du Service. Vous pouvez demander l'intervention d'une personne, exprimer votre point de vue et contester la décision en écrivant à l'adresse de l'article 10. Les sanctions de modération sont décidées par des personnes.
+La vérification de votre visage et de votre document est réalisée par un traitement automatisé (comparaison faciale, vérification de signature). Un échec ne vous exclut pas automatiquement du Service. Vous pouvez demander l'intervention d'une personne, exprimer votre point de vue et contester la décision en écrivant à l'adresse de l'article 10. Les sanctions de modération sont décidées par des personnes. Le classement des profils proposés dans « Découvrir » est automatisé (voir l'article 11 des [CGU](/cgu)) ; il n'a pas d'effet juridique à votre égard ni ne vous affecte de manière significative de façon similaire, et vous pouvez en modifier les filtres à tout moment.
 
 ## 12. Cookies et traceurs
 
-**Site https://mazl.app.** Les pages du site vitrine, de la liste d'attente et des mentions légales **ne déposent pas de cookie et n'utilisent pas d'outil de mesure d'audience ni de publicité**. Le chargement des polices du site peut cependant solliciter Google Fonts (les polices sont servies par Google, qui reçoit alors votre adresse IP) ; les pages juridiques n'utilisent aucune police externe. La console d'administration (réservée à l'équipe) mémorise une session dans le stockage local du navigateur. L'espace membre du site (après connexion) ne contient **aucun pixel publicitaire et aucun script tiers** ; la mesure d'audience décrite à l'article 2.12 n'y fonctionne qu'après votre accord, ne dépose aucun cookie et n'écrit rien dans votre navigateur ; seule la page de connexion charge le script du fournisseur de connexion que vous choisissez (Google, et Apple si activé), nécessaire à cette connexion. Si nous ajoutons un jour un traceur soumis à consentement, un bandeau vous permettra de l'accepter ou de le refuser avant tout dépôt. [À COMPLÉTER : confirmer l'absence de tout traceur sur le site à la date de publication]
+Le détail figure dans la [Politique de cookies](/cookies). En résumé :
 
-**Application mobile.** Elle utilise le stockage sécurisé de l'appareil pour votre jeton de session et des préférences locales strictement nécessaires au fonctionnement. Elle demande les autorisations suivantes, que vous pouvez refuser ou retirer dans les réglages de votre téléphone : appareil photo (photos, selfie), photothèque, localisation, notifications, microphone (messages vocaux) et NFC (lecture de la puce du document). Elle n'intègre ni publicité, ni outil de mesure d'audience tiers, ni identifiant publicitaire (IDFA) ; elle ne pratique aucun « suivi » au sens d'Apple (App Tracking Transparency). La seule mesure d'audience est celle de l'article 2.12, soumise à votre accord. [À COMPLÉTER : confirmer avant publication, notamment pour la déclaration « confidentialité des données » de l'App Store]
+- **Site mazl.app.** Le site vitrine et les pages juridiques ne déposent aucun cookie, ne chargent aucune police ni aucun script externe et n'utilisent ni outil de mesure d'audience tiers ni publicité. L'espace membre dépose un seul cookie, de connexion, strictement nécessaire, et deux préférences (thème, pause de chabbat) dans le stockage local de votre navigateur. La mesure d'audience de l'article 2.12 n'y fonctionne qu'après votre accord et n'écrit rien dans votre navigateur. Seule la page de connexion charge le script du fournisseur de connexion que vous choisissez (Google, et Apple si activé), et la page d'envoi de documents charge des polices Google Fonts (article 6). La console d'administration (réservée à l'équipe) mémorise une session dans le stockage local du navigateur.
+- **Application mobile.** Elle utilise le stockage sécurisé de l'appareil pour votre jeton de session et des préférences locales strictement nécessaires au fonctionnement. Elle demande les autorisations suivantes, que vous pouvez refuser ou retirer dans les réglages de votre téléphone : appareil photo (photos, selfie), photothèque, localisation, notifications, microphone (messages vocaux) et NFC (lecture de la puce du document). Elle n'intègre ni publicité, ni outil de mesure d'audience tiers, ni identifiant publicitaire (IDFA) ; elle ne pratique aucun « suivi » au sens d'Apple (App Tracking Transparency). La seule mesure d'audience est celle de l'article 2.12, soumise à votre accord. [À COMPLÉTER : confirmer avant publication, notamment pour la déclaration « confidentialité des données » de l'App Store]
 
 ## 13. Évaluation d'impact
 
@@ -195,7 +215,3 @@ Les traitements portant sur des données biométriques et sur des données rév�
 ## 14. Modifications
 
 Nous pouvons modifier cette politique. La date de version figure en tête du document. Les changements substantiels vous seront signalés dans l'Application ou par e-mail ; lorsque votre consentement est requis pour un nouveau traitement, il vous sera demandé de nouveau.
-
----
-
-*Document en projet : il doit être relu et validé par un conseil juridique avant publication. Les mentions entre crochets doivent être complétées par l'éditeur (voir `docs/legal/A_COMPLETER.md`).*

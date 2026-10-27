@@ -18,7 +18,9 @@
     "test:e2e": "bun tests/e2e/run.ts",
     "models:fetch": "bun scripts/fetch-face-models.ts",
     "landing:build": "bun landing/build.ts",
-    "landing:check": "tsc --noEmit -p landing/tsconfig.json"
+    "landing:check": "tsc --noEmit -p landing/tsconfig.json",
+    "legal:build": "bun scripts/legal/build.ts",
+    "legal:check": "bun scripts/legal/build.ts --check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
