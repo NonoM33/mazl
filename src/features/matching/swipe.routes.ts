@@ -3,6 +3,7 @@ import type { CreditsGateway } from "../credits/application/ports";
 import type { CreditsView } from "../credits/domain/view";
 import type { AppVariables } from "../../shared/http/middleware";
 import { parseBody, swipeBodySchema } from "../../shared/http/validation";
+import { readNote } from "./domain/super-like-note";
 
 export interface SwipeResult {
   readonly match: boolean;
@@ -15,7 +16,8 @@ export interface SwipeStore {
   currentAction(userId: number, targetUserId: number): Promise<string | null>;
   // Whether the target exists, is active and is not blocked in either direction.
   canSwipeOn(userId: number, targetUserId: number): Promise<boolean>;
-  record(userId: number, targetUserId: number, action: string): Promise<SwipeResult>;
+  // `note`: the word of a Super Like, null for anything else.
+  record(userId: number, targetUserId: number, action: string, note: string | null): Promise<SwipeResult>;
   // Notifies both members of a reciprocal match.
   onMatch(userId: number, targetUserId: number): Promise<void>;
 }
@@ -41,18 +43,18 @@ type SuperLikeOutcome = { readonly kind: "recorded"; readonly result: SwipeResul
 // replay a request safely: the stored swipe says so, and the debit journal,
 // checked under the balance lock, catches two simultaneous requests. A failed
 // recording gives the credit back.
-async function recordSuperLike(deps: SwipeRouteDeps, userId: number, targetUserId: number): Promise<SuperLikeOutcome> {
+async function recordSuperLike(deps: SwipeRouteDeps, userId: number, targetUserId: number, note: string | null): Promise<SuperLikeOutcome> {
   const { credits, swipes } = deps;
   if ((await swipes.currentAction(userId, targetUserId)) === "super_like") {
-    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
+    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like", note) };
   }
   const spent = await credits.spend(userId, "super_like", targetUserId, { kind: "once_per_target" });
   if (!spent.ok && spent.reason === "already_spent") {
-    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
+    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like", note) };
   }
   if (!spent.ok) return { kind: "exhausted", credits: spent.credits };
   try {
-    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like") };
+    return { kind: "recorded", result: await swipes.record(userId, targetUserId, "super_like", note) };
   } catch (error: unknown) {
     await cancelQuietly(credits, userId, spent.spendId);
     throw error;
@@ -74,6 +76,12 @@ export function registerSwipeRoute(app: Hono<{ Variables: AppVariables }>, deps:
       const parsed = await parseBody(swipeBodySchema, c);
       if (!parsed.ok) return c.json({ success: false, error: parsed.error }, 400);
       const { target_user_id: targetUserId, action } = parsed.data;
+      // The word of a Super Like is checked before anything is debited or recorded.
+      const word = readNote(parsed.data.note);
+      if (word.kind === "invalid") return c.json({ success: false, error: "invalid_note" }, 400);
+      if (word.kind === "valid" && action !== "super_like") {
+        return c.json({ success: false, error: "note_requires_super_like" }, 400);
+      }
 
       if (targetUserId === userId) {
         return c.json({ success: false, error: "Cannot swipe on yourself" }, 400);
@@ -85,13 +93,13 @@ export function registerSwipeRoute(app: Hono<{ Variables: AppVariables }>, deps:
       }
 
       if (action !== "super_like") {
-        const result = await deps.swipes.record(userId, targetUserId, action);
+        const result = await deps.swipes.record(userId, targetUserId, action, null);
         if (result.match) await deps.swipes.onMatch(userId, targetUserId);
         else if (action === "like") deps.likes?.likeReceived({ likerId: userId, recipientId: targetUserId, superLike: false });
         return c.json({ success: true, ...result });
       }
 
-      const outcome = await recordSuperLike(deps, userId, targetUserId);
+      const outcome = await recordSuperLike(deps, userId, targetUserId, word.kind === "valid" ? word.note : null);
       if (outcome.kind === "exhausted") {
         return c.json({ success: false, error: "super_likes_exhausted", credits: outcome.credits }, 402);
       }

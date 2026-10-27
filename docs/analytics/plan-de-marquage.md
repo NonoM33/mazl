@@ -40,6 +40,9 @@ Propriétés communes ajoutées par le serveur : `platform` (`ios`, `android`, `
 | `paywall_viewed` | `source` (identifiant de l'écran d'origine) | ouverture de l'écran mazl+ / crédits |
 | `purchase_started` | `product_id` (identifiant StoreKit) | appui sur « acheter » |
 | `purchase_cancelled` | `product_id` | achat abandonné par le membre |
+| `purchase_moment_shown` | `moment` (identifiant : `dailyLikeLimit`, `thirdLikeReceived`, `undoRefused`, `passportAttempt`, `firstMatch`) | l'offre mazl+ s'affiche d'elle-même à ce moment (au plus une fois par jour et par moment) |
+| `purchase_moment_accepted` | `moment` | « Découvrir mazl+ » touché depuis cette offre |
+| `purchase_moment_dismissed` | `moment` | « Plus tard » touché, ou offre fermée |
 | `analytics_consent_granted` | — | juste après l'accord (premier événement envoyé) |
 
 Identifiant (`screen`, `step_name`, `source`, `plan_type`, `product`) : `^[a-z][a-zA-Z0-9_]{0,39}$`.

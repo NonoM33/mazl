@@ -5,6 +5,9 @@ export interface ImageProcessor {
   // Always returns a metadata-free JPEG, long side <= 1600 px.
   // Throws PhotoRejectedError when the bytes are not a decodable raster image.
   toProfileJpeg(bytes: Uint8Array): Promise<Buffer>;
+  // A tiny (48 px wide) heavily blurred JPEG: enough to see a colour and a
+  // silhouette, impossible to sharpen back into a face.
+  toBlurredJpeg(bytes: Uint8Array): Promise<Buffer>;
 }
 
 export interface PhotoStorage {

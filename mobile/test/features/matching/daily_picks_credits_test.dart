@@ -26,6 +26,7 @@ class _Api implements ApiService {
   Future<ApiResponse<Map<String, dynamic>>> sendSwipe({
     required int targetUserId,
     required String action,
+    String? note,
   }) async {
     swipes.add('$targetUserId:$action');
     if (!refuse) {

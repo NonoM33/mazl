@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/premium/purchase_moments.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../core/services/couple_service.dart';
@@ -134,6 +137,12 @@ class _MatchesScreenState extends State<MatchesScreen>
       final result = await _apiService.getReceivedLikes();
       if (mounted && result.success && result.data != null) {
         setState(() => _likesData = result.data);
+        final data = result.data!;
+        if (!data.isPremium) {
+          unawaited(
+            PurchaseMoments.offerThirdLike(context, receivedLikes: data.count),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Aperçu des likes indisponible: $e');

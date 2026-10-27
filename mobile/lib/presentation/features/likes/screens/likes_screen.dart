@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -5,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_grid.dart';
 import '../../../../core/models/swipe_result.dart';
+import '../../../../core/premium/purchase_moments.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart' hide ProfilePhoto;
 import '../../../../l10n/l10n.dart';
@@ -12,7 +15,9 @@ import '../../../common/l10n/back_icon.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../chat/conversation_lookup.dart';
 import '../../matching/widgets/match_sheet.dart';
+import '../widgets/blurred_like_tile.dart';
 import '../widgets/like_widgets.dart';
+import '../widgets/subscriber_like_tile.dart';
 import '../../../common/widgets/mazl_sheet.dart';
 import 'package:mazl/core/layout/bar_navigation.dart';
 import '../../../common/widgets/star_refresh/star_refresh.dart';
@@ -58,6 +63,7 @@ class _LikesScreenState extends State<LikesScreen> {
         _isLoading = false;
         if (result.success && result.data != null) {
           _likesData = result.data;
+          _offerThirdLike(result.data!);
         } else if (_likesData == null) {
           _loadFailed = true;
         }
@@ -65,14 +71,21 @@ class _LikesScreenState extends State<LikesScreen> {
     }
   }
 
-  /// The count shown to a free member, by bands (« 10+ »), and the number
-  /// that picks the plural form of the sentence around it.
+  /// The count a subscriber's label shows, by bands (« 10+ »).
   ({String label, int plural}) _likesBand(int count) {
     if (count <= 10) return (label: '$count', plural: count);
     if (count <= 25) return (label: '10+', plural: 10);
     if (count <= 50) return (label: '25+', plural: 25);
     if (count <= 99) return (label: '50+', plural: 50);
     return (label: '99+', plural: 99);
+  }
+
+  /// From the third like received, a member without mazl+ is offered it once.
+  void _offerThirdLike(LikesData data) {
+    if (data.isPremium) return;
+    unawaited(
+      PurchaseMoments.offerThirdLike(context, receivedLikes: data.count),
+    );
   }
 
   Future<void> _handleLike(LikeProfile profile) async {
@@ -150,7 +163,6 @@ class _LikesScreenState extends State<LikesScreen> {
   Widget _buildHeader() {
     final data = _likesData;
     final hasLikes = data != null && data.totalCount > 0;
-    final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final band = hasLikes ? _likesBand(data.totalCount) : null;
     // Own `onPressed` on this page's context: with a vertical bar the button
@@ -172,16 +184,16 @@ class _LikesScreenState extends State<LikesScreen> {
           ),
         ),
         Text(l10n.likesTitle, style: Theme.of(context).textTheme.displaySmall),
-        if (band != null) ...[
+        if (data != null && hasLikes && data.isPremium) ...[
           const SizedBox(height: 12),
-          SectionLabel(l10n.likesSection(band.label), count: band.plural),
+          SectionLabel(l10n.likesSection(band!.label), count: band.plural),
         ],
-        if (data != null && band != null && !data.isPremium) ...[
-          const SizedBox(height: 8),
+        if (data != null && hasLikes && !data.isPremium) ...[
+          const SizedBox(height: 12),
           RollingCount(
-            value: band.plural,
-            sentence: l10n.likesWaiting(band.plural, band.label),
-            style: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            value: data.totalCount,
+            sentence: l10n.likesBlurredHeadline(data.totalCount),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
         ],
         const SizedBox(height: 24),
@@ -260,20 +272,20 @@ class _LikesScreenState extends State<LikesScreen> {
               maxCrossAxisExtent: (box.maxWidth - 10) / 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              mainAxisExtent: isPremium ? 200 + LikeCard.actionsExtent : 120,
+              mainAxisExtent: isPremium ? 200 + LikeCard.actionsExtent : 200,
             ),
             itemCount: likes.length,
             itemBuilder: (context, index) {
               final like = likes[index];
               if (!isPremium) {
-                return LockedLikeTile(onTap: _showPremiumPrompt);
+                return BlurredLikeTile(
+                  like: like,
+                  index: index,
+                  onTap: _openPremium,
+                );
               }
-              return LikeCard(
-                name: like.displayName ?? context.l10n.matchingCardAnonymous,
-                age: like.age,
-                pictureUrl: like.photoUrl,
-                isVerified: like.isVerified,
-                seed: like.userId,
+              return SubscriberLikeTile(
+                like: like,
                 onTap: () => _showProfilePreview(like),
                 onLike: () => _handleLike(like),
                 onPass: () => _handlePass(like),
@@ -287,7 +299,7 @@ class _LikesScreenState extends State<LikesScreen> {
             cut,
             MazlPlusPill(
               label: context.l10n.likesSeeWhoWithPlus,
-              onPressed: () => context.push(RoutePaths.premium),
+              onPressed: _openPremium,
             ),
           ),
         ],
@@ -375,60 +387,11 @@ class _LikesScreenState extends State<LikesScreen> {
     );
   }
 
-  void _showPremiumPrompt() {
-    showMazlSheet<void>(
-      context,
-      builder: (context) {
-        final scheme = Theme.of(context).colorScheme;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                text: 'mazl',
-                children: [
-                  TextSpan(
-                    // A left-to-right mark keeps the plus glued to « mazl » in Hebrew.
-                    text: '+\u200E',
-                    style: TextStyle(color: scheme.primary),
-                  ),
-                ],
-              ),
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.likesPremiumBody,
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.45,
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.push(RoutePaths.premium);
-                },
-                child: Text(context.l10n.likesPremiumOffers),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(context.l10n.commonLater),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  /// Opens the offer, then reads the likes again: a member who subscribed
+  /// there gets the clear cards back at once.
+  Future<void> _openPremium() async {
+    await context.push<bool>(RoutePaths.premium);
+    if (mounted) await _loadLikes();
   }
 }
 

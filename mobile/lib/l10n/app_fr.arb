@@ -200,6 +200,112 @@
   "@boostUpsellBody": {
     "description": "Sous le titre de l'encart mazl+ (12 px, une ligne). « mazl+ » est un nom de marque."
   },
+  "boostMoment": "{day} {hour}",
+  "@boostMoment": {
+    "description": "Boost programmé : un jour et une heure écrits ensemble, déjà mis en forme. {day} est le jour de la semaine (« samedi »), {hour} l'heure locale (« 21 h »).",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "samedi"
+      },
+      "hour": {
+        "type": "String",
+        "example": "21 h"
+      }
+    }
+  },
+  "boostBestTimeLine": "Meilleur moment : {moment}",
+  "@boostBestTimeLine": {
+    "description": "Écran Boost, carte du meilleur moment : le jour et l'heure où la ville du membre est la plus active. {moment} est déjà écrit (« samedi 21 h »).",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostBestTimeLineAfterShabbat": "Meilleur moment : {moment}, après Shabbat",
+  "@boostBestTimeLineAfterShabbat": {
+    "description": "Écran Boost, carte du meilleur moment, quand ce moment tombe un samedi à partir de 20 h (heure locale) : même phrase suivie de « après Shabbat ».",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostBestTimeBasis": "D'après l'affluence mesurée à {city}.",
+  "@boostBestTimeBasis": {
+    "description": "Écran Boost, sous le meilleur moment : d'où vient la suggestion. {city} est la ville du membre.",
+    "placeholders": {
+      "city": {
+        "type": "String",
+        "example": "Paris"
+      }
+    }
+  },
+  "boostBestTimeBasisNoCity": "D'après l'affluence mesurée dans votre ville.",
+  "@boostBestTimeBasisNoCity": {
+    "description": "Écran Boost, sous le meilleur moment, quand le serveur n'envoie pas le nom de la ville."
+  },
+  "boostBestTimeNoData": "Pas encore assez de données pour votre ville.",
+  "@boostBestTimeNoData": {
+    "description": "Écran Boost, carte du meilleur moment : le serveur n'a pas mesuré assez d'affluence dans la ville du membre ; aucun horaire n'est proposé."
+  },
+  "boostBestTimeLoadFailed": "Impossible de charger le meilleur moment.",
+  "@boostBestTimeLoadFailed": {
+    "description": "Écran Boost, carte du meilleur moment : la lecture a échoué ; un bouton Réessayer suit."
+  },
+  "boostScheduleAction": "Programmer pour ce moment",
+  "@boostScheduleAction": {
+    "description": "Écran Boost : bouton qui programme le Boost au meilleur moment."
+  },
+  "boostScheduleNote": "Un de vos Boosts sera utilisé à ce moment-là, et vous serez prévenu quand il démarre.",
+  "@boostScheduleNote": {
+    "description": "Écran Boost, sous le bouton de programmation : ce que coûte la programmation (un Boost) et qu'une notification prévient au démarrage."
+  },
+  "boostScheduledFor": "Programmé pour {moment}",
+  "@boostScheduledFor": {
+    "description": "Écran Boost : un Boost est programmé. {moment} est déjà écrit (« samedi 21 h »).",
+    "placeholders": {
+      "moment": {
+        "type": "String",
+        "example": "samedi 21 h"
+      }
+    }
+  },
+  "boostScheduleCancel": "Annuler la programmation",
+  "@boostScheduleCancel": {
+    "description": "Écran Boost : bouton qui annule le Boost programmé."
+  },
+  "boostScheduleCancelled": "Programmation annulée.",
+  "@boostScheduleCancelled": {
+    "description": "Écran Boost : message bref après l'annulation d'un Boost programmé."
+  },
+  "boostScheduledDone": "Boost programmé.",
+  "@boostScheduledDone": {
+    "description": "Écran Boost : message bref après la programmation d'un Boost."
+  },
+  "boostScheduleAlready": "Un Boost est déjà programmé.",
+  "@boostScheduleAlready": {
+    "description": "Écran Boost : le serveur refuse car un Boost est déjà programmé."
+  },
+  "boostScheduleInvalidTime": "Ce moment n'est plus possible : il doit être à venir, dans les 7 prochains jours.",
+  "@boostScheduleInvalidTime": {
+    "description": "Écran Boost : le serveur refuse l'horaire (passé ou à plus de 7 jours)."
+  },
+  "boostScheduleFailed": "Impossible de programmer le Boost. Réessayez.",
+  "@boostScheduleFailed": {
+    "description": "Écran Boost : la programmation a échoué (réseau ou serveur)."
+  },
+  "boostScheduleCancelFailed": "Impossible d'annuler la programmation. Réessayez.",
+  "@boostScheduleCancelFailed": {
+    "description": "Écran Boost : l'annulation de la programmation a échoué."
+  },
+  "boostBestTimeTitle": "Meilleur moment",
+  "@boostBestTimeTitle": {
+    "description": "Écran Boost, carte du meilleur moment : titre court, utilisé quand le serveur n'a pas encore assez de données pour proposer un horaire."
+  },
   "chatListTitle": "Messages",
   "@chatListTitle": {
     "description": "Conversations : titre de l'écran (grand titre, 40 px)."
@@ -340,7 +446,7 @@
   "@chatTypingSemantics": {
     "description": "Chat : phrase lue par le lecteur d'écran pour la bulle aux trois points (l'autre membre écrit)."
   },
-  "chatSeenAt": "Vu à {time}",
+  "chatSeenAt": "Lu à {time}",
   "@chatSeenAt": {
     "description": "Chat : sous le dernier message envoyé et lu. {time} est l'heure de lecture déjà mise en forme (« 21:42 »).",
     "placeholders": {
@@ -605,6 +711,22 @@
   "chatErrorLoadFailed": "Impossible de charger la conversation.",
   "@chatErrorLoadFailed": {
     "description": "Chat : le premier chargement de la conversation a échoué."
+  },
+  "readReceiptsTitle": "Envoyer les confirmations de lecture",
+  "@readReceiptsTitle": {
+    "description": "Réglages, confidentialité : titre de l'interrupteur qui décide si les membres mazl+ voient l'heure à laquelle on a lu leurs messages."
+  },
+  "readReceiptsSubtitle": "Les membres mazl+ voient quand vous avez lu leur message. Désactivée, personne ne le voit.",
+  "@readReceiptsSubtitle": {
+    "description": "Réglages, confidentialité : sous-titre de l'interrupteur des confirmations de lecture (deux lignes). « mazl+ » est un nom de marque."
+  },
+  "readReceiptsLoadFailed": "Réglage indisponible pour l'instant. Touchez pour réessayer.",
+  "@readReceiptsLoadFailed": {
+    "description": "Réglages, confidentialité : sous-titre de la ligne des confirmations de lecture quand le serveur n'a pas répondu ; un appui relance la lecture."
+  },
+  "readReceiptsSaveFailed": "Impossible de modifier ce réglage. Réessayez.",
+  "@readReceiptsSaveFailed": {
+    "description": "Message bref quand le serveur a refusé ou n'a pas reçu le changement des confirmations de lecture ; l'interrupteur revient à l'état du serveur."
   },
   "commonCancel": "Annuler",
   "@commonCancel": {
@@ -2768,6 +2890,218 @@
       }
     }
   },
+  "passportTitle": "Passeport",
+  "@passportTitle": {
+    "description": "Titre de l'écran du Passeport (fonction mazl+) et info-bulle du bouton de Découvrir qui l'ouvre."
+  },
+  "passportHeadline": "Découvrez une autre ville",
+  "@passportHeadline": {
+    "description": "Grand titre de l'écran du Passeport."
+  },
+  "passportIntro": "Choisissez une ville pour voir ses profils dans Découvrir, avant un voyage ou une alyah. Votre ville affichée ne change pas ; les autres voient simplement que vous êtes de passage.",
+  "@passportIntro": {
+    "description": "Explication sous le titre du Passeport."
+  },
+  "passportCurrent": "Votre passeport : {city}",
+  "@passportCurrent": {
+    "description": "Ville du passeport en cours. {city} est le nom de la ville.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "passportInactive": "Vous découvrez votre propre ville.",
+  "@passportInactive": {
+    "description": "Message quand aucun passeport n'est actif."
+  },
+  "passportBackHome": "Revenir à ma ville",
+  "@passportBackHome": {
+    "description": "Bouton qui coupe le passeport et revient à la ville du membre."
+  },
+  "passportSearchLabel": "Rechercher une ville",
+  "@passportSearchLabel": {
+    "description": "Libellé du champ de recherche d'une ville du Passeport."
+  },
+  "passportSearchNone": "Aucune ville trouvée.",
+  "@passportSearchNone": {
+    "description": "Message quand la recherche d'une ville ne trouve rien."
+  },
+  "passportSuggestedTitle": "Villes suggérées",
+  "@passportSuggestedTitle": {
+    "description": "Titre de la liste des villes proposées du Passeport."
+  },
+  "passportResultsTitle": "Résultats",
+  "@passportResultsTitle": {
+    "description": "Titre de la liste des résultats de la recherche d'une ville."
+  },
+  "passportCityTelAviv": "Tel-Aviv",
+  "@passportCityTelAviv": {
+    "description": "Nom de la ville suggérée « Tel-Aviv » dans le Passeport."
+  },
+  "passportCityJerusalem": "Jérusalem",
+  "@passportCityJerusalem": {
+    "description": "Nom de la ville suggérée « Jérusalem » dans le Passeport."
+  },
+  "passportCityNewYork": "New York",
+  "@passportCityNewYork": {
+    "description": "Nom de la ville suggérée « New York » dans le Passeport."
+  },
+  "passportCityLondon": "Londres",
+  "@passportCityLondon": {
+    "description": "Nom de la ville suggérée « Londres » dans le Passeport."
+  },
+  "passportCityMontreal": "Montréal",
+  "@passportCityMontreal": {
+    "description": "Nom de la ville suggérée « Montréal » dans le Passeport."
+  },
+  "passportCityParis": "Paris",
+  "@passportCityParis": {
+    "description": "Nom de la ville suggérée « Paris » dans le Passeport."
+  },
+  "passportCityMarseille": "Marseille",
+  "@passportCityMarseille": {
+    "description": "Nom de la ville suggérée « Marseille » dans le Passeport."
+  },
+  "passportCityLyon": "Lyon",
+  "@passportCityLyon": {
+    "description": "Nom de la ville suggérée « Lyon » dans le Passeport."
+  },
+  "passportCityNice": "Nice",
+  "@passportCityNice": {
+    "description": "Nom de la ville suggérée « Nice » dans le Passeport."
+  },
+  "passportPlusOnly": "Le passeport est réservé aux abonnés mazl+.",
+  "@passportPlusOnly": {
+    "description": "Bandeau du Passeport pour un membre sans mazl+."
+  },
+  "passportSeePlus": "Découvrir mazl+",
+  "@passportSeePlus": {
+    "description": "Bouton du Passeport qui ouvre la page mazl+."
+  },
+  "passportSaveFailed": "Impossible de changer de ville pour le moment.",
+  "@passportSaveFailed": {
+    "description": "Message bref quand la ville du Passeport n'a pas pu être changée."
+  },
+  "passportLoadFailed": "Impossible de charger votre passeport.",
+  "@passportLoadFailed": {
+    "description": "Message de l'écran du Passeport quand ses réglages ne se chargent pas."
+  },
+  "passportActivated": "Vous découvrez maintenant {city}.",
+  "@passportActivated": {
+    "description": "Message bref dans Découvrir après le choix d'une ville de passeport. {city} est la ville.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "passportDeactivated": "Vous découvrez de nouveau votre ville.",
+  "@passportDeactivated": {
+    "description": "Message bref dans Découvrir après le retour à sa propre ville."
+  },
+  "plusPrivacyIncognitoTitle": "Mode discret",
+  "@plusPrivacyIncognitoTitle": {
+    "description": "Titre du réglage Mode discret (mazl+) dans les Paramètres."
+  },
+  "plusPrivacyIncognitoSubtitle": "Seules les personnes que vous avez aimées vous voient dans Découvrir.",
+  "@plusPrivacyIncognitoSubtitle": {
+    "description": "Explication du Mode discret : qui peut voir le membre dans Découvrir."
+  },
+  "plusPrivacyLocked": "Réservé aux abonnés mazl+",
+  "@plusPrivacyLocked": {
+    "description": "Sous-titre d'un réglage mazl+ pour un membre sans abonnement."
+  },
+  "plusPrivacyLoading": "Chargement…",
+  "@plusPrivacyLoading": {
+    "description": "Sous-titre d'un réglage mazl+ pendant que le serveur répond."
+  },
+  "plusPrivacyLoadFailed": "Impossible de lire ce réglage. Touchez pour réessayer.",
+  "@plusPrivacyLoadFailed": {
+    "description": "Sous-titre d'un réglage mazl+ que le serveur n'a pas pu donner ; toucher réessaie."
+  },
+  "plusPrivacySaveFailed": "Réglage non modifié. Réessayez.",
+  "@plusPrivacySaveFailed": {
+    "description": "Message bref quand un réglage mazl+ n'a pas pu être enregistré."
+  },
+  "superLikeNoteTitle": "Un mot avec votre Super Like ?",
+  "@superLikeNoteTitle": {
+    "description": "Titre de la feuille proposée à l'envoi d'un Super Like."
+  },
+  "superLikeNoteBody": "Facultatif : la personne le lira avec votre Super Like.",
+  "@superLikeNoteBody": {
+    "description": "Explication sous le titre de la feuille du mot du Super Like."
+  },
+  "superLikeNoteHint": "Votre mot (140 caractères au plus)",
+  "@superLikeNoteHint": {
+    "description": "Indication du champ du mot du Super Like."
+  },
+  "superLikeNoteCounter": "{count}/{max}",
+  "@superLikeNoteCounter": {
+    "description": "Compteur de caractères du mot du Super Like. {count} écrits sur {max}.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "superLikeNoteSend": "Envoyer avec ce mot",
+  "@superLikeNoteSend": {
+    "description": "Bouton qui envoie le Super Like avec le mot écrit."
+  },
+  "superLikeNoteSendWithout": "Envoyer sans mot",
+  "@superLikeNoteSendWithout": {
+    "description": "Bouton qui envoie le Super Like sans mot."
+  },
+  "superLikeNoteRefused": "Ce mot n'a pas été accepté (140 caractères au plus, ni lien ni coordonnées). Le Super Like n'est pas parti.",
+  "@superLikeNoteRefused": {
+    "description": "Message bref quand le serveur refuse le mot d'un Super Like (trop long, lien, coordonnées)."
+  },
+  "discoverCardTraveling": "De passage à {city}",
+  "@discoverCardTraveling": {
+    "description": "Marque sur la carte d'un membre qui utilise le Passeport. {city} est la ville visitée.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverCardSuperLiked": "Vous a envoyé un Super Like",
+  "@discoverCardSuperLiked": {
+    "description": "Marque sur la carte d'un membre qui a envoyé un Super Like au membre connecté."
+  },
+  "discoverCardSuperLikeNote": "« {note} »",
+  "@discoverCardSuperLikeNote": {
+    "description": "Le mot d'un Super Like reçu, entre guillemets. {note} est le texte écrit par l'expéditeur.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverUndo": "Annuler le dernier choix",
+  "@discoverUndo": {
+    "description": "Info-bulle du bouton qui annule le dernier choix dans Découvrir."
+  },
+  "discoverUndoNothing": "Rien à annuler pour le moment.",
+  "@discoverUndoNothing": {
+    "description": "Message bref quand il n'y a rien à annuler dans Découvrir."
+  },
+  "discoverUndoNotPossible": "Ce choix ne peut pas être annulé (Super Like, match déjà formé ou trop ancien).",
+  "@discoverUndoNotPossible": {
+    "description": "Message bref quand le serveur refuse d'annuler le dernier choix (Super Like, match formé, trop ancien)."
+  },
+  "discoverUndoLimit": "Votre retour arrière gratuit du jour est utilisé. Avec mazl+, il est illimité.",
+  "@discoverUndoLimit": {
+    "description": "Message bref quand le retour arrière gratuit du jour est utilisé et que l'offre mazl+ n'est pas rouverte."
+  },
+  "discoverUndoFailed": "Impossible d'annuler pour le moment.",
+  "@discoverUndoFailed": {
+    "description": "Message bref quand l'annulation du dernier choix échoue."
+  },
   "duoTutorialWelcomeTitle": "MAZL, pensé pour le Duo",
   "@duoTutorialWelcomeTitle": {
     "description": "Écran du tutoriel de l'iPhone Duo, étape 1 (appareil fermé) : titre, une à deux lignes d'environ 20 caractères."
@@ -3119,6 +3453,46 @@
   "eventsShareError": "Impossible de partager pour le moment.",
   "@eventsShareError": {
     "description": "Message bref quand la feuille de partage n'a pas pu s'ouvrir."
+  },
+  "eventsMemberPrice": "Tarif membre : {price}",
+  "@eventsMemberPrice": {
+    "description": "Événement payant, pour un abonné mazl+ : son tarif réduit. {price} est déjà écrit avec la devise (« 8 € »).",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsMemberPricePlus": "mazl+ : {price}",
+  "@eventsMemberPricePlus": {
+    "description": "Événement payant, pour un membre sans mazl+ : ligne sobre qui indique le tarif réduit de l'abonnement ; un appui ouvre l'offre. « mazl+ » est un nom de marque ; {price} est déjà écrit avec la devise.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsMemberPricePlusHint": "Avec mazl+, cet événement coûte {price}. Voir l'offre.",
+  "@eventsMemberPricePlusHint": {
+    "description": "Libellé lu par VoiceOver sur la ligne « mazl+ : 8 € » d'un événement payant.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsPriceRegular": "Prix normal : {price}",
+  "@eventsPriceRegular": {
+    "description": "Libellé lu par VoiceOver sur le prix normal barré d'un événement payant, pour un abonné mazl+.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "25 €"
+      }
+    }
   },
   "genreLookingForRequired": "Indiquez ce que vous recherchez",
   "@genreLookingForRequired": {
@@ -3637,18 +4011,6 @@
       }
     }
   },
-  "likesWaiting": "{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}",
-  "@likesWaiting": {
-    "description": "Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "label": {
-        "type": "String"
-      }
-    }
-  },
   "likesSeeWhoWithPlus": "Voir qui vous a aimé avec mazl+",
   "@likesSeeWhoWithPlus": {
     "description": "Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase."
@@ -3673,14 +4035,6 @@
   "likesEmptyAction": "Découvrir des profils",
   "@likesEmptyAction": {
     "description": "Bouton de l'écran des likes vide : retourne à Découvrir."
-  },
-  "likesPremiumBody": "Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.",
-  "@likesPremiumBody": {
-    "description": "Texte de la feuille qui présente mazl+ quand on touche un like verrouillé."
-  },
-  "likesPremiumOffers": "Voir les offres",
-  "@likesPremiumOffers": {
-    "description": "Bouton de la feuille mazl+ : ouvre l'écran des offres."
   },
   "likesCardOpen": "Voir le like de {title}",
   "@likesCardOpen": {
@@ -3723,6 +4077,76 @@
     "placeholders": {
       "km": {
         "type": "int"
+      }
+    }
+  },
+  "likesBlurredHeadline": "{count, plural, one{{count} personne vous a aimé} other{{count} personnes vous ont aimé}}",
+  "@likesBlurredHeadline": {
+    "description": "En-tête de l'écran Likes pour un membre sans abonnement. {count} est le VRAI nombre de likes reçus, jamais arrondi.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAnonymousName": "Quelqu'un",
+  "@likesAnonymousName": {
+    "description": "Nom affiché à la place du prénom sur la tuile floue d'un like (membre sans abonnement)."
+  },
+  "likesBlurredLabel": "Quelqu'un vous a aimé, {ago}",
+  "@likesBlurredLabel": {
+    "description": "Libellé d'accessibilité d'une tuile de like floue. {ago} est l'ancienneté déjà écrite (« il y a 2 h »).",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "likesBlurredHint": "Touchez pour découvrir mazl+",
+  "@likesBlurredHint": {
+    "description": "Indication d'accessibilité d'une tuile de like floue : ouvre l'offre. « mazl+ » est un nom de marque."
+  },
+  "likesSuperLikeBadge": "Super Like",
+  "@likesSuperLikeBadge": {
+    "description": "Mention sur la tuile d'un like qui est un Super Like (et libellé d'accessibilité)."
+  },
+  "likesAgoJustNow": "À l'instant",
+  "@likesAgoJustNow": {
+    "description": "Ancienneté d'un like reçu il y a moins d'une minute."
+  },
+  "likesAgoMinutes": "il y a {count} min",
+  "@likesAgoMinutes": {
+    "description": "Ancienneté d'un like : {count} minutes (1 à 59).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAgoHours": "il y a {count} h",
+  "@likesAgoHours": {
+    "description": "Ancienneté d'un like : {count} heures (1 à 23).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAgoDays": "{count, plural, one{il y a {count} jour} other{il y a {count} jours}}",
+  "@likesAgoDays": {
+    "description": "Ancienneté d'un like : {count} jours (1 ou plus).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesNoteLabel": "Mot de {name}",
+  "@likesNoteLabel": {
+    "description": "Libellé d'accessibilité du mot joint à un Super Like reçu (abonné). {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
       }
     }
   },
@@ -4742,6 +5166,42 @@
         "type": "String"
       }
     }
+  },
+  "momentsThirdLikeTitle": "Plusieurs personnes vous ont aimé.",
+  "@momentsThirdLikeTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand un membre sans abonnement atteint trois likes reçus. Pas de chiffre : le nombre exact est dans l'écran Likes."
+  },
+  "momentsThirdLikeBody": "Avec mazl+, vous voyez qui elles sont et vous pouvez leur répondre tout de suite.",
+  "@momentsThirdLikeBody": {
+    "description": "Texte de l'offre du troisième like reçu. « mazl+ » est un nom de marque, il reste écrit tel quel."
+  },
+  "momentsUndoTitle": "Un retour arrière par jour.",
+  "@momentsUndoTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand le retour arrière gratuit du jour est déjà utilisé."
+  },
+  "momentsUndoBody": "Vous avez déjà utilisé le vôtre aujourd'hui. Avec mazl+, annulez autant de fois que vous le souhaitez.",
+  "@momentsUndoBody": {
+    "description": "Texte de l'offre du retour arrière refusé. « mazl+ » est un nom de marque."
+  },
+  "momentsPassportTitle": "Le Passeport est réservé à mazl+.",
+  "@momentsPassportTitle": {
+    "description": "Titre de l'offre mazl+ montrée quand un membre sans abonnement essaie d'activer le Passeport (choisir une autre ville pour Découvrir)."
+  },
+  "momentsPassportBody": "Découvrez des profils dans une autre ville avant un voyage ou une alyah, sans changer la ville affichée sur votre profil.",
+  "@momentsPassportBody": {
+    "description": "Texte de l'offre du Passeport tenté sans abonnement."
+  },
+  "momentsFirstMatchTitle": "Votre premier match.",
+  "@momentsFirstMatchTitle": {
+    "description": "Titre de l'offre mazl+ montrée après le premier match d'un membre sans abonnement."
+  },
+  "momentsFirstMatchBody": "Avec mazl+, ne comptez plus vos likes et faites-vous remarquer avec des Super Likes chaque jour.",
+  "@momentsFirstMatchBody": {
+    "description": "Texte de l'offre du premier match. « mazl+ » est un nom de marque."
+  },
+  "momentsPriceNote": "Le prix s'affiche avant tout achat. Résiliable à tout moment.",
+  "@momentsPriceNote": {
+    "description": "Petite ligne sous les boutons de l'offre : rien n'est caché sur le prix ni sur la résiliation."
   },
   "privacyGateUnverifiable": "Impossible de vérifier votre accord. Vérifiez votre connexion.",
   "@privacyGateUnverifiable": {

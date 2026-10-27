@@ -200,9 +200,11 @@ describe("responses carry signed photo URLs", () => {
       fetch(`${BASE_URL}/api/swipes`, { method: "POST", headers: json(token), body: JSON.stringify({ target_user_id: target, action: "like" }) });
     await swipe(alice.token, bob.id);
 
-    // Received likes carry the photo for a mazl+ member only (docs/web/adr/W11).
+    // Received likes carry the sharp photo for a mazl+ member only (docs/web/adr/W11); the others get its blurred variant.
     const receivedLikes = () => fetch(`${BASE_URL}/api/likes/received`, { headers: auth(bob.token) }).then((r) => r.json()) as Promise<{ likes: Array<{ user_id?: number; picture?: string | null }> }>;
-    expect(JSON.stringify((await receivedLikes()).likes)).not.toContain("/media/photos/");
+    const free = JSON.stringify((await receivedLikes()).likes);
+    expect(free).not.toMatch(/\/media\/photos\/\d+\?/);
+    expect(free).toMatch(/\/media\/photos\/\d+\/blur\?/);
     await grantPlus(bob.id);
     expect((await receivedLikes()).likes.find((l) => l.user_id === alice.id)?.picture).toMatch(signed);
 

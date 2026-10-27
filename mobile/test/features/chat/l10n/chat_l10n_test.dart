@@ -34,7 +34,7 @@ void main() {
       await harness.pump(tester, locale: _en);
 
       expect(find.text('Online'), findsNothing);
-      expect(find.text('Seen at 10:06'), findsOneWidget);
+      expect(find.text('Read at 10:06'), findsOneWidget);
       expect(find.byTooltip('Attach photos'), findsOneWidget);
       expect(find.bySemanticsLabel('Video call'), findsNothing);
       expect(find.byTooltip('Options'), findsOneWidget);
@@ -43,7 +43,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('En ligne'), findsNothing);
-      expect(find.text('Vu à 10:06'), findsNothing);
+      expect(find.text('Lu à 10:06'), findsNothing);
       semantics.dispose();
     });
 

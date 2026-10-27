@@ -160,6 +160,8 @@ async function main(): Promise<number> {
     MEDIA_SIGNING_KEY: base64(),
     DOC_FINGERPRINT_KEY: base64(),
     UPLOADS_DIR: uploads,
+    // The task of the minute (Boosts that ended, Boosts programmed by the members) ticks every second.
+    BOOST_END_SWEEP_MS: "1000",
     // Cheap proof of work for the web sign-in suites (the test expects 8 in the public config).
     WEB_POW_DIFFICULTY: "8",
     STRIPE_SECRET_KEY: `sk_test_${hex(12)}`,

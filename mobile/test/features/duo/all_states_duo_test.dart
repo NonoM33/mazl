@@ -13,6 +13,7 @@ import 'package:mazl/core/dev/demo_store.dart';
 import 'package:mazl/core/dev/dev_session.dart';
 import 'package:mazl/core/di/providers/privacy_providers.dart';
 import 'package:mazl/core/di/providers/web_sessions_providers.dart';
+import 'package:mazl/core/premium/purchase_moments.dart';
 import 'package:mazl/core/router/app_router.dart';
 import 'package:mazl/core/services/api_service.dart';
 import 'package:mazl/core/services/auth_service.dart';
@@ -64,6 +65,7 @@ class _State {
     this.open,
     this.webSessions,
     this.body,
+    this.preferences,
   });
 
   final String id;
@@ -80,6 +82,9 @@ class _State {
 
   /// What the server answers for [_Answer.body].
   final Map<String, Object?>? body;
+
+  /// What the phone already remembers (the mock storage), empty by default.
+  final Map<String, Object>? preferences;
 }
 
 enum _Computers { empty, failing, loading }
@@ -108,6 +113,40 @@ Future<void> _openBlockedUsers(WidgetTester tester) async {
   await tester.pump();
   await tester.tap(row.first);
   await _pumpFor(tester, 2000);
+}
+
+/// Scrolls the settings to the read receipts row (a lazy list).
+Future<void> _scrollToReadReceipts(WidgetTester tester) async {
+  final row = find.text('Envoyer les confirmations de lecture');
+  for (var i = 0; i < 30 && row.evaluate().isEmpty; i++) {
+    for (final scrollable in find.byType(Scrollable).evaluate().toList()) {
+      await tester.drag(
+        find.byWidget(scrollable.widget),
+        const Offset(0, -200),
+      );
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  await tester.ensureVisible(row.first);
+  await _pumpFor(tester, 300);
+}
+
+Map<String, Object?> _bestTimeBody({bool scheduled = false}) {
+  final saturday = DateTime.now().toUtc().add(const Duration(days: 3));
+  return {
+    'success': true,
+    'data': {
+      'city': scheduled ? 'Paris' : null,
+      'best_time': scheduled
+          ? {
+              'starts_at': saturday.toIso8601String(),
+              'weekday': saturday.weekday,
+              'hour': saturday.hour,
+            }
+          : null,
+      'scheduled_at': scheduled ? saturday.toIso8601String() : null,
+    },
+  };
 }
 
 Object? _emptied(Object? json) {
@@ -190,6 +229,56 @@ Map<String, Object?> _verificationBody({
       : null,
 };
 
+Map<String, Object?> _premiumSettingsBody({
+  bool isPlus = true,
+  bool passport = false,
+}) => {
+  'success': true,
+  'data': {
+    'is_plus': isPlus,
+    'passport': passport
+        ? {'city': 'Tel Aviv', 'latitude': 32.0853, 'longitude': 34.7818}
+        : null,
+    'incognito': false,
+    'send_read_receipts': true,
+  },
+};
+
+const Map<String, Object> _thirdLikeOfferDone = {
+  'purchase_moment.third_like_done': true,
+};
+
+/// `GET /api/likes/received` as the server answers: a member without mazl+
+/// gets previews (no identity, a blurred photo or none), a subscriber the
+/// complete likes, the first of them a Super Like with a word.
+Map<String, Object?> _likesBody({
+  required bool free,
+  required int count,
+  required bool withPhoto,
+}) => {
+  'success': true,
+  'count': count,
+  'is_premium': !free,
+  'likes': [
+    for (var i = 0; i < count && i < 8; i++)
+      {
+        if (!free) 'user_id': 100 + i,
+        'display_name': 'Membre Exemple $i',
+        if (!free) 'picture': null,
+        if (!free) 'age': 25 + i,
+        'is_verified': i.isEven,
+        'liked_at': DateTime.now()
+            .toUtc()
+            .subtract(Duration(hours: 2 + i * 9))
+            .toIso8601String(),
+        if (free)
+          'blurredPhotoUrl': withPhoto ? 'https://example.com/b$i' : null,
+        'is_super_like': i == 0,
+        if (!free) 'note': i == 0 ? 'Ton profil m\'a fait sourire.' : null,
+      },
+  ],
+};
+
 final List<_State> _states = [
   // matching
   _State(
@@ -206,6 +295,36 @@ final List<_State> _states = [
   _State('likes: none', '/likes', _Answer.empty, _p('/api/likes/received')),
   _State('likes: error', '/likes', _Answer.error, _p('/api/likes/received')),
   _State('likes: loading', '/likes', _Answer.never, _p('/api/likes/received')),
+  _State(
+    'likes: free, blurred photos',
+    '/likes',
+    _Answer.body,
+    _p('/api/likes/received'),
+    body: _likesBody(free: true, count: 14, withPhoto: true),
+    preferences: _thirdLikeOfferDone,
+  ),
+  _State(
+    'likes: free, no usable photo',
+    '/likes',
+    _Answer.body,
+    _p('/api/likes/received'),
+    body: _likesBody(free: true, count: 5, withPhoto: false),
+    preferences: _thirdLikeOfferDone,
+  ),
+  _State(
+    'likes: free, the offer of the third like',
+    '/likes',
+    _Answer.body,
+    _p('/api/likes/received'),
+    body: _likesBody(free: true, count: 3, withPhoto: true),
+  ),
+  _State(
+    'likes: subscriber, Super Like with a word',
+    '/likes',
+    _Answer.body,
+    _p('/api/likes/received'),
+    body: _likesBody(free: false, count: 4, withPhoto: true),
+  ),
   _State(
     'daily picks: none',
     '/daily-picks',
@@ -571,6 +690,33 @@ final List<_State> _states = [
     _Answer.never,
     _p('/api/matches'),
   ),
+  // passport (mazl+): the settings come from the server
+  _State(
+    'passport: error',
+    '/passport',
+    _Answer.error,
+    _p('/api/premium/settings'),
+  ),
+  _State(
+    'passport: loading',
+    '/passport',
+    _Answer.never,
+    _p('/api/premium/settings'),
+  ),
+  _State(
+    'passport: free member',
+    '/passport',
+    _Answer.body,
+    _p('/api/premium/settings'),
+    body: _premiumSettingsBody(isPlus: false),
+  ),
+  _State(
+    'passport: active',
+    '/passport',
+    _Answer.body,
+    _p('/api/premium/settings'),
+    body: _premiumSettingsBody(passport: true),
+  ),
   // filters, verification, boost, premium
   _State(
     'filters: error',
@@ -629,6 +775,47 @@ final List<_State> _states = [
     _Answer.never,
     _p('/api/(boost/status|credits)'),
   ),
+  _State(
+    'boost: best time not measured yet',
+    '/boost',
+    _Answer.body,
+    _p('/api/boost/best-time'),
+    body: _bestTimeBody(),
+  ),
+  _State(
+    'boost: best time Boost scheduled',
+    '/boost',
+    _Answer.body,
+    _p('/api/boost/best-time'),
+    body: _bestTimeBody(scheduled: true),
+  ),
+  _State(
+    'boost: best time error',
+    '/boost',
+    _Answer.error,
+    _p('/api/boost/best-time'),
+  ),
+  _State(
+    'boost: best time loading',
+    '/boost',
+    _Answer.never,
+    _p('/api/boost/best-time'),
+  ),
+  // read receipts
+  _State(
+    'read receipts: setting unavailable',
+    '/profile/settings',
+    _Answer.error,
+    _p('/api/premium/settings'),
+    open: _scrollToReadReceipts,
+  ),
+  _State(
+    'read receipts: setting loading',
+    '/profile/settings',
+    _Answer.never,
+    _p('/api/premium/settings'),
+    open: _scrollToReadReceipts,
+  ),
 ];
 
 /// What proves that a state was reached and not another screen: a text of the
@@ -642,6 +829,11 @@ const Map<String, String> _witness = {
   'matches: error': 'Impossible de charger les matchs',
   'likes: none': 'Pas encore de likes',
   'likes: error': 'Erreur de chargement',
+  'likes: free, blurred photos': '14 personnes vous ont aimé',
+  'likes: free, no usable photo': '5 personnes vous ont aimé',
+  'likes: free, the offer of the third like':
+      'Plusieurs personnes vous ont aimé.',
+  'likes: subscriber, Super Like with a word': 'Ton profil m\'a fait sourire.',
   'daily picks: none': 'Vous avez vu toutes vos sélections.',
   'daily picks: error': 'Réessayer',
   'conversations: none': 'Pas encore de conversations',
@@ -682,7 +874,14 @@ const Map<String, String> _witness = {
   'verification: level 1 only': 'Vérification en cours',
   'verification: both levels': 'Profil entièrement vérifié',
   'verification: limit reached': 'Limite atteinte',
+  'passport: error': 'Impossible de charger votre passeport.',
+  'passport: free member': 'Le passeport est réservé aux abonnés mazl+.',
+  'passport: active': 'Votre passeport : Tel-Aviv',
   'boost: error': 'Réessayer',
+  'boost: best time not measured yet': 'Pas encore assez de données',
+  'boost: best time Boost scheduled': 'Programmé pour',
+  'boost: best time error': 'Impossible de charger le meilleur moment.',
+  'read receipts: setting unavailable': 'Réglage indisponible',
 };
 
 void _expectStateReached(_State state) {
@@ -790,6 +989,8 @@ Future<List<String>> _measure(
   DuoPose pose,
 ) async {
   setDuoPose(tester, pose);
+  SharedPreferences.setMockInitialValues(state.preferences ?? {});
+  PurchaseMoments.resetForTest();
   await AuthService().signInAsDemo();
   if (state.couple) {
     DemoRoutes.respond(

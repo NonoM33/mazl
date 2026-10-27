@@ -109,6 +109,8 @@ export function registerMatchingRoutes(app: Hono<{ Variables: AppVariables }>, d
         age: r.age !== null ? Math.trunc(r.age) : null,
         is_verified: r.is_verified === true,
         liked_at: r.liked_at,
+        is_super_like: r.is_super_like === true,
+        note: r.note ?? null,
       }));
 
       return c.json({ success: true, count: likes.length, likes });

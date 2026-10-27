@@ -2,6 +2,7 @@ import type { Sql } from "postgres";
 import { publicPhotoUrls, withPublicPicture } from "../../media/application/photo-urls";
 import { badgeColumns, primaryPhotoColumns } from "../../media/infra/sql-fragments";
 import type { FeedHydrator, FeedProfile } from "../application/ports";
+import { hasActivePlus } from "./premium-sql";
 
 interface FeedRow {
   readonly user_id: number;
@@ -16,7 +17,7 @@ interface FeedRow {
 export class PgFeedHydrator implements FeedHydrator {
   constructor(private readonly sql: Sql) {}
 
-  async profilesForFeed(userIds: readonly number[]): Promise<readonly FeedProfile[]> {
+  async profilesForFeed(userIds: readonly number[], viewerId?: number): Promise<readonly FeedProfile[]> {
     if (userIds.length === 0) return [];
     const sql = this.sql;
     const rows = await sql<FeedRow[]>`
@@ -51,14 +52,43 @@ export class PgFeedHydrator implements FeedHydrator {
       photosByUser.set(photo.user_id, list);
     }
     const byUser = new Map(rows.map((row) => [row.user_id, row]));
+    const [superLikes, travelling] = await Promise.all([this.superLikesTo(userIds, viewerId), this.travellingCities(userIds)]);
     const ordered: FeedProfile[] = [];
     for (const id of userIds) {
       const raw = byUser.get(id);
       if (raw === undefined) continue;
       const profile = withPublicPicture(raw);
       const urls = publicPhotoUrls(photosByUser.get(id) ?? []);
-      ordered.push({ ...profile, photos: urls.length > 0 ? urls : profile.picture ? [profile.picture] : [] });
+      const superLike = superLikes.get(id);
+      ordered.push({
+        ...profile,
+        photos: urls.length > 0 ? urls : profile.picture ? [profile.picture] : [],
+        super_liked_you: superLike !== undefined,
+        super_like_note: superLike ?? null,
+        traveling_city: travelling.get(id) ?? null,
+      });
     }
     return ordered;
+  }
+
+  // The Super Likes these members sent to the viewer, with their word (or null).
+  // A Super Like is a gesture made to be seen by whoever receives it.
+  private async superLikesTo(userIds: readonly number[], viewerId: number | undefined): Promise<Map<number, string | null>> {
+    if (viewerId === undefined) return new Map();
+    const rows = await this.sql<{ user_id: number; note: string | null }[]>`
+      SELECT user_id, note FROM swipes
+      WHERE target_user_id = ${viewerId} AND action = 'super_like' AND user_id IN ${this.sql(userIds)}
+    `;
+    return new Map(rows.map((row) => [row.user_id, row.note]));
+  }
+
+  // The city a member visits with their passport (« De passage à X »), only
+  // while they are subscribed.
+  private async travellingCities(userIds: readonly number[]): Promise<Map<number, string>> {
+    const rows = await this.sql<{ user_id: number; passport_city: string }[]>`
+      SELECT ms.user_id, ms.passport_city FROM member_premium_settings ms
+      WHERE ms.user_id IN ${this.sql(userIds)} AND ms.passport_city IS NOT NULL AND ${hasActivePlus(this.sql, this.sql`ms.user_id`)}
+    `;
+    return new Map(rows.map((row) => [row.user_id, row.passport_city]));
   }
 }

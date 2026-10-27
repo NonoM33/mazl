@@ -44,6 +44,7 @@ const _cases = [
     'Retour',
   ),
   _Case('conversation', '/chat', '/chat/101', 'Retour'),
+  _Case('passport', '/discover', '/passport', 'Retour'),
   _Case(
     'settings page with an app bar',
     '/profile',

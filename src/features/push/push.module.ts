@@ -27,7 +27,9 @@ export interface PushModule {
   // Pushes both members of every new match, whoever formed it.
   followMatches(): void;
   // Looks for ended Boosts every `everyMs` (BOOST_END_SWEEP_MS, a minute by default).
-  followBoostEndings(everyMs?: number): void;
+  // `tasks` run on the same tick, whether or not push is configured (the Boosts
+  // programmed by the members start from there).
+  followBoostEndings(everyMs?: number, tasks?: readonly (() => Promise<unknown>)[]): void;
   ensureSchema(): Promise<void>;
   // PUT/DELETE /api/push/devices (members) and /api/admin/push/* (administrators).
   registerRoutes(app: Hono<{ Variables: AppVariables }>): void;
@@ -59,9 +61,12 @@ export function createPushModule(options: { sql: Sql }): PushModule {
     messageNotifier: { messageCreated: (event) => void notifier.messageReceived(event).catch(() => undefined) },
     likeListener: { likeReceived: (like) => void notifier.likeReceived(like).catch(() => undefined) },
     followMatches: () => onNewMatch((match) => void notifier.matchFormed(match).catch(() => undefined)),
-    followBoostEndings: (everyMs = sweepInterval(process.env)) => {
+    followBoostEndings: (everyMs = sweepInterval(process.env), tasks = []) => {
       const timer = setInterval(() => {
         sweepBoostEndings().catch((error: unknown) => console.error(`Boost end sweep failed: ${error instanceof Error ? error.name : "unknown"}`));
+        for (const task of tasks) {
+          task().catch((error: unknown) => console.error(`Scheduled task failed: ${error instanceof Error ? error.name : "unknown"}`));
+        }
       }, everyMs);
       timer.unref();
     },

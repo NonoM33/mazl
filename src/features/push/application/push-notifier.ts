@@ -1,5 +1,8 @@
-import { boostEndedText, eventAvailableText, newLikeText, newMatchText, newMessageText, superLikeText, testPushText } from "../domain/push-texts";
-import type { ConnectionRegistry, PushDirectory, PushLog, PushMessage, PushResult, PushTransport } from "./ports";
+import {
+  boostEndedText, eventAvailableText, newLikeText, newMatchText, newMessageText, scheduledBoostMissedText, scheduledBoostStartedText,
+  superLikeText, testPushText, type PushText,
+} from "../domain/push-texts";
+import type { ConnectionRegistry, PushData, PushDirectory, PushLog, PushMessage, PushResult, PushTransport } from "./ports";
 
 // Who is told what, and when (V1-CONTRAT section 1). Every method resolves, even
 // when the database or the provider fails: a push must never fail, nor slow
@@ -56,6 +59,9 @@ export interface PushNotifier {
   // super likes: once per sender.
   likeReceived(like: LikeReceived): Promise<void>;
   boostEnded(userId: number): Promise<void>;
+  // A Boost the member programmed started / could not start (no credit left).
+  scheduledBoostStarted(userId: number): Promise<void>;
+  scheduledBoostMissed(userId: number): Promise<void>;
   // Every reachable member of the list, a few at a time.
   eventAvailable(event: EventAvailable): Promise<EventAvailableOutcome>;
   // Sent as it is, whoever the member: the administrators check a device with it.
@@ -162,6 +168,22 @@ export function createPushNotifier(deps: PushNotifierDeps): PushNotifier {
     await sendAlone({ recipientId: userId, ...boostEndedText(), data: { type: "boost_ended" } });
   }
 
+  async function toMemberAlone(userId: number, text: PushText, data: PushData): Promise<void> {
+    if (!transport.isEnabled()) return;
+    try {
+      if (!(await directory.reachable([userId])).includes(userId)) return;
+    } catch (error: unknown) {
+      log.error(`Push failed: ${error instanceof Error ? error.name : "unknown"}`);
+      return;
+    }
+    await sendAlone({ recipientId: userId, ...text, data });
+  }
+
+  const scheduledBoostStarted = (userId: number): Promise<void> =>
+    toMemberAlone(userId, scheduledBoostStartedText(), { type: "boost_scheduled_started", screen: "boost" });
+  const scheduledBoostMissed = (userId: number): Promise<void> =>
+    toMemberAlone(userId, scheduledBoostMissedText(), { type: "boost_scheduled_missed", screen: "boost" });
+
   async function eventAvailable(event: EventAvailable): Promise<EventAvailableOutcome> {
     const requested = [...new Set(event.recipientIds)];
     if (!transport.isEnabled()) return { requested: requested.length, sent: 0, skipped: requested.length, failed: 0 };
@@ -185,5 +207,5 @@ export function createPushNotifier(deps: PushNotifierDeps): PushNotifier {
     return transport.send({ recipientId: userId, ...testPushText(), data: { type: "admin_test" } });
   }
 
-  return { matchFormed, messageReceived, likeReceived, boostEnded, eventAvailable, testPush };
+  return { matchFormed, messageReceived, likeReceived, boostEnded, scheduledBoostStarted, scheduledBoostMissed, eventAvailable, testPush };
 }

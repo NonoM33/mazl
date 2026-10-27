@@ -50,5 +50,9 @@
   "eventsMapDone": "Done",
   "eventsMapSemantics": "Map of the event's neighborhood",
   "eventsTimeRange": "{start} – {end}",
-  "eventsShareError": "Couldn't share right now."
+  "eventsShareError": "Couldn't share right now.",
+  "eventsMemberPrice": "Member price: {price}",
+  "eventsMemberPricePlus": "mazl+: {price}",
+  "eventsMemberPricePlusHint": "With mazl+ this event costs {price}. See the offer.",
+  "eventsPriceRegular": "Regular price: {price}"
 }

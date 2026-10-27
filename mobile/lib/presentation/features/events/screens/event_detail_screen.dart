@@ -8,13 +8,16 @@ import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/layout/fold_safe_actions.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/share/share_sheet.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/directional_icon.dart';
 import '../l10n/event_texts.dart';
 import '../widgets/event_flight.dart';
 import '../widgets/event_info_tile.dart';
+import '../widgets/event_member_price.dart';
 import '../widgets/event_photo.dart';
 import '../widgets/event_place_map.dart';
 import '../../../../core/layout/fold_message_view.dart';
@@ -422,6 +425,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
   }
 
+  /// A mazl+ member registers at the member rate (and for nothing when the
+  /// rate is zero): the button states what they pay.
+  bool _memberPays(Event event) =>
+      PremiumGate.isPremium &&
+      hasMemberReduction(event) &&
+      event.memberPriceCents! > 0;
+
+  bool _memberJoinsFree(Event event) =>
+      PremiumGate.isPremium &&
+      hasMemberReduction(event) &&
+      event.memberPriceCents == 0;
+
   /// Date, time, place, participants and price, in a compact grid.
   Widget _infoGrid(Event event) {
     final l10n = context.l10n;
@@ -475,6 +490,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         if (place != null) ...[const SizedBox(height: 10), place],
         const SizedBox(height: 10),
         EventInfoRow(children: [participants, price]),
+        if (hasMemberReduction(event)) ...[
+          const SizedBox(height: 6),
+          EventMemberPrice(
+            event: event,
+            subscriber: PremiumGate.isPremium,
+            onOffer: () => context.push(RoutePaths.premium),
+          ),
+        ],
       ],
     );
   }
@@ -612,6 +635,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 : Text(
                     isFull
                         ? l10n.eventsFull
+                        : _memberJoinsFree(event)
+                        ? l10n.eventsRsvpJoinFree
+                        : _memberPays(event)
+                        ? l10n.eventsRsvpJoinPaid(
+                            eventMemberPriceText(event, l10n.localeName)!,
+                          )
                         : event.price > 0
                         ? l10n.eventsRsvpJoinPaid(
                             eventPriceText(event, l10n.localeName),

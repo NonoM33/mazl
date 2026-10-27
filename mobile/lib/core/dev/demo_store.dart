@@ -1,6 +1,8 @@
 import 'demo_chat_state.dart';
 import 'demo_couple_state.dart';
 import 'demo_fixtures.dart';
+import 'demo_money_routes.dart';
+import 'demo_premium_routes.dart';
 import 'demo_photos.dart';
 
 /// État mutable du mode démo, en mémoire seulement : un message envoyé reste
@@ -94,6 +96,8 @@ abstract final class DemoStore {
     _matched.clear();
     _consents.clear();
     couple = DemoCoupleState();
+    DemoMoneyRoutes.reset();
+    DemoPremiumRoutes.reset();
   }
 
   /// Crée (une seule fois) la conversation d'un nouveau match.

@@ -1,4 +1,5 @@
 import { rankCandidates } from "../domain/engine";
+import { withPriorityLikes } from "../domain/priority";
 import { seedFrom } from "../domain/random";
 import type { CandidateSource, FeedHydrator, FeedPage, FeedProfile, ParamsRepository, ParamsVersion, MatchingState } from "./ports";
 
@@ -68,7 +69,8 @@ export function createFeed(deps: FeedDeps): Feed {
     const seed = seedFrom(userId, parisDay(now), version.id);
     const ctx = { now: now.toISOString(), excluded: set.excluded, filters: set.filters };
     const result = rankCandidates(set.viewer, set.candidates, ctx, version.params, seed, RANKING_WINDOW);
-    const userIds = result.ranked.slice(page.offset, page.offset + page.limit).map((c) => c.userId);
+    const ordered = withPriorityLikes(result.ranked, set.priority ?? new Set<number>());
+    const userIds = ordered.slice(page.offset, page.offset + page.limit).map((c) => c.userId);
     if (userIds.length === 0) {
       const f = set.filters;
       const viewer = `viewer gender=${set.viewer.gender ?? "?"} looking_for=${set.viewer.lookingFor ?? "?"} age=${set.viewer.age ?? "?"} range=${set.viewer.ageMin}-${set.viewer.ageMax}`;
@@ -83,7 +85,7 @@ export function createFeed(deps: FeedDeps): Feed {
     // Scores never leave this function: only profiles, in the ranked order.
     async discover(userId, page) {
       const { userIds } = await rank(userId, page);
-      return deps.hydrator.profilesForFeed(userIds);
+      return deps.hydrator.profilesForFeed(userIds, userId);
     },
     dailyPicks(userId) {
       return this.discover(userId, { limit: DAILY_PICKS_COUNT, offset: 0 });

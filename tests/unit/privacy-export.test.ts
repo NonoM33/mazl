@@ -34,6 +34,8 @@ const sections: ExportSections = {
   faceReference: [{ model: "sface-2021", created_at: "2026-03-01", embedding_sealed: "sealed-bytes" }],
   verificationAttempts: [{ status: "verified", created_at: "2026-03-01", gesture_id: "g1" }],
   waitlist: { status: "confirmed", created_at: "2025-12-01", verification_status: "verified", verified_at: "2025-12-05", verification_token: "tok", token: "tok2" },
+  premiumSettings: { user_id: 7, passport_city: "Tel-Aviv", passport_latitude: 32.0853, passport_longitude: 34.7818, incognito: true, send_read_receipts: false, updated_at: "2026-10-27", internal_note: "interne" },
+  boostSchedule: { user_id: 7, run_at: "2026-10-31T21:00:00Z", claimed_at: null, created_at: "2026-10-27" },
   pushDevices: [{ id: 3, user_id: 7, token: "a1b2".repeat(16), environment: "production", created_at: "2026-10-26", last_seen_at: "2026-10-26" }],
   documents: [{ type: "selfie_id", status: "approved", created_at: "2025-12-02", reviewed_at: "2025-12-05", purged_at: "2025-12-06", filename: "abc.enc", reviewer_notes: "interne" }],
 };
@@ -97,6 +99,16 @@ describe("member data export", () => {
     });
     const without = await new ExportService({ read: () => Promise.resolve({ ...sections, discoverFilters: null }) }, fixedNow).export(7);
     expect(without.document.discover_filters).toBeNull();
+  });
+
+  test("the mazl+ settings and the programmed Boost are exported with their allowed fields only", async () => {
+    const { document } = await new ExportService(reader, fixedNow).export(7);
+    expect(document.premium_settings).toEqual({
+      passport_city: "Tel-Aviv", passport_latitude: 32.0853, passport_longitude: 34.7818, incognito: true, send_read_receipts: false, updated_at: "2026-10-27",
+    });
+    expect(document.boost_schedule).toEqual({ run_at: "2026-10-31T21:00:00Z", created_at: "2026-10-27" });
+    const without = await new ExportService({ read: () => Promise.resolve({ ...sections, premiumSettings: null, boostSchedule: null }) }, fixedNow).export(7);
+    expect([without.document.premium_settings, without.document.boost_schedule]).toEqual([null, null]);
   });
 
   test("profile and account are cut to their allow-list", async () => {

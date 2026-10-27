@@ -40,6 +40,8 @@ const oneOf =
 const stepNumber: Rule = (value) => (typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= MAX_STEP ? value : null);
 
 const identifier = matching(IDENTIFIER);
+// The moments when the mazl+ offer shows by itself (docs/premium/MONETISATION.md section 9).
+const purchaseMoment = oneOf("dailyLikeLimit", "thirdLikeReceived", "undoRefused", "passportAttempt", "firstMatch");
 const productId = matching(PRODUCT_ID);
 
 const CLIENT_EVENTS: Readonly<Record<string, Readonly<Record<string, Rule>>>> = {
@@ -48,6 +50,9 @@ const CLIENT_EVENTS: Readonly<Record<string, Readonly<Record<string, Rule>>>> = 
   onboarding_step_viewed: { step: stepNumber, step_name: identifier },
   signup_completed: {},
   paywall_viewed: { source: identifier },
+  purchase_moment_shown: { moment: purchaseMoment },
+  purchase_moment_accepted: { moment: purchaseMoment },
+  purchase_moment_dismissed: { moment: purchaseMoment },
   purchase_started: { product_id: productId },
   purchase_cancelled: { product_id: productId },
   analytics_consent_granted: {},

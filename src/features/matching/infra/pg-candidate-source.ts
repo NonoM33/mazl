@@ -3,7 +3,8 @@ import type { ApplicableFilters, CandidateSet, CandidateSource } from "../applic
 import { answerKey, NO_FILTERS, type DiscoverFilters } from "../domain/discover-filters";
 import { displayablePhoto } from "../../media/infra/sql-fragments";
 import { TEXT_OID } from "./pg-types";
-import type { Gender, LookingFor, MatchProfile, VerificationLevel } from "../domain/profile";
+import { hasActivePlus, hiddenByDiscreetMode } from "./premium-sql";
+import type { Gender, GeoPoint, LookingFor, MatchProfile, VerificationLevel } from "../domain/profile";
 
 type Fragment = PendingQuery<Row[]>;
 
@@ -46,7 +47,7 @@ export function verificationOf(level: string | null): VerificationLevel {
   return level === "photo" || level === "selfie" ? "selfie" : "none";
 }
 
-function toMatchProfile(row: ProfileRow): MatchProfile {
+function toMatchProfile(row: ProfileRow, passport: GeoPoint | null = null): MatchProfile {
   const located = row.latitude !== null && row.longitude !== null;
   return {
     userId: row.user_id,
@@ -56,7 +57,7 @@ function toMatchProfile(row: ProfileRow): MatchProfile {
     ageMin: row.age_min ?? DEFAULT_AGE_MIN,
     ageMax: row.age_max ?? DEFAULT_AGE_MAX,
     distanceMaxKm: row.distance_max,
-    location: located ? { latitude: Number(row.latitude), longitude: Number(row.longitude) } : null,
+    location: passport ?? (located ? { latitude: Number(row.latitude), longitude: Number(row.longitude) } : null),
     denomination: row.denomination,
     kashrut: row.kashrut_level,
     shabbat: row.shabbat_observance,
@@ -88,12 +89,34 @@ export class PgCandidateSource implements CandidateSource {
     ]);
     const viewerRow = viewerRows[0];
     if (viewerRow === undefined) return null;
-    const viewer = toMatchProfile(viewerRow);
+    const [passport, priority] = await Promise.all([this.activePassport(userId), this.priorityLikers(userId)]);
+    // With a passport (mazl+) the viewer is looked for where they travel: only
+    // the position changes, their own profile and city stay as they are.
+    const viewer = toMatchProfile(viewerRow, passport);
     const [candidateRows, excluded] = await Promise.all([
       this.selectProfiles(this.prefilter(viewer, filters), CANDIDATE_CEILING),
       this.excludedIds(userId),
     ]);
-    return { viewer, candidates: candidateRows.map(toMatchProfile), excluded, filters };
+    return { viewer, candidates: candidateRows.map((row) => toMatchProfile(row)), excluded, filters, priority };
+  }
+
+  // The city the member chose with their passport, only while mazl+ is active.
+  private async activePassport(userId: number): Promise<GeoPoint | null> {
+    const [row] = await this.sql<{ latitude: number; longitude: number }[]>`
+      SELECT ms.passport_latitude AS latitude, ms.passport_longitude AS longitude
+      FROM member_premium_settings ms
+      WHERE ms.user_id = ${userId} AND ms.passport_city IS NOT NULL AND ${hasActivePlus(this.sql, this.sql`ms.user_id`)}
+    `;
+    return row === undefined ? null : { latitude: row.latitude, longitude: row.longitude };
+  }
+
+  // Members who liked the viewer while subscribed: their likes come first.
+  private async priorityLikers(userId: number): Promise<ReadonlySet<number>> {
+    const rows = await this.sql<{ user_id: number }[]>`
+      SELECT s.user_id FROM swipes s
+      WHERE s.target_user_id = ${userId} AND s.action IN ('like', 'super_like') AND ${hasActivePlus(this.sql, this.sql`s.user_id`)}
+    `;
+    return new Set(rows.map((row) => row.user_id));
   }
 
   // Only narrows the population, never widens it: the engine filters again.
@@ -113,6 +136,7 @@ export class PgCandidateSource implements CandidateSource {
           WHERE (b.blocker_id = ${viewer.userId} AND b.blocked_id = p.user_id)
              OR (b.blocker_id = p.user_id AND b.blocked_id = ${viewer.userId})
         )
+        AND NOT ${hiddenByDiscreetMode(sql, sql`p.user_id`, viewer.userId)}
         AND NOT EXISTS (
           SELECT 1 FROM member_sanctions s
           WHERE s.user_id = p.user_id AND s.revoked_at IS NULL AND s.starts_at <= now()

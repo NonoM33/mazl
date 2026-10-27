@@ -12,18 +12,6 @@
       }
     }
   },
-  "likesWaiting": "{count, plural, one{{label} personne attend votre réponse.} other{{label} personnes attendent votre réponse.}}",
-  "@likesWaiting": {
-    "description": "Phrase sous le titre pour un compte gratuit. {label} est le nombre affiché (« 3 », « 10+ »), {count} la valeur qui choisit le pluriel.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "label": {
-        "type": "String"
-      }
-    }
-  },
   "likesSeeWhoWithPlus": "Voir qui vous a aimé avec mazl+",
   "@likesSeeWhoWithPlus": {
     "description": "Bouton en contour sous la grille des likes verrouillés. « mazl+ » (nom de marque) sera mis en gras avec son « + » coloré : il doit rester écrit tel quel dans la phrase."
@@ -48,14 +36,6 @@
   "likesEmptyAction": "Découvrir des profils",
   "@likesEmptyAction": {
     "description": "Bouton de l'écran des likes vide : retourne à Découvrir."
-  },
-  "likesPremiumBody": "Découvrez qui vous a aimé et matchez tout de suite avec les personnes qui vous plaisent.",
-  "@likesPremiumBody": {
-    "description": "Texte de la feuille qui présente mazl+ quand on touche un like verrouillé."
-  },
-  "likesPremiumOffers": "Voir les offres",
-  "@likesPremiumOffers": {
-    "description": "Bouton de la feuille mazl+ : ouvre l'écran des offres."
   },
   "likesCardOpen": "Voir le like de {title}",
   "@likesCardOpen": {
@@ -98,6 +78,76 @@
     "placeholders": {
       "km": {
         "type": "int"
+      }
+    }
+  },
+  "likesBlurredHeadline": "{count, plural, one{{count} personne vous a aimé} other{{count} personnes vous ont aimé}}",
+  "@likesBlurredHeadline": {
+    "description": "En-tête de l'écran Likes pour un membre sans abonnement. {count} est le VRAI nombre de likes reçus, jamais arrondi.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAnonymousName": "Quelqu'un",
+  "@likesAnonymousName": {
+    "description": "Nom affiché à la place du prénom sur la tuile floue d'un like (membre sans abonnement)."
+  },
+  "likesBlurredLabel": "Quelqu'un vous a aimé, {ago}",
+  "@likesBlurredLabel": {
+    "description": "Libellé d'accessibilité d'une tuile de like floue. {ago} est l'ancienneté déjà écrite (« il y a 2 h »).",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "likesBlurredHint": "Touchez pour découvrir mazl+",
+  "@likesBlurredHint": {
+    "description": "Indication d'accessibilité d'une tuile de like floue : ouvre l'offre. « mazl+ » est un nom de marque."
+  },
+  "likesSuperLikeBadge": "Super Like",
+  "@likesSuperLikeBadge": {
+    "description": "Mention sur la tuile d'un like qui est un Super Like (et libellé d'accessibilité)."
+  },
+  "likesAgoJustNow": "À l'instant",
+  "@likesAgoJustNow": {
+    "description": "Ancienneté d'un like reçu il y a moins d'une minute."
+  },
+  "likesAgoMinutes": "il y a {count} min",
+  "@likesAgoMinutes": {
+    "description": "Ancienneté d'un like : {count} minutes (1 à 59).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAgoHours": "il y a {count} h",
+  "@likesAgoHours": {
+    "description": "Ancienneté d'un like : {count} heures (1 à 23).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesAgoDays": "{count, plural, one{il y a {count} jour} other{il y a {count} jours}}",
+  "@likesAgoDays": {
+    "description": "Ancienneté d'un like : {count} jours (1 ou plus).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likesNoteLabel": "Mot de {name}",
+  "@likesNoteLabel": {
+    "description": "Libellé d'accessibilité du mot joint à un Super Like reçu (abonné). {name} est le prénom.",
+    "placeholders": {
+      "name": {
+        "type": "String"
       }
     }
   }

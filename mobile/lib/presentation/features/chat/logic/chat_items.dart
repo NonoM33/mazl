@@ -93,7 +93,7 @@ List<ChatItem> buildChatItems(ChatState state) {
         mine: message.senderId == state.myUserId,
         first: previous == null || !sameGroup(previous, message),
         last: next == null || !sameGroup(message, next),
-        seenAt: i == lastSeen ? (message.readAt ?? message.createdAt) : null,
+        seenAt: i == lastSeen ? message.readAt : null,
       ),
     );
   }
@@ -101,13 +101,14 @@ List<ChatItem> buildChatItems(ChatState state) {
   return items;
 }
 
+/// The row that carries « Lu à… »: my LAST sent message, and only when the
+/// server gave it a `read_at` (it does so for a mazl+ sender whose reader keeps
+/// receipts on). A read time is never made up.
 int _lastSeenIndex(List<ChatMessage> messages, int myUserId) {
   for (var i = messages.length - 1; i >= 0; i--) {
     final m = messages[i];
-    if (m.senderId == myUserId &&
-        !m.isLocal &&
-        (m.status == MessageStatus.seen || m.readAt != null)) {
-      return i;
+    if (m.senderId == myUserId && !m.isLocal) {
+      return m.readAt != null ? i : -1;
     }
   }
   return -1;

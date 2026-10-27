@@ -63,6 +63,9 @@ export interface CandidateSet {
   // Advanced filters applied to the viewer (mazl+ and consent already checked).
   // Absent = none.
   readonly filters?: DiscoverFilters;
+  // Candidates who already liked the viewer and are mazl+ members: shown first
+  // (their likes are priority likes). Absent = none.
+  readonly priority?: ReadonlySet<number>;
 }
 
 export interface CandidateSource {
@@ -74,7 +77,9 @@ export interface CandidateSource {
 export type FeedProfile = Readonly<Record<string, unknown>>;
 
 export interface FeedHydrator {
-  profilesForFeed(userIds: readonly number[]): Promise<readonly FeedProfile[]>;
+  // `viewerId`: the member the profiles are shown to, for what concerns them
+  // (a Super Like they received, a member travelling with a passport).
+  profilesForFeed(userIds: readonly number[], viewerId?: number): Promise<readonly FeedProfile[]>;
 }
 
 export interface FeedPage {

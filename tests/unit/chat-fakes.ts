@@ -1,6 +1,8 @@
 import type {
   FileStorage, InsertOutcome, MessageNotifier, MessageRepository, NewMedia, NewMessage, RealtimeEvents, ReadOutcome,
+  ReadReceiptVisibility,
 } from "../../src/features/chat/application/ports";
+import { receiptKey } from "../../src/features/chat/application/ports";
 import type {
   ConversationMembers, MediaRecord, MessageRecord, ReactionRecord, StoredLinkPreview,
 } from "../../src/features/chat/domain/types";
@@ -268,4 +270,16 @@ export class FakeMediaRepository implements MediaRepository {
       if (index >= 0) this.rows.splice(index, 1);
     }
   }
+}
+
+// Read receipts (docs/premium/MONETISATION.md section 4): who may see that a message was read.
+export const allowAllReceipts: ReadReceiptVisibility = {
+  authorsWhoMaySee: async (pairs) => new Set(pairs.map((pair) => receiptKey(pair.conversationId, pair.authorId))),
+};
+
+// Only the listed authors, as in `${conversationId}:${authorId}` pairs.
+export function receiptsFor(...allowed: readonly string[]): ReadReceiptVisibility {
+  return {
+    authorsWhoMaySee: async (pairs) => new Set(pairs.map((pair) => receiptKey(pair.conversationId, pair.authorId)).filter((key) => allowed.includes(key))),
+  };
 }

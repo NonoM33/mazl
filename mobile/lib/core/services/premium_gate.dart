@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../premium/purchase_moments.dart';
 import '../router/route_names.dart';
 import '../../presentation/common/widgets/mazl_sheet.dart';
 import '../../presentation/features/premium/widgets/credit_packs_sheet.dart';
@@ -131,11 +132,22 @@ class PremiumGate {
     int? freeLikesPerDay,
     DateTime? resetsAt,
   }) async {
-    final wantsOffer = await _showSheet(
+    // The same window is the offer of the « dailyLikeLimit » moment: it is
+    // measured as one and no second offer follows it today.
+    final wantsOffer = await PurchaseMoments.measure(
       context,
-      DailyLimitSheet(freeLikesPerDay: freeLikesPerDay, resetsAt: resetsAt),
+      PurchaseMoment.dailyLikeLimit,
+      () async =>
+          await _showSheet(
+            context,
+            DailyLimitSheet(
+              freeLikesPerDay: freeLikesPerDay,
+              resetsAt: resetsAt,
+            ),
+          ) ==
+          true,
     );
-    if (wantsOffer == true && context.mounted) {
+    if (wantsOffer && context.mounted) {
       await context.push<bool>(RoutePaths.premium);
     }
   }

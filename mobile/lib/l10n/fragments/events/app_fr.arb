@@ -272,5 +272,45 @@
   "eventsShareError": "Impossible de partager pour le moment.",
   "@eventsShareError": {
     "description": "Message bref quand la feuille de partage n'a pas pu s'ouvrir."
+  },
+  "eventsMemberPrice": "Tarif membre : {price}",
+  "@eventsMemberPrice": {
+    "description": "Événement payant, pour un abonné mazl+ : son tarif réduit. {price} est déjà écrit avec la devise (« 8 € »).",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsMemberPricePlus": "mazl+ : {price}",
+  "@eventsMemberPricePlus": {
+    "description": "Événement payant, pour un membre sans mazl+ : ligne sobre qui indique le tarif réduit de l'abonnement ; un appui ouvre l'offre. « mazl+ » est un nom de marque ; {price} est déjà écrit avec la devise.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsMemberPricePlusHint": "Avec mazl+, cet événement coûte {price}. Voir l'offre.",
+  "@eventsMemberPricePlusHint": {
+    "description": "Libellé lu par VoiceOver sur la ligne « mazl+ : 8 € » d'un événement payant.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "8 €"
+      }
+    }
+  },
+  "eventsPriceRegular": "Prix normal : {price}",
+  "@eventsPriceRegular": {
+    "description": "Libellé lu par VoiceOver sur le prix normal barré d'un événement payant, pour un abonné mazl+.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "25 €"
+      }
+    }
   }
 }

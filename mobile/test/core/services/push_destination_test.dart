@@ -16,6 +16,7 @@ import 'package:mazl/core/services/push_destination.dart';
 //   new_like         -> /likes
 //   super_like       -> /likes
 //   boost_ended      -> /boost
+//   data.screen "boost" (Boost programmé démarré) -> /boost, quel que soit le type
 //   event_available  -> /events/<event_id>, sinon /events
 //   event_opened     -> idem (type des faux événements « Bientôt disponible »)
 //   admin_test       -> rien
@@ -28,6 +29,27 @@ void main() {
 
     test('la fin d\'un Boost ouvre le Boost', () {
       expect(pushDestination({'type': 'boost_ended'}), '/boost');
+    });
+
+    test(
+      '« Boost programmé démarré » (data.screen = boost) ouvre le Boost',
+      () {
+        expect(pushDestination({'screen': 'boost'}), '/boost');
+        expect(
+          pushDestination({
+            'type': 'boost_scheduled_started',
+            'screen': 'boost',
+          }),
+          '/boost',
+        );
+      },
+    );
+
+    test('un autre écran demandé par la notification ne mène nulle part', () {
+      // Seule la route connue est reconstruite ; jamais copiée du message.
+      expect(pushDestination({'screen': 'admin'}), isNull);
+      expect(pushDestination({'screen': '/boost'}), isNull);
+      expect(pushDestination({'screen': 42}), isNull);
     });
   });
 

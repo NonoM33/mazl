@@ -19,6 +19,7 @@ import 'message_bubble.dart';
 import 'message_row_operations.dart';
 import 'photo_grid.dart';
 import 'photo_viewer.dart';
+import 'read_receipt_line.dart';
 import 'reaction_drag.dart';
 import 'reaction_pill.dart';
 import 'report_sheet.dart';
@@ -345,9 +346,8 @@ class _MessageRowState extends ConsumerState<MessageRow> {
     }
     final l10n = context.l10n;
     final seenAt = item.seenAt;
-    final text = seenAt != null
-        ? l10n.chatSeenAt(clock(l10n, seenAt))
-        : (item.last || _timeRevealed) && !message.isLocal
+    if (seenAt != null) return ReadReceiptLine(readAt: seenAt);
+    final text = (item.last || _timeRevealed) && !message.isLocal
         ? clock(l10n, message.createdAt)
         : null;
     if (text == null) return const SizedBox.shrink();

@@ -1,0 +1,4461 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MAZL — fonctionnalités mazl+ (likes floutés, passeport, discret, lecture, retour arrière, Boost, tarif membre)",
+    "version": "1.0.0",
+    "description": "Routes ajoutées ou modifiées par le lot « fonctionnalités qui rapportent » (docs/premium/MONETISATION.md). Le serveur décide toujours : une donnée réservée aux abonnés n'est jamais envoyée en clair à un non-abonné. Enveloppe des nouvelles routes : { success: true, data } ou { success: false, error } avec un code stable ; les routes existantes gardent leur forme. Ce document n'est servi à personne en production."
+  },
+  "tags": [
+    {
+      "name": "Réglages mazl+",
+      "description": "Passeport, mode discret, confirmations de lecture."
+    },
+    {
+      "name": "Découverte",
+      "description": "Pile, choix, retour arrière."
+    },
+    {
+      "name": "Likes",
+      "description": "Likes reçus, flous pour les non-abonnés."
+    },
+    {
+      "name": "Boost",
+      "description": "Meilleur moment et programmation."
+    },
+    {
+      "name": "Chat",
+      "description": "Lecture des messages et « Lu à »."
+    },
+    {
+      "name": "Événements",
+      "description": "Tarif membre."
+    },
+    {
+      "name": "Administration des événements",
+      "description": "Saisie du tarif membre."
+    },
+    {
+      "name": "Médias",
+      "description": "Variante floue d'une photo."
+    }
+  ],
+  "paths": {
+    "/api/premium/settings": {
+      "get": {
+        "operationId": "getPremiumSettings",
+        "tags": [
+          "Réglages mazl+"
+        ],
+        "summary": "Lire les réglages mazl+ du membre, tels que le serveur les applique",
+        "description": "Qui : tout membre connecté, pour ses propres réglages uniquement. Le serveur dit ce qui est en vigueur : un passeport ou un mode discret gardés d'un abonnement terminé sont rendus comme inactifs (passport null, incognito false) jusqu'au retour de mazl+. L'application ne garde aucun réglage mazl+ de son côté. Aucun effet de bord.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Les réglages en vigueur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_plus": {
+                          "type": "boolean",
+                          "description": "L'abonnement mazl+ est actif, d'après le serveur."
+                        },
+                        "passport": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "city": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                },
+                                "latitude": {
+                                  "type": "number",
+                                  "minimum": -90,
+                                  "maximum": 90
+                                },
+                                "longitude": {
+                                  "type": "number",
+                                  "minimum": -180,
+                                  "maximum": 180
+                                }
+                              },
+                              "required": [
+                                "city",
+                                "latitude",
+                                "longitude"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Ville du passeport en vigueur ; null si aucun ou si l'abonnement est terminé."
+                        },
+                        "incognito": {
+                          "type": "boolean",
+                          "description": "Mode discret en vigueur (mazl+)."
+                        },
+                        "send_read_receipts": {
+                          "type": "boolean",
+                          "description": "Le membre envoie ses confirmations de lecture (activé par défaut)."
+                        }
+                      },
+                      "required": [
+                        "is_plus",
+                        "passport",
+                        "incognito",
+                        "send_read_receipts"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "is_plus": true,
+                    "passport": {
+                      "city": "Tel-Aviv",
+                      "latitude": 32.0853,
+                      "longitude": 34.7818
+                    },
+                    "incognito": true,
+                    "send_read_receipts": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/discover/passport": {
+      "put": {
+        "operationId": "setPassport",
+        "tags": [
+          "Réglages mazl+"
+        ],
+        "summary": "Choisir une autre ville pour Découvrir (passeport), ou revenir à la sienne",
+        "description": "Qui : un abonné mazl+ pour activer une ville ; tout membre pour revenir à sa ville (corps null), même après la fin de l'abonnement. Le passeport ne change pas la ville affichée du membre : Découvrir le cherche là où il voyage, et les autres lisent « De passage à X » sur son profil (traveling_city). Le serveur ignore le passeport dès que l'abonnement n'est plus actif. Effets de bord : écrit la ville choisie (centre-ville, pas une position du membre) ; limité à 60 écritures par heure.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "city",
+                      "latitude",
+                      "longitude"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Une ville à activer, ou null pour revenir à sa ville."
+              },
+              "examples": {
+                "activate": {
+                  "summary": "Aller à Tel-Aviv",
+                  "value": {
+                    "city": "Tel-Aviv",
+                    "latitude": 32.0853,
+                    "longitude": 34.7818
+                  }
+                },
+                "home": {
+                  "summary": "Revenir à sa ville",
+                  "value": null
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le passeport en vigueur après l'écriture.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "passport": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "city": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                },
+                                "latitude": {
+                                  "type": "number",
+                                  "minimum": -90,
+                                  "maximum": 90
+                                },
+                                "longitude": {
+                                  "type": "number",
+                                  "minimum": -180,
+                                  "maximum": 180
+                                }
+                              },
+                              "required": [
+                                "city",
+                                "latitude",
+                                "longitude"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "passport"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "passport": {
+                      "city": "Tel-Aviv",
+                      "latitude": 32.0853,
+                      "longitude": 34.7818
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_body : Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "invalid_body": {
+                    "summary": "Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "mazl_plus_required : La fonction est réservée aux abonnés mazl+.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "mazl_plus_required": {
+                    "summary": "La fonction est réservée aux abonnés mazl+.",
+                    "value": {
+                      "success": false,
+                      "error": "mazl_plus_required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/incognito": {
+      "put": {
+        "operationId": "setIncognito",
+        "tags": [
+          "Réglages mazl+"
+        ],
+        "summary": "Activer ou couper le mode discret",
+        "description": "Qui : un abonné mazl+ pour l'activer ; tout membre pour le couper. En mode discret, seules les personnes que le membre a aimées le voient dans Découvrir (le filtre est côté serveur, dans la sélection des candidats). Il cesse d'agir quand l'abonnement se termine. Effets de bord : écrit le réglage ; limité à 60 écritures par heure.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "true pour activer, false pour désactiver."
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              },
+              "examples": {
+                "on": {
+                  "summary": "Activer",
+                  "value": {
+                    "enabled": true
+                  }
+                },
+                "off": {
+                  "summary": "Couper",
+                  "value": {
+                    "enabled": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le réglage après l'écriture.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "incognito": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "incognito"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "incognito": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_body : Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "invalid_body": {
+                    "summary": "Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "mazl_plus_required : La fonction est réservée aux abonnés mazl+.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "mazl_plus_required": {
+                    "summary": "La fonction est réservée aux abonnés mazl+.",
+                    "value": {
+                      "success": false,
+                      "error": "mazl_plus_required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/profile/read-receipts": {
+      "put": {
+        "operationId": "setReadReceipts",
+        "tags": [
+          "Réglages mazl+"
+        ],
+        "summary": "Envoyer ou non ses confirmations de lecture",
+        "description": "Qui : tout membre, abonné ou non, pour son propre réglage (activé par défaut). Quand il est coupé, personne ne voit quand ce membre lit ses messages, même un abonné. Voir « Lu à » : GET /api/conversations/{id}/messages. Effets de bord : écrit le réglage ; limité à 60 écritures par heure.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "true pour activer, false pour désactiver."
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              },
+              "examples": {
+                "off": {
+                  "summary": "Ne plus envoyer",
+                  "value": {
+                    "enabled": false
+                  }
+                },
+                "on": {
+                  "summary": "Envoyer",
+                  "value": {
+                    "enabled": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le réglage après l'écriture.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "send_read_receipts": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "send_read_receipts"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "send_read_receipts": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_body : Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "invalid_body": {
+                    "summary": "Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swipes/undo": {
+      "post": {
+        "operationId": "undoSwipe",
+        "tags": [
+          "Découverte"
+        ],
+        "summary": "Reprendre le dernier passage ou like (retour arrière)",
+        "description": "Qui : tout membre pour ses propres choix. Un seul retour arrière gratuit par jour (compté par le serveur), illimité avec mazl+. Seul le dernier choix des dix dernières minutes peut être repris, jamais un Super Like (payé) ni un like qui a formé un match. Le like repris ne rend pas le like du jour : le renvoyer à la même personne reste gratuit. Effets de bord : supprime le choix enregistré ; consomme le retour gratuit du jour ; limité à 20 appels par minute.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Le membre dont la carte revient, et les retours gratuits restants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "target_user_id": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991,
+                          "description": "Le membre dont la carte revient dans la pile."
+                        },
+                        "action": {
+                          "type": "string",
+                          "enum": [
+                            "like",
+                            "pass"
+                          ],
+                          "description": "Ce qui vient d'être annulé."
+                        },
+                        "remaining_free_undos": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Retours arrière gratuits restant aujourd'hui ; null = illimité (mazl+)."
+                        }
+                      },
+                      "required": [
+                        "target_user_id",
+                        "action",
+                        "remaining_free_undos"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "target_user_id": 41,
+                    "action": "pass",
+                    "remaining_free_undos": 0
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "undo_limit_reached : Le retour arrière gratuit du jour est utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "undo_limit_reached": {
+                    "summary": "Le retour arrière gratuit du jour est utilisé.",
+                    "value": {
+                      "success": false,
+                      "error": "undo_limit_reached"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "nothing_to_undo : Aucun choix récent à reprendre.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "nothing_to_undo": {
+                    "summary": "Aucun choix récent à reprendre.",
+                    "value": {
+                      "success": false,
+                      "error": "nothing_to_undo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "undo_not_possible : Le dernier choix est un Super Like, ou il a formé un match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "undo_not_possible": {
+                    "summary": "Le dernier choix est un Super Like, ou il a formé un match.",
+                    "value": {
+                      "success": false,
+                      "error": "undo_not_possible"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/boost/best-time": {
+      "get": {
+        "operationId": "getBoostBestTime",
+        "tags": [
+          "Boost"
+        ],
+        "summary": "Connaître le meilleur moment pour lancer un Boost dans sa ville",
+        "description": "Qui : tout membre connecté, pour sa propre ville (celle de son profil) et sa propre programmation. L'affluence est un compteur de sessions par ville, jour et heure (UTC), sans aucun membre dedans ; best_time reste null tant que la ville a moins de 50 sessions, pour ne pas désigner quelques personnes. Aucun effet de bord.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "La ville, le prochain meilleur moment et la programmation éventuelle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "city": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Ville du membre d'après son profil, null sans ville."
+                        },
+                        "best_time": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "starts_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                                  "description": "Prochaine occurrence de l'heure la plus fréquentée, en UTC."
+                                },
+                                "weekday": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 7,
+                                  "description": "Jour de la semaine, lundi = 1."
+                                },
+                                "hour": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 23,
+                                  "description": "Heure UTC."
+                                }
+                              },
+                              "required": [
+                                "starts_at",
+                                "weekday",
+                                "hour"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "null tant que la ville n'a pas assez de sessions mesurées."
+                        },
+                        "scheduled_at": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Heure du Boost programmé, null sans programmation."
+                        }
+                      },
+                      "required": [
+                        "city",
+                        "best_time",
+                        "scheduled_at"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "city": "Paris",
+                    "best_time": {
+                      "starts_at": "2026-10-31T21:00:00.000Z",
+                      "weekday": 6,
+                      "hour": 21
+                    },
+                    "scheduled_at": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/boost/schedule": {
+      "post": {
+        "operationId": "scheduleBoost",
+        "tags": [
+          "Boost"
+        ],
+        "summary": "Programmer un Boost à une heure choisie",
+        "description": "Qui : tout membre qui a un Boost à dépenser (inclus mazl+ du jour ou acheté). Une seule programmation à la fois, entre 2 minutes et 7 jours devant. Le crédit n'est PAS pris maintenant : la tâche de la minute le prend à l'heure dite, démarre le Boost et envoie une notification ; sans Boost à ce moment-là, rien n'est débité et le membre en est prévenu. Effets de bord : écrit la programmation ; notification push à l'heure ; limité à 30 écritures par heure.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  }
+                },
+                "required": [
+                  "at"
+                ]
+              },
+              "examples": {
+                "saturday": {
+                  "summary": "Samedi 21 h UTC",
+                  "value": {
+                    "at": "2026-10-31T21:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "La programmation enregistrée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "scheduled_at": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "scheduled_at"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "scheduled_at": "2026-10-31T21:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_body : Le corps n'est pas du JSON valide ou ne respecte pas le schéma. — invalid_time : L'heure est passée, trop proche (moins de 2 minutes) ou à plus de 7 jours.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "invalid_body": {
+                    "summary": "Le corps n'est pas du JSON valide ou ne respecte pas le schéma.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_body"
+                    }
+                  },
+                  "invalid_time": {
+                    "summary": "L'heure est passée, trop proche (moins de 2 minutes) ou à plus de 7 jours.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "boosts_exhausted : Aucun Boost à dépenser.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "boosts_exhausted": {
+                    "summary": "Aucun Boost à dépenser.",
+                    "value": {
+                      "success": false,
+                      "error": "boosts_exhausted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "already_scheduled : Un Boost est déjà programmé : l'annuler d'abord.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "already_scheduled": {
+                    "summary": "Un Boost est déjà programmé : l'annuler d'abord.",
+                    "value": {
+                      "success": false,
+                      "error": "already_scheduled"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelBoostSchedule",
+        "tags": [
+          "Boost"
+        ],
+        "summary": "Annuler son Boost programmé",
+        "description": "Qui : tout membre, pour sa propre programmation seulement (celle d'un autre membre n'est ni lue ni touchée). Sans programmation, l'appel réussit sans rien changer. Effets de bord : supprime la programmation en attente ; limité à 30 écritures par heure.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plus de programmation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "scheduled_at": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "scheduled_at"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "scheduled_at": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/likes/received": {
+      "get": {
+        "operationId": "getReceivedLikes",
+        "tags": [
+          "Likes"
+        ],
+        "summary": "Lire les likes reçus : fiches complètes pour un abonné, aperçu flou sinon",
+        "description": "Qui : tout membre connecté, pour les likes qu'il a reçus (ni matchés, ni bloqués). Le serveur décide : un non-abonné ne reçoit JAMAIS l'identifiant du membre, son âge, ni l'URL de sa photo nette, seulement le badge, l'ancienneté, le prénom (pour le client web), is_super_like et l'URL signée d'une variante floue de 48 px (blurredPhotoUrl) ; count reste le vrai nombre. Un abonné reçoit la fiche complète et, pour un Super Like, son mot. Aucun effet de bord.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Le nombre réel, l'état d'abonnement et les likes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991,
+                      "description": "Le vrai nombre de likes reçus."
+                    },
+                    "is_premium": {
+                      "type": "boolean"
+                    },
+                    "likes": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "user_id": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "display_name": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "picture": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "age": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "is_verified": {
+                                "type": "boolean"
+                              },
+                              "liked_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "is_super_like": {
+                                "type": "boolean"
+                              },
+                              "note": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Le mot du Super Like, null sans mot."
+                              }
+                            },
+                            "required": [
+                              "user_id",
+                              "display_name",
+                              "picture",
+                              "age",
+                              "is_verified",
+                              "liked_at",
+                              "is_super_like",
+                              "note"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "display_name": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Prénom : envoyé pour le client web, que l'application n'affiche pas (« Quelqu'un »)."
+                              },
+                              "is_verified": {
+                                "type": "boolean"
+                              },
+                              "liked_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              "is_super_like": {
+                                "type": "boolean"
+                              },
+                              "blurredPhotoUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "URL signée de la variante floue de 48 px de large ; null sans photo exploitable."
+                              }
+                            },
+                            "required": [
+                              "display_name",
+                              "is_verified",
+                              "liked_at",
+                              "is_super_like",
+                              "blurredPhotoUrl"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "description": "Fiche complète pour un abonné, aperçu flou pour les autres."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "count",
+                    "is_premium",
+                    "likes"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "is_premium": true,
+                  "likes": [
+                    {
+                      "user_id": 41,
+                      "display_name": "Jeanne Exemple",
+                      "picture": "https://api.example.com/media/photos/12?exp=1800000000&sig=exemple-de-signature",
+                      "age": 31,
+                      "is_verified": true,
+                      "liked_at": "2026-10-27T10:00:00.000Z",
+                      "is_super_like": true,
+                      "note": "Votre sourire au Shabbat des jeunes"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swipes": {
+      "post": {
+        "operationId": "swipe",
+        "tags": [
+          "Découverte"
+        ],
+        "summary": "Aimer, passer ou envoyer un Super Like, avec un mot facultatif",
+        "description": "Qui : tout membre, sur un membre actif non bloqué (sinon 404). Un like coûte un des likes du jour (10 sans abonnement, illimité avec mazl+) ; un Super Like coûte un crédit Super Like. Le mot (note, 140 caractères, sans lien, comme un message) n'est permis qu'avec super_like et est vérifié avant tout débit ; il s'affiche sur la carte du destinataire dans Découvrir. Effets de bord : écrit le choix (remplace le précédent sur la même personne) ; débite un crédit ; crée un match et ses notifications ; notification push au destinataire d'un like.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target_user_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "Identifiant du membre sur lequel on glisse."
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "like",
+                      "pass",
+                      "super_like"
+                    ]
+                  },
+                  "note": {
+                    "description": "Le mot d'un Super Like : 140 caractères au plus, sans lien. Réservé à action = super_like.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 140
+                  }
+                },
+                "required": [
+                  "target_user_id",
+                  "action"
+                ]
+              },
+              "examples": {
+                "like": {
+                  "summary": "Un like",
+                  "value": {
+                    "target_user_id": 41,
+                    "action": "like"
+                  }
+                },
+                "word": {
+                  "summary": "Un Super Like avec un mot",
+                  "value": {
+                    "target_user_id": 41,
+                    "action": "super_like",
+                    "note": "Votre sourire au Shabbat des jeunes"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le choix est enregistré ; match dit si un match se forme.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "match": {
+                      "type": "boolean"
+                    },
+                    "targetUserId": {
+                      "description": "Présent quand un match se forme.",
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "credits": {
+                      "description": "Soldes de crédits, pour un Super Like."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "match"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "match": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_note : Le mot est vide, de plus de 140 caractères, contient un lien ou un caractère de contrôle. — note_requires_super_like : Un mot n'est permis qu'avec action = super_like.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "invalid_note": {
+                    "summary": "Le mot est vide, de plus de 140 caractères, contient un lien ou un caractère de contrôle.",
+                    "value": {
+                      "success": false,
+                      "error": "invalid_note"
+                    }
+                  },
+                  "note_requires_super_like": {
+                    "summary": "Un mot n'est permis qu'avec action = super_like.",
+                    "value": {
+                      "success": false,
+                      "error": "note_requires_super_like"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "likes_exhausted : Les likes du jour sont partis (corps : allowance). — super_likes_exhausted : Plus de Super Like à dépenser (corps : credits).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "likes_exhausted": {
+                    "summary": "Les likes du jour sont partis (corps : allowance).",
+                    "value": {
+                      "success": false,
+                      "error": "likes_exhausted"
+                    }
+                  },
+                  "super_likes_exhausted": {
+                    "summary": "Plus de Super Like à dépenser (corps : credits).",
+                    "value": {
+                      "success": false,
+                      "error": "super_likes_exhausted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found : Le membre n'existe pas, est fermé ou bloqué dans un sens ou l'autre.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "User not found": {
+                    "summary": "Le membre n'existe pas, est fermé ou bloqué dans un sens ou l'autre.",
+                    "value": {
+                      "success": false,
+                      "error": "User not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/discover": {
+      "get": {
+        "operationId": "discover",
+        "tags": [
+          "Découverte"
+        ],
+        "summary": "Lire la pile de Découvrir, classée par le serveur",
+        "description": "Qui : tout membre au profil complet (sinon 409 profile_incomplete). Le serveur classe : les likes des abonnés mazl+ passent en premier sans fausser le reste du classement, le passeport du viewer (mazl+) déplace la recherche, les membres en mode discret n'apparaissent qu'à ceux qu'ils ont aimés. Chaque profil dit si le membre vous a envoyé un Super Like (super_liked_you, super_like_note) et s'il voyage (traveling_city). Effets de bord : la première page compte une session par heure dans la ville du membre (compteur anonyme pour le Boost).",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Nombre de profils demandés (20 par défaut, 50 au plus).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "example": 20
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Rang du premier profil de la page.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Une page de la pile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "profiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user_id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "display_name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "age": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bio": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "photos": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "super_liked_you": {
+                            "type": "boolean",
+                            "description": "Ce membre vous a envoyé un Super Like."
+                          },
+                          "super_like_note": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Le mot de ce Super Like, null sans mot."
+                          },
+                          "traveling_city": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Ville où le membre voyage avec son passeport (« De passage à X »), null sinon."
+                          }
+                        },
+                        "required": [
+                          "user_id",
+                          "display_name",
+                          "age",
+                          "bio",
+                          "location",
+                          "photos",
+                          "super_liked_you",
+                          "super_like_note",
+                          "traveling_city"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "profiles"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "profiles": [
+                    {
+                      "user_id": 41,
+                      "display_name": "Jeanne Exemple",
+                      "age": 31,
+                      "bio": "Bonjour, je cherche une belle histoire.",
+                      "location": "Tel-Aviv, Israël",
+                      "photos": [
+                        "https://api.example.com/media/photos/12?exp=1800000000&sig=exemple-de-signature"
+                      ],
+                      "super_liked_you": true,
+                      "super_like_note": "Votre sourire au Shabbat des jeunes",
+                      "traveling_city": "Tel-Aviv"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "profile_incomplete : Le profil n'a pas son genre ni ce que le membre cherche.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "profile_incomplete": {
+                    "summary": "Le profil n'a pas son genre ni ce que le membre cherche.",
+                    "value": {
+                      "success": false,
+                      "error": "profile_incomplete"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/photos/{photoId}/blur": {
+      "get": {
+        "operationId": "getBlurredPhoto",
+        "tags": [
+          "Médias"
+        ],
+        "summary": "Récupérer la variante floue d'une photo de profil",
+        "description": "Qui : toute personne qui détient l'URL signée ; la signature est l'identifiant (aucune session). C'est la seule image qu'un non-abonné reçoit d'un membre qui l'a aimé. Le serveur la fabrique : 48 px de large, flou gaussien fort, JPEG d'environ 2 Ko sans métadonnées, impossible à reconstituer. Toute demande refusée (signature fausse, périmée, photo supprimée) répond 404 pareil. La signature de la photo nette n'ouvre pas la variante floue, ni l'inverse. Aucun effet de bord (variante gardée en mémoire dix minutes).",
+        "security": [],
+        "parameters": [
+          {
+            "name": "photoId",
+            "in": "path",
+            "description": "Identifiant de la photo, tel que l'URL signée le porte.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 12
+          },
+          {
+            "name": "exp",
+            "in": "query",
+            "description": "Expiration de la signature, en secondes depuis 1970.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "example": 1800000000
+          },
+          {
+            "name": "sig",
+            "in": "query",
+            "description": "Signature HMAC de l'URL, en base64url.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": "exemple-de-signature"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Le JPEG flou (image/jpeg).",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "JPEG de 48 px de large, flou."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found : Signature invalide ou périmée, ou photo absente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                },
+                "examples": {
+                  "Not found": {
+                    "summary": "Signature invalide ou périmée, ou photo absente.",
+                    "value": {
+                      "error": "Not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{id}/messages": {
+      "get": {
+        "operationId": "listMessages",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Lire les messages d'une conversation, avec « Lu à » pour les abonnés",
+        "description": "Qui : les deux membres de la conversation seulement (les autres reçoivent 404). read_at et is_read d'un message ne sont renvoyés à son AUTEUR que s'il est abonné mazl+ et que l'autre membre n'a pas coupé ses confirmations de lecture ; sinon read_at vaut null et is_read false. L'heure de lecture est gardée dans tous les cas. Aucun effet de bord.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identifiant de la conversation.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 10
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "Ne renvoyer que les messages d'identifiant inférieur.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 300
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Nombre de messages (30 par défaut, 50 au plus).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "example": 30
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Une page de messages, du plus récent au plus ancien.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "conversation_id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "sender_id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "client_id": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "photo",
+                              "voice"
+                            ]
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "read_at": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Quand le message a été lu : renvoyé à son AUTEUR seulement s'il est abonné mazl+ et que le lecteur envoie ses confirmations."
+                          },
+                          "is_read": {
+                            "type": "boolean",
+                            "description": "Équivalent booléen de read_at, soumis à la même règle."
+                          },
+                          "unsent": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "conversation_id",
+                          "sender_id",
+                          "client_id",
+                          "type",
+                          "content",
+                          "created_at",
+                          "read_at",
+                          "is_read",
+                          "unsent"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "messages",
+                    "has_more"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "messages": [
+                    {
+                      "id": 301,
+                      "conversation_id": 10,
+                      "sender_id": 7,
+                      "client_id": "c-1",
+                      "type": "text",
+                      "content": "Shabbat shalom",
+                      "created_at": "2026-10-27T20:58:00.000Z",
+                      "read_at": "2026-10-27T21:04:00.000Z",
+                      "is_read": true,
+                      "unsent": false
+                    }
+                  ],
+                  "has_more": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found : La conversation n'existe pas ou le membre n'en fait pas partie.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Not found": {
+                    "summary": "La conversation n'existe pas ou le membre n'en fait pas partie.",
+                    "value": {
+                      "success": false,
+                      "error": "Not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{id}/read": {
+      "put": {
+        "operationId": "markConversationRead",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Marquer les messages reçus comme lus",
+        "description": "Qui : les deux membres de la conversation, pour les messages que l'AUTRE a écrits. L'heure de lecture est enregistrée. L'auteur n'en est informé (événement WebSocket chat:read) que s'il est abonné mazl+ et que le lecteur envoie ses confirmations ; les appareils du lecteur le sont toujours, pour effacer leurs pastilles. Effets de bord : écrit read_at ; événement WebSocket ; limité par minute.",
+        "security": [
+          {
+            "memberBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identifiant de la conversation.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jusqu'à quel message la lecture est enregistrée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "up_to_id": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "read_at": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "up_to_id",
+                    "read_at"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "up_to_id": 301,
+                  "read_at": "2026-10-27T21:04:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No token provided : Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "No token provided": {
+                    "summary": "Pas de jeton de connexion valide, ou compte désactivé (account_disabled).",
+                    "value": {
+                      "success": false,
+                      "error": "No token provided"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found : La conversation n'existe pas ou le membre n'en fait pas partie.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Not found": {
+                    "summary": "La conversation n'existe pas ou le membre n'en fait pas partie.",
+                    "value": {
+                      "success": false,
+                      "error": "Not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited : Trop de requêtes : réessayer après Retry-After secondes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "rate_limited": {
+                    "summary": "Trop de requêtes : réessayer après Retry-After secondes.",
+                    "value": {
+                      "success": false,
+                      "error": "rate_limited"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "operationId": "listEvents",
+        "tags": [
+          "Événements"
+        ],
+        "summary": "Lister les événements publiés, avec leur tarif membre",
+        "description": "Qui : publique, sans connexion. member_price_cents est le tarif réduit des abonnés mazl+ (centimes de la devise de l'événement, null sans tarif membre) : il est public, c'est l'argument pour s'abonner. Seuls les événements publiés sont rendus. Aucun effet de bord.",
+        "security": [
+          {},
+          {
+            "memberBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Date de début, AAAA-MM-JJ (aujourd'hui par défaut).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "example": "2031-01-01"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Nombre d'événements (50 au plus).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "example": 50
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Les événements.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "string",
+                            "description": "Tarif normal, décimal sous forme de texte, dans la devise currency."
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "member_price_cents": {
+                            "anyOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Tarif réduit des abonnés mazl+, en centimes de la devise ; null sans tarif membre. Public : il sert à donner envie de s'abonner."
+                          },
+                          "is_published": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "date",
+                          "price",
+                          "currency",
+                          "member_price_cents",
+                          "is_published"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "events"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "events": [
+                    {
+                      "id": 5,
+                      "title": "Shabbat Exemple",
+                      "date": "2031-01-01",
+                      "price": "12.50",
+                      "currency": "EUR",
+                      "member_price_cents": 800,
+                      "is_published": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "from: must be a valid YYYY-MM-DD date : La date from n'est pas une date valide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "from: must be a valid YYYY-MM-DD date": {
+                    "summary": "La date from n'est pas une date valide.",
+                    "value": {
+                      "success": false,
+                      "error": "from: must be a valid YYYY-MM-DD date"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "operationId": "getEvent",
+        "tags": [
+          "Événements"
+        ],
+        "summary": "Lire un événement publié, avec son tarif membre",
+        "description": "Qui : publique ; un jeton de connexion facultatif ajoute l'inscription et l'alerte du membre (user_rsvp_status, notify_requested). Un brouillon répond comme un identifiant inconnu (404). member_price_cents : tarif réduit des abonnés mazl+, public. Aucun effet de bord.",
+        "security": [
+          {},
+          {
+            "memberBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identifiant de l'événement.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "L'événement.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "event": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "price": {
+                          "type": "string",
+                          "description": "Tarif normal, décimal sous forme de texte, dans la devise currency."
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "member_price_cents": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Tarif réduit des abonnés mazl+, en centimes de la devise ; null sans tarif membre. Public : il sert à donner envie de s'abonner."
+                        },
+                        "is_published": {
+                          "type": "boolean"
+                        },
+                        "user_rsvp_status": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "notify_requested": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "date",
+                        "price",
+                        "currency",
+                        "member_price_cents",
+                        "is_published",
+                        "user_rsvp_status",
+                        "notify_requested"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "userRsvp": {
+                      "anyOf": [
+                        {},
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "event",
+                    "userRsvp"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "event": {
+                    "id": 5,
+                    "title": "Shabbat Exemple",
+                    "date": "2031-01-01",
+                    "price": "12.50",
+                    "currency": "EUR",
+                    "member_price_cents": 800,
+                    "is_published": true,
+                    "user_rsvp_status": null,
+                    "notify_requested": false
+                  },
+                  "userRsvp": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event id : L'identifiant n'est pas un nombre entier positif.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Invalid event id": {
+                    "summary": "L'identifiant n'est pas un nombre entier positif.",
+                    "value": {
+                      "success": false,
+                      "error": "Invalid event id"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found : L'événement n'existe pas ou n'est pas publié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Event not found": {
+                    "summary": "L'événement n'existe pas ou n'est pas publié.",
+                    "value": {
+                      "success": false,
+                      "error": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/events": {
+      "post": {
+        "operationId": "createEvent",
+        "tags": [
+          "Administration des événements"
+        ],
+        "summary": "Créer un événement, avec un tarif membre facultatif",
+        "description": "Qui : un administrateur (jeton de /api/admin/login). memberPriceCents est un nombre entier de centimes, jamais au-dessus du prix, sinon 400 member_price_invalid. Effets de bord : crée l'événement (brouillon sauf isPublished).",
+        "security": [
+          {
+            "adminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Titre de l'événement."
+                  },
+                  "date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "currency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "memberPriceCents": {
+                    "description": "Tarif membre en centimes, jamais au-dessus du prix ; null le supprime, absent le laisse tel quel.",
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "isPublished": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "title",
+                  "date"
+                ]
+              },
+              "examples": {
+                "paying": {
+                  "summary": "Un Shabbat payant à tarif membre",
+                  "value": {
+                    "title": "Shabbat Exemple",
+                    "date": "2031-01-01",
+                    "price": 12.5,
+                    "currency": "EUR",
+                    "memberPriceCents": 800,
+                    "isPublished": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "L'événement créé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "event": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "price": {
+                          "type": "string",
+                          "description": "Tarif normal, décimal sous forme de texte, dans la devise currency."
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "member_price_cents": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Tarif réduit des abonnés mazl+, en centimes de la devise ; null sans tarif membre. Public : il sert à donner envie de s'abonner."
+                        },
+                        "is_published": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "date",
+                        "price",
+                        "currency",
+                        "member_price_cents",
+                        "is_published"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "event"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "event": {
+                    "id": 5,
+                    "title": "Shabbat Exemple",
+                    "date": "2031-01-01",
+                    "price": "12.50",
+                    "currency": "EUR",
+                    "member_price_cents": 800,
+                    "is_published": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "member_price_invalid : Le tarif membre n'est pas un entier de centimes, ou dépasse le prix. — Title and date required : Le titre ou la date manque.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "member_price_invalid": {
+                    "summary": "Le tarif membre n'est pas un entier de centimes, ou dépasse le prix.",
+                    "value": {
+                      "success": false,
+                      "error": "member_price_invalid"
+                    }
+                  },
+                  "Title and date required": {
+                    "summary": "Le titre ou la date manque.",
+                    "value": {
+                      "success": false,
+                      "error": "Title and date required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized : Pas de session administrateur valide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Unauthorized": {
+                    "summary": "Pas de session administrateur valide.",
+                    "value": {
+                      "success": false,
+                      "error": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/events/{id}": {
+      "put": {
+        "operationId": "updateEvent",
+        "tags": [
+          "Administration des événements"
+        ],
+        "summary": "Modifier un événement, dont son tarif membre",
+        "description": "Qui : un administrateur. Seuls les champs envoyés changent ; memberPriceCents null supprime le tarif membre, absent le laisse tel quel, et il est comparé au prix que l'événement aura après la modification. Effets de bord : met à jour l'événement.",
+        "security": [
+          {
+            "adminBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identifiant de l'événement.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "example": 5
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Titre de l'événement."
+                  },
+                  "date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "currency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "memberPriceCents": {
+                    "description": "Tarif membre en centimes, jamais au-dessus du prix ; null le supprime, absent le laisse tel quel.",
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "isPublished": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "examples": {
+                "memberPrice": {
+                  "summary": "Fixer le tarif membre à 8 €",
+                  "value": {
+                    "memberPriceCents": 800
+                  }
+                },
+                "remove": {
+                  "summary": "Supprimer le tarif membre",
+                  "value": {
+                    "memberPriceCents": null
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "L'événement modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "event": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string"
+                        },
+                        "price": {
+                          "type": "string",
+                          "description": "Tarif normal, décimal sous forme de texte, dans la devise currency."
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "member_price_cents": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Tarif réduit des abonnés mazl+, en centimes de la devise ; null sans tarif membre. Public : il sert à donner envie de s'abonner."
+                        },
+                        "is_published": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "date",
+                        "price",
+                        "currency",
+                        "member_price_cents",
+                        "is_published"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "event"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "success": true,
+                  "event": {
+                    "id": 5,
+                    "title": "Shabbat Exemple",
+                    "date": "2031-01-01",
+                    "price": "12.50",
+                    "currency": "EUR",
+                    "member_price_cents": 800,
+                    "is_published": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "member_price_invalid : Le tarif membre n'est pas un entier de centimes, ou dépasse le prix.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "member_price_invalid": {
+                    "summary": "Le tarif membre n'est pas un entier de centimes, ou dépasse le prix.",
+                    "value": {
+                      "success": false,
+                      "error": "member_price_invalid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized : Pas de session administrateur valide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Unauthorized": {
+                    "summary": "Pas de session administrateur valide.",
+                    "value": {
+                      "success": false,
+                      "error": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found : L'événement n'existe pas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "Not found": {
+                    "summary": "L'événement n'existe pas.",
+                    "value": {
+                      "success": false,
+                      "error": "Not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal_error : Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Code stable : l'application écrit la phrase, jamais le serveur."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internal_error": {
+                    "summary": "Erreur inattendue du serveur (détail dans les journaux, jamais dans la réponse).",
+                    "value": {
+                      "success": false,
+                      "error": "internal_error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "memberBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Jeton de connexion du membre (POST /api/auth/google, /apple)."
+      },
+      "adminBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Jeton de l'administration (POST /api/admin/login)."
+      }
+    }
+  }
+}
