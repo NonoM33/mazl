@@ -92,6 +92,7 @@ export class SdkStripeGateway implements StripeGateway {
       cancel_url: input.cancelUrl,
       locale: "fr",
       custom_text: { submit: { message: input.waiverConfirmation } },
+      ...(input.promotionCodeId === undefined ? {} : { discounts: [{ promotion_code: input.promotionCodeId }] }),
     };
     const params: Stripe.Checkout.SessionCreateParams =
       input.offer.kind === "subscription"

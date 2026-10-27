@@ -33,6 +33,16 @@ export interface CheckoutSessionInput {
   readonly waiverConfirmation: string;
   readonly successUrl: string;
   readonly cancelUrl: string;
+  // Stripe promotion code of the live campaign, applied to the payment.
+  readonly promotionCodeId?: string;
+}
+
+// What the back-office storefront decides about a product at the moment of paying.
+export interface CheckoutOverrides {
+  // The Stripe price chosen in the catalogue; undefined falls back to the environment variable.
+  priceIdFor(productId: string): Promise<string | undefined>;
+  // The promotion code of the campaign live right now that targets this product.
+  promotionCodeFor(productId: string): Promise<string | undefined>;
 }
 
 export interface StripeGateway {
