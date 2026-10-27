@@ -1,3 +1,4 @@
+import 'demo_couple_daily_state.dart';
 import 'demo_couple_fixtures.dart';
 import 'demo_fixtures.dart';
 import 'demo_photos.dart';
@@ -38,6 +39,9 @@ class DemoCoupleState {
   final List<Map<String, dynamic>> _dates = [];
   final List<Map<String, dynamic>> _bucket = [];
   final List<Map<String, dynamic>> _memories = [];
+
+  /// Humeur, rituels, question du jour, bilan et conciergerie du couple.
+  DemoCoupleDailyState daily = DemoCoupleDailyState();
 
   Map<String, dynamic>? get couple => _couple;
   bool get inCouple => _couple != null;
@@ -136,6 +140,13 @@ class DemoCoupleState {
       ? DemoRequestOutcome.forbidden
       : DemoRequestOutcome.notFound;
 
+  /// Le statut du couple (`PATCH /api/couple/:id/status`).
+  bool setStatus(int coupleId, String status) {
+    if (_couple == null || _couple!['id'] != coupleId) return false;
+    _couple = {..._couple!, 'status': status};
+    return true;
+  }
+
   bool end(int coupleId) {
     if (_couple == null || _couple!['id'] != coupleId) return false;
     endCurrent();
@@ -144,6 +155,7 @@ class DemoCoupleState {
 
   void endCurrent() {
     _couple = null;
+    daily = DemoCoupleDailyState();
     _passed.clear();
     _saved.clear();
     _notes.clear();
@@ -179,6 +191,7 @@ class DemoCoupleState {
   }
 
   void pass(int id) => _passed.add(id);
+  bool isSaved(int id) => _saved.containsKey(id);
   bool removeSaved(int id) => _saved.remove(id) != null;
 
   List<Map<String, dynamic>> saved() {

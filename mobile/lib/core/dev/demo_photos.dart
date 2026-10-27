@@ -63,6 +63,25 @@ abstract final class DemoPhotos {
     return const [];
   }
 
+  /// Photos libres (Unsplash) des sorties du couple en démo : table, spa,
+  /// atelier, balade, musée, escapade, puis les évènements. Un identifiant qui
+  /// ne répond plus donne le fond teinté de l'écran, jamais une erreur.
+  static const _outings = <String>[
+    '1414235077428-338989a2e8c0',
+    '1544161515-4ab6ce6db874',
+    '1556910103-1c02745aae4d',
+    '1470071459604-3b5ec3a7fe05',
+    '1518998053901-5348d3961a04',
+    '1469854523086-cc02fe5d8800',
+    '1517248135467-4c7edcad34c4',
+    '1510812431401-41d2bd2722f3',
+    '1504674900247-0877df9cc836',
+  ];
+
+  /// Photo d'une sortie ([key] : un rang stable par sortie).
+  static String outing(int key) =>
+      _url(_outings[key.abs() % _outings.length], w: 800, h: 600);
+
   /// Vignette (avatar des conversations, matchs, likes, couple) : le même
   /// visage que la photo principale.
   static String? avatar(int userId) {
