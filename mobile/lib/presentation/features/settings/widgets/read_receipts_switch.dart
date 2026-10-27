@@ -94,10 +94,16 @@ class _ReadReceiptsSwitchState extends State<ReadReceiptsSwitch> {
       subtitle: Text(
         _loadFailed ? l10n.readReceiptsLoadFailed : l10n.readReceiptsSubtitle,
       ),
-      trailing: Switch(
-        value: value ?? false,
-        onChanged: canToggle ? _toggle : null,
-      ),
+      trailing: value == null && !_loadFailed
+          // The server has not answered yet.
+          ? const SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Switch(
+              value: value ?? false,
+              onChanged: canToggle ? _toggle : null,
+            ),
       onTap: _loadFailed
           ? _load
           : canToggle

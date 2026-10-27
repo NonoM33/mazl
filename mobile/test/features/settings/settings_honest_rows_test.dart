@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mazl/core/services/couple_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
 import 'package:mazl/presentation/features/settings/screens/settings_screen.dart';
+import 'package:mazl/presentation/features/settings/widgets/plus_privacy_section.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,16 +67,21 @@ void main() {
   testWidgets('no switch that saves nothing is offered', (tester) async {
     await pumpSettings(tester);
 
-    // The one switch is the read receipts one: it saves on the server
-    // (PUT /api/profile/read-receipts) and shows what the server answers.
-    expect(find.byType(Switch), findsOneWidget);
+    // Every switch lives in the privacy section of the mazl+ settings, where
+    // each one saves on the server (read receipts, discreet mode) and shows
+    // what the server answers; none is a façade.
+    expect(find.byType(PlusPrivacySection), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byType(ListTile),
-        matching: find.text('Envoyer les confirmations de lecture'),
-      ),
-      findsOneWidget,
+      find.byType(Switch).evaluate().length,
+      find
+          .descendant(
+            of: find.byType(PlusPrivacySection),
+            matching: find.byType(Switch),
+          )
+          .evaluate()
+          .length,
     );
+    expect(find.text('Envoyer les confirmations de lecture'), findsOneWidget);
     expect(find.text('Alertes fêtes'), findsNothing);
     expect(find.text('NOTIFICATIONS'), findsNothing);
     expect(find.text('Nouveaux matchs'), findsNothing);

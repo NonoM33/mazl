@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/premium/boost_schedule_api.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/premium_gate.dart';
 import '../../../../core/services/store/credit_models.dart';
@@ -17,13 +18,17 @@ import '../../../common/widgets/directional_icon.dart';
 import '../../../common/widgets/fold_pages.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
+import '../widgets/boost_best_time_card.dart';
 
 /// Screen to manage and activate profile boost
 class BoostScreen extends StatefulWidget {
-  const BoostScreen({super.key, this.apiService});
+  const BoostScreen({super.key, this.apiService, this.scheduleApi});
 
   /// Injected by tests; the app uses the real service.
   final ApiService? apiService;
+
+  /// Injected by tests; the app uses the real client of the scheduled Boost.
+  final BoostScheduleApi? scheduleApi;
 
   @override
   State<BoostScreen> createState() => _BoostScreenState();
@@ -41,6 +46,10 @@ class _BoostScreenState extends State<BoostScreen> {
   bool _loadFailed = false;
   ApiErrorKind? _errorKind;
   Timer? _timer;
+
+  /// Keeps the best time card (and what it loaded) when the screen is folded
+  /// from one layout to the other.
+  final GlobalKey _bestTimeKey = GlobalKey();
 
   @override
   void initState() {
@@ -186,6 +195,18 @@ class _BoostScreenState extends State<BoostScreen> {
   Widget _buildContent() {
     final isActive = _boostStatus?.isActive ?? false;
     final details = <Widget>[
+      // The busiest hour of the city, and the Boost scheduled for then
+      BoostBestTimeCard(
+        key: _bestTimeKey,
+        api: widget.scheduleApi,
+        onBoostsExhausted: () => PremiumGate.offerCredits(
+          context,
+          CreditKind.boost,
+          boostMinutes: _boostMinutes,
+        ),
+      ),
+      const SizedBox(height: 16),
+
       // Stats or benefits
       if (isActive) _buildActiveStats() else _buildBenefits(),
 

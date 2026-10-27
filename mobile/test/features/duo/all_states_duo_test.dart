@@ -110,6 +110,40 @@ Future<void> _openBlockedUsers(WidgetTester tester) async {
   await _pumpFor(tester, 2000);
 }
 
+/// Scrolls the settings to the read receipts row (a lazy list).
+Future<void> _scrollToReadReceipts(WidgetTester tester) async {
+  final row = find.text('Envoyer les confirmations de lecture');
+  for (var i = 0; i < 30 && row.evaluate().isEmpty; i++) {
+    for (final scrollable in find.byType(Scrollable).evaluate().toList()) {
+      await tester.drag(
+        find.byWidget(scrollable.widget),
+        const Offset(0, -200),
+      );
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  await tester.ensureVisible(row.first);
+  await _pumpFor(tester, 300);
+}
+
+Map<String, Object?> _bestTimeBody({bool scheduled = false}) {
+  final saturday = DateTime.now().toUtc().add(const Duration(days: 3));
+  return {
+    'success': true,
+    'data': {
+      'city': scheduled ? 'Paris' : null,
+      'best_time': scheduled
+          ? {
+              'starts_at': saturday.toIso8601String(),
+              'weekday': saturday.weekday,
+              'hour': saturday.hour,
+            }
+          : null,
+      'scheduled_at': scheduled ? saturday.toIso8601String() : null,
+    },
+  };
+}
+
 Object? _emptied(Object? json) {
   if (json is List) return const [];
   if (json is Map) {
@@ -512,6 +546,47 @@ final List<_State> _states = [
     _Answer.never,
     _p('/api/(boost/status|credits)'),
   ),
+  _State(
+    'boost: best time not measured yet',
+    '/boost',
+    _Answer.body,
+    _p('/api/boost/best-time'),
+    body: _bestTimeBody(),
+  ),
+  _State(
+    'boost: best time Boost scheduled',
+    '/boost',
+    _Answer.body,
+    _p('/api/boost/best-time'),
+    body: _bestTimeBody(scheduled: true),
+  ),
+  _State(
+    'boost: best time error',
+    '/boost',
+    _Answer.error,
+    _p('/api/boost/best-time'),
+  ),
+  _State(
+    'boost: best time loading',
+    '/boost',
+    _Answer.never,
+    _p('/api/boost/best-time'),
+  ),
+  // read receipts
+  _State(
+    'read receipts: setting unavailable',
+    '/profile/settings',
+    _Answer.error,
+    _p('/api/premium/settings'),
+    open: _scrollToReadReceipts,
+  ),
+  _State(
+    'read receipts: setting loading',
+    '/profile/settings',
+    _Answer.never,
+    _p('/api/premium/settings'),
+    open: _scrollToReadReceipts,
+  ),
 ];
 
 /// What proves that a state was reached and not another screen: a text of the
@@ -558,6 +633,10 @@ const Map<String, String> _witness = {
   'verification: both levels': 'Profil entièrement vérifié',
   'verification: limit reached': 'Limite atteinte',
   'boost: error': 'Réessayer',
+  'boost: best time not measured yet': 'Pas encore assez de données',
+  'boost: best time Boost scheduled': 'Programmé pour',
+  'boost: best time error': 'Impossible de charger le meilleur moment.',
+  'read receipts: setting unavailable': 'Réglage indisponible',
 };
 
 void _expectStateReached(_State state) {
