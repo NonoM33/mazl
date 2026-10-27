@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -59,11 +59,11 @@ class ChatImage extends StatelessWidget {
     }
     final address = url!;
     if (address.startsWith('http://') || address.startsWith('https://')) {
-      return CachedNetworkImage(
-        imageUrl: address,
+      return MazlNetworkImage(
+        url: address,
         fit: fit,
-        placeholder: (_, __) => placeholder,
-        errorWidget: (_, __, ___) => const _Placeholder(null, broken: true),
+        placeholder: (_) => placeholder,
+        errorBuilder: (_) => const _Placeholder(null, broken: true),
       );
     }
     return const _Placeholder(null, broken: true);

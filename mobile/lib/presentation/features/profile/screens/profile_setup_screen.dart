@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/mazl_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -841,12 +841,11 @@ class _PhotoSlot extends StatelessWidget {
         child: hasPhoto
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(isPrimary ? 10 : 12),
-                child: CachedNetworkImage(
-                  imageUrl: photoUrl!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
+                child: MazlNetworkImage(
+                  url: photoUrl!,
+                  placeholder: (context) =>
                       const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Center(
+                  errorBuilder: (context) => const Center(
                     child: Icon(
                       LucideIcons.user,
                       color: Colors.white54,

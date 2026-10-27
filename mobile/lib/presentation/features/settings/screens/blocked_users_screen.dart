@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/images/photo_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -171,7 +171,7 @@ class _BlockedUserTile extends StatelessWidget {
         radius: 24,
         backgroundColor: AppColors.primary.withValues(alpha: 0.1),
         backgroundImage: user.picture != null
-            ? CachedNetworkImageProvider(user.picture!)
+            ? mazlImageProvider(user.picture!, cacheWidth: 96)
             : null,
         child: user.picture == null
             ? Text(
