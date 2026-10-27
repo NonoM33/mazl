@@ -14,6 +14,9 @@ const PLAN_CLIENT_EVENTS: Record<string, Record<string, string | number>> = {
   onboarding_step_viewed: { step: 2, step_name: "photos" },
   signup_completed: {},
   paywall_viewed: { source: "likes" },
+  purchase_moment_shown: { moment: "dailyLikeLimit" },
+  purchase_moment_accepted: { moment: "undoRefused" },
+  purchase_moment_dismissed: { moment: "firstMatch" },
   purchase_started: { product_id: "com.mazl.plus.monthly" },
   purchase_cancelled: { product_id: "com.mazl.plus.monthly" },
   analytics_consent_granted: {},
@@ -51,6 +54,15 @@ describe("client events: an allowlist", () => {
   test("a screen that is a path, an e-mail or free text refuses the event", () => {
     for (const screen of ["/profile/42", "jeanne@example.com", "Jeanne Exemple", "chat?id=4", "", "x".repeat(41), 42]) {
       expect(parseClientEvent({ name: "screen_viewed", properties: { screen } }, NOW)).toBeNull();
+    }
+  });
+
+  test("a purchase moment is one of the five of the plan, nothing else", () => {
+    for (const moment of ["dailyLikeLimit", "thirdLikeReceived", "undoRefused", "passportAttempt", "firstMatch"]) {
+      expect(parseClientEvent({ name: "purchase_moment_shown", properties: { moment } }, NOW)?.properties).toEqual({ moment });
+    }
+    for (const moment of ["jeanne@example.com", "/likes", "madeUp", "", 3]) {
+      expect(parseClientEvent({ name: "purchase_moment_shown", properties: { moment } }, NOW)).toBeNull();
     }
   });
 
