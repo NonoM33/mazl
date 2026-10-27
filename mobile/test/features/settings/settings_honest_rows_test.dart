@@ -66,7 +66,16 @@ void main() {
   testWidgets('no switch that saves nothing is offered', (tester) async {
     await pumpSettings(tester);
 
-    expect(find.byType(Switch), findsNothing);
+    // The one switch is the read receipts one: it saves on the server
+    // (PUT /api/profile/read-receipts) and shows what the server answers.
+    expect(find.byType(Switch), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ListTile),
+        matching: find.text('Envoyer les confirmations de lecture'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Alertes fêtes'), findsNothing);
     expect(find.text('NOTIFICATIONS'), findsNothing);
     expect(find.text('Nouveaux matchs'), findsNothing);

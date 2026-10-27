@@ -404,5 +404,21 @@
   "chatErrorLoadFailed": "Impossible de charger la conversation.",
   "@chatErrorLoadFailed": {
     "description": "Chat : le premier chargement de la conversation a échoué."
+  },
+  "readReceiptsTitle": "Envoyer les confirmations de lecture",
+  "@readReceiptsTitle": {
+    "description": "Réglages, confidentialité : titre de l'interrupteur qui décide si les membres mazl+ voient l'heure à laquelle on a lu leurs messages."
+  },
+  "readReceiptsSubtitle": "Les membres mazl+ voient quand vous avez lu leur message. Désactivée, personne ne le voit.",
+  "@readReceiptsSubtitle": {
+    "description": "Réglages, confidentialité : sous-titre de l'interrupteur des confirmations de lecture (deux lignes). « mazl+ » est un nom de marque."
+  },
+  "readReceiptsLoadFailed": "Réglage indisponible pour l'instant. Touchez pour réessayer.",
+  "@readReceiptsLoadFailed": {
+    "description": "Réglages, confidentialité : sous-titre de la ligne des confirmations de lecture quand le serveur n'a pas répondu ; un appui relance la lecture."
+  },
+  "readReceiptsSaveFailed": "Impossible de modifier ce réglage. Réessayez.",
+  "@readReceiptsSaveFailed": {
+    "description": "Message bref quand le serveur a refusé ou n'a pas reçu le changement des confirmations de lecture ; l'interrupteur revient à l'état du serveur."
   }
 }

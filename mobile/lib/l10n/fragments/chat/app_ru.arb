@@ -92,5 +92,9 @@
   "chatErrorNotAuthor": "Только автор может отозвать сообщение.",
   "chatErrorReactionUnavailable": "Реакция недоступна.",
   "chatErrorSendUnavailable": "Сейчас не удаётся отправить.",
-  "chatErrorLoadFailed": "Не удалось загрузить беседу."
+  "chatErrorLoadFailed": "Не удалось загрузить беседу.",
+  "readReceiptsTitle": "Отправлять уведомления о прочтении",
+  "readReceiptsSubtitle": "Участники mazl+ видят, когда вы прочли их сообщение. Если выключить, не увидит никто.",
+  "readReceiptsLoadFailed": "Настройка сейчас недоступна. Нажмите, чтобы повторить.",
+  "readReceiptsSaveFailed": "Не удалось изменить настройку. Попробуйте ещё раз."
 }

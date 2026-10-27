@@ -65,7 +65,9 @@ class HttpReadReceiptsApi implements ReadReceiptsApi {
 
   bool _flag(TransportReply reply) {
     final data = reply.data;
-    final held = data is Map<String, dynamic> ? data['send_read_receipts'] : null;
+    final held = data is Map<String, dynamic>
+        ? data['send_read_receipts']
+        : null;
     if (held is! bool) {
       throw ReadReceiptsException(
         ReadReceiptsErrorKind.unknown,
