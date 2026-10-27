@@ -49,6 +49,9 @@ enum _Answer {
 
   /// No answer, ever: the screen stays on its waiting state.
   never,
+
+  /// The state's own JSON body (`_State.body`), with a 200.
+  body,
 }
 
 class _State {
@@ -60,6 +63,7 @@ class _State {
     this.couple = false,
     this.open,
     this.webSessions,
+    this.body,
   });
 
   final String id;
@@ -73,6 +77,9 @@ class _State {
 
   /// The state of the list of connected computers (fake API, not HTTP).
   final _Computers? webSessions;
+
+  /// What the server answers for [_Answer.body].
+  final Map<String, Object?>? body;
 }
 
 enum _Computers { empty, failing, loading }
@@ -126,6 +133,13 @@ class _StateServer extends http.BaseClient {
     switch (state.answer) {
       case _Answer.never:
         return Completer<http.StreamedResponse>().future;
+      case _Answer.body:
+        return http.StreamedResponse(
+          Stream.value(utf8.encode(jsonEncode(state.body))),
+          200,
+          request: request,
+          headers: const {'content-type': 'application/json'},
+        );
       case _Answer.error:
         return http.StreamedResponse(
           Stream.value(utf8.encode('{"success":false,"error":"boom"}')),
@@ -151,6 +165,30 @@ class _StateServer extends http.BaseClient {
     }
   }
 }
+
+Map<String, Object?> _verificationBody({
+  bool photo = false,
+  bool identity = false,
+  bool limit = false,
+}) => {
+  'success': true,
+  'photo': {
+    'verified': photo,
+    'verified_at': photo ? '2026-10-26T09:00:00Z' : null,
+    'attempts_today': 0,
+  },
+  'identity': {
+    'verified': identity,
+    'verified_at': identity ? '2026-10-26T09:00:00Z' : null,
+    'attempts_today': 0,
+  },
+  'level': identity ? 'identity' : (photo ? 'photo' : 'none'),
+  'is_verified': photo || identity,
+  'attempts_today': 0,
+  'next_attempt_time': limit
+      ? DateTime.now().toUtc().add(const Duration(hours: 5)).toIso8601String()
+      : null,
+};
 
 final List<_State> _states = [
   // matching
@@ -442,6 +480,27 @@ final List<_State> _states = [
     _p('/api/verification/status'),
   ),
   _State(
+    'verification: level 1 only',
+    '/profile/verification',
+    _Answer.body,
+    _p('/api/verification/status'),
+    body: _verificationBody(photo: true),
+  ),
+  _State(
+    'verification: both levels',
+    '/profile/verification',
+    _Answer.body,
+    _p('/api/verification/status'),
+    body: _verificationBody(photo: true, identity: true),
+  ),
+  _State(
+    'verification: limit reached',
+    '/profile/verification',
+    _Answer.body,
+    _p('/api/verification/status'),
+    body: _verificationBody(limit: true),
+  ),
+  _State(
     'boost: error',
     '/boost',
     _Answer.error,
@@ -495,6 +554,9 @@ const Map<String, String> _witness = {
   'couple setup: error': 'Impossible de charger vos matchs.',
   'filters: error': "Vos filtres avancés n'ont pas pu être chargés.",
   'verification: error': 'Réessayer',
+  'verification: level 1 only': 'Vérification en cours',
+  'verification: both levels': 'Profil entièrement vérifié',
+  'verification: limit reached': 'Limite atteinte',
   'boost: error': 'Réessayer',
 };
 
