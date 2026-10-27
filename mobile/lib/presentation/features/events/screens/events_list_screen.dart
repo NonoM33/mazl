@@ -5,12 +5,15 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/layout/fold_cut.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/services/data_prefetch_service.dart';
+import '../../../../core/services/premium_gate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../widgets/skeletons.dart';
 import '../l10n/event_texts.dart';
 import '../widgets/event_flight.dart';
+import '../widgets/event_member_price.dart';
 import '../widgets/event_photo.dart';
 import '../../../../core/layout/fold_message_view.dart';
 import 'package:mazl/core/layout/column_app_bar.dart';
@@ -689,6 +692,16 @@ class _EventCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                  // The mazl+ rate, next to the price on the photo
+                  if (hasMemberReduction(event)) ...[
+                    const SizedBox(height: 4),
+                    EventMemberPrice(
+                      event: event,
+                      subscriber: PremiumGate.isPremium,
+                      onOffer: () => context.push(RoutePaths.premium),
+                    ),
+                  ],
 
                   const SizedBox(height: 14),
 

@@ -50,5 +50,9 @@
   "eventsMapDone": "סיום",
   "eventsMapSemantics": "מפת סביבת האירוע",
   "eventsTimeRange": "{start} – {end}",
-  "eventsShareError": "לא ניתן לשתף כרגע."
+  "eventsShareError": "לא ניתן לשתף כרגע.",
+  "eventsMemberPrice": "מחיר לחברים: {price}",
+  "eventsMemberPricePlus": "mazl+: {price}",
+  "eventsMemberPricePlusHint": "עם mazl+ האירוע עולה {price}. לצפייה בהצעה.",
+  "eventsPriceRegular": "מחיר רגיל: {price}"
 }

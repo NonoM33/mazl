@@ -15,6 +15,10 @@ class Event {
   final String? endTime;
   final double price;
   final String currency;
+
+  /// The reduced price of a mazl+ member, in cents of [currency]; null when
+  /// the event has none (docs/premium/MONETISATION.md §10).
+  final int? memberPriceCents;
   final int? maxAttendees;
   final int attendeeCount;
   final String? imageUrl;
@@ -42,6 +46,7 @@ class Event {
     this.endTime,
     this.price = 0,
     this.currency = 'EUR',
+    this.memberPriceCents,
     this.maxAttendees,
     this.attendeeCount = 0,
     this.imageUrl,
@@ -66,6 +71,7 @@ class Event {
       endTime: json['end_time'] as String?,
       price: parseDoubleSafe(json['price']) ?? 0,
       currency: json['currency'] as String? ?? 'EUR',
+      memberPriceCents: _nonNegative(parseIntSafe(json['member_price_cents'])),
       maxAttendees: parseIntSafe(json['max_attendees']),
       attendeeCount: parseIntSafe(json['attendee_count']) ?? 0,
       imageUrl: json['image_url'] as String?,
@@ -101,6 +107,7 @@ class Event {
     endTime: endTime,
     price: price,
     currency: currency,
+    memberPriceCents: memberPriceCents,
     maxAttendees: maxAttendees,
     attendeeCount: attendeeCount ?? this.attendeeCount,
     imageUrl: imageUrl,
@@ -112,6 +119,8 @@ class Event {
     notifyRequested: notifyRequested ?? this.notifyRequested,
   );
 }
+
+int? _nonNegative(int? cents) => cents != null && cents >= 0 ? cents : null;
 
 /// The API's `availability`. Anything unknown is read as open: the server
 /// stays the one that refuses a registration.
