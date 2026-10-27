@@ -40,9 +40,12 @@ class FakeSwipes implements SwipeStore {
     return !this.unreachable.has(targetUserId);
   }
 
-  async record(userId: number, targetUserId: number, action: string): Promise<SwipeResult> {
+  readonly notes: Array<string | null> = [];
+
+  async record(userId: number, targetUserId: number, action: string, note: string | null): Promise<SwipeResult> {
     if (this.failRecord) throw new Error("database unavailable");
     this.recorded += 1;
+    this.notes.push(note);
     this.stored.set(`${userId}:${targetUserId}`, action);
     return this.reciprocal && action !== "pass" ? { match: true, targetUserId } : { match: false };
   }
@@ -75,11 +78,11 @@ beforeEach(() => {
   registerSwipeRoute(app, { authenticate, credits, swipes, likes: { likeReceived: (like) => void liked.push(like) } });
 });
 
-async function swipe(target: number, action: string, user: number | null = USER): Promise<{ status: number; body: SwipeBody }> {
+async function swipe(target: number, action: string, user: number | null = USER, extra: Record<string, unknown> = {}): Promise<{ status: number; body: SwipeBody }> {
   const res = await app.request("/api/swipes", {
     method: "POST",
     headers: { "content-type": "application/json", ...(user === null ? {} : { "x-test-user": String(user) }) },
-    body: JSON.stringify({ target_user_id: target, action }),
+    body: JSON.stringify({ target_user_id: target, action, ...extra }),
   });
   return { status: res.status, body: (await res.json()) as SwipeBody };
 }
@@ -243,5 +246,49 @@ describe("the member liked is told (features/push)", () => {
     liked = [];
     expect((await swipe(21, "super_like")).status).toBe(402);
     expect(liked).toEqual([]);
+  });
+});
+
+// docs/premium/MONETISATION.md section 5: the word of a Super Like (140 characters).
+describe("super like with a word", () => {
+  test("the word is trimmed, recorded with the Super Like, and the Super Like is debited as before", async () => {
+    const { status, body } = await swipe(20, "super_like", USER, { note: "  Votre sourire au Shabbat des jeunes  " });
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(swipes.notes).toEqual(["Votre sourire au Shabbat des jeunes"]);
+    expect(repository.spends).toHaveLength(1);
+  });
+
+  test("a Super Like without a word records none", async () => {
+    await swipe(20, "super_like");
+    expect(swipes.notes).toEqual([null]);
+  });
+
+  test("a word on a like or a pass is a 400 note_requires_super_like, nothing recorded", async () => {
+    for (const action of ["like", "pass"]) {
+      const { status, body } = await swipe(20, action, USER, { note: "Bonjour" });
+      expect([status, body.error]).toEqual([400, "note_requires_super_like"]);
+    }
+    expect(swipes.recorded).toBe(0);
+  });
+
+  test("an empty, too long, linked or non text word is a 400 invalid_note and NOTHING is debited", async () => {
+    for (const note of ["", "   ", "a".repeat(141), "voir https://example.com", 12, ["a"]]) {
+      const { status, body } = await swipe(20, "super_like", USER, { note });
+      expect([JSON.stringify(note), status, body.error]).toEqual([JSON.stringify(note), 400, "invalid_note"]);
+    }
+    expect(repository.spends).toHaveLength(0);
+    expect(swipes.recorded).toBe(0);
+  });
+
+  test("exactly 140 characters pass", async () => {
+    expect((await swipe(20, "super_like", USER, { note: "é".repeat(140) })).status).toBe(200);
+  });
+
+  test("replaying the same Super Like keeps the word it was sent with: the route passes the new word, or none, to a store that keeps the old one", async () => {
+    await swipe(20, "super_like", USER, { note: "Bonjour" });
+    await swipe(20, "super_like");
+    expect(swipes.notes).toEqual(["Bonjour", null]);
+    expect(repository.spends).toHaveLength(1);
   });
 });
