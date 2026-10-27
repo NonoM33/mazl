@@ -29,6 +29,7 @@ class _FakePicksApi implements ApiService {
   Future<ApiResponse<Map<String, dynamic>>> sendSwipe({
     required int targetUserId,
     required String action,
+    String? note,
   }) async => ApiResponse.success(<String, dynamic>{'match': true});
 
   @override

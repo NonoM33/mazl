@@ -37,6 +37,16 @@ class FakeDiscoverApi implements ApiService {
   /// `userId:action`, in the order the screen sent them.
   final List<String> swipes = [];
 
+  /// The word that went with each swipe of [swipes], null for none.
+  final List<String?> swipeNotes = [];
+
+  /// The server refuses the word of a Super Like with its 400 `invalid_note`
+  /// (too long, a link): nothing is recorded or spent.
+  bool refuseNote = false;
+
+  /// `userId:super_like` the server refused for its word.
+  final List<String> refusedNotes = [];
+
   /// How many times the screen asked to turn a Boost on.
   int boostActivations = 0;
 
@@ -110,9 +120,22 @@ class FakeDiscoverApi implements ApiService {
   Future<ApiResponse<Map<String, dynamic>>> sendSwipe({
     required int targetUserId,
     required String action,
+    String? note,
   }) async {
     if (swipesFail) return ApiResponse.failure('Failed to send swipe');
+    if (note != null && refuseNote) {
+      refusedNotes.add('$targetUserId:$action');
+      return ApiResponse(
+        success: false,
+        error: 'Failed to send swipe (HTTP 400)',
+        errorKind: ApiErrorKind.invalid,
+        errorCode: 'invalid_note',
+        statusCode: 400,
+        body: {'success': false, 'error': 'invalid_note'},
+      );
+    }
     swipes.add('$targetUserId:$action');
+    swipeNotes.add(note);
     if (action == 'like') {
       final hold = holdLikes;
       if (hold != null) await hold.future;

@@ -27,6 +27,15 @@ class Profile {
   final int? distanceMax;
   final String? lookingFor;
 
+  /// This member sent the signed-in member a Super Like (Discover only).
+  final bool superLikedYou;
+
+  /// The word that came with that Super Like (1 to 140 characters).
+  final String? superLikeNote;
+
+  /// The city this member is passing through with a mazl+ passport.
+  final String? travelingCity;
+
   Profile({
     required this.id,
     required this.userId,
@@ -51,6 +60,9 @@ class Profile {
     this.ageMax,
     this.distanceMax,
     this.lookingFor,
+    this.superLikedYou = false,
+    this.superLikeNote,
+    this.travelingCity,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) {
@@ -78,8 +90,17 @@ class Profile {
       ageMax: parseIntSafe(json['age_max']),
       distanceMax: parseIntSafe(json['distance_max']),
       lookingFor: json['looking_for'] as String?,
+      superLikedYou: json['super_liked_you'] == true,
+      superLikeNote: _textOf(json['super_like_note']),
+      travelingCity: _textOf(json['traveling_city']),
     );
   }
+}
+
+/// A text field of the server, null when absent, not a string or blank.
+String? _textOf(Object? value) {
+  if (value is! String || value.trim().isEmpty) return null;
+  return value.trim();
 }
 
 /// The intention as the server words it. A profile stored before the v1 holds

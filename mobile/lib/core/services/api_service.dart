@@ -455,11 +455,13 @@ class ApiService implements CoupleApi {
   Future<ApiResponse<Map<String, dynamic>>> sendSwipe({
     required int targetUserId,
     required String action, // 'like', 'pass', 'super_like'
+    String? note, // 1..140 characters, only with 'super_like'
   }) async {
     try {
       final response = await _post('/api/swipes', {
         'target_user_id': targetUserId,
         'action': action,
+        if (note != null) 'note': note,
       });
 
       if (response.statusCode != 200) {
