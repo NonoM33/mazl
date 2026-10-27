@@ -10,42 +10,40 @@ Map<String, dynamic> contractCouple({
   String partnerName = 'Myriam',
   String? partnerPicture,
   String status = 'in_relationship',
-}) => {
-  'id': id,
-  'partner_id': partnerId,
-  'partner_name': partnerName,
-  'partner_picture': partnerPicture,
-  'started_at': '2026-10-20T10:00:00.000Z',
-  'met_on_mazl_at': '2026-10-01T09:30:00.000Z',
-  'status': status,
-};
+}) =>
+    {
+      'id': id,
+      'partner_id': partnerId,
+      'partner_name': partnerName,
+      'partner_picture': partnerPicture,
+      'started_at': '2026-10-20T10:00:00.000Z',
+      'met_on_mazl_at': '2026-10-01T09:30:00.000Z',
+      'status': status,
+    };
 
 /// `request` as `POST /api/couple/request` renders it (§2).
 Map<String, dynamic> contractSentRequest({int id = 77, int targetId = 45}) => {
-  'id': id,
-  'requester_id': 7,
-  'target_id': targetId,
-  'status': 'pending',
-  'created_at': '2026-10-23T08:00:00.000Z',
-  'target_name': 'Myriam',
-  'target_picture': null,
-};
+      'id': id,
+      'requester_id': 7,
+      'target_id': targetId,
+      'status': 'pending',
+      'created_at': '2026-10-23T08:00:00.000Z',
+      'target_name': 'Myriam',
+      'target_picture': null,
+    };
 
 /// An item of `received` in `GET /api/couple/requests`.
-Map<String, dynamic> contractReceivedRequest({
-  int id = 91,
-  int requesterId = 45,
-}) => {
-  'id': id,
-  'requester_id': requesterId,
-  'target_id': 7,
-  'status': 'pending',
-  'created_at': '2026-10-23T08:05:00.000Z',
-  'requester_name': 'Myriam',
-  'requester_picture': null,
-  'target_name': 'Moi',
-  'target_picture': null,
-};
+Map<String, dynamic> contractReceivedRequest({int id = 91, int requesterId = 45}) => {
+      'id': id,
+      'requester_id': requesterId,
+      'target_id': 7,
+      'status': 'pending',
+      'created_at': '2026-10-23T08:05:00.000Z',
+      'requester_name': 'Myriam',
+      'requester_picture': null,
+      'target_name': 'Moi',
+      'target_picture': null,
+    };
 
 /// A fake server behind the real [CoupleApi] methods.
 class FakeCoupleApi implements CoupleApi {
@@ -73,12 +71,9 @@ class FakeCoupleApi implements CoupleApi {
   int getCoupleCount = 0;
 
   @override
-  Future<ApiResponse<Map<String, dynamic>>> sendCoupleRequest(
-    int targetUserId,
-  ) async {
+  Future<ApiResponse<Map<String, dynamic>>> sendCoupleRequest(int targetUserId) async {
     calls.add('send:$targetUserId');
-    if (sendError != null)
-      return ApiResponse.failure(sendError!, ApiErrorKind.server);
+    if (sendError != null) return ApiResponse.failure(sendError!, ApiErrorKind.server);
     final request = contractSentRequest(targetId: targetUserId);
     sent = [request];
     return ApiResponse.success({'success': true, 'request': request});
@@ -90,11 +85,9 @@ class FakeCoupleApi implements CoupleApi {
     required bool accept,
   }) async {
     calls.add('${accept ? 'accept' : 'reject'}:$requestId');
-    if (respondError != null)
-      return ApiResponse.failure(respondError!, ApiErrorKind.server);
+    if (respondError != null) return ApiResponse.failure(respondError!, ApiErrorKind.server);
     received = [];
-    if (!accept)
-      return ApiResponse.success({'success': true, 'action': 'rejected'});
+    if (!accept) return ApiResponse.success({'success': true, 'action': 'rejected'});
     couple = acceptedCouple;
     return ApiResponse.success({
       'success': true,
@@ -113,21 +106,15 @@ class FakeCoupleApi implements CoupleApi {
   @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleRequests() async {
     calls.add('requests');
-    if (unreachable)
-      return ApiResponse.failure('offline', ApiErrorKind.network);
-    return ApiResponse.success({
-      'success': true,
-      'sent': sent,
-      'received': received,
-    });
+    if (unreachable) return ApiResponse.failure('offline', ApiErrorKind.network);
+    return ApiResponse.success({'success': true, 'sent': sent, 'received': received});
   }
 
   @override
   Future<ApiResponse<Map<String, dynamic>>> getCoupleData() async {
     calls.add('couple');
     getCoupleCount++;
-    if (unreachable)
-      return ApiResponse.failure('offline', ApiErrorKind.network);
+    if (unreachable) return ApiResponse.failure('offline', ApiErrorKind.network);
     return ApiResponse.success({
       'success': true,
       'couple': couple,
@@ -168,8 +155,7 @@ class FakeCoupleApi implements CoupleApi {
   @override
   Future<ApiResponse<void>> endCouple(int coupleId) async {
     calls.add('end:$coupleId');
-    if (endError != null)
-      return ApiResponse.failure(endError!, ApiErrorKind.server);
+    if (endError != null) return ApiResponse.failure(endError!, ApiErrorKind.server);
     couple = null;
     return ApiResponse.success(null);
   }

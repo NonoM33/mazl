@@ -67,16 +67,16 @@ class CoupleService extends ChangeNotifier {
   @visibleForTesting
   static set instanceForTesting(CoupleService service) => _instance = service;
   CoupleService._internal()
-    : _api = ApiService(),
-      _pollInterval = const Duration(seconds: 10);
+      : _api = ApiService(),
+        _pollInterval = const Duration(seconds: 10);
 
   /// A service wired to a fake [CoupleApi]; never use it in production code.
   @visibleForTesting
   CoupleService.forTesting({
     required CoupleApi api,
     Duration pollInterval = const Duration(seconds: 10),
-  }) : _api = api,
-       _pollInterval = pollInterval;
+  })  : _api = api,
+        _pollInterval = pollInterval;
 
   static const _coupleDataKey = 'couple_data';
   static const _coupleModeEnabledKey = 'couple_mode_enabled';
@@ -96,8 +96,7 @@ class CoupleService extends ChangeNotifier {
   /// demo has no realtime channel (no WebSocket), so it re-reads faster: its
   /// fictitious partner accepts 3 s after the request.
   @visibleForTesting
-  Duration get pollInterval =>
-      DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
+  Duration get pollInterval => DevSession.isActive ? const Duration(seconds: 2) : _pollInterval;
   final StreamController<CoupleFlowEvent> _events =
       StreamController<CoupleFlowEvent>.broadcast();
 
@@ -155,9 +154,8 @@ class CoupleService extends ChangeNotifier {
     final pendingJson = prefs.getString(_pendingRequestKey);
     if (pendingJson != null) {
       try {
-        _pendingRequest = CoupleRequest.fromJson(
-          jsonDecode(pendingJson) as Map<String, dynamic>,
-        );
+        _pendingRequest =
+            CoupleRequest.fromJson(jsonDecode(pendingJson) as Map<String, dynamic>);
       } catch (e) {
         _pendingRequest = null;
       }
@@ -181,9 +179,7 @@ class CoupleService extends ChangeNotifier {
     try {
       await _clearData();
     } on Exception catch (e) {
-      debugPrint(
-        'CoupleService: could not clear the couple cache: ${e.runtimeType}',
-      );
+      debugPrint('CoupleService: could not clear the couple cache: ${e.runtimeType}');
     }
   }
 
@@ -203,9 +199,7 @@ class CoupleService extends ChangeNotifier {
   /// Re-reads the couple then the requests. Calls overlap safely: a second
   /// call while one is in flight waits for that one.
   Future<void> refresh() {
-    return _refreshing ??= _refreshOnce().whenComplete(
-      () => _refreshing = null,
-    );
+    return _refreshing ??= _refreshOnce().whenComplete(() => _refreshing = null);
   }
 
   Future<void> _refreshOnce() async {
@@ -224,8 +218,7 @@ class CoupleService extends ChangeNotifier {
       final raw = response.data!['couple'];
       if (raw is Map<String, dynamic>) {
         final couple = CoupleData.fromServer(raw);
-        final formedFromMyRequest =
-            !_isCoupleModeEnabled && _pendingRequest != null;
+        final formedFromMyRequest = !_isCoupleModeEnabled && _pendingRequest != null;
         await _enterCouple(couple);
         await _setPremium(CouplePremium.fromJson(response.data!['premium']));
         if (formedFromMyRequest) {
@@ -271,9 +264,7 @@ class CoupleService extends ChangeNotifier {
       await _setRequests(pending: pending, received: incoming);
 
       if (pending == null && previousPending != null && coupleKnown) {
-        _events.add(
-          CoupleRequestDeclined(partnerName: previousPending.targetName),
-        );
+        _events.add(CoupleRequestDeclined(partnerName: previousPending.targetName));
       }
       if (incoming != null && incoming.id != previousIncomingId) {
         _events.add(CoupleRequestReceived(incoming));
@@ -413,8 +404,7 @@ class CoupleService extends ChangeNotifier {
           return;
         }
         final couple = CoupleData.fromServer(raw);
-        if (_isCoupleModeEnabled && _coupleData?.coupleId == couple.coupleId)
-          return;
+        if (_isCoupleModeEnabled && _coupleData?.coupleId == couple.coupleId) return;
         await _enterCouple(couple);
         await _archiveOtherConversations();
         _events.add(CoupleFormed(couple, asRequester: true));
@@ -447,8 +437,7 @@ class CoupleService extends ChangeNotifier {
           : CoupleRelation.coupleWithSomeoneElse;
     }
     if (_pendingRequest?.targetId == userId) return CoupleRelation.requestSent;
-    if (_receivedRequest?.requesterId == userId)
-      return CoupleRelation.requestReceived;
+    if (_receivedRequest?.requesterId == userId) return CoupleRelation.requestReceived;
     return CoupleRelation.none;
   }
 
@@ -544,8 +533,7 @@ class CoupleService extends ChangeNotifier {
   }
 
   void _updatePolling() {
-    final shouldPoll =
-        _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
+    final shouldPoll = _pendingRequest != null && _isForeground && !_isCoupleModeEnabled;
     if (shouldPoll && _pollTimer == null) {
       _pollTimer = Timer.periodic(pollInterval, (_) => refresh());
     } else if (!shouldPoll) {
@@ -631,8 +619,7 @@ class CoupleService extends ChangeNotifier {
       ),
       DailyQuestion(
         id: '5',
-        question:
-            'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
+        question: 'Quel trait de caractère admirez-vous le plus chez votre partenaire ?',
         category: 'Appréciation',
       ),
     ];
