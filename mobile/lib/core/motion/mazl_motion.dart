@@ -163,6 +163,10 @@ abstract final class MazlMotion {
   static const refreshBloom = Duration(milliseconds: 600);
   static const refreshBloomScale = 1.4;
 
+  /// During Hanukkah a hanukkiah stands in for the star: its flames flicker
+  /// by up to this share of their size while the refresh runs.
+  static const refreshFlameFlicker = 0.15;
+
   // --- Match sheet ---------------------------------------------------------
 
   /// The two photos slide toward each other until they touch.

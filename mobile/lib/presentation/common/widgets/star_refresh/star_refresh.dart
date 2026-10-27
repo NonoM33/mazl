@@ -7,6 +7,10 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/layout/fold_state.dart';
 import '../../../../core/motion/mazl_motion.dart';
+import '../../../../core/storefront/storefront_themes.dart';
+import 'hanukkah_night.dart';
+import 'hanukkiah_frame.dart';
+import 'hanukkiah_painter.dart';
 import 'star_frame.dart';
 import 'star_painter.dart';
 
@@ -18,10 +22,19 @@ import 'star_painter.dart';
 /// be pulled even when it is shorter than the screen. The star sits above the
 /// list that is pulled (the page of a book held half open), never in the fold.
 class StarRefresh extends StatefulWidget {
-  const StarRefresh({super.key, required this.onRefresh, required this.child});
+  const StarRefresh({
+    super.key,
+    required this.onRefresh,
+    required this.child,
+    this.clock = DateTime.now,
+  });
 
   final RefreshCallback onRefresh;
   final Widget child;
+
+  /// Tells whether it is a night of Hanukkah, when a hanukkiah lit for that
+  /// night stands in for the star.
+  final DateTime Function() clock;
 
   @override
   State<StarRefresh> createState() => _StarRefreshState();
@@ -49,6 +62,9 @@ class _StarRefreshState extends State<StarRefresh>
   Duration _elapsed = Duration.zero;
   Duration? _loadEnd;
   Rect? _fold;
+
+  /// The night of Hanukkah of this pull, 0 the rest of the year.
+  int _night = 0;
 
   /// Horizontal centre and top of the pulled list, in this box.
   double _starX = 0;
@@ -120,6 +136,7 @@ class _StarRefreshState extends State<StarRefresh>
     if (_stage == _Stage.idle && _dragging && over > 0) {
       _stage = _Stage.pulling;
       _placeStar(list);
+      _night = hanukkahNight(widget.clock());
     }
     if (_stage == _Stage.pulling) {
       if (_dragging) {
@@ -236,6 +253,24 @@ class _StarRefreshState extends State<StarRefresh>
     _listTop = local.dy;
   }
 
+  CustomPainter _painter(double gap) {
+    final color = Theme.of(context).colorScheme.primary;
+    final opacity = (gap / MazlMotion.refreshFadeInGap).clamp(0.0, 1.0);
+    if (_night == 0) {
+      return StarPainter(
+        frame: StarFrame.of(_pose),
+        color: color,
+        opacity: opacity,
+      );
+    }
+    return HanukkiahPainter(
+      frame: HanukkiahFrame.of(_pose, _night),
+      color: color,
+      flameColor: storefrontThemeById('hanukkah')?.accent ?? color,
+      opacity: opacity,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _fold = FoldScope.of(context).activeDivision;
@@ -261,16 +296,7 @@ class _StarRefreshState extends State<StarRefresh>
                 width: StarPainter.extent,
                 height: StarPainter.extent,
                 child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: StarPainter(
-                      frame: StarFrame.of(_pose),
-                      color: Theme.of(context).colorScheme.primary,
-                      opacity: (gap / MazlMotion.refreshFadeInGap).clamp(
-                        0.0,
-                        1.0,
-                      ),
-                    ),
-                  ),
+                  child: CustomPaint(painter: _painter(gap)),
                 ),
               ),
           ],

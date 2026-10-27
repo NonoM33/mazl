@@ -14,6 +14,7 @@ const _gestureFiles = <String>[
   'lib/presentation/common/widgets/swipe_deck/swipe_progress_scale.dart',
   'lib/presentation/common/widgets/star_refresh/star_refresh.dart',
   'lib/presentation/common/widgets/star_refresh/star_frame.dart',
+  'lib/presentation/common/widgets/star_refresh/hanukkiah_frame.dart',
 ];
 
 // Screens that only wire a gesture widget: they reach MazlMotion through the

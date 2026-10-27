@@ -164,6 +164,15 @@ refusé dans `lib/` par `test/core/motion_single_source_test.dart`.
   ensuite en ressort (`spring`).
 - **Où** : au-dessus du milieu de la liste tirée (la page tirée quand le Duo est tenu en livre),
   jamais dans le pli ; une liste qui traverse le pli met l'étoile du côté le plus large.
+- **Hanoucca** : pendant les huit soirs, une hanoukia remplace l'étoile (`hanukkahNight`, calcul
+  hébraïque de `kosher_dart`, hors d'Israël). Le soir commence à 17 h (`kHanukkahEveningHour`) : la
+  première bougie brûle dès le soir qui précède le 25 kislev. Même geste que l'étoile : le corps se
+  trace sur la première moitié du tirage, puis le shamash s'allume, et les bougies du soir — posées
+  de droite à gauche, une de plus chaque soir — s'allument de la plus récente (la plus à gauche)
+  vers la droite. Pendant le chargement les flammes scintillent (`refreshFlameFlicker`, 15 %) et
+  reviennent à leur taille à chaque tour entier ; à l'éclosion ce sont les flammes qui gonflent.
+  Corps en tekhelet, flammes dans l'ambre du thème `hanukkah` de la vitrine. Animations réduites :
+  flammes immobiles.
 - **Animations réduites** : l'étoile se construit toujours sous le doigt, mais ne tourne pas et ne
   gonfle pas ; elle reste entière pendant le chargement, son remplissage s'efface en 150 ms
   (`reducedFade`) et la liste remonte en 120 ms (`reducedReturn`).
