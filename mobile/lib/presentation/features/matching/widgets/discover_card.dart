@@ -56,6 +56,8 @@ class DiscoverCard extends StatefulWidget {
 }
 
 class _DiscoverCardState extends State<DiscoverCard> {
+  static const double sectionGap = 24;
+
   int _photoIndex = 0;
 
   Profile get _profile => widget.profile;
@@ -293,25 +295,30 @@ class _DiscoverCardState extends State<DiscoverCard> {
     final facts = data.facts(l10n);
     final lookingFor = lookingForLabel(l10n, data.lookingFor);
     final intention = intentionFact(l10n, _profile.relationshipIntention);
+    // Apple's 24 pt between two sections, as on the full profile page.
+    final sections = <Widget>[
+      if (bio != null && bio.isNotEmpty)
+        ProfileTextSection(label: l10n.profileAbout, text: bio),
+      if (facts.isNotEmpty) ProfileFactsSection(facts: facts),
+      if (lookingFor != null)
+        ProfileTextSection(label: l10n.profileLookingFor, text: lookingFor),
+    ];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (intention != null) ...[
+          if (intention != null)
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: TagPill(intention),
             ),
-            const SizedBox(height: 8),
+          for (final section in sections) ...[
+            const SizedBox(height: sectionGap),
+            section,
           ],
-          if (bio != null && bio.isNotEmpty)
-            ProfileTextSection(label: l10n.profileAbout, text: bio),
-          if (facts.isNotEmpty) ProfileFactsSection(facts: facts),
-          if (lookingFor != null)
-            ProfileTextSection(label: l10n.profileLookingFor, text: lookingFor),
           if (widget.onTapProfile != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: sectionGap),
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: _viewProfileButton(context),

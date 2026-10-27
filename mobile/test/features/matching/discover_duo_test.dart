@@ -58,6 +58,7 @@ List<Profile> _profiles() => [
       denomination: 'modern_orthodox',
       kashrut: 'strict',
       isVerified: true,
+      bio: 'Pianiste numéro $i, aime les longues marches.',
     ),
 ];
 
@@ -123,6 +124,36 @@ void main() {
   });
 
   tearDown(PremiumGate.resetForTest);
+
+  // Renaud on 2026-10-27, the foldable iPhone open flat: the half beside the
+  // photo held a name and « Voir le profil » on a big empty card. With a fold
+  // or a wide screen, that half reads the whole profile directly.
+  group('the full profile beside the photo', () {
+    for (final pose in [DuoPose.openLandscape, DuoPose.halfOpenBook]) {
+      testWidgets('${pose.name}: about and the essentials without a tap', (
+        tester,
+      ) async {
+        await _pumpDiscover(tester, pose);
+        final bio = _inCard(101, find.text('Pianiste numéro 1, aime les longues marches.'));
+        expect(bio, findsOneWidget);
+        _expectInsideSafeArea(tester.getRect(bio), pose, 'the bio');
+        expect(
+          tester.getRect(bio).left,
+          greaterThan(tester.getRect(_photo(101)).right),
+          reason: 'beside the photo, not under it',
+        );
+        expect(
+          _inCard(101, find.byKey(const ValueKey('discover-detail'))),
+          findsOneWidget,
+        );
+      });
+    }
+
+    testWidgets('closed: the compact card, no detail', (tester) async {
+      await _pumpDiscover(tester, DuoPose.closed);
+      expect(_inCard(101, find.text('Pianiste numéro 1, aime les longues marches.')), findsNothing);
+    });
+  });
 
   group('every posture', () {
     for (final pose in DuoPose.values) {
