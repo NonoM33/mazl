@@ -43,5 +43,12 @@
   "eventsNotifyRequested": "Te avisaremos",
   "eventsNotifyRequestedDone": "Te avisaremos cuando se abran las inscripciones.",
   "eventsNotifyCancelled": "Aviso cancelado",
-  "eventsNotifyError": "No se pudo guardar tu solicitud. Inténtalo de nuevo."
+  "eventsNotifyError": "No se pudo guardar tu solicitud. Inténtalo de nuevo.",
+  "eventsMapOpenInMaps": "Abrir en Mapas",
+  "eventsMapArea": "Zona aproximada",
+  "eventsMapExplore": "Toca para explorar",
+  "eventsMapDone": "Listo",
+  "eventsMapSemantics": "Mapa del barrio del evento",
+  "eventsTimeRange": "{start} – {end}",
+  "eventsShareError": "No se puede compartir ahora."
 }

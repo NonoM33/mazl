@@ -67,8 +67,14 @@ VerificationStatus _status({bool photo = false, bool identity = false}) => Verif
   'next_attempt_time': null,
 });
 
-Future<void> _pump(WidgetTester tester, Widget child, {ThemeData? theme, List<Override> overrides = const []}) async {
-  tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  ThemeData? theme,
+  List<Override> overrides = const [],
+  double height = 844,
+}) async {
+  tester.view.physicalSize = Size(390 * 3, height * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -344,6 +350,7 @@ void main() {
     Future<void> pumpHub(WidgetTester tester, VerificationStatus status) => _pump(
       tester,
       const VerificationScreen(),
+      height: 2400,
       overrides: [verificationApiProvider.overrideWithValue(_StatusApi(status))],
     );
 
@@ -351,9 +358,10 @@ void main() {
       final semantics = tester.ensureSemantics();
       await pumpHub(tester, _status());
 
-      expect(find.text('Vérification'), findsOneWidget);
-      expect(find.text('Photo vérifiée'), findsOneWidget);
-      expect(find.text('Identité vérifiée'), findsOneWidget);
+      expect(find.text('VÉRIFICATION'), findsOneWidget);
+      expect(find.text('Vérifiez votre profil'), findsOneWidget);
+      expect(find.text('Vérification de la photo'), findsOneWidget);
+      expect(find.text('Vérification de l\'identité'), findsOneWidget);
       expect(find.text('NIVEAU 1'), findsOneWidget);
       expect(find.text('NIVEAU 2'), findsOneWidget);
       expect(find.text(frenchL10n.verificationConsent), findsOneWidget);
@@ -369,11 +377,12 @@ void main() {
       await pumpHub(tester, _status(photo: true, identity: true));
 
       expect(find.text('Vérifiée'), findsNWidgets(2));
-      expect(find.text('Vérifiée le 20/10/2026.'), findsOneWidget);
-      expect(find.text('Contrôlée le 21/10/2026.'), findsOneWidget);
+      expect(find.text('Profil entièrement vérifié'), findsOneWidget);
+      expect(find.text('Le 20 octobre 2026'), findsOneWidget);
+      expect(find.text('Le 21 octobre 2026'), findsOneWidget);
       expect(find.text('Vérifier ma photo'), findsNothing);
       expect(find.text('Vérifier mon identité'), findsNothing);
-      expect(find.widgetWithText(OutlinedButton, 'Retirer ma vérification'), findsOneWidget);
+      expect(find.widgetWithText(TextButton, 'Retirer ma vérification'), findsOneWidget);
       _expectNoGradient(tester);
     });
 
@@ -384,7 +393,7 @@ void main() {
         theme: AppTheme.darkTheme,
         overrides: [verificationApiProvider.overrideWithValue(_StatusApi(_status()))],
       );
-      expect(find.text('Vérification'), findsOneWidget);
+      expect(find.text('Vérifiez votre profil'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

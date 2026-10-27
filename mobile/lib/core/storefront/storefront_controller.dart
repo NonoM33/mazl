@@ -49,6 +49,10 @@ class StorefrontController extends StateNotifier<StorefrontState> {
   int _staleRetries = 0;
   bool _started = false;
 
+  /// Counts the requests: an answer to an older one, arriving late, does not
+  /// replace a newer one (the launch read, overtaken by a sign-in).
+  int _requests = 0;
+
   /// Reads the answer kept on the phone, then the server's.
   Future<void> start(String languageCode) async {
     if (_started) return;
@@ -73,8 +77,9 @@ class StorefrontController extends StateNotifier<StorefrontState> {
       return;
     }
     _lastAttempt = now;
+    final request = ++_requests;
     final fetched = await _repository.fetch(languageCode: _languageCode);
-    if (!mounted) return;
+    if (!mounted || request != _requests) return;
     if (fetched != null) {
       state = StorefrontState(raw: fetched, tick: state.tick + 1);
     } else {

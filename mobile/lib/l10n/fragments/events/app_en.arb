@@ -43,5 +43,12 @@
   "eventsNotifyRequested": "We'll let you know",
   "eventsNotifyRequestedDone": "We'll let you know when registration opens.",
   "eventsNotifyCancelled": "Alert removed",
-  "eventsNotifyError": "Couldn't save your request. Please try again."
+  "eventsNotifyError": "Couldn't save your request. Please try again.",
+  "eventsMapOpenInMaps": "Open in Maps",
+  "eventsMapArea": "Approximate area",
+  "eventsMapExplore": "Tap to explore",
+  "eventsMapDone": "Done",
+  "eventsMapSemantics": "Map of the event's neighborhood",
+  "eventsTimeRange": "{start} – {end}",
+  "eventsShareError": "Couldn't share right now."
 }

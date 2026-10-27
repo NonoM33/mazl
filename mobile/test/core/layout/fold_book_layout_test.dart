@@ -140,6 +140,63 @@ void main() {
       }
     });
 
+    group('wideFrom', () {
+      Widget wide() => const Scaffold(
+        body: FoldSpread(
+          wideFrom: 560,
+          start: [Text('Profil')],
+          end: [Text('Réglages')],
+        ),
+      );
+
+      testWidgets('a window as wide as asked: two lists side by side', (
+        tester,
+      ) async {
+        for (final pose in [DuoPose.openPortrait, DuoPose.halfOpenLaptop]) {
+          await _pump(tester, pose, wide());
+          final start = _rectOf(tester, find.text('Profil'));
+          final end = _rectOf(tester, find.text('Réglages'));
+          expect(end.top, start.top, reason: pose.name);
+          expect(end.left, greaterThanOrEqualTo(start.right), reason: pose.name);
+        }
+      });
+
+      testWidgets('a narrower window stays one list', (tester) async {
+        await _pump(tester, DuoPose.closed, wide());
+        final start = _rectOf(tester, find.text('Profil'));
+        final end = _rectOf(tester, find.text('Réglages'));
+        expect(end.top, greaterThanOrEqualTo(start.bottom));
+        expect(end.left, start.left);
+      });
+
+      testWidgets('in Hebrew the start page is on the right', (tester) async {
+        await _pump(
+          tester,
+          DuoPose.openPortrait,
+          wide(),
+          direction: TextDirection.rtl,
+        );
+        expect(
+          _rectOf(tester, find.text('Profil')).left,
+          greaterThanOrEqualTo(_rectOf(tester, find.text('Réglages')).right),
+        );
+      });
+
+      testWidgets('the book keeps its fold whatever wideFrom says', (
+        tester,
+      ) async {
+        await _pump(tester, DuoPose.halfOpenBook, wide());
+        expect(
+          _rectOf(tester, find.text('Profil')).right,
+          lessThanOrEqualTo(fold.left),
+        );
+        expect(
+          _rectOf(tester, find.text('Réglages')).left,
+          greaterThanOrEqualTo(fold.right),
+        );
+      });
+    });
+
     testWidgets('folding and unfolding keep what the member typed', (
       tester,
     ) async {

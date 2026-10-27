@@ -28,15 +28,15 @@ export async function applyTestEvents(db: Db, today = new Date()): Promise<TestE
     for (const event of TEST_EVENTS) {
       const [row] = await tx<{ id: number }[]>`
         INSERT INTO events (fixture_key, title, description, event_type, location, address, date, time, end_time,
-                            price, currency, max_attendees, image_url, is_published, availability)
+                            price, currency, max_attendees, image_url, latitude, longitude, is_published, availability)
         VALUES (${event.key}, ${event.title}, ${event.description}, ${event.kind}, ${event.venue}, ${TEST_EVENT_ADDRESS},
                 ${testEventDate(event, today)}, ${event.time}, ${event.endTime}, ${event.price}, 'EUR', ${event.maxAttendees},
-                NULL, true, 'coming_soon')
+                ${event.imageUrl}, ${event.latitude}, ${event.longitude}, true, 'coming_soon')
         ON CONFLICT (fixture_key) DO UPDATE SET
           title = EXCLUDED.title, description = EXCLUDED.description, event_type = EXCLUDED.event_type,
           location = EXCLUDED.location, address = EXCLUDED.address, time = EXCLUDED.time, end_time = EXCLUDED.end_time,
           price = EXCLUDED.price, currency = EXCLUDED.currency, max_attendees = EXCLUDED.max_attendees,
-          image_url = NULL, is_published = true,
+          image_url = EXCLUDED.image_url, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, is_published = true,
           date = CASE WHEN events.date < CURRENT_DATE OR ${feastToCome(event, today)} THEN EXCLUDED.date ELSE events.date END,
           updated_at = NOW()
         RETURNING id`;

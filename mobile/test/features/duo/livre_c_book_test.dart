@@ -12,6 +12,7 @@ import 'package:mazl/core/router/app_router.dart';
 import 'package:mazl/core/services/auth_service.dart';
 import 'package:mazl/core/services/couple_service.dart';
 import 'package:mazl/core/theme/app_theme.dart';
+import 'package:mazl/presentation/features/verification/screens/verification_header.dart';
 import 'package:mazl/presentation/features/verification/screens/verification_sections.dart';
 import 'package:mazl/presentation/features/web_sessions/widgets/qr_scanner_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -269,15 +270,18 @@ void main() {
     expect(find.text("Lancer l'affichage"), findsNothing);
   });
 
-  testWidgets('/profile/verification: level 1, then level 2', (tester) async {
+  testWidgets('/profile/verification: the state, then the two levels', (
+    tester,
+  ) async {
     await book(tester, '/profile/verification');
-    expectStartPage(tester, find.text('Vérification'), 'the title');
-    expectStartPage(tester, find.text('NIVEAU 1'), 'level 1');
+    expectStartPage(tester, find.text('Vérifiez votre profil'), 'the title');
+    expectStartPage(tester, find.text('0 sur 2 niveaux vérifiés'), 'progress');
+    expectEndPage(tester, find.text('NIVEAU 1'), 'level 1');
     expectEndPage(tester, find.text('NIVEAU 2'), 'level 2');
-    expectEndPage(tester, find.text('Vérifier mon identité'), 'the button');
+    expectEndPage(tester, find.text('Vérifier ma photo'), 'the button');
   });
 
-  testWidgets('/profile/verification in Hebrew: level 1 on the right', (
+  testWidgets('/profile/verification in Hebrew: the state on the right', (
     tester,
   ) async {
     await _inDemo(
@@ -288,9 +292,11 @@ void main() {
         locale: const Locale('he'),
       ),
     );
+    final header = tester.getRect(find.byType(VerificationHeader));
     final level1 = tester.getRect(find.byType(PhotoLevel));
     final level2 = tester.getRect(find.byType(IdentityLevel));
-    expect(level1.left, greaterThanOrEqualTo(fold.right));
+    expect(header.left, greaterThanOrEqualTo(fold.right));
+    expect(level1.right, lessThanOrEqualTo(fold.left));
     expect(level2.right, lessThanOrEqualTo(fold.left));
   });
 }

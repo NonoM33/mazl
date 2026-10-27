@@ -1448,6 +1448,29 @@ class AppLocalizationsHe extends AppLocalizations {
   String get eventsNotifyError => 'לא הצלחנו לשמור את הבקשה. נסו שוב.';
 
   @override
+  String get eventsMapOpenInMaps => 'פתיחה במפות';
+
+  @override
+  String get eventsMapArea => 'אזור משוער';
+
+  @override
+  String get eventsMapExplore => 'הקישו כדי לחקור';
+
+  @override
+  String get eventsMapDone => 'סיום';
+
+  @override
+  String get eventsMapSemantics => 'מפת סביבת האירוע';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'לא ניתן לשתף כרגע.';
+
+  @override
   String get genreLookingForRequired => 'יש לבחור את מי מחפשים';
 
   @override
@@ -3948,9 +3971,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'סמל האפליקציה מתחלף סביב החגים. ‏iOS מציגה התראה בכל החלפה.';
 
   @override
-  String get verificationProfileEyebrow => 'הפרופיל שלך';
-
-  @override
   String get verificationTitle => 'אימות';
 
   @override
@@ -3958,12 +3978,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get verificationLevel2 => 'רמה 2';
-
-  @override
-  String get verificationPhotoTitle => 'תמונה מאומתת';
-
-  @override
-  String get verificationIdentityTitle => 'זהות מאומתת';
 
   @override
   String get verificationVerifiedPill => 'מאומתת';
@@ -3975,14 +3989,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get verificationPhotoVerifiedLine =>
       'יש התאמה בין הפנים שלך לתמונות שלך.';
-
-  @override
-  String verificationPhotoVerifiedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'אומת בתאריך $dateString.';
-  }
 
   @override
   String get verificationRemoveAction => 'להסיר את האימות שלי';
@@ -4014,14 +4020,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get verificationIdentityCheckedNoDate =>
       'המסמך נבדק באמצעות השבב שלו.';
-
-  @override
-  String verificationIdentityCheckedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'נבדק בתאריך $dateString.';
-  }
 
   @override
   String get verificationIdentityPitch =>
@@ -4531,6 +4529,81 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'הסתיים.';
+
+  @override
+  String get verificationStateNoneTitle => 'לאמת את הפרופיל שלך';
+
+  @override
+  String get verificationStatePartialTitle => 'האימות בתהליך';
+
+  @override
+  String get verificationStateDoneTitle => 'הפרופיל מאומת במלואו';
+
+  @override
+  String get verificationStateNoneBody =>
+      'להוכיח שהתמונות שלך אכן שלך. תג יופיע בפרופיל וייתן ביטחון לשאר החברים.';
+
+  @override
+  String get verificationStatePartialBody =>
+      'התג שלך כבר מופיע בפרופיל. כדאי להשלים את הרמה השנייה כדי לעורר עוד יותר אמון.';
+
+  @override
+  String get verificationStateDoneBody =>
+      'החברים האחרים רואים את התג ויודעים שהתמונות אכן שלך.';
+
+  @override
+  String verificationProgress(int done) {
+    return '$done מתוך 2 רמות אומתו';
+  }
+
+  @override
+  String get verificationPhotoCardTitle => 'אימות התמונה';
+
+  @override
+  String get verificationIdentityCardTitle => 'אימות הזהות';
+
+  @override
+  String get verificationPillTodo => 'טרם בוצע';
+
+  @override
+  String get verificationPillBusy => 'בתהליך';
+
+  @override
+  String get verificationPillRefused => 'נדחה';
+
+  @override
+  String get verificationPillBlocked => 'המכסה מוצתה';
+
+  @override
+  String get verificationPhotoPitch => 'סלפי חי מושווה לתמונות הפרופיל שלך.';
+
+  @override
+  String get verificationPhotoBenefitBadge => 'תג אמון בפרופיל שלך';
+
+  @override
+  String get verificationPhotoBenefitProof => 'הוכחה שהתמונות שלך אכן שלך';
+
+  @override
+  String get verificationPhotoBenefitQuick => 'כמה שניות ושלוש תנועות ראש';
+
+  @override
+  String get verificationIdentityBenefitBadge => 'רמת אמון נוספת בתג שלך';
+
+  @override
+  String get verificationIdentityBenefitChip =>
+      'קריאה אלחוטית של השבב במסמך שלך';
+
+  @override
+  String get verificationIdentityBenefitNeeds =>
+      'נדרש דרכון או תעודת זהות עם שבב';
+
+  @override
+  String verificationVerifiedOnDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'בתאריך $dateString';
+  }
 
   @override
   String get webSessionsTitle => 'מחשבים מחוברים';

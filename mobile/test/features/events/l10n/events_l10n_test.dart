@@ -109,7 +109,7 @@ void main() {
         expect(find.text('Presque complet'), findsOneWidget);
         expect(find.text('Demain'), findsWidgets);
         expect(find.text('12 participants'), findsOneWidget);
-        expect(find.textContaining('à 19:30'), findsWidgets);
+        expect(find.textContaining('à 19 h 30'), findsWidgets);
         expect(tester.takeException(), isNull);
       });
     });
@@ -134,12 +134,19 @@ void main() {
         expect(find.text('12 participants'), findsOneWidget);
         expect(find.text('€25'), findsOneWidget);
         // Tomorrow at 7:30 pm is written with the word, then the time.
-        expect(find.text('Tomorrow at 19:30'), findsOneWidget);
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text &&
+                RegExp(r'^Tomorrow at 7:30\sPM$').hasMatch(w.data ?? ''),
+          ),
+          findsOneWidget,
+        );
         // A far date is a weekday and a month in English, not in French.
         expect(
           find.textContaining(
             RegExp(
-              r'^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day, [A-Z][a-z]+ \d{1,2} at 19:30$',
+              r'^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day, [A-Z][a-z]+ \d{1,2} at 7:30\sPM$',
             ),
           ),
           findsWidgets,
@@ -279,7 +286,8 @@ void main() {
         ]) {
           expect(find.text(text), findsOneWidget, reason: text);
         }
-        expect(find.text('Shabbat Dinner'), findsOneWidget);
+        // Was « Shabbat Dinner » in the French app until 2026-10-27.
+        expect(find.text('Dîner de Shabbat'), findsOneWidget);
         expect(find.text('12 / 20 places'), findsOneWidget);
         expect(find.textContaining('par personne'), findsOneWidget);
         expect(find.textContaining('S\'inscrire - '), findsOneWidget);

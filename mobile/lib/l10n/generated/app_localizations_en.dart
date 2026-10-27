@@ -1456,6 +1456,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t save your request. Please try again.';
 
   @override
+  String get eventsMapOpenInMaps => 'Open in Maps';
+
+  @override
+  String get eventsMapArea => 'Approximate area';
+
+  @override
+  String get eventsMapExplore => 'Tap to explore';
+
+  @override
+  String get eventsMapDone => 'Done';
+
+  @override
+  String get eventsMapSemantics => 'Map of the event\'s neighborhood';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'Couldn\'t share right now.';
+
+  @override
   String get genreLookingForRequired => 'Select who you are looking for';
 
   @override
@@ -3976,9 +3999,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The app icon changes around the holidays. iOS shows an alert each time it changes.';
 
   @override
-  String get verificationProfileEyebrow => 'Your profile';
-
-  @override
   String get verificationTitle => 'Verification';
 
   @override
@@ -3986,12 +4006,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verificationLevel2 => 'Level 2';
-
-  @override
-  String get verificationPhotoTitle => 'Photo verified';
-
-  @override
-  String get verificationIdentityTitle => 'Identity verified';
 
   @override
   String get verificationVerifiedPill => 'Verified';
@@ -4002,14 +4016,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verificationPhotoVerifiedLine => 'Your face matches your photos.';
-
-  @override
-  String verificationPhotoVerifiedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Verified on $dateString.';
-  }
 
   @override
   String get verificationRemoveAction => 'Remove my verification';
@@ -4041,14 +4047,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get verificationIdentityCheckedNoDate =>
       'Document checked through its chip.';
-
-  @override
-  String verificationIdentityCheckedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Checked on $dateString.';
-  }
 
   @override
   String get verificationIdentityPitch =>
@@ -4573,6 +4571,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'Done.';
+
+  @override
+  String get verificationStateNoneTitle => 'Verify your profile';
+
+  @override
+  String get verificationStatePartialTitle => 'Verification in progress';
+
+  @override
+  String get verificationStateDoneTitle => 'Profile fully verified';
+
+  @override
+  String get verificationStateNoneBody =>
+      'Show that your photos are really yours. A badge appears on your profile and reassures other members.';
+
+  @override
+  String get verificationStatePartialBody =>
+      'Your badge is already visible on your profile. Complete the other level to build even more trust.';
+
+  @override
+  String get verificationStateDoneBody =>
+      'Other members see your badge and know you are the person in your photos.';
+
+  @override
+  String verificationProgress(int done) {
+    return '$done of 2 levels verified';
+  }
+
+  @override
+  String get verificationPhotoCardTitle => 'Photo verification';
+
+  @override
+  String get verificationIdentityCardTitle => 'Identity verification';
+
+  @override
+  String get verificationPillTodo => 'To do';
+
+  @override
+  String get verificationPillBusy => 'In progress';
+
+  @override
+  String get verificationPillRefused => 'Declined';
+
+  @override
+  String get verificationPillBlocked => 'Limit reached';
+
+  @override
+  String get verificationPhotoPitch =>
+      'A live selfie is compared with your profile photos.';
+
+  @override
+  String get verificationPhotoBenefitBadge => 'A trust badge on your profile';
+
+  @override
+  String get verificationPhotoBenefitProof =>
+      'Proof that your photos are really yours';
+
+  @override
+  String get verificationPhotoBenefitQuick =>
+      'A few seconds and three head turns';
+
+  @override
+  String get verificationIdentityBenefitBadge =>
+      'One more level of trust on your badge';
+
+  @override
+  String get verificationIdentityBenefitChip =>
+      'Contactless reading of your document\'s chip';
+
+  @override
+  String get verificationIdentityBenefitNeeds =>
+      'A passport or an ID card with a chip is required';
+
+  @override
+  String verificationVerifiedOnDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'On $dateString';
+  }
 
   @override
   String get webSessionsTitle => 'Connected computers';

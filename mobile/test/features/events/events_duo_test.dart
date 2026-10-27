@@ -231,7 +231,7 @@ void main() {
       locale: locale,
     );
 
-    testWidgets('book: date and place left of the fold, description and '
+    testWidgets('book: photo and title left of the fold, facts, description and '
         'registration right', (tester) async {
       await _inServer(() async {
         await openDetail(tester, DuoPose.halfOpenBook);
@@ -241,8 +241,9 @@ void main() {
           lessThanOrEqualTo(fold.left),
         );
         expect(
-          _rect(tester, 'Synagogue de la Victoire').right,
-          lessThanOrEqualTo(fold.left),
+          _rect(tester, 'Synagogue de la Victoire').left,
+          greaterThanOrEqualTo(fold.right),
+          reason: 'the facts sit on the page of the description',
         );
         expect(
           tester

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/dev/dev_session.dart';
 import '../../../../core/di/providers/storefront_providers.dart';
 
 /// Keeps the storefront fresh for the life of the app: reads it at launch,
 /// again when the app returns to the foreground and when the language of the
-/// interface changes, and puts the holiday icon on the home screen when the
+/// interface changes, and when a demo session starts or ends (the launch read
+/// came before the sign-in), and puts the holiday icon on the home screen when the
 /// server asks for one (docs/storefront/CONTRACT.md §7).
 class StorefrontHost extends ConsumerStatefulWidget {
   const StorefrontHost({super.key, required this.child});
@@ -30,6 +32,7 @@ class _StorefrontHostState extends ConsumerState<StorefrontHost>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    DevSession.changes.addListener(_onDemoSessionChanged);
     ref.listenManual(storefrontProvider, (_, _) => _applyIcon());
     ref.listenManual(
       festiveIconEnabledProvider,
@@ -61,8 +64,17 @@ class _StorefrontHostState extends ConsumerState<StorefrontHost>
     _applyIcon();
   }
 
+  void _onDemoSessionChanged() {
+    if (!mounted) return;
+    ref
+        .read(storefrontControllerProvider.notifier)
+        .refresh(languageCode: _languageCode, force: true)
+        .whenComplete(_applyIcon);
+  }
+
   @override
   void dispose() {
+    DevSession.changes.removeListener(_onDemoSessionChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

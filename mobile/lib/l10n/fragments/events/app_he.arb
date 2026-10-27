@@ -43,5 +43,12 @@
   "eventsNotifyRequested": "נעדכן אותך",
   "eventsNotifyRequestedDone": "נעדכן אותך כשההרשמה תיפתח.",
   "eventsNotifyCancelled": "ההתראה בוטלה",
-  "eventsNotifyError": "לא הצלחנו לשמור את הבקשה. נסו שוב."
+  "eventsNotifyError": "לא הצלחנו לשמור את הבקשה. נסו שוב.",
+  "eventsMapOpenInMaps": "פתיחה במפות",
+  "eventsMapArea": "אזור משוער",
+  "eventsMapExplore": "הקישו כדי לחקור",
+  "eventsMapDone": "סיום",
+  "eventsMapSemantics": "מפת סביבת האירוע",
+  "eventsTimeRange": "{start} – {end}",
+  "eventsShareError": "לא ניתן לשתף כרגע."
 }

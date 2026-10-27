@@ -33,6 +33,31 @@
     bust: 0xcdd2da,
   };
 
+  // --- Mode sombre : chaque couleur claire a son équivalent (app_colors.dart, thème sombre).
+  // Les matériaux gardent leur couleur claire dans userData.light ; themed() donne celle du mode.
+  const DARK = new Map([
+    [C.ink, 0xf2f2f5],
+    [C.paper, 0x0b0b0f],
+    [C.mist, 0x1c1c22],
+    [C.hair, 0x2c2c35],
+    [C.muted, 0x8a8a96],
+    [C.body, 0x2e2e36],
+    [C.hinge, 0x3a3a44],
+    [C.bust, 0x4a4f58],
+    [0xe7e4df, 0x3a3733],
+    [0xe1e5ea, 0x343840],
+    [0xe8e2e5, 0x3b3438],
+    [0xe1e8e4, 0x343b37],
+    [0xe3e1ea, 0x36343d],
+  ]);
+  let dark = false;
+  const themed = (light) => (dark ? (DARK.get(light) ?? light) : light);
+  function remember(mat, light) {
+    mat.userData.light = light;
+    mat.color.setHex(themed(light));
+    return mat;
+  }
+
   // --- Dimensions (1 unité = 100 points d'écran) ----------------------------
   const W = 4.75; // largeur d'une plaque
   const H = 6.69; // hauteur d'une plaque
@@ -115,6 +140,7 @@
         side: T.DoubleSide,
       });
       m.userData.base = opacity;
+      remember(m, color);
       this.mats.push(m);
       return m;
     }
@@ -349,7 +375,7 @@
 
     const bodyMat = ghost
       ? null
-      : new T.MeshStandardMaterial({ color: C.body, metalness: 0.38, roughness: 0.4 });
+      : remember(new T.MeshStandardMaterial({ color: C.body, metalness: 0.38, roughness: 0.4 }), C.body);
     const ghostMat = ghost
       ? new T.LineBasicMaterial({ color: C.tek, transparent: true, opacity: 0, depthTest: false })
       : null;
@@ -366,7 +392,7 @@
       }
       pivot.add(new T.Mesh(geo, bodyMat));
 
-      const screenMat = new T.MeshBasicMaterial({ color: C.paper });
+      const screenMat = remember(new T.MeshBasicMaterial({ color: C.paper }), C.paper);
       shaded.push({ mat: screenMat, pivot });
       const screen = new T.Mesh(screenGeometry(side), screenMat);
       screen.position.z = SCREEN_Z;
@@ -397,7 +423,7 @@
         const cover = new T.Group();
         cover.rotation.y = PI;
         cover.position.set(-W / 2 - GAP / 2, 0, -TH - SCREEN_Z);
-        const coverMat = new T.MeshBasicMaterial({ color: C.paper });
+        const coverMat = remember(new T.MeshBasicMaterial({ color: C.paper }), C.paper);
         shaded.push({ mat: coverMat, pivot, back: true });
         const coverScreen = new T.Mesh(new T.ShapeGeometry(rectShape(sw, sh, RADIUS - INSET), 24), coverMat);
         cover.add(coverScreen);
@@ -414,7 +440,7 @@
     if (!ghost) {
       const cyl = new T.Mesh(
         new T.CylinderGeometry(TH / 2, TH / 2, H - 0.8, 40),
-        new T.MeshStandardMaterial({ color: C.hinge, metalness: 0.5, roughness: 0.35 }),
+        remember(new T.MeshStandardMaterial({ color: C.hinge, metalness: 0.5, roughness: 0.35 }), C.hinge),
       );
       cyl.position.z = -TH / 2;
       hingeGroup.add(cyl);
@@ -461,7 +487,7 @@
           pivot.getWorldQuaternion(qw);
           normal.set(0, 0, back ? -1 : 1).applyQuaternion(qw);
           const lit = M.clamp(normal.dot(LIGHT_DIR) * 1.15, 0, 1);
-          mat.color.setScalar(0.9 + 0.1 * lit);
+          mat.color.setHex(themed(mat.userData.light)).multiplyScalar(0.9 + 0.1 * lit);
         }
         return box;
       },
@@ -736,6 +762,15 @@
     /** Reçoit la pose réelle de Flutter ; l'angle est suivi en douceur. */
     setPose(raw) {
       pose = M.normalizePose(raw);
+      if (pose.dark !== dark) {
+        dark = pose.dark;
+        scene.traverse((object) => {
+          const mats = Array.isArray(object.material) ? object.material : [object.material];
+          for (const mat of mats) {
+            if (mat && mat.userData.light !== undefined) mat.color.setHex(themed(mat.userData.light));
+          }
+        });
+      }
       target = M.targetFor(pose);
       // Sous « Réduire les animations », on saute à la pose sans la parcourir.
       requestRender();

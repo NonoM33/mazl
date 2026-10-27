@@ -8,8 +8,10 @@ import 'fold_cut.dart';
 ///
 /// Anywhere else (flat, closed, laptop pose, any other device) it is one list
 /// of [start] then [end]: a list that scrolls across a fold moves its rows out
-/// of the curve. Each child keeps its state when the device folds or unfolds
-/// (same element, reparented with a global key), as long as it is built.
+/// of the curve. A page that asks for it with [wideFrom] puts the two side by
+/// side on any window that wide, fold or not. Each child keeps its state when
+/// the device folds or unfolds (same element, reparented with a global key),
+/// as long as it is built.
 class FoldSpread extends StatefulWidget {
   const FoldSpread({
     super.key,
@@ -17,6 +19,7 @@ class FoldSpread extends StatefulWidget {
     required this.end,
     this.padding = EdgeInsets.zero,
     this.minPaneExtent = 240,
+    this.wideFrom,
   });
 
   final List<Widget> start;
@@ -27,6 +30,11 @@ class FoldSpread extends StatefulWidget {
 
   /// The narrowest page the book accepts; below it the list stays single.
   final double minPaneExtent;
+
+  /// From this width on, with no fold to split it, the page is also two lists
+  /// side by side ([start] then [end], in the reading direction). `null`
+  /// (the default): a single list whatever the width.
+  final double? wideFrom;
 
   @override
   State<FoldSpread> createState() => _FoldSpreadState();
@@ -52,7 +60,28 @@ class _FoldSpreadState extends State<FoldSpread> {
       final start = _keyed(widget.start, 0);
       final end = _keyed(widget.end, widget.start.length);
       if (cut?.axis != FoldSplitAxis.vertical) {
-        return ListView(padding: widget.padding, children: [...start, ...end]);
+        final wideFrom = widget.wideFrom;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            if (wideFrom == null || constraints.maxWidth < wideFrom) {
+              return ListView(
+                padding: widget.padding,
+                children: [...start, ...end],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ListView(padding: widget.padding, children: start),
+                ),
+                Expanded(
+                  child: ListView(padding: widget.padding, children: end),
+                ),
+              ],
+            );
+          },
+        );
       }
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

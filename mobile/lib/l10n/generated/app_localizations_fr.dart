@@ -1314,7 +1314,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get eventsTypeShabbat => 'Shabbat';
 
   @override
-  String get eventsTypeShabbatDinner => 'Shabbat Dinner';
+  String get eventsTypeShabbatDinner => 'Dîner de Shabbat';
 
   @override
   String get eventsTypeSpeedDating => 'Speed Dating';
@@ -1476,6 +1476,29 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get eventsNotifyError =>
       'Impossible d\'enregistrer votre demande. Réessayez.';
+
+  @override
+  String get eventsMapOpenInMaps => 'Ouvrir dans Plans';
+
+  @override
+  String get eventsMapArea => 'Zone approximative';
+
+  @override
+  String get eventsMapExplore => 'Touchez pour explorer';
+
+  @override
+  String get eventsMapDone => 'Terminé';
+
+  @override
+  String get eventsMapSemantics => 'Carte du quartier de l\'événement';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'Impossible de partager pour le moment.';
 
   @override
   String get genreLookingForRequired => 'Indiquez ce que vous recherchez';
@@ -4025,9 +4048,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'icône de l\'app change à l\'approche des fêtes. iOS affiche une alerte à chaque changement.';
 
   @override
-  String get verificationProfileEyebrow => 'Votre profil';
-
-  @override
   String get verificationTitle => 'Vérification';
 
   @override
@@ -4035,12 +4055,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get verificationLevel2 => 'Niveau 2';
-
-  @override
-  String get verificationPhotoTitle => 'Photo vérifiée';
-
-  @override
-  String get verificationIdentityTitle => 'Identité vérifiée';
 
   @override
   String get verificationVerifiedPill => 'Vérifiée';
@@ -4052,14 +4066,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get verificationPhotoVerifiedLine =>
       'Votre visage correspond à vos photos.';
-
-  @override
-  String verificationPhotoVerifiedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Vérifiée le $dateString.';
-  }
 
   @override
   String get verificationRemoveAction => 'Retirer ma vérification';
@@ -4091,14 +4097,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get verificationIdentityCheckedNoDate =>
       'Document contrôlé par sa puce.';
-
-  @override
-  String verificationIdentityCheckedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Contrôlée le $dateString.';
-  }
 
   @override
   String get verificationIdentityPitch =>
@@ -4631,6 +4629,86 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'Terminé.';
+
+  @override
+  String get verificationStateNoneTitle => 'Vérifiez votre profil';
+
+  @override
+  String get verificationStatePartialTitle => 'Vérification en cours';
+
+  @override
+  String get verificationStateDoneTitle => 'Profil entièrement vérifié';
+
+  @override
+  String get verificationStateNoneBody =>
+      'Prouvez que vos photos sont les vôtres. Un badge s\'affiche sur votre profil et rassure les autres membres.';
+
+  @override
+  String get verificationStatePartialBody =>
+      'Votre badge est déjà visible sur votre profil. Terminez l\'autre niveau pour inspirer encore plus confiance.';
+
+  @override
+  String get verificationStateDoneBody =>
+      'Les autres membres voient votre badge et savent que vous êtes bien la personne de vos photos.';
+
+  @override
+  String verificationProgress(int done) {
+    return '$done sur 2 niveaux vérifiés';
+  }
+
+  @override
+  String get verificationPhotoCardTitle => 'Vérification de la photo';
+
+  @override
+  String get verificationIdentityCardTitle => 'Vérification de l\'identité';
+
+  @override
+  String get verificationPillTodo => 'À faire';
+
+  @override
+  String get verificationPillBusy => 'En cours';
+
+  @override
+  String get verificationPillRefused => 'Refusée';
+
+  @override
+  String get verificationPillBlocked => 'Limite atteinte';
+
+  @override
+  String get verificationPhotoPitch =>
+      'Un selfie en direct est comparé à vos photos de profil.';
+
+  @override
+  String get verificationPhotoBenefitBadge =>
+      'Un badge de confiance sur votre profil';
+
+  @override
+  String get verificationPhotoBenefitProof =>
+      'La preuve que vos photos sont bien les vôtres';
+
+  @override
+  String get verificationPhotoBenefitQuick =>
+      'Quelques secondes et trois mouvements de tête';
+
+  @override
+  String get verificationIdentityBenefitBadge =>
+      'Un niveau de confiance de plus sur votre badge';
+
+  @override
+  String get verificationIdentityBenefitChip =>
+      'Lecture sans contact de la puce de votre document';
+
+  @override
+  String get verificationIdentityBenefitNeeds =>
+      'Un passeport ou une carte d\'identité à puce est nécessaire';
+
+  @override
+  String verificationVerifiedOnDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Le $dateString';
+  }
 
   @override
   String get webSessionsTitle => 'Ordinateurs connectés';

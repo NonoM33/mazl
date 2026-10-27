@@ -147,4 +147,32 @@ abstract final class MazlMotion {
   static const matchPulse = Duration(milliseconds: 600);
   static const matchPulseCurve = Curves.easeOut;
   static const matchPulseMaxScale = 1.3;
+
+  // --- Event page: the photo of a card becomes the header of its page -----
+
+  /// The page of an event fades in while its photo flies from the card to the
+  /// header; going back is the same flight in reverse, a little faster.
+  static const eventOpen = Duration(milliseconds: 460);
+  static const eventClose = Duration(milliseconds: 340);
+  static const eventOpenCurve = Curves.easeInOutCubicEmphasized;
+
+  /// The page itself is opaque after this share of the transition.
+  static const eventPageFadeEnd = 0.35;
+
+  /// The texts of the page enter one group after the other: the first starts
+  /// at [eventTextStart] of the transition, each next one [eventTextStagger]
+  /// later, each rising by [eventTextRise] while it fades in.
+  static const eventTextStart = 0.40;
+  static const eventTextStagger = 0.08;
+  static const eventTextSpan = 0.40;
+  static const eventTextRise = 14.0;
+
+  /// Corner radius of a card of the events list, where the flight starts.
+  static const eventCardRadius = 16.0;
+
+  /// A photo fades in over its placeholder.
+  static const eventPhotoFade = Duration(milliseconds: 280);
+
+  /// Pulse of the placeholder of a photo that is still loading.
+  static const eventPlaceholderPeriod = Duration(milliseconds: 1600);
 }

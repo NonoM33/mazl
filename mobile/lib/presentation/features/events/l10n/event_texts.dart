@@ -37,3 +37,32 @@ String eventPriceText(Event event, String locale) =>
       name: event.currency,
       decimalDigits: 0,
     ).format(event.price);
+
+final RegExp _clock = RegExp(r'^(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$');
+
+/// A time of day from the server (« 20:00:00 », « 19:30 ») the way the
+/// member's language writes it: « 20 h 00 » in French, « 8:00 PM » in
+/// English. Seconds are never shown. An unreadable value is returned as is.
+String eventClockText(String raw, String locale) {
+  final match = _clock.firstMatch(raw.trim());
+  if (match == null) return raw;
+  final hour = int.parse(match.group(1)!);
+  final minute = int.parse(match.group(2)!);
+  if (hour > 23 || minute > 59) return raw;
+  final time = DateTime(2000, 1, 1, hour, minute);
+  // French writes « 20 h 00 »: the 24-hour clock, with an h between.
+  return locale.startsWith('fr')
+      ? DateFormat.Hm(locale).format(time).replaceFirst(':', ' h ')
+      : DateFormat.jm(locale).format(time);
+}
+
+/// « 20 h 00 – 22 h 30 », or just the start when the event has no end time.
+/// `null` when the event has no time.
+String? eventTimeText(Event event, AppLocalizations l10n) {
+  final start = event.time;
+  if (start == null || start.isEmpty) return null;
+  final from = eventClockText(start, l10n.localeName);
+  final end = event.endTime;
+  if (end == null || end.isEmpty) return from;
+  return l10n.eventsTimeRange(from, eventClockText(end, l10n.localeName));
+}

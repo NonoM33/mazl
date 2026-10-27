@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/env.dart';
+import '../dev/dev_session.dart';
 import 'storefront_models.dart';
 
 /// The raw answer of the server, for the part of the app that keeps it.
@@ -113,6 +114,9 @@ class StorefrontRepository {
       debugPrint('Storefront: answer is not the documented envelope');
       return null;
     }
+    // A demo answer stays in memory: a real session must never start on the
+    // fictitious campaign.
+    if (DevSession.isActive) return parsed;
     try {
       await _cache.write(body);
     } on Exception catch (error) {

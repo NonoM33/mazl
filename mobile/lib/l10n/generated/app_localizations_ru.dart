@@ -1473,6 +1473,29 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось сохранить запрос. Попробуйте ещё раз.';
 
   @override
+  String get eventsMapOpenInMaps => 'Открыть в Картах';
+
+  @override
+  String get eventsMapArea => 'Примерный район';
+
+  @override
+  String get eventsMapExplore => 'Нажмите, чтобы изучить';
+
+  @override
+  String get eventsMapDone => 'Готово';
+
+  @override
+  String get eventsMapSemantics => 'Карта района мероприятия';
+
+  @override
+  String eventsTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get eventsShareError => 'Сейчас не удаётся поделиться.';
+
+  @override
   String get genreLookingForRequired => 'Укажите, кого Вы ищете';
 
   @override
@@ -4023,9 +4046,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Значок приложения меняется в праздники. При каждой смене iOS показывает уведомление.';
 
   @override
-  String get verificationProfileEyebrow => 'Ваш профиль';
-
-  @override
   String get verificationTitle => 'Верификация';
 
   @override
@@ -4033,12 +4053,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get verificationLevel2 => 'Уровень 2';
-
-  @override
-  String get verificationPhotoTitle => 'Фото подтверждено';
-
-  @override
-  String get verificationIdentityTitle => 'Личность подтверждена';
 
   @override
   String get verificationVerifiedPill => 'Подтверждено';
@@ -4050,14 +4064,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get verificationPhotoVerifiedLine =>
       'Ваше лицо совпадает с Вашими фото.';
-
-  @override
-  String verificationPhotoVerifiedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Подтверждено $dateString.';
-  }
 
   @override
   String get verificationRemoveAction => 'Убрать мою верификацию';
@@ -4089,14 +4095,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get verificationIdentityCheckedNoDate =>
       'Документ проверен по его чипу.';
-
-  @override
-  String verificationIdentityCheckedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Проверено $dateString.';
-  }
 
   @override
   String get verificationIdentityPitch =>
@@ -4623,6 +4621,85 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get verificationNfcAlertDone => 'Готово.';
+
+  @override
+  String get verificationStateNoneTitle => 'Подтвердите Ваш профиль';
+
+  @override
+  String get verificationStatePartialTitle => 'Проверка продолжается';
+
+  @override
+  String get verificationStateDoneTitle => 'Профиль полностью подтверждён';
+
+  @override
+  String get verificationStateNoneBody =>
+      'Докажите, что фотографии действительно Ваши. На Вашем профиле появится значок, который вызывает доверие у других участников.';
+
+  @override
+  String get verificationStatePartialBody =>
+      'Ваш значок уже виден в профиле. Пройдите второй уровень, чтобы вызывать ещё больше доверия.';
+
+  @override
+  String get verificationStateDoneBody =>
+      'Другие участники видят Ваш значок и знают, что на фото действительно Вы.';
+
+  @override
+  String verificationProgress(int done) {
+    return 'Подтверждено уровней: $done из 2';
+  }
+
+  @override
+  String get verificationPhotoCardTitle => 'Проверка фото';
+
+  @override
+  String get verificationIdentityCardTitle => 'Проверка личности';
+
+  @override
+  String get verificationPillTodo => 'Не пройдена';
+
+  @override
+  String get verificationPillBusy => 'Идёт';
+
+  @override
+  String get verificationPillRefused => 'Отклонена';
+
+  @override
+  String get verificationPillBlocked => 'Лимит исчерпан';
+
+  @override
+  String get verificationPhotoPitch =>
+      'Селфи в реальном времени сравнивается с Вашими фото в профиле.';
+
+  @override
+  String get verificationPhotoBenefitBadge => 'Значок доверия в Вашем профиле';
+
+  @override
+  String get verificationPhotoBenefitProof =>
+      'Подтверждение, что фото действительно Ваши';
+
+  @override
+  String get verificationPhotoBenefitQuick =>
+      'Несколько секунд и три поворота головы';
+
+  @override
+  String get verificationIdentityBenefitBadge =>
+      'Ещё один уровень доверия на Вашем значке';
+
+  @override
+  String get verificationIdentityBenefitChip =>
+      'Бесконтактное считывание чипа Вашего документа';
+
+  @override
+  String get verificationIdentityBenefitNeeds =>
+      'Нужен паспорт или удостоверение личности с чипом';
+
+  @override
+  String verificationVerifiedOnDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'От $dateString';
+  }
 
   @override
   String get webSessionsTitle => 'Подключённые компьютеры';

@@ -123,7 +123,7 @@ void main() {
 
   test('getEvents, getEvent et rsvp', () async {
     final events = _ok(await _demo((a) => a.getEvents()));
-    expect(events, hasLength(3));
+    expect(events, hasLength(5));
     expect(events.first.title, isNotEmpty);
     expect(events.first.date.isAfter(DateTime.now()), isTrue);
     final one = _ok(await _demo((a) => a.getEvent(events.first.id)));

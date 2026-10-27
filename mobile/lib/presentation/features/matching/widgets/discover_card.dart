@@ -10,6 +10,10 @@ import '../../../../l10n/l10n.dart';
 import '../../../common/widgets/mazl_components.dart';
 import '../../../common/widgets/swipe_deck/swipe_deck.dart';
 import '../../profile/l10n/profile_answer_labels.dart';
+import '../../profile/widgets/profile_view/profile_sections.dart';
+import '../../profile/widgets/profile_view/profile_view_content.dart'
+    show lookingForLabel;
+import '../../profile/widgets/profile_view/profile_view_data.dart';
 
 /// Carte de découverte : la photo, puis le nom, la ville et les puces dessous.
 ///
@@ -52,6 +56,8 @@ class DiscoverCard extends StatefulWidget {
 }
 
 class _DiscoverCardState extends State<DiscoverCard> {
+  static const double sectionGap = 24;
+
   int _photoIndex = 0;
 
   Profile get _profile => widget.profile;
@@ -102,11 +108,21 @@ class _DiscoverCardState extends State<DiscoverCard> {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // The other half is wide enough for the whole profile: what
+                // « Voir le profil » would open is read right here.
                 Expanded(
                   child: SingleChildScrollView(
-                    child: _buildInfo(
-                      context,
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    key: const ValueKey('discover-detail'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildInfo(
+                          context,
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                          detailed: true,
+                        ),
+                        _buildDetails(context),
+                      ],
                     ),
                   ),
                 ),
@@ -255,7 +271,81 @@ class _DiscoverCardState extends State<DiscoverCard> {
     );
   }
 
-  Widget _buildInfo(BuildContext context, {required EdgeInsets padding}) {
+  /// The profile's details under the name, as its full page shows them: about,
+  /// the essentials, what they look for. The full page stays one tap away for
+  /// every photo and the report options.
+  Widget _buildDetails(BuildContext context) {
+    final l10n = context.l10n;
+    final data = ProfileViewData(
+      name: _profile.displayName ?? l10n.matchingCardAnonymous,
+      location: _profile.location,
+      age: _profile.age,
+      distance: _profile.distance,
+      bio: _profile.bio,
+      lookingFor: _profile.lookingFor,
+      gender: _profile.gender,
+      denomination: _profile.denomination,
+      kashrut: _profile.kashrut,
+      shabbatObservance: _profile.shabbatObservance,
+      photos: _profile.photos,
+      isVerified: _profile.isVerified,
+      verificationLevel: _profile.verificationLevel,
+    );
+    final bio = data.bio?.trim();
+    final facts = data.facts(l10n);
+    final lookingFor = lookingForLabel(l10n, data.lookingFor);
+    final intention = intentionFact(l10n, _profile.relationshipIntention);
+    // Apple's 24 pt between two sections, as on the full profile page.
+    final sections = <Widget>[
+      if (bio != null && bio.isNotEmpty)
+        ProfileTextSection(label: l10n.profileAbout, text: bio),
+      if (facts.isNotEmpty) ProfileFactsSection(facts: facts),
+      if (lookingFor != null)
+        ProfileTextSection(label: l10n.profileLookingFor, text: lookingFor),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (intention != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TagPill(intention),
+            ),
+          for (final section in sections) ...[
+            const SizedBox(height: sectionGap),
+            section,
+          ],
+          if (widget.onTapProfile != null) ...[
+            const SizedBox(height: sectionGap),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _viewProfileButton(context),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _viewProfileButton(BuildContext context) => OutlinedButton.icon(
+    key: const ValueKey('discover-view-profile'),
+    onPressed: widget.onTapProfile,
+    style: OutlinedButton.styleFrom(
+      minimumSize: const Size(0, 44),
+      shape: const StadiumBorder(),
+    ),
+    icon: const Icon(LucideIcons.chevronRight, size: 18),
+    iconAlignment: IconAlignment.end,
+    label: Text(context.l10n.matchingCardViewProfile),
+  );
+
+  Widget _buildInfo(
+    BuildContext context, {
+    required EdgeInsets padding,
+    bool detailed = false,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     final name = _profile.displayName ?? context.l10n.matchingCardAnonymous;
     final meta = _metaLine(context);
@@ -314,7 +404,8 @@ class _DiscoverCardState extends State<DiscoverCard> {
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
           ],
-          if (tags.isNotEmpty) ...[
+          // In the detailed half the essentials below say the same.
+          if (!detailed && tags.isNotEmpty) ...[
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -322,19 +413,9 @@ class _DiscoverCardState extends State<DiscoverCard> {
               children: [for (final tag in tags) TagPill(tag)],
             ),
           ],
-          if (widget.onTapProfile != null) ...[
+          if (!detailed && widget.onTapProfile != null) ...[
             const SizedBox(height: 12),
-            OutlinedButton.icon(
-              key: const ValueKey('discover-view-profile'),
-              onPressed: widget.onTapProfile,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 44),
-                shape: const StadiumBorder(),
-              ),
-              icon: const Icon(LucideIcons.chevronRight, size: 18),
-              iconAlignment: IconAlignment.end,
-              label: Text(context.l10n.matchingCardViewProfile),
-            ),
+            _viewProfileButton(context),
           ],
         ],
       ),

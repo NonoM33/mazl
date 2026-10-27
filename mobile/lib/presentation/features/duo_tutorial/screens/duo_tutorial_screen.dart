@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/duo_tutorial/duo_scene_renderer.dart';
@@ -7,7 +8,6 @@ import '../../../../core/duo_tutorial/duo_tutorial_controller.dart';
 import '../../../../core/layout/fold_state.dart';
 import '../../../../core/motion/mazl_motion.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/l10n.dart';
 import '../duo_tutorial_layout.dart';
 import '../duo_tutorial_navigation.dart';
@@ -52,6 +52,9 @@ class _DuoTutorialScreenState extends ConsumerState<DuoTutorialScreen> {
   @override
   void initState() {
     super.initState();
+    // Full screen while the tutorial runs: no status bar, so the foldable
+    // iPhone frees its side column too (Renaud, 2026-10-27).
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _controller = DuoTutorialController(renderer: _renderer)
       ..addListener(_onChanged);
   }
@@ -63,6 +66,7 @@ class _DuoTutorialScreenState extends ConsumerState<DuoTutorialScreen> {
       fold: FoldScope.of(context),
       size: MediaQuery.sizeOf(context),
       reduceMotion: MazlMotion.reduced(context),
+      dark: Theme.of(context).brightness == Brightness.dark,
       // VoiceOver avance à son rythme : jamais d'étape qui change toute seule.
       autoAdvance: !MediaQuery.accessibleNavigationOf(context),
     );
@@ -96,6 +100,7 @@ class _DuoTutorialScreenState extends ConsumerState<DuoTutorialScreen> {
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _controller
       ..removeListener(_onChanged)
       ..dispose();
@@ -107,12 +112,12 @@ class _DuoTutorialScreenState extends ConsumerState<DuoTutorialScreen> {
   Widget build(BuildContext context) {
     final fold = FoldScope.of(context).activeDivision;
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    // Le tutoriel est toujours sur le papier blanc de la marque.
+    // Light or dark like the rest of the app (Renaud, 2026-10-27).
     return Theme(
-      data: AppTheme.lightTheme,
+      data: Theme.of(context),
       child: Builder(
         builder: (context) => Scaffold(
-          backgroundColor: AppColors.paper,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -217,7 +222,9 @@ class _TextPanel extends StatelessWidget {
                             step.body(l10n),
                             textAlign: textAlign,
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: AppColors.muted,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -288,7 +295,9 @@ class _Buttons extends StatelessWidget {
         if (!last)
           TextButton(
             onPressed: controller.skip,
-            style: TextButton.styleFrom(foregroundColor: AppColors.muted),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             child: Text(l10n.duoTutorialSkip),
           ),
         FilledButton(

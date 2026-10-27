@@ -22,6 +22,7 @@ class DuoScenePose {
     required this.step,
     required this.validated,
     required this.reduceMotion,
+    this.dark = false,
   });
 
   /// La pose de [fold] dans une fenêtre de [size], à l'étape [step].
@@ -31,6 +32,7 @@ class DuoScenePose {
     required DuoTutorialStep step,
     required bool validated,
     required bool reduceMotion,
+    bool dark = false,
   }) {
     final landscape = size.width > size.height;
     return DuoScenePose(
@@ -47,6 +49,7 @@ class DuoScenePose {
       step: step,
       validated: validated,
       reduceMotion: reduceMotion,
+      dark: dark,
     );
   }
 
@@ -64,6 +67,9 @@ class DuoScenePose {
 
   /// « Réduire les animations » : la scène saute à la pose, sans l'animer.
   final bool reduceMotion;
+
+  /// Dark mode: the scene draws the phone's screens in the dark palette.
+  final bool dark;
 
   /// Quand le système ne donne pas l'angle : celui, typique, de la charnière.
   static double _defaultAngle(HingeStatus hinge) => switch (hinge) {
@@ -85,6 +91,7 @@ class DuoScenePose {
     'stepIndex': step.index,
     'validated': validated,
     'reduceMotion': reduceMotion,
+    'dark': dark,
   };
 
   @override
@@ -96,7 +103,8 @@ class DuoScenePose {
       other.verticalBar == verticalBar &&
       other.step == step &&
       other.validated == validated &&
-      other.reduceMotion == reduceMotion;
+      other.reduceMotion == reduceMotion &&
+      other.dark == dark;
 
   @override
   int get hashCode => Object.hash(
@@ -107,5 +115,6 @@ class DuoScenePose {
     step,
     validated,
     reduceMotion,
+    dark,
   );
 }

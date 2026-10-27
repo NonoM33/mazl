@@ -30,6 +30,18 @@ Widget _app(DuoPoseController pose) => MaterialApp(
                         onPressed: () {},
                         child: const Text('Enregistrer'),
                       ),
+                      // A share button wrapped in a Builder (it reads its own
+                      // box): on the event page on 2026-10-27 it stayed in
+                      // the page beside the column.
+                      ColumnAction(
+                        child: Builder(
+                          builder: (_) => IconButton(
+                            key: const Key('share'),
+                            icon: const Icon(Icons.share),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -75,6 +87,11 @@ void main() {
         );
         expect(more.top, greaterThan(back.bottom), reason: 'back first');
         expect(controls.contains(more.center), isTrue);
+        expect(
+          controls.contains(tester.getCenter(find.byKey(const Key('share')))),
+          isTrue,
+          reason: 'a marked action goes to the column too',
+        );
         expect(
           controls.contains(tester.getCenter(find.byKey(const Key('save')))),
           isFalse,

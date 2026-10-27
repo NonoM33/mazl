@@ -293,16 +293,14 @@ void main() {
           l10nFor('fr').verificationBlockedLater(early, early),
           'Limite atteinte, nouvel essai possible le 05/01 à 07:03.',
         );
-        expect(
-          l10nFor('fr').verificationPhotoVerifiedOn(early),
-          'Vérifiée le 05/01/2026.',
-        );
-        expect(
-          l10nFor('fr').verificationIdentityCheckedOn(early),
-          'Contrôlée le 05/01/2026.',
-        );
       },
     );
+
+    test('la date d\'un niveau vérifié est en toutes lettres', () {
+      final early = DateTime(2026, 1, 5, 7, 3);
+      expect(l10nFor('fr').verificationVerifiedOnDate(early), 'Le 5 janvier 2026');
+      expect(l10nFor('en').verificationVerifiedOnDate(early), 'On January 5, 2026');
+    });
   });
 
   group('termes', () {

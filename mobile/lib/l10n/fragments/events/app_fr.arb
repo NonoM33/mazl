@@ -15,7 +15,7 @@
   "@eventsTypeShabbat": {
     "description": "Type d'événement : repas ou moment de Shabbat. Puce de filtre et badge d'une carte."
   },
-  "eventsTypeShabbatDinner": "Shabbat Dinner",
+  "eventsTypeShabbatDinner": "Dîner de Shabbat",
   "@eventsTypeShabbatDinner": {
     "description": "Type d'événement : dîner de Shabbat. Badge de l'écran de détail."
   },
@@ -234,5 +234,43 @@
   "eventsNotifyError": "Impossible d'enregistrer votre demande. Réessayez.",
   "@eventsNotifyError": {
     "description": "Message bref quand la demande de notification n'a pas pu être enregistrée ou retirée."
+  },
+  "eventsMapOpenInMaps": "Ouvrir dans Plans",
+  "@eventsMapOpenInMaps": {
+    "description": "Bouton sous la carte d'un événement : ouvre l'app Plans d'Apple sur ce lieu. « Plans » est le nom français de l'app Apple Maps."
+  },
+  "eventsMapArea": "Zone approximative",
+  "@eventsMapArea": {
+    "description": "Pastille sur la carte d'un événement dont l'adresse n'est pas encore communiquée : le cercle montre le quartier, pas le lieu exact."
+  },
+  "eventsMapExplore": "Touchez pour explorer",
+  "@eventsMapExplore": {
+    "description": "Indication sur la carte d'un événement : un appui rend la carte manipulable (déplacement, zoom) au lieu de laisser la page défiler."
+  },
+  "eventsMapDone": "Terminé",
+  "@eventsMapDone": {
+    "description": "Bouton sur la carte d'un événement manipulable : rend le défilement à la page."
+  },
+  "eventsMapSemantics": "Carte du quartier de l'événement",
+  "@eventsMapSemantics": {
+    "description": "Description vocale (VoiceOver) de la carte d'un événement."
+  },
+  "eventsTimeRange": "{start} – {end}",
+  "@eventsTimeRange": {
+    "description": "Plage horaire d'un événement : l'heure de début, un tiret demi-cadratin, l'heure de fin. Les heures sont déjà écrites, par exemple « 20 h 00 » et « 22 h 30 ».",
+    "placeholders": {
+      "start": {
+        "type": "String",
+        "example": "20 h 00"
+      },
+      "end": {
+        "type": "String",
+        "example": "22 h 30"
+      }
+    }
+  },
+  "eventsShareError": "Impossible de partager pour le moment.",
+  "@eventsShareError": {
+    "description": "Message bref quand la feuille de partage n'a pas pu s'ouvrir."
   }
 }
