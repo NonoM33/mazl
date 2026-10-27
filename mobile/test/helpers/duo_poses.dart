@@ -16,6 +16,11 @@ import 'package:mazl/core/layout/vertical_bar.dart';
 enum DuoPose {
   closed(Size(466, 678), EdgeInsets.only(right: 84, bottom: 34)),
 
+  /// Closed and lying the other way (outer display in landscape): the column
+  /// stays on the right but the island and the clock are at its BOTTOM
+  /// (~/.claude/regles/iphone-duo.md, row 1bis).
+  closedSideways(Size(678, 466), EdgeInsets.only(right: 84, bottom: 34)),
+
   /// Closed and turned sideways, standing on a table like a tent (outer
   /// display facing the room): the camera column is on the left.
   tent(Size(678, 466), EdgeInsets.only(left: 84, bottom: 34)),
@@ -55,13 +60,17 @@ enum DuoPose {
   FoldState get foldState {
     final hinge = fold != null
         ? HingeStatus.partiallyOpen
-        : (this == closed || this == tent)
+        : (this == closed || this == closedSideways || this == tent)
         ? HingeStatus.closed
         : HingeStatus.fullyOpen;
     final occlusions = switch (this) {
       closed => const [
         Rect.fromLTWH(399.7, 29.3, 37, 37),
         Rect.fromLTWH(382, 0, 84, 174),
+      ],
+      closedSideways => const [
+        Rect.fromLTWH(611.7, 399.7, 37, 37),
+        Rect.fromLTWH(594, 384, 84, 82),
       ],
       tent => const [
         Rect.fromLTWH(29.3, 29.3, 37, 37),

@@ -69,10 +69,10 @@ class _ShellState extends State<_Shell> {
                 child: const Text('page'),
               ),
               TextButton(
-                onPressed: () =>
-                    Navigator.of(context, rootNavigator: true).push(
-                      _SeeThroughRoute(),
-                    ),
+                onPressed: () => Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).push(_SeeThroughRoute()),
                 child: const Text('open detail'),
               ),
               const SizedBox(
@@ -101,21 +101,24 @@ class _SeeThroughRoute extends PageRoute<void> {
   @override
   Duration get transitionDuration => Duration.zero;
   @override
-  Widget buildPage(BuildContext context, Animation<double> a, Animation<double> b) =>
-      Builder(
-        builder: (context) => Column(
-          children: [
-            const VerticalBarPassThrough(),
-            TextButton(
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => const AlertDialog(content: Text('Over detail')),
-              ),
-              child: const Text('dialog over detail'),
-            ),
-          ],
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> a,
+    Animation<double> b,
+  ) => Builder(
+    builder: (context) => Column(
+      children: [
+        const VerticalBarPassThrough(),
+        TextButton(
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (_) => const AlertDialog(content: Text('Over detail')),
+          ),
+          child: const Text('dialog over detail'),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 Future<DuoPoseController> _pump(
@@ -142,6 +145,16 @@ Future<DuoPoseController> _pump(
 }
 
 void main() {
+  // Closed and lying the other way, the island sits at the BOTTOM of the
+  // column: the tabs vanished (no room "below the lowest system element").
+  test('the controls take the free part of the column, above a low island', () {
+    final bar = DuoPose.closedSideways.verticalBar!;
+    expect(bar.side, VerticalBarSide.right);
+    expect(bar.controls.top, VerticalBarGeometry.bottomMargin);
+    expect(bar.controls.bottom, 384 - VerticalBarGeometry.gap);
+    expect(bar.controls.height, greaterThan(5 * 48));
+  });
+
   test(
     'the native report decides the bar, the measured occlusions bound it',
     () {
@@ -188,11 +201,9 @@ void main() {
     },
   );
 
-  for (final pose in [
-    DuoPose.closed,
-    DuoPose.openLandscape,
-    DuoPose.halfOpenBook,
-  ]) {
+  // Every pose with a column, each rotation included: in one of them the tabs
+  // fell off the screen while the column was empty (2026-10-27).
+  for (final pose in DuoPose.values.where((p) => p.verticalBar != null)) {
     testWidgets(
       '${pose.name}: the tabs are in the vertical bar, bottom aligned',
       (tester) async {
@@ -206,6 +217,13 @@ void main() {
         expect(capsule.center.dx, closeTo(bar.strip.center.dx, 0.5));
         expect(capsule.bottom, closeTo(bar.controls.bottom, 0.5));
         expect(capsule.top, greaterThanOrEqualTo(bar.controls.top));
+        // Judged on the screen itself, not on the computed column.
+        expect(capsule.top, greaterThanOrEqualTo(0));
+        expect(capsule.bottom, lessThanOrEqualTo(pose.size.height));
+        expect(capsule.height, greaterThanOrEqualTo(3 * 44));
+        for (final system in pose.foldState.occlusions) {
+          expect(capsule.overlaps(system), isFalse, reason: '$system');
+        }
         expectFitsDuoPose(tester, pose, 'shell');
         await tester.tap(find.bySemanticsLabel('Messages'));
         await tester.pumpAndSettle();
@@ -278,26 +296,27 @@ void main() {
 
   // Vécu au simulateur le 2026-10-26 : une conversation ouverte dans le
   // panneau de droite faisait disparaître la barre d'onglets.
-  testWidgets('a detail opened in the pane keeps the tabs; a dialog over it takes them back', (
-    tester,
-  ) async {
-    await _pump(tester, DuoPose.openLandscape, twoPane: true);
-    expect(find.byKey(_strip), findsOneWidget);
-    await tester.tap(find.text('open detail'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(_strip), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('Matchs'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('dialog over detail'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(_strip), findsNothing);
-    await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
-    expect(find.byKey(_strip), findsOneWidget);
-    Navigator.of(tester.element(find.text('dialog over detail'))).pop();
-    await tester.pumpAndSettle();
-    expect(find.byKey(_strip), findsOneWidget);
-  });
+  testWidgets(
+    'a detail opened in the pane keeps the tabs; a dialog over it takes them back',
+    (tester) async {
+      await _pump(tester, DuoPose.openLandscape, twoPane: true);
+      expect(find.byKey(_strip), findsOneWidget);
+      await tester.tap(find.text('open detail'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(_strip), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Matchs'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('dialog over detail'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(_strip), findsNothing);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(find.byKey(_strip), findsOneWidget);
+      Navigator.of(tester.element(find.text('dialog over detail'))).pop();
+      await tester.pumpAndSettle();
+      expect(find.byKey(_strip), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'folding and unfolding moves the tabs, keeps the tab and the draft',
